@@ -144,11 +144,11 @@ namespace FluffyManager
             if ( _glowDirty )
             {
                 // Update glow grid
-                Map.glowGrid.MarkGlowGridDirty( Position );
+                Map.glowGrid.DirtyCache( Position );
 
                 // the following two should not be necesarry, but for some reason do seem to be.
-                Map.mapDrawer.MapMeshDirty( Position, MapMeshFlag.GroundGlow );
-                Map.mapDrawer.MapMeshDirty( Position, MapMeshFlag.Things );
+                Map.mapDrawer.MapMeshDirty( Position, MapMeshFlagDefOf.GroundGlow );
+                Map.mapDrawer.MapMeshDirty( Position, MapMeshFlagDefOf.Things );
 
                 _glowDirty = false;
             }

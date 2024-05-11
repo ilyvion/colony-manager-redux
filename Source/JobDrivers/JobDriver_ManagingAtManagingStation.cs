@@ -26,7 +26,7 @@ namespace FluffyManager
             return pawn.Reserve( job.targetA, job );
         }
 
-        protected override IEnumerable<Toil> MakeNewToils()
+        public override IEnumerable<Toil> MakeNewToils()
         {
             this.FailOnDespawnedNullOrForbidden( TargetIndex.A );
             yield return Toils_Goto.GotoThing( TargetIndex.A, PathEndMode.InteractionCell );

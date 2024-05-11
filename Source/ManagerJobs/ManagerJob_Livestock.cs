@@ -510,8 +510,8 @@ namespace FluffyManager
                     if (SendToSlaughterArea &&
                          manager.map.designationManager.DesignationOn(p, DesignationDefOf.Slaughter) != null)
                     {
-                        actionTaken = p.playerSettings.AreaRestriction != SlaughterArea;
-                        p.playerSettings.AreaRestriction = SlaughterArea;
+                        actionTaken = p.playerSettings.AreaRestrictionInPawnCurrentMap != SlaughterArea;
+                        p.playerSettings.AreaRestrictionInPawnCurrentMap = SlaughterArea;
                     }
 
                     // milking
@@ -519,10 +519,10 @@ namespace FluffyManager
                               p.GetComp<CompMilkable>() != null &&
                               p.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.ticks)
                     {
-                        if (p.playerSettings.AreaRestriction != MilkArea)
+                        if (p.playerSettings.AreaRestrictionInPawnCurrentMap != MilkArea)
                         {
                             actionTaken = true;
-                            p.playerSettings.AreaRestriction = MilkArea;
+                            p.playerSettings.AreaRestrictionInPawnCurrentMap = MilkArea;
                         }
                     }
 
@@ -531,28 +531,28 @@ namespace FluffyManager
                               p.GetComp<CompShearable>() != null &&
                               p.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.ticks)
                     {
-                        if (p.playerSettings.AreaRestriction != ShearArea)
+                        if (p.playerSettings.AreaRestrictionInPawnCurrentMap != ShearArea)
                         {
                             actionTaken = true;
-                            p.playerSettings.AreaRestriction = ShearArea;
+                            p.playerSettings.AreaRestrictionInPawnCurrentMap = ShearArea;
                         }
                     }
 
                     // training
                     else if (SendToTrainingArea && p.training.NextTrainableToTrain() != null)
                     {
-                        if (p.playerSettings.AreaRestriction != TrainingArea)
+                        if (p.playerSettings.AreaRestrictionInPawnCurrentMap != TrainingArea)
                         {
                             actionTaken = true;
-                            p.playerSettings.AreaRestriction = TrainingArea;
+                            p.playerSettings.AreaRestrictionInPawnCurrentMap = TrainingArea;
                         }
                     }
 
                     // all
-                    else if (RestrictToArea && p.playerSettings.AreaRestriction != RestrictArea[i])
+                    else if (RestrictToArea && p.playerSettings.AreaRestrictionInPawnCurrentMap != RestrictArea[i])
                     {
                         actionTaken = true;
-                        p.playerSettings.AreaRestriction = RestrictArea[i];
+                        p.playerSettings.AreaRestrictionInPawnCurrentMap = RestrictArea[i];
                     }
         }
 

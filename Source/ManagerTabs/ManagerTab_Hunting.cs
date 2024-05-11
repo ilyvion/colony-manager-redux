@@ -355,8 +355,8 @@ namespace FluffyManager
             // exploding animals
             rowRect.y += ListEntryHeight;
             var exploding = animals
-                .Where(a => a.RaceProps.deathActionWorkerClass == typeof(DeathActionWorker_SmallExplosion)
-                            || a.RaceProps.deathActionWorkerClass == typeof(DeathActionWorker_BigExplosion))
+                .Where(a => a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
+                            || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion))
                 .ToList();
             Utilities.DrawToggle(rowRect,
                 "FM.Hunting.Exploding".Translate().Italic(),
