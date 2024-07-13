@@ -122,20 +122,13 @@ public class Trigger_Threshold : Trigger
     {
         get
         {
-            switch (Op)
+            return Op switch
             {
-                case Ops.LowerThan:
-                    return " < ";
-
-                case Ops.Equals:
-                    return " = ";
-
-                case Ops.HigherThan:
-                    return " > ";
-
-                default:
-                    return " ? ";
-            }
+                Ops.LowerThan => " < ",
+                Ops.Equals => " = ",
+                Ops.HigherThan => " > ",
+                _ => " ? ",
+            };
         }
     }
 
@@ -234,8 +227,15 @@ public class Trigger_Threshold : Trigger
 
 
         Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
-        if (label.NullOrEmpty()) label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount) + ":";
-        if (tooltip.NullOrEmpty()) tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(CurrentCount, TargetCount);
+        if (label.NullOrEmpty())
+        {
+            label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount) + ":";
+        }
+
+        if (tooltip.NullOrEmpty())
+        {
+            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(CurrentCount, TargetCount);
+        }
 
         Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
 
@@ -251,6 +251,7 @@ public class Trigger_Threshold : Trigger
 
         // target list
         if (hasTargets)
+        {
             if (Widgets.ButtonImage(targetsButtonRect, Resources.Search))
             {
                 var options = new List<FloatMenuOption>();
@@ -282,6 +283,7 @@ public class Trigger_Threshold : Trigger
 
                 Find.WindowStack.Add(new FloatMenu(options));
             }
+        }
 
         Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.ManagerCountAllOnMap".Translate(),
                               "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
@@ -298,13 +300,19 @@ public class Trigger_Threshold : Trigger
         Scribe_Values.Look(ref countAllOnMap, "CountAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
-        if (Scribe.mode == LoadSaveMode.Saving) _stockpile_scribe = stockpile?.ToString() ?? "null";
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            _stockpile_scribe = stockpile?.ToString() ?? "null";
+        }
+
         Scribe_Values.Look(ref _stockpile_scribe, "Stockpile", "null");
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
             stockpile =
                 manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
                                                                       z.label == _stockpile_scribe)
                     as Zone_Stockpile;
+        }
     }
 
     public override string ToString()

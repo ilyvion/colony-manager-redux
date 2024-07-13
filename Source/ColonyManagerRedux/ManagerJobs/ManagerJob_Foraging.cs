@@ -13,9 +13,9 @@ namespace ColonyManagerRedux;
 
 public class ManagerJob_Foraging : ManagerJob
 {
-    private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new Utilities.CachedValue<int>(0);
+    private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new(0);
 
-    public Dictionary<ThingDef, bool> AllowedPlants = new Dictionary<ThingDef, bool>();
+    public Dictionary<ThingDef, bool> AllowedPlants = [];
     public Area? ForagingArea;
     public bool ForceFullyMature;
     public History History;
@@ -23,7 +23,7 @@ public class ManagerJob_Foraging : ManagerJob
     public bool SyncFilterAndAllowed = true;
     public new Trigger_Threshold Trigger;
 
-    private List<Designation> _designations = new List<Designation>();
+    private List<Designation> _designations = [];
 
     public ManagerJob_Foraging(Manager manager) : base(manager)
     {
@@ -31,12 +31,14 @@ public class ManagerJob_Foraging : ManagerJob
         Trigger = new Trigger_Threshold(this);
 
         // create History tracker
-        History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, new[] { Color.white, Color.grey });
+        History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
 
         // init stuff if we're not loading
         // todo: please, please refactor this into something less clumsy!
         if (Scribe.mode == LoadSaveMode.Inactive)
+        {
             RefreshAllowedPlants();
+        }
     }
 
     public override bool Completed => !Trigger.State;
@@ -45,22 +47,26 @@ public class ManagerJob_Foraging : ManagerJob
     {
         get
         {
-            var count = 0;
 
             // see if we have a cached count
-            if (_cachedCurrentDesignatedCount.TryGetValue(out count))
+            if (_cachedCurrentDesignatedCount.TryGetValue(out int count))
+            {
                 return count;
+            }
 
             // fetch count
             foreach (var des in _designations)
             {
                 if (!des.target.HasThing)
+                {
                     continue;
+                }
 
-                var plant = des.target.Thing as Plant;
 
-                if (plant == null)
+                if (des.target.Thing is not Plant plant)
+                {
                     continue;
+                }
 
                 count += plant.YieldNow();
             }
@@ -70,7 +76,7 @@ public class ManagerJob_Foraging : ManagerJob
         }
     }
 
-    public List<Designation> Designations => new List<Designation>(_designations);
+    public List<Designation> Designations => new(_designations);
 
     public override bool IsValid => base.IsValid && Trigger != null && History != null;
 
@@ -91,7 +97,9 @@ public class ManagerJob_Foraging : ManagerJob
             var des in manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
                               .Except(_designations)
                               .Where(des => IsValidForagingTarget(des.target)))
+        {
             AddDesignation(des);
+        }
     }
 
     /// <summary>
@@ -110,7 +118,10 @@ public class ManagerJob_Foraging : ManagerJob
     public override void CleanUp()
     {
         CleanDeadDesignations();
-        foreach (var des in _designations) des.Delete();
+        foreach (var des in _designations)
+        {
+            des.Delete();
+        }
 
         _designations.Clear();
     }
@@ -142,9 +153,13 @@ public class ManagerJob_Foraging : ManagerJob
         var text = Label + "\n";
         var subtext = string.Join(", ", Targets);
         if (subtext.Fits(labelRect))
+        {
             text += subtext.Italic();
+        }
         else
+        {
             text += "multiple".Translate().Resolve().Italic();
+        }
 
         // do the drawing
         GUI.BeginGroup(rect);
@@ -153,7 +168,11 @@ public class ManagerJob_Foraging : ManagerJob
         Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
 
         // if the bill has a manager job, give some more info.
-        if (active) this.DrawStatusForListEntry(statusRect, Trigger);
+        if (active)
+        {
+            this.DrawStatusForListEntry(statusRect, Trigger);
+        }
+
         GUI.EndGroup();
     }
 
@@ -174,27 +193,36 @@ public class ManagerJob_Foraging : ManagerJob
         Scribe_Values.Look(ref ForceFullyMature, "ForceFullyMature");
 
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
+        {
             // scribe history
             Scribe_Deep.Look(ref History, "History");
+        }
     }
 
     public List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
     {
         var plant = plantDef?.plant;
-        if (plant == null) throw new ArgumentNullException("no valid plantdef defined");
+        if (plant == null)
+        {
+            throw new ArgumentNullException("no valid plantdef defined");
+        }
 
-        return new List<ThingDef>(new[] { plant.harvestedThingDef });
+        return new List<ThingDef>([plant.harvestedThingDef]);
     }
 
     public void Notify_ThresholdFilterChanged()
     {
         Logger.Debug("Threshold changed.");
         if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
+        {
             return;
+        }
 
         foreach (var plant in new List<ThingDef>(AllowedPlants.Keys))
+        {
             AllowedPlants[plant] = GetMaterialsInPlant(plant)
-               .Any(material => Trigger.ThresholdFilter.Allows(material));
+               .Any(Trigger.ThresholdFilter.Allows);
+        }
     }
 
     public void RefreshAllowedPlants()
@@ -229,8 +257,12 @@ public class ManagerJob_Foraging : ManagerJob
                              .Distinct();
 
         foreach (var plant in options)
+        {
             if (!AllowedPlants.ContainsKey(plant))
+            {
                 AllowedPlants.Add(plant, false);
+            }
+        }
 
         AllowedPlants = AllowedPlants.OrderBy(plant => plant.Key.LabelCap.RawText)
                                      .ToDictionary(it => it.Key, it => it.Value);
@@ -239,7 +271,9 @@ public class ManagerJob_Foraging : ManagerJob
     public void SetPlantAllowed(ThingDef plant, bool allow, bool sync = true)
     {
         if (plant == null)
+        {
             throw new ArgumentNullException(nameof(plant));
+        }
 
         AllowedPlants[plant] = allow;
 
@@ -248,8 +282,12 @@ public class ManagerJob_Foraging : ManagerJob
             Sync = Utilities.SyncDirection.AllowedToFilter;
 
             foreach (var material in GetMaterialsInPlant(plant))
+            {
                 if (Trigger.ParentFilter.Allows(material))
+                {
                     Trigger.ThresholdFilter.SetAllow(material, allow);
+                }
+            }
         }
     }
 
@@ -302,11 +340,18 @@ public class ManagerJob_Foraging : ManagerJob
     private void CleanAreaDesignations()
     {
         foreach (var des in _designations)
+        {
             if (!des.target.HasThing)
+            {
                 des.Delete();
+            }
 
             // if area is not null and does not contain designate location, remove designation.
-            else if (!ForagingArea?.ActiveCells.Contains(des.target.Thing.Position) ?? false) des.Delete();
+            else if (!ForagingArea?.ActiveCells.Contains(des.target.Thing.Position) ?? false)
+            {
+                des.Delete();
+            }
+        }
     }
 
     private List<Plant> GetValidForagingTargetsSorted()
@@ -330,8 +375,7 @@ public class ManagerJob_Foraging : ManagerJob
 
     private bool IsValidForagingTarget(Thing t)
     {
-        var plant = t as Plant;
-        return plant != null && IsValidForagingTarget(plant);
+        return t is Plant plant && IsValidForagingTarget(plant);
     }
 
     private bool IsValidForagingTarget(Plant target)

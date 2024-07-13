@@ -23,9 +23,14 @@ public static class Widgets_Labels
                               bool wrap = true)
     {
         if (!tooltip.NullOrEmpty())
+        {
             TooltipHandler.TipRegion(rect, tooltip);
+        }
         else
+        {
             Logger.Debug($"Label({rect}, {label}) called with null tooltip. This should never happen.");
+        }
+
         Label(rect, label, anchor, font, color, margin);
     }
 

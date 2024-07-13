@@ -9,14 +9,9 @@ using static System.String;
 
 namespace ColonyManagerRedux;
 
-public abstract class Trigger : IExposable
+public abstract class Trigger(Manager manager) : IExposable
 {
-    public Manager manager;
-
-    public Trigger(Manager manager)
-    {
-        this.manager = manager;
-    }
+    public Manager manager = manager;
 
     public abstract bool State { get; }
     public virtual string StatusTooltip { get; } = Empty;

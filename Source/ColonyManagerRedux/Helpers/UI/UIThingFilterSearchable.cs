@@ -13,7 +13,10 @@ public class ThingFilterUI
 
     private static void DrawHitPointsFilterConfig(ref float y, float width, ThingFilter filter)
     {
-        if (!filter.allowedHitPointsConfigurable) return;
+        if (!filter.allowedHitPointsConfigurable)
+        {
+            return;
+        }
 
         var rect = new Rect(20f, y, width - 20f, 26f);
         var allowedHitPointsPercents = filter.AllowedHitPointsPercents;
@@ -26,7 +29,10 @@ public class ThingFilterUI
 
     private static void DrawQualityFilterConfig(ref float y, float width, ThingFilter filter)
     {
-        if (!filter.allowedQualitiesConfigurable) return;
+        if (!filter.allowedQualitiesConfigurable)
+        {
+            return;
+        }
 
         var rect = new Rect(20f, y, width - 20f, 26f);
         var allowedQualityLevels = filter.AllowedQualityLevels;
@@ -64,8 +70,16 @@ public class ThingFilterUI
         }
 
         // draw buttons + logic
-        if (Widgets.ButtonTextSubtle(clearButtonRect, "ClearAll".Translate())) filter.SetDisallowAll();
-        if (Widgets.ButtonTextSubtle(allButtonRect, "AllowAll".Translate())) filter.SetAllowAll(parentFilter);
+        if (Widgets.ButtonTextSubtle(clearButtonRect, "ClearAll".Translate()))
+        {
+            filter.SetDisallowAll();
+        }
+
+        if (Widgets.ButtonTextSubtle(allButtonRect, "AllowAll".Translate()))
+        {
+            filter.SetAllowAll(parentFilter);
+        }
+
         Text.Font = GameFont.Small;
 
         // do list
@@ -86,7 +100,11 @@ public class ThingFilterUI
         var node = ThingCategoryNodeDatabase.RootNode;
         if (parentFilter != null)
         {
-            if (parentFilter.DisplayRootCategory == null) parentFilter.RecalculateDisplayRootCategory();
+            if (parentFilter.DisplayRootCategory == null)
+            {
+                parentFilter.RecalculateDisplayRootCategory();
+            }
+
             node = parentFilter.DisplayRootCategory;
         }
 

@@ -7,30 +7,18 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
-public class ClockHandle : HourTick
+public class ClockHandle(float hours, Color? color = null, float length = 1f, float thickness = 1.5f) : HourTick(
+    color ?? Color.white, length, thickness)
 {
-    public ClockHandle(float hours, Color? color = null, float length = 1f, float thickness = 1.5f) : base(
-        color ?? Color.white, length, thickness)
-    {
-        Hours = hours;
-    }
-
-    public float Hours { get; }
+    public float Hours { get; } = hours;
 }
 
-public class HourTick
+public class HourTick(Color? color = null, float length = .2f, float thickness = 1)
 {
-    public HourTick(Color? color = null, float length = .2f, float thickness = 1)
-    {
-        Length = length;
-        Thickness = thickness;
-        Color = color ?? Color.grey;
-    }
+    public Color Color { get; } = color ?? Color.grey;
 
-    public Color Color { get; }
-
-    public float Length { get; }
-    public float Thickness { get; }
+    public float Length { get; } = length;
+    public float Thickness { get; } = thickness;
 }
 
 public static class Clock
@@ -43,16 +31,27 @@ public static class Clock
     public static void Draw(Rect canvas, IEnumerable<ClockHandle> clockHandles, HourTick major, HourTick minor)
     {
         for (var h = 0; h < 12; h++)
+        {
             if (h % 3 == 0)
             {
-                if (major != null) DrawTick(canvas, major, h);
+                if (major != null)
+                {
+                    DrawTick(canvas, major, h);
+                }
             }
             else
             {
-                if (minor != null) DrawTick(canvas, minor, h);
+                if (minor != null)
+                {
+                    DrawTick(canvas, minor, h);
+                }
             }
+        }
 
-        foreach (var handle in clockHandles) DrawHandle(canvas, handle);
+        foreach (var handle in clockHandles)
+        {
+            DrawHandle(canvas, handle);
+        }
     }
 
     public static void DrawHandle(Rect canvas, ClockHandle handle)

@@ -16,7 +16,7 @@ using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
-public class ManagerTab_Livestock : ManagerTab
+public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 {
     private List<PawnKindDef> _availablePawnKinds;
     private List<ManagerJob_Livestock> _currentJobs;
@@ -30,11 +30,7 @@ public class ManagerTab_Livestock : ManagerTab
     private PawnKindDef _selectedAvailable;
     private ManagerJob_Livestock _selectedCurrent;
 
-    private Vector2 optionsScrollPosition = Vector2.zero;
-
-    public ManagerTab_Livestock(Manager manager) : base(manager)
-    {
-    }
+    //private Vector2 optionsScrollPosition = Vector2.zero;
 
     public override string Label => "ColonyManagerRedux.Livestock.Livestock".Translate();
 
@@ -75,8 +71,7 @@ public class ManagerTab_Livestock : ManagerTab
         for (var i = 0; i < _selectedCurrent.Training.Count; i++)
         {
             var cell = new Rect(i * (cellWidth + Margin), 0f, cellWidth, rect.height);
-            bool visible;
-            var report = _selectedCurrent.CanBeTrained(_selectedCurrent.Trigger.pawnKind, keys[i], out visible);
+            var report = _selectedCurrent.CanBeTrained(_selectedCurrent.Trigger.pawnKind, keys[i], out bool visible);
             if (visible && report.Accepted)
             {
                 var checkOn = _selectedCurrent.Training[keys[i]];
@@ -95,24 +90,20 @@ public class ManagerTab_Livestock : ManagerTab
 
     public string GetMasterLabel()
     {
-        switch (_selectedCurrent.Masters)
+        return _selectedCurrent.Masters switch
         {
-            case MasterMode.Specific:
-                return _selectedCurrent.Master?.LabelShort ?? "ColonyManagerRedux.ManagerNone".Translate();
-            default:
-                return $"ColonyManagerRedux.ManagerLivestock.MasterMode.{_selectedCurrent.Masters}".Translate();
-        }
+            MasterMode.Specific => _selectedCurrent.Master?.LabelShort ?? "ColonyManagerRedux.ManagerNone".Translate(),
+            _ => (string)$"ColonyManagerRedux.ManagerLivestock.MasterMode.{_selectedCurrent.Masters}".Translate(),
+        };
     }
 
     public string GetTrainerLabel()
     {
-        switch (_selectedCurrent.Trainers)
+        return _selectedCurrent.Trainers switch
         {
-            case MasterMode.Specific:
-                return _selectedCurrent.Trainer.LabelShort;
-            default:
-                return $"ColonyManagerRedux.ManagerLivestock.MasterMode.{_selectedCurrent.Trainers}".Translate();
-        }
+            MasterMode.Specific => _selectedCurrent.Trainer.LabelShort,
+            _ => (string)$"ColonyManagerRedux.ManagerLivestock.MasterMode.{_selectedCurrent.Trainers}".Translate(),
+        };
     }
 
     public override void PreOpen()
@@ -149,9 +140,7 @@ public class ManagerTab_Livestock : ManagerTab
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Vector2 position;
-        float width;
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Livestock.Options", out position, out width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Livestock.Options", out Vector2 position, out float width);
 
         Widgets_Section.Section(ref position, width, DrawTargetCountsSection,
                                  "ColonyManagerRedux.ManagerLivestock.TargetCountsHeader".Translate());
@@ -215,13 +204,20 @@ public class ManagerTab_Livestock : ManagerTab
     private void DoCountField(Rect rect, AgeAndSex ageSex)
     {
         if (_newCounts == null || _newCounts[ageSex] == null)
+        {
             _newCounts =
                 _selectedCurrent?.Trigger?.CountTargets.ToDictionary(k => k.Key, v => v.Value.ToString());
+        }
 
         if (!_newCounts[ageSex].IsInt())
+        {
             GUI.color = Color.red;
+        }
         else
+        {
             _selectedCurrent.Trigger.CountTargets[ageSex] = int.Parse(_newCounts[ageSex]);
+        }
+
         _newCounts[ageSex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSex]);
         GUI.color = Color.white;
     }
@@ -252,9 +248,13 @@ public class ManagerTab_Livestock : ManagerTab
         var viewRect = outRect.AtZero();
 
         if (_onCurrentTab)
+        {
             DrawCurrentJobList(outRect, viewRect);
+        }
         else
+        {
             DrawAvailableJobList(outRect, viewRect);
+        }
     }
 
     private void DrawAnimalListheader(ref Vector2 pos, Vector2 size, PawnKindDef pawnKind)
@@ -271,9 +271,15 @@ public class ManagerTab_Livestock : ManagerTab
         var milk = pawnKind.Milkable();
         var wool = pawnKind.Shearable();
         if (milk)
+        {
             cols++;
+        }
+
         if (wool)
+        {
             cols++;
+        }
+
         var colwidth = size.x * 2 / 3 / cols;
 
         // gender header
@@ -347,7 +353,9 @@ public class ManagerTab_Livestock : ManagerTab
             CameraJumper.TryJump(p.PositionHeld, p.Map);
             Find.Selector.ClearSelection();
             if (p.Spawned)
+            {
                 Find.Selector.Select(p);
+            }
         }
 
         // use a third of available screenspace for labels
@@ -360,9 +368,14 @@ public class ManagerTab_Livestock : ManagerTab
 
         // extra columns?
         if (p.kindDef.Milkable())
+        {
             cols++;
+        }
+
         if (p.kindDef.Shearable())
+        {
             cols++;
+        }
 
         var colwidth = size.x * 2 / 3 / cols;
 
@@ -414,7 +427,9 @@ public class ManagerTab_Livestock : ManagerTab
         }
 
         if (p.kindDef.Milkable())
+        {
             pos.x += colwidth;
+        }
 
         // wool column
         if (p.Shearable())
@@ -427,7 +442,9 @@ public class ManagerTab_Livestock : ManagerTab
         }
 
         if (p.kindDef.Milkable())
+        {
             pos.x += colwidth;
+        }
 
         // do the carriage return on ref pos
         pos.x = start.x;
@@ -438,7 +455,9 @@ public class ManagerTab_Livestock : ManagerTab
                                      IEnumerable<Pawn> animals)
     {
         if (animals == null)
+        {
             return 0;
+        }
 
         var start = pos;
         DrawAnimalListheader(ref pos, new Vector2(width, ListEntryHeight / 3 * 2), pawnKind);
@@ -452,7 +471,9 @@ public class ManagerTab_Livestock : ManagerTab
         }
 
         foreach (var animal in animals)
+        {
             DrawAnimalRow(ref pos, new Vector2(width, ListEntryHeight), animal);
+        }
 
         return pos.y - start.y;
     }
@@ -487,17 +508,21 @@ public class ManagerTab_Livestock : ManagerTab
             // set up a 3x3 table of rects
             var cols = 3;
             var fifth = width / 5;
-            float[] widths = { fifth, fifth * 2, fifth * 2 };
-            float[] heights = { ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight };
+            float[] widths = [fifth, fifth * 2, fifth * 2];
+            float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
             var areaRects = new Rect[cols, cols];
             for (var x = 0; x < cols; x++)
+            {
                 for (var y = 0; y < cols; y++)
+                {
                     areaRects[x, y] = new Rect(
                         widths.Take(x).Sum(),
                         pos.y + heights.Take(y).Sum(),
                         widths[x],
                         heights[y]);
+                }
+            }
 
             // headers
             Label(areaRects[1, 0], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
@@ -617,7 +642,9 @@ public class ManagerTab_Livestock : ManagerTab
         // set sizes
         viewRect.height = _availablePawnKinds.Count * LargeListEntryHeight;
         if (viewRect.height > outRect.height)
+        {
             viewRect.width -= ScrollbarWidth;
+        }
 
         Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);
         GUI.BeginGroup(viewRect);
@@ -629,8 +656,15 @@ public class ManagerTab_Livestock : ManagerTab
 
             // highlights
             Widgets.DrawHighlightIfMouseover(row);
-            if (i % 2 == 0) Widgets.DrawAltRect(row);
-            if (_availablePawnKinds[i] == _selectedAvailable) Widgets.DrawHighlightSelected(row);
+            if (i % 2 == 0)
+            {
+                Widgets.DrawAltRect(row);
+            }
+
+            if (_availablePawnKinds[i] == _selectedAvailable)
+            {
+                Widgets.DrawHighlightSelected(row);
+            }
 
             // draw label
             var label = _availablePawnKinds[i].LabelCap + "\n<i>" +
@@ -697,7 +731,9 @@ public class ManagerTab_Livestock : ManagerTab
         // set sizes
         viewRect.height = _currentJobs.Count * LargeListEntryHeight;
         if (viewRect.height > outRect.height)
+        {
             viewRect.width -= ScrollbarWidth;
+        }
 
         Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);
         GUI.BeginGroup(viewRect);
@@ -709,14 +745,24 @@ public class ManagerTab_Livestock : ManagerTab
 
             // highlights
             Widgets.DrawHighlightIfMouseover(row);
-            if (i % 2 == 0) Widgets.DrawAltRect(row);
-            if (_currentJobs[i] == _selectedCurrent) Widgets.DrawHighlightSelected(row);
+            if (i % 2 == 0)
+            {
+                Widgets.DrawAltRect(row);
+            }
+
+            if (_currentJobs[i] == _selectedCurrent)
+            {
+                Widgets.DrawHighlightSelected(row);
+            }
 
             // draw label
             _currentJobs[i].DrawListEntry(row, false);
 
             // button
-            if (Widgets.ButtonInvisible(row)) Selected = _currentJobs[i];
+            if (Widgets.ButtonInvisible(row))
+            {
+                Selected = _currentJobs[i];
+            }
         }
 
         GUI.EndGroup();
@@ -743,11 +789,14 @@ public class ManagerTab_Livestock : ManagerTab
 
             // modes
             foreach (var _mode in GetMasterModes.Where(mm => (mm & MasterMode.All) == mm))
+            {
                 options.Add(new FloatMenuOption($"ColonyManagerRedux.ManagerLivestock.MasterMode.{_mode}".Translate(),
                                                   () => _selectedCurrent.Masters = _mode));
+            }
 
             // specific pawns
             foreach (var pawn in _selectedCurrent.Trigger.pawnKind.GetMasterOptions(manager, MasterMode.All))
+            {
                 options.Add(new FloatMenuOption(
                                  "ColonyManagerRedux.ManagerLivestock.Master".Translate(pawn.LabelShort,
                                                                   pawn.skills.AverageOfRelevantSkillsFor(
@@ -757,6 +806,7 @@ public class ManagerTab_Livestock : ManagerTab
                                      _selectedCurrent.Master = pawn;
                                      _selectedCurrent.Masters = MasterMode.Specific;
                                  }));
+            }
 
             Find.WindowStack.Add(new FloatMenu(options));
         }
@@ -764,15 +814,19 @@ public class ManagerTab_Livestock : ManagerTab
         // respect bonds?
         rowRect.y += ListEntryHeight;
         if (_selectedCurrent.Masters != MasterMode.Default && _selectedCurrent.Masters != MasterMode.Specific)
+        {
             DrawToggle(rowRect,
                         "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
                         "ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip".Translate(),
                         ref _selectedCurrent.RespectBonds);
+        }
         else
+        {
             Label(rowRect,
                    "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
                    "ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet".Translate(),
                    color: Color.grey, margin: Margin);
+        }
 
         // default follow
         rowRect.y += ListEntryHeight;
@@ -822,12 +876,15 @@ public class ManagerTab_Livestock : ManagerTab
 
                 // modes
                 foreach (var _mode in GetMasterModes.Where(mm => (mm & MasterMode.Trainers) == mm))
+                {
                     options.Add(new FloatMenuOption($"ColonyManagerRedux.ManagerLivestock.MasterMode.{_mode}".Translate(),
                                                       () => _selectedCurrent.Trainers = _mode));
+                }
 
                 // specific pawns
                 foreach (var pawn in _selectedCurrent.Trigger.pawnKind.GetTrainers(manager, MasterMode.Trainers)
                 )
+                {
                     options.Add(new FloatMenuOption(
                                      "ColonyManagerRedux.ManagerLivestock.Master".Translate(pawn.LabelShort,
                                                                       pawn.skills.AverageOfRelevantSkillsFor(
@@ -837,6 +894,7 @@ public class ManagerTab_Livestock : ManagerTab
                                          _selectedCurrent.Trainer = pawn;
                                          _selectedCurrent.Trainers = MasterMode.Specific;
                                      }));
+                }
 
                 Find.WindowStack.Add(new FloatMenu(options));
             }
@@ -880,20 +938,22 @@ public class ManagerTab_Livestock : ManagerTab
         var cols = 3;
         var rows = 3;
         var fifth = width / 5;
-        float[] widths = { fifth, fifth * 2, fifth * 2 };
-        float[] heights = { ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight };
+        float[] widths = [fifth, fifth * 2, fifth * 2];
+        float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
         // set up a 3x3 table of rects
         var countRects = new Rect[rows, cols];
         for (var x = 0; x < cols; x++)
         {
             for (var y = 0; y < rows; y++)
+            {
                 // kindof overkill for a 3x3 table, but ok.
                 countRects[y, x] = new Rect(
                     pos.x + widths.Take(x).Sum(),
                     pos.y + heights.Take(y).Sum(),
                     widths[x],
                     heights[y]);
+            }
         }
 
         // headers

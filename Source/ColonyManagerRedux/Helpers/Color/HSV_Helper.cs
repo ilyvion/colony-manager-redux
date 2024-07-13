@@ -17,8 +17,15 @@ internal class HSV_Helper
     /// <returns>Color</returns>
     public static Color HSVtoRGB(float H, float S, float V, float A = 1f)
     {
-        if (S == 0f) return new Color(V, V, V, A);
-        if (V == 0f) return new Color(0f, 0f, 0f, A);
+        if (S == 0f)
+        {
+            return new Color(V, V, V, A);
+        }
+
+        if (V == 0f)
+        {
+            return new Color(0f, 0f, 0f, A);
+        }
 
         var col = Color.black;
         var Hval = H * 6f;
@@ -88,7 +95,10 @@ internal class HSV_Helper
     public static Color[] Range(int n)
     {
         var cols = new Color[n];
-        for (var i = 0; i < n; i++) cols[i] = HSVtoRGB(i / (float)n, 1f, 1f);
+        for (var i = 0; i < n; i++)
+        {
+            cols[i] = HSVtoRGB(i / (float)n, 1f, 1f);
+        }
 
         return cols;
     }

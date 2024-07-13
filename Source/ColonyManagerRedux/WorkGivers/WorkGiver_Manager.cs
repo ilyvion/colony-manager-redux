@@ -28,18 +28,28 @@ internal class WorkGiver_Manage : WorkGiver_Scanner
         Log.Message( "Power" + ( powera == null || powera.PowerOn ) );
         Log.Message( "Job" + ( Manager.For( pawn.Map ).JobStack.NextJob != null ) );
 #endif
-        if (!(t is Building_ManagerStation)) return false;
+        if (!(t is Building_ManagerStation))
+        {
+            return false;
+        }
 
-        if (t.TryGetComp<Comp_ManagerStation>() == null) return false;
+        if (t.TryGetComp<Comp_ManagerStation>() == null)
+        {
+            return false;
+        }
 
         if (pawn.Dead ||
              pawn.Downed ||
              pawn.IsBurning() ||
              t.IsBurning())
+        {
             return false;
+        }
 
         if (!pawn.CanReserveAndReach(t, PathEndMode, Danger.Some, ignoreOtherReservations: forced))
+        {
             return false;
+        }
 
         var power = t.TryGetComp<CompPowerTrader>();
         if (power != null &&

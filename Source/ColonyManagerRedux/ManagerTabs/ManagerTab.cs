@@ -6,21 +6,16 @@ using UnityEngine;
 
 namespace ColonyManagerRedux;
 
-public abstract class ManagerTab
+#pragma warning disable CS8618 // Set by ManagerTabMaker.MakeManagerTab
+public abstract class ManagerTab(Manager manager)
+#pragma warning restore CS8618
 {
 
     public float DefaultLeftRowSize = 300f;
 
     public ManagerTabDef def;
 
-    public Manager manager;
-
-#pragma warning disable CS8618 // Set by ManagerTabMaker.MakeManagerTab
-    public ManagerTab(Manager manager)
-    {
-        this.manager = manager;
-    }
-#pragma warning restore CS8618
+    public Manager manager = manager;
 
     public virtual string DisabledReason => "";
 

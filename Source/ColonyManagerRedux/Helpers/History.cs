@@ -30,11 +30,11 @@ public class History : IExposable
     private const int Size = 100;
 
     // interval per period
-    private static readonly Dictionary<Period, int> _intervals = new Dictionary<Period, int>();
+    private static readonly Dictionary<Period, int> _intervals = [];
 
     private static readonly float _yAxisMargin = 40f;
 
-    private readonly List<Chapter> _chaptersShown = new List<Chapter>();
+    private readonly List<Chapter> _chaptersShown = [];
 
     // settings
     public bool AllowTogglingLegend = true;
@@ -54,7 +54,7 @@ public class History : IExposable
     public string Suffix = string.Empty;
 
     // each chapter holds the history for all periods.
-    private List<Chapter> _chapters = new List<Chapter>();
+    private List<Chapter> _chapters = [];
 
     // for scribe.
     public History()
@@ -71,16 +71,22 @@ public class History : IExposable
         {
             // default to white for single line
             if (labels.Length == 1)
-                colors = new[] { Color.white };
+            {
+                colors = [Color.white];
+            }
 
             // rainbow!
             else
+            {
                 colors = HSV_Helper.Range(labels.Length);
+            }
         }
 
         // create a chapter for each label
         for (var i = 0; i < labels.Length; i++)
+        {
             _chapters.Add(new Chapter(labels[i], Size, colors[i % colors.Length]));
+        }
 
         // show all by default
         _chaptersShown.AddRange(_chapters);
@@ -93,18 +99,24 @@ public class History : IExposable
         {
             // default to white for single line
             if (thingCounts.Length == 1)
-                colors = new[] { Color.white };
+            {
+                colors = [Color.white];
+            }
 
             // rainbow!
             else
+            {
                 colors = HSV_Helper.Range(thingCounts.Length);
+            }
         }
 
         // create a chapter for each label
         for (var i = 0; i < thingCounts.Length; i++)
+        {
             _chapters.Add(new Chapter(new ThingDefCountClass(thingCounts[i].ThingDef, thingCounts[i].Count),
                                         Size,
                                         colors[i % colors.Length]));
+        }
 
         // show all by default
         _chaptersShown.AddRange(_chapters);
@@ -145,22 +157,12 @@ public class History : IExposable
     {
         if (!_intervals.ContainsKey(period))
         {
-            int ticks;
-            switch (period)
+            var ticks = period switch
             {
-                case Period.Month:
-                    ticks = GenDate.TicksPerTwelfth;
-                    break;
-
-                case Period.Year:
-                    ticks = GenDate.TicksPerYear;
-                    break;
-
-                default:
-                    ticks = GenDate.TicksPerDay;
-                    break;
-            }
-
+                Period.Month => GenDate.TicksPerTwelfth,
+                Period.Year => GenDate.TicksPerYear,
+                _ => GenDate.TicksPerDay,
+            };
             _intervals[period] = ticks / Size;
         }
 
@@ -236,16 +238,22 @@ public class History : IExposable
 
             // if icons should not be drawn make the bar full size.
             if (!DrawIcons)
+            {
                 bar.xMin -= height + Margin;
+            }
 
             // bar details.
             var barBox = bar.ContractedBy((height - barHeight) / 2f);
             var barFill = barBox.ContractedBy(2f);
             var maxWidth = barFill.width;
             if (MaxPerChapter)
+            {
                 barFill.width *= ChaptersOrdered[i].Last(periodShown) * sign / (float)ChaptersOrdered[i].TrueMax;
+            }
             else
+            {
                 barFill.width *= ChaptersOrdered[i].Last(periodShown) * sign / _max;
+            }
 
             GUI.BeginGroup(viewRect);
 
@@ -259,8 +267,10 @@ public class History : IExposable
 
                 // draw counts in upper left corner
                 if (DrawCounts)
+                {
                     Utilities.LabelOutline(icon, ChaptersOrdered[i].ThingDefCount.count.ToString(), null,
                                             TextAnchor.UpperLeft, 0f, GameFont.Tiny, Color.white, Color.black);
+                }
             }
 
             // if desired, draw ghost bar
@@ -284,7 +294,10 @@ public class History : IExposable
                 var info = ChaptersOrdered[i].label + ": " +
                            FormatCount(ChaptersOrdered[i].Last(periodShown) * sign);
 
-                if (DrawMaxMarkers) info += " / " + FormatCount(ChaptersOrdered[i].TrueMax);
+                if (DrawMaxMarkers)
+                {
+                    info += " / " + FormatCount(ChaptersOrdered[i].TrueMax);
+                }
 
                 // offset label a bit downwards and to the right
                 var rowInfoRect = row;
@@ -313,9 +326,13 @@ public class History : IExposable
                 if (Event.current.button == 0)
                 {
                     if (shown)
+                    {
                         _chaptersShown.Remove(ChaptersOrdered[i]);
+                    }
                     else
+                    {
                         _chaptersShown.Add(ChaptersOrdered[i]);
+                    }
                 }
                 else if (Event.current.button == 1)
                 {
@@ -325,7 +342,10 @@ public class History : IExposable
             }
 
             // UI feedback for disabled row
-            if (!shown) GUI.DrawTexture(row, Resources.SlightlyDarkBackground);
+            if (!shown)
+            {
+                GUI.DrawTexture(row, Resources.SlightlyDarkBackground);
+            }
 
             GUI.EndGroup();
         }
@@ -374,7 +394,10 @@ public class History : IExposable
         // plot the line(s)
         GUI.DrawTexture(plot, Resources.SlightlyDarkBackground);
         GUI.BeginGroup(plot);
-        foreach (var chapter in chapters) chapter.Plot(periodShown, plot.AtZero(), wu, hu, sign);
+        foreach (var chapter in chapters)
+        {
+            chapter.Plot(periodShown, plot.AtZero(), wu, hu, sign);
+        }
 
         // handle mouseover events
         if (Mouse.IsOver(plot.AtZero()))
@@ -391,11 +414,13 @@ public class History : IExposable
             float min = int.MaxValue;
             var minIndex = 0;
             for (var i = 0; i < distances.Count(); i++)
+            {
                 if (distances[i] < min)
                 {
                     minIndex = i;
                     min = distances[i];
                 }
+            }
 
             // closest line
             var closest = chapters[minIndex];
@@ -430,11 +455,20 @@ public class History : IExposable
 
             var anchor = TextAnchor.UpperLeft;
             if (up && left)
+            {
                 anchor = TextAnchor.LowerRight;
+            }
+
             if (up && !left)
+            {
                 anchor = TextAnchor.LowerLeft;
+            }
+
             if (!up && left)
+            {
                 anchor = TextAnchor.UpperRight;
+            }
+
             var tooltipRect = new Rect(tippos.x, tippos.y, tipsize.x, tipsize.y);
             Widgets_Labels.Label(tooltipRect, tip, anchor, GameFont.Tiny);
         }
@@ -444,7 +478,9 @@ public class History : IExposable
         {
             GUI.color = Color.gray;
             for (var i = 0; i < plot.width / DashLength; i += 2)
+            {
                 Widgets.DrawLineHorizontal(i * DashLength, plot.height - target * hu, DashLength);
+            }
         }
 
         // draw legend
@@ -505,8 +541,11 @@ public class History : IExposable
                             new FloatMenuOption("ColonyManagerRedux.ManagerHistoryPeriod".Translate() + ": " + p.ToString(),
                                                  delegate { periodShown = p; })).ToList();
                 if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
+                {
                     options.Add(new FloatMenuOption("ColonyManagerRedux.ManagerHistoryShowHideLegend".Translate(),
                                                       delegate { DrawInlineLegend = !DrawInlineLegend; }));
+                }
+
                 Find.WindowStack.Add(new FloatMenu(options));
             }
         }
@@ -516,8 +555,8 @@ public class History : IExposable
 
     public string FormatCount(float x, int unit = 1000, string[]? suffixes = null)
     {
-        if (suffixes == null)
-            suffixes = new[] { "", "k", "M", "G" };
+        suffixes ??= ["", "k", "M", "G"];
+
         var i = 0;
         while (x > unit && i < suffixes.Length)
         {
@@ -530,36 +569,58 @@ public class History : IExposable
 
     public void Update(params int[] counts)
     {
-        if (counts.Length != _chapters.Count) Log.Warning("History updated with incorrect number of chapters");
+        if (counts.Length != _chapters.Count)
+        {
+            Log.Warning("History updated with incorrect number of chapters");
+        }
 
-        for (var i = 0; i < counts.Length; i++) _chapters[i].Add(counts[i]);
+        for (var i = 0; i < counts.Length; i++)
+        {
+            _chapters[i].Add(counts[i]);
+        }
     }
 
     public void UpdateMax(params int[] maxes)
     {
-        if (maxes.Length != _chapters.Count) Log.Warning("History updated with incorrect number of chapters");
+        if (maxes.Length != _chapters.Count)
+        {
+            Log.Warning("History updated with incorrect number of chapters");
+        }
 
-        for (var i = 0; i < maxes.Length; i++) _chapters[i].TrueMax = maxes[i];
+        for (var i = 0; i < maxes.Length; i++)
+        {
+            _chapters[i].TrueMax = maxes[i];
+        }
     }
 
     public void UpdateThingCountAndMax(int[] counts, int[] maxes)
     {
         if (maxes.Length != _chapters.Count || maxes.Length != _chapters.Count)
+        {
             Log.Warning("History updated with incorrect number of chapters");
+        }
 
         for (var i = 0; i < maxes.Length; i++)
+        {
             if (_chapters[i].ThingDefCount.count != counts[i])
             {
                 _chapters[i].TrueMax = maxes[i];
                 _chapters[i].ThingDefCount.count = counts[i];
             }
+        }
     }
 
     public void UpdateThingCounts(params int[] counts)
     {
-        if (counts.Length != _chapters.Count) Log.Warning("History updated with incorrect number of chapters");
+        if (counts.Length != _chapters.Count)
+        {
+            Log.Warning("History updated with incorrect number of chapters");
+        }
 
-        for (var i = 0; i < counts.Length; i++) _chapters[i].ThingDefCount.count = counts[i];
+        for (var i = 0; i < counts.Length; i++)
+        {
+            _chapters[i].ThingDefCount.count = counts[i];
+        }
     }
 
     public class Chapter : IExposable
@@ -567,9 +628,9 @@ public class History : IExposable
         public Texture2D? _texture;
         public HistoryLabel label = new DirectHistoryLabel(string.Empty);
         public Color lineColor = DefaultLineColor;
-        public Dictionary<Period, List<int>> pages = new Dictionary<Period, List<int>>();
+        public Dictionary<Period, List<int>> pages = [];
         public int size = Size;
-        public ThingDefCountClass ThingDefCount = new ThingDefCountClass();
+        public ThingDefCountClass ThingDefCount = new();
         private int _observedMax = -1;
         private int _specificMax = -1;
 
@@ -577,7 +638,7 @@ public class History : IExposable
         {
             // empty for scribe.
             // create a dictionary of histories, one for each period, initialize with a zero to avoid errors.
-            pages = periods.ToDictionary(k => k, v => new List<int>(new[] { 0 }));
+            pages = periods.ToDictionary(k => k, v => new List<int>([0]));
         }
 
         public Chapter(HistoryLabel label, int size, Color color) : this()
@@ -599,7 +660,11 @@ public class History : IExposable
         {
             get
             {
-                if (_texture == null) _texture = SolidColorMaterials.NewSolidColorTexture(lineColor);
+                if (_texture == null)
+                {
+                    _texture = SolidColorMaterials.NewSolidColorTexture(lineColor);
+                }
+
                 return _texture;
             }
         }
@@ -645,15 +710,22 @@ public class History : IExposable
         {
             var curTick = Find.TickManager.TicksGame;
             foreach (var period in periods)
+            {
                 if (curTick % Interval(period) == 0)
                 {
                     pages[period].Add(count);
                     if (Utilities.SafeAbs(count) > _observedMax)
+                    {
                         _observedMax = Utilities.SafeAbs(count);
+                    }
 
                     // cull the list back down to size.
-                    while (pages[period].Count > Size) pages[period].RemoveAt(0);
+                    while (pages[period].Count > Size)
+                    {
+                        pages[period].RemoveAt(0);
+                    }
                 }
+            }
         }
 
         public int Last(Period period)
@@ -683,7 +755,9 @@ public class History : IExposable
         public int ValueAt(Period period, int x, int sign = 1)
         {
             if (x < 0 || x >= pages[period].Count)
+            {
                 return -1;
+            }
 
             return pages[period][x] * sign;
         }

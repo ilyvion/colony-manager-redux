@@ -12,17 +12,12 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Hunting : ManagerTab
+internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
 {
     public List<ManagerJob_Hunting> Jobs = [];
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
-    private ManagerJob_Hunting _selected;
-
-    public ManagerTab_Hunting(Manager manager) : base(manager)
-    {
-        _selected = new ManagerJob_Hunting(manager);
-    }
+    private ManagerJob_Hunting _selected = new(manager);
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
@@ -55,11 +50,9 @@ internal class ManagerTab_Hunting : ManagerTab
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Vector2 position;
-        float width;
 
         // options
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Hunting.Options", out position, out width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Hunting.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.ManagerThreshold".Translate());
         Widgets_Section.Section(ref position, width, DrawUnforbidCorpses);
         Widgets_Section.Section(ref position, width, DrawHuntingGrounds,
@@ -74,7 +67,10 @@ internal class ManagerTab_Hunting : ManagerTab
             SmallIconSize,
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
+        {
             _selected.RefreshAllowedAnimals();
+        }
+
         Widgets_Section.Section(ref position, width, DrawAnimalShortcuts, "ColonyManagerRedux.Hunting.Animals".Translate());
         Widgets_Section.Section(ref position, width, DrawAnimalList);
         Widgets_Section.EndSectionColumn("Hunting.Animals", position);
@@ -116,7 +112,9 @@ internal class ManagerTab_Hunting : ManagerTab
         var height = _leftRowHeight;
         var scrollView = new Rect(0f, 0f, rect.width, height);
         if (height > rect.height)
+        {
             scrollView.width -= ScrollbarWidth;
+        }
 
         Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
         var scrollContent = scrollView;
@@ -129,18 +127,31 @@ internal class ManagerTab_Hunting : ManagerTab
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job) Widgets.DrawHighlightSelected(row);
+            if (_selected == job)
+            {
+                Widgets.DrawHighlightSelected(row);
+            }
 
-            if (i++ % 2 == 1) Widgets.DrawAltRect(row);
+            if (i++ % 2 == 1)
+            {
+                Widgets.DrawAltRect(row);
+            }
 
             var jobRect = row;
 
             if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
-                    job)) Refresh();
+                    job))
+            {
+                Refresh();
+            }
+
             jobRect.width -= 50f;
 
             job.DrawListEntry(jobRect, false);
-            if (Widgets.ButtonInvisible(jobRect)) _selected = job;
+            if (Widgets.ButtonInvisible(jobRect))
+            {
+                _selected = job;
+            }
 
             cur.y += LargeListEntryHeight;
         }
@@ -149,13 +160,19 @@ internal class ManagerTab_Hunting : ManagerTab
         var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
         Widgets.DrawHighlightIfMouseover(newRect);
 
-        if (i++ % 2 == 1) Widgets.DrawAltRect(newRect);
+        if (i++ % 2 == 1)
+        {
+            Widgets.DrawAltRect(newRect);
+        }
 
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(newRect, "<" + "ColonyManagerRedux.Hunting.NewHuntingJob".Translate().Resolve() + ">");
         Text.Anchor = TextAnchor.UpperLeft;
 
-        if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Hunting(manager);
+        if (Widgets.ButtonInvisible(newRect))
+        {
+            Selected = new ManagerJob_Hunting(manager);
+        }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Hunting.NewHuntingJobTooltip".Translate());
 
@@ -178,7 +195,9 @@ internal class ManagerTab_Hunting : ManagerTab
 
         // draw job interface if something is selected.
         if (Selected != null)
+        {
             DoContent(contentCanvas);
+        }
     }
 
     public float DrawAnimalList(Vector2 pos, float width)
@@ -240,18 +259,28 @@ internal class ManagerTab_Hunting : ManagerTab
         {
             sb.Append("\n\n");
 
-            var yields = new List<string>();
-            yields.Add(YieldLine(kind.EstimatedMeatCount(), kind.race.race.meatDef.label));
+            var yields = new List<string>
+            {
+                YieldLine(kind.EstimatedMeatCount(), kind.race.race.meatDef.label)
+            };
 
             // butcherProducts (only used for buildings in vanilla)
             if (!kind.race.butcherProducts.NullOrEmpty())
+            {
                 foreach (var product in kind.race.butcherProducts)
+                {
                     yields.Add(YieldLine(product.count, product.thingDef.label));
+                }
+            }
 
             // killedLeavings (only used for buildings in vanilla)
             if (!kind.race.killedLeavings.NullOrEmpty())
+            {
                 foreach (var leaving in kind.race.killedLeavings)
+                {
                     yields.Add(YieldLine(leaving.count, leaving.thingDef.label));
+                }
+            }
 
             // butcherBodyPart(s)
             if (!kind.lifeStages.NullOrEmpty())
@@ -260,10 +289,17 @@ internal class ManagerTab_Hunting : ManagerTab
                 {
                     var stage = kind.lifeStages[i];
                     var part = stage?.butcherBodyPart;
-                    if (part == null || stage == null) continue;
+                    if (part == null || stage == null)
+                    {
+                        continue;
+                    }
 
                     var label = stage.label;
-                    if (label.NullOrEmpty()) label = kind.race.race.lifeStageAges[i].def.label;
+                    if (label.NullOrEmpty())
+                    {
+                        label = kind.race.race.lifeStageAges[i].def.label;
+                    }
+
                     if (part.allowFemale && !part.allowMale)
                     {
                         label += ", ";
@@ -287,9 +323,14 @@ internal class ManagerTab_Hunting : ManagerTab
             //     Logger.Debug(yield);
 
             if (yields.Count == 1)
+            {
                 sb.AppendLine(I18n.YieldOne(yields.First()));
+            }
             else if (yields.Count > 1)
+            {
                 sb.AppendLine(I18n.YieldMany(yields));
+            }
+
             sb.Append(I18n.Aggressiveness(kind.race.race.manhunterOnDamageChance));
         }
 
@@ -428,7 +469,10 @@ internal class ManagerTab_Hunting : ManagerTab
 
         // update pawnkind options
         foreach (var job in Jobs)
+        {
             job.RefreshAllowedAnimals();
+        }
+
         _selected?.RefreshAllowedAnimals();
     }
 }

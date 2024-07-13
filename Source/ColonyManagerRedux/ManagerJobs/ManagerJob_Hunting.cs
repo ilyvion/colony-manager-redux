@@ -12,10 +12,10 @@ namespace ColonyManagerRedux;
 
 public class ManagerJob_Hunting : ManagerJob
 {
-    private readonly Utilities.CachedValue<int> _corpseCachedValue = new Utilities.CachedValue<int>(0);
-    private readonly Utilities.CachedValue<int> _designatedCachedValue = new Utilities.CachedValue<int>(0);
+    private readonly Utilities.CachedValue<int> _corpseCachedValue = new(0);
+    private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
 
-    public Dictionary<PawnKindDef, bool> AllowedAnimals = new Dictionary<PawnKindDef, bool>();
+    public Dictionary<PawnKindDef, bool> AllowedAnimals = [];
     public History History;
     public Area? HuntingGrounds;
     public new Trigger_Threshold Trigger;
@@ -23,7 +23,7 @@ public class ManagerJob_Hunting : ManagerJob
     private bool _allowHumanLikeMeat;
 
     private bool _allowInsectMeat;
-    private List<Designation> _designations = new List<Designation>();
+    private List<Designation> _designations = [];
     private List<ThingDef>? _humanLikeMeatDefs;
 
     public ManagerJob_Hunting(Manager manager) : base(manager)
@@ -35,18 +35,22 @@ public class ManagerJob_Hunting : ManagerJob
 
         // disallow humanlike
         foreach (var def in HumanLikeMeatDefs)
+        {
             Trigger.ThresholdFilter.SetAllow(def, false);
+        }
 
         // disallow insect
         Trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
 
         // start the history tracker;
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
-                               new[] { Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f) });
+                               [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
 
         // init stuff if we're not loading
         if (Scribe.mode == LoadSaveMode.Inactive)
+        {
             RefreshAllowedAnimals();
+        }
     }
 
     public bool AllowHumanLikeMeat
@@ -56,12 +60,16 @@ public class ManagerJob_Hunting : ManagerJob
         {
             // no change
             if (value == _allowHumanLikeMeat)
+            {
                 return;
+            }
 
             // update value and filter
             _allowHumanLikeMeat = value;
             foreach (var def in HumanLikeMeatDefs)
+            {
                 Trigger.ThresholdFilter.SetAllow(def, value);
+            }
         }
     }
 
@@ -72,7 +80,9 @@ public class ManagerJob_Hunting : ManagerJob
         {
             // no change
             if (value == _allowInsectMeat)
+            {
                 return;
+            }
 
             // update value and filter
             _allowInsectMeat = value;
@@ -99,14 +109,13 @@ public class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    public List<Designation> Designations => new List<Designation>(_designations);
+    public List<Designation> Designations => new(_designations);
 
     public List<ThingDef> HumanLikeMeatDefs
     {
         get
         {
-            if (_humanLikeMeatDefs == null)
-                _humanLikeMeatDefs =
+            _humanLikeMeatDefs ??=
                     DefDatabase<ThingDef>.AllDefsListForReading
                                          .Where(def => def.category == ThingCategory.Pawn &&
                                                         (def.race?.Humanlike ?? false) &&
@@ -157,7 +166,9 @@ public class ManagerJob_Hunting : ManagerJob
 
         // cancel outstanding designation
         foreach (var des in _designations)
+        {
             des.Delete();
+        }
 
         // clear the list completely
         _designations.Clear();
@@ -180,18 +191,22 @@ public class ManagerJob_Hunting : ManagerJob
         var shownTargets = overview ? 4 : 3; // there's more space on the overview
 
         // set up rects
-        Rect labelRect = new Rect(Margin, Margin, rect.width -
+        Rect labelRect = new(Margin, Margin, rect.width -
                                                    (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
                                    rect.height - 2 * Margin),
-             statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
+             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
 
         // create label string
         var text = Label + "\n";
         var subtext = string.Join(", ", Targets);
         if (subtext.Fits(labelRect))
+        {
             text += subtext.Italic();
+        }
         else
+        {
             text += "multiple".Translate().Italic();
+        }
 
         // do the drawing
         GUI.BeginGroup(rect);
@@ -200,7 +215,11 @@ public class ManagerJob_Hunting : ManagerJob
         Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
 
         // if the bill has a manager job, give some more info.
-        if (active) this.DrawStatusForListEntry(statusRect, Trigger);
+        if (active)
+        {
+            this.DrawStatusForListEntry(statusRect, Trigger);
+        }
+
         GUI.EndGroup();
     }
 
@@ -227,42 +246,50 @@ public class ManagerJob_Hunting : ManagerJob
         Scribe_Values.Look(ref _allowInsectMeat, "AllowInsectMeat");
 
         // don't store history in import/export mode.
-        if (Manager.LoadSaveMode == Manager.Modes.Normal) Scribe_Deep.Look(ref History, "History");
+        if (Manager.LoadSaveMode == Manager.Modes.Normal)
+        {
+            Scribe_Deep.Look(ref History, "History");
+        }
     }
 
     public int GetMeatInCorpses()
     {
         // get current count + corpses in storage that is not a grave + designated count
         // current count in storage
-        var count = 0;
 
         // try get cached value
-        if (_corpseCachedValue.TryGetValue(out count)) return count;
+        if (_corpseCachedValue.TryGetValue(out int count))
+        {
+            return count;
+        }
 
         // corpses not buried / forbidden
         foreach (Thing current in Corpses)
         {
             // make sure it's a real corpse. (I dunno, poke it?)
             // and that it's not forbidden (anymore) and can be reached.
-            var corpse = current as Corpse;
-            if (corpse != null &&
+            if (current is Corpse corpse &&
                  !corpse.IsForbidden(Faction.OfPlayer) &&
                  manager.map.reachability.CanReachColony(corpse.Position))
             {
                 // check to see if it's buried.
                 var buried = false;
                 var slotGroup = manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
-                var building_Storage = slotGroup?.parent as Building_Storage;
 
                 // Sarcophagus inherits grave
-                if (building_Storage != null &&
+                if (slotGroup?.parent is Building_Storage building_Storage &&
                      building_Storage.def == ThingDefOf.Grave)
+                {
                     buried = true;
+                }
 
                 // get the rottable comp and check how far gone it is.
                 var rottable = corpse.TryGetComp<CompRottable>();
 
-                if (!buried && rottable?.Stage == RotStage.Fresh) count += corpse.EstimatedMeatCount();
+                if (!buried && rottable?.Stage == RotStage.Fresh)
+                {
+                    count += corpse.EstimatedMeatCount();
+                }
             }
         }
 
@@ -274,16 +301,20 @@ public class ManagerJob_Hunting : ManagerJob
 
     public int GetMeatInDesignations()
     {
-        var count = 0;
 
         // try get cache
-        if (_designatedCachedValue.TryGetValue(out count)) return count;
+        if (_designatedCachedValue.TryGetValue(out int count))
+        {
+            return count;
+        }
 
         // designated animals
         foreach (var des in _designations)
         {
-            var target = des.target.Thing as Pawn;
-            if (target != null) count += target.EstimatedMeatCount();
+            if (des.target.Thing is Pawn target)
+            {
+                count += target.EstimatedMeatCount();
+            }
         }
 
         // update cache
@@ -303,8 +334,12 @@ public class ManagerJob_Hunting : ManagerJob
                                                          .Select(p => p.kindDef))
                                          .Distinct()
                                          .OrderBy(pk => pk.label))
+        {
             if (!AllowedAnimals.ContainsKey(pawnKind))
+            {
                 AllowedAnimals.Add(pawnKind, false);
+            }
+        }
 
         AllowedAnimals = AllowedAnimals
                         .OrderBy(x => x.Key.label)
@@ -346,7 +381,10 @@ public class ManagerJob_Hunting : ManagerJob
         }
 
         // unforbid if required
-        if (UnforbidCorpses) DoUnforbidCorpses(ref workDone);
+        if (UnforbidCorpses)
+        {
+            DoUnforbidCorpses(ref workDone);
+        }
 
         return workDone;
     }
@@ -355,7 +393,9 @@ public class ManagerJob_Hunting : ManagerJob
     {
         // add to game
         if (addToGame)
+        {
             manager.map.designationManager.AddDesignation(des);
+        }
 
         // add to internal list
         _designations.Add(des);
@@ -377,17 +417,25 @@ public class ManagerJob_Hunting : ManagerJob
             manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
                    .Except(_designations)
                    .Where(des => IsValidHuntingTarget(des.target, true)))
+        {
             AddDesignation(des, false);
+        }
     }
 
     private void CleanAreaDesignations()
     {
         // huntinggrounds of null denotes unrestricted
         if (HuntingGrounds != null)
+        {
             foreach (var des in _designations)
+            {
                 if (des.target.HasThing &&
                      !HuntingGrounds.ActiveCells.Contains(des.target.Thing.Position))
+                {
                     des.Delete();
+                }
+            }
+        }
     }
 
     // copypasta from autohuntbeacon by Carry
@@ -395,6 +443,7 @@ public class ManagerJob_Hunting : ManagerJob
     private void DoUnforbidCorpses(ref bool workDone)
     {
         foreach (var corpse in Corpses)
+        {
             // don't unforbid corpses in storage - we're going to assume they were manually set.
             if (corpse != null &&
                  !corpse.IsInAnyStorage() &&
@@ -410,6 +459,7 @@ public class ManagerJob_Hunting : ManagerJob
                     corpse.SetForbidden(false, false);
                 }
             }
+        }
     }
 
     // TODO: refactor into a yielding iterator for performance?
@@ -427,8 +477,8 @@ public class ManagerJob_Hunting : ManagerJob
     private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)
     {
         return t.HasThing
-            && t.Thing is Pawn
-            && IsValidHuntingTarget((Pawn)t.Thing, allowHunted);
+            && t.Thing is Pawn pawn
+            && IsValidHuntingTarget(pawn, allowHunted);
     }
 
     private bool IsValidHuntingTarget(Pawn target, bool allowHunted)

@@ -8,17 +8,15 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
-public class Controller : Mod
+public class ColonyManagerReduxMod : Mod
 {
-    private Settings mySettings;
-
-    public Controller(ModContentPack content) : base(content)
+    public ColonyManagerReduxMod(ModContentPack content) : base(content)
     {
         // apply fixes
         var harmony = new Harmony("ColonyManagerRedux");
         harmony.PatchAll(Assembly.GetExecutingAssembly());
 
-        mySettings = GetSettings<Settings>();
+        GetSettings<Settings>();
     }
 
     public override void DoSettingsWindowContents(Rect inRect)

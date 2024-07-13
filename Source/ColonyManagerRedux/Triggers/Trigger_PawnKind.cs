@@ -15,7 +15,7 @@ namespace ColonyManagerRedux;
 public class Trigger_PawnKind : Trigger
 {
     private readonly Utilities.CachedValue<string> _cachedTooltip;
-    private readonly Utilities.CachedValue<bool> _state = new Utilities.CachedValue<bool>(false);
+    private readonly Utilities.CachedValue<bool> _state = new(false);
 
     public Dictionary<AgeAndSex, int> CountTargets;
     public PawnKindDef pawnKind;
@@ -50,8 +50,7 @@ public class Trigger_PawnKind : Trigger
     {
         get
         {
-            bool state;
-            if (!_state.TryGetValue(out state))
+            if (!_state.TryGetValue(out bool state))
             {
                 state = Utilities_Livestock.AgeSexArray.All(
                             ageSex => CountTargets[ageSex] ==
@@ -82,8 +81,10 @@ public class Trigger_PawnKind : Trigger
 
     private string _getTooltip()
     {
-        var tooltipArgs = new List<NamedArgument>();
-        tooltipArgs.Add(pawnKind.LabelCap);
+        var tooltipArgs = new List<NamedArgument>
+        {
+            pawnKind.LabelCap
+        };
         tooltipArgs.AddRange(Counts.Select(x => x.ToString()).Cast<NamedArgument>());
         tooltipArgs.AddRange(CountTargets.Values.Select(v => v.ToString()).Cast<NamedArgument>());
         return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray());

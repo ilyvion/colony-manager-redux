@@ -8,8 +8,8 @@
     <ColonyManagerRedux.ManagerAll>全部</ColonyManagerRedux.ManagerAll>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerHelpTitle>殖民地管理 V2</ColonyManagerRedux.ManagerHelpTitle>
-    <ColonyManagerRedux.ManagerHelpMessage>歡迎使用殖民地管理器V2\n\n使用殖民地管理器，你設定生產、狩獵、伐木和畜牧業的目標。在殖民地管理器窗口中你可以對各個目標進行設定，通過點擊窗口頂部的按鈕，以及其他快捷按鈕來切換到不同的項目。\n\n當你設定一個目標，指派了「管理」工作的人員會偶爾前往辦公桌查看你的目標以及殖民地的庫存，並相應地更新製作清單和標記命令。\n\n為了這個Mod能夠正確運轉，你需要兩樣東西：\n - 一位指派了管理工作的殖民者。\n - 一張管理辦公桌。\n\n狩獵愉快！</ColonyManagerRedux.ManagerHelpMessage>
+    <ColonyManagerRedux.ManagerHelpTitle>殖民地管理 Redux</ColonyManagerRedux.ManagerHelpTitle>
+    <ColonyManagerRedux.ManagerHelpMessage>歡迎使用殖民地管理器Redux\n\n使用殖民地管理器，你設定生產、狩獵、伐木和畜牧業的目標。在殖民地管理器窗口中你可以對各個目標進行設定，通過點擊窗口頂部的按鈕，以及其他快捷按鈕來切換到不同的項目。\n\n當你設定一個目標，指派了「管理」工作的人員會偶爾前往辦公桌查看你的目標以及殖民地的庫存，並相應地更新製作清單和標記命令。\n\n為了這個Mod能夠正確運轉，你需要兩樣東西：\n - 一位指派了管理工作的殖民者。\n - 一張管理辦公桌。\n\n狩獵愉快！</ColonyManagerRedux.ManagerHelpMessage>
     <ColonyManagerRedux.ManagerAlertNoTableLabel>需要管理辦公桌。</ColonyManagerRedux.ManagerAlertNoTableLabel>
     <ColonyManagerRedux.ManagerAlertNoTable>管理目標已設定，但管理辦公桌不可用。</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>需要管理者</ColonyManagerRedux.ManagerAlertNoManagerLabel>

@@ -38,41 +38,41 @@ public static class Utilities_Livestock
     public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
 
     private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache =
-        new Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>>(5);
+        new(5);
 
     private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
-        AllSexedCache = new Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>(5);
+        AllSexedCache = new(5);
 
     private static readonly Dictionary<Pawn, Utilities.CachedValue<IEnumerable<Pawn>>> FollowerCache =
-        new Dictionary<Pawn, Utilities.CachedValue<IEnumerable<Pawn>>>();
+        [];
 
     private static readonly
         Dictionary<Triplet<PawnKindDef, Map, MasterMode>, Utilities.CachedValue<IEnumerable<Pawn>>> MasterCache =
-            new Dictionary<Triplet<PawnKindDef, Map, MasterMode>, Utilities.CachedValue<IEnumerable<Pawn>>>();
+            [];
 
     private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> MilkablePawn =
-        new Dictionary<Pawn, Utilities.CachedValue<bool>>();
+        [];
 
     private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> MilkablePawnkind =
-        new Dictionary<PawnKindDef, Utilities.CachedValue<bool>>();
+        [];
 
     private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> ShearablePawn =
-        new Dictionary<Pawn, Utilities.CachedValue<bool>>();
+        [];
 
     private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> ShearablePawnkind =
-        new Dictionary<PawnKindDef, Utilities.CachedValue<bool>>();
+        [];
 
     private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> TameCache =
-        new Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>>(5);
+        new(5);
 
     private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
-        TameSexedCache = new Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>(5);
+        TameSexedCache = new(5);
 
     private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> WildCache =
-        new Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>>(5);
+        new(5);
 
     private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
-        WildSexedCache = new Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>(5);
+        WildSexedCache = new(5);
 
     public static bool BondedWithColonist(this Pawn pawn)
     {
@@ -84,16 +84,18 @@ public static class Utilities_Livestock
         // check if we have a cached version
         var key = new Pair<PawnKindDef, Map>(pawnKind, map);
         if (AllCache.TryGetValue(key, out var pawns))
+        {
             return pawns;
+        }
 
         // if not, set up a cache
-        Func<IEnumerable<Pawn>> getter = () => map.mapPawns.AllPawns
-                                                  .Where(p => p.RaceProps.Animal    // is animal
-                                                            && !p.Dead               // is alive
-                                                            && p.kindDef == pawnKind // is our managed pawnkind
-                                                            && !(p.Faction == Faction.OfPlayer &&
-                                                                  p.HasExtraHomeFaction()
-                                                                   )); // was not borrowed to us
+        IEnumerable<Pawn> getter() => map.mapPawns.AllPawns
+            .Where(p => p.RaceProps.Animal    // is animal
+                    && !p.Dead               // is alive
+                    && p.kindDef == pawnKind // is our managed pawnkind
+                    && !(p.Faction == Faction.OfPlayer &&
+                            p.HasExtraHomeFaction()
+                            )); // was not borrowed to us
 
         AllCache.Add(key, getter);
         return getter();
@@ -104,10 +106,11 @@ public static class Utilities_Livestock
     {
         var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
         if (AllSexedCache.TryGetValue(key, out var pawns))
+        {
             return pawns;
+        }
 
-        Func<IEnumerable<Pawn>>
-            getter = () =>
+        IEnumerable<Pawn> getter() =>
                 pawnKind.GetAll(map).Where(p => PawnIsOfAgeSex(p, ageSex)); // is of age and sex we want
         AllSexedCache.Add(key, getter);
         return getter();
@@ -116,14 +119,15 @@ public static class Utilities_Livestock
     public static List<Pawn> GetFollowers(this Pawn pawn)
     {
         // check if we have a cached version
-        IEnumerable<Pawn>? cached;
 
         // does it exist at all?
         var cacheExists = FollowerCache.ContainsKey(pawn);
 
         // is it up to date?
-        if (cacheExists && FollowerCache[pawn].TryGetValue(out cached) && cached != null)
+        if (cacheExists && FollowerCache[pawn].TryGetValue(out IEnumerable<Pawn>? cached) && cached != null)
+        {
             return cached.ToList();
+        }
 
         // if not, get a new list.
         cached = pawn.MapHeld.mapPawns.PawnsInFaction(pawn.Faction)
@@ -134,12 +138,17 @@ public static class Utilities_Livestock
 
         // update if key exists
         if (cacheExists)
+        {
             FollowerCache[pawn].Update(cached);
+        }
 
         // else add it
         else
+        {
             // severely limit cache to only apply for one cycle (one job)
             FollowerCache.Add(pawn, new Utilities.CachedValue<IEnumerable<Pawn>>(cached, 2));
+        }
+
         return cached.ToList();
     }
 
@@ -153,22 +162,33 @@ public static class Utilities_Livestock
         var mode = MasterMode.Default;
 
         if (pawn.workSettings.WorkIsActive(WorkTypeDefOf.Hunting))
-            mode = mode | MasterMode.Hunters;
+        {
+            mode |= MasterMode.Hunters;
+        }
 
         if (pawn.workSettings.WorkIsActive(WorkTypeDefOf.Handling))
-            mode = mode | MasterMode.Trainers;
+        {
+            mode |= MasterMode.Trainers;
+        }
 
         if (pawn.equipment.Primary?.def.IsMeleeWeapon ?? true) // no weapon = melee 
-            mode = mode | MasterMode.Melee;
+        {
+            mode |= MasterMode.Melee;
+        }
 
         if (pawn.equipment.Primary?.def.IsRangedWeapon ?? false)
-            mode = mode | MasterMode.Ranged;
+        {
+            mode |= MasterMode.Ranged;
+        }
 
         if (!pawn.WorkTagIsDisabled(WorkTags.Violent))
-            mode = mode | MasterMode.Violent;
-
+        {
+            mode |= MasterMode.Violent;
+        }
         else
-            mode = mode | MasterMode.NonViolent;
+        {
+            mode |= MasterMode.NonViolent;
+        }
 
         return mode;
     }
@@ -176,7 +196,6 @@ public static class Utilities_Livestock
     public static List<Pawn> GetMasterOptions(this PawnKindDef pawnkind, Map map, MasterMode mode)
     {
         // check if we have a cached version
-        IEnumerable<Pawn>? cached;
 
         // does it exist at all?
         var key = new Triplet<PawnKindDef, Map, MasterMode>(pawnkind, map, mode);
@@ -184,8 +203,10 @@ public static class Utilities_Livestock
 
         // is it up to date?
         if (cacheExists &&
-             MasterCache[key].TryGetValue(out cached) && cached != null)
+             MasterCache[key].TryGetValue(out IEnumerable<Pawn>? cached) && cached != null)
+        {
             return cached.ToList();
+        }
 
         // if not, get a new list.
         cached = map.mapPawns.FreeColonistsSpawned
@@ -197,12 +218,17 @@ public static class Utilities_Livestock
 
         // update if key exists
         if (cacheExists)
+        {
             MasterCache[key].Update(cached);
+        }
 
         // else add it
         else
+        {
             // severely limit cache to only apply for one cycle (one job)
             MasterCache.Add(key, new Utilities.CachedValue<IEnumerable<Pawn>>(cached, 2));
+        }
+
         return cached.ToList();
     }
 
@@ -210,9 +236,11 @@ public static class Utilities_Livestock
     {
         var key = new Pair<PawnKindDef, Map>(pawnKind, map);
         if (TameCache.TryGetValue(key, out var pawns))
+        {
             return pawns;
+        }
 
-        Func<IEnumerable<Pawn>> getter = () => pawnKind.GetAll(map).Where(p => p.Faction == Faction.OfPlayer);
+        IEnumerable<Pawn> getter() => pawnKind.GetAll(map).Where(p => p.Faction == Faction.OfPlayer);
         TameCache.Add(key, getter);
         return getter();
     }
@@ -226,9 +254,11 @@ public static class Utilities_Livestock
 #else
         var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
         if (TameSexedCache.TryGetValue(key, out var pawns) && pawns != null)
+        {
             return pawns;
+        }
 
-        Func<IEnumerable<Pawn>> getter = () =>
+        IEnumerable<Pawn> getter() =>
             pawnKind.GetAll(map, ageSex).Where(p => p.Faction == Faction.OfPlayer);
         TameSexedCache.Add(key, getter);
         return getter();
@@ -237,25 +267,28 @@ public static class Utilities_Livestock
 
     public static List<Pawn> GetTrainers(this PawnKindDef pawnkind, Map map, MasterMode mode)
     {
-        return pawnkind.GetMasterOptions(map, mode).Where(p =>
-                                                                 // skill high enough to handle (copied from StatWorker_MinimumHandlingSkill)
-                                                                 // NOTE: This does NOT apply postprocessing, so scenario and other offsets DO NOT apply.
-                                                                 // we can't actually use StatRequests because they're hardcoded for either Things or BuildableDefs.
-                                                                 p.skills.GetSkill(SkillDefOf.Animals).Level >=
-                                                                 Mathf.Clamp(
-                                                                     GenMath.LerpDouble(
-                                                                         0.3f, 1f, 0f, 9f,
-                                                                         pawnkind.RaceProps.wildness), 0f, 20f))
-                       .ToList();
+        return pawnkind.GetMasterOptions(map, mode)
+            .Where(p =>
+                // skill high enough to handle (copied from StatWorker_MinimumHandlingSkill)
+                // NOTE: This does NOT apply postprocessing, so scenario and other offsets DO NOT apply.
+                // we can't actually use StatRequests because they're hardcoded for either Things or BuildableDefs.
+                p.skills.GetSkill(SkillDefOf.Animals).Level >=
+                Mathf.Clamp(
+                    GenMath.LerpDouble(
+                        0.3f, 1f, 0f, 9f,
+                        pawnkind.RaceProps.wildness), 0f, 20f))
+            .ToList();
     }
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
     {
         var key = new Pair<PawnKindDef, Map>(pawnKind, map);
         if (WildCache.TryGetValue(key, out var pawns))
+        {
             return pawns;
+        }
 
-        Func<IEnumerable<Pawn>> getter = () => pawnKind.GetAll(map).Where(p => p.Faction == null);
+        IEnumerable<Pawn> getter() => pawnKind.GetAll(map).Where(p => p.Faction == null);
         WildCache.Add(key, getter);
         return getter();
     }
@@ -270,9 +303,11 @@ public static class Utilities_Livestock
 #else
         var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
         if (WildSexedCache.TryGetValue(key, out var pawns))
+        {
             return pawns;
+        }
 
-        Func<IEnumerable<Pawn>> getter = () => pawnKind.GetAll(map, ageSex).Where(p => p.Faction == null);
+        IEnumerable<Pawn> getter() => pawnKind.GetAll(map, ageSex).Where(p => p.Faction == null);
         WildSexedCache.Add(key, getter);
         return getter();
 #endif
@@ -287,12 +322,17 @@ public static class Utilities_Livestock
     public static bool Milkable(this PawnKindDef pawnKind)
     {
         if (pawnKind == null)
+        {
             return false;
+        }
 
         var ret = false;
         if (MilkablePawnkind.ContainsKey(pawnKind))
         {
-            if (MilkablePawnkind[pawnKind].TryGetValue(out ret)) return ret;
+            if (MilkablePawnkind[pawnKind].TryGetValue(out ret))
+            {
+                return ret;
+            }
 
             ret = pawnKind.race.comps.OfType<CompProperties_Milkable>().Any(cp => cp.milkDef != null);
             MilkablePawnkind[pawnKind].Update(ret);
@@ -309,7 +349,10 @@ public static class Utilities_Livestock
         var ret = false;
         if (MilkablePawn.ContainsKey(pawn))
         {
-            if (MilkablePawn[pawn].TryGetValue(out ret)) return ret;
+            if (MilkablePawn[pawn].TryGetValue(out ret))
+            {
+                return ret;
+            }
 
             ret = pawn._milkable();
             MilkablePawn[pawn].Update(ret);
@@ -329,34 +372,30 @@ public static class Utilities_Livestock
 
         // note; we're treating anything non-male as female. I know, I'm sorry.
 
-        switch (ageSex)
+        return ageSex switch
         {
-            case AgeAndSex.AdultFemale:
-                return p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex >= 2;
-
-            case AgeAndSex.AdultMale:
-                return p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex >= 2;
-
-            case AgeAndSex.JuvenileFemale:
-                return p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex < 2;
-
-            case AgeAndSex.JuvenileMale:
-                return p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex < 2;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(ageSex), ageSex, null);
-        }
+            AgeAndSex.AdultFemale => p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex >= 2,
+            AgeAndSex.AdultMale => p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex >= 2,
+            AgeAndSex.JuvenileFemale => p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex < 2,
+            AgeAndSex.JuvenileMale => p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex < 2,
+            _ => throw new ArgumentOutOfRangeException(nameof(ageSex), ageSex, null),
+        };
     }
 
     public static bool Shearable(this PawnKindDef pawnKind)
     {
         if (pawnKind == null)
+        {
             return false;
+        }
 
         var ret = false;
         if (ShearablePawnkind.ContainsKey(pawnKind))
         {
-            if (ShearablePawnkind[pawnKind].TryGetValue(out ret)) return ret;
+            if (ShearablePawnkind[pawnKind].TryGetValue(out ret))
+            {
+                return ret;
+            }
 
             ret = pawnKind.race.comps.OfType<CompProperties_Shearable>().Any(cp => cp.woolDef != null);
             ShearablePawnkind[pawnKind].Update(ret);
@@ -373,7 +412,10 @@ public static class Utilities_Livestock
         var ret = false;
         if (ShearablePawn.ContainsKey(pawn))
         {
-            if (ShearablePawn[pawn].TryGetValue(out ret)) return ret;
+            if (ShearablePawn[pawn].TryGetValue(out ret))
+            {
+                return ret;
+            }
 
             ret = pawn._shearable();
             ShearablePawn[pawn].Update(ret);
@@ -390,8 +432,11 @@ public static class Utilities_Livestock
         var interval = Traverse.Create(comp).Property("GatherResourcesIntervalDays").GetValue<int>();
         var growthRatePerTick = 1f / (interval * GenDate.TicksPerDay);
 
-        var pawn = comp.parent as Pawn;
-        if (pawn == null) throw new ArgumentException("harvestable should always be on a Pawn");
+        if (comp.parent is not Pawn)
+        {
+            throw new ArgumentException("harvestable should always be on a Pawn");
+        }
+
         growthRatePerTick *= PawnUtility.BodyResourceGrowthSpeed((Pawn)comp.parent);
 
         // Logger.Debug( $"rate: {growthRatePerTick}, interval: {interval}");
@@ -408,7 +453,11 @@ public static class Utilities_Livestock
     {
         var comp = pawn?.TryGetComp<CompMilkable>();
         object active = false;
-        if (comp != null) active = comp.GetPrivatePropertyValue("Active");
+        if (comp != null)
+        {
+            active = comp.GetPrivatePropertyValue("Active");
+        }
+
         return (bool)active;
     }
 
@@ -416,7 +465,11 @@ public static class Utilities_Livestock
     {
         var comp = pawn?.TryGetComp<CompShearable>();
         object active = false;
-        if (comp != null) active = comp.GetPrivatePropertyValue("Active");
+        if (comp != null)
+        {
+            active = comp.GetPrivatePropertyValue("Active");
+        }
+
         return (bool)active;
     }
 }

@@ -26,7 +26,9 @@ public class StockpileGUI
 
         // create colour swatch
         if (textures == null || textures.Count != areaCount - 1)
+        {
             CreateTextures(allStockpiles);
+        }
 
         var widthPerCell = rect.width / areaCount;
         Text.WordWrap = false;
@@ -51,16 +53,22 @@ public class StockpileGUI
     {
         if (textures != null)
         {
-            foreach (var tex in textures) Object.DestroyImmediate(tex);
+            foreach (var tex in textures)
+            {
+                Object.DestroyImmediate(tex);
+            }
 
             textures.Clear();
         }
         else
         {
-            textures = new List<Texture2D>();
+            textures = [];
         }
 
-        foreach (var zone in zones) textures.Add(SolidColorMaterials.NewSolidColorTexture(zone.color));
+        foreach (var zone in zones)
+        {
+            textures.Add(SolidColorMaterials.NewSolidColorTexture(zone.color));
+        }
     }
 
     // RimWorld.AreaAllowedGUI
@@ -75,12 +83,21 @@ public class StockpileGUI
         innerRect.xMin += 3f;
         innerRect.yMin += 2f;
         Widgets.Label(innerRect, label);
-        if (zoneAllowed == zone) Widgets.DrawBox(rect, 2);
+        if (zoneAllowed == zone)
+        {
+            Widgets.DrawBox(rect, 2);
+        }
+
         if (Mouse.IsOver(rect))
         {
             if (zone != null)
+            {
                 if (zone.AllSlotCellsList() != null && zone.AllSlotCellsList().Count > 0)
+                {
                     CameraJumper.TryJump(zone.Cells.First(), zone.Map);
+                }
+            }
+
             if (Input.GetMouseButton(0) &&
                  zoneAllowed != zone)
             {

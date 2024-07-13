@@ -35,7 +35,10 @@ internal class MainTabWindow_Manager : MainTabWindow
         tab.PostOpen();
 
         // if desired, set selected.
-        if (job != null) tab.Selected = job;
+        if (job != null)
+        {
+            tab.Selected = job;
+        }
     }
 
     public override void DoWindowContents(Rect canvas)
@@ -117,7 +120,11 @@ internal class MainTabWindow_Manager : MainTabWindow
             if (tab == CurrentTab)
             {
                 GUI.color = GenUI.MouseoverColor;
-                if (Widgets.ButtonImage(rect, tab.def.icon, GenUI.MouseoverColor)) tab.Selected = null;
+                if (Widgets.ButtonImage(rect, tab.def.icon, GenUI.MouseoverColor))
+                {
+                    tab.Selected = null;
+                }
+
                 GUI.color = Color.white;
             }
             else if (Widgets.ButtonImage(rect, tab.def.icon))
@@ -167,7 +174,10 @@ internal class MainTabWindow_Manager : MainTabWindow
 
         // make sure the currently open tab is for this map
         if (CurrentTab.manager.map != Find.CurrentMap)
+        {
             CurrentTab = DefaultTab;
+        }
+
         CurrentTab.PreOpen();
     }
 }

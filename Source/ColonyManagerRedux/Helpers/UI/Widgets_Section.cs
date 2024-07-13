@@ -11,10 +11,10 @@ namespace ColonyManagerRedux;
 
 public static class Widgets_Section
 {
-    private static readonly Dictionary<string, float> _columnHeights = new Dictionary<string, float>();
-    private static readonly Dictionary<string, Vector2> _columnScrollPositions = new Dictionary<string, Vector2>();
+    private static readonly Dictionary<string, float> _columnHeights = [];
+    private static readonly Dictionary<string, Vector2> _columnScrollPositions = [];
 
-    private static readonly Dictionary<int, float> _heights = new Dictionary<int, float>();
+    private static readonly Dictionary<int, float> _heights = [];
 
     public static void BeginSectionColumn(Rect canvas, string identifier, out Vector2 position, out float width)
     {
@@ -23,7 +23,10 @@ public static class Widgets_Section
         var outRect = canvas.ContractedBy(Margin).RoundToInt();
         var viewRect = new Rect(outRect.xMin, outRect.yMin, outRect.width, height);
         if (viewRect.height > outRect.height)
+        {
             viewRect.width -= ScrollbarWidth + Margin / 2f;
+        }
+
         viewRect = viewRect.RoundToInt();
 
         Widgets.BeginScrollView(outRect, ref scrollPosition, viewRect);
@@ -74,9 +77,10 @@ public static class Widgets_Section
 
     private static float GetHeight(string identifier)
     {
-        float height;
-        if (_columnHeights.TryGetValue(identifier, out height))
+        if (_columnHeights.TryGetValue(identifier, out float height))
+        {
             return height;
+        }
 
         height = 0f;
         _columnHeights[identifier] = height;
@@ -85,16 +89,16 @@ public static class Widgets_Section
 
     private static float GetHeight(int id)
     {
-        float height;
-        _heights.TryGetValue(id, out height);
+        _heights.TryGetValue(id, out float height);
         return height;
     }
 
     private static Vector2 GetScrollPosition(string identifier)
     {
-        Vector2 scrollposition;
-        if (_columnScrollPositions.TryGetValue(identifier, out scrollposition))
+        if (_columnScrollPositions.TryGetValue(identifier, out Vector2 scrollposition))
+        {
             return scrollposition;
+        }
 
         scrollposition = Vector2.zero;
         _columnScrollPositions[identifier] = scrollposition;

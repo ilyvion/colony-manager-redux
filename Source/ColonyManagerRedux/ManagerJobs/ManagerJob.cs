@@ -74,7 +74,10 @@ public abstract class ManagerJob : IManagerJob, IExposable
     public virtual void ExposeData()
     {
         if (Scribe.mode == LoadSaveMode.Saving)
+        {
             _updateIntervalScribe = UpdateInterval.ticks;
+        }
+
         Scribe_References.Look(ref manager, "manager");
         Scribe_Values.Look(ref _updateIntervalScribe, "UpdateInterval");
         Scribe_Values.Look(ref lastAction, "lastAction");
@@ -107,7 +110,10 @@ public abstract class ManagerJob : IManagerJob, IExposable
     public virtual void Delete(bool cleanup = true)
     {
         if (cleanup)
+        {
             CleanUp();
+        }
+
         Manager.For(manager).JobStack.Delete(this, false);
     }
 

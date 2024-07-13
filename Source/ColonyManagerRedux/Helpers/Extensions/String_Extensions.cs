@@ -10,7 +10,7 @@ namespace ColonyManagerRedux;
 public static class String_Extensions
 {
     private static readonly Dictionary<Pair<string, Rect>, bool> _fitsCache =
-        new Dictionary<Pair<string, Rect>, bool>();
+        [];
 
     public static string Bold(this TaggedString text)
     {
@@ -25,9 +25,10 @@ public static class String_Extensions
     public static bool Fits(this string text, Rect rect)
     {
         var key = new Pair<string, Rect>(text, rect);
-        bool result;
-        if (_fitsCache.TryGetValue(key, out result))
+        if (_fitsCache.TryGetValue(key, out bool result))
+        {
             return result;
+        }
 
         // make sure WW is temporarily turned off.
         var WW = Text.WordWrap;

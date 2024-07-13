@@ -12,7 +12,7 @@
         <ErrorReport>prompt</ErrorReport>
         <WarningLevel>5</WarningLevel> -->
 
-        <NoWarn>CA1707;CS8620</NoWarn>
+        <NoWarn>CA1707;CS8620;IDE0305</NoWarn>
 
         <RootNamespace>ColonyManagerRedux</RootNamespace>
         <AssemblyName>ColonyManagerRedux</AssemblyName>

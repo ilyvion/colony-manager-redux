@@ -23,7 +23,7 @@ public static class Utilities
     }
 
     public static Dictionary<MapStockpileFilter, FilterCountCache> CountCache =
-        new Dictionary<MapStockpileFilter, FilterCountCache>();
+        [];
 
     public static WorkTypeDef WorkTypeDefOf_Managing = DefDatabase<WorkTypeDef>.GetNamed("Managing");
 
@@ -39,18 +39,16 @@ public static class Utilities
         {
             if (_updateIntervalOptions.NullOrEmpty())
             {
-                _updateIntervalOptions = new List<UpdateInterval>();
-                _updateIntervalOptions.Add(new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.ManagerHourly".Translate()));
-                _updateIntervalOptions.Add(
-                    new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.ManagerMultiHourly".Translate(2)));
-                _updateIntervalOptions.Add(
-                    new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.ManagerMultiHourly".Translate(4)));
-                _updateIntervalOptions.Add(
-                    new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.ManagerMultiHourly".Translate(8)));
-                _updateIntervalOptions.Add(UpdateInterval.Daily);
-                _updateIntervalOptions.Add(
-                    new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.ManagerMonthly".Translate()));
-                _updateIntervalOptions.Add(new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.ManagerYearly".Translate()));
+                _updateIntervalOptions =
+                [
+                    new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.ManagerHourly".Translate()),
+                    new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.ManagerMultiHourly".Translate(2)),
+                    new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.ManagerMultiHourly".Translate(4)),
+                    new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.ManagerMultiHourly".Translate(8)),
+                    UpdateInterval.Daily,
+                    new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.ManagerMonthly".Translate()),
+                    new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.ManagerYearly".Translate()),
+                ];
             }
 
             return _updateIntervalOptions!;
@@ -61,13 +59,20 @@ public static class Utilities
                                      bool countAllOnMap = false)
     {
         if (map == null)
+        {
             throw new NullReferenceException(nameof(map));
+        }
 
         if (filter == null)
+        {
             throw new NullReferenceException(nameof(filter));
+        }
 
         var key = new MapStockpileFilter(map, filter, stockpile, countAllOnMap);
-        if (TryGetCached(key, out var count)) return count;
+        if (TryGetCached(key, out var count))
+        {
+            return count;
+        }
 
         foreach (var td in filter.AllowedThingDefs)
         {
@@ -95,14 +100,22 @@ public static class Utilities
                 {
                     if (t.IsForbidden(Faction.OfPlayer) ||
                          t.Position.Fogged(map))
+                    {
                         continue;
+                    }
 
-                    QualityCategory quality;
-                    if (t.TryGetQuality(out quality))
+                    if (t.TryGetQuality(out QualityCategory quality))
+                    {
                         if (!filter.AllowedQualityLevels.Includes(quality))
+                        {
                             continue;
+                        }
+                    }
 
-                    if (filter.AllowedHitPointsPercents.IncludesEpsilon(t.HitPoints)) continue;
+                    if (filter.AllowedHitPointsPercents.IncludesEpsilon(t.HitPoints))
+                    {
+                        continue;
+                    }
 
 
 #if DEBUG_COUNTS
@@ -157,7 +170,11 @@ public static class Utilities
         if (Widgets.ButtonImage(
             stampRect,
             job.Completed ? Resources.StampCompleted :
-            job.Suspended ? Resources.StampStart : Resources.StampSuspended)) job.Suspended = !job.Suspended;
+            job.Suspended ? Resources.StampStart : Resources.StampSuspended))
+        {
+            job.Suspended = !job.Suspended;
+        }
+
         if (job.Suspended)
         {
             TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerUnsuspendJobTooltip".Translate());
@@ -174,7 +191,9 @@ public static class Utilities
 
         // should never happen?
         if (trigger == null)
+        {
             return;
+        }
 
         // draw progress bar
         trigger.DrawProgressBar(progressRect, true);
@@ -216,9 +235,13 @@ public static class Utilities
 
         // draw check
         if (checkOn)
+        {
             GUI.DrawTexture(iconRect, Widgets.CheckboxOnTex);
+        }
         else
+        {
             GUI.DrawTexture(iconRect, Widgets.CheckboxOffTex);
+        }
 
         // draw expensive icon
         if (expensive)
@@ -232,7 +255,10 @@ public static class Utilities
 
         // interactivity
         Widgets.DrawHighlightIfMouseover(rect);
-        if (Widgets.ButtonInvisible(rect)) checkOn = !checkOn;
+        if (Widgets.ButtonInvisible(rect))
+        {
+            checkOn = !checkOn;
+        }
     }
 
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
@@ -289,15 +315,24 @@ public static class Utilities
         Label(rect, label, TextAnchor.MiddleLeft, GameFont.Small, margin: margin, wrap: wrap);
 
         // tooltip
-        if (tooltip.HasValue) TooltipHandler.TipRegion(rect, tooltip.Value);
+        if (tooltip.HasValue)
+        {
+            TooltipHandler.TipRegion(rect, tooltip.Value);
+        }
 
         // draw check
         if (checkOn)
+        {
             GUI.DrawTexture(iconRect, Widgets.CheckboxOnTex);
+        }
         else if (checkOff)
+        {
             GUI.DrawTexture(iconRect, Widgets.CheckboxOffTex);
+        }
         else
+        {
             GUI.DrawTexture(iconRect, Widgets.CheckboxPartialTex);
+        }
 
         // draw expensive icon
         if (expensive)
@@ -314,9 +349,13 @@ public static class Utilities
         if (Widgets.ButtonInvisible(rect))
         {
             if (!checkOn)
+            {
                 on();
+            }
             else
+            {
                 off();
+            }
         }
     }
 
@@ -334,12 +373,18 @@ public static class Utilities
         var position = IntVec3.Zero;
         Building managerStation = map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
                                      .FirstOrDefault();
-        if (managerStation != null) return managerStation.InteractionCell;
+        if (managerStation != null)
+        {
+            return managerStation.InteractionCell;
+        }
 
         // otherwise, use the average of the home area. Not ideal, but it'll do.
         var homeCells =
             map.areaManager.Get<Area_Home>().ActiveCells.ToList();
-        for (var i = 0; i < homeCells.Count; i++) position += homeCells[i];
+        for (var i = 0; i < homeCells.Count; i++)
+        {
+            position += homeCells[i];
+        }
 
         position.x /= homeCells.Count;
         position.y /= homeCells.Count;
@@ -348,7 +393,10 @@ public static class Utilities
 
         // find the closest traversable cell to the center
         for (var i = 0; !standableCell.Walkable(map); i++)
+        {
             standableCell = position + GenRadial.RadialPattern[i];
+        }
+
         return standableCell;
     }
 
@@ -362,8 +410,12 @@ public static class Utilities
     public static bool HasCompOrChildCompOf(this ThingDef def, Type compType)
     {
         for (var index = 0; index < def.comps.Count; ++index)
+        {
             if (compType.IsAssignableFrom(def.comps[index].compClass))
+            {
                 return true;
+            }
+        }
 
         return false;
     }
@@ -377,9 +429,10 @@ public static class Utilities
                                      GameFont font, Color textColour, Color outlineColour)
     {
         // horribly inefficient way of getting an outline to show - draw 4 background coloured labels with a 1px offset, then draw the foreground on top.
-        int[] offsets = { -1, 0, 1 };
+        int[] offsets = [-1, 0, 1];
 
         foreach (var xOffset in offsets)
+        {
             foreach (var yOffset in offsets)
             {
                 var offsetIcon = icon;
@@ -387,14 +440,23 @@ public static class Utilities
                 offsetIcon.y += yOffset;
                 Label(offsetIcon, label, anchor, font, outlineColour, margin);
             }
+        }
 
         Label(icon, label, tooltip, anchor, font, textColour, margin);
     }
 
     public static int SafeAbs(int value)
     {
-        if (value >= 0) return value;
-        if (value == int.MinValue) return int.MaxValue;
+        if (value >= 0)
+        {
+            return value;
+        }
+
+        if (value == int.MinValue)
+        {
+            return int.MaxValue;
+        }
+
         return -value;
     }
 
@@ -402,10 +464,15 @@ public static class Utilities
     {
         string? text = null;
         if (Scribe.mode == LoadSaveMode.Saving)
+        {
             text = string.Join(":", values.ConvertAll(i => i.ToString()).ToArray());
+        }
+
         Scribe_Values.Look(ref text, label);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
             values = text?.Split(":".ToCharArray()).ToList().ConvertAll(int.Parse) ?? [];
+        }
     }
 
     public static string TimeString(this int ticks)
@@ -415,7 +482,11 @@ public static class Utilities
 
         var s = string.Empty;
 
-        if (days > 0) s += days + "LetterDay".Translate() + " ";
+        if (days > 0)
+        {
+            s += days + "LetterDay".Translate() + " ";
+        }
+
         s += hours + "LetterHour".Translate();
 
         return s;
@@ -436,14 +507,19 @@ public static class Utilities
         var field = type.GetField(fieldName, flags);
 
         // failed?
-        if (field == null) return false;
+        if (field == null)
+        {
+            return false;
+        }
 
         // try setting it.
         field.SetValue(instance, value);
 
         // test by fetching the field again. (this is highly, stupidly inefficient, but ok).
-        object? test;
-        if (!TryGetPrivateField(type, instance, fieldName, out test, flags)) return false;
+        if (!TryGetPrivateField(type, instance, fieldName, out object? test, flags))
+        {
+            return false;
+        }
 
         return test == value;
     }
@@ -468,33 +544,19 @@ public static class Utilities
         return false;
     }
 
-    public struct MapStockpileFilter
+    public struct MapStockpileFilter(Map map, ThingFilter filter, Zone_Stockpile? stockpile,
+                               bool countAllOnMap = false)
     {
-        private ThingFilter filter;
-        private Zone_Stockpile? stockpile;
-        private Map map;
-        private bool countAllOnMap;
-
-        public MapStockpileFilter(Map map, ThingFilter filter, Zone_Stockpile? stockpile,
-                                   bool countAllOnMap = false)
-        {
-            this.map = map;
-            this.filter = filter;
-            this.stockpile = stockpile;
-            this.countAllOnMap = countAllOnMap;
-        }
+        private ThingFilter filter = filter;
+        private Zone_Stockpile? stockpile = stockpile;
+        private Map map = map;
+        private bool countAllOnMap = countAllOnMap;
     }
 
-    public class CachedValues<T, V>
+    public class CachedValues<T, V>(int updateInterval = 250)
     {
-        private readonly Dictionary<T, CachedValue<V>> _cache;
-        private readonly int updateInterval;
-
-        public CachedValues(int updateInterval = 250)
-        {
-            _cache = new Dictionary<T, CachedValue<V>>();
-            this.updateInterval = updateInterval;
-        }
+        private readonly Dictionary<T, CachedValue<V>> _cache = [];
+        private readonly int updateInterval = updateInterval;
 
         public V? this[T index]
         {
@@ -524,7 +586,10 @@ public static class Utilities
 
         public bool TryGetValue(T key, out V? value)
         {
-            if (_cache.TryGetValue(key, out var cachedValue)) return cachedValue.TryGetValue(out value);
+            if (_cache.TryGetValue(key, out var cachedValue))
+            {
+                return cachedValue.TryGetValue(out value);
+            }
 
             value = default;
             return false;
@@ -533,9 +598,13 @@ public static class Utilities
         public void Update(T key, V value)
         {
             if (_cache.TryGetValue(key, out var cachedValue))
+            {
                 cachedValue.Update(value);
+            }
             else
+            {
                 _cache.Add(key, new CachedValue<V>(value, updateInterval));
+            }
         }
     }
 
@@ -560,7 +629,10 @@ public static class Utilities
             get
             {
                 if (TryGetValue(out var value))
+                {
                     return value;
+                }
+
                 throw new InvalidOperationException(
                     "get_Value() on a CachedValue that is out of date, and has no updater.");
             }
@@ -596,22 +668,20 @@ public static class Utilities
             // Log.Message( $"Running Update()", true );
 
             if (_updater == null)
+            {
                 Log.Error("Calling Update() without updater");
+            }
             else
+            {
                 Update(_updater());
+            }
         }
     }
 
     // count cache for multiple products
-    public class FilterCountCache
+    public class FilterCountCache(int count)
     {
-        public int Cache;
-        public int TimeSet;
-
-        public FilterCountCache(int count)
-        {
-            Cache = count;
-            TimeSet = Find.TickManager.TicksGame;
-        }
+        public int Cache = count;
+        public int TimeSet = Find.TickManager.TicksGame;
     }
 }

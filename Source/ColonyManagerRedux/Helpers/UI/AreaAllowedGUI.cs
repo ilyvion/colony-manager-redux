@@ -48,8 +48,12 @@ internal class AreaAllowedGUI
         var allAreas = map.areaManager.AllAreas;
         var areaCount = 1;
         for (var i = 0; i < allAreas.Count; i++)
+        {
             if (allAreas[i].AssignableAsAllowed())
+            {
                 areaCount++;
+            }
+        }
 
         var widthPerArea = rect.width / areaCount;
         Text.WordWrap = false;
@@ -58,6 +62,7 @@ internal class AreaAllowedGUI
         DoAreaSelector(nullAreaRect, ref area, null);
         var areaIndex = 1;
         for (var j = 0; j < allAreas.Count; j++)
+        {
             if (allAreas[j].AssignableAsAllowed())
             {
                 var xOffset = areaIndex * widthPerArea;
@@ -65,6 +70,7 @@ internal class AreaAllowedGUI
                 DoAreaSelector(areaRect, ref area, allAreas[j]);
                 areaIndex++;
             }
+        }
 
         Text.WordWrap = true;
         Text.Font = GameFont.Small;
@@ -81,7 +87,6 @@ internal class AreaAllowedGUI
         var widthPerArea = rect.width / areas.Count;
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
-        var nullAreaRect = new Rect(rect.x, rect.y, widthPerArea, rect.height);
         var areaIndex = 0;
 
         // need to use a 'clean' list of keys to iterate over when changing the dictionary values
@@ -109,11 +114,14 @@ internal class AreaAllowedGUI
         rect2.yMin += 2f;
         Widgets.Label(rect2, text);
         if (status)
+        {
             Widgets.DrawBox(rect, 2);
+        }
+
         if (Mouse.IsOver(rect))
         {
-            if (area != null)
-                area.MarkForDraw();
+            area?.MarkForDraw();
+
             if (Widgets.ButtonInvisible(rect))
             {
                 SoundDefOf.Designate_DragStandard_Changed.PlayOneShotOnCamera();
@@ -136,10 +144,15 @@ internal class AreaAllowedGUI
         rect2.xMin += 3f;
         rect2.yMin += 2f;
         Widgets.Label(rect2, text);
-        if (areaAllowed == area) Widgets.DrawBox(rect, 2);
+        if (areaAllowed == area)
+        {
+            Widgets.DrawBox(rect, 2);
+        }
+
         if (Mouse.IsOver(rect))
         {
-            if (area != null) area.MarkForDraw();
+            area?.MarkForDraw();
+
             if (Input.GetMouseButton(0) &&
                  areaAllowed != area)
             {

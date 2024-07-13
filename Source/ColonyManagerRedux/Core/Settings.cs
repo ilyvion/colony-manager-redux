@@ -35,7 +35,9 @@ public class Settings : ModSettings
         {
             var options = new List<FloatMenuOption>();
             foreach (var interval in Utilities.UpdateIntervalOptions)
+            {
                 options.Add(new FloatMenuOption(interval.label, () => DefaultUpdateInterval = interval));
+            }
 
             Find.WindowStack.Add(new FloatMenu(options));
         }
@@ -44,8 +46,13 @@ public class Settings : ModSettings
     private static UpdateInterval ticksToInterval(int ticks)
     {
         foreach (var interval in Utilities.UpdateIntervalOptions)
+        {
             if (interval.ticks == ticks)
+            {
                 return interval;
+            }
+        }
+
         return UpdateInterval.Daily;
     }
 

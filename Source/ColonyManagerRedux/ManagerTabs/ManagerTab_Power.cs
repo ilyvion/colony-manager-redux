@@ -91,9 +91,15 @@ public class ManagerTab_Power : ManagerTab, IExposable
         get
         {
             if (!unlocked)
+            {
                 return "ColonyManagerRedux.Energy.NotResearched".Translate();
+            }
+
             if (!AnyPoweredStationOnline)
+            {
                 return "ColonyManagerRedux.Energy.NoPoweredStation".Translate();
+            }
+
             return "Not sure. It should be enabled? Send a bug report.";
         }
     }
@@ -223,8 +229,11 @@ public class ManagerTab_Power : ManagerTab, IExposable
         var searchIconRect = periodRect;
         searchIconRect.xMin = searchIconRect.xMax - searchIconRect.height;
         if (searchIconRect.height > SmallIconSize)
+        {
             // center it.
             searchIconRect = searchIconRect.ContractedBy((searchIconRect.height - SmallIconSize) / 2);
+        }
+
         GUI.DrawTexture(searchIconRect, Resources.Search);
         Widgets.DrawHighlightIfMouseover(periodRect);
         if (Widgets.ButtonInvisible(periodRect))

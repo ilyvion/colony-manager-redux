@@ -53,16 +53,18 @@ public class ManagerJob_Livestock : ManagerJob
         SetWanted_MI =
             typeof(Pawn_TrainingTracker).GetMethod("SetWanted", BindingFlags.NonPublic | BindingFlags.Instance);
         if (SetWanted_MI == null)
+        {
             throw new NullReferenceException("Could not find Pawn_TrainingTracker.SetWanted()");
+        }
     }
 
     public ManagerJob_Livestock(Manager manager) : base(manager)
     {
         // init designations
-        _designations = new List<Designation>();
+        _designations = [];
 
         // start history tracker
-        _history = new History(Utilities_Livestock.AgeSexArray.Select(ageSex => ageSex.ToString()).ToArray());
+        _history = new History(Utilities_Livestock.AgeSexArray.Select(ageSex => ageSex.ToString()).Cast<DirectHistoryLabel>().ToArray());
 
         // set up the trigger, set all target counts to 5
         Trigger = new Trigger_PawnKind(this.manager);
@@ -120,26 +122,30 @@ public class ManagerJob_Livestock : ManagerJob
 
     public override bool Completed => Trigger.State;
 
-    public List<Designation> Designations => new List<Designation>(_designations);
+    public List<Designation> Designations => new(_designations);
 
     public string? FullLabel
     {
         get
         {
             if (_cachedLabel != null && _cachedLabel.TryGetValue(out var label))
+            {
                 return label;
+            }
 
-            Func<string> labelGetter = () =>
+            string labelGetter()
             {
                 var text = Label + "\n<i>";
                 foreach (var ageSex in Utilities_Livestock.AgeSexArray)
+                {
                     text += Trigger.pawnKind.GetTame(manager, ageSex).Count() + "/" +
                             Trigger.CountTargets[ageSex] +
                             ", ";
+                }
 
                 text += Trigger.pawnKind.GetWild(manager).Count() + "</i>";
                 return text;
-            };
+            }
             _cachedLabel = new Utilities.CachedValue<string>(labelGetter(), 250, labelGetter);
             return labelGetter();
         }
@@ -184,15 +190,21 @@ public class ManagerJob_Livestock : ManagerJob
     public AcceptanceReport CanBeTrained(PawnKindDef pawnKind, TrainableDef td, out bool visible)
     {
         if (pawnKind.RaceProps.untrainableTags != null)
+        {
             for (var index = 0; index < pawnKind.RaceProps.untrainableTags.Count; ++index)
+            {
                 if (td.MatchesTag(pawnKind.RaceProps.untrainableTags[index]))
                 {
                     visible = false;
                     return false;
                 }
+            }
+        }
 
         if (pawnKind.RaceProps.trainableTags != null)
+        {
             for (var index = 0; index < pawnKind.RaceProps.trainableTags.Count; ++index)
+            {
                 if (td.MatchesTag(pawnKind.RaceProps.trainableTags[index]))
                 {
                     if (pawnKind.RaceProps.baseBodySize < td.minBodySize)
@@ -205,6 +217,8 @@ public class ManagerJob_Livestock : ManagerJob
                     visible = true;
                     return true;
                 }
+            }
+        }
 
         if (!td.defaultTrainable)
         {
@@ -232,7 +246,10 @@ public class ManagerJob_Livestock : ManagerJob
 
     public override void CleanUp()
     {
-        foreach (var des in _designations) des.Delete();
+        foreach (var des in _designations)
+        {
+            des.Delete();
+        }
 
         _designations.Clear();
     }
@@ -241,8 +258,8 @@ public class ManagerJob_Livestock : ManagerJob
     {
         return _designations.Where(des => des.def == def
                                        && des.target.HasThing
-                                       && des.target.Thing is Pawn
-                                       && ((Pawn)des.target.Thing).PawnIsOfAgeSex(ageSex))
+                                       && des.target.Thing is Pawn pawn
+                                       && pawn.PawnIsOfAgeSex(ageSex))
                             .ToList();
     }
 
@@ -265,8 +282,15 @@ public class ManagerJob_Livestock : ManagerJob
             // default 
             else
             {
-                if (Masters != MasterMode.Default) SetMaster(animal, Masters, Master, ref actionTaken);
-                if (SetFollow) SetFollowing(animal, FollowDrafted, FollowFieldwork, ref actionTaken);
+                if (Masters != MasterMode.Default)
+                {
+                    SetMaster(animal, Masters, Master, ref actionTaken);
+                }
+
+                if (SetFollow)
+                {
+                    SetFollowing(animal, FollowDrafted, FollowFieldwork, ref actionTaken);
+                }
             }
         }
     }
@@ -276,10 +300,10 @@ public class ManagerJob_Livestock : ManagerJob
         // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
 
         // set up rects
-        Rect labelRect = new Rect(
+        Rect labelRect = new(
                  Margin, Margin, rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
                  rect.height - 2 * Margin),
-             statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth,
+             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth,
                                     rect.height - 2 * Margin);
 
 
@@ -291,7 +315,11 @@ public class ManagerJob_Livestock : ManagerJob
         TooltipHandler.TipRegion(labelRect, () => Trigger.StatusTooltip, GetHashCode());
 
         // if the bill has a manager job, give some more info.
-        if (active) this.DrawStatusForListEntry(statusRect, Trigger);
+        if (active)
+        {
+            this.DrawStatusForListEntry(statusRect, Trigger);
+        }
+
         GUI.EndGroup();
     }
 
@@ -357,7 +385,9 @@ public class ManagerJob_Livestock : ManagerJob
         {
             var bondee = animal.relations.GetFirstDirectRelationPawn(PawnRelationDefOf.Bond, p => !p.Dead);
             if (bondee != null && TrainableUtility.CanBeMaster(bondee, animal))
+            {
                 return bondee;
+            }
         }
 
         Logger.Follow(
@@ -371,12 +401,16 @@ public class ManagerJob_Livestock : ManagerJob
 
         // cop out if no options
         if (options.NullOrEmpty())
+        {
             return null;
+        }
 
         // if we currently have a master, our current master is a valid option, 
         // and all the options have roughly equal amounts of pets following them, we don't need to take action
         if (master != null && options.Contains(master) && RoughlyEquallyDistributed(options))
+        {
             return master;
+        }
 
         // otherwise, assign a master that has the least amount of current followers.
         return options.MinBy(p => p.GetFollowers().Count);
@@ -434,7 +468,9 @@ public class ManagerJob_Livestock : ManagerJob
     public override void Tick()
     {
         if (_history.IsRelevantTick)
+        {
             _history.Update(Trigger.Counts);
+        }
     }
 
     public override bool TryDoJob()
@@ -479,11 +515,14 @@ public class ManagerJob_Livestock : ManagerJob
         {
             // skip juveniles if TrainYoung is not enabled.
             if (ageSex.Juvenile() && !Training.TrainYoung)
+            {
                 continue;
+            }
 
             foreach (var animal in Trigger.pawnKind.GetTame(manager, ageSex))
             {
                 foreach (var def in Training.Defs)
+                {
                     if ( // only train if allowed.
                         animal.training.CanAssignToTrain(def, out _).Accepted &&
 
@@ -491,9 +530,14 @@ public class ManagerJob_Livestock : ManagerJob
                         animal.training.GetWanted(def) != Training[def] &&
                         (Training[def] || Training.UnassignTraining))
                     {
-                        if (assign) SetWanted_MI.Invoke(animal.training, new object[] { def, Training[def] });
+                        if (assign)
+                        {
+                            SetWanted_MI.Invoke(animal.training, [def, Training[def]]);
+                        }
+
                         actionTaken = true;
                     }
+                }
             }
         }
     }
@@ -502,10 +546,14 @@ public class ManagerJob_Livestock : ManagerJob
     {
         // skip for roamers
         if (Trigger.pawnKind.RaceProps.Roamer)
+        {
             return;
+        }
 
         for (var i = 0; i < Utilities_Livestock.AgeSexArray.Length; i++)
+        {
             foreach (var p in Trigger.pawnKind.GetTame(manager, Utilities_Livestock.AgeSexArray[i]))
+            {
                 // slaughter
                 if (SendToSlaughterArea &&
                      manager.map.designationManager.DesignationOn(p, DesignationDefOf.Slaughter) != null)
@@ -554,11 +602,16 @@ public class ManagerJob_Livestock : ManagerJob
                     actionTaken = true;
                     p.playerSettings.AreaRestrictionInPawnCurrentMap = RestrictArea[i];
                 }
+            }
+        }
     }
 
     private void DoButcherJobs(ref bool actionTaken)
     {
-        if (!ButcherExcess) return;
+        if (!ButcherExcess)
+        {
+            return;
+        }
 
 #if DEBUG_LIFESTOCK
         Log.Message( "Doing butchery: " + Trigger.pawnKind.LabelCap );
@@ -609,6 +662,7 @@ public class ManagerJob_Livestock : ManagerJob
 
             // remove extra designations
             while (surplus < 0)
+            {
                 if (TryRemoveDesignation(ageSex, DesignationDefOf.Slaughter))
                 {
 #if DEBUG_LIFESTOCK
@@ -621,12 +675,16 @@ public class ManagerJob_Livestock : ManagerJob
                 {
                     break;
                 }
+            }
         }
     }
 
     private void DoTamingJobs(ref bool actionTaken)
     {
-        if (!TryTameMore) return;
+        if (!TryTameMore)
+        {
+            return;
+        }
 
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
@@ -655,7 +713,9 @@ public class ManagerJob_Livestock : ManagerJob
 
                 // skip if no animals available.
                 if (animals.Count == 0)
+                {
                     continue;
+                }
 
                 animals =
                     animals.OrderBy(p => p.ageTracker.AgeBiologicalTicks / Distance(p, position)).ToList();
@@ -675,6 +735,7 @@ public class ManagerJob_Livestock : ManagerJob
 
             // remove extra designations
             while (deficit < 0)
+            {
                 if (TryRemoveDesignation(ageSex, DesignationDefOf.Tame))
                 {
 #if DEBUG_LIFESTOCK
@@ -687,6 +748,7 @@ public class ManagerJob_Livestock : ManagerJob
                 {
                     break;
                 }
+            }
         }
     }
 
@@ -702,7 +764,10 @@ public class ManagerJob_Livestock : ManagerJob
         var currentDesignations = DesignationsOfOn(def, ageSex);
 
         // if none, return false
-        if (currentDesignations.Count == 0) return false;
+        if (currentDesignations.Count == 0)
+        {
+            return false;
+        }
 
         // else, remove one from the game as well as our managed list. (delete last - this should be the youngest/oldest).
         var designation = currentDesignations.Last();
@@ -714,7 +779,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     public class TrainingTracker : IExposable
     {
-        public DefMap<TrainableDef, bool> TrainingTargets = new DefMap<TrainableDef, bool>();
+        public DefMap<TrainableDef, bool> TrainingTargets = new();
         public bool TrainYoung;
         public bool UnassignTraining;
 
@@ -723,8 +788,12 @@ public class ManagerJob_Livestock : ManagerJob
             get
             {
                 foreach (var def in Defs)
+                {
                     if (TrainingTargets[def])
+                    {
                         return true;
+                    }
+                }
 
                 return false;
             }
@@ -751,7 +820,9 @@ public class ManagerJob_Livestock : ManagerJob
         {
             // cop out if nothing changed
             if (TrainingTargets[td] == wanted)
+            {
                 return;
+            }
 
             // make changes
             TrainingTargets[td] = wanted;
@@ -759,8 +830,12 @@ public class ManagerJob_Livestock : ManagerJob
             {
                 SoundDefOf.Checkbox_TurnedOn.PlayOneShotOnCamera();
                 if (td.prerequisites != null)
+                {
                     foreach (var trainable in td.prerequisites)
+                    {
                         SetWantedRecursive(trainable, true);
+                    }
+                }
             }
             else
             {
@@ -769,7 +844,10 @@ public class ManagerJob_Livestock : ManagerJob
                                  where
                                      t.prerequisites != null && t.prerequisites.Contains(td)
                                  select t;
-                foreach (var current in enumerable) SetWantedRecursive(current, false);
+                foreach (var current in enumerable)
+                {
+                    SetWantedRecursive(current, false);
+                }
             }
         }
     }

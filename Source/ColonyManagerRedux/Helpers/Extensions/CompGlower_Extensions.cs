@@ -16,7 +16,9 @@ public static class CompGlower_Extensions
     public static void SetLit(this CompGlower glower, bool lit = true)
     {
         if (_litFI == null)
+        {
             throw new Exception("Field glowOnInt not found in CompGlower");
+        }
 
         _litFI.SetValue(glower, lit);
     }

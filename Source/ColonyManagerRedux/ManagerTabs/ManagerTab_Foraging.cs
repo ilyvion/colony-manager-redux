@@ -10,17 +10,12 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Foraging : ManagerTab
+internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
 {
     private List<ManagerJob_Foraging> _jobs = [];
     private float _leftRowHeight;
     private Vector2 _scrollPosition = Vector2.zero;
-    private ManagerJob_Foraging _selected;
-
-    public ManagerTab_Foraging(Manager manager) : base(manager)
-    {
-        _selected = new ManagerJob_Foraging(manager);
-    }
+    private ManagerJob_Foraging _selected = new(manager);
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
@@ -54,9 +49,7 @@ internal class ManagerTab_Foraging : ManagerTab
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Vector2 position;
-        float width;
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Foraging.Options", out position, out width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Foraging.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
         Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Foraging.ForagingArea".Translate());
         Widgets_Section.Section(ref position, width, DrawMaturePlants);
@@ -69,7 +62,10 @@ internal class ManagerTab_Foraging : ManagerTab
             SmallIconSize,
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
+        {
             _selected.RefreshAllowedPlants();
+        }
+
         Widgets_Section.Section(ref position, width, DrawPlantShortcuts, "ColonyManagerRedux.Foraging.Plants".Translate());
         Widgets_Section.Section(ref position, width, DrawPlantList);
         Widgets_Section.EndSectionColumn("Foraging.Plants", position);
@@ -112,7 +108,9 @@ internal class ManagerTab_Foraging : ManagerTab
         var height = _leftRowHeight;
         var scrollView = new Rect(0f, 0f, rect.width, height);
         if (height > rect.height)
+        {
             scrollView.width -= ScrollbarWidth;
+        }
 
         Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
         var scrollContent = scrollView;
@@ -125,18 +123,31 @@ internal class ManagerTab_Foraging : ManagerTab
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job) Widgets.DrawHighlightSelected(row);
+            if (_selected == job)
+            {
+                Widgets.DrawHighlightSelected(row);
+            }
 
-            if (i++ % 2 == 1) Widgets.DrawAltRect(row);
+            if (i++ % 2 == 1)
+            {
+                Widgets.DrawAltRect(row);
+            }
 
             var jobRect = row;
 
             if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
-                                                       job)) Refresh();
+                                                       job))
+            {
+                Refresh();
+            }
+
             jobRect.width -= 50f;
 
             job.DrawListEntry(jobRect, false);
-            if (Widgets.ButtonInvisible(jobRect)) _selected = job;
+            if (Widgets.ButtonInvisible(jobRect))
+            {
+                _selected = job;
+            }
 
             cur.y += LargeListEntryHeight;
         }
@@ -145,13 +156,19 @@ internal class ManagerTab_Foraging : ManagerTab
         var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
         Widgets.DrawHighlightIfMouseover(newRect);
 
-        if (i % 2 == 1) Widgets.DrawAltRect(newRect);
+        if (i % 2 == 1)
+        {
+            Widgets.DrawAltRect(newRect);
+        }
 
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(newRect, "<" + "ColonyManagerRedux.Foraging.NewForagingJob".Translate().Resolve() + ">");
         Text.Anchor = TextAnchor.UpperLeft;
 
-        if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Foraging(manager);
+        if (Widgets.ButtonInvisible(newRect))
+        {
+            Selected = new ManagerJob_Foraging(manager);
+        }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Foraging.NewForagingJobTooltip".Translate().Resolve());
 
@@ -173,7 +190,10 @@ internal class ManagerTab_Foraging : ManagerTab
         DoLeftRow(leftRow);
 
         // draw job interface if something is selected.
-        if (Selected != null) DoContent(contentCanvas);
+        if (Selected != null)
+        {
+            DoContent(contentCanvas);
+        }
     }
 
     public float DrawAreaRestriction(Vector2 pos, float width)
@@ -320,7 +340,9 @@ internal class ManagerTab_Foraging : ManagerTab
 
         // update plant options
         foreach (var job in _jobs)
+        {
             job.RefreshAllowedPlants();
+        }
 
         // update selected ( also update thingfilter _only_ if the job is not managed yet )
         _selected?.RefreshAllowedPlants();

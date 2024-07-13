@@ -7,20 +7,14 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
-public class WindowTriggerThresholdDetails : Window
+public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 {
-    private readonly ThingFilterUI filterUI = new ThingFilterUI();
+    private readonly ThingFilterUI filterUI = new();
     public Vector2 FilterScrollPosition = Vector2.zero;
-    public string Input;
-    public Trigger_Threshold Trigger;
+    public string Input = "";
+    public Trigger_Threshold Trigger = trigger;
 
-    public WindowTriggerThresholdDetails(Trigger_Threshold trigger)
-    {
-        Trigger = trigger;
-        Input = "";
-    }
-
-    public override Vector2 InitialSize => new Vector2(300f, 500);
+    public override Vector2 InitialSize => new(300f, 500);
 
     public override void DoWindowContents(Rect inRect)
     {
@@ -44,10 +38,10 @@ public class WindowTriggerThresholdDetails : Window
         {
             var list = new List<FloatMenuOption>
             {
-                new FloatMenuOption( "Lower than",
+                new( "Lower than",
                                      delegate { Trigger.Op = Trigger_Threshold.Ops.LowerThan; } ),
-                new FloatMenuOption( "Equal to", delegate { Trigger.Op = Trigger_Threshold.Ops.Equals; } ),
-                new FloatMenuOption( "Greater than",
+                new( "Equal to", delegate { Trigger.Op = Trigger_Threshold.Ops.Equals; } ),
+                new( "Greater than",
                                      delegate { Trigger.Op = Trigger_Threshold.Ops.HigherThan; } )
             };
             Find.WindowStack.Add(new FloatMenu(list));
@@ -65,7 +59,10 @@ public class WindowTriggerThresholdDetails : Window
         else
         {
             Trigger.TargetCount = int.Parse(Input);
-            if (Trigger.TargetCount > Trigger.MaxUpperThreshold) Trigger.MaxUpperThreshold = Trigger.TargetCount;
+            if (Trigger.TargetCount > Trigger.MaxUpperThreshold)
+            {
+                Trigger.MaxUpperThreshold = Trigger.TargetCount;
+            }
         }
 
         // draw the input field

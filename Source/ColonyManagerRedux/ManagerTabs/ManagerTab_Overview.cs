@@ -10,7 +10,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Overview : ManagerTab
+internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 {
     public const float OverviewWidthRatio = .6f;
 
@@ -19,11 +19,7 @@ internal class ManagerTab_Overview : ManagerTab
     private ManagerJob? _selectedJob;
     private Vector2 _workersScrollPosition = Vector2.zero;
     private WorkTypeDef? _workType;
-    private List<Pawn> Workers = new List<Pawn>();
-
-    public ManagerTab_Overview(Manager manager) : base(manager)
-    {
-    }
+    private List<Pawn> Workers = [];
 
     public List<ManagerJob> Jobs => Manager.For(manager).JobStack.FullStack();
 
@@ -46,7 +42,8 @@ internal class ManagerTab_Overview : ManagerTab
     {
         get
         {
-            if (_workType == null) _workType = Utilities.WorkTypeDefOf_Managing;
+            _workType ??= Utilities.WorkTypeDefOf_Managing;
+
             return _workType;
         }
         set
@@ -147,7 +144,7 @@ internal class ManagerTab_Overview : ManagerTab
 
         // draw the selected job's details
         Widgets.DrawMenuSection(sideRectUpper);
-        if (_selectedJob != null) _selectedJob.DrawOverviewDetails(sideRectUpper);
+        _selectedJob?.DrawOverviewDetails(sideRectUpper);
 
         // overview of managers & pawns (capable of) doing this job.
         Widgets.DrawMenuSection(sideRectLower);
@@ -170,7 +167,9 @@ internal class ManagerTab_Overview : ManagerTab
             var contentRect = viewRect.AtZero();
             contentRect.height = OverviewHeight;
             if (OverviewHeight > viewRect.height)
+            {
                 contentRect.width -= ScrollbarWidth;
+            }
 
             GUI.BeginGroup(viewRect);
             Widgets.BeginScrollView(viewRect, ref _overviewScrollPosition, contentRect);
@@ -182,15 +181,24 @@ internal class ManagerTab_Overview : ManagerTab
                 var row = new Rect(cur.x, cur.y, contentRect.width, 50f);
 
                 // highlights
-                if (i % 2 == 1) Widgets.DrawAltRect(row);
-                if (Jobs[i] == Selected) Widgets.DrawHighlightSelected(row);
+                if (i % 2 == 1)
+                {
+                    Widgets.DrawAltRect(row);
+                }
+
+                if (Jobs[i] == Selected)
+                {
+                    Widgets.DrawHighlightSelected(row);
+                }
 
                 // go to job icon
                 var iconRect = new Rect(Margin, row.yMin + (LargeListEntryHeight - LargeIconSize) / 2,
                                          LargeIconSize, LargeIconSize);
                 var tab = Jobs[i]?.Tab;
                 if (Widgets.ButtonImage(iconRect, tab?.def.icon) && tab != null)
+                {
                     MainTabWindow_Manager.GoTo(tab, Jobs[i]);
+                }
 
                 // order buttons
                 DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), Manager.For(manager), Jobs[i]);
@@ -201,7 +209,10 @@ internal class ManagerTab_Overview : ManagerTab
                 jobRect.x += LargeIconSize + 2 * Margin;
                 Jobs[i].DrawListEntry(jobRect);
                 Widgets.DrawHighlightIfMouseover(row);
-                if (Widgets.ButtonInvisible(jobRect)) Selected = Jobs[i];
+                if (Widgets.ButtonInvisible(jobRect))
+                {
+                    Selected = Jobs[i];
+                }
 
                 cur.y += 50f;
             }
@@ -220,7 +231,9 @@ internal class ManagerTab_Overview : ManagerTab
         var tableViewRect =
             new Rect(0f, ListEntryHeight, rect.width, Workers.Count * ListEntryHeight).RoundToInt();
         if (tableViewRect.height > tableOutRect.height)
+        {
             tableViewRect.width -= ScrollbarWidth;
+        }
 
         // column width
         var colWidth = tableViewRect.width / 4 - Margin;
@@ -254,7 +267,11 @@ internal class ManagerTab_Overview : ManagerTab
         for (var i = 0; i < Workers.Count; i++)
         {
             var row = new Rect(cur.x, cur.y, tableViewRect.width, ListEntryHeight);
-            if (i % 2 == 0) Widgets.DrawAltRect(row);
+            if (i % 2 == 0)
+            {
+                Widgets.DrawAltRect(row);
+            }
+
             try
             {
                 DrawPawnOverviewRow(Workers[i], row);
@@ -302,7 +319,10 @@ internal class ManagerTab_Overview : ManagerTab
             Find.MainTabsRoot.EscapeCurrentTab();
             CameraJumper.TryJump(pawn.PositionHeld, pawn.Map);
             Find.Selector.ClearSelection();
-            if (pawn.Spawned) Find.Selector.Select(pawn);
+            if (pawn.Spawned)
+            {
+                Find.Selector.Select(pawn);
+            }
         }
 
         Widgets_Labels.Label(nameRect, pawn.Name.ToStringShort, "ColonyManagerRedux.ManagerClickToJumpTo".Translate(pawn.LabelCap),

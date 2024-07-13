@@ -8,23 +8,17 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
-public class UpdateInterval
+public class UpdateInterval(int ticks, string label)
 {
     private static UpdateInterval? _daily;
-    public string label;
-    public int ticks;
-
-    public UpdateInterval(int ticks, string label)
-    {
-        this.ticks = ticks;
-        this.label = label;
-    }
+    public string label = label;
+    public int ticks = ticks;
 
     public static UpdateInterval Daily
     {
         get
         {
-            if (_daily == null) _daily = new UpdateInterval(GenDate.TicksPerDay, "ColonyManagerRedux.ManagerDaily".Translate());
+            _daily ??= new UpdateInterval(GenDate.TicksPerDay, "ColonyManagerRedux.ManagerDaily".Translate());
 
             return _daily;
         }
@@ -69,7 +63,9 @@ public class UpdateInterval
         {
             var options = new List<FloatMenuOption>();
             foreach (var interval in Utilities.UpdateIntervalOptions)
+            {
                 options.Add(new FloatMenuOption(interval.label, () => job.UpdateInterval = interval));
+            }
 
             Find.WindowStack.Add(new FloatMenu(options));
         }

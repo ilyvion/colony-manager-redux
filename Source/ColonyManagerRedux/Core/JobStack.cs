@@ -7,19 +7,13 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
-public class JobStack : IExposable
+/// <summary>
+///     Full jobstack, in order of assignment
+/// </summary>
+public class JobStack(Manager manager) : IExposable
 {
-    public Manager manager;
-    private List<ManagerJob> _stack;
-
-    /// <summary>
-    ///     Full jobstack, in order of assignment
-    /// </summary>
-    public JobStack(Manager manager)
-    {
-        this.manager = manager;
-        _stack = new List<ManagerJob>();
-    }
+    public Manager manager = manager;
+    private List<ManagerJob> _stack = [];
 
     /// <summary>
     ///     Jobstack of jobs that are available now
@@ -39,12 +33,14 @@ public class JobStack : IExposable
         Scribe_Collections.Look(ref _stack, "JobStack", LookMode.Deep, manager);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
             if (_stack.Any(j => !j.IsValid))
             {
                 Log.Error(
                     $"Colony Manager :: Removing {_stack.Count(j => !j.IsValid)} invalid manager jobs. If this keeps happening, please report it.");
                 _stack = _stack.Where(job => job.IsValid).ToList();
             }
+        }
     }
 
     /// <summary>
@@ -76,7 +72,10 @@ public class JobStack : IExposable
         jobsOfType = jobsOfType.OrderBy(j => j.priority).ToList();
 
         // fill in priorities, making sure we don't affect other types.
-        for (var i = 0; i < jobsOfType.Count; i++) jobsOfType[i].priority = priorities[i];
+        for (var i = 0; i < jobsOfType.Count; i++)
+        {
+            jobsOfType[i].priority = priorities[i];
+        }
     }
 
     public void DecreasePriority(ManagerJob job)
@@ -100,7 +99,10 @@ public class JobStack : IExposable
     public void Delete(ManagerJob job, bool cleanup = true)
     {
         if (cleanup)
+        {
             job.CleanUp();
+        }
+
         _stack.Remove(job);
         CleanPriorities();
     }
@@ -136,9 +138,7 @@ public class JobStack : IExposable
 
     public void SwitchPriorities(ManagerJob a, ManagerJob b)
     {
-        var tmp = a.priority;
-        a.priority = b.priority;
-        b.priority = tmp;
+        (b.priority, a.priority) = (a.priority, b.priority);
     }
 
     public void TopPriority(ManagerJob job)
@@ -160,7 +160,10 @@ public class JobStack : IExposable
         jobsOfType = jobsOfType.OrderBy(j => j.priority).ToList();
 
         // fill in priorities, making sure we don't affect other types.
-        for (var i = 0; i < jobsOfType.Count; i++) jobsOfType[i].priority = priorities[i];
+        for (var i = 0; i < jobsOfType.Count; i++)
+        {
+            jobsOfType[i].priority = priorities[i];
+        }
     }
 
     /// <summary>
@@ -169,13 +172,19 @@ public class JobStack : IExposable
     public bool TryDoNextJob()
     {
         var job = NextJob;
-        if (job == null) return false;
+        if (job == null)
+        {
+            return false;
+        }
 
         // update lastAction
         job.Touch();
 
         // perform next job if no action was taken
-        if (!job.TryDoJob()) return TryDoNextJob();
+        if (!job.TryDoJob())
+        {
+            return TryDoNextJob();
+        }
 
         return true;
     }
@@ -187,6 +196,9 @@ public class JobStack : IExposable
     {
         var orderedStack =
             _stack.OrderBy(mj => mj.priority).ToList();
-        for (var i = 1; i <= _stack.Count; i++) orderedStack[i - 1].priority = i;
+        for (var i = 1; i <= _stack.Count; i++)
+        {
+            orderedStack[i - 1].priority = i;
+        }
     }
 }

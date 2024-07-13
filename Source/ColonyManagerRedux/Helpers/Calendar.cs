@@ -9,27 +9,19 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
-public class CalendarMarker
+public class CalendarMarker(float days, Color color, bool fill, bool debug = false)
 {
-    public CalendarMarker(float days, Color color, bool fill, bool debug = false)
-    {
-        Days = days;
-        Color = color;
-        Fill = fill;
-        Debug = debug;
-    }
+    public Color Color { get; } = color;
 
-    public Color Color { get; }
+    public float Days { get; } = days;
 
-    public float Days { get; }
-
-    public bool Debug { get; }
-    public bool Fill { get; }
+    public bool Debug { get; } = debug;
+    public bool Fill { get; } = fill;
 }
 
 public static class Calendar
 {
-    private static readonly Dictionary<string, int> _sizeCache = new Dictionary<string, int>();
+    private static readonly Dictionary<string, int> _sizeCache = [];
 
     public static void Draw(Rect canvas, params CalendarMarker[] markers)
     {
@@ -53,13 +45,19 @@ public static class Calendar
             foreach (var marker in markers)
             {
                 if (marker.Days < d)
+                {
                     continue;
+                }
 
                 if (marker.Fill)
+                {
                     DrawDay(d % cols, d / cols, size, canvas.min, marker.Days - d, marker.Color);
+                }
 
                 if (!marker.Fill && marker.Days > d && marker.Days <= d + 1)
+                {
                     DrawMarker(d % cols, d / cols, size, canvas.min, marker.Days - d, marker.Color);
+                }
             }
         }
     }
@@ -85,21 +83,31 @@ public static class Calendar
     {
         var key = $"x:{x:F3}, y:{y:F3}, n:{n}";
         if (_sizeCache.TryGetValue(key, out var size))
+        {
             return size;
+        }
 
         float sx, sy;
 
         var px = Mathf.CeilToInt(Mathf.Sqrt(n * x / y));
         if (Mathf.Floor(px * y / x) * px < n)
+        {
             sx = y / Mathf.CeilToInt(px * y / x);
+        }
         else
+        {
             sx = x / px;
+        }
 
         var py = Mathf.Ceil(Mathf.Sqrt(n * y / x));
         if (Mathf.Floor(py * x / y) * py < n)
+        {
             sy = x / Mathf.CeilToInt(x * py / y);
+        }
         else
+        {
             sy = y / py;
+        }
 
         size = (int)Mathf.Max(sx, sy);
         _sizeCache.Add(key, size);

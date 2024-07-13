@@ -11,9 +11,9 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-public class ManagerTab_Mining : ManagerTab
+public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
 {
-    public static HashSet<ThingDef> _metals = new HashSet<ThingDef>(DefDatabase<ThingDef>.AllDefsListForReading
+    public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
                                                                                           .Where(td => td.IsStuff
                                                                                                      && td
                                                                                                        .stuffProps
@@ -26,12 +26,7 @@ public class ManagerTab_Mining : ManagerTab
 
     private float _jobListHeight;
     private Vector2 _jobListScrollPosition = Vector2.zero;
-    private ManagerJob_Mining _selected;
-
-    public ManagerTab_Mining(Manager manager) : base(manager)
-    {
-        _selected = new ManagerJob_Mining(manager);
-    }
+    private ManagerJob_Mining _selected = new(manager);
 
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
 
@@ -86,7 +81,9 @@ public class ManagerTab_Mining : ManagerTab
 
         DoJobList(jobListRect);
         if (Selected != null)
+        {
             DoJobDetails(jobDetailsRect);
+        }
     }
 
     public float DrawAllowedBuildings(Vector2 pos, float width)
@@ -229,14 +226,18 @@ public class ManagerTab_Mining : ManagerTab
 
         rowRect.y += ListEntryHeight;
         if (_selected.CheckRoofSupport)
+        {
             Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced".Translate(),
                                   "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip".Translate(),
                                   ref _selected.CheckRoofSupportAdvanced, true);
+        }
         else
+        {
             Widgets_Labels.Label(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced".Translate(),
                                   "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Disabled.Tip".Translate(),
                                   TextAnchor.MiddleLeft, margin: Margin,
                                   color: Color.grey);
+        }
 
         rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoomDivision".Translate(),
@@ -295,7 +296,10 @@ public class ManagerTab_Mining : ManagerTab
 
         // update pawnkind options
         foreach (var job in Jobs)
+        {
             job.RefreshAllowedMinerals();
+        }
+
         _selected?.RefreshAllowedMinerals();
     }
 
@@ -320,11 +324,9 @@ public class ManagerTab_Mining : ManagerTab
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Vector2 position;
-        float width;
 
         // options
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out position, out width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.ManagerThreshold".Translate());
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
         Widgets_Section.Section(ref position, width, DrawMiningArea, "ColonyManagerRedux.ManagerMining.MiningArea".Translate());
@@ -339,7 +341,10 @@ public class ManagerTab_Mining : ManagerTab
             SmallIconSize,
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
+        {
             _selected.RefreshAllowedMinerals();
+        }
+
         Widgets_Section.Section(ref position, width, DrawAllowedMineralsShortcuts,
                                  "ColonyManagerRedux.ManagerMining.AllowedMinerals".Translate());
         Widgets_Section.Section(ref position, width, DrawAllowedMinerals);
@@ -350,7 +355,10 @@ public class ManagerTab_Mining : ManagerTab
 
         // do the button
         if (Event.current.control && Widgets.ButtonInvisible(buttonRect))
+        {
             Find.WindowStack.Add(new Dialog_MiningDebugOptions(_selected));
+        }
+
         if (!_selected.Managed)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
@@ -387,7 +395,9 @@ public class ManagerTab_Mining : ManagerTab
         var height = _jobListHeight;
         var scrollView = new Rect(0f, 0f, rect.width, height);
         if (height > rect.height)
+        {
             scrollView.width -= ScrollbarWidth;
+        }
 
         Widgets.BeginScrollView(rect, ref _jobListScrollPosition, scrollView);
         var scrollContent = scrollView;
@@ -400,18 +410,31 @@ public class ManagerTab_Mining : ManagerTab
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job) Widgets.DrawHighlightSelected(row);
+            if (_selected == job)
+            {
+                Widgets.DrawHighlightSelected(row);
+            }
 
-            if (i++ % 2 == 1) Widgets.DrawAltRect(row);
+            if (i++ % 2 == 1)
+            {
+                Widgets.DrawAltRect(row);
+            }
 
             var jobRect = row;
 
             if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
-                                                       job)) Refresh();
+                                                       job))
+            {
+                Refresh();
+            }
+
             jobRect.width -= 50f;
 
             job.DrawListEntry(jobRect, false);
-            if (Widgets.ButtonInvisible(jobRect)) _selected = job;
+            if (Widgets.ButtonInvisible(jobRect))
+            {
+                _selected = job;
+            }
 
             cur.y += LargeListEntryHeight;
         }
@@ -420,13 +443,19 @@ public class ManagerTab_Mining : ManagerTab
         var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
         Widgets.DrawHighlightIfMouseover(newRect);
 
-        if (i++ % 2 == 1) Widgets.DrawAltRect(newRect);
+        if (i++ % 2 == 1)
+        {
+            Widgets.DrawAltRect(newRect);
+        }
 
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(newRect, "<" + "ColonyManagerRedux.ManagerMining.NewJob".Translate() + ">");
         Text.Anchor = TextAnchor.UpperLeft;
 
-        if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Mining(manager);
+        if (Widgets.ButtonInvisible(newRect))
+        {
+            Selected = new ManagerJob_Mining(manager);
+        }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.ManagerMining.NewJob.Tip".Translate());
 

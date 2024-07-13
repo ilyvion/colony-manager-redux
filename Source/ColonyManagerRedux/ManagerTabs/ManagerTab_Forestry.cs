@@ -12,17 +12,12 @@ using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Forestry : ManagerTab
+internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
 {
     private List<ManagerJob_Forestry> _jobs = [];
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
-    private ManagerJob_Forestry _selected;
-
-    public ManagerTab_Forestry(Manager manager) : base(manager)
-    {
-        _selected = new ManagerJob_Forestry(manager);
-    }
+    private ManagerJob_Forestry _selected = new(manager);
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
@@ -61,13 +56,13 @@ internal class ManagerTab_Forestry : ManagerTab
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Vector2 position;
-        float width;
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out position, out width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
 
         if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
+        {
             Widgets_Section.Section(ref position, width, DrawClearArea, "ColonyManagerRedux.Forestry.JobType.ClearArea".Translate());
+        }
 
         if (_selected.Type == ManagerJob_Forestry.ForestryJobType.Logging)
         {
@@ -120,7 +115,9 @@ internal class ManagerTab_Forestry : ManagerTab
         var height = _leftRowHeight;
         var scrollView = new Rect(0f, 0f, rect.width, height);
         if (height > rect.height)
+        {
             scrollView.width -= ScrollbarWidth;
+        }
 
         Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
         var scrollContent = scrollView;
@@ -133,18 +130,31 @@ internal class ManagerTab_Forestry : ManagerTab
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job) Widgets.DrawHighlightSelected(row);
+            if (_selected == job)
+            {
+                Widgets.DrawHighlightSelected(row);
+            }
 
-            if (i++ % 2 == 1) Widgets.DrawAltRect(row);
+            if (i++ % 2 == 1)
+            {
+                Widgets.DrawAltRect(row);
+            }
 
             var jobRect = row;
 
             if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
-                                                       job)) Refresh();
+                                                       job))
+            {
+                Refresh();
+            }
+
             jobRect.width -= 50f;
 
             job.DrawListEntry(jobRect, false);
-            if (Widgets.ButtonInvisible(jobRect)) _selected = job;
+            if (Widgets.ButtonInvisible(jobRect))
+            {
+                _selected = job;
+            }
 
             cur.y += LargeListEntryHeight;
         }
@@ -153,13 +163,19 @@ internal class ManagerTab_Forestry : ManagerTab
         var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
         Widgets.DrawHighlightIfMouseover(newRect);
 
-        if (i % 2 == 1) Widgets.DrawAltRect(newRect);
+        if (i % 2 == 1)
+        {
+            Widgets.DrawAltRect(newRect);
+        }
 
         Text.Anchor = TextAnchor.MiddleCenter;
         Widgets.Label(newRect, "<" + "ColonyManagerRedux.Forestry.NewForestryJob".Translate().Resolve() + ">");
         Text.Anchor = TextAnchor.UpperLeft;
 
-        if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Forestry(manager);
+        if (Widgets.ButtonInvisible(newRect))
+        {
+            Selected = new ManagerJob_Forestry(manager);
+        }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Forestry.NewForestryJobTooltip".Translate());
 
@@ -181,7 +197,10 @@ internal class ManagerTab_Forestry : ManagerTab
         DoLeftRow(leftRow);
 
         // draw job interface if something is selected.
-        if (Selected != null) DoContent(contentCanvas);
+        if (Selected != null)
+        {
+            DoContent(contentCanvas);
+        }
     }
 
     public float DrawAllowSaplings(Vector2 pos, float width)
@@ -436,12 +455,16 @@ internal class ManagerTab_Forestry : ManagerTab
 
         // makes sure the list of possible areas is up-to-date with the area in the game.
         foreach (var job in _jobs)
+        {
             job.UpdateClearAreas();
+        }
 
 
         // update plant options
         foreach (var job in _jobs)
+        {
             job.RefreshAllowedTrees();
+        }
 
         // also for selected job
         _selected?.RefreshAllowedTrees();

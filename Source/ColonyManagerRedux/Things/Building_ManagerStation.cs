@@ -11,9 +11,14 @@ namespace ColonyManagerRedux;
 public class Building_AIManager : Building_ManagerStation
 {
     private readonly Color[] _colors =
-    {
-        Color.white, Color.green, Color.red, Color.blue, Color.yellow, Color.cyan
-    };
+    [
+        Color.white,
+        Color.green,
+        Color.red,
+        Color.blue,
+        Color.yellow,
+        Color.cyan
+    ];
 
     private bool _glowDirty;
 
@@ -45,10 +50,10 @@ public class Building_AIManager : Building_ManagerStation
 
     public override Color DrawColorTwo => SecondaryColour;
 
-    public CompGlower Glower => _glower ?? (_glower = GetComp<CompGlower>());
+    public CompGlower Glower => _glower ??= GetComp<CompGlower>();
 
     public Comp_ManagerStation ManagerStation =>
-        _managerStation ?? (_managerStation = GetComp<Comp_ManagerStation>());
+        _managerStation ??= GetComp<Comp_ManagerStation>();
 
     public bool Powered
     {
@@ -111,7 +116,10 @@ public class Building_AIManager : Building_ManagerStation
     {
         base.Tick();
 
-        if (Powered != PowerTrader.PowerOn) Powered = PowerTrader.PowerOn;
+        if (Powered != PowerTrader.PowerOn)
+        {
+            Powered = PowerTrader.PowerOn;
+        }
 
         if (Powered)
         {
@@ -122,15 +130,26 @@ public class Building_AIManager : Building_ManagerStation
 
             // random blinking on secondary
             if (tick % 30 == Rand.RangeInclusive(0, 25))
+            {
                 SecondaryColourIndex = (SecondaryColourIndex + 1) % _colors.Length;
+            }
 
             // primary colour
             if (tick % ManagerStation.Props.speed == 0)
+            {
                 PrimaryColour = Manager.For(Map).TryDoWork() ? Color.green : Color.red;
+            }
 
             // blinking on primary
-            if (tick % 30 == 0) PrimaryColourBlinker = PrimaryColour;
-            if (tick % 30 == 25) PrimaryColourBlinker = Color.black;
+            if (tick % 30 == 0)
+            {
+                PrimaryColourBlinker = PrimaryColour;
+            }
+
+            if (tick % 30 == 25)
+            {
+                PrimaryColourBlinker = Color.black;
+            }
         }
 
         // apply changes

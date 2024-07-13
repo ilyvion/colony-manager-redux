@@ -44,8 +44,7 @@ internal class JobDriver_ManagingAtManagingStation : JobDriver
 
     private Toil? Manage(TargetIndex targetIndex)
     {
-        var station = GetActor().jobs.curJob.GetTarget(targetIndex).Thing as Building_ManagerStation;
-        if (station == null)
+        if (GetActor().jobs.curJob.GetTarget(targetIndex).Thing is not Building_ManagerStation station)
         {
             Log.Error("Target of manager job was not a manager station.");
             return null;
@@ -58,28 +57,30 @@ internal class JobDriver_ManagingAtManagingStation : JobDriver
             return null;
         }
 
-        var toil = new Toil();
-        toil.defaultCompleteMode = ToilCompleteMode.Never;
-        toil.initAction = () =>
+        var toil = new Toil
         {
-            workDone = 0;
-            workNeeded = comp.Props.speed;
-        };
-
-        toil.tickAction = () =>
-        {
-            // learn a bit
-            pawn.skills.GetSkill(DefDatabase<SkillDef>.GetNamed("Intellectual"))
-                .Learn(0.11f);
-
-            // update counter
-            workDone += pawn.GetStatValue(StatDef.Named("ManagingSpeed"));
-
-            // are we done yet?
-            if (workDone > workNeeded)
+            defaultCompleteMode = ToilCompleteMode.Never,
+            initAction = () =>
             {
-                Manager.For(pawn.Map).TryDoWork();
-                ReadyForNextToil();
+                workDone = 0;
+                workNeeded = comp.Props.speed;
+            },
+
+            tickAction = () =>
+            {
+                // learn a bit
+                pawn.skills.GetSkill(DefDatabase<SkillDef>.GetNamed("Intellectual"))
+                    .Learn(0.11f);
+
+                // update counter
+                workDone += pawn.GetStatValue(StatDef.Named("ManagingSpeed"));
+
+                // are we done yet?
+                if (workDone > workNeeded)
+                {
+                    Manager.For(pawn.Map).TryDoWork();
+                    ReadyForNextToil();
+                }
             }
         };
 
