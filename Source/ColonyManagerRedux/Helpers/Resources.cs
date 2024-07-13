@@ -21,18 +21,6 @@ namespace ColonyManagerRedux
             StampSuspended,
             StampStart,
 
-            // tab icons
-            IconOverview,
-            IconHammer,
-            IconHunting,
-            IconImportExport,
-            IconForestry,
-            IconLivestock,
-            IconForaging,
-            IconPower,
-            IconTrading,
-            IconMining,
-
             // misc
             SlightlyDarkBackground,
             DeleteX,
@@ -74,18 +62,6 @@ namespace ColonyManagerRedux
             StampCompleted = ContentFinder<Texture2D>.Get("UI/Stamps/Completed");
             StampSuspended = ContentFinder<Texture2D>.Get("UI/Stamps/Suspended");
             StampStart = ContentFinder<Texture2D>.Get("UI/Stamps/Start");
-
-            // tab icons
-            IconOverview = ContentFinder<Texture2D>.Get("UI/Icons/Overview");
-            IconHammer = ContentFinder<Texture2D>.Get("UI/Icons/Hammer");
-            IconHunting = ContentFinder<Texture2D>.Get("UI/Icons/Hunting");
-            IconImportExport = ContentFinder<Texture2D>.Get("UI/Icons/ImportExport");
-            IconForestry = ContentFinder<Texture2D>.Get("UI/Icons/Tree");
-            IconLivestock = ContentFinder<Texture2D>.Get("UI/Icons/Livestock");
-            IconForaging = ContentFinder<Texture2D>.Get("UI/Icons/Foraging");
-            IconPower = ContentFinder<Texture2D>.Get("UI/Icons/Power");
-            IconTrading = ContentFinder<Texture2D>.Get("UI/Icons/Power");
-            IconMining = ContentFinder<Texture2D>.Get("UI/Icons/mining");
 
             // misc
             SlightlyDarkBackground = SolidColorMaterials.NewSolidColorTexture(SlightlyDarkBackgroundColour);

@@ -22,8 +22,6 @@ namespace ColonyManagerRedux
             _selected = new ManagerJob_Foraging(manager);
         }
 
-        public override Texture2D Icon => Resources.IconForaging;
-        public override IconAreas IconArea => IconAreas.Middle;
         public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
 

@@ -1,165 +1,170 @@
 ﻿// Manager.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public class Manager : MapComponent, ILoadReferenceable
 {
-    public class Manager : MapComponent, ILoadReferenceable
+    public enum Modes
     {
-        public enum Modes
+        ImportExport,
+        Normal
+    }
+
+    public static bool helpShown;
+
+    public static Modes LoadSaveMode = Modes.Normal;
+
+    public List<ManagerTab> tabs;
+
+    private List<ManagerTab>? _managerTabsLeft;
+    private List<ManagerTab>? _managerTabsMiddle;
+    private List<ManagerTab>? _managerTabsRight;
+    private JobStack _stack;
+    private int id = -1;
+
+    public Manager(Map map) : base(map)
+    {
+        _stack = new JobStack(this);
+
+        tabs = DefDatabase<ManagerTabDef>.AllDefs
+            .OrderBy(m => m.order)
+            .Select(m => ManagerTabMaker.MakeManagerTab(m, this))
+            .ToList();
+
+        // if not created in SavingLoading, give yourself the ID of the map you were constructed on.
+        if (Scribe.mode == Verse.LoadSaveMode.Inactive)
         {
-            ImportExport,
-            Normal
+            id = map.uniqueID;
         }
+    }
 
-        public static bool HelpShown;
+    public JobStack JobStack => _stack ??= new JobStack(this);
 
-        public static Modes LoadSaveMode = Modes.Normal;
-
-        public List<ManagerTab> Tabs;
-
-        private List<ManagerTab>? _managerTabsLeft;
-        private List<ManagerTab>? _managerTabsMiddle;
-        private List<ManagerTab>? _managerTabsRight;
-        private JobStack _stack;
-        private int id = -1;
-
-        public Manager(Map map) : base(map)
+    public List<ManagerTab> ManagerTabsLeft
+    {
+        get
         {
-            _stack = new JobStack(this);
-            Tabs = new List<ManagerTab>
-            {
-                new ManagerTab_Overview( this ),
-                //new ManagerTab_Production( this ),
-                //new ManagerTab_ImportExport( this ),
-                new ManagerTab_Hunting( this ),
-                new ManagerTab_Forestry( this ),
-                new ManagerTab_Livestock( this ),
-                new ManagerTab_Foraging( this ),
-                new ManagerTab_Mining( this ),
-                new ManagerTab_Power( this )
-            };
-
-            // if not created in SavingLoading, give yourself the ID of the map you were constructed on.
-            if (Scribe.mode == Verse.LoadSaveMode.Inactive) id = map.uniqueID;
+            _managerTabsLeft ??= tabs.Where(tab => tab.def.iconArea == IconArea.Left).ToList();
+            return _managerTabsLeft;
         }
+    }
 
-        public JobStack JobStack => _stack ?? (_stack = new JobStack(this));
-
-        public List<ManagerTab> ManagerTabsLeft
+    public List<ManagerTab> ManagerTabsMiddle
+    {
+        get
         {
-            get
-            {
-                if (_managerTabsLeft == null)
-                    _managerTabsLeft = Tabs.Where(tab => tab.IconArea == ManagerTab.IconAreas.Left).ToList();
-                return _managerTabsLeft;
-            }
+            _managerTabsMiddle ??=
+                tabs.Where(tab => tab.def.iconArea == IconArea.Middle).ToList();
+            return _managerTabsMiddle;
         }
+    }
 
-        public List<ManagerTab> ManagerTabsMiddle
+    public List<ManagerTab> ManagerTabsRight
+    {
+        get
         {
-            get
-            {
-                if (_managerTabsMiddle == null)
-                    _managerTabsMiddle =
-                        Tabs.Where(tab => tab.IconArea == ManagerTab.IconAreas.Middle).ToList();
-                return _managerTabsMiddle;
-            }
+            _managerTabsRight ??=
+                tabs.Where(tab => tab.def.iconArea == IconArea.Right).ToList();
+            return _managerTabsRight;
         }
+    }
 
-        public List<ManagerTab> ManagerTabsRight
+    public string GetUniqueLoadID()
+    {
+        return $"ColonyManagerRedux_{id}";
+    }
+
+    public static Manager For(Map map)
+    {
+        var instance = map.GetComponent<Manager>();
+        if (instance != null)
         {
-            get
-            {
-                if (_managerTabsRight == null)
-                    _managerTabsRight =
-                        Tabs.Where(tab => tab.IconArea == ManagerTab.IconAreas.Right).ToList();
-                return _managerTabsRight;
-            }
-        }
-
-        public string GetUniqueLoadID()
-        {
-            return "ColonyManager_" + id;
-        }
-
-        public static Manager For(Map map)
-        {
-            var instance = map.GetComponent<Manager>();
-            if (instance != null)
-                return instance;
-
-            instance = new Manager(map);
-            map.components.Add(instance);
             return instance;
         }
 
-        public static implicit operator Map(Manager manager)
-        {
-            return manager.map;
-        }
+        instance = new Manager(map);
+        map.components.Add(instance);
+        return instance;
+    }
 
-        public override void ExposeData()
-        {
-            base.ExposeData();
-            Scribe_Values.Look(ref id, "id", -1, true);
-            Scribe_Values.Look(ref HelpShown, "HelpShown");
-            Scribe_Deep.Look(ref _stack, "JobStack", this);
+    public static implicit operator Map(Manager manager)
+    {
+        return manager.map;
+    }
 
-            foreach (var tab in Tabs)
+    public override void ExposeData()
+    {
+        base.ExposeData();
+        Scribe_Values.Look(ref id, "id", -1, true);
+        Scribe_Values.Look(ref helpShown, "helpShown");
+        Scribe_Deep.Look(ref _stack, "jobStack", this);
+
+        foreach (var tab in tabs)
+        {
+            if (tab is IExposable exposableTab)
             {
-                var exposableTab = tab as IExposable;
-                if (exposableTab != null) Scribe_Deep.Look(ref exposableTab, tab.Label, this);
+                Scribe_Deep.Look(ref exposableTab, tab.def.defName, this);
             }
-
-            if (_stack == null) _stack = new JobStack(this);
         }
 
-        public override void MapComponentTick()
+        _stack ??= new JobStack(this);
+    }
+
+    public override void MapComponentTick()
+    {
+        base.MapComponentTick();
+
+        // tick jobs
+        foreach (var job in JobStack.FullStack())
         {
-            base.MapComponentTick();
-
-            // tick jobs
-            foreach (var job in JobStack.FullStack())
-                if (!job.Suspended)
-                    try
-                    {
-                        job.Tick();
-                    }
-                    catch (Exception err)
-                    {
-                        Log.Error($"Suspending manager job because it error-ed on tick: \n{err}");
-                    }
-
-            // tick tabs
-            foreach (var tab in Tabs)
-                tab.Tick();
-        }
-
-        public bool TryDoWork()
-        {
-            return JobStack.TryDoNextJob();
-        }
-
-
-        internal void NewJobStack(JobStack jobstack)
-        {
-            // clean up old jobs
-            foreach (var job in _stack.FullStack()) job.CleanUp();
-
-            // replace stack
-            _stack = jobstack;
-
-            // touch new jobs in inappropriate places (reset timing so they are properly performed)
-            foreach (var job in _stack.FullStack())
+            if (!job.Suspended)
             {
-                job.manager = this;
-                job.Touch();
+                try
+                {
+                    job.Tick();
+                }
+                catch (Exception err)
+                {
+                    Log.Error($"Suspending manager job because it error-ed on tick: \n{err}");
+                }
             }
+        }
+
+        // tick tabs
+        foreach (var tab in tabs)
+        {
+            tab.Tick();
+        }
+    }
+
+    public bool TryDoWork()
+    {
+        return JobStack.TryDoNextJob();
+    }
+
+    internal void NewJobStack(JobStack jobstack)
+    {
+        // clean up old jobs
+        foreach (var job in _stack.FullStack())
+        {
+            job.CleanUp();
+        }
+
+        // replace stack
+        _stack = jobstack;
+
+        // touch new jobs in inappropriate places (reset timing so they are properly performed)
+        foreach (var job in _stack.FullStack())
+        {
+            job.manager = this;
+            job.Touch();
         }
     }
 }

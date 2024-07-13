@@ -33,8 +33,6 @@ namespace ColonyManagerRedux
             _selected = new ManagerJob_Mining(manager);
         }
 
-        public override Texture2D Icon => Resources.IconMining;
-        public override IconAreas IconArea => IconAreas.Middle;
         public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
 
         public override ManagerJob? Selected

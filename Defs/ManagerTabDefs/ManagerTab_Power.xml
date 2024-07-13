@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerTabDef>
+        <defName>CM_PowerTab</defName>
+        <order>800</order>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Power</managerTabClass>
+        <iconPath>UI/Icons/CMR_Power</iconPath>
+    </ColonyManagerRedux.ManagerTabDef>
+
+</Defs>

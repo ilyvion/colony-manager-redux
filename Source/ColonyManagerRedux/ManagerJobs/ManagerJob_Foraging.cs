@@ -76,7 +76,7 @@ namespace ColonyManagerRedux
 
         public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
-        public override ManagerTab Tab => Manager.For(manager).Tabs.Find(tab => tab is ManagerTab_Foraging);
+        public override ManagerTab Tab => Manager.For(manager).tabs.Find(tab => tab is ManagerTab_Foraging);
 
         public override string[] Targets => AllowedPlants
                                            .Keys.Where(key => AllowedPlants[key])

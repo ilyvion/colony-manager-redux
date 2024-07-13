@@ -24,10 +24,6 @@ namespace ColonyManagerRedux
             _selected = new ManagerJob_Hunting(manager);
         }
 
-        public override Texture2D Icon => Resources.IconHunting;
-
-        public override IconAreas IconArea => IconAreas.Middle;
-
         public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
         public override ManagerJob? Selected

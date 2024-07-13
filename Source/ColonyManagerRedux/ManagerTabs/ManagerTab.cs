@@ -1,60 +1,58 @@
 ﻿// ManagerTab.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using UnityEngine;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public abstract class ManagerTab
 {
-    public abstract class ManagerTab
+
+    public float DefaultLeftRowSize = 300f;
+
+    public ManagerTabDef def;
+
+    public Manager manager;
+
+#pragma warning disable CS8618 // Set by ManagerTabMaker.MakeManagerTab
+    public ManagerTab(Manager manager)
     {
-        public enum IconAreas
-        {
-            Left = 0,
-            Middle = 1,
-            Right = 2
-        }
+        this.manager = manager;
+    }
+#pragma warning restore CS8618
 
-        public float DefaultLeftRowSize = 300f;
+    public virtual string DisabledReason => "";
 
-        public Manager manager;
+    public virtual bool Enabled => true;
 
-        public ManagerTab(Manager manager)
-        {
-            this.manager = manager;
-        }
+    public virtual string Label => GetType().ToString();
 
-        public virtual string DisabledReason => "";
+    public abstract ManagerJob? Selected { get; set; }
 
-        public virtual bool Enabled => true;
+    public abstract void DoWindowContents(Rect canvas);
 
-        public virtual Texture2D Icon => Resources.IconHammer;
+    public virtual void PostMake()
+    {
+    }
 
-        public virtual IconAreas IconArea => IconAreas.Middle;
+    public virtual void PostClose()
+    {
+    }
 
-        public virtual string Label => GetType().ToString();
+    public virtual void PostOpen()
+    {
+    }
 
-        public abstract ManagerJob? Selected { get; set; }
+    public virtual void PreClose()
+    {
+    }
 
-        public abstract void DoWindowContents(Rect canvas);
+    public virtual void PreOpen()
+    {
+    }
 
-        public virtual void PostClose()
-        {
-        }
-
-        public virtual void PostOpen()
-        {
-        }
-
-        public virtual void PreClose()
-        {
-        }
-
-        public virtual void PreOpen()
-        {
-        }
-
-        public virtual void Tick()
-        {
-        }
+    public virtual void Tick()
+    {
     }
 }

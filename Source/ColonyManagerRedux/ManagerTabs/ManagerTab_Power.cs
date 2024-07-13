@@ -100,10 +100,6 @@ namespace ColonyManagerRedux
 
         public override bool Enabled => unlocked && AnyPoweredStationOnline;
 
-        public override Texture2D Icon => Resources.IconPower;
-
-        public override IconAreas IconArea => IconAreas.Middle;
-
         public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
 
         public override ManagerJob? Selected { get; set; }

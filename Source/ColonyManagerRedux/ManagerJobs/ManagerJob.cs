@@ -59,7 +59,8 @@ namespace ColonyManagerRedux
             set => _suspended = value;
         }
 
-        public abstract ManagerTab Tab { get; }
+        // TODO: Do we really need this here? Maybe store elsewhere statically later.
+        public abstract ManagerTab? Tab { get; }
         public abstract string[] Targets { get; }
 
         public virtual UpdateInterval UpdateInterval

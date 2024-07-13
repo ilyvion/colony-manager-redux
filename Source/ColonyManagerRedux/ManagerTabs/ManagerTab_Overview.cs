@@ -25,10 +25,6 @@ namespace ColonyManagerRedux
         {
         }
 
-        public override Texture2D Icon => Resources.IconOverview;
-
-        public override IconAreas IconArea => IconAreas.Left;
-
         public List<ManagerJob> Jobs => Manager.For(manager).JobStack.FullStack();
 
         public override string Label { get; } = "ColonyManagerRedux.ManagerOverview".Translate();
@@ -192,8 +188,9 @@ namespace ColonyManagerRedux
                     // go to job icon
                     var iconRect = new Rect(Margin, row.yMin + (LargeListEntryHeight - LargeIconSize) / 2,
                                              LargeIconSize, LargeIconSize);
-                    if (Widgets.ButtonImage(iconRect, Jobs[i].Tab.Icon))
-                        MainTabWindow_Manager.GoTo(Jobs[i].Tab, Jobs[i]);
+                    var tab = Jobs[i]?.Tab;
+                    if (Widgets.ButtonImage(iconRect, tab?.def.icon) && tab != null)
+                        MainTabWindow_Manager.GoTo(tab, Jobs[i]);
 
                     // order buttons
                     DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), Manager.For(manager), Jobs[i]);

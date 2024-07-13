@@ -22,7 +22,7 @@ namespace ColonyManagerRedux
             set => currentTab = value;
         }
 
-        public static ManagerTab DefaultTab => Manager.For(Find.CurrentMap).Tabs[0];
+        public static ManagerTab DefaultTab => Manager.For(Find.CurrentMap).tabs[0];
 
         public static void GoTo(ManagerTab tab, ManagerJob? job = null)
         {
@@ -117,10 +117,10 @@ namespace ColonyManagerRedux
                 if (tab == CurrentTab)
                 {
                     GUI.color = GenUI.MouseoverColor;
-                    if (Widgets.ButtonImage(rect, tab.Icon, GenUI.MouseoverColor)) tab.Selected = null;
+                    if (Widgets.ButtonImage(rect, tab.def.icon, GenUI.MouseoverColor)) tab.Selected = null;
                     GUI.color = Color.white;
                 }
-                else if (Widgets.ButtonImage(rect, tab.Icon))
+                else if (Widgets.ButtonImage(rect, tab.def.icon))
                 {
                     GoTo(tab);
                 }
@@ -130,7 +130,7 @@ namespace ColonyManagerRedux
             else
             {
                 GUI.color = Color.grey;
-                GUI.DrawTexture(rect, tab.Icon);
+                GUI.DrawTexture(rect, tab.def.icon);
                 GUI.color = Color.white;
                 TooltipHandler.TipRegion(rect, tab.Label + "ColonyManagerRedux.ManagerTabDisabledBecause".Translate(tab.DisabledReason));
             }

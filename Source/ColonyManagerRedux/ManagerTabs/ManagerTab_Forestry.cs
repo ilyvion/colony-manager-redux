@@ -24,10 +24,6 @@ namespace ColonyManagerRedux
             _selected = new ManagerJob_Forestry(manager);
         }
 
-        public override Texture2D Icon { get; } = Resources.IconForestry;
-
-        public override IconAreas IconArea => IconAreas.Middle;
-
         public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
         public override ManagerJob? Selected

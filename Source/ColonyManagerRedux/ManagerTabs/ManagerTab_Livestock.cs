@@ -36,11 +36,6 @@ namespace ColonyManagerRedux
         {
         }
 
-        public override Texture2D Icon => Resources.IconLivestock;
-
-        // public override Texture2D Icon {                       get; }
-        public override IconAreas IconArea => IconAreas.Middle;
-
         public override string Label => "ColonyManagerRedux.Livestock.Livestock".Translate();
 
         public override ManagerJob Selected

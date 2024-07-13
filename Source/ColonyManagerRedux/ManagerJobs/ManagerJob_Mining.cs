@@ -52,7 +52,7 @@ namespace ColonyManagerRedux
 
         public override bool IsValid => base.IsValid && History != null && Trigger != null;
         public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
-        public override ManagerTab Tab => manager.Tabs.Find(tab => tab is ManagerTab_Mining);
+        public override ManagerTab Tab => manager.tabs.Find(tab => tab is ManagerTab_Mining);
 
         public override string[] Targets => AllowedMinerals.Keys
                                                            .Where(key => AllowedMinerals[key])

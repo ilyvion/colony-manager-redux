@@ -149,7 +149,7 @@ namespace ColonyManagerRedux
 
         public override string Label => Trigger.pawnKind.LabelCap;
 
-        public override ManagerTab Tab => manager.Tabs.OfType<ManagerTab_Livestock>().First();
+        public override ManagerTab Tab => manager.tabs.OfType<ManagerTab_Livestock>().First();
 
         public override string[] Targets
         {

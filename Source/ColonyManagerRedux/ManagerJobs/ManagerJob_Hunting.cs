@@ -125,7 +125,7 @@ namespace ColonyManagerRedux
 
         public override ManagerTab Tab
         {
-            get { return Manager.For(manager).Tabs.Find(tab => tab is ManagerTab_Hunting); }
+            get { return Manager.For(manager).tabs.Find(tab => tab is ManagerTab_Hunting); }
         }
 
         public override string[] Targets

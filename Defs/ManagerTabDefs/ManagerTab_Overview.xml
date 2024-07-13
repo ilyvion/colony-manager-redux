@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerTabDef>
+        <defName>CM_OverviewTab</defName>
+        <order>0</order>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Overview</managerTabClass>
+        <iconArea>Left</iconArea>
+        <iconPath>UI/Icons/CMR_Overview</iconPath>
+    </ColonyManagerRedux.ManagerTabDef>
+
+</Defs>
