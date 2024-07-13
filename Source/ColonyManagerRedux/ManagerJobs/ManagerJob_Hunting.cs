@@ -12,8 +12,8 @@ namespace ColonyManagerRedux
 {
     public class ManagerJob_Hunting : ManagerJob
     {
-        private readonly Utilities.CachedValue<int> _corpseCachedValue = new Utilities.CachedValue<int>();
-        private readonly Utilities.CachedValue<int> _designatedCachedValue = new Utilities.CachedValue<int>();
+        private readonly Utilities.CachedValue<int> _corpseCachedValue = new Utilities.CachedValue<int>(0);
+        private readonly Utilities.CachedValue<int> _designatedCachedValue = new Utilities.CachedValue<int>(0);
 
         public Dictionary<PawnKindDef, bool> AllowedAnimals = new Dictionary<PawnKindDef, bool>();
         public History History;

@@ -15,7 +15,7 @@ namespace ColonyManagerRedux
     public class Trigger_PawnKind : Trigger
     {
         private readonly Utilities.CachedValue<string> _cachedTooltip;
-        private readonly Utilities.CachedValue<bool> _state = new Utilities.CachedValue<bool>();
+        private readonly Utilities.CachedValue<bool> _state = new Utilities.CachedValue<bool>(false);
 
         public Dictionary<AgeAndSex, int> CountTargets;
         public PawnKindDef pawnKind;

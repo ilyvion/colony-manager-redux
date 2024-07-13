@@ -13,7 +13,7 @@ namespace ColonyManagerRedux
 {
     public class ManagerJob_Foraging : ManagerJob
     {
-        private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new Utilities.CachedValue<int>();
+        private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new Utilities.CachedValue<int>(0);
 
         public Dictionary<ThingDef, bool> AllowedPlants = new Dictionary<ThingDef, bool>();
         public Area? ForagingArea;

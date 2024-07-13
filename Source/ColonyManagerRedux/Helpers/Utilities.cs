@@ -503,7 +503,14 @@ namespace ColonyManagerRedux
                     TryGetValue(index, out var value);
                     return value;
                 }
-                set => Update(index, value);
+                set
+                {
+                    if (value == null)
+                    {
+                        throw new ArgumentNullException(nameof(value));
+                    }
+                    Update(index, value);
+                }
             }
 
             public void Add(T key, Func<V> updater)
@@ -523,7 +530,7 @@ namespace ColonyManagerRedux
                 return false;
             }
 
-            public void Update(T key, V? value)
+            public void Update(T key, V value)
             {
                 if (_cache.TryGetValue(key, out var cachedValue))
                     cachedValue.Update(value);
@@ -534,21 +541,21 @@ namespace ColonyManagerRedux
 
         public class CachedValue<T>
         {
-            private readonly T? _default;
+            private readonly T _default;
             private readonly int _updateInterval;
             private readonly Func<T>? _updater;
-            private T? _cached;
-            private int _timeSet;
+            private T _cached;
+            private int? _timeSet;
 
-            public CachedValue(T? @default = default, int updateInterval = 250, Func<T>? updater = null)
+            public CachedValue(T @default, int updateInterval = 250, Func<T>? updater = null)
             {
                 _updateInterval = updateInterval;
                 _cached = _default = @default;
                 _updater = updater;
-                _timeSet = Find.TickManager.TicksGame;
+                _timeSet = null;
             }
 
-            public T? Value
+            public T Value
             {
                 get
                 {
@@ -559,9 +566,9 @@ namespace ColonyManagerRedux
                 }
             }
 
-            public bool TryGetValue(out T? value)
+            public bool TryGetValue(out T value)
             {
-                if (Find.TickManager.TicksGame - _timeSet <= _updateInterval)
+                if (_timeSet.HasValue && Find.TickManager.TicksGame - _timeSet.Value <= _updateInterval)
                 {
                     value = _cached;
                     return true;
@@ -578,7 +585,7 @@ namespace ColonyManagerRedux
                 return false;
             }
 
-            public void Update(T? value)
+            public void Update(T value)
             {
                 _cached = value;
                 _timeSet = Find.TickManager.TicksGame;

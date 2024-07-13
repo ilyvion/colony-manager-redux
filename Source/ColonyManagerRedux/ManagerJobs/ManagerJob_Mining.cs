@@ -14,8 +14,8 @@ namespace ColonyManagerRedux
     public class ManagerJob_Mining : ManagerJob
     {
         private const int RoofSupportGridSpacing = 5;
-        private readonly Utilities.CachedValue<int> _chunksCachedValue = new Utilities.CachedValue<int>();
-        private readonly Utilities.CachedValue<int> _designatedCachedValue = new Utilities.CachedValue<int>();
+        private readonly Utilities.CachedValue<int> _chunksCachedValue = new Utilities.CachedValue<int>(0);
+        private readonly Utilities.CachedValue<int> _designatedCachedValue = new Utilities.CachedValue<int>(0);
         public Dictionary<ThingDef, bool> AllowedBuildings = new Dictionary<ThingDef, bool>();
 
         public Dictionary<ThingDef, bool> AllowedMinerals = new Dictionary<ThingDef, bool>();
@@ -240,6 +240,8 @@ namespace ColonyManagerRedux
             Scribe_Values.Look(ref CheckRoofSupport, "CheckRoofSupport", true);
             Scribe_Values.Look(ref CheckRoofSupportAdvanced, "CheckRoofSupportAdvanced");
             Scribe_Values.Look(ref CheckRoomDivision, "CheckRoomDivision", true);
+
+            //Scribe_Values.Look(ref _designations, "designations", []);
 
             // don't store history in import/export mode.
             if (Manager.LoadSaveMode == Manager.Modes.Normal) Scribe_Deep.Look(ref History, "History");
@@ -687,16 +689,10 @@ namespace ColonyManagerRedux
         private void RemoveObsoleteDesignations()
         {
             // get the intersection of bills in the game and bills in our list.
-            var designations = manager.map.designationManager.AllDesignations.Where(d =>
-                                                                                         (d.def == DesignationDefOf
-                                                                                              .Mine || d.def ==
-                                                                                           DesignationDefOf.Deconstruct
-                                                                                         ) &&
-                                                                                         (!d.target.HasThing ||
-                                                                                           d.target.Thing.Map ==
-                                                                                           manager
-                                                                                              .map
-                                                                                         )); // equates to SpawnedDesignationsOfDef, with two defs.
+            var designations = manager.map.designationManager.AllDesignations
+                .Where(d =>
+                    (d.def == DesignationDefOf.Mine || d.def == DesignationDefOf.Deconstruct) &&
+                    (!d.target.HasThing || d.target.Thing.Map == manager.map)); // equates to SpawnedDesignationsOfDef, with two defs.
             _designations = _designations.Intersect(designations).ToList();
         }
     }

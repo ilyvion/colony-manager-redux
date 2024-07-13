@@ -23,7 +23,7 @@ namespace ColonyManagerRedux
             DefDatabase<WorkTypeDef>.GetNamed("PlantCutting");
 
         private readonly Utilities.CachedValue<int>
-            _designatedWoodCachedValue = new Utilities.CachedValue<int>();
+            _designatedWoodCachedValue = new Utilities.CachedValue<int>(0);
 
         public Dictionary<ThingDef, bool> AllowedTrees = new Dictionary<ThingDef, bool>();
         public bool AllowSaplings;
