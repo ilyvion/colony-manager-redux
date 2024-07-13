@@ -1,5 +1,6 @@
 ﻿// I18n.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections;
 using System.Collections.Generic;
@@ -10,13 +11,13 @@ namespace ColonyManagerRedux;
 
 public class I18n
 {
-    public static string HistoryStock = Translate("ColonyManager.HistoryStock");
-    public static string HistoryDesignated = Translate("ColonyManager.HistoryDesignated");
-    public static string HistoryCorpses = Translate("ColonyManager.HistoryCorpses");
-    public static string HistoryChunks = Translate("ColonyManager.HistoryChunks");
-    public static string HistoryProduction = Translate("ColonyManager.HistoryProduction");
-    public static string HistoryConsumption = Translate("ColonyManager.HistoryConsumption");
-    public static string HistoryBatteries = Translate("ColonyManager.HistoryBatteries");
+    public static TranslationHistoryLabel HistoryStock = "ColonyManagerRedux.ColonyManager.HistoryStock";
+    public static TranslationHistoryLabel HistoryDesignated = "ColonyManagerRedux.ColonyManager.HistoryDesignated";
+    public static TranslationHistoryLabel HistoryCorpses = "ColonyManagerRedux.ColonyManager.HistoryCorpses";
+    public static TranslationHistoryLabel HistoryChunks = "ColonyManagerRedux.ColonyManager.HistoryChunks";
+    public static TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.ColonyManager.HistoryProduction";
+    public static TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.ColonyManager.HistoryConsumption";
+    public static TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.ColonyManager.HistoryBatteries";
 
 
     public static string Aggressiveness(float aggression)

@@ -1,5 +1,6 @@
 ﻿// History.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
@@ -60,7 +61,7 @@ public class History : IExposable
     {
     }
 
-    public History(string[] labels, Color[]? colors = null)
+    public History(HistoryLabel[] labels, Color[]? colors = null)
     {
 #if DEBUG_HISTORY
         Log.Message( "History created" + string.Join( ", ", labels ) );
@@ -303,7 +304,7 @@ public class History : IExposable
             // tooltip on entire row
             var tooltip = ChaptersOrdered[i].label + ": " +
                           FormatCount(Mathf.Abs(ChaptersOrdered[i].Last(periodShown)));
-            tooltip += "ColonyManagerRedux.ManagerHistoryClickToEnable".Translate(shown ? "hide" : "show", ChaptersOrdered[i].label);
+            tooltip += "ColonyManagerRedux.ManagerHistoryClickToEnable".Translate(shown ? "hide" : "show", ChaptersOrdered[i].label.Label);
             TooltipHandler.TipRegion(row, tooltip);
 
             // handle input
@@ -460,7 +461,7 @@ public class History : IExposable
                 GUI.color = chapter.lineColor;
                 Widgets.DrawLineHorizontal(cur.x, cur.y + rowHeight / 2f, lineLength);
                 cur.x += lineLength;
-                Widgets_Labels.Label(ref cur, labelWidth, rowHeight, chapter.label, font: GameFont.Tiny);
+                Widgets_Labels.Label(ref cur, labelWidth, rowHeight, chapter.label.Label, font: GameFont.Tiny);
                 cur.x = 0f;
             }
 
@@ -564,7 +565,7 @@ public class History : IExposable
     public class Chapter : IExposable
     {
         public Texture2D? _texture;
-        public string label = string.Empty;
+        public HistoryLabel label = new DirectHistoryLabel(string.Empty);
         public Color lineColor = DefaultLineColor;
         public Dictionary<Period, List<int>> pages = new Dictionary<Period, List<int>>();
         public int size = Size;
@@ -579,7 +580,7 @@ public class History : IExposable
             pages = periods.ToDictionary(k => k, v => new List<int>(new[] { 0 }));
         }
 
-        public Chapter(string label, int size, Color color) : this()
+        public Chapter(HistoryLabel label, int size, Color color) : this()
         {
             this.label = label;
             this.size = size;
@@ -588,7 +589,7 @@ public class History : IExposable
 
         public Chapter(ThingDefCountClass thingDefCount, int size, Color color) : this()
         {
-            label = thingDefCount.thingDef.LabelCap;
+            label = new DefHistoryLabel(thingDefCount.thingDef);
             ThingDefCount = thingDefCount;
             this.size = size;
             lineColor = color;
@@ -615,9 +616,7 @@ public class History : IExposable
 
         public void ExposeData()
         {
-#pragma warning disable CS8601 // Possible null reference assignment.
-            Scribe_Values.Look(ref label, "label");
-#pragma warning restore CS8601 // Possible null reference assignment.
+            Scribe_Deep.Look(ref label, "label");
             Scribe_Values.Look(ref size, "size", 100);
             Scribe_Values.Look(ref lineColor, "color", Color.white);
             Scribe_Values.Look(ref ThingDefCount.count, "thingCount_count");
@@ -688,5 +687,112 @@ public class History : IExposable
 
             return pages[period][x] * sign;
         }
+    }
+}
+
+public abstract class HistoryLabel : IExposable
+{
+    public abstract string Label { get; }
+
+    public abstract void ExposeData();
+
+    public override string ToString()
+    {
+        return Label;
+    }
+}
+
+public class DirectHistoryLabel : HistoryLabel
+{
+    private string direct;
+
+    public override string Label => direct;
+
+    public DirectHistoryLabel(string direct)
+    {
+        this.direct = direct;
+    }
+
+#pragma warning disable CS8618 // Used by scribe
+    public DirectHistoryLabel()
+#pragma warning restore CS8618
+    {
+    }
+
+    public override void ExposeData()
+    {
+        Scribe_Values.Look(ref direct, "direct", string.Empty);
+    }
+
+    public static implicit operator DirectHistoryLabel(string direct)
+    {
+        return new(direct);
+    }
+}
+
+public class DefHistoryLabel : HistoryLabel
+{
+    private string defName;
+
+    private Def? def;
+    private Def Def
+    {
+        get
+        {
+            def ??= DefDatabase<Def>.GetNamed(defName);
+            return def;
+        }
+    }
+
+    public DefHistoryLabel(Def def)
+    {
+        defName = def.defName;
+        this.def = def;
+    }
+
+#pragma warning disable CS8618 // Used by scribe
+    public DefHistoryLabel()
+#pragma warning restore CS8618
+    {
+    }
+
+    public override string Label => Def.LabelCap;
+
+    public override void ExposeData()
+    {
+        Scribe_Values.Look(ref defName, "defName", string.Empty);
+    }
+
+    public static implicit operator DefHistoryLabel(Def def)
+    {
+        return new(def);
+    }
+}
+
+public class TranslationHistoryLabel : HistoryLabel
+{
+    private string translationKey;
+
+    public TranslationHistoryLabel(string translationKey)
+    {
+        this.translationKey = translationKey;
+    }
+
+#pragma warning disable CS8618 // Used by scribe
+    public TranslationHistoryLabel()
+#pragma warning restore CS8618
+    {
+    }
+
+    public override string Label => translationKey.Translate();
+
+    public override void ExposeData()
+    {
+        Scribe_Values.Look(ref translationKey, "translationKey", string.Empty);
+    }
+
+    public static implicit operator TranslationHistoryLabel(string translationKey)
+    {
+        return new(translationKey);
     }
 }
