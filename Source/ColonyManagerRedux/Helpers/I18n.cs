@@ -10,18 +10,18 @@ namespace ColonyManagerRedux
 {
     public class I18n
     {
-        public static string HistoryStock = Translate("HistoryStock");
-        public static string HistoryDesignated = Translate("HistoryDesignated");
-        public static string HistoryCorpses = Translate("HistoryCorpses");
-        public static string HistoryChunks = Translate("HistoryChunks");
-        public static string HistoryProduction = Translate("HistoryProduction");
-        public static string HistoryConsumption = Translate("HistoryConsumption");
-        public static string HistoryBatteries = Translate("HistoryBatteries");
+        public static string HistoryStock = Translate("ColonyManager.HistoryStock");
+        public static string HistoryDesignated = Translate("ColonyManager.HistoryDesignated");
+        public static string HistoryCorpses = Translate("ColonyManager.HistoryCorpses");
+        public static string HistoryChunks = Translate("ColonyManager.HistoryChunks");
+        public static string HistoryProduction = Translate("ColonyManager.HistoryProduction");
+        public static string HistoryConsumption = Translate("ColonyManager.HistoryConsumption");
+        public static string HistoryBatteries = Translate("ColonyManager.HistoryBatteries");
 
 
         public static string Aggressiveness(float aggression)
         {
-            return Translate("Aggressiveness",
+            return Translate("ColonyManager.Aggressiveness",
                               aggression >= .1f
                                   ? aggression.ToStringPercent().Colorize(Color.red)
                                   : aggression.ToStringPercent());
@@ -39,12 +39,12 @@ namespace ColonyManagerRedux
 
         public static string YieldOne(string label)
         {
-            return $"{Translate("Yield")} {label}";
+            return $"{Translate("ColonyManager.Yield")} {label}";
         }
 
         public static string YieldMany(IEnumerable<string> labels)
         {
-            return $"{Translate("Yield")}\n - {labels.ToLineList(" - ")}";
+            return $"{Translate("ColonyManager.Yield")}\n - {labels.ToLineList(" - ")}";
         }
 
         public static string YieldOne(float yield, ThingDef def)

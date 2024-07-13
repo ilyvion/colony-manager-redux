@@ -459,7 +459,7 @@ namespace ColonyManagerRedux
                     var cost = path.TotalCost;
                     path.ReleaseToPool();
 
-                    Logger.Debug($"from {adjacent[i]} to {adjacent[j]}: {cost}");
+                    //Logger.Debug($"from {adjacent[i]} to {adjacent[j]}: {cost}");
                     if (cost > MaxPathCost)
                         return true;
                 }

@@ -17,7 +17,7 @@ public class ManagerTabDef : Def
     [Unsaved(false)]
     public Texture2D icon = BaseContent.BadTex;
     [NoTranslate]
-    public string iconPath = "UI/Icons/Hammer";
+    public string iconPath = "UI/Icons/CMR_Hammer";
 
     public override void PostLoad()
     {

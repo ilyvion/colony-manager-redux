@@ -283,8 +283,8 @@ namespace ColonyManagerRedux
                     }
                 }
 
-                foreach (var @yield in yields)
-                    Logger.Debug(yield);
+                // foreach (var @yield in yields)
+                //     Logger.Debug(yield);
 
                 if (yields.Count == 1)
                     sb.AppendLine(I18n.YieldOne(yields.First()));
