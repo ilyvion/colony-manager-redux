@@ -54,12 +54,12 @@ namespace ColonyManagerRedux
 
         public static string Gender(Gender gender)
         {
-            return Translate($"Gender.{gender}");
+            return Translate($"ColonyManager.Gender.{gender}");
         }
 
         public static string ChanceToDrop(float chance)
         {
-            return Translate("ChanceToDrop", chance.ToStringPercent());
+            return Translate("ColonyManager.ChanceToDrop", chance.ToStringPercent());
         }
     }
 }

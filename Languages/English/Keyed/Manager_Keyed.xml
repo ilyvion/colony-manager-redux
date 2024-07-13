@@ -267,4 +267,5 @@
     <ColonyManagerRedux.ColonyManager.Aggressiveness>Aggressiveness: {0}</ColonyManagerRedux.ColonyManager.Aggressiveness>
     <ColonyManagerRedux.ColonyManager.Gender.Male>male</ColonyManagerRedux.ColonyManager.Gender.Male>
     <ColonyManagerRedux.ColonyManager.Gender.Female>female</ColonyManagerRedux.ColonyManager.Gender.Female>
+    <ColonyManagerRedux.ColonyManager.ChanceToDrop>chance to drop: {0}</ColonyManagerRedux.ColonyManager.ChanceToDrop>
 </LanguageData>
