@@ -10,56 +10,56 @@ namespace FluffyManager
 {
     public class I18n
     {
-        public static string HistoryStock       = Translate( "HistoryStock" );
-        public static string HistoryDesignated  = Translate( "HistoryDesignated" );
-        public static string HistoryCorpses     = Translate( "HistoryCorpses" );
-        public static string HistoryChunks      = Translate( "HistoryChunks" );
-        public static string HistoryProduction  = Translate( "HistoryProduction" );
-        public static string HistoryConsumption = Translate( "HistoryConsumption" );
-        public static string HistoryBatteries   = Translate( "HistoryBatteries" );
+        public static string HistoryStock = Translate("HistoryStock");
+        public static string HistoryDesignated = Translate("HistoryDesignated");
+        public static string HistoryCorpses = Translate("HistoryCorpses");
+        public static string HistoryChunks = Translate("HistoryChunks");
+        public static string HistoryProduction = Translate("HistoryProduction");
+        public static string HistoryConsumption = Translate("HistoryConsumption");
+        public static string HistoryBatteries = Translate("HistoryBatteries");
 
 
-        public static string Aggressiveness( float aggression )
+        public static string Aggressiveness(float aggression)
         {
-            return Translate( "Aggressiveness",
+            return Translate("Aggressiveness",
                               aggression >= .1f
-                                  ? aggression.ToStringPercent().Colorize( Color.red )
-                                  : aggression.ToStringPercent() );
+                                  ? aggression.ToStringPercent().Colorize(Color.red)
+                                  : aggression.ToStringPercent());
         }
 
-        public static string Key( string key )
+        public static string Key(string key)
         {
             return $"Fluffy.ColonyManager.{key}";
         }
 
-        public static string Translate( string key, params object[] args )
+        public static string Translate(string key, params object[] args)
         {
-            return Key( key ).Translate( args ).ResolveTags();
+            return Key(key).Translate(args).ResolveTags();
         }
 
-        public static string YieldOne( string label )
+        public static string YieldOne(string label)
         {
-            return $"{Translate( "Yield" )} {label}";
+            return $"{Translate("Yield")} {label}";
         }
 
-        public static string YieldMany( IEnumerable<string> labels )
+        public static string YieldMany(IEnumerable<string> labels)
         {
-            return $"{Translate( "Yield" )}\n - {labels.ToLineList( " - " )}";
+            return $"{Translate("Yield")}\n - {labels.ToLineList(" - ")}";
         }
 
-        public static string YieldOne( float yield, ThingDef def )
+        public static string YieldOne(float yield, ThingDef def)
         {
-            return YieldOne( $"{def.LabelCap} x{yield:F0} " );
+            return YieldOne($"{def.LabelCap} x{yield:F0} ");
         }
 
-        public static string Gender( Gender gender )
+        public static string Gender(Gender gender)
         {
-            return Translate( $"Gender.{gender}" );
+            return Translate($"Gender.{gender}");
         }
 
-        public static string ChanceToDrop( float chance )
+        public static string ChanceToDrop(float chance)
         {
-            return Translate( "ChanceToDrop", chance.ToStringPercent() );
+            return Translate("ChanceToDrop", chance.ToStringPercent());
         }
     }
 }

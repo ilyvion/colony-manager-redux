@@ -9,16 +9,16 @@ namespace FluffyManager
     {
         public enum IconAreas
         {
-            Left   = 0,
+            Left = 0,
             Middle = 1,
-            Right  = 2
+            Right = 2
         }
 
         public float DefaultLeftRowSize = 300f;
 
         public Manager manager;
 
-        public ManagerTab( Manager manager )
+        public ManagerTab(Manager manager)
         {
             this.manager = manager;
         }
@@ -35,7 +35,7 @@ namespace FluffyManager
 
         public abstract ManagerJob Selected { get; set; }
 
-        public abstract void DoWindowContents( Rect canvas );
+        public abstract void DoWindowContents(Rect canvas);
 
         public virtual void PostClose()
         {

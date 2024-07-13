@@ -15,27 +15,27 @@ namespace FluffyManager
     {
         private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new Utilities.CachedValue<int>();
 
-        public     Dictionary<ThingDef, bool> AllowedPlants = new Dictionary<ThingDef, bool>();
-        public     Area                       ForagingArea;
-        public     bool                       ForceFullyMature;
-        public     History                    History;
-        public     Utilities.SyncDirection    Sync                 = Utilities.SyncDirection.AllowedToFilter;
-        public     bool                       SyncFilterAndAllowed = true;
-        public new Trigger_Threshold          Trigger;
+        public Dictionary<ThingDef, bool> AllowedPlants = new Dictionary<ThingDef, bool>();
+        public Area ForagingArea;
+        public bool ForceFullyMature;
+        public History History;
+        public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
+        public bool SyncFilterAndAllowed = true;
+        public new Trigger_Threshold Trigger;
 
         private List<Designation> _designations = new List<Designation>();
 
-        public ManagerJob_Foraging( Manager manager ) : base( manager )
+        public ManagerJob_Foraging(Manager manager) : base(manager)
         {
             // populate the trigger field, count all harvested thingdefs from the allowed plant list
-            Trigger = new Trigger_Threshold( this );
+            Trigger = new Trigger_Threshold(this);
 
             // create History tracker
-            History = new History( new[] {I18n.HistoryStock, I18n.HistoryDesignated }, new[] {Color.white, Color.grey} );
+            History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, new[] { Color.white, Color.grey });
 
             // init stuff if we're not loading
             // todo: please, please refactor this into something less clumsy!
-            if ( Scribe.mode == LoadSaveMode.Inactive )
+            if (Scribe.mode == LoadSaveMode.Inactive)
                 RefreshAllowedPlants();
         }
 
@@ -48,39 +48,39 @@ namespace FluffyManager
                 var count = 0;
 
                 // see if we have a cached count
-                if ( _cachedCurrentDesignatedCount.TryGetValue( out count ) )
+                if (_cachedCurrentDesignatedCount.TryGetValue(out count))
                     return count;
 
                 // fetch count
-                foreach ( var des in _designations )
+                foreach (var des in _designations)
                 {
-                    if ( !des.target.HasThing )
+                    if (!des.target.HasThing)
                         continue;
 
                     var plant = des.target.Thing as Plant;
 
-                    if ( plant == null )
+                    if (plant == null)
                         continue;
 
                     count += plant.YieldNow();
                 }
 
-                _cachedCurrentDesignatedCount.Update( count );
+                _cachedCurrentDesignatedCount.Update(count);
                 return count;
             }
         }
 
-        public List<Designation> Designations => new List<Designation>( _designations );
+        public List<Designation> Designations => new List<Designation>(_designations);
 
         public override bool IsValid => base.IsValid && Trigger != null && History != null;
 
         public override string Label => "FMG.Foraging".Translate();
 
-        public override ManagerTab Tab => Manager.For( manager ).Tabs.Find( tab => tab is ManagerTab_Foraging );
+        public override ManagerTab Tab => Manager.For(manager).Tabs.Find(tab => tab is ManagerTab_Foraging);
 
         public override string[] Targets => AllowedPlants
-                                           .Keys.Where( key => AllowedPlants[key] )
-                                           .Select( plant => plant.LabelCap.Resolve() ).ToArray();
+                                           .Keys.Where(key => AllowedPlants[key])
+                                           .Select(plant => plant.LabelCap.Resolve()).ToArray();
 
         public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
 
@@ -88,10 +88,10 @@ namespace FluffyManager
         {
             // get list of game designations not managed by this job that could have been assigned by this job.
             foreach (
-                var des in manager.map.designationManager.SpawnedDesignationsOfDef( DesignationDefOf.HarvestPlant )
-                                  .Except( _designations )
-                                  .Where( des => IsValidForagingTarget( des.target ) ) )
-                AddDesignation( des );
+                var des in manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
+                                  .Except(_designations)
+                                  .Where(des => IsValidForagingTarget(des.target)))
+                AddDesignation(des);
         }
 
         /// <summary>
@@ -100,8 +100,8 @@ namespace FluffyManager
         public void CleanDeadDesignations()
         {
             var _gameDesignations =
-                manager.map.designationManager.SpawnedDesignationsOfDef( DesignationDefOf.HarvestPlant );
-            _designations = _designations.Intersect( _gameDesignations ).ToList();
+                manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant);
+            _designations = _designations.Intersect(_gameDesignations).ToList();
         }
 
         /// <summary>
@@ -110,23 +110,23 @@ namespace FluffyManager
         public override void CleanUp()
         {
             CleanDeadDesignations();
-            foreach ( var des in _designations ) des.Delete();
+            foreach (var des in _designations) des.Delete();
 
             _designations.Clear();
         }
 
-        public string DesignationLabel( Designation designation )
+        public string DesignationLabel(Designation designation)
         {
             // label, dist, yield.
             var plant = designation.target.Thing as Plant;
             return "Fluffy.Manager.DesignationLabel".Translate(
                 plant.LabelCap,
-                Distance( plant, manager.map.GetBaseCenter() ).ToString( "F0" ),
+                Distance(plant, manager.map.GetBaseCenter()).ToString("F0"),
                 plant.YieldNow(),
-                plant.def.plant.harvestedThingDef.LabelCap );
+                plant.def.plant.harvestedThingDef.LabelCap);
         }
 
-        public override void DrawListEntry( Rect rect, bool overview = true, bool active = true )
+        public override void DrawListEntry(Rect rect, bool overview = true, bool active = true)
         {
             // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
 
@@ -134,32 +134,32 @@ namespace FluffyManager
             var labelRect = new Rect(
                 Margin,
                 Margin,
-                rect.width  - ( active ? StatusRectWidth + 4 * Margin : 2 * Margin ),
-                rect.height - 2 * Margin );
-            var statusRect = new Rect( labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin );
+                rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+                rect.height - 2 * Margin);
+            var statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
 
             // create label string
-            var text    = Label + "\n";
-            var subtext = string.Join( ", ", Targets );
-            if ( subtext.Fits( labelRect ) )
+            var text = Label + "\n";
+            var subtext = string.Join(", ", Targets);
+            if (subtext.Fits(labelRect))
                 text += subtext.Italic();
             else
                 text += "multiple".Translate().Resolve().Italic();
 
             // do the drawing
-            GUI.BeginGroup( rect );
+            GUI.BeginGroup(rect);
 
             // draw label
-            Widgets_Labels.Label( labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin );
+            Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
 
             // if the bill has a manager job, give some more info.
-            if ( active ) this.DrawStatusForListEntry( statusRect, Trigger );
+            if (active) this.DrawStatusForListEntry(statusRect, Trigger);
             GUI.EndGroup();
         }
 
-        public override void DrawOverviewDetails( Rect rect )
+        public override void DrawOverviewDetails(Rect rect)
         {
-            History.DrawPlot( rect, Trigger.TargetCount );
+            History.DrawPlot(rect, Trigger.TargetCount);
         }
 
         public override void ExposeData()
@@ -168,94 +168,94 @@ namespace FluffyManager
             base.ExposeData();
 
             // settings, references first!
-            Scribe_References.Look( ref ForagingArea, "ForagingArea" );
-            Scribe_Deep.Look( ref Trigger, "trigger", manager );
-            Scribe_Collections.Look( ref AllowedPlants, "AllowedPlants", LookMode.Def, LookMode.Value );
-            Scribe_Values.Look( ref ForceFullyMature, "ForceFullyMature" );
+            Scribe_References.Look(ref ForagingArea, "ForagingArea");
+            Scribe_Deep.Look(ref Trigger, "trigger", manager);
+            Scribe_Collections.Look(ref AllowedPlants, "AllowedPlants", LookMode.Def, LookMode.Value);
+            Scribe_Values.Look(ref ForceFullyMature, "ForceFullyMature");
 
-            if ( Manager.LoadSaveMode == Manager.Modes.Normal )
+            if (Manager.LoadSaveMode == Manager.Modes.Normal)
                 // scribe history
-                Scribe_Deep.Look( ref History, "History" );
+                Scribe_Deep.Look(ref History, "History");
         }
 
-        public List<ThingDef> GetMaterialsInPlant( ThingDef plantDef )
+        public List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
         {
             var plant = plantDef?.plant;
-            if ( plant == null ) throw new ArgumentNullException( "no valid plantdef defined" );
+            if (plant == null) throw new ArgumentNullException("no valid plantdef defined");
 
-            return new List<ThingDef>( new[] {plant.harvestedThingDef} );
+            return new List<ThingDef>(new[] { plant.harvestedThingDef });
         }
 
         public void Notify_ThresholdFilterChanged()
         {
-            Logger.Debug( "Threshold changed." );
-            if ( !SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter )
+            Logger.Debug("Threshold changed.");
+            if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
                 return;
 
-            foreach ( var plant in new List<ThingDef>( AllowedPlants.Keys ) )
-                AllowedPlants[plant] = GetMaterialsInPlant( plant )
-                   .Any( material => Trigger.ThresholdFilter.Allows( material ) );
+            foreach (var plant in new List<ThingDef>(AllowedPlants.Keys))
+                AllowedPlants[plant] = GetMaterialsInPlant(plant)
+                   .Any(material => Trigger.ThresholdFilter.Allows(material));
         }
 
         public void RefreshAllowedPlants()
         {
-            Logger.Debug( "Refreshing allowed plants" );
+            Logger.Debug("Refreshing allowed plants");
 
             // all plants that yield something, and it isn't wood.
             var options = manager.map.Biome.AllWildPlants
 
-                                  // cave plants (shrooms)
-                                 .Concat( DefDatabase<ThingDef>.AllDefsListForReading
-                                                               .Where( td => td.plant?.cavePlant ?? false ) )
+                                 // cave plants (shrooms)
+                                 .Concat(DefDatabase<ThingDef>.AllDefsListForReading
+                                                               .Where(td => td.plant?.cavePlant ?? false))
 
-                                  // ambrosia
-                                 .Concat( ThingDefOf.Plant_Ambrosia )
+                                 // ambrosia
+                                 .Concat(ThingDefOf.Plant_Ambrosia)
 
-                                  // and anything on the map that is not in a plant zone/planter
-                                 .Concat( manager.map.listerThings.AllThings.OfType<Plant>()
-                                                 .Where( p => p.Spawned &&
-                                                              !( manager.map.zoneManager.ZoneAt( p.Position ) is
-                                                                  IPlantToGrowSettable ) &&
-                                                              manager.map.thingGrid.ThingsAt( p.Position )
+                                 // and anything on the map that is not in a plant zone/planter
+                                 .Concat(manager.map.listerThings.AllThings.OfType<Plant>()
+                                                 .Where(p => p.Spawned &&
+                                                              !(manager.map.zoneManager.ZoneAt(p.Position) is
+                                                                  IPlantToGrowSettable) &&
+                                                              manager.map.thingGrid.ThingsAt(p.Position)
                                                                      .FirstOrDefault(
-                                                                          t => t is Building_PlantGrower ) == null )
-                                                 .Select( p => p.def )
-                                                 .Distinct() )
+                                                                          t => t is Building_PlantGrower) == null)
+                                                 .Select(p => p.def)
+                                                 .Distinct())
 
-                                  // that yield something that is not wood
-                                 .Where( plant => plant.plant.harvestYield      > 0     &&
+                                 // that yield something that is not wood
+                                 .Where(plant => plant.plant.harvestYield > 0 &&
                                                   plant.plant.harvestedThingDef != null &&
-                                                  plant.plant.harvestTag        != "Wood" )
+                                                  plant.plant.harvestTag != "Wood")
                                  .Distinct();
 
-            foreach ( var plant in options )
-                if ( !AllowedPlants.ContainsKey( plant ) )
-                    AllowedPlants.Add( plant, false );
+            foreach (var plant in options)
+                if (!AllowedPlants.ContainsKey(plant))
+                    AllowedPlants.Add(plant, false);
 
-            AllowedPlants = AllowedPlants.OrderBy( plant => plant.Key.LabelCap.RawText )
-                                         .ToDictionary( it => it.Key, it => it.Value );
+            AllowedPlants = AllowedPlants.OrderBy(plant => plant.Key.LabelCap.RawText)
+                                         .ToDictionary(it => it.Key, it => it.Value);
         }
 
-        public void SetPlantAllowed( ThingDef plant, bool allow, bool sync = true )
+        public void SetPlantAllowed(ThingDef plant, bool allow, bool sync = true)
         {
-            if ( plant == null )
-                throw new ArgumentNullException( nameof( plant ) );
+            if (plant == null)
+                throw new ArgumentNullException(nameof(plant));
 
             AllowedPlants[plant] = allow;
 
-            if ( SyncFilterAndAllowed && sync )
+            if (SyncFilterAndAllowed && sync)
             {
                 Sync = Utilities.SyncDirection.AllowedToFilter;
 
-                foreach ( var material in GetMaterialsInPlant( plant ) )
-                    if ( Trigger.ParentFilter.Allows( material ) )
-                        Trigger.ThresholdFilter.SetAllow( material, allow );
+                foreach (var material in GetMaterialsInPlant(plant))
+                    if (Trigger.ParentFilter.Allows(material))
+                        Trigger.ThresholdFilter.SetAllow(material, allow);
             }
         }
 
         public override void Tick()
         {
-            History.Update( Trigger.CurrentCount, CurrentDesignatedCount );
+            History.Update(Trigger.CurrentCount, CurrentDesignatedCount);
         }
 
         public override bool TryDoJob()
@@ -274,15 +274,15 @@ namespace FluffyManager
 
             // designate plants until trigger is met.
             var count = Trigger.CurrentCount + CurrentDesignatedCount;
-            if ( count < Trigger.TargetCount )
+            if (count < Trigger.TargetCount)
             {
                 var targets = GetValidForagingTargetsSorted();
 
-                for ( var i = 0; i < targets.Count && count < Trigger.TargetCount; i++ )
+                for (var i = 0; i < targets.Count && count < Trigger.TargetCount; i++)
                 {
-                    var des = new Designation( targets[i], DesignationDefOf.HarvestPlant );
+                    var des = new Designation(targets[i], DesignationDefOf.HarvestPlant);
                     count += targets[i].YieldNow();
-                    AddDesignation( des );
+                    AddDesignation(des);
                     workDone = true;
                 }
             }
@@ -290,23 +290,23 @@ namespace FluffyManager
             return workDone;
         }
 
-        private void AddDesignation( Designation des )
+        private void AddDesignation(Designation des)
         {
             // add to game
-            manager.map.designationManager.AddDesignation( des );
+            manager.map.designationManager.AddDesignation(des);
 
             // add to internal list
-            _designations.Add( des );
+            _designations.Add(des);
         }
 
         private void CleanAreaDesignations()
         {
-            foreach ( var des in _designations )
-                if ( !des.target.HasThing )
+            foreach (var des in _designations)
+                if (!des.target.HasThing)
                     des.Delete();
 
                 // if area is not null and does not contain designate location, remove designation.
-                else if ( !ForagingArea?.ActiveCells.Contains( des.target.Thing.Position ) ?? false ) des.Delete();
+                else if (!ForagingArea?.ActiveCells.Contains(des.target.Thing.Position) ?? false) des.Delete();
         }
 
         private List<Plant> GetValidForagingTargetsSorted()
@@ -314,48 +314,48 @@ namespace FluffyManager
             var position = manager.map.GetBaseCenter();
 
             return manager.map.listerThings.AllThings
-                          .Where( IsValidForagingTarget )
+                          .Where(IsValidForagingTarget)
 
-                           // OrderBy defaults to ascending, switch sign on current yield to get descending
-                          .Select( p => p as Plant )
-                          .OrderBy( p => -p.YieldNow() / Distance( p, position ) )
+                          // OrderBy defaults to ascending, switch sign on current yield to get descending
+                          .Select(p => p as Plant)
+                          .OrderBy(p => -p.YieldNow() / Distance(p, position))
                           .ToList();
         }
 
-        private bool IsValidForagingTarget( LocalTargetInfo t )
+        private bool IsValidForagingTarget(LocalTargetInfo t)
         {
             return t.HasThing
-                && IsValidForagingTarget( t.Thing );
+                && IsValidForagingTarget(t.Thing);
         }
 
-        private bool IsValidForagingTarget( Thing t )
+        private bool IsValidForagingTarget(Thing t)
         {
             var plant = t as Plant;
-            return plant != null && IsValidForagingTarget( plant );
+            return plant != null && IsValidForagingTarget(plant);
         }
 
-        private bool IsValidForagingTarget( Plant target )
+        private bool IsValidForagingTarget(Plant target)
         {
             // should be a plant, and be on the same map as this job
             return target.def.plant != null
-                && target.Map       == manager.map
+                && target.Map == manager.map
 
-                   // non-biome plants won't be on the list, also filters non-yield or wood plants
-                && AllowedPlants.ContainsKey( target.def )
+                // non-biome plants won't be on the list, also filters non-yield or wood plants
+                && AllowedPlants.ContainsKey(target.def)
                 && AllowedPlants[target.def]
                 && target.Spawned
-                && manager.map.designationManager.DesignationOn( target ) == null
+                && manager.map.designationManager.DesignationOn(target) == null
 
-                   // cut only mature plants, or non-mature that yield something right now.
-                && ( !ForceFullyMature && target.YieldNow() > 1
-                  || target.LifeStage == PlantLifeStage.Mature )
+                // cut only mature plants, or non-mature that yield something right now.
+                && (!ForceFullyMature && target.YieldNow() > 1
+                  || target.LifeStage == PlantLifeStage.Mature)
 
-                   // limit to area of interest
-                && ( ForagingArea == null
-                  || ForagingArea.ActiveCells.Contains( target.Position ) )
+                // limit to area of interest
+                && (ForagingArea == null
+                  || ForagingArea.ActiveCells.Contains(target.Position))
 
-                   // reachable
-                && IsReachable( target );
+                // reachable
+                && IsReachable(target);
         }
     }
 }

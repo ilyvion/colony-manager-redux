@@ -17,40 +17,40 @@ namespace FluffyManager
         {
             base.ExposeData();
 
-            Scribe_Values.Look( ref workNeeded, "WorkNeeded", 100 );
-            Scribe_Values.Look( ref workDone, "WorkDone" );
+            Scribe_Values.Look(ref workNeeded, "WorkNeeded", 100);
+            Scribe_Values.Look(ref workDone, "WorkDone");
         }
 
-        public override bool TryMakePreToilReservations( bool errorOnFailed )
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve( job.targetA, job );
+            return pawn.Reserve(job.targetA, job);
         }
 
         public override IEnumerable<Toil> MakeNewToils()
         {
-            this.FailOnDespawnedNullOrForbidden( TargetIndex.A );
-            yield return Toils_Goto.GotoThing( TargetIndex.A, PathEndMode.InteractionCell );
-            var manage = Manage( TargetIndex.A );
+            this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
+            yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
+            var manage = Manage(TargetIndex.A);
             yield return manage;
 
             // if made to by player, keep doing that untill we're out of jobs
             yield return Toils_Jump.JumpIf(
-                manage, () => GetActor().CurJob.playerForced && Manager.For( Map ).JobStack.NextJob != null );
+                manage, () => GetActor().CurJob.playerForced && Manager.For(Map).JobStack.NextJob != null);
         }
 
-        private Toil Manage( TargetIndex targetIndex )
+        private Toil Manage(TargetIndex targetIndex)
         {
-            var station = GetActor().jobs.curJob.GetTarget( targetIndex ).Thing as Building_ManagerStation;
-            if ( station == null )
+            var station = GetActor().jobs.curJob.GetTarget(targetIndex).Thing as Building_ManagerStation;
+            if (station == null)
             {
-                Log.Error( "Target of manager job was not a manager station." );
+                Log.Error("Target of manager job was not a manager station.");
                 return null;
             }
 
             var comp = station.GetComp<Comp_ManagerStation>();
-            if ( comp == null )
+            if (comp == null)
             {
-                Log.Error( "Target of manager job does not have manager station comp. This should never happen." );
+                Log.Error("Target of manager job does not have manager station comp. This should never happen.");
                 return null;
             }
 
@@ -58,28 +58,28 @@ namespace FluffyManager
             toil.defaultCompleteMode = ToilCompleteMode.Never;
             toil.initAction = () =>
             {
-                workDone   = 0;
+                workDone = 0;
                 workNeeded = comp.Props.speed;
             };
 
             toil.tickAction = () =>
             {
                 // learn a bit
-                pawn.skills.GetSkill( DefDatabase<SkillDef>.GetNamed( "Intellectual" ) )
-                    .Learn( 0.11f );
+                pawn.skills.GetSkill(DefDatabase<SkillDef>.GetNamed("Intellectual"))
+                    .Learn(0.11f);
 
                 // update counter
-                workDone += pawn.GetStatValue( StatDef.Named( "ManagingSpeed" ) );
+                workDone += pawn.GetStatValue(StatDef.Named("ManagingSpeed"));
 
                 // are we done yet?
-                if ( workDone > workNeeded )
+                if (workDone > workNeeded)
                 {
-                    Manager.For( pawn.Map ).TryDoWork();
+                    Manager.For(pawn.Map).TryDoWork();
                     ReadyForNextToil();
                 }
             };
 
-            toil.WithProgressBar( TargetIndex.A, () => workDone / workNeeded );
+            toil.WithProgressBar(TargetIndex.A, () => workDone / workNeeded);
             return toil;
         }
     }

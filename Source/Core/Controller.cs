@@ -12,18 +12,18 @@ namespace FluffyManager
     {
         private Settings mySettings;
 
-        public Controller( ModContentPack content ) : base( content )
+        public Controller(ModContentPack content) : base(content)
         {
             // apply fixes
-            var harmony = new Harmony( "fluffy.colonymanager" );
-            harmony.PatchAll( Assembly.GetExecutingAssembly() );
+            var harmony = new Harmony("fluffy.colonymanager");
+            harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             mySettings = GetSettings<Settings>();
         }
 
-        public override void DoSettingsWindowContents( Rect inRect )
+        public override void DoSettingsWindowContents(Rect inRect)
         {
-            Settings.DoSettingsWindowContents( inRect );
+            Settings.DoSettingsWindowContents(inRect);
         }
 
         public override string SettingsCategory()

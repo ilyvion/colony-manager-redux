@@ -11,7 +11,7 @@ namespace FluffyManager
     {
         public Alert_NoManager()
         {
-            defaultLabel       = "FM.AlertNoManagerLabel".Translate();
+            defaultLabel = "FM.AlertNoManagerLabel".Translate();
             defaultExplanation = "FM.AlertNoManager".Translate();
         }
 
@@ -19,7 +19,7 @@ namespace FluffyManager
 
         public override AlertReport GetReport()
         {
-            return Manager.For( Find.CurrentMap ).JobStack.FullStack().Count > 0 && !AnyConsciousManagerPawn();
+            return Manager.For(Find.CurrentMap).JobStack.FullStack().Count > 0 && !AnyConsciousManagerPawn();
         }
 
         private bool AnyConsciousManagerPawn()
@@ -29,9 +29,9 @@ namespace FluffyManager
                     pawn => !pawn.health.Dead && !pawn.Downed &&
                             pawn.workSettings.WorkIsActive(
                                 Utilities
-                                   .WorkTypeDefOf_Managing ) ) ||
+                                   .WorkTypeDefOf_Managing)) ||
                 Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
-                    DefDatabase<ThingDef>.GetNamed( "FM_AIManager" ) );
+                    DefDatabase<ThingDef>.GetNamed("FM_AIManager"));
         }
     }
 
@@ -39,7 +39,7 @@ namespace FluffyManager
     {
         public Alert_NoTable()
         {
-            defaultLabel       = "FM.AlertNoTableLabel".Translate();
+            defaultLabel = "FM.AlertNoTableLabel".Translate();
             defaultExplanation = "FM.AlertNoTable".Translate();
         }
 
@@ -47,7 +47,7 @@ namespace FluffyManager
 
         public override AlertReport GetReport()
         {
-            return Manager.For( Find.CurrentMap ).JobStack.FullStack().Count > 0 && !AnyManagerTable();
+            return Manager.For(Find.CurrentMap).JobStack.FullStack().Count > 0 && !AnyManagerTable();
         }
 
         private bool AnyManagerTable()

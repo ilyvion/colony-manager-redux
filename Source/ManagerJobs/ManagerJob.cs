@@ -16,36 +16,36 @@ namespace FluffyManager
 
     public abstract class ManagerJob : IManagerJob, IExposable
     {
-        public static float SuspendStampWidth   = Constants.MediumIconSize,
+        public static float SuspendStampWidth = Constants.MediumIconSize,
                             LastUpdateRectWidth = 50f,
-                            ProgressRectWidth   = 10f,
-                            StatusRectWidth     = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
+                            ProgressRectWidth = 10f,
+                            StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
 
         public bool CheckReachable = true;
 
         public int lastAction;
 
         public Manager manager;
-        public bool    PathBasedDistance;
+        public bool PathBasedDistance;
 
         public int priority;
 
-        public  Trigger Trigger;
-        private bool    _suspended;
+        public Trigger Trigger;
+        private bool _suspended;
 
         private UpdateInterval _updateInterval;
-        private int            _updateIntervalScribe;
+        private int _updateIntervalScribe;
 
-        public ManagerJob( Manager manager )
+        public ManagerJob(Manager manager)
         {
             this.manager = manager;
             Touch(); // set last updated to current time.
         }
 
-        public abstract bool   Completed { get; }
-        public virtual  bool   IsValid   => manager != null;
-        public abstract string Label     { get; }
-        public virtual  bool   Managed   { get; set; }
+        public abstract bool Completed { get; }
+        public virtual bool IsValid => manager != null;
+        public abstract string Label { get; }
+        public virtual bool Managed { get; set; }
 
 
         public virtual bool ShouldDoNow => Managed && !Suspended && !Completed &&
@@ -59,8 +59,8 @@ namespace FluffyManager
             set => _suspended = value;
         }
 
-        public abstract ManagerTab Tab     { get; }
-        public abstract string[]   Targets { get; }
+        public abstract ManagerTab Tab { get; }
+        public abstract string[] Targets { get; }
 
         public virtual UpdateInterval UpdateInterval
         {
@@ -72,24 +72,24 @@ namespace FluffyManager
 
         public virtual void ExposeData()
         {
-            if ( Scribe.mode == LoadSaveMode.Saving )
+            if (Scribe.mode == LoadSaveMode.Saving)
                 _updateIntervalScribe = UpdateInterval.ticks;
-            Scribe_References.Look( ref manager, "manager" );
-            Scribe_Values.Look( ref _updateIntervalScribe, "UpdateInterval" );
-            Scribe_Values.Look( ref lastAction, "lastAction" );
-            Scribe_Values.Look( ref priority, "priority" );
-            Scribe_Values.Look( ref CheckReachable, "CheckReachable", true );
-            Scribe_Values.Look( ref PathBasedDistance, "PathBasedDistance" );
-            Scribe_Values.Look( ref _suspended, "Suspended" );
+            Scribe_References.Look(ref manager, "manager");
+            Scribe_Values.Look(ref _updateIntervalScribe, "UpdateInterval");
+            Scribe_Values.Look(ref lastAction, "lastAction");
+            Scribe_Values.Look(ref priority, "priority");
+            Scribe_Values.Look(ref CheckReachable, "CheckReachable", true);
+            Scribe_Values.Look(ref PathBasedDistance, "PathBasedDistance");
+            Scribe_Values.Look(ref _suspended, "Suspended");
 
-            if ( Scribe.mode == LoadSaveMode.PostLoadInit || Manager.LoadSaveMode == Manager.Modes.ImportExport )
+            if (Scribe.mode == LoadSaveMode.PostLoadInit || Manager.LoadSaveMode == Manager.Modes.ImportExport)
             {
                 // must be true if it was saved.
                 Managed = true;
 
                 try
                 {
-                    _updateInterval = Utilities.UpdateIntervalOptions.Find( ui => ui.ticks == _updateIntervalScribe ) ??
+                    _updateInterval = Utilities.UpdateIntervalOptions.Find(ui => ui.ticks == _updateIntervalScribe) ??
                                       Settings.DefaultUpdateInterval;
                 }
                 catch
@@ -103,38 +103,38 @@ namespace FluffyManager
 
         public abstract void CleanUp();
 
-        public virtual void Delete( bool cleanup = true )
+        public virtual void Delete(bool cleanup = true)
         {
-            if ( cleanup )
+            if (cleanup)
                 CleanUp();
-            Manager.For( manager ).JobStack.Delete( this, false );
+            Manager.For(manager).JobStack.Delete(this, false);
         }
 
-        public virtual float Distance( Thing target, IntVec3 source )
+        public virtual float Distance(Thing target, IntVec3 source)
         {
-            if ( PathBasedDistance )
+            if (PathBasedDistance)
             {
-                var path = target.Map.pathFinder.FindPath( source, target,
-                                                           TraverseParms.For( TraverseMode.PassDoors, Danger.Some ),
-                                                           PathEndMode.Touch );
+                var path = target.Map.pathFinder.FindPath(source, target,
+                                                           TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
+                                                           PathEndMode.Touch);
                 var cost = path.Found ? path.TotalCost : int.MaxValue;
                 path.ReleaseToPool();
                 return cost * 2;
             }
 
-            return Mathf.Sqrt( source.DistanceToSquared( target.Position ) ) * 2;
+            return Mathf.Sqrt(source.DistanceToSquared(target.Position)) * 2;
         }
 
-        public abstract void DrawListEntry( Rect rect, bool overview = true, bool active = true );
+        public abstract void DrawListEntry(Rect rect, bool overview = true, bool active = true);
 
-        public abstract void DrawOverviewDetails( Rect rect );
+        public abstract void DrawOverviewDetails(Rect rect);
 
-        public virtual bool IsReachable( Thing target )
+        public virtual bool IsReachable(Thing target)
         {
-            return !target.Position.Fogged( manager.map )
-                && ( !CheckReachable ||
+            return !target.Position.Fogged(manager.map)
+                && (!CheckReachable ||
                      manager.map.mapPawns.FreeColonistsSpawned.Any(
-                         p => p.CanReach( target, PathEndMode.Touch, Danger.Some ) ) );
+                         p => p.CanReach(target, PathEndMode.Touch, Danger.Some)));
         }
 
         public virtual void Tick()
@@ -144,11 +144,11 @@ namespace FluffyManager
         public override string ToString()
         {
             var s = new StringBuilder();
-            s.AppendLine( "Priority: "   + priority );
-            s.AppendLine( "Active: "     + Suspended );
-            s.AppendLine( "LastAction: " + lastAction );
-            s.AppendLine( "Interval: "   + UpdateInterval );
-            s.AppendLine( "GameTick: "   + Find.TickManager.TicksGame );
+            s.AppendLine("Priority: " + priority);
+            s.AppendLine("Active: " + Suspended);
+            s.AppendLine("LastAction: " + lastAction);
+            s.AppendLine("Interval: " + UpdateInterval);
+            s.AppendLine("GameTick: " + Find.TickManager.TicksGame);
             return s.ToString();
         }
 

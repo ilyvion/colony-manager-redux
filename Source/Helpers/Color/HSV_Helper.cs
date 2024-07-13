@@ -15,19 +15,19 @@ namespace FluffyManager
         /// <param name="V"></param>
         /// <param name="A"></param>
         /// <returns>Color</returns>
-        public static Color HSVtoRGB( float H, float S, float V, float A = 1f )
+        public static Color HSVtoRGB(float H, float S, float V, float A = 1f)
         {
-            if ( S == 0f ) return new Color( V, V, V, A );
-            if ( V == 0f ) return new Color( 0f, 0f, 0f, A );
+            if (S == 0f) return new Color(V, V, V, A);
+            if (V == 0f) return new Color(0f, 0f, 0f, A);
 
-            var col  = Color.black;
+            var col = Color.black;
             var Hval = H * 6f;
-            var sel  = Mathf.FloorToInt( Hval );
-            var mod  = Hval - sel;
-            var v1   = V * ( 1f - S );
-            var v2   = V * ( 1f - S * mod );
-            var v3   = V * ( 1f - S * ( 1f - mod ) );
-            switch ( sel + 1 )
+            var sel = Mathf.FloorToInt(Hval);
+            var mod = Hval - sel;
+            var v1 = V * (1f - S);
+            var v2 = V * (1f - S * mod);
+            var v3 = V * (1f - S * (1f - mod));
+            switch (sel + 1)
             {
                 case 0:
                     col.r = V;
@@ -78,17 +78,17 @@ namespace FluffyManager
                     break;
             }
 
-            col.r = Mathf.Clamp( col.r, 0f, 1f );
-            col.g = Mathf.Clamp( col.g, 0f, 1f );
-            col.b = Mathf.Clamp( col.b, 0f, 1f );
-            col.a = Mathf.Clamp( A, 0f, 1f );
+            col.r = Mathf.Clamp(col.r, 0f, 1f);
+            col.g = Mathf.Clamp(col.g, 0f, 1f);
+            col.b = Mathf.Clamp(col.b, 0f, 1f);
+            col.a = Mathf.Clamp(A, 0f, 1f);
             return col;
         }
 
-        public static Color[] Range( int n )
+        public static Color[] Range(int n)
         {
-            var cols                              = new Color[n];
-            for ( var i = 0; i < n; i++ ) cols[i] = HSVtoRGB( i / (float) n, 1f, 1f );
+            var cols = new Color[n];
+            for (var i = 0; i < n; i++) cols[i] = HSVtoRGB(i / (float)n, 1f, 1f);
 
             return cols;
         }

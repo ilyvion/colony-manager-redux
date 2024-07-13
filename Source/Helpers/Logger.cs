@@ -10,16 +10,16 @@ namespace FluffyManager
     {
         public const string identifier = "Colony Manager";
 
-        [Conditional( "DEBUG" )]
-        public static void Debug( string message )
+        [Conditional("DEBUG")]
+        public static void Debug(string message)
         {
-            Log.Message( identifier + " :: " + message );
+            Log.Message(identifier + " :: " + message);
         }
 
-        [Conditional( "DEBUG_FOLLOW" )]
-        public static void Follow( string message )
+        [Conditional("DEBUG_FOLLOW")]
+        public static void Follow(string message)
         {
-            Log.Message( identifier + " :: " + message );
+            Log.Message(identifier + " :: " + message);
         }
     }
 }

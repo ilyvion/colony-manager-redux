@@ -38,17 +38,17 @@ namespace FluffyManager
         public Building_AIManager()
         {
             _powerTrader = PowerComp as CompPowerTrader;
-            _glower      = GetComp<CompGlower>();
+            _glower = GetComp<CompGlower>();
         }
 
         public override Color DrawColor => PrimaryColourBlinker;
 
         public override Color DrawColorTwo => SecondaryColour;
 
-        public CompGlower Glower => _glower ?? ( _glower = GetComp<CompGlower>() );
+        public CompGlower Glower => _glower ?? (_glower = GetComp<CompGlower>());
 
         public Comp_ManagerStation ManagerStation =>
-            _managerStation ?? ( _managerStation = GetComp<Comp_ManagerStation>() );
+            _managerStation ?? (_managerStation = GetComp<Comp_ManagerStation>());
 
         public bool Powered
         {
@@ -56,24 +56,24 @@ namespace FluffyManager
             set
             {
                 _powered = value;
-                Glower.SetLit( value );
+                Glower.SetLit(value);
                 PrimaryColourBlinker = value ? PrimaryColour : Color.black;
-                SecondaryColour      = value ? _colors[_secondaryColourIndex] : Color.black;
+                SecondaryColour = value ? _colors[_secondaryColourIndex] : Color.black;
             }
         }
 
-        public CompPowerTrader PowerTrader => _powerTrader ?? ( _powerTrader = PowerComp as CompPowerTrader );
+        public CompPowerTrader PowerTrader => _powerTrader ?? (_powerTrader = PowerComp as CompPowerTrader);
 
         public Color PrimaryColour
         {
             get => _primaryColor;
             set
             {
-                var newColour = new ColorInt( (int) ( value.r * 255 ), (int) ( value.g * 255 ),
-                                              (int) ( value.b * 255 ), 0 );
+                var newColour = new ColorInt((int)(value.r * 255), (int)(value.g * 255),
+                                              (int)(value.b * 255), 0);
                 Glower.Props.glowColor = newColour;
-                _primaryColor          = value;
-                _glowDirty             = true;
+                _primaryColor = value;
+                _glowDirty = true;
             }
         }
 
@@ -83,7 +83,7 @@ namespace FluffyManager
             set
             {
                 _primaryBlinkerColour = value;
-                _graphicDirty         = true;
+                _graphicDirty = true;
             }
         }
 
@@ -93,7 +93,7 @@ namespace FluffyManager
             set
             {
                 _secondaryColor = value;
-                _graphicDirty   = true;
+                _graphicDirty = true;
             }
         }
 
@@ -103,7 +103,7 @@ namespace FluffyManager
             set
             {
                 _secondaryColourIndex = value;
-                SecondaryColour       = _colors[_secondaryColourIndex];
+                SecondaryColour = _colors[_secondaryColourIndex];
             }
         }
 
@@ -111,9 +111,9 @@ namespace FluffyManager
         {
             base.Tick();
 
-            if ( Powered != PowerTrader.PowerOn ) Powered = PowerTrader.PowerOn;
+            if (Powered != PowerTrader.PowerOn) Powered = PowerTrader.PowerOn;
 
-            if ( Powered )
+            if (Powered)
             {
                 var tick = Find.TickManager.TicksGame;
 
@@ -121,34 +121,34 @@ namespace FluffyManager
                 Glower.SetLit();
 
                 // random blinking on secondary
-                if ( tick % 30 == Rand.RangeInclusive( 0, 25 ) )
-                    SecondaryColourIndex = ( SecondaryColourIndex + 1 ) % _colors.Length;
+                if (tick % 30 == Rand.RangeInclusive(0, 25))
+                    SecondaryColourIndex = (SecondaryColourIndex + 1) % _colors.Length;
 
                 // primary colour
-                if ( tick % ManagerStation.Props.speed == 0 )
-                    PrimaryColour = Manager.For( Map ).TryDoWork() ? Color.green : Color.red;
+                if (tick % ManagerStation.Props.speed == 0)
+                    PrimaryColour = Manager.For(Map).TryDoWork() ? Color.green : Color.red;
 
                 // blinking on primary
-                if ( tick % 30 == 0 ) PrimaryColourBlinker  = PrimaryColour;
-                if ( tick % 30 == 25 ) PrimaryColourBlinker = Color.black;
+                if (tick % 30 == 0) PrimaryColourBlinker = PrimaryColour;
+                if (tick % 30 == 25) PrimaryColourBlinker = Color.black;
             }
 
             // apply changes
-            if ( _graphicDirty )
+            if (_graphicDirty)
             {
                 // update LED colours
                 Notify_ColorChanged();
                 _graphicDirty = false;
             }
 
-            if ( _glowDirty )
+            if (_glowDirty)
             {
                 // Update glow grid
-                Map.glowGrid.DirtyCache( Position );
+                Map.glowGrid.DirtyCache(Position);
 
                 // the following two should not be necesarry, but for some reason do seem to be.
-                Map.mapDrawer.MapMeshDirty( Position, MapMeshFlagDefOf.GroundGlow );
-                Map.mapDrawer.MapMeshDirty( Position, MapMeshFlagDefOf.Things );
+                Map.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.GroundGlow);
+                Map.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.Things);
 
                 _glowDirty = false;
             }

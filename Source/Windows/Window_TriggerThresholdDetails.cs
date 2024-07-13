@@ -9,32 +9,32 @@ namespace FluffyManager
 {
     public class WindowTriggerThresholdDetails : Window
     {
-        private readonly ThingFilterUI     filterUI             = new ThingFilterUI();
-        public           Vector2           FilterScrollPosition = Vector2.zero;
-        public           string            Input;
-        public           Trigger_Threshold Trigger;
+        private readonly ThingFilterUI filterUI = new ThingFilterUI();
+        public Vector2 FilterScrollPosition = Vector2.zero;
+        public string Input;
+        public Trigger_Threshold Trigger;
 
-        public override Vector2 InitialSize => new Vector2( 300f, 500 );
+        public override Vector2 InitialSize => new Vector2(300f, 500);
 
-        public override void DoWindowContents( Rect inRect )
+        public override void DoWindowContents(Rect inRect)
         {
             // set up rects
-            var filterRect = new Rect( inRect.ContractedBy( 6f ) );
-            filterRect.height -= 2 * ( Constants.ListEntryHeight + Margin );
-            var zoneRect = new Rect( filterRect.xMin, filterRect.yMax + Margin, filterRect.width,
-                                     Constants.ListEntryHeight );
-            var buttonRect = new Rect( filterRect.xMin, zoneRect.yMax + Margin,
-                                       ( filterRect.width - Margin ) / 2f, Constants.ListEntryHeight );
+            var filterRect = new Rect(inRect.ContractedBy(6f));
+            filterRect.height -= 2 * (Constants.ListEntryHeight + Margin);
+            var zoneRect = new Rect(filterRect.xMin, filterRect.yMax + Margin, filterRect.width,
+                                     Constants.ListEntryHeight);
+            var buttonRect = new Rect(filterRect.xMin, zoneRect.yMax + Margin,
+                                       (filterRect.width - Margin) / 2f, Constants.ListEntryHeight);
 
             // draw thingfilter
-            filterUI.DoThingFilterConfigWindow( filterRect, ref FilterScrollPosition, Trigger.ThresholdFilter,
-                                                Trigger.ParentFilter );
+            filterUI.DoThingFilterConfigWindow(filterRect, ref FilterScrollPosition, Trigger.ThresholdFilter,
+                                                Trigger.ParentFilter);
 
             // draw zone selector
-            StockpileGUI.DoStockpileSelectors( zoneRect, ref Trigger.stockpile, Trigger.manager );
+            StockpileGUI.DoStockpileSelectors(zoneRect, ref Trigger.stockpile, Trigger.manager);
 
             // draw operator button
-            if ( Widgets.ButtonText( buttonRect, Trigger.OpString ) )
+            if (Widgets.ButtonText(buttonRect, Trigger.OpString))
             {
                 var list = new List<FloatMenuOption>
                 {
@@ -44,7 +44,7 @@ namespace FluffyManager
                     new FloatMenuOption( "Greater than",
                                          delegate { Trigger.Op = Trigger_Threshold.Ops.HigherThan; } )
                 };
-                Find.WindowStack.Add( new FloatMenu( list ) );
+                Find.WindowStack.Add(new FloatMenu(list));
             }
 
             // move operator button canvas for count input
@@ -52,26 +52,26 @@ namespace FluffyManager
 
             // if current input is invalid color the element red
             var oldColor = GUI.color;
-            if ( !Input.IsInt() )
+            if (!Input.IsInt())
             {
-                GUI.color = new Color( 1f, 0f, 0f );
+                GUI.color = new Color(1f, 0f, 0f);
             }
             else
             {
-                Trigger.TargetCount = int.Parse( Input );
-                if ( Trigger.TargetCount > Trigger.MaxUpperThreshold ) Trigger.MaxUpperThreshold = Trigger.TargetCount;
+                Trigger.TargetCount = int.Parse(Input);
+                if (Trigger.TargetCount > Trigger.MaxUpperThreshold) Trigger.MaxUpperThreshold = Trigger.TargetCount;
             }
 
             // draw the input field
-            Input     = Widgets.TextField( buttonRect, Input );
+            Input = Widgets.TextField(buttonRect, Input);
             GUI.color = oldColor;
 
             // close on enter
-            if ( Event.current.type    == EventType.KeyDown &&
-                 Event.current.keyCode == KeyCode.Return )
+            if (Event.current.type == EventType.KeyDown &&
+                 Event.current.keyCode == KeyCode.Return)
             {
                 Event.current.Use();
-                Find.WindowStack.TryRemove( this );
+                Find.WindowStack.TryRemove(this);
             }
         }
 

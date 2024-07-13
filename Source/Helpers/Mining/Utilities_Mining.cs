@@ -9,9 +9,9 @@ namespace FluffyManager
 {
     public static class Utilities_Mining
     {
-        public static bool IsChunk( this ThingDef def )
+        public static bool IsChunk(this ThingDef def)
         {
-            return def?.thingCategories?.Any( c => ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.Contains( c ) ) ??
+            return def?.thingCategories?.Any(c => ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.Contains(c)) ??
                    false;
         }
     }

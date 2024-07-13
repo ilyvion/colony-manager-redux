@@ -12,16 +12,16 @@ namespace FluffyManager
     public class Trigger_PawnKind : Trigger
     {
         private readonly Utilities.CachedValue<string> _cachedTooltip;
-        private readonly Utilities.CachedValue<bool>   _state = new Utilities.CachedValue<bool>();
+        private readonly Utilities.CachedValue<bool> _state = new Utilities.CachedValue<bool>();
 
         public Dictionary<AgeAndSex, int> CountTargets;
-        public PawnKindDef                pawnKind;
+        public PawnKindDef pawnKind;
 
-        public Trigger_PawnKind( Manager manager ) : base( manager )
+        public Trigger_PawnKind(Manager manager) : base(manager)
         {
-            CountTargets = Utilities_Livestock.AgeSexArray.ToDictionary( k => k, v => 5 );
+            CountTargets = Utilities_Livestock.AgeSexArray.ToDictionary(k => k, v => 5);
 
-            _cachedTooltip = new Utilities.CachedValue<string>( "", 250, _getTooltip );
+            _cachedTooltip = new Utilities.CachedValue<string>("", 250, _getTooltip);
         }
 
         public int[] Counts
@@ -29,7 +29,7 @@ namespace FluffyManager
             get
             {
                 return Utilities_Livestock.AgeSexArray
-                                          .Select( ageSex => pawnKind.GetTame( manager, ageSex ).Count() )
+                                          .Select(ageSex => pawnKind.GetTame(manager, ageSex).Count())
                                           .ToArray();
             }
         }
@@ -39,7 +39,7 @@ namespace FluffyManager
             get
             {
                 return manager.JobStack.FullStack<ManagerJob_Livestock>()
-                              .FirstOrDefault( job => job.Trigger == this );
+                              .FirstOrDefault(job => job.Trigger == this);
             }
         }
 
@@ -48,13 +48,13 @@ namespace FluffyManager
             get
             {
                 bool state;
-                if ( !_state.TryGetValue( out state ) )
+                if (!_state.TryGetValue(out state))
                 {
                     state = Utilities_Livestock.AgeSexArray.All(
                                 ageSex => CountTargets[ageSex] ==
-                                          pawnKind.GetTame( manager, ageSex ).Count() )
+                                          pawnKind.GetTame(manager, ageSex).Count())
                          && AllTrainingWantedSet();
-                    _state.Update( state );
+                    _state.Update(state);
                 }
 
                 return state;
@@ -63,27 +63,27 @@ namespace FluffyManager
 
         public override string StatusTooltip => _cachedTooltip.Value;
 
-        public override void DrawTriggerConfig( ref Vector2 cur, float width, float entryHeight,
+        public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight,
                                                 string label = null, string tooltip = null,
                                                 List<Designation> targets = null, Action onOpenFilterDetails = null,
-                                                Func<Designation, string> designationLabelGetter = null )
+                                                Func<Designation, string> designationLabelGetter = null)
         {
         }
 
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Collections.Look( ref CountTargets, "Targets", LookMode.Value, LookMode.Value );
-            Scribe_Defs.Look( ref pawnKind, "PawnKind" );
+            Scribe_Collections.Look(ref CountTargets, "Targets", LookMode.Value, LookMode.Value);
+            Scribe_Defs.Look(ref pawnKind, "PawnKind");
         }
 
         private string _getTooltip()
         {
             var tooltipArgs = new List<string>();
-            tooltipArgs.Add( pawnKind.LabelCap );
-            tooltipArgs.AddRange( Counts.Select( x => x.ToString() ) );
-            tooltipArgs.AddRange( CountTargets.Values.Select( v => v.ToString() ) );
-            return "FML.ListEntryTooltip".Translate( tooltipArgs.ToArray() );
+            tooltipArgs.Add(pawnKind.LabelCap);
+            tooltipArgs.AddRange(Counts.Select(x => x.ToString()));
+            tooltipArgs.AddRange(CountTargets.Values.Select(v => v.ToString()));
+            return "FML.ListEntryTooltip".Translate(tooltipArgs.ToArray());
         }
 
         private bool AllTrainingWantedSet()
@@ -91,7 +91,7 @@ namespace FluffyManager
             // do a dry run of the training assignment (no assignments are set).
             // this is rediculously expensive, and should never be called on tick.
             var actionTaken = false;
-            Job.DoTrainingJobs( ref actionTaken, false );
+            Job.DoTrainingJobs(ref actionTaken, false);
             return actionTaken;
         }
     }

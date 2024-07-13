@@ -14,7 +14,7 @@ namespace FluffyManager
         {
         }
 
-        public CompProperties_ManagerStation( Type compClass ) : base( compClass )
+        public CompProperties_ManagerStation(Type compClass) : base(compClass)
         {
         }
     }

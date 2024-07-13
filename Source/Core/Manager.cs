@@ -25,12 +25,12 @@ namespace FluffyManager
         private List<ManagerTab> _managerTabsLeft;
         private List<ManagerTab> _managerTabsMiddle;
         private List<ManagerTab> _managerTabsRight;
-        private JobStack         _stack;
-        private int              id = -1;
+        private JobStack _stack;
+        private int id = -1;
 
-        public Manager( Map map ) : base( map )
+        public Manager(Map map) : base(map)
         {
-            _stack = new JobStack( this );
+            _stack = new JobStack(this);
             Tabs = new List<ManagerTab>
             {
                 new ManagerTab_Overview( this ),
@@ -45,17 +45,17 @@ namespace FluffyManager
             };
 
             // if not created in SavingLoading, give yourself the ID of the map you were constructed on.
-            if ( Scribe.mode == Verse.LoadSaveMode.Inactive ) id = map.uniqueID;
+            if (Scribe.mode == Verse.LoadSaveMode.Inactive) id = map.uniqueID;
         }
 
-        public JobStack JobStack => _stack ?? ( _stack = new JobStack( this ) );
+        public JobStack JobStack => _stack ?? (_stack = new JobStack(this));
 
         public List<ManagerTab> ManagerTabsLeft
         {
             get
             {
-                if ( _managerTabsLeft == null )
-                    _managerTabsLeft = Tabs.Where( tab => tab.IconArea == ManagerTab.IconAreas.Left ).ToList();
+                if (_managerTabsLeft == null)
+                    _managerTabsLeft = Tabs.Where(tab => tab.IconArea == ManagerTab.IconAreas.Left).ToList();
                 return _managerTabsLeft;
             }
         }
@@ -64,9 +64,9 @@ namespace FluffyManager
         {
             get
             {
-                if ( _managerTabsMiddle == null )
+                if (_managerTabsMiddle == null)
                     _managerTabsMiddle =
-                        Tabs.Where( tab => tab.IconArea == ManagerTab.IconAreas.Middle ).ToList();
+                        Tabs.Where(tab => tab.IconArea == ManagerTab.IconAreas.Middle).ToList();
                 return _managerTabsMiddle;
             }
         }
@@ -75,9 +75,9 @@ namespace FluffyManager
         {
             get
             {
-                if ( _managerTabsRight == null )
+                if (_managerTabsRight == null)
                     _managerTabsRight =
-                        Tabs.Where( tab => tab.IconArea == ManagerTab.IconAreas.Right ).ToList();
+                        Tabs.Where(tab => tab.IconArea == ManagerTab.IconAreas.Right).ToList();
                 return _managerTabsRight;
             }
         }
@@ -87,18 +87,18 @@ namespace FluffyManager
             return "ColonyManager_" + id;
         }
 
-        public static Manager For( Map map )
+        public static Manager For(Map map)
         {
             var instance = map.GetComponent<Manager>();
-            if ( instance != null )
+            if (instance != null)
                 return instance;
 
-            instance = new Manager( map );
-            map.components.Add( instance );
+            instance = new Manager(map);
+            map.components.Add(instance);
             return instance;
         }
 
-        public static implicit operator Map( Manager manager )
+        public static implicit operator Map(Manager manager)
         {
             return manager.map;
         }
@@ -106,17 +106,17 @@ namespace FluffyManager
         public override void ExposeData()
         {
             base.ExposeData();
-            Scribe_Values.Look( ref id, "id", -1, true );
-            Scribe_Values.Look( ref HelpShown, "HelpShown" );
-            Scribe_Deep.Look( ref _stack, "JobStack", this );
+            Scribe_Values.Look(ref id, "id", -1, true);
+            Scribe_Values.Look(ref HelpShown, "HelpShown");
+            Scribe_Deep.Look(ref _stack, "JobStack", this);
 
-            foreach ( var tab in Tabs )
+            foreach (var tab in Tabs)
             {
                 var exposableTab = tab as IExposable;
-                if ( exposableTab != null ) Scribe_Deep.Look( ref exposableTab, tab.Label, this );
+                if (exposableTab != null) Scribe_Deep.Look(ref exposableTab, tab.Label, this);
             }
 
-            if ( _stack == null ) _stack = new JobStack( this );
+            if (_stack == null) _stack = new JobStack(this);
         }
 
         public override void MapComponentTick()
@@ -124,19 +124,19 @@ namespace FluffyManager
             base.MapComponentTick();
 
             // tick jobs
-            foreach ( var job in JobStack.FullStack() )
-                if ( !job.Suspended )
+            foreach (var job in JobStack.FullStack())
+                if (!job.Suspended)
                     try
                     {
                         job.Tick();
                     }
-                    catch ( Exception err )
+                    catch (Exception err)
                     {
-                        Log.Error( $"Suspending manager job because it error-ed on tick: \n{err}" );
+                        Log.Error($"Suspending manager job because it error-ed on tick: \n{err}");
                     }
 
             // tick tabs
-            foreach ( var tab in Tabs )
+            foreach (var tab in Tabs)
                 tab.Tick();
         }
 
@@ -146,16 +146,16 @@ namespace FluffyManager
         }
 
 
-        internal void NewJobStack( JobStack jobstack )
+        internal void NewJobStack(JobStack jobstack)
         {
             // clean up old jobs
-            foreach ( var job in _stack.FullStack() ) job.CleanUp();
+            foreach (var job in _stack.FullStack()) job.CleanUp();
 
             // replace stack
             _stack = jobstack;
 
             // touch new jobs in inappropriate places (reset timing so they are properly performed)
-            foreach ( var job in _stack.FullStack() )
+            foreach (var job in _stack.FullStack())
             {
                 job.manager = this;
                 job.Touch();
