@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
     <ResearchProjectDef>
@@ -9,7 +9,7 @@
         <techLevel>Industrial</techLevel>
         <requiredResearchBuilding>HiTechResearchBench</requiredResearchBuilding>
         <prerequisites></prerequisites>
-		<tab>ManagerTab</tab>
+        <tab>ManagerTab</tab>
         <researchViewX>0.16</researchViewX>
         <researchViewY>0.16</researchViewY>
     </ResearchProjectDef>
@@ -24,7 +24,7 @@
         <prerequisites>
             <li>ManagingSoftware</li>
         </prerequisites>
-		<tab>ManagerTab</tab>
+        <tab>ManagerTab</tab>
         <researchViewX>1.15</researchViewX>
         <researchViewY>0.65</researchViewY>
     </ResearchProjectDef>
@@ -39,11 +39,11 @@
         <prerequisites>
             <li>ManagingSoftware</li>
         </prerequisites>
-		<tab>ManagerTab</tab>
+        <tab>ManagerTab</tab>
         <researchViewX>1.16</researchViewX>
         <researchViewY>0.18</researchViewY>
         <researchMods>
-          <li Class="FluffyManager.UnlockPowerTab" />
+            <li Class="ColonyManagerRedux.UnlockPowerTab" />
         </researchMods>
     </ResearchProjectDef>
 </Defs>
