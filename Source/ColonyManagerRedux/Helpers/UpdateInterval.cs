@@ -24,7 +24,7 @@ namespace ColonyManagerRedux
         {
             get
             {
-                if (_daily == null) _daily = new UpdateInterval(GenDate.TicksPerDay, "FM.Daily".Translate());
+                if (_daily == null) _daily = new UpdateInterval(GenDate.TicksPerDay, "ColonyManagerRedux.ManagerDaily".Translate());
 
                 return _daily;
             }
@@ -60,7 +60,7 @@ namespace ColonyManagerRedux
             }
 
             TooltipHandler.TipRegion(canvas,
-                                      "FM.LastUpdateTooltip".Translate(
+                                      "ColonyManagerRedux.ManagerLastUpdateTooltip".Translate(
                                           lastUpdate.TimeString(),
                                           job.UpdateInterval.ticks.TimeString()));
 

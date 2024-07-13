@@ -24,7 +24,7 @@ namespace ColonyManagerRedux
 
         public override Texture2D Icon => Resources.IconForaging;
         public override IconAreas IconArea => IconAreas.Middle;
-        public override string Label => "FMG.Foraging".Translate();
+        public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
 
         public override ManagerJob? Selected
@@ -59,8 +59,8 @@ namespace ColonyManagerRedux
             Vector2 position;
             float width;
             Widgets_Section.BeginSectionColumn(optionsColumnRect, "Foraging.Options", out position, out width);
-            Widgets_Section.Section(ref position, width, DrawThreshold, "FM.Threshold".Translate());
-            Widgets_Section.Section(ref position, width, DrawAreaRestriction, "FMG.ForagingArea".Translate());
+            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
+            Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Foraging.ForagingArea".Translate());
             Widgets_Section.Section(ref position, width, DrawMaturePlants);
             Widgets_Section.EndSectionColumn("Foraging.Options", position);
 
@@ -72,7 +72,7 @@ namespace ColonyManagerRedux
                 SmallIconSize);
             if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
                 _selected.RefreshAllowedPlants();
-            Widgets_Section.Section(ref position, width, DrawPlantShortcuts, "FMG.Plants".Translate());
+            Widgets_Section.Section(ref position, width, DrawPlantShortcuts, "ColonyManagerRedux.Foraging.Plants".Translate());
             Widgets_Section.Section(ref position, width, DrawPlantList);
             Widgets_Section.EndSectionColumn("Foraging.Plants", position);
 
@@ -80,7 +80,7 @@ namespace ColonyManagerRedux
             // do the button
             if (!_selected.Managed)
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Manage".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
                 {
                     // activate job, add it to the stack
                     _selected.Managed = true;
@@ -92,7 +92,7 @@ namespace ColonyManagerRedux
             }
             else
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Delete".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
                 {
                     // inactivate job, remove from the stack.
                     manager.JobStack.Delete(_selected);
@@ -150,12 +150,12 @@ namespace ColonyManagerRedux
             if (i % 2 == 1) Widgets.DrawAltRect(newRect);
 
             Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(newRect, "<" + "FMG.NewForagingJob".Translate().Resolve() + ">");
+            Widgets.Label(newRect, "<" + "ColonyManagerRedux.Foraging.NewForagingJob".Translate().Resolve() + ">");
             Text.Anchor = TextAnchor.UpperLeft;
 
             if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Foraging(manager);
 
-            TooltipHandler.TipRegion(newRect, "FMG.NewForagingJobTooltip".Translate().Resolve());
+            TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Foraging.NewForagingJobTooltip".Translate().Resolve());
 
             cur.y += LargeListEntryHeight;
 
@@ -189,7 +189,7 @@ namespace ColonyManagerRedux
         {
             // Force mature plants only (2)
             var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-            Utilities.DrawToggle(rowRect, "FMG.ForceMature".Translate(), "FMG.ForceMature.Tip".Translate(),
+            Utilities.DrawToggle(rowRect, "ColonyManagerRedux.Foraging.ForceMature".Translate(), "ColonyManagerRedux.Foraging.ForceMature.Tip".Translate(),
                                   ref _selected.ForceFullyMature);
 
             return ListEntryHeight;
@@ -249,7 +249,7 @@ namespace ColonyManagerRedux
             // toggle all
             Utilities.DrawToggle(
                 rowRect,
-                "<i>" + "FM.All".Translate() + "</i>",
+                "<i>" + "ColonyManagerRedux.ManagerAll".Translate() + "</i>",
                 string.Empty,
                 allowedPlants.Values.All(p => p),
                 allowedPlants.Values.All(p => !p),
@@ -261,8 +261,8 @@ namespace ColonyManagerRedux
             var edible = plants.Where(p => p.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false).ToList();
             Utilities.DrawToggle(
                 rowRect,
-                "<i>" + "FM.Foraging.Edible".Translate() + "</i>",
-                "FM.Foraging.Edible.Tip".Translate(),
+                "<i>" + "ColonyManagerRedux.ManagerForaging.Edible".Translate() + "</i>",
+                "ColonyManagerRedux.ManagerForaging.Edible.Tip".Translate(),
                 edible.All(p => allowedPlants[p]),
                 edible.All(p => !allowedPlants[p]),
                 () => edible.ForEach(p => _selected.SetPlantAllowed(p, true)),
@@ -273,8 +273,8 @@ namespace ColonyManagerRedux
             var shrooms = plants.Where(p => p.plant?.cavePlant ?? false).ToList();
             Utilities.DrawToggle(
                 rowRect,
-                "<i>" + "FM.Foraging.Mushrooms".Translate() + "</i>",
-                "FM.Foraging.Mushrooms.Tip".Translate(),
+                "<i>" + "ColonyManagerRedux.ManagerForaging.Mushrooms".Translate() + "</i>",
+                "ColonyManagerRedux.ManagerForaging.Mushrooms.Tip".Translate(),
                 shrooms.All(p => allowedPlants[p]),
                 shrooms.All(p => !allowedPlants[p]),
                 () => shrooms.ForEach(p => _selected.SetPlantAllowed(p, true)),
@@ -291,21 +291,21 @@ namespace ColonyManagerRedux
             var start = pos;
 
             _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
-                                                 "FMG.TargetCount".Translate(
+                                                 "ColonyManagerRedux.Foraging.TargetCount".Translate(
                                                      currentCount, designatedCount, targetCount),
-                                                 "FMG.TargetCountTooltip".Translate(
+                                                 "ColonyManagerRedux.Foraging.TargetCountTooltip".Translate(
                                                      currentCount, designatedCount, targetCount),
                                                  _selected.Designations,
                                                  () => _selected.Sync = Utilities.SyncDirection.FilterToAllowed,
                                                  _selected.DesignationLabel);
 
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.Foraging.SyncFilterAndAllowed".Translate(),
-                                  "FM.Foraging.SyncFilterAndAllowed.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed".Translate(),
+                                  "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
                                   ref _selected.SyncFilterAndAllowed);
             Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
-            Utilities.DrawToggle(ref pos, width, "FM.PathBasedDistance".Translate(),
-                                  "FM.PathBasedDistance.Tip".Translate(), ref _selected.PathBasedDistance,
+            Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
+                                  "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref _selected.PathBasedDistance,
                                   true);
 
             return pos.y - start.y;

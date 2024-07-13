@@ -40,17 +40,17 @@ namespace ColonyManagerRedux
                 if (_updateIntervalOptions.NullOrEmpty())
                 {
                     _updateIntervalOptions = new List<UpdateInterval>();
-                    _updateIntervalOptions.Add(new UpdateInterval(GenDate.TicksPerHour, "FM.Hourly".Translate()));
+                    _updateIntervalOptions.Add(new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.ManagerHourly".Translate()));
                     _updateIntervalOptions.Add(
-                        new UpdateInterval(GenDate.TicksPerHour * 2, "FM.MultiHourly".Translate(2)));
+                        new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.ManagerMultiHourly".Translate(2)));
                     _updateIntervalOptions.Add(
-                        new UpdateInterval(GenDate.TicksPerHour * 4, "FM.MultiHourly".Translate(4)));
+                        new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.ManagerMultiHourly".Translate(4)));
                     _updateIntervalOptions.Add(
-                        new UpdateInterval(GenDate.TicksPerHour * 8, "FM.MultiHourly".Translate(8)));
+                        new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.ManagerMultiHourly".Translate(8)));
                     _updateIntervalOptions.Add(UpdateInterval.Daily);
                     _updateIntervalOptions.Add(
-                        new UpdateInterval(GenDate.TicksPerTwelfth, "FM.Monthly".Translate()));
-                    _updateIntervalOptions.Add(new UpdateInterval(GenDate.TicksPerYear, "FM.Yearly".Translate()));
+                        new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.ManagerMonthly".Translate()));
+                    _updateIntervalOptions.Add(new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.ManagerYearly".Translate()));
                 }
 
                 return _updateIntervalOptions!;
@@ -130,7 +130,7 @@ namespace ColonyManagerRedux
 
         public static void DrawReachabilityToggle(ref Vector2 pos, float width, ref bool reachability)
         {
-            DrawToggle(ref pos, width, "FM.CheckReachability".Translate(), "FM.CheckReachability.Tip".Translate(),
+            DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerCheckReachability".Translate(), "ColonyManagerRedux.ManagerCheckReachability.Tip".Translate(),
                         ref reachability, true);
         }
 
@@ -160,17 +160,17 @@ namespace ColonyManagerRedux
                 job.Suspended ? Resources.StampStart : Resources.StampSuspended)) job.Suspended = !job.Suspended;
             if (job.Suspended)
             {
-                TooltipHandler.TipRegion(stampRect, "FM.UnsuspendJobTooltip".Translate());
+                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerUnsuspendJobTooltip".Translate());
                 return;
             }
 
             if (job.Completed)
             {
-                TooltipHandler.TipRegion(stampRect, "FM.JobCompletedTooltip".Translate());
+                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerJobCompletedTooltip".Translate());
                 return;
             }
 
-            TooltipHandler.TipRegion(stampRect, "FM.SuspendJobTooltip".Translate());
+            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerSuspendJobTooltip".Translate());
 
             // should never happen?
             if (trigger == null)
@@ -224,7 +224,7 @@ namespace ColonyManagerRedux
             if (expensive)
             {
                 iconRect.x -= size + margin;
-                TooltipHandler.TipRegion(iconRect, "FM.Expensive.Tip".Translate());
+                TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.ManagerExpensive.Tip".Translate());
                 GUI.color = checkOn ? Resources.Orange : Color.grey;
                 GUI.DrawTexture(iconRect, Resources.Stopwatch);
                 GUI.color = Color.white;
@@ -303,7 +303,7 @@ namespace ColonyManagerRedux
             if (expensive)
             {
                 iconRect.x -= size + margin;
-                TooltipHandler.TipRegion(iconRect, "FM.Expensive.Tip".Translate());
+                TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.ManagerExpensive.Tip".Translate());
                 GUI.color = checkOn ? Resources.Orange : Color.grey;
                 GUI.DrawTexture(iconRect, Resources.Stopwatch);
                 GUI.color = Color.white;

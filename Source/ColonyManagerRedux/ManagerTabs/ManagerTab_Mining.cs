@@ -35,7 +35,7 @@ namespace ColonyManagerRedux
 
         public override Texture2D Icon => Resources.IconMining;
         public override IconAreas IconArea => IconAreas.Middle;
-        public override string Label => "FM.Mining".Translate();
+        public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
 
         public override ManagerJob? Selected
         {
@@ -121,7 +121,7 @@ namespace ColonyManagerRedux
             // toggle all
             var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             Utilities.DrawToggle(rowRect,
-                                  "FM.All".Translate().Italic(),
+                                  "ColonyManagerRedux.ManagerAll".Translate().Italic(),
                                   string.Empty,
                                   allowedBuildings.Values.All(v => v),
                                   allowedBuildings.Values.All(v => !v),
@@ -163,7 +163,7 @@ namespace ColonyManagerRedux
 
             // toggle all
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.All".Translate().Italic(),
+                                  "ColonyManagerRedux.ManagerAll".Translate().Italic(),
                                   string.Empty,
                                   _selected.AllowedMinerals.Values.All(v => v),
                                   _selected.AllowedMinerals.Values.All(v => !v),
@@ -173,8 +173,8 @@ namespace ColonyManagerRedux
             // toggle stone
             var stone = minerals.Where(m => !m.building.isResourceRock).ToList();
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.Mining.Stone".Translate().Italic(),
-                                  "FM.Mining.Stone.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.Stone".Translate().Italic(),
+                                  "ColonyManagerRedux.ManagerMining.Stone.Tip".Translate(),
                                   stone.All(p => allowedMinerals[p]),
                                   stone.All(p => !allowedMinerals[p]),
                                   () => stone.ForEach(p => _selected.SetAllowMineral(p, true)),
@@ -184,8 +184,8 @@ namespace ColonyManagerRedux
             var metal = minerals.Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing))
                                 .ToList();
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.Mining.Metal".Translate().Italic(),
-                                  "FM.Mining.Metal.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.Metal".Translate().Italic(),
+                                  "ColonyManagerRedux.ManagerMining.Metal.Tip".Translate(),
                                   metal.All(p => allowedMinerals[p]),
                                   metal.All(p => !allowedMinerals[p]),
                                   () => metal.ForEach(p => _selected.SetAllowMineral(p, true)),
@@ -196,8 +196,8 @@ namespace ColonyManagerRedux
                           .Where(m => m.building.isResourceRock && (m.building.mineableThing?.smallVolume ?? false))
                           .ToList();
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.Mining.Precious".Translate().Italic(),
-                                  "FM.Mining.Precious.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.Precious".Translate().Italic(),
+                                  "ColonyManagerRedux.ManagerMining.Precious.Tip".Translate(),
                                   precious.All(p => allowedMinerals[p]),
                                   precious.All(p => !allowedMinerals[p]),
                                   () => precious.ForEach(p => _selected.SetAllowMineral(p, true)),
@@ -210,8 +210,8 @@ namespace ColonyManagerRedux
         {
             var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             Utilities.DrawToggle(rowRect,
-                                  "FM.Mining.DeconstructBuildings".Translate(),
-                                  "FM.Mining.DeconstructBuildings.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.DeconstructBuildings".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip".Translate(),
                                   ref _selected.DeconstructBuildings);
             return ListEntryHeight;
         }
@@ -226,23 +226,23 @@ namespace ColonyManagerRedux
         public float DrawRoofRoomChecks(Vector2 pos, float width)
         {
             var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-            Utilities.DrawToggle(rowRect, "FM.Mining.CheckRoofSupport".Translate(),
-                                  "FM.Mining.CheckRoofSupport.Tip".Translate(), ref _selected.CheckRoofSupport);
+            Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupport".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip".Translate(), ref _selected.CheckRoofSupport);
 
             rowRect.y += ListEntryHeight;
             if (_selected.CheckRoofSupport)
-                Utilities.DrawToggle(rowRect, "FM.Mining.CheckRoofSupportAdvanced".Translate(),
-                                      "FM.Mining.CheckRoofSupportAdvanced.Tip".Translate(),
+                Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced".Translate(),
+                                      "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip".Translate(),
                                       ref _selected.CheckRoofSupportAdvanced, true);
             else
-                Widgets_Labels.Label(rowRect, "FM.Mining.CheckRoofSupportAdvanced".Translate(),
-                                      "FM.Mining.CheckRoofSupportAdvanced.Disabled.Tip".Translate(),
+                Widgets_Labels.Label(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced".Translate(),
+                                      "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Disabled.Tip".Translate(),
                                       TextAnchor.MiddleLeft, margin: Margin,
                                       color: Color.grey);
 
             rowRect.y += ListEntryHeight;
-            Utilities.DrawToggle(rowRect, "FM.Mining.CheckRoomDivision".Translate(),
-                                  "FM.Mining.CheckRoomDivision.Tip".Translate(), ref _selected.CheckRoomDivision,
+            Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoomDivision".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip".Translate(), ref _selected.CheckRoomDivision,
                                   true);
 
             return rowRect.yMax - pos.y;
@@ -258,22 +258,22 @@ namespace ColonyManagerRedux
             var targetCount = _selected.Trigger.TargetCount;
 
             _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
-                                                 "FM.Mining.TargetCount".Translate(
+                                                 "ColonyManagerRedux.ManagerMining.TargetCount".Translate(
                                                      currentCount, chunkCount, designatedCount, targetCount),
-                                                 "FM.Mining.TargetCount.Tip".Translate(
+                                                 "ColonyManagerRedux.ManagerMining.TargetCount.Tip".Translate(
                                                      currentCount, chunkCount, designatedCount, targetCount),
                                                  _selected.Designations,
                                                  delegate { _selected.Sync = Utilities.SyncDirection.FilterToAllowed; },
                                                  _selected.DesignationLabel);
 
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.Mining.SyncFilterAndAllowed".Translate(),
-                                  "FM.Mining.SyncFilterAndAllowed.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed".Translate(),
+                                  "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip".Translate(),
                                   ref _selected.SyncFilterAndAllowed);
             Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
             Utilities.DrawToggle(ref pos, width,
-                                  "FM.PathBasedDistance".Translate(),
-                                  "FM.PathBasedDistance.Tip".Translate(),
+                                  "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
+                                  "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
                                   ref _selected.PathBasedDistance,
                                   true);
 
@@ -327,10 +327,10 @@ namespace ColonyManagerRedux
 
             // options
             Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out position, out width);
-            Widgets_Section.Section(ref position, width, DrawThresholdSettings, "FM.Threshold".Translate());
+            Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.ManagerThreshold".Translate());
             Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
-            Widgets_Section.Section(ref position, width, DrawMiningArea, "FM.Mining.MiningArea".Translate());
-            Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "FM.Mining.HealthAndSafety".Translate());
+            Widgets_Section.Section(ref position, width, DrawMiningArea, "ColonyManagerRedux.ManagerMining.MiningArea".Translate());
+            Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.ManagerMining.HealthAndSafety".Translate());
             Widgets_Section.EndSectionColumn("Mining.Options", position);
 
             // minerals
@@ -343,10 +343,10 @@ namespace ColonyManagerRedux
             if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
                 _selected.RefreshAllowedMinerals();
             Widgets_Section.Section(ref position, width, DrawAllowedMineralsShortcuts,
-                                     "FM.Mining.AllowedMinerals".Translate());
+                                     "ColonyManagerRedux.ManagerMining.AllowedMinerals".Translate());
             Widgets_Section.Section(ref position, width, DrawAllowedMinerals);
             Widgets_Section.Section(ref position, width, DrawAllowedBuildingsShortcuts,
-                                     "FM.Mining.AllowedBuildings".Translate());
+                                     "ColonyManagerRedux.ManagerMining.AllowedBuildings".Translate());
             Widgets_Section.Section(ref position, width, DrawAllowedBuildings);
             Widgets_Section.EndSectionColumn("Mining.Minerals", position);
 
@@ -355,7 +355,7 @@ namespace ColonyManagerRedux
                 Find.WindowStack.Add(new Dialog_MiningDebugOptions(_selected));
             if (!_selected.Managed)
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Manage".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
                 {
                     // activate job, add it to the stack
                     _selected.Managed = true;
@@ -367,7 +367,7 @@ namespace ColonyManagerRedux
             }
             else
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Delete".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
                 {
                     // inactivate job, remove from the stack.
                     Manager.For(manager).JobStack.Delete(_selected);
@@ -425,12 +425,12 @@ namespace ColonyManagerRedux
             if (i++ % 2 == 1) Widgets.DrawAltRect(newRect);
 
             Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(newRect, "<" + "FM.Mining.NewJob".Translate() + ">");
+            Widgets.Label(newRect, "<" + "ColonyManagerRedux.ManagerMining.NewJob".Translate() + ">");
             Text.Anchor = TextAnchor.UpperLeft;
 
             if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Mining(manager);
 
-            TooltipHandler.TipRegion(newRect, "FM.Mining.NewJob.Tip".Translate());
+            TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.ManagerMining.NewJob.Tip".Translate());
 
             cur.y += LargeListEntryHeight;
 

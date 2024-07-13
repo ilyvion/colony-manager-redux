@@ -28,7 +28,7 @@ namespace ColonyManagerRedux
 
         public override IconAreas IconArea => IconAreas.Middle;
 
-        public override string Label => "FMF.Forestry".Translate();
+        public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
         public override ManagerJob? Selected
         {
@@ -68,29 +68,29 @@ namespace ColonyManagerRedux
             Vector2 position;
             float width;
             Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out position, out width);
-            Widgets_Section.Section(ref position, width, DrawJobType, "FMF.JobType".Translate());
+            Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
 
             if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
-                Widgets_Section.Section(ref position, width, DrawClearArea, "FMF.JobType.ClearArea".Translate());
+                Widgets_Section.Section(ref position, width, DrawClearArea, "ColonyManagerRedux.Forestry.JobType.ClearArea".Translate());
 
             if (_selected.Type == ManagerJob_Forestry.ForestryJobType.Logging)
             {
-                Widgets_Section.Section(ref position, width, DrawThreshold, "FM.Threshold".Translate());
-                Widgets_Section.Section(ref position, width, DrawAreaRestriction, "FMF.LoggingArea".Translate());
+                Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
+                Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Forestry.LoggingArea".Translate());
                 Widgets_Section.Section(ref position, width, DrawAllowSaplings);
             }
 
             Widgets_Section.EndSectionColumn("Forestry.Options", position);
 
             Widgets_Section.BeginSectionColumn(treesColumnRect, "Forestry.Trees", out position, out width);
-            Widgets_Section.Section(ref position, width, DrawTreeShortcuts, "FMF.Trees".Translate());
+            Widgets_Section.Section(ref position, width, DrawTreeShortcuts, "ColonyManagerRedux.Forestry.Trees".Translate());
             Widgets_Section.Section(ref position, width, DrawTreeList);
             Widgets_Section.EndSectionColumn("Forestry.Trees", position);
 
             // do the button
             if (!_selected.Managed)
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Manage".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
                 {
                     // activate job, add it to the stack
                     _selected.Managed = true;
@@ -102,7 +102,7 @@ namespace ColonyManagerRedux
             }
             else
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Delete".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
                 {
                     // inactivate job, remove from the stack.
                     manager.JobStack.Delete(_selected);
@@ -160,12 +160,12 @@ namespace ColonyManagerRedux
             if (i % 2 == 1) Widgets.DrawAltRect(newRect);
 
             Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(newRect, "<" + "FMF.NewForestryJob".Translate().Resolve() + ">");
+            Widgets.Label(newRect, "<" + "ColonyManagerRedux.Forestry.NewForestryJob".Translate().Resolve() + ">");
             Text.Anchor = TextAnchor.UpperLeft;
 
             if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Forestry(manager);
 
-            TooltipHandler.TipRegion(newRect, "FMF.NewForestryJobTooltip".Translate());
+            TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Forestry.NewForestryJobTooltip".Translate());
 
             cur.y += LargeListEntryHeight;
 
@@ -199,8 +199,8 @@ namespace ColonyManagerRedux
             // NOTE: AllowSaplings logic is the reverse from the label that is shown to the user.
             Utilities.DrawToggle(
                 rowRect,
-                "FMF.AllowSaplings".Translate(),
-                "FMF.AllowSaplings.Tip".Translate(),
+                "ColonyManagerRedux.Forestry.AllowSaplings".Translate(),
+                "ColonyManagerRedux.Forestry.AllowSaplings.Tip".Translate(),
                 !_selected.AllowSaplings,
                 () => _selected.AllowSaplings = false,
                 () => _selected.AllowSaplings = true);
@@ -227,8 +227,8 @@ namespace ColonyManagerRedux
             Utilities.DrawToggle(
                 ref pos,
                 width,
-                "FMF.ClearWindCells".Translate(),
-                "FMF.ClearWindCells.Tip".Translate(),
+                "ColonyManagerRedux.Forestry.ClearWindCells".Translate(),
+                "ColonyManagerRedux.Forestry.ClearWindCells.Tip".Translate(),
                 ref _selected.ClearWindCells);
 
             return pos.y - start.y;
@@ -270,8 +270,8 @@ namespace ColonyManagerRedux
             {
                 Utilities.DrawToggle(
                     cellRect,
-                    $"FMF.JobType.{type}".Translate(),
-                    $"FMF.JobType.{type}.Tip".Translate(),
+                    $"ColonyManagerRedux.Forestry.JobType.{type}".Translate(),
+                    $"ColonyManagerRedux.Forestry.JobType.{type}.Tip".Translate(),
                     _selected.Type == type,
                     () => _selected.Type = type,
                     () => { },
@@ -290,9 +290,9 @@ namespace ColonyManagerRedux
             var targetCount = _selected.Trigger.TargetCount;
 
             _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
-                                                 "FMF.TargetCount".Translate(
+                                                 "ColonyManagerRedux.Forestry.TargetCount".Translate(
                                                      currentCount, designatedCount, targetCount),
-                                                 "FMF.TargetCountTooltip".Translate(
+                                                 "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
                                                      currentCount, designatedCount, targetCount),
                                                  _selected.Designations, null, _selected.DesignationLabel);
 
@@ -300,8 +300,8 @@ namespace ColonyManagerRedux
             Utilities.DrawToggle(
                 ref pos,
                 width,
-                "FM.PathBasedDistance".Translate(),
-                "FM.PathBasedDistance.Tip".Translate(),
+                "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
+                "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
                 ref _selected.PathBasedDistance,
                 true);
 
@@ -345,7 +345,7 @@ namespace ColonyManagerRedux
 
             // toggle all
             Utilities.DrawToggle(rowRect,
-                                  "FM.All".Translate().Italic(),
+                                  "ColonyManagerRedux.ManagerAll".Translate().Italic(),
                                   string.Empty,
                                   _selected.AllowedTrees.Values.All(v => v),
                                   _selected.AllowedTrees.Values.All(v => !v),
@@ -359,8 +359,8 @@ namespace ColonyManagerRedux
                 var trees = plants.Where(tree => tree.plant.harvestTag == "Wood" ||
                                                   tree.plant.harvestedThingDef == ThingDefOf.WoodLog).ToList();
                 Utilities.DrawToggle(rowRect,
-                                      "FMF.Trees".Translate().Italic(),
-                                      "FMF.Trees.Tip".Translate(),
+                                      "ColonyManagerRedux.Forestry.Trees".Translate().Italic(),
+                                      "ColonyManagerRedux.Forestry.Trees.Tip".Translate(),
                                       trees.All(t => allowed[t]),
                                       trees.All(t => !allowed[t]),
                                       () => trees.ForEach(t => allowed[t] = true),
@@ -373,8 +373,8 @@ namespace ColonyManagerRedux
                 {
                     Utilities.DrawToggle(
                         rowRect,
-                        "FMF.Flammable".Translate().Italic(),
-                        "FMF.Flammable.Tip".Translate(),
+                        "ColonyManagerRedux.Forestry.Flammable".Translate().Italic(),
+                        "ColonyManagerRedux.Forestry.Flammable.Tip".Translate(),
                         flammable.All(t => allowed[t]),
                         flammable.All(t => !allowed[t]),
                         () => flammable.ForEach(t => allowed[t] = true),
@@ -388,8 +388,8 @@ namespace ColonyManagerRedux
                 if (!ugly.NullOrEmpty())
                 {
                     Utilities.DrawToggle(rowRect,
-                                          "FMF.Ugly".Translate().Italic(),
-                                          "FMF.Ugly.Tip".Translate(),
+                                          "ColonyManagerRedux.Forestry.Ugly".Translate().Italic(),
+                                          "ColonyManagerRedux.Forestry.Ugly.Tip".Translate(),
                                           ugly.All(t => allowed[t]),
                                           ugly.All(t => !allowed[t]),
                                           () => ugly.ForEach(t => allowed[t] = true),
@@ -402,8 +402,8 @@ namespace ColonyManagerRedux
                                                   tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
                                   .ToList();
                 Utilities.DrawToggle(rowRect,
-                                      "FMF.ProvidesCover".Translate().Italic(),
-                                      "FMF.ProvidesCover.Tip".Translate(),
+                                      "ColonyManagerRedux.Forestry.ProvidesCover".Translate().Italic(),
+                                      "ColonyManagerRedux.Forestry.ProvidesCover.Tip".Translate(),
                                       cover.All(t => allowed[t]),
                                       cover.All(t => !allowed[t]),
                                       () => cover.ForEach(t => allowed[t] = true),
@@ -413,8 +413,8 @@ namespace ColonyManagerRedux
                 // blocks wind
                 var wind = plants.Where(tree => tree.blockWind).ToList();
                 Utilities.DrawToggle(rowRect,
-                                      "FMF.BlocksWind".Translate().Italic(),
-                                      "FMF.BlocksWind.Tip".Translate(),
+                                      "ColonyManagerRedux.Forestry.BlocksWind".Translate().Italic(),
+                                      "ColonyManagerRedux.Forestry.BlocksWind.Tip".Translate(),
                                       wind.All(t => allowed[t]),
                                       wind.All(t => !allowed[t]),
                                       () => wind.ForEach(t => allowed[t] = true),

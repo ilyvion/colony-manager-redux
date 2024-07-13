@@ -81,7 +81,7 @@ namespace ColonyManagerRedux
 
         public override bool IsValid => base.IsValid && Trigger != null && History != null;
 
-        public override string Label => "FMF.Forestry".Translate();
+        public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
         public override ManagerTab Tab
         {
@@ -103,9 +103,9 @@ namespace ColonyManagerRedux
                                      .Where(ca => ca.Value)
                                      .Select(ca => ca.Key.Label);
                         if (ClearWindCells)
-                            targets = targets.Concat("FMF.TurbineArea".Translate().Resolve());
+                            targets = targets.Concat("ColonyManagerRedux.Forestry.TurbineArea".Translate().Resolve());
                         if (!targets.Any())
-                            return new[] { "FM.None".Translate().RawText };
+                            return new[] { "ColonyManagerRedux.ManagerNone".Translate().RawText };
                         return targets.ToArray();
                 }
             }
@@ -159,7 +159,7 @@ namespace ColonyManagerRedux
         {
             // label, dist, yield.
             var plant = (Plant)designation.target.Thing;
-            return "Fluffy.Manager.DesignationLabel".Translate(
+            return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                 plant.LabelCap,
                 Distance(plant, manager.map.GetBaseCenter()).ToString("F0"),
                 plant.YieldNow(),
@@ -358,11 +358,11 @@ namespace ColonyManagerRedux
                     else
                         return "multiple".Translate().Italic();
                 default:
-                    sublabel = "FMF.Clear".Translate(string.Join(", ", Targets));
+                    sublabel = "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", Targets));
                     if (sublabel.Fits(rect))
                         return sublabel.Italic();
                     else
-                        return "FMF.Clear".Translate("multiple".Translate()).Italic();
+                        return "ColonyManagerRedux.Forestry.Clear".Translate("multiple".Translate()).Italic();
             }
         }
 

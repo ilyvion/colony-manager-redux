@@ -41,7 +41,7 @@ namespace ColonyManagerRedux
         // public override Texture2D Icon {                       get; }
         public override IconAreas IconArea => IconAreas.Middle;
 
-        public override string Label => "FML.Livestock".Translate();
+        public override string Label => "ColonyManagerRedux.Livestock.Livestock".Translate();
 
         public override ManagerJob Selected
         {
@@ -103,9 +103,9 @@ namespace ColonyManagerRedux
             switch (_selectedCurrent.Masters)
             {
                 case MasterMode.Specific:
-                    return _selectedCurrent.Master?.LabelShort ?? "FM.None".Translate();
+                    return _selectedCurrent.Master?.LabelShort ?? "ColonyManagerRedux.ManagerNone".Translate();
                 default:
-                    return $"FM.Livestock.MasterMode.{_selectedCurrent.Masters}".Translate();
+                    return $"ColonyManagerRedux.ManagerLivestock.MasterMode.{_selectedCurrent.Masters}".Translate();
             }
         }
 
@@ -116,7 +116,7 @@ namespace ColonyManagerRedux
                 case MasterMode.Specific:
                     return _selectedCurrent.Trainer.LabelShort;
                 default:
-                    return $"FM.Livestock.MasterMode.{_selectedCurrent.Trainers}".Translate();
+                    return $"ColonyManagerRedux.ManagerLivestock.MasterMode.{_selectedCurrent.Trainers}".Translate();
             }
         }
 
@@ -133,7 +133,7 @@ namespace ColonyManagerRedux
             // cop out if nothing is selected.
             if (_selectedCurrent == null)
             {
-                Label(rect, "FM.Livestock.SelectPawnKind".Translate(), TextAnchor.MiddleCenter);
+                Label(rect, "ColonyManagerRedux.ManagerLivestock.SelectPawnKind".Translate(), TextAnchor.MiddleCenter);
                 return;
             }
 
@@ -159,15 +159,15 @@ namespace ColonyManagerRedux
             Widgets_Section.BeginSectionColumn(optionsColumnRect, "Livestock.Options", out position, out width);
 
             Widgets_Section.Section(ref position, width, DrawTargetCountsSection,
-                                     "FM.Livestock.TargetCountsHeader".Translate());
-            Widgets_Section.Section(ref position, width, DrawTamingSection, "FM.Livestock.TamingHeader".Translate());
+                                     "ColonyManagerRedux.ManagerLivestock.TargetCountsHeader".Translate());
+            Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.ManagerLivestock.TamingHeader".Translate());
             Widgets_Section.Section(ref position, width, DrawButcherSection,
-                                     "FM.Livestock.ButcherHeader".Translate());
+                                     "ColonyManagerRedux.ManagerLivestock.ButcherHeader".Translate());
             Widgets_Section.Section(ref position, width, DrawTrainingSection,
-                                     "FM.Livestock.TrainingHeader".Translate());
+                                     "ColonyManagerRedux.ManagerLivestock.TrainingHeader".Translate());
             Widgets_Section.Section(ref position, width, DrawAreaRestrictionsSection,
-                                     "FM.Livestock.AreaRestrictionsHeader".Translate());
-            Widgets_Section.Section(ref position, width, DrawFollowSection, "FM.Livestock.FollowHeader".Translate());
+                                     "ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader".Translate());
+            Widgets_Section.Section(ref position, width, DrawFollowSection, "ColonyManagerRedux.ManagerLivestock.FollowHeader".Translate());
 
             Widgets_Section.EndSectionColumn("Livestock.Options", position);
 
@@ -176,13 +176,13 @@ namespace ColonyManagerRedux
             Widgets_Section.BeginSectionColumn(animalsColumnRect, "Livestock.Animals", out position, out width);
 
             Widgets_Section.Section(ref position, width, DrawTamedAnimalSection,
-                                     "FM.Livestock.AnimalsHeader"
-                                        .Translate("FML.Tame".Translate(),
+                                     "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
+                                        .Translate("ColonyManagerRedux.Livestock.Tame".Translate(),
                                                     _selectedCurrent.Trigger.pawnKind.GetLabelPlural())
                                         .CapitalizeFirst());
             Widgets_Section.Section(ref position, width, DrawWildAnimalSection,
-                                     "FM.Livestock.AnimalsHeader"
-                                        .Translate("FML.Wild".Translate(),
+                                     "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
+                                        .Translate("ColonyManagerRedux.Livestock.Wild".Translate(),
                                                     _selectedCurrent.Trigger.pawnKind.GetLabelPlural())
                                         .CapitalizeFirst());
 
@@ -192,7 +192,7 @@ namespace ColonyManagerRedux
             // add / remove to the stack
             if (_selectedCurrent.Managed)
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Delete".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
                 {
                     _selectedCurrent.Delete();
                     _selectedCurrent = null;
@@ -201,11 +201,11 @@ namespace ColonyManagerRedux
                     return; // just skip to the next tick to avoid null reference errors.
                 }
 
-                TooltipHandler.TipRegion(buttonRect, "FMP.DeleteBillTooltip".Translate());
+                TooltipHandler.TipRegion(buttonRect, "ColonyManagerRedux.Thresholds.DeleteBillTooltip".Translate());
             }
             else
             {
-                if (Widgets.ButtonText(buttonRect, "FM.Manage".Translate()))
+                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
                 {
                     _selectedCurrent.Managed = true;
                     _onCurrentTab = true;
@@ -213,7 +213,7 @@ namespace ColonyManagerRedux
                     Refresh();
                 }
 
-                TooltipHandler.TipRegion(buttonRect, "FMP.ManageBillTooltip".Translate());
+                TooltipHandler.TipRegion(buttonRect, "ColonyManagerRedux.Thresholds.ManageBillTooltip".Translate());
             }
         }
 
@@ -238,13 +238,13 @@ namespace ColonyManagerRedux
 
             // tabs
             var tabs = new List<TabRecord>();
-            var availableTabRecord = new TabRecord("FMP.Available".Translate(), delegate
+            var availableTabRecord = new TabRecord("ColonyManagerRedux.Thresholds.Available".Translate(), delegate
            {
                _onCurrentTab = false;
                Refresh();
            }, !_onCurrentTab);
             tabs.Add(availableTabRecord);
-            var currentTabRecord = new TabRecord("FMP.Current".Translate(), delegate
+            var currentTabRecord = new TabRecord("ColonyManagerRedux.Thresholds.Current".Translate(), delegate
            {
                _onCurrentTab = true;
                Refresh();
@@ -289,7 +289,7 @@ namespace ColonyManagerRedux
                 new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(genderRect, SmallIconSize / 2);
             GUI.DrawTexture(genderMale, Resources.MaleIcon);
             GUI.DrawTexture(genderFemale, Resources.FemaleIcon);
-            TooltipHandler.TipRegion(genderRect, "FML.GenderHeader".Translate());
+            TooltipHandler.TipRegion(genderRect, "ColonyManagerRedux.Livestock.GenderHeader".Translate());
             pos.x += colwidth;
 
             // lifestage header
@@ -300,7 +300,7 @@ namespace ColonyManagerRedux
             GUI.DrawTexture(ageRectC, Resources.LifeStages(2));
             GUI.DrawTexture(ageRectB, Resources.LifeStages(1));
             GUI.DrawTexture(ageRectA, Resources.LifeStages(0));
-            TooltipHandler.TipRegion(ageRect, "FML.AgeHeader".Translate());
+            TooltipHandler.TipRegion(ageRect, "ColonyManagerRedux.Livestock.AgeHeader".Translate());
             pos.x += colwidth;
 
             // meat header
@@ -308,7 +308,7 @@ namespace ColonyManagerRedux
             var meatIconRect =
                 new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(meatRect);
             GUI.DrawTexture(meatIconRect, Resources.MeatIcon);
-            TooltipHandler.TipRegion(meatRect, "FML.MeatHeader".Translate());
+            TooltipHandler.TipRegion(meatRect, "ColonyManagerRedux.Livestock.MeatHeader".Translate());
             pos.x += colwidth;
 
             // milk header
@@ -318,7 +318,7 @@ namespace ColonyManagerRedux
                 var milkIconRect =
                     new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(milkRect);
                 GUI.DrawTexture(milkIconRect, Resources.MilkIcon);
-                TooltipHandler.TipRegion(milkRect, "FML.MilkHeader".Translate());
+                TooltipHandler.TipRegion(milkRect, "ColonyManagerRedux.Livestock.MilkHeader".Translate());
                 pos.x += colwidth;
             }
 
@@ -329,7 +329,7 @@ namespace ColonyManagerRedux
                 var woolIconRect =
                     new Rect(0f, 0f, MediumIconSize, MediumIconSize).CenteredIn(woolRect);
                 GUI.DrawTexture(woolIconRect, Resources.WoolIcon);
-                TooltipHandler.TipRegion(woolRect, "FML.WoolHeader".Translate());
+                TooltipHandler.TipRegion(woolRect, "ColonyManagerRedux.Livestock.WoolHeader".Translate());
                 pos.x += colwidth;
             }
 
@@ -404,7 +404,7 @@ namespace ColonyManagerRedux
             var meatRect = new Rect(pos.x, pos.y, colwidth, size.y);
             // NOTE: When splitting tabs into separate mods; estimated meat count is defined in the Hunting helper.
             Label(meatRect, p.EstimatedMeatCount().ToString(),
-                   "FML.Yields".Translate(p.RaceProps.meatDef.LabelCap, p.EstimatedMeatCount()),
+                   "ColonyManagerRedux.Livestock.Yields".Translate(p.RaceProps.meatDef.LabelCap, p.EstimatedMeatCount()),
                    TextAnchor.MiddleCenter, GameFont.Tiny);
             pos.x += colwidth;
 
@@ -414,7 +414,7 @@ namespace ColonyManagerRedux
                 var milkRect = new Rect(pos.x, pos.y, colwidth, size.y);
                 var comp = p.TryGetComp<CompMilkable>();
                 Label(milkRect, comp.Fullness.ToString("0%"),
-                       "FML.Yields".Translate(comp.Props.milkDef.LabelCap, comp.Props.milkAmount),
+                       "ColonyManagerRedux.Livestock.Yields".Translate(comp.Props.milkDef.LabelCap, comp.Props.milkAmount),
                        TextAnchor.MiddleCenter, GameFont.Tiny);
             }
 
@@ -427,7 +427,7 @@ namespace ColonyManagerRedux
                 var woolRect = new Rect(pos.x, pos.y, colwidth, size.y);
                 var comp = p.TryGetComp<CompShearable>();
                 Label(woolRect, comp.Fullness.ToString("0%"),
-                       "FML.Yields".Translate(comp.Props.woolDef.LabelCap, comp.Props.woolAmount),
+                       "ColonyManagerRedux.Livestock.Yields".Translate(comp.Props.woolDef.LabelCap, comp.Props.woolAmount),
                        TextAnchor.MiddleCenter, GameFont.Tiny);
             }
 
@@ -451,7 +451,7 @@ namespace ColonyManagerRedux
             if (!animals.Any())
             {
                 Label(new Rect(pos.x, pos.y, width, ListEntryHeight),
-                       "FML.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
+                       "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
                        TextAnchor.MiddleCenter, color: Color.grey);
                 pos.y += ListEntryHeight;
             }
@@ -471,7 +471,7 @@ namespace ColonyManagerRedux
             {
                 var unavailableLabelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 unavailableLabelRect.xMin += Margin;
-                Label(unavailableLabelRect, "FM.Livestock.DisabledBecauseRoamingAnimal".Translate(_selectedCurrent.Trigger.pawnKind.GetLabelPlural()), "FM.Livestock.DisabledBecauseRoamingAnimalTip".Translate(_selectedCurrent.Trigger.pawnKind.GetLabelPlural()), TextAnchor.MiddleLeft,
+                Label(unavailableLabelRect, "ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimal".Translate(_selectedCurrent.Trigger.pawnKind.GetLabelPlural()), "ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimalTip".Translate(_selectedCurrent.Trigger.pawnKind.GetLabelPlural()), TextAnchor.MiddleLeft,
                        color: Color.grey);
                 return ListEntryHeight;
             }
@@ -481,8 +481,8 @@ namespace ColonyManagerRedux
             var restrictAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
             DrawToggle(restrictAreaRect,
-                        "FML.RestrictToArea".Translate(),
-                        "FML.RestrictToArea.Tip".Translate(),
+                        "ColonyManagerRedux.Livestock.RestrictToArea".Translate(),
+                        "ColonyManagerRedux.Livestock.RestrictToArea.Tip".Translate(),
                         ref _selectedCurrent.RestrictToArea);
             pos.y += ListEntryHeight;
 
@@ -507,8 +507,8 @@ namespace ColonyManagerRedux
                 // headers
                 Label(areaRects[1, 0], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
                 Label(areaRects[2, 0], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-                Label(areaRects[0, 1], "FML.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
-                Label(areaRects[0, 2], "FML.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+                Label(areaRects[0, 1], "ColonyManagerRedux.Livestock.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+                Label(areaRects[0, 2], "ColonyManagerRedux.Livestock.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
 
                 // do the selectors
                 _selectedCurrent.RestrictArea[0] = AreaAllowedGUI.DoAllowedAreaSelectors(areaRects[1, 1],
@@ -533,8 +533,8 @@ namespace ColonyManagerRedux
             if (_selectedCurrent.ButcherExcess)
             {
                 DrawToggle(sendToSlaughterAreaRect,
-                            "FML.SendToSlaughterArea".Translate(),
-                            "FML.SendToSlaughterArea.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToSlaughterArea".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip".Translate(),
                             ref _selectedCurrent.SendToSlaughterArea);
 
                 if (_selectedCurrent.SendToSlaughterArea)
@@ -548,8 +548,8 @@ namespace ColonyManagerRedux
             else
             {
                 sendToSlaughterAreaRect.xMin += Margin;
-                Label(sendToSlaughterAreaRect, "FML.SendToSlaughterArea".Translate(),
-                       "FM.Livestock.DisabledBecauseSlaughterExcessDisabled".Translate(), TextAnchor.MiddleLeft,
+                Label(sendToSlaughterAreaRect, "ColonyManagerRedux.Livestock.SendToSlaughterArea".Translate(),
+                       "ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled".Translate(), TextAnchor.MiddleLeft,
                        color: Color.grey);
             }
 
@@ -558,8 +558,8 @@ namespace ColonyManagerRedux
                 var sendToMilkingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 pos.y += ListEntryHeight;
                 DrawToggle(sendToMilkingAreaRect,
-                            "FML.SendToMilkingArea".Translate(),
-                            "FML.SendToMilkingArea.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToMilkingArea".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToMilkingArea.Tip".Translate(),
                             ref _selectedCurrent.SendToMilkingArea);
 
                 if (_selectedCurrent.SendToMilkingArea)
@@ -576,8 +576,8 @@ namespace ColonyManagerRedux
                 var sendToShearingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 pos.y += ListEntryHeight;
                 DrawToggle(sendToShearingAreaRect,
-                            "FML.SendToShearingArea".Translate(),
-                            "FML.SendToShearingArea.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToShearingArea".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToShearingArea.Tip".Translate(),
                             ref _selectedCurrent.SendToShearingArea);
 
                 if (_selectedCurrent.SendToShearingArea)
@@ -594,8 +594,8 @@ namespace ColonyManagerRedux
             if (_selectedCurrent.Training.Any)
             {
                 DrawToggle(sendToTrainingAreaRect,
-                            "FML.SendToTrainingArea".Translate(),
-                            "FML.SendToTrainingArea.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToTrainingArea".Translate(),
+                            "ColonyManagerRedux.Livestock.SendToTrainingArea.Tip".Translate(),
                             ref _selectedCurrent.SendToTrainingArea);
 
                 if (_selectedCurrent.SendToTrainingArea)
@@ -609,8 +609,8 @@ namespace ColonyManagerRedux
             else
             {
                 sendToTrainingAreaRect.xMin += Margin;
-                Label(sendToTrainingAreaRect, "FML.SendToTrainingArea".Translate(),
-                       "FM.Livestock.DisabledBecauseNoTrainingSet".Translate(), TextAnchor.MiddleLeft,
+                Label(sendToTrainingAreaRect, "ColonyManagerRedux.Livestock.SendToTrainingArea".Translate(),
+                       "ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet".Translate(), TextAnchor.MiddleLeft,
                        color: Color.grey);
             }
 
@@ -639,7 +639,7 @@ namespace ColonyManagerRedux
 
                 // draw label
                 var label = _availablePawnKinds[i].LabelCap + "\n<i>" +
-                            "FML.TameWildCount".Translate(
+                            "ColonyManagerRedux.Livestock.TameWildCount".Translate(
                                 _availablePawnKinds[i].GetTame(manager).Count(),
                                 _availablePawnKinds[i].GetWild(manager).Count()) + "</i>";
                 Label(row, label, TextAnchor.MiddleLeft, margin: Margin * 2);
@@ -664,8 +664,8 @@ namespace ColonyManagerRedux
             // butchery stuff
             var butcherExcessRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             DrawToggle(butcherExcessRect,
-                        "FML.ButcherExcess".Translate(),
-                        "FML.ButcherExcess.Tip".Translate(),
+                        "ColonyManagerRedux.Livestock.ButcherExcess".Translate(),
+                        "ColonyManagerRedux.Livestock.ButcherExcess.Tip".Translate(),
                         ref _selectedCurrent.ButcherExcess);
             pos.y += ListEntryHeight;
 
@@ -675,20 +675,20 @@ namespace ColonyManagerRedux
                 var butcherOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
                 DrawToggle(butcherOptionRect,
-                            "FML.ButcherTrained".Translate(),
-                            "FML.ButcherTrained.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.ButcherTrained".Translate(),
+                            "ColonyManagerRedux.Livestock.ButcherTrained.Tip".Translate(),
                             ref _selectedCurrent.ButcherTrained, font: GameFont.Tiny, wrap: false);
                 butcherOptionRect.x += cellWidth + Margin;
 
                 DrawToggle(butcherOptionRect,
-                            "FML.ButcherPregnant".Translate(),
-                            "FML.ButcherPregnant.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.ButcherPregnant".Translate(),
+                            "ColonyManagerRedux.Livestock.ButcherPregnant.Tip".Translate(),
                             ref _selectedCurrent.ButcherPregnant, font: GameFont.Tiny, wrap: false);
                 butcherOptionRect.x += cellWidth + Margin;
 
                 DrawToggle(butcherOptionRect,
-                            "FML.ButcherBonded".Translate(),
-                            "FML.ButcherBonded.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.ButcherBonded".Translate(),
+                            "ColonyManagerRedux.Livestock.ButcherBonded.Tip".Translate(),
                             ref _selectedCurrent.ButcherBonded, font: GameFont.Tiny, wrap: false);
 
                 pos.y += ListEntryHeight;
@@ -740,7 +740,7 @@ namespace ColonyManagerRedux
                .CenteredOnYIn(rowRect);
 
             // master selection
-            Label(rowRect, "FM.Livestock.MasterDefault".Translate(), "FM.Livestock.MasterDefault.Tip".Translate(),
+            Label(rowRect, "ColonyManagerRedux.ManagerLivestock.MasterDefault".Translate(), "ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip".Translate(),
                    TextAnchor.MiddleLeft, margin: Margin);
             if (Widgets.ButtonText(buttonRect, GetMasterLabel()))
             {
@@ -748,13 +748,13 @@ namespace ColonyManagerRedux
 
                 // modes
                 foreach (var _mode in GetMasterModes.Where(mm => (mm & MasterMode.All) == mm))
-                    options.Add(new FloatMenuOption($"FM.Livestock.MasterMode.{_mode}".Translate(),
+                    options.Add(new FloatMenuOption($"ColonyManagerRedux.ManagerLivestock.MasterMode.{_mode}".Translate(),
                                                       () => _selectedCurrent.Masters = _mode));
 
                 // specific pawns
                 foreach (var pawn in _selectedCurrent.Trigger.pawnKind.GetMasterOptions(manager, MasterMode.All))
                     options.Add(new FloatMenuOption(
-                                     "FM.Livestock.Master".Translate(pawn.LabelShort,
+                                     "ColonyManagerRedux.ManagerLivestock.Master".Translate(pawn.LabelShort,
                                                                       pawn.skills.AverageOfRelevantSkillsFor(
                                                                           WorkTypeDefOf.Handling)),
                                      () =>
@@ -770,20 +770,20 @@ namespace ColonyManagerRedux
             rowRect.y += ListEntryHeight;
             if (_selectedCurrent.Masters != MasterMode.Default && _selectedCurrent.Masters != MasterMode.Specific)
                 DrawToggle(rowRect,
-                            "FM.Livestock.RespectBonds".Translate(),
-                            "FM.Livestock.RespectBonds.Tip".Translate(),
+                            "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
+                            "ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip".Translate(),
                             ref _selectedCurrent.RespectBonds);
             else
                 Label(rowRect,
-                       "FM.Livestock.RespectBonds".Translate(),
-                       "FM.Livestock.RespectBonds.DisabledBecauseMastersNotSet".Translate(),
+                       "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
+                       "ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet".Translate(),
                        color: Color.grey, margin: Margin);
 
             // default follow
             rowRect.y += ListEntryHeight;
             DrawToggle(rowRect,
-                        "FM.Livestock.Follow".Translate(),
-                        "FM.Livestock.Follow.Tip".Translate(),
+                        "ColonyManagerRedux.ManagerLivestock.Follow".Translate(),
+                        "ColonyManagerRedux.ManagerLivestock.Follow.Tip".Translate(),
                         ref _selectedCurrent.SetFollow);
 
             if (_selectedCurrent.SetFollow)
@@ -792,32 +792,32 @@ namespace ColonyManagerRedux
                 var followRect = rowRect;
                 followRect.width /= 2f;
                 DrawToggle(followRect,
-                            "FM.Livestock.FollowDrafted".Translate(),
-                            "FM.Livestock.FollowDrafted.Tip".Translate(),
+                            "ColonyManagerRedux.ManagerLivestock.FollowDrafted".Translate(),
+                            "ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip".Translate(),
                             ref _selectedCurrent.FollowDrafted,
                             font: GameFont.Tiny);
                 followRect.x += followRect.width;
                 DrawToggle(followRect,
-                            "FM.Livestock.FollowFieldwork".Translate(),
-                            "FM.Livestock.FollowFieldwork.Tip".Translate(),
+                            "ColonyManagerRedux.ManagerLivestock.FollowFieldwork".Translate(),
+                            "ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip".Translate(),
                             ref _selectedCurrent.FollowFieldwork,
                             font: GameFont.Tiny);
             }
 
             // follow when training
             rowRect.y += ListEntryHeight;
-            TooltipHandler.TipRegion(rowRect, "FM.Livestock.FollowTraining.Tip".Translate());
+            TooltipHandler.TipRegion(rowRect, "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate());
             DrawToggle(rowRect,
-                        "FM.Livestock.FollowTraining".Translate(),
-                        "FM.Livestock.FollowTraining.Tip".Translate(),
+                        "ColonyManagerRedux.ManagerLivestock.FollowTraining".Translate(),
+                        "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate(),
                         ref _selectedCurrent.FollowTraining);
 
             // master selection
             if (_selectedCurrent.FollowTraining)
             {
                 rowRect.y += ListEntryHeight;
-                Label(rowRect, "FM.Livestock.MasterTraining".Translate(),
-                       "FM.Livestock.MasterTraining.Tip".Translate(),
+                Label(rowRect, "ColonyManagerRedux.ManagerLivestock.MasterTraining".Translate(),
+                       "ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip".Translate(),
                        TextAnchor.MiddleLeft, margin: Margin);
 
                 buttonRect = buttonRect.CenteredOnYIn(rowRect);
@@ -827,14 +827,14 @@ namespace ColonyManagerRedux
 
                     // modes
                     foreach (var _mode in GetMasterModes.Where(mm => (mm & MasterMode.Trainers) == mm))
-                        options.Add(new FloatMenuOption($"FM.Livestock.MasterMode.{_mode}".Translate(),
+                        options.Add(new FloatMenuOption($"ColonyManagerRedux.ManagerLivestock.MasterMode.{_mode}".Translate(),
                                                           () => _selectedCurrent.Trainers = _mode));
 
                     // specific pawns
                     foreach (var pawn in _selectedCurrent.Trigger.pawnKind.GetTrainers(manager, MasterMode.Trainers)
                     )
                         options.Add(new FloatMenuOption(
-                                         "FM.Livestock.Master".Translate(pawn.LabelShort,
+                                         "ColonyManagerRedux.ManagerLivestock.Master".Translate(pawn.LabelShort,
                                                                           pawn.skills.AverageOfRelevantSkillsFor(
                                                                               WorkTypeDefOf.Handling)),
                                          () =>
@@ -854,15 +854,15 @@ namespace ColonyManagerRedux
         {
             var pawnKind = _selectedCurrent.Trigger.pawnKind;
             var animals = pawnKind?.GetTame(manager);
-            return DrawAnimalSection(ref pos, width, "FML.Tame".Translate(), pawnKind, animals);
+            return DrawAnimalSection(ref pos, width, "ColonyManagerRedux.Livestock.Tame".Translate(), pawnKind, animals);
         }
 
         private float DrawTamingSection(Vector2 pos, float width)
         {
             var start = pos;
             DrawToggle(ref pos, width,
-                        "FML.TameMore".Translate(),
-                        "FML.TameMore.Tip".Translate(),
+                        "ColonyManagerRedux.Livestock.TameMore".Translate(),
+                        "ColonyManagerRedux.Livestock.TameMore.Tip".Translate(),
                         ref _selectedCurrent.TryTameMore);
 
             // area to tame from (if taming more);
@@ -871,8 +871,8 @@ namespace ColonyManagerRedux
                 AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selectedCurrent.TameArea, manager);
                 DrawReachabilityToggle(ref pos, width, ref _selectedCurrent.CheckReachable);
                 DrawToggle(ref pos, width,
-                            "FM.PathBasedDistance".Translate(),
-                            "FM.PathBasedDistance.Tip".Translate(),
+                            "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
+                            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
                             ref _selectedCurrent.PathBasedDistance, true);
             }
 
@@ -904,8 +904,8 @@ namespace ColonyManagerRedux
             // headers
             Label(countRects[0, 1], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
             Label(countRects[0, 2], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-            Label(countRects[1, 0], "FML.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
-            Label(countRects[2, 0], "FML.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+            Label(countRects[1, 0], "ColonyManagerRedux.Livestock.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+            Label(countRects[2, 0], "ColonyManagerRedux.Livestock.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
 
             // fields
             DoCountField(countRects[1, 1], AgeAndSex.AdultFemale);
@@ -924,8 +924,8 @@ namespace ColonyManagerRedux
 
             var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
             DrawToggle(unassignTrainingRect,
-                        "FML.UnassignTraining".Translate(),
-                        "FML.UnassignTraining.Tip".Translate(),
+                        "ColonyManagerRedux.Livestock.UnassignTraining".Translate(),
+                        "ColonyManagerRedux.Livestock.UnassignTraining.Tip".Translate(),
                         ref _selectedCurrent.Training.UnassignTraining);
             height += ListEntryHeight;
 
@@ -933,8 +933,8 @@ namespace ColonyManagerRedux
             {
                 var trainYoungRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
                 DrawToggle(trainYoungRect,
-                            "FML.TrainYoung".Translate(),
-                            "FML.TrainYoung.Tip".Translate(),
+                            "ColonyManagerRedux.Livestock.TrainYoung".Translate(),
+                            "ColonyManagerRedux.Livestock.TrainYoung.Tip".Translate(),
                             ref _selectedCurrent.Training.TrainYoung);
                 height += ListEntryHeight;
             }
@@ -946,7 +946,7 @@ namespace ColonyManagerRedux
         {
             var pawnKind = _selectedCurrent.Trigger.pawnKind;
             var animals = pawnKind?.GetWild(manager);
-            return DrawAnimalSection(ref pos, width, "FML.Wild".Translate(), pawnKind, animals);
+            return DrawAnimalSection(ref pos, width, "ColonyManagerRedux.Livestock.Wild".Translate(), pawnKind, animals);
         }
 
         private void Refresh()

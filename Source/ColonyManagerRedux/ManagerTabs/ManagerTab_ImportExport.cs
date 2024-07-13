@@ -65,7 +65,7 @@
 
 //        public override string Label
 //        {
-//            get { return "FM.ImportExport".Translate(); }
+//            get { return "ColonyManagerRedux.ManagerImportExport".Translate(); }
 //        }
 
 //        public override ManagerJob Selected
@@ -156,7 +156,7 @@
 //            finally
 //            {
 //                Scribe.FinalizeWriting();
-//                Messages.Message( "FM.JobsExported".Translate( _jobStackIO.FullStack().Count ), MessageSound.Standard );
+//                Messages.Message( "ColonyManagerRedux.ManagerJobsExported".Translate( _jobStackIO.FullStack().Count ), MessageSound.Standard );
 //                Refresh();
 //            }
 //        }
@@ -197,7 +197,7 @@
 //                // if debug is enabled the screen will also pop up with reference errors.
 //                if ( invalid > 0 )
 //                {
-//                    Messages.Message( "FM.InvalidJobsDeleted".Translate( invalid ), MessageSound.SeriousAlert );
+//                    Messages.Message( "ColonyManagerRedux.ManagerInvalidJobsDeleted".Translate( invalid ), MessageSound.SeriousAlert );
 //                }
 //            }
 //            catch ( Exception e )
@@ -209,7 +209,7 @@
 //                // done?
 //                Scribe.mode = LoadSaveMode.Inactive;
 //                Manager.LoadSaveMode = Manager.Modes.Normal;
-//                Messages.Message( "FM.JobsImported".Translate( _jobStackIO.FullStack().Count ), MessageSound.Standard );
+//                Messages.Message( "ColonyManagerRedux.ManagerJobsImported".Translate( _jobStackIO.FullStack().Count ), MessageSound.Standard );
 //                Refresh();
 //            }
 //        }
@@ -238,7 +238,7 @@
 //            GUI.color = Color.white;
 
 //            // load button
-//            if ( Widgets.ButtonText( buttonRect, "FM.Import".Translate() ) )
+//            if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.ManagerImport".Translate() ) )
 //            {
 //                TryImport( file );
 //            }
@@ -267,7 +267,7 @@
 //                // no saves found.
 //                GUI.color = Color.gray;
 //                Text.Anchor = TextAnchor.MiddleCenter;
-//                Widgets.Label( rect, "FM.NoSaves".Translate() );
+//                Widgets.Label( rect, "ColonyManagerRedux.ManagerNoSaves".Translate() );
 //                Text.Anchor = TextAnchor.UpperLeft;
 //                GUI.color = Color.white;
 //            }
@@ -305,7 +305,7 @@
 //            var buttonRect = new Rect( nameRect.xMax + _margin, infoRect.yMax, nameRect.width, 30f );
 
 //            var info = new StringBuilder();
-//            info.AppendLine( "FM.CurrentJobs".Translate() );
+//            info.AppendLine( "ColonyManagerRedux.ManagerCurrentJobs".Translate() );
 //            foreach ( Pair<string, int> jobCount in _jobCounts )
 //            {
 //                info.AppendLine( jobCount.First + ": " + jobCount.Second );
@@ -320,7 +320,7 @@
 //            }
 //            if ( GenText.IsValidFilename( _saveName ) )
 //            {
-//                if ( Widgets.ButtonText( buttonRect, "FM.Export".Translate() ) )
+//                if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.ManagerExport".Translate() ) )
 //                {
 //                    TryExport( _saveName );
 //                }
@@ -330,7 +330,7 @@
 //                GUI.color = Color.gray;
 //                Text.Anchor = TextAnchor.MiddleCenter;
 //                Widgets.DrawBox( buttonRect );
-//                Widgets.Label( buttonRect, "FM.InvalidName".Translate() );
+//                Widgets.Label( buttonRect, "ColonyManagerRedux.ManagerInvalidName".Translate() );
 //                GUI.color = Color.white;
 //                Text.Anchor = TextAnchor.UpperLeft;
 //            }
@@ -393,7 +393,7 @@
 //            // if it exists, confirm overwrite
 //            if ( SaveExists( name ) )
 //            {
-//                Find.WindowStack.Add( new Dialog_Confirm( "FM.ConfirmOverwrite".Translate( name ),
+//                Find.WindowStack.Add( new Dialog_Confirm( "ColonyManagerRedux.ManagerConfirmOverwrite".Translate( name ),
 //                                                          delegate
 //                                                          { DoExport( name ); }, true ) );
 //            }

@@ -157,7 +157,7 @@ namespace ColonyManagerRedux
             {
                 return Utilities_Livestock.AgeSexArray
                                           .Select(ageSex =>
-                                                      ("FMP." + ageSex.ToString() + "Count").Translate(
+                                                      ("ColonyManagerRedux.Thresholds." + ageSex.ToString() + "Count").Translate(
                                                                                                    Trigger
                                                                                                       .pawnKind
                                                                                                       .GetTame(
@@ -216,7 +216,7 @@ namespace ColonyManagerRedux
             {
                 visible = true;
                 return new AcceptanceReport(
-                    "FM.Livestock.CannotTrainTooSmall".Translate(pawnKind.GetLabelPlural()));
+                    "ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall".Translate(pawnKind.GetLabelPlural()));
             }
 
             if (pawnKind.RaceProps.trainability.intelligenceOrder < td.requiredTrainability.intelligenceOrder)

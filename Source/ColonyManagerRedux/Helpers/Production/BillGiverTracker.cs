@@ -236,7 +236,7 @@
 //            string potentialString = string.Join( "\n", PotentialBillGivers.Select( b => b.LabelCap ).ToArray() );
 //            string selectedString = string.Join( "\n", SelectedBillGivers.Select( b => b.LabelCap ).ToArray() );
 //            string assignedString = string.Join( "\n", AssignedBillGivers.Select( b => b.LabelCap ).ToArray() );
-//            string billgiverTooltip = "FMP.BillGiversTooltip".Translate( potentialString, selectedString, assignedString );
+//            string billgiverTooltip = "ColonyManagerRedux.Thresholds.BillGiversTooltip".Translate( potentialString, selectedString, assignedString );
 
 //            var billgiverLabelRect = new Rect( cur.x, cur.y, width, entryHeight );
 //            if ( alt )
@@ -245,7 +245,7 @@
 //            }
 //            Widgets.DrawHighlightIfMouseover( billgiverLabelRect );
 //            Utilities.Label( billgiverLabelRect,
-//                             "FMP.BillGiversCount".Translate( PotentialBillGivers.Count, SelectedBillGivers.Count,
+//                             "ColonyManagerRedux.Thresholds.BillGiversCount".Translate( PotentialBillGivers.Count, SelectedBillGivers.Count,
 //                                                              AssignedBillGivers.Count ),
 //                             billgiverTooltip,
 //                             TextAnchor.MiddleLeft,

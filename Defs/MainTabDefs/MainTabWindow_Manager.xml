@@ -2,7 +2,7 @@
 <Defs>
 
     <MainButtonDef>
-        <defName>Fluffy_Manager</defName>
+        <defName>ColonyManagerRedux_Manager</defName>
         <label>manager</label>
         <description>Choose which colonist does what kinds of work, and in what priority order.</description>
         <tabWindowClass>ColonyManagerRedux.MainTabWindow_Manager</tabWindowClass>

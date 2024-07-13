@@ -121,7 +121,7 @@ namespace ColonyManagerRedux
 
         public override bool IsValid => base.IsValid && History != null && Trigger != null;
 
-        public override string Label => "FMH.Hunting".Translate();
+        public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
         public override ManagerTab Tab
         {
@@ -167,7 +167,7 @@ namespace ColonyManagerRedux
         {
             // label, dist, yield.
             var thing = designation.target.Thing;
-            return "Fluffy.Manager.DesignationLabel".Translate(
+            return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                 thing.LabelCap,
                 Distance(thing, manager.map.GetBaseCenter()).ToString("F0"),
                 thing.GetStatValue(StatDefOf.MeatAmount).ToString("F0"),

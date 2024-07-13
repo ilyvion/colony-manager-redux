@@ -76,7 +76,7 @@
 //            get { return IconAreas.Middle; }
 //        }
 
-//        public override string Label { get; } = "FMP.Production".Translate();
+//        public override string Label { get; } = "ColonyManagerRedux.Thresholds.Production".Translate();
 
 //        public override ManagerJob Selected
 //        {
@@ -113,7 +113,7 @@
 //                // add / remove to the stack
 //                if ( Source == SourceOptions.Current )
 //                {
-//                    if ( Widgets.ButtonText( buttonRect, "FM.Delete".Translate() ) )
+//                    if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.ManagerDelete".Translate() ) )
 //                    {
 //                        _selected.Delete();
 //                        _selected = null;
@@ -121,17 +121,17 @@
 //                        return; // just skip to the next tick to avoid null reference errors.
 //                    }
 
-//                    TooltipHandler.TipRegion( buttonRect, "FMP.DeleteBillTooltip".Translate() );
+//                    TooltipHandler.TipRegion( buttonRect, "ColonyManagerRedux.Thresholds.DeleteBillTooltip".Translate() );
 //                }
 //                else
 //                {
 //                    if ( _selected.Trigger.IsValid )
 //                    {
-//                        Widgets.CheckboxLabeled( ingredientCheck, "FMP.IngredientDialogTitle".Translate(),
+//                        Widgets.CheckboxLabeled( ingredientCheck, "ColonyManagerRedux.Thresholds.IngredientDialogTitle".Translate(),
 //                                                 ref _selected._createIngredientBills,
 //                                                 !_selected._hasMeaningfulIngredientChoices );
 
-//                        if ( Widgets.ButtonText( buttonRect, "FM.Manage".Translate() ) )
+//                        if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.ManagerManage".Translate() ) )
 //                        {
 //                            _selected.Managed = true;
 //                            manager.JobStack.Add( _selected );
@@ -151,13 +151,13 @@
 //                            Refresh();
 //                            SourceFilter = "";
 //                        }
-//                        TooltipHandler.TipRegion( buttonRect, "FMP.ManageBillTooltip".Translate() );
+//                        TooltipHandler.TipRegion( buttonRect, "ColonyManagerRedux.Thresholds.ManageBillTooltip".Translate() );
 //                    }
 //                    else
 //                    {
 //                        GUI.color = new Color( .6f, .6f, .6f );
 //                        Widgets.DrawBox( buttonRect );
-//                        Utilities.Label( buttonRect, "FMP.NoThreshold".Translate(), "FMP.NoThresholdTooltip".Translate(),
+//                        Utilities.Label( buttonRect, "ColonyManagerRedux.Thresholds.NoThreshold".Translate(), "ColonyManagerRedux.Thresholds.NoThresholdTooltip".Translate(),
 //                                         TextAnchor.MiddleCenter );
 //                        GUI.color = Color.white;
 //                    }
@@ -187,9 +187,9 @@
 //                GUI.DrawTexture( recipeColumnRect, Resources.SlightlyDarkBackground );
 
 //                // titles
-//                Utilities.Label( optionsColumnTitle, "FMP.Options".Translate(),
+//                Utilities.Label( optionsColumnTitle, "ColonyManagerRedux.Thresholds.Options".Translate(),
 //                                 anchor: TextAnchor.LowerLeft, lrMargin: _margin * 2, font: GameFont.Tiny );
-//                Utilities.Label( recipeColumnTitle, "FMP.Recipe".Translate(),
+//                Utilities.Label( recipeColumnTitle, "ColonyManagerRedux.Thresholds.Recipe".Translate(),
 //                                 anchor: TextAnchor.LowerLeft, lrMargin: _margin * 2, font: GameFont.Tiny );
 
 //                // options
@@ -242,7 +242,7 @@
 //                var prioritizeRect = new Rect( cur.x, cur.y, width, _entryHeight );
 //                if ( optionindex++ % 2 == 0 )
 //                    Widgets.DrawAltRect( prioritizeRect );
-//                Utilities.DrawToggle( prioritizeRect, "FMP.PrioritizeManual".Translate(),
+//                Utilities.DrawToggle( prioritizeRect, "ColonyManagerRedux.Thresholds.PrioritizeManual".Translate(),
 //                                      ref ManagerJob_Production.prioritizeManual );
 //                cur.y += _entryHeight;
 
@@ -253,7 +253,7 @@
 //                    if ( optionindex % 2 == 0 )
 //                        Widgets.DrawAltRect( skillLabelRect );
 //                    Utilities.Label( skillLabelRect,
-//                                     "FMP.AllowedSkillRange".Translate()
+//                                     "ColonyManagerRedux.Thresholds.AllowedSkillRange".Translate()
 //                                     + ": " + _selected.Bill.allowedSkillRange );
 //                    cur.y += _entryHeight;
 
@@ -266,7 +266,7 @@
 //                    var snapToHighestRect = new Rect( cur.x, cur.y, width, _entryHeight );
 //                    if ( optionindex++ % 2 == 0 )
 //                        Widgets.DrawAltRect( snapToHighestRect );
-//                    Utilities.DrawToggle( snapToHighestRect, "FMP.SnapToHighestSkill".Translate(),
+//                    Utilities.DrawToggle( snapToHighestRect, "ColonyManagerRedux.Thresholds.SnapToHighestSkill".Translate(),
 //                                          ref _selected.restrictToMaxSkill );
 //                    cur.y += _entryHeight;
 //                }
@@ -281,8 +281,8 @@
 //                if ( _selected.Managed && _selected.OtherRecipeAvailable() )
 //                {
 //                    var otherRecipeAvailableRect = new Rect( cur.x, cur.y, width, _entryHeight );
-//                    Utilities.Label( otherRecipeAvailableRect, "FMP.OtherRecipeAvailable".Translate(),
-//                                     "FMP.OtherRecipeAvailableTooltip".Translate() );
+//                    Utilities.Label( otherRecipeAvailableRect, "ColonyManagerRedux.Thresholds.OtherRecipeAvailable".Translate(),
+//                                     "ColonyManagerRedux.Thresholds.OtherRecipeAvailableTooltip".Translate() );
 //                    Widgets.DrawHighlightIfMouseover( otherRecipeAvailableRect );
 //                    if ( optionindex++ % 2 == 0 )
 //                        Widgets.DrawAltRect( otherRecipeAvailableRect );
@@ -367,7 +367,7 @@
 
 //                // ingredients label
 //                var ingredientsLabelRect = new Rect( cur.x, cur.y, width, _entryHeight );
-//                Utilities.Label( ingredientsLabelRect, "FMP.AllowedIngredients".Translate(),
+//                Utilities.Label( ingredientsLabelRect, "ColonyManagerRedux.Thresholds.AllowedIngredients".Translate(),
 //                                 anchor: TextAnchor.MiddleLeft, lrMargin: _margin );
 //                cur.y += _entryHeight;
 
@@ -406,13 +406,13 @@
 //                {
 //                    SourceFilter = "";
 //                }
-//                TooltipHandler.TipRegion( clearFilter, "FMP.ClearFilterDesc".Translate() );
+//                TooltipHandler.TipRegion( clearFilter, "ColonyManagerRedux.Thresholds.ClearFilterDesc".Translate() );
 //            }
-//            TooltipHandler.TipRegion( filterRect, "FMP.FilterDesc".Translate() );
+//            TooltipHandler.TipRegion( filterRect, "ColonyManagerRedux.Thresholds.FilterDesc".Translate() );
 
 //            // tabs
 //            var list = new List<TabRecord>();
-//            var availableTabRecord = new TabRecord( "FMP.Available".Translate(), delegate
+//            var availableTabRecord = new TabRecord( "ColonyManagerRedux.Thresholds.Available".Translate(), delegate
 //                                                                                     {
 //                                                                                         Source =
 //                                                                                             SourceOptions.Available;
@@ -420,7 +420,7 @@
 //                                                                                     },
 //                                                    Source == SourceOptions.Available );
 //            list.Add( availableTabRecord );
-//            var currentTabRecord = new TabRecord( "FMP.Current".Translate(), delegate
+//            var currentTabRecord = new TabRecord( "ColonyManagerRedux.Thresholds.Current".Translate(), delegate
 //                                                                                 {
 //                                                                                     Source = SourceOptions.Current;
 //                                                                                     Refresh();
@@ -542,7 +542,7 @@
 //            var stringBuilder = new StringBuilder();
 
 //            // add mainproduct line
-//            stringBuilder.AppendLine( "FMP.MainProduct".Translate( _selected.MainProduct.Label,
+//            stringBuilder.AppendLine( "ColonyManagerRedux.Thresholds.MainProduct".Translate( _selected.MainProduct.Label,
 //                                                                   _selected.MainProduct.Count ) );
 //            stringBuilder.AppendLine();
 

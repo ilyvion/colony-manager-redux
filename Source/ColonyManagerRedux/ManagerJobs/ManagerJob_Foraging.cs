@@ -74,7 +74,7 @@ namespace ColonyManagerRedux
 
         public override bool IsValid => base.IsValid && Trigger != null && History != null;
 
-        public override string Label => "FMG.Foraging".Translate();
+        public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
         public override ManagerTab Tab => Manager.For(manager).Tabs.Find(tab => tab is ManagerTab_Foraging);
 
@@ -119,7 +119,7 @@ namespace ColonyManagerRedux
         {
             // label, dist, yield.
             var plant = (Plant)designation.target.Thing;
-            return "Fluffy.Manager.DesignationLabel".Translate(
+            return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                 plant.LabelCap,
                 Distance(plant, manager.map.GetBaseCenter()).ToString("F0"),
                 plant.YieldNow(),

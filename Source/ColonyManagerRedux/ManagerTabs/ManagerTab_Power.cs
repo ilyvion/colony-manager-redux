@@ -91,9 +91,9 @@ namespace ColonyManagerRedux
             get
             {
                 if (!unlocked)
-                    return "FME.NotResearched".Translate();
+                    return "ColonyManagerRedux.Energy.NotResearched".Translate();
                 if (!AnyPoweredStationOnline)
-                    return "FME.NoPoweredStation".Translate();
+                    return "ColonyManagerRedux.Energy.NoPoweredStation".Translate();
                 return "Not sure. It should be enabled? Send a bug report.";
             }
         }
@@ -104,7 +104,7 @@ namespace ColonyManagerRedux
 
         public override IconAreas IconArea => IconAreas.Middle;
 
-        public override string Label => "FME.Power".Translate();
+        public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
 
         public override ManagerJob? Selected { get; set; }
 
@@ -220,8 +220,8 @@ namespace ColonyManagerRedux
             periodRect.width /= 2f;
 
             // label
-            Widgets_Labels.Label(periodRect, "FME.PeriodShown".Translate(tradingHistory.periodShown.ToString()),
-                                  "FME.PeriodShownTooltip".Translate(tradingHistory.periodShown.ToString()));
+            Widgets_Labels.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate(tradingHistory.periodShown.ToString()),
+                                  "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(tradingHistory.periodShown.ToString()));
 
             // mark interactivity
             var searchIconRect = periodRect;

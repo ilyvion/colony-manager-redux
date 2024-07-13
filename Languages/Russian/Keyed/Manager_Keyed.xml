@@ -1,252 +1,252 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <!-- Main Manager Tab -->
-  <FM.Manager>Менеджер</FM.Manager>
-  <FM.Details>Детали</FM.Details>
-  <FM.Manage>Назначить!</FM.Manage>
-  <FM.Delete>Удалить</FM.Delete>
-  <FM.All>Все</FM.All>
-  <FM.TabDisabledBecause>(отключено: {0})</FM.TabDisabledBecause>
+    <!-- Main Manager Tab -->
+    <ColonyManagerRedux.ManagerManager>Менеджер</ColonyManagerRedux.ManagerManager>
+    <ColonyManagerRedux.ManagerDetails>Детали</ColonyManagerRedux.ManagerDetails>
+    <ColonyManagerRedux.ManagerManage>Назначить!</ColonyManagerRedux.ManagerManage>
+    <ColonyManagerRedux.ManagerDelete>Удалить</ColonyManagerRedux.ManagerDelete>
+    <ColonyManagerRedux.ManagerAll>Все</ColonyManagerRedux.ManagerAll>
+    <ColonyManagerRedux.ManagerTabDisabledBecause>(отключено: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
-  <!-- Help and alert messages for the lexically challenged. -->
-  <FM.HelpTitle>Менеджер Колонии</FM.HelpTitle>
-  <FM.HelpMessage>Добро пожаловать в Менеджер Колонии.\n\nМенеджер Колонии позволяет устанавливать цели для производства, охоты, лесозаготовки и животноводства. Эти задачи настраиваются на различных экранах и доступны посредством кнопок вверху экрана, также есть другие удобные экраны. \n\nКогда вы настраиваете задачу, поселенец с навыком менеджера будет время от времени пересматривать задания других колонистов, проверять ваши склады и изменять выполняемые задачи в соответствии с потребностями.\n\nДля работы мода требуются:\n    - Поселенец с навыком менеджера.\n    - Стол менеджера.</FM.HelpMessage>
-  <FM.AlertNoTableLabel>Нужен стол менеджера</FM.AlertNoTableLabel>
-  <FM.AlertNoTable>Есть задания, но нет доступного стола менеджера</FM.AlertNoTable>
-  <FM.AlertNoManagerLabel>Нужен менеджер</FM.AlertNoManagerLabel>
-  <FM.AlertNoManager>Есть задания, но нет менеджера</FM.AlertNoManager>
+    <!-- Help and alert messages for the lexically challenged. -->
+    <ColonyManagerRedux.ManagerHelpTitle>Менеджер Колонии</ColonyManagerRedux.ManagerHelpTitle>
+    <ColonyManagerRedux.ManagerHelpMessage>Добро пожаловать в Менеджер Колонии.\n\nМенеджер Колонии позволяет устанавливать цели для производства, охоты, лесозаготовки и животноводства. Эти задачи настраиваются на различных экранах и доступны посредством кнопок вверху экрана, также есть другие удобные экраны. \n\nКогда вы настраиваете задачу, поселенец с навыком менеджера будет время от времени пересматривать задания других колонистов, проверять ваши склады и изменять выполняемые задачи в соответствии с потребностями.\n\nДля работы мода требуются:\n - Поселенец с навыком менеджера.\n - Стол менеджера.</ColonyManagerRedux.ManagerHelpMessage>
+    <ColonyManagerRedux.ManagerAlertNoTableLabel>Нужен стол менеджера</ColonyManagerRedux.ManagerAlertNoTableLabel>
+    <ColonyManagerRedux.ManagerAlertNoTable>Есть задания, но нет доступного стола менеджера</ColonyManagerRedux.ManagerAlertNoTable>
+    <ColonyManagerRedux.ManagerAlertNoManagerLabel>Нужен менеджер</ColonyManagerRedux.ManagerAlertNoManagerLabel>
+    <ColonyManagerRedux.ManagerAlertNoManager>Есть задания, но нет менеджера</ColonyManagerRedux.ManagerAlertNoManager>
 
-  <!-- Common -->
-  <FM.LastUpdateTooltip>Это задание обновлялось {0} назад, и запланировано обновляться каждые {1}.\n\nНажмите, чтобы изменить интервал обновлений.</FM.LastUpdateTooltip>
-  <FM.OrderUp>Увеличить приоритет</FM.OrderUp>
-  <FM.OrderDown>Снизить приоритет</FM.OrderDown>
-  <FM.OrderTop>Максимальный приоритет</FM.OrderTop>
-  <FM.OrderBottom>Минимальный приоритет</FM.OrderBottom>
-  <multiple>[многократно]</multiple>
-  <FM.Threshold>Лимит</FM.Threshold>
-  <FM.CheckReachability>Проверять доступность цели</FM.CheckReachability>
-  <FM.CheckReachability.Tip>Вычислять наличие пути к цели(для любой пешки) перед созданием задания.</FM.CheckReachability.Tip>
-  <FM.Expensive.Tip>Включение этого параметра может снизить производительность, особенно на больших картах, горных картах, работах с большим количеством потенциальных целей и колониях с большим количеством колонистов.</FM.Expensive.Tip>
-  <FM.PathBasedDistance>Рассчитать расстояние на основе реального пути</FM.PathBasedDistance>
-  <FM.PathBasedDistance.Tip>Если включено, расстояние будет рассчитываться на основе реального пути. Если отключено, расстояния будут рассчитываться «по прямой линии».\n\nПРИМЕЧАНИЕ. Включение этой опции для заданий с большим количеством возможных целей может привести к зависаниям.</FM.PathBasedDistance.Tip>
-  <FM.CountAllOnMap>Подсчитать всё на карте</FM.CountAllOnMap>
-  <FM.CountAllOnMap.Tip>Если включено, учитывает все предметы на карте, разрешённые фильтром лимита. Если отключено - только предметы на складах.</FM.CountAllOnMap.Tip>
-  <FM.None>None</FM.None>
-  <!-- 0: target (thing), 1: distance (int), 2: yield amount (int), 3: yield type (def) -->
-  <Fluffy.Manager.DesignationLabel>{0}\n  дистанция: {1}\n  выработка: {2}x {3}</Fluffy.Manager.DesignationLabel>
-  
-  <!-- time periods for update interval -->
-  <FM.DefaultUpdateInterval>Интервал обновления по умолчанию</FM.DefaultUpdateInterval>
-  <FM.Hourly>Каждый час</FM.Hourly>
-  <FM.MultiHourly>Каждые {0} часа\ов</FM.MultiHourly>
-  <FM.Daily>Ежедневно</FM.Daily>
-  <FM.Monthly>Ежемесячно</FM.Monthly>
-  <FM.Yearly>Ежегодно</FM.Yearly>
+    <!-- Common -->
+    <ColonyManagerRedux.ManagerLastUpdateTooltip>Это задание обновлялось {0} назад, и запланировано обновляться каждые {1}.\n\nНажмите, чтобы изменить интервал обновлений.</ColonyManagerRedux.ManagerLastUpdateTooltip>
+    <ColonyManagerRedux.ManagerOrderUp>Увеличить приоритет</ColonyManagerRedux.ManagerOrderUp>
+    <ColonyManagerRedux.ManagerOrderDown>Снизить приоритет</ColonyManagerRedux.ManagerOrderDown>
+    <ColonyManagerRedux.ManagerOrderTop>Максимальный приоритет</ColonyManagerRedux.ManagerOrderTop>
+    <ColonyManagerRedux.ManagerOrderBottom>Минимальный приоритет</ColonyManagerRedux.ManagerOrderBottom>
+    <multiple>[многократно]</multiple>
+    <ColonyManagerRedux.ManagerThreshold>Лимит</ColonyManagerRedux.ManagerThreshold>
+    <ColonyManagerRedux.ManagerCheckReachability>Проверять доступность цели</ColonyManagerRedux.ManagerCheckReachability>
+    <ColonyManagerRedux.ManagerCheckReachability.Tip>Вычислять наличие пути к цели(для любой пешки) перед созданием задания.</ColonyManagerRedux.ManagerCheckReachability.Tip>
+    <ColonyManagerRedux.ManagerExpensive.Tip>Включение этого параметра может снизить производительность, особенно на больших картах, горных картах, работах с большим количеством потенциальных целей и колониях с большим количеством колонистов.</ColonyManagerRedux.ManagerExpensive.Tip>
+    <ColonyManagerRedux.ManagerPathBasedDistance>Рассчитать расстояние на основе реального пути</ColonyManagerRedux.ManagerPathBasedDistance>
+    <ColonyManagerRedux.ManagerPathBasedDistance.Tip>Если включено, расстояние будет рассчитываться на основе реального пути. Если отключено, расстояния будут рассчитываться «по прямой линии».\n\nПРИМЕЧАНИЕ. Включение этой опции для заданий с большим количеством возможных целей может привести к зависаниям.</ColonyManagerRedux.ManagerPathBasedDistance.Tip>
+    <ColonyManagerRedux.ManagerCountAllOnMap>Подсчитать всё на карте</ColonyManagerRedux.ManagerCountAllOnMap>
+    <ColonyManagerRedux.ManagerCountAllOnMap.Tip>Если включено, учитывает все предметы на карте, разрешённые фильтром лимита. Если отключено - только предметы на складах.</ColonyManagerRedux.ManagerCountAllOnMap.Tip>
+    <ColonyManagerRedux.ManagerNone>None</ColonyManagerRedux.ManagerNone>
+    <!-- 0: target (thing), 1: distance (int), 2: yield amount (int), 3: yield type (def) -->
+    <ColonyManagerRedux.Manager.DesignationLabel>{0}\n дистанция: {1}\n выработка: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
 
-  <!-- History graphs -->
-  <FM.HistoryPeriod>Период</FM.HistoryPeriod>
-  <FM.HistoryShowHideLegend>Показать/скрыть легенду</FM.HistoryShowHideLegend>
-  <FM.HistoryClickToEnable>\n\nНажмите {0} {1} в графике.\nПравый клик - показать только {1}.</FM.HistoryClickToEnable>
-  <FM.HistoryNoChapters>Нечего отображать.</FM.HistoryNoChapters>
+    <!-- time periods for update interval -->
+    <ColonyManagerRedux.ManagerDefaultUpdateInterval>Интервал обновления по умолчанию</ColonyManagerRedux.ManagerDefaultUpdateInterval>
+    <ColonyManagerRedux.ManagerHourly>Каждый час</ColonyManagerRedux.ManagerHourly>
+    <ColonyManagerRedux.ManagerMultiHourly>Каждые {0} часа\ов</ColonyManagerRedux.ManagerMultiHourly>
+    <ColonyManagerRedux.ManagerDaily>Ежедневно</ColonyManagerRedux.ManagerDaily>
+    <ColonyManagerRedux.ManagerMonthly>Ежемесячно</ColonyManagerRedux.ManagerMonthly>
+    <ColonyManagerRedux.ManagerYearly>Ежегодно</ColonyManagerRedux.ManagerYearly>
 
-  <!-- Power Tab (E for energy) -->
-  <FME.PeriodShown>Период: {0}</FME.PeriodShown>
-  <FME.PeriodShownTooltip>Показано выработка и потребление энергии за последние {0}.\n\nНажмите для изменения периода.</FME.PeriodShownTooltip>
-  <FME.Power>Энергия</FME.Power>
-  <FME.NotResearched>Контроль энергопотребления не исследован!</FME.NotResearched>
-  <FME.NoPoweredStation>Нужен стол менеджера или ИИ-менеджер!</FME.NoPoweredStation>
-  
-  <!-- Overview Tab -->
-  <FM.Overview>Обзор</FM.Overview>
-  <FM.NoJobs>Нет задач.</FM.NoJobs>
-  <FM.Activity>Текущая активность</FM.Activity>
-  <FM.Enabled>Вкл</FM.Enabled>
-  <FM.Priority>Работа</FM.Priority>
-  <FM.ClickToJumpTo>Перейти к {0}</FM.ClickToJumpTo>
-  <FM.JobCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</FM.JobCompletedTooltip>
-  <FM.UnsuspendJobTooltip>Работа приостановлена.\n\nНажмите для возобновления.</FM.UnsuspendJobTooltip>
-  <FM.SuspendJobTooltip>Нажмите, чтобы приостановить это задание.</FM.SuspendJobTooltip>
-  <FM.PluralSuffix></FM.PluralSuffix>
-  
-  <!--Import/Export Tab-->
-  <FM.ImportExport>Импорт и Экспорт</FM.ImportExport>
-  <FM.CurrentJobs>Текущие задания:</FM.CurrentJobs>
-  <FM.Export>Экспорт</FM.Export>
-  <FM.ConfirmOverwrite>{0} уже существует.\n\nХотите перезаписать?</FM.ConfirmOverwrite>
-  <FM.JobsExported>{0} работ экспортировано</FM.JobsExported>
-  <FM.JobsImported>{0} работ импортировано</FM.JobsImported>
-  <FM.InvalidJobsDeleted>{0} некорректных работ удалено</FM.InvalidJobsDeleted>
-  <FM.Import>Импорт</FM.Import>
-  <FM.NoSaves>Не найдено экспортированных.</FM.NoSaves>
+    <!-- History graphs -->
+    <ColonyManagerRedux.ManagerHistoryPeriod>Период</ColonyManagerRedux.ManagerHistoryPeriod>
+    <ColonyManagerRedux.ManagerHistoryShowHideLegend>Показать/скрыть легенду</ColonyManagerRedux.ManagerHistoryShowHideLegend>
+    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\nНажмите {0} {1} в графике.\nПравый клик - показать только {1}.</ColonyManagerRedux.ManagerHistoryClickToEnable>
+    <ColonyManagerRedux.ManagerHistoryNoChapters>Нечего отображать.</ColonyManagerRedux.ManagerHistoryNoChapters>
 
-  <!-- Hunting Tab -->
-  <FMH.Hunting>Охота</FMH.Hunting>
-  <FMH.NewHuntingJob>Новое задание</FMH.NewHuntingJob>
-  <FMH.NewHuntingJobTooltip>Добавить новое охотничье задание</FMH.NewHuntingJobTooltip>
-  <FMH.AllowHumanMeat>Считать человечину</FMH.AllowHumanMeat>
-  <FMH.AllowHumanMeat.Tip>Нужно ли считать человечину?\n\nПРИМЕЧАНИЕ: Опция для быстрого включения в расчёты человечины. Вы можете установить дополнительные условия в настройках лимита.</FMH.AllowHumanMeat.Tip>
-  <FMH.AllowInsectMeat>Считать мясо насекомых</FMH.AllowInsectMeat>
-  <FMH.AllowInsectMeat.Tip>Нужно ли считать мясо насекомых?\n\nПРИМЕЧАНИЕ: Опция для быстрого включения в расчёты мяса насекомых. Вы можете установить дополнительные условия в настройках лимита.</FMH.AllowInsectMeat.Tip>
-  <FMH.UnforbidCorpses>Разрешить трупы</FMH.UnforbidCorpses>
-  <FMH.UnforbidCorpses.Tip>Автоматически разрешает забирать трупы животных(свежие) назначенных на охоту</FMH.UnforbidCorpses.Tip>
-  <FMH.Animals>Разрешённые животные</FMH.Animals>
-  <FMH.TargetCount>Целевое значение: {0}+{1}+{2}/{3}</FMH.TargetCount>
-  <FMH.TargetCountTooltip>Цель: {3}\n{0} на складе\n{1} ожидается от разделки\n{2} ожидается от текущих задач.</FMH.TargetCountTooltip>
-  <FM.Hunting.Predators>Хищники</FM.Hunting.Predators>
-  <FM.Hunting.Predators.Tip>Разрешить всех хищников</FM.Hunting.Predators.Tip>
-  <FM.Hunting.HerdAnimals>Травоядные</FM.Hunting.HerdAnimals>
-  <FM.Hunting.HerdAnimals.Tip>Разрешить всех травоядных</FM.Hunting.HerdAnimals.Tip>
-  <FM.Hunting.Exploding>Взрывающиеся</FM.Hunting.Exploding>
-  <FM.Hunting.Exploding.Tip>Разрешить всех взрывающихся</FM.Hunting.Exploding.Tip>
-  <FM.Hunting.AreaRestriction>Ограничить охоту в</FM.Hunting.AreaRestriction>
-  
-  <!-- Forestry Tab -->
-  <FMF.Forestry>Лесозаготовка</FMF.Forestry>
-  <FMF.NewForestryJob>Новое задание</FMF.NewForestryJob>
-  <FMF.NewForestryJobTooltip>Добавить новое задание по заготовке</FMF.NewForestryJobTooltip>
-  <FMF.Options>Опции</FMF.Options>
-  <FMF.ClearWindCells>Очищать рабочую зону ветряков</FMF.ClearWindCells>
-  <FMF.ClearWindCells.Tip>Очищать все ячейки в зоне действия ветряных турбин</FMF.ClearWindCells.Tip>
-  <FMF.AllowSaplings>Вырубать только выросшие деревья</FMF.AllowSaplings>
-  <FMF.AllowSaplings.Tip>Должна ли вырубка быть ограничена только зрелыми деревьями?</FMF.AllowSaplings.Tip>
-  <FMF.LoggingArea>Разрешить лесозаготовку в: </FMF.LoggingArea>
-  <FMF.TargetCount>Целевое значение: {0}+{1}/{2}</FMF.TargetCount>
-  <FMF.TargetCountTooltip>Цель: {2}\n{0} на складе\n{1} ожидается от текущих задач.</FMF.TargetCountTooltip>
-  <FMF.ClearAreas>Очистка территории от всей растительности:</FMF.ClearAreas>
-  <FMF.JobType>Тип задания</FMF.JobType>
-  <FMF.JobType.ClearArea>Очистить область</FMF.JobType.ClearArea>
-  <FMF.JobType.ClearArea.Tip>Расчистка территорий для обеспечения бесперебойной работы ветряных турбин и предотвращения появления у врагов любых возможных укрытий.</FMF.JobType.ClearArea.Tip>
-  <FMF.JobType.Logging>Лесозаготовка</FMF.JobType.Logging>
-  <FMF.JobType.Logging.Tip>Рубить деревья на древесину</FMF.JobType.Logging.Tip>
-  
-  <FMF.Clear>Очистить {0}</FMF.Clear>
-  <FMF.TurbineArea>Ветряки</FMF.TurbineArea>
+    <!-- Power Tab (E for energy) -->
+    <ColonyManagerRedux.Energy.PeriodShown>Период: {0}</ColonyManagerRedux.Energy.PeriodShown>
+    <ColonyManagerRedux.Energy.PeriodShownTooltip>Показано выработка и потребление энергии за последние {0}.\n\nНажмите для изменения периода.</ColonyManagerRedux.Energy.PeriodShownTooltip>
+    <ColonyManagerRedux.Energy.Power>Энергия</ColonyManagerRedux.Energy.Power>
+    <ColonyManagerRedux.Energy.NotResearched>Контроль энергопотребления не исследован!</ColonyManagerRedux.Energy.NotResearched>
+    <ColonyManagerRedux.Energy.NoPoweredStation>Нужен стол менеджера или ИИ-менеджер!</ColonyManagerRedux.Energy.NoPoweredStation>
 
-  <FMF.Trees>Деревья</FMF.Trees>
-  <FMF.Trees.Tip>Выбрать все деревья</FMF.Trees.Tip>
-  <FMF.Flammable>Горючие</FMF.Flammable>
-  <FMF.Flammable.Tip>Выбрать все горючие</FMF.Flammable.Tip>
-  <FMF.Ugly>Уродливые</FMF.Ugly>
-  <FMF.Ugly.Tip>Выбрать все уродливые</FMF.Ugly.Tip>
-  <FMF.ProvidesCover>Укрытие</FMF.ProvidesCover>
-  <FMF.ProvidesCover.Tip>Выбрать все служащие укрытием</FMF.ProvidesCover.Tip>
-  <FMF.BlocksWind>Блокируют ветер</FMF.BlocksWind>
-  <FMF.BlocksWind.Tip>Выбрать все, что блокируют ветер</FMF.BlocksWind.Tip>
-  
-  
-  <!-- Foraging (Gathering) tab -->
-  <FMG.Foraging>Собирательство</FMG.Foraging>
-  <FMG.NewForagingJob>Новое задание</FMG.NewForagingJob>
-  <FMG.NewForagingJobTooltip>Добавить новое задание по сбору</FMG.NewForagingJobTooltip>
-  <FMG.Options>Настройки</FMG.Options>
-  <FMG.TargetCount>Целевое значение: {0}+{1}/{2}</FMG.TargetCount>
-  <FMG.TargetCountTooltip>Цель: {2}\n{0} на складе\n{1} ожидается от текущих заданий</FMG.TargetCountTooltip>
-  <FMG.ForceMature>Только созревшие растения</FMG.ForceMature>
-  <FMG.ForceMature.Tip>Надо ли собирать только зрелые растения?</FMG.ForceMature.Tip>
-  <FMG.ForagingArea>Разрешить сбор в:</FMG.ForagingArea>
-  <FMG.Plants>Разрешенные растения</FMG.Plants>
-  <FM.Foraging.Edible>Съедобные растения</FM.Foraging.Edible>
-  <FM.Foraging.Edible.Tip>Выбрать все съедобные растения</FM.Foraging.Edible.Tip>
-  <FM.Foraging.Mushrooms>Грибы</FM.Foraging.Mushrooms>
-  <FM.Foraging.Mushrooms.Tip>Выбрать все грибы</FM.Foraging.Mushrooms.Tip>
-  <FM.Foraging.SyncFilterAndAllowed>Синхронизировать лимит</FM.Foraging.SyncFilterAndAllowed>
-  <FM.Foraging.SyncFilterAndAllowed.Tip>При включении попытается синхронизировать получаемые материалы в фильтре лимита с растениями, разрешенными для поиска пищи и наоборот.</FM.Foraging.SyncFilterAndAllowed.Tip>
+    <!-- Overview Tab -->
+    <ColonyManagerRedux.ManagerOverview>Обзор</ColonyManagerRedux.ManagerOverview>
+    <ColonyManagerRedux.ManagerNoJobs>Нет задач.</ColonyManagerRedux.ManagerNoJobs>
+    <ColonyManagerRedux.ManagerActivity>Текущая активность</ColonyManagerRedux.ManagerActivity>
+    <ColonyManagerRedux.ManagerEnabled>Вкл</ColonyManagerRedux.ManagerEnabled>
+    <ColonyManagerRedux.ManagerPriority>Работа</ColonyManagerRedux.ManagerPriority>
+    <ColonyManagerRedux.ManagerClickToJumpTo>Перейти к {0}</ColonyManagerRedux.ManagerClickToJumpTo>
+    <ColonyManagerRedux.ManagerJobCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.ManagerJobCompletedTooltip>
+    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
+    <ColonyManagerRedux.ManagerSuspendJobTooltip>Нажмите, чтобы приостановить это задание.</ColonyManagerRedux.ManagerSuspendJobTooltip>
+    <ColonyManagerRedux.ManagerPluralSuffix></ColonyManagerRedux.ManagerPluralSuffix>
 
-  
-  <!-- Thresholds -->
-  <FMP.ThresholdCount>Лимит: {0}/{1}</FMP.ThresholdCount>
-  <FMP.ThresholdCountTooltip>Щёлкни, чтобы открыть данные по лимиту.\n\nЦель: {1}\nВ производстве: {0}</FMP.ThresholdCountTooltip>
-  <FMP.ThresholdDetails>Данные о лимите</FMP.ThresholdDetails>
+    <!--Import/Export Tab-->
+    <ColonyManagerRedux.ManagerImportExport>Импорт и Экспорт</ColonyManagerRedux.ManagerImportExport>
+    <ColonyManagerRedux.ManagerCurrentJobs>Текущие задания:</ColonyManagerRedux.ManagerCurrentJobs>
+    <ColonyManagerRedux.ManagerExport>Экспорт</ColonyManagerRedux.ManagerExport>
+    <ColonyManagerRedux.ManagerConfirmOverwrite>{0} уже существует.\n\nХотите перезаписать?</ColonyManagerRedux.ManagerConfirmOverwrite>
+    <ColonyManagerRedux.ManagerJobsExported>{0} работ экспортировано</ColonyManagerRedux.ManagerJobsExported>
+    <ColonyManagerRedux.ManagerJobsImported>{0} работ импортировано</ColonyManagerRedux.ManagerJobsImported>
+    <ColonyManagerRedux.ManagerInvalidJobsDeleted>{0} некорректных работ удалено</ColonyManagerRedux.ManagerInvalidJobsDeleted>
+    <ColonyManagerRedux.ManagerImport>Импорт</ColonyManagerRedux.ManagerImport>
+    <ColonyManagerRedux.ManagerNoSaves>Не найдено экспортированных.</ColonyManagerRedux.ManagerNoSaves>
 
-  <!-- Tab headers -->
-  <FMP.Current>Текущее</FMP.Current>
-  <FMP.Available>Доступно</FMP.Available>
+    <!-- Hunting Tab -->
+    <ColonyManagerRedux.Hunting.Hunting>Охота</ColonyManagerRedux.Hunting.Hunting>
+    <ColonyManagerRedux.Hunting.NewHuntingJob>Новое задание</ColonyManagerRedux.Hunting.NewHuntingJob>
+    <ColonyManagerRedux.Hunting.NewHuntingJobTooltip>Добавить новое охотничье задание</ColonyManagerRedux.Hunting.NewHuntingJobTooltip>
+    <ColonyManagerRedux.Hunting.AllowHumanMeat>Считать человечину</ColonyManagerRedux.Hunting.AllowHumanMeat>
+    <ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>Нужно ли считать человечину?\n\nПРИМЕЧАНИЕ: Опция для быстрого включения в расчёты человечины. Вы можете установить дополнительные условия в настройках лимита.</ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>
+    <ColonyManagerRedux.Hunting.AllowInsectMeat>Считать мясо насекомых</ColonyManagerRedux.Hunting.AllowInsectMeat>
+    <ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>Нужно ли считать мясо насекомых?\n\nПРИМЕЧАНИЕ: Опция для быстрого включения в расчёты мяса насекомых. Вы можете установить дополнительные условия в настройках лимита.</ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>
+    <ColonyManagerRedux.Hunting.UnforbidCorpses>Разрешить трупы</ColonyManagerRedux.Hunting.UnforbidCorpses>
+    <ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>Автоматически разрешает забирать трупы животных(свежие) назначенных на охоту</ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>
+    <ColonyManagerRedux.Hunting.Animals>Разрешённые животные</ColonyManagerRedux.Hunting.Animals>
+    <ColonyManagerRedux.Hunting.TargetCount>Целевое значение: {0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
+    <ColonyManagerRedux.Hunting.TargetCountTooltip>Цель: {3}\n{0} на складе\n{1} ожидается от разделки\n{2} ожидается от текущих задач.</ColonyManagerRedux.Hunting.TargetCountTooltip>
+    <ColonyManagerRedux.ManagerHunting.Predators>Хищники</ColonyManagerRedux.ManagerHunting.Predators>
+    <ColonyManagerRedux.ManagerHunting.Predators.Tip>Разрешить всех хищников</ColonyManagerRedux.ManagerHunting.Predators.Tip>
+    <ColonyManagerRedux.ManagerHunting.HerdAnimals>Травоядные</ColonyManagerRedux.ManagerHunting.HerdAnimals>
+    <ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>Разрешить всех травоядных</ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>
+    <ColonyManagerRedux.ManagerHunting.Exploding>Взрывающиеся</ColonyManagerRedux.ManagerHunting.Exploding>
+    <ColonyManagerRedux.ManagerHunting.Exploding.Tip>Разрешить всех взрывающихся</ColonyManagerRedux.ManagerHunting.Exploding.Tip>
+    <ColonyManagerRedux.ManagerHunting.AreaRestriction>Ограничить охоту в</ColonyManagerRedux.ManagerHunting.AreaRestriction>
 
-  <!-- Livestock tab -->
-  <FML.Livestock>Животноводство</FML.Livestock>
-  <FML.TargetCounts>Целевое значение</FML.TargetCounts>
-  <FML.Adult>Взрослый</FML.Adult>
-  <FML.Juvenile>Молодой</FML.Juvenile>
-  <FML.Training>Дрессировка</FML.Training>
-  <FML.RestrictToArea>Назначить животным область?</FML.RestrictToArea>
-  <FML.RestrictToArea.Tip>Ограничьте животных определенной областью, с возможностью разделения по полу и продолжительности жизни.</FML.RestrictToArea.Tip>
-  <FML.ButcherExcess>Забой лишних животных</FML.ButcherExcess>
-  <FML.ButcherExcess.Tip>Нужно ли разделывать скот на мясо?</FML.ButcherExcess.Tip>
-  <FML.ButcherTrained>обучен(а)</FML.ButcherTrained>
-  <FML.ButcherTrained.Tip>Разрешено ли забивать дрессированных животных?</FML.ButcherTrained.Tip>
-  <FML.ButcherPregnant>беременная</FML.ButcherPregnant>
-  <FML.ButcherPregnant.Tip>Разрешено ли забивать беременных животных?</FML.ButcherPregnant.Tip>
-  <FML.ButcherBonded>привязан(а)</FML.ButcherBonded>
-  <FML.ButcherBonded.Tip>Разрешено ли забивать животных у которых есть хозяин?</FML.ButcherBonded.Tip>
-  <FML.TameMore>Приручать животных</FML.TameMore>
-  <FML.TameMore.Tip>Надо ли приручать диких животных?</FML.TameMore.Tip>
-   <FML.TameArea>Разрешить приручение в:</FML.TameArea>
-  <FML.ListEntryTooltip>{0}:\n{1}/{5} взрослые самки\n{2}/{6} взрослые самцы\n{3}/{7} молодые самки\n{4}/{8} молодые самцы</FML.ListEntryTooltip>
-  <FML.TameWildCount>{0} прирученных, {1} диких</FML.TameWildCount>
-  <FML.NoAnimals>нет животных: {0} {1}</FML.NoAnimals>
-  <FML.GenderHeader>Пол</FML.GenderHeader>
-  <FML.AgeHeader>Возраст</FML.AgeHeader>
-  <FML.MeatHeader>Ожидаемое количество мяса</FML.MeatHeader>
-  <FML.MilkHeader>До следующей дойки</FML.MilkHeader>
-  <FML.WoolHeader>До следующей стрижки</FML.WoolHeader>
-  <FML.Yields>приносит {0} x{1}</FML.Yields>
-	<FML.UnassignTraining>Отменить обучение</FML.UnassignTraining>
-	<FML.UnassignTraining.Tip>Отменить тренировки для животных.</FML.UnassignTraining.Tip>
-  <FML.TrainYoung>Тренировать молодняк</FML.TrainYoung>
-  <FML.TrainYoung.Tip>Тренировать молодых животных</FML.TrainYoung.Tip>
-  <FML.SendToSlaughterArea>Установить область для забоя</FML.SendToSlaughterArea>
-  <FML.SendToSlaughterArea.Tip>Установить область для животных назначеных на забой.</FML.SendToSlaughterArea.Tip>
-  <FML.SendToMilkingArea>Установить бласть для дойки</FML.SendToMilkingArea>
-  <FML.SendToMilkingArea.Tip>Установить животным с молоком выше 94% отдельную область.</FML.SendToMilkingArea.Tip>
-  <FML.SendToShearingArea>Установить область для стрижки.</FML.SendToShearingArea>
-  <FML.SendToShearingArea.Tip>Установить животным с шерстью выше 94% отдельную область.</FML.SendToShearingArea.Tip>
-  <FM.Livestock.TargetCountsHeader>Целевое количество</FM.Livestock.TargetCountsHeader>
-  <FM.Livestock.AreaRestrictionsHeader>Загоны</FM.Livestock.AreaRestrictionsHeader>
-  <FM.Livestock.TrainingHeader>Тренировка</FM.Livestock.TrainingHeader>
-  <FM.Livestock.ButcherHeader>Забой</FM.Livestock.ButcherHeader>
-  <FM.Livestock.TamingHeader>Приручение</FM.Livestock.TamingHeader>
-  <FML.Tame>домашние</FML.Tame>
-  <FML.Wild>дикие</FML.Wild>
-  <FM.Livestock.AnimalsHeader>{0} {1}</FM.Livestock.AnimalsHeader>
-  <FM.Livestock.SelectPawnKind>За</FM.Livestock.SelectPawnKind>
-  <FM.Livestock.DisabledBecauseSlaughterExcessDisabled>Отключено, так как забой лишных животных выключен.</FM.Livestock.DisabledBecauseSlaughterExcessDisabled>
-  <FML.SendToTrainingArea>Установить область для тренировки</FML.SendToTrainingArea>
-  <FML.SendToTrainingArea.Tip>Установить область для животных назначеных для тренировки.</FML.SendToTrainingArea.Tip>
-  <FM.Livestock.DisabledBecauseNoTrainingSet>Отключено, так-как тренировка выключена.</FM.Livestock.DisabledBecauseNoTrainingSet>
-  <FM.Livestock.CannotTrainTooSmall>{0} слишком малы для этого.</FM.Livestock.CannotTrainTooSmall>
+    <!-- Forestry Tab -->
+    <ColonyManagerRedux.Forestry.Forestry>Лесозаготовка</ColonyManagerRedux.Forestry.Forestry>
+    <ColonyManagerRedux.Forestry.NewForestryJob>Новое задание</ColonyManagerRedux.Forestry.NewForestryJob>
+    <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Добавить новое задание по заготовке</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
+    <ColonyManagerRedux.Forestry.Options>Опции</ColonyManagerRedux.Forestry.Options>
+    <ColonyManagerRedux.Forestry.ClearWindCells>Очищать рабочую зону ветряков</ColonyManagerRedux.Forestry.ClearWindCells>
+    <ColonyManagerRedux.Forestry.ClearWindCells.Tip>Очищать все ячейки в зоне действия ветряных турбин</ColonyManagerRedux.Forestry.ClearWindCells.Tip>
+    <ColonyManagerRedux.Forestry.AllowSaplings>Вырубать только выросшие деревья</ColonyManagerRedux.Forestry.AllowSaplings>
+    <ColonyManagerRedux.Forestry.AllowSaplings.Tip>Должна ли вырубка быть ограничена только зрелыми деревьями?</ColonyManagerRedux.Forestry.AllowSaplings.Tip>
+    <ColonyManagerRedux.Forestry.LoggingArea>Разрешить лесозаготовку в: </ColonyManagerRedux.Forestry.LoggingArea>
+    <ColonyManagerRedux.Forestry.TargetCount>Целевое значение: {0}+{1}/{2}</ColonyManagerRedux.Forestry.TargetCount>
+    <ColonyManagerRedux.Forestry.TargetCountTooltip>Цель: {2}\n{0} на складе\n{1} ожидается от текущих задач.</ColonyManagerRedux.Forestry.TargetCountTooltip>
+    <ColonyManagerRedux.Forestry.ClearAreas>Очистка территории от всей растительности:</ColonyManagerRedux.Forestry.ClearAreas>
+    <ColonyManagerRedux.Forestry.JobType>Тип задания</ColonyManagerRedux.Forestry.JobType>
+    <ColonyManagerRedux.Forestry.JobType.ClearArea>Очистить область</ColonyManagerRedux.Forestry.JobType.ClearArea>
+    <ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>Расчистка территорий для обеспечения бесперебойной работы ветряных турбин и предотвращения появления у врагов любых возможных укрытий.</ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>
+    <ColonyManagerRedux.Forestry.JobType.Logging>Лесозаготовка</ColonyManagerRedux.Forestry.JobType.Logging>
+    <ColonyManagerRedux.Forestry.JobType.Logging.Tip>Рубить деревья на древесину</ColonyManagerRedux.Forestry.JobType.Logging.Tip>
 
-  <!-- following -->
-  <FM.Livestock.FollowHeader>Следование</FM.Livestock.FollowHeader>
-  <FM.Livestock.MasterDefault>Назначить хозяина</FM.Livestock.MasterDefault>
-  <FM.Livestock.MasterDefault.Tip>Назначьте животных конкретному хозяину или группе колонистов. Может перезаписать пользовательские настройки при включении.</FM.Livestock.MasterDefault.Tip>
-  <FM.Livestock.RespectBonds>Учитывать привязанность</FM.Livestock.RespectBonds>
-  <FM.Livestock.RespectBonds.Tip>Если включено, назначает хозяином только поселенца, у которого есть привязанность к данному животному. Если отключено - привязанность игнорируется.</FM.Livestock.RespectBonds.Tip>
-  <FM.Livestock.RespectBonds.DisabledBecauseMastersNotSet>Отключено, так как хозяин уже назначен или задан игроком.</FM.Livestock.RespectBonds.DisabledBecauseMastersNotSet>
-  <FM.Livestock.Follow>Следовать за хозяином:</FM.Livestock.Follow>
-  <FM.Livestock.Follow.Tip>Установить настройки следования, перезапишет пользовательские настройки при включении. Если отключено, настройки могут быть назначены вручную.</FM.Livestock.Follow.Tip>
-  <FM.Livestock.FollowDrafted>В бою</FM.Livestock.FollowDrafted>
-  <FM.Livestock.FollowDrafted.Tip>Должны ли животные следовать за хозяином в бою?</FM.Livestock.FollowDrafted.Tip>
-  <FM.Livestock.FollowFieldwork>в поле (охота)</FM.Livestock.FollowFieldwork>
-  <FM.Livestock.FollowFieldwork.Tip>Должны ли животные следовать за хозяином, когда хозяин выполняет полевые работы (например, охоту)?</FM.Livestock.FollowFieldwork.Tip>
-  <FM.Livestock.FollowTraining>Следовать за дрессировщиком</FM.Livestock.FollowTraining>
-  <FM.Livestock.FollowTraining.Tip>Животное назначенное для дрессировки следует за своим дресировщиком.</FM.Livestock.FollowTraining.Tip>
-  <FM.Livestock.MasterTraining>Назначенный дрессировщик</FM.Livestock.MasterTraining>
-  <FM.Livestock.MasterTraining.Tip>Назначьте животных, помеченных для обучения, конкретному хозяину(дрессировщику) или всем дрессировщикам. Может перезаписать пользовательские настройки при включении.</FM.Livestock.MasterTraining.Tip>
-  <FM.Livestock.Master>{0} ({1})</FM.Livestock.Master> <!-- 0; pawn name, 1; skill level -->
+    <ColonyManagerRedux.Forestry.Clear>Очистить {0}</ColonyManagerRedux.Forestry.Clear>
+    <ColonyManagerRedux.Forestry.TurbineArea>Ветряки</ColonyManagerRedux.Forestry.TurbineArea>
 
-  <!-- MasterMode enum -->
-  <FM.Livestock.MasterMode.Default>В ручную</FM.Livestock.MasterMode.Default>
-  <FM.Livestock.MasterMode.Hunters>Охотники</FM.Livestock.MasterMode.Hunters>
-  <FM.Livestock.MasterMode.Trainers>Дресировщики</FM.Livestock.MasterMode.Trainers>
-  <FM.Livestock.MasterMode.Melee>Рукопашники</FM.Livestock.MasterMode.Melee>
-  <FM.Livestock.MasterMode.Ranged>Стрелки</FM.Livestock.MasterMode.Ranged>
-  <FM.Livestock.MasterMode.Violent>Боец</FM.Livestock.MasterMode.Violent>
-  <FM.Livestock.MasterMode.NonViolent>Не боец</FM.Livestock.MasterMode.NonViolent>
-  <FM.Livestock.MasterMode.All>Все</FM.Livestock.MasterMode.All>
+    <ColonyManagerRedux.Forestry.Trees>Деревья</ColonyManagerRedux.Forestry.Trees>
+    <ColonyManagerRedux.Forestry.Trees.Tip>Выбрать все деревья</ColonyManagerRedux.Forestry.Trees.Tip>
+    <ColonyManagerRedux.Forestry.Flammable>Горючие</ColonyManagerRedux.Forestry.Flammable>
+    <ColonyManagerRedux.Forestry.Flammable.Tip>Выбрать все горючие</ColonyManagerRedux.Forestry.Flammable.Tip>
+    <ColonyManagerRedux.Forestry.Ugly>Уродливые</ColonyManagerRedux.Forestry.Ugly>
+    <ColonyManagerRedux.Forestry.Ugly.Tip>Выбрать все уродливые</ColonyManagerRedux.Forestry.Ugly.Tip>
+    <ColonyManagerRedux.Forestry.ProvidesCover>Укрытие</ColonyManagerRedux.Forestry.ProvidesCover>
+    <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Выбрать все служащие укрытием</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
+    <ColonyManagerRedux.Forestry.BlocksWind>Блокируют ветер</ColonyManagerRedux.Forestry.BlocksWind>
+    <ColonyManagerRedux.Forestry.BlocksWind.Tip>Выбрать все, что блокируют ветер</ColonyManagerRedux.Forestry.BlocksWind.Tip>
 
-  <!-- Right click job fail reasons -->
-  <Fluffy.ColonyManager.CannotManage.NoPower>нет питания</Fluffy.ColonyManager.CannotManage.NoPower>
-  <Fluffy.ColonyManager.CannotManage.NoJobs>работы не заданы</Fluffy.ColonyManager.CannotManage.NoJobs>
-  <Fluffy.ColonyManager.CannotManage.NoActiveJobs>все работы выполнены</Fluffy.ColonyManager.CannotManage.NoActiveJobs>
+
+    <!-- Foraging (Gathering) tab -->
+    <ColonyManagerRedux.Foraging.Foraging>Собирательство</ColonyManagerRedux.Foraging.Foraging>
+    <ColonyManagerRedux.Foraging.NewForagingJob>Новое задание</ColonyManagerRedux.Foraging.NewForagingJob>
+    <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Добавить новое задание по сбору</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
+    <ColonyManagerRedux.Foraging.Options>Настройки</ColonyManagerRedux.Foraging.Options>
+    <ColonyManagerRedux.Foraging.TargetCount>Целевое значение: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
+    <ColonyManagerRedux.Foraging.TargetCountTooltip>Цель: {2}\n{0} на складе\n{1} ожидается от текущих заданий</ColonyManagerRedux.Foraging.TargetCountTooltip>
+    <ColonyManagerRedux.Foraging.ForceMature>Только созревшие растения</ColonyManagerRedux.Foraging.ForceMature>
+    <ColonyManagerRedux.Foraging.ForceMature.Tip>Надо ли собирать только зрелые растения?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForagingArea>Разрешить сбор в:</ColonyManagerRedux.Foraging.ForagingArea>
+    <ColonyManagerRedux.Foraging.Plants>Разрешенные растения</ColonyManagerRedux.Foraging.Plants>
+    <ColonyManagerRedux.ManagerForaging.Edible>Съедобные растения</ColonyManagerRedux.ManagerForaging.Edible>
+    <ColonyManagerRedux.ManagerForaging.Edible.Tip>Выбрать все съедобные растения</ColonyManagerRedux.ManagerForaging.Edible.Tip>
+    <ColonyManagerRedux.ManagerForaging.Mushrooms>Грибы</ColonyManagerRedux.ManagerForaging.Mushrooms>
+    <ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>Выбрать все грибы</ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>
+    <ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed>Синхронизировать лимит</ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed>
+    <ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip>При включении попытается синхронизировать получаемые материалы в фильтре лимита с растениями, разрешенными для поиска пищи и наоборот.</ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip>
+
+
+    <!-- Thresholds -->
+    <ColonyManagerRedux.Thresholds.ThresholdCount>Лимит: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
+    <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Щёлкни, чтобы открыть данные по лимиту.\n\nЦель: {1}\nВ производстве: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
+    <ColonyManagerRedux.Thresholds.ThresholdDetails>Данные о лимите</ColonyManagerRedux.Thresholds.ThresholdDetails>
+
+    <!-- Tab headers -->
+    <ColonyManagerRedux.Thresholds.Current>Текущее</ColonyManagerRedux.Thresholds.Current>
+    <ColonyManagerRedux.Thresholds.Available>Доступно</ColonyManagerRedux.Thresholds.Available>
+
+    <!-- Livestock tab -->
+    <ColonyManagerRedux.Livestock.Livestock>Животноводство</ColonyManagerRedux.Livestock.Livestock>
+    <ColonyManagerRedux.Livestock.TargetCounts>Целевое значение</ColonyManagerRedux.Livestock.TargetCounts>
+    <ColonyManagerRedux.Livestock.Adult>Взрослый</ColonyManagerRedux.Livestock.Adult>
+    <ColonyManagerRedux.Livestock.Juvenile>Молодой</ColonyManagerRedux.Livestock.Juvenile>
+    <ColonyManagerRedux.Livestock.Training>Дрессировка</ColonyManagerRedux.Livestock.Training>
+    <ColonyManagerRedux.Livestock.RestrictToArea>Назначить животным область?</ColonyManagerRedux.Livestock.RestrictToArea>
+    <ColonyManagerRedux.Livestock.RestrictToArea.Tip>Ограничьте животных определенной областью, с возможностью разделения по полу и продолжительности жизни.</ColonyManagerRedux.Livestock.RestrictToArea.Tip>
+    <ColonyManagerRedux.Livestock.ButcherExcess>Забой лишних животных</ColonyManagerRedux.Livestock.ButcherExcess>
+    <ColonyManagerRedux.Livestock.ButcherExcess.Tip>Нужно ли разделывать скот на мясо?</ColonyManagerRedux.Livestock.ButcherExcess.Tip>
+    <ColonyManagerRedux.Livestock.ButcherTrained>обучен(а)</ColonyManagerRedux.Livestock.ButcherTrained>
+    <ColonyManagerRedux.Livestock.ButcherTrained.Tip>Разрешено ли забивать дрессированных животных?</ColonyManagerRedux.Livestock.ButcherTrained.Tip>
+    <ColonyManagerRedux.Livestock.ButcherPregnant>беременная</ColonyManagerRedux.Livestock.ButcherPregnant>
+    <ColonyManagerRedux.Livestock.ButcherPregnant.Tip>Разрешено ли забивать беременных животных?</ColonyManagerRedux.Livestock.ButcherPregnant.Tip>
+    <ColonyManagerRedux.Livestock.ButcherBonded>привязан(а)</ColonyManagerRedux.Livestock.ButcherBonded>
+    <ColonyManagerRedux.Livestock.ButcherBonded.Tip>Разрешено ли забивать животных у которых есть хозяин?</ColonyManagerRedux.Livestock.ButcherBonded.Tip>
+    <ColonyManagerRedux.Livestock.TameMore>Приручать животных</ColonyManagerRedux.Livestock.TameMore>
+    <ColonyManagerRedux.Livestock.TameMore.Tip>Надо ли приручать диких животных?</ColonyManagerRedux.Livestock.TameMore.Tip>
+    <ColonyManagerRedux.Livestock.TameArea>Разрешить приручение в:</ColonyManagerRedux.Livestock.TameArea>
+    <ColonyManagerRedux.Livestock.ListEntryTooltip>{0}:\n{1}/{5} взрослые самки\n{2}/{6} взрослые самцы\n{3}/{7} молодые самки\n{4}/{8} молодые самцы</ColonyManagerRedux.Livestock.ListEntryTooltip>
+    <ColonyManagerRedux.Livestock.TameWildCount>{0} прирученных, {1} диких</ColonyManagerRedux.Livestock.TameWildCount>
+    <ColonyManagerRedux.Livestock.NoAnimals>нет животных: {0} {1}</ColonyManagerRedux.Livestock.NoAnimals>
+    <ColonyManagerRedux.Livestock.GenderHeader>Пол</ColonyManagerRedux.Livestock.GenderHeader>
+    <ColonyManagerRedux.Livestock.AgeHeader>Возраст</ColonyManagerRedux.Livestock.AgeHeader>
+    <ColonyManagerRedux.Livestock.MeatHeader>Ожидаемое количество мяса</ColonyManagerRedux.Livestock.MeatHeader>
+    <ColonyManagerRedux.Livestock.MilkHeader>До следующей дойки</ColonyManagerRedux.Livestock.MilkHeader>
+    <ColonyManagerRedux.Livestock.WoolHeader>До следующей стрижки</ColonyManagerRedux.Livestock.WoolHeader>
+    <ColonyManagerRedux.Livestock.Yields>приносит {0} x{1}</ColonyManagerRedux.Livestock.Yields>
+    <ColonyManagerRedux.Livestock.UnassignTraining>Отменить обучение</ColonyManagerRedux.Livestock.UnassignTraining>
+    <ColonyManagerRedux.Livestock.UnassignTraining.Tip>Отменить тренировки для животных.</ColonyManagerRedux.Livestock.UnassignTraining.Tip>
+    <ColonyManagerRedux.Livestock.TrainYoung>Тренировать молодняк</ColonyManagerRedux.Livestock.TrainYoung>
+    <ColonyManagerRedux.Livestock.TrainYoung.Tip>Тренировать молодых животных</ColonyManagerRedux.Livestock.TrainYoung.Tip>
+    <ColonyManagerRedux.Livestock.SendToSlaughterArea>Установить область для забоя</ColonyManagerRedux.Livestock.SendToSlaughterArea>
+    <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>Установить область для животных назначеных на забой.</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToMilkingArea>Установить бласть для дойки</ColonyManagerRedux.Livestock.SendToMilkingArea>
+    <ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>Установить животным с молоком выше 94% отдельную область.</ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToShearingArea>Установить область для стрижки.</ColonyManagerRedux.Livestock.SendToShearingArea>
+    <ColonyManagerRedux.Livestock.SendToShearingArea.Tip>Установить животным с шерстью выше 94% отдельную область.</ColonyManagerRedux.Livestock.SendToShearingArea.Tip>
+    <ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>Целевое количество</ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>
+    <ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>Загоны</ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>
+    <ColonyManagerRedux.ManagerLivestock.TrainingHeader>Тренировка</ColonyManagerRedux.ManagerLivestock.TrainingHeader>
+    <ColonyManagerRedux.ManagerLivestock.ButcherHeader>Забой</ColonyManagerRedux.ManagerLivestock.ButcherHeader>
+    <ColonyManagerRedux.ManagerLivestock.TamingHeader>Приручение</ColonyManagerRedux.ManagerLivestock.TamingHeader>
+    <ColonyManagerRedux.Livestock.Tame>домашние</ColonyManagerRedux.Livestock.Tame>
+    <ColonyManagerRedux.Livestock.Wild>дикие</ColonyManagerRedux.Livestock.Wild>
+    <ColonyManagerRedux.ManagerLivestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.ManagerLivestock.AnimalsHeader>
+    <ColonyManagerRedux.ManagerLivestock.SelectPawnKind>За</ColonyManagerRedux.ManagerLivestock.SelectPawnKind>
+    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>Отключено, так как забой лишных животных выключен.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>
+    <ColonyManagerRedux.Livestock.SendToTrainingArea>Установить область для тренировки</ColonyManagerRedux.Livestock.SendToTrainingArea>
+    <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Установить область для животных назначеных для тренировки.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
+    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>Отключено, так-как тренировка выключена.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>
+    <ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>{0} слишком малы для этого.</ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>
+
+    <!-- following -->
+    <ColonyManagerRedux.ManagerLivestock.FollowHeader>Следование</ColonyManagerRedux.ManagerLivestock.FollowHeader>
+    <ColonyManagerRedux.ManagerLivestock.MasterDefault>Назначить хозяина</ColonyManagerRedux.ManagerLivestock.MasterDefault>
+    <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>Назначьте животных конкретному хозяину или группе колонистов. Может перезаписать пользовательские настройки при включении.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
+    <ColonyManagerRedux.ManagerLivestock.RespectBonds>Учитывать привязанность</ColonyManagerRedux.ManagerLivestock.RespectBonds>
+    <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>Если включено, назначает хозяином только поселенца, у которого есть привязанность к данному животному. Если отключено - привязанность игнорируется.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
+    <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Отключено, так как хозяин уже назначен или задан игроком.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
+    <ColonyManagerRedux.ManagerLivestock.Follow>Следовать за хозяином:</ColonyManagerRedux.ManagerLivestock.Follow>
+    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Установить настройки следования, перезапишет пользовательские настройки при включении. Если отключено, настройки могут быть назначены вручную.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
+    <ColonyManagerRedux.ManagerLivestock.FollowDrafted>В бою</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
+    <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Должны ли животные следовать за хозяином в бою?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
+    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>в поле (охота)</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
+    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>Должны ли животные следовать за хозяином, когда хозяин выполняет полевые работы (например, охоту)?</ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>
+    <ColonyManagerRedux.ManagerLivestock.FollowTraining>Следовать за дрессировщиком</ColonyManagerRedux.ManagerLivestock.FollowTraining>
+    <ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>Животное назначенное для дрессировки следует за своим дресировщиком.</ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>
+    <ColonyManagerRedux.ManagerLivestock.MasterTraining>Назначенный дрессировщик</ColonyManagerRedux.ManagerLivestock.MasterTraining>
+    <ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>Назначьте животных, помеченных для обучения, конкретному хозяину(дрессировщику) или всем дрессировщикам. Может перезаписать пользовательские настройки при включении.</ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>
+    <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
+
+    <!-- MasterMode enum -->
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>В ручную</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Охотники</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Дресировщики</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Рукопашники</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>Стрелки</ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>Боец</ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>Не боец</ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.All>Все</ColonyManagerRedux.ManagerLivestock.MasterMode.All>
+
+    <!-- Right click job fail reasons -->
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoPower>нет питания</ColonyManagerRedux.ColonyManager.CannotManage.NoPower>
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>работы не заданы</ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>все работы выполнены</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
 
 </LanguageData>

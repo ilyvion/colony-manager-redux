@@ -132,7 +132,7 @@ namespace ColonyManagerRedux
                 GUI.color = Color.grey;
                 GUI.DrawTexture(rect, tab.Icon);
                 GUI.color = Color.white;
-                TooltipHandler.TipRegion(rect, tab.Label + "FM.TabDisabledBecause".Translate(tab.DisabledReason));
+                TooltipHandler.TipRegion(rect, tab.Label + "ColonyManagerRedux.ManagerTabDisabledBecause".Translate(tab.DisabledReason));
             }
         }
 
@@ -161,7 +161,7 @@ namespace ColonyManagerRedux
             // TODO: reimplement help dialog
             //if ( !Manager.For( Find.CurrentMap ).HelpShown )
             //{
-            //    Find.WindowStack.Add( new Dialog_Message( "FM.HelpMessage".Translate(), "FM.HelpTitle".Translate() ) );
+            //    Find.WindowStack.Add( new Dialog_Message( "ColonyManagerRedux.ManagerHelpMessage".Translate(), "ColonyManagerRedux.ManagerHelpTitle".Translate() ) );
             //    Manager.For( Find.CurrentMap ).HelpShown = true;
             //}
 

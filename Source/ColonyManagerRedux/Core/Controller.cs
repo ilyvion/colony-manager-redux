@@ -28,7 +28,7 @@ namespace ColonyManagerRedux
 
         public override string SettingsCategory()
         {
-            return "FM.HelpTitle".Translate();
+            return "ColonyManagerRedux.ManagerHelpTitle".Translate();
         }
     }
 }

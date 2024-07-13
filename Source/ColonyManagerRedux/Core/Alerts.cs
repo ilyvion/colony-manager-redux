@@ -11,8 +11,8 @@ namespace ColonyManagerRedux
     {
         public Alert_NoManager()
         {
-            defaultLabel = "FM.AlertNoManagerLabel".Translate();
-            defaultExplanation = "FM.AlertNoManager".Translate();
+            defaultLabel = "ColonyManagerRedux.ManagerAlertNoManagerLabel".Translate();
+            defaultExplanation = "ColonyManagerRedux.ManagerAlertNoManager".Translate();
         }
 
         public override AlertPriority Priority => AlertPriority.Medium;
@@ -39,8 +39,8 @@ namespace ColonyManagerRedux
     {
         public Alert_NoTable()
         {
-            defaultLabel = "FM.AlertNoTableLabel".Translate();
-            defaultExplanation = "FM.AlertNoTable".Translate();
+            defaultLabel = "ColonyManagerRedux.ManagerAlertNoTableLabel".Translate();
+            defaultExplanation = "ColonyManagerRedux.ManagerAlertNoTable".Translate();
         }
 
         public override AlertPriority Priority => AlertPriority.Medium;

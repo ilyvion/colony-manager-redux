@@ -51,7 +51,7 @@ namespace ColonyManagerRedux
 
 
         public override bool IsValid => base.IsValid && History != null && Trigger != null;
-        public override string Label => "FM.Mining".Translate();
+        public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
         public override ManagerTab Tab => manager.Tabs.Find(tab => tab is ManagerTab_Mining);
 
         public override string[] Targets => AllowedMinerals.Keys
@@ -173,7 +173,7 @@ namespace ColonyManagerRedux
             if (designation.def == DesignationDefOf.Deconstruct)
             {
                 var building = designation.target.Thing;
-                return "Fluffy.Manager.DesignationLabel".Translate(
+                return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                     building.LabelCap,
                     Distance(building, manager.map.GetBaseCenter()).ToString("F0"),
                     "?", "?");
@@ -182,7 +182,7 @@ namespace ColonyManagerRedux
             if (designation.def == DesignationDefOf.Mine)
             {
                 var mineable = designation.target.Cell.GetFirstMineable(manager.map);
-                return "Fluffy.Manager.DesignationLabel".Translate(
+                return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                     mineable.LabelCap,
                     Distance(mineable, manager.map.GetBaseCenter()).ToString("F0"),
                     GetCountInMineral(mineable),

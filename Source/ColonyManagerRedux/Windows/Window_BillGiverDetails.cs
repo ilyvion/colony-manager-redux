@@ -49,7 +49,7 @@
 //            }
 //            else
 //            {
-//                TooltipHandler.TipRegion( all, "FMP.AllWorkstationTooltip" );
+//                TooltipHandler.TipRegion( all, "ColonyManagerRedux.Thresholds.AllWorkstationTooltip" );
 //                if ( Mouse.IsOver( all ) )
 //                {
 //                    GUI.DrawTexture( all, TexUI.HighlightTex );
@@ -61,7 +61,7 @@
 //            }
 //            Widgets.RadioButton( new Vector2( all.xMin + 3f, all.yMin + 3f ),
 //                                 Job.BillGivers.BillGiverSelection == AssignedBillGiverOptions.All );
-//            Widgets.Label( allLabel, "FMP.AllWorkstations".Translate() );
+//            Widgets.Label( allLabel, "ColonyManagerRedux.Thresholds.AllWorkstations".Translate() );
 //            y += 6;
 
 //            // By area / count
@@ -80,7 +80,7 @@
 //                var areaCountSelector = new Rect( 56f, y, contentRect.width - 56f, 30f );
 //                y += 30;
 
-//                Widgets.Label( areaAreaLabel, "FMP.AllowedAreas".Translate() );
+//                Widgets.Label( areaAreaLabel, "ColonyManagerRedux.Thresholds.AllowedAreas".Translate() );
 
 //                AreaAllowedGUI.DoAllowedAreaSelectors( areaAreaSelector, ref Job.BillGivers.AreaRestriction, Job.manager );
 
@@ -93,13 +93,13 @@
 //                {
 //                    GUI.color = new Color( 1f, 0f, 0f );
 //                }
-//                Widgets.Label( areaCountLabel, "FMP.AllowedWorkstationCount".Translate() );
+//                Widgets.Label( areaCountLabel, "ColonyManagerRedux.Thresholds.AllowedWorkstationCount".Translate() );
 //                _input = Widgets.TextField( areaCountSelector, _input );
 //                GUI.color = oldColor;
 //            }
 //            else
 //            {
-//                TooltipHandler.TipRegion( area, "FMP.ByAreaAndCountTooltip" );
+//                TooltipHandler.TipRegion( area, "ColonyManagerRedux.Thresholds.ByAreaAndCountTooltip" );
 //                if ( Mouse.IsOver( area ) )
 //                {
 //                    GUI.DrawTexture( area, TexUI.HighlightTex );
@@ -109,7 +109,7 @@
 //                    Job.BillGivers.BillGiverSelection = AssignedBillGiverOptions.Count;
 //                }
 //            }
-//            Widgets.Label( areaLabel, "FMP.ByAreaAndCount".Translate() );
+//            Widgets.Label( areaLabel, "ColonyManagerRedux.Thresholds.ByAreaAndCount".Translate() );
 //            Widgets.RadioButton( new Vector2( area.xMin + 3f, area.yMin + 3f ),
 //                                 Job.BillGivers.BillGiverSelection == AssignedBillGiverOptions.Count );
 //            y += 6f;
@@ -138,7 +138,7 @@
 //                {
 //                    GUI.DrawTexture( specific, TexUI.HighlightTex );
 //                }
-//                TooltipHandler.TipRegion( specific, "FMP.SpecificWorkstationsTooltip" );
+//                TooltipHandler.TipRegion( specific, "ColonyManagerRedux.Thresholds.SpecificWorkstationsTooltip" );
 //                if ( Widgets.ButtonInvisible( specific ) )
 //                {
 //                    Job.BillGivers.BillGiverSelection = AssignedBillGiverOptions.Specific;
@@ -147,7 +147,7 @@
 
 //            Widgets.RadioButton( new Vector2( specific.xMin + 3f, specific.yMin + 3f ),
 //                                 Job.BillGivers.BillGiverSelection == AssignedBillGiverOptions.Specific );
-//            Widgets.Label( specificLabel, "FMP.SpecificWorkstations".Translate() );
+//            Widgets.Label( specificLabel, "ColonyManagerRedux.Thresholds.SpecificWorkstations".Translate() );
 
 //            Text.Anchor = TextAnchor.UpperLeft;
 //            GUI.EndGroup();

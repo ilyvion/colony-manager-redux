@@ -194,7 +194,7 @@ namespace ColonyManagerRedux
             if (ChaptersOrdered.Count == 0)
             {
                 GUI.DrawTexture(canvas.ContractedBy(Margin), Resources.SlightlyDarkBackground);
-                Widgets_Labels.Label(canvas, "FM.HistoryNoChapters".Translate(), TextAnchor.MiddleCenter,
+                Widgets_Labels.Label(canvas, "ColonyManagerRedux.ManagerHistoryNoChapters".Translate(), TextAnchor.MiddleCenter,
                                       color: Color.grey);
                 return;
             }
@@ -303,7 +303,7 @@ namespace ColonyManagerRedux
                 // tooltip on entire row
                 var tooltip = ChaptersOrdered[i].label + ": " +
                               FormatCount(Mathf.Abs(ChaptersOrdered[i].Last(periodShown)));
-                tooltip += "FM.HistoryClickToEnable".Translate(shown ? "hide" : "show", ChaptersOrdered[i].label);
+                tooltip += "ColonyManagerRedux.ManagerHistoryClickToEnable".Translate(shown ? "hide" : "show", ChaptersOrdered[i].label);
                 TooltipHandler.TipRegion(row, tooltip);
 
                 // handle input
@@ -348,7 +348,7 @@ namespace ColonyManagerRedux
             if (chapters.Count == 0)
             {
                 GUI.DrawTexture(rect.ContractedBy(Margin), Resources.SlightlyDarkBackground);
-                Widgets_Labels.Label(rect, "FM.HistoryNoChapters".Translate(), TextAnchor.MiddleCenter,
+                Widgets_Labels.Label(rect, "ColonyManagerRedux.ManagerHistoryNoChapters".Translate(), TextAnchor.MiddleCenter,
                                       color: Color.grey);
                 return;
             }
@@ -501,10 +501,10 @@ namespace ColonyManagerRedux
                     var options =
                         periods.Select(
                             p =>
-                                new FloatMenuOption("FM.HistoryPeriod".Translate() + ": " + p.ToString(),
+                                new FloatMenuOption("ColonyManagerRedux.ManagerHistoryPeriod".Translate() + ": " + p.ToString(),
                                                      delegate { periodShown = p; })).ToList();
                     if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
-                        options.Add(new FloatMenuOption("FM.HistoryShowHideLegend".Translate(),
+                        options.Add(new FloatMenuOption("ColonyManagerRedux.ManagerHistoryShowHideLegend".Translate(),
                                                           delegate { DrawInlineLegend = !DrawInlineLegend; }));
                     Find.WindowStack.Add(new FloatMenu(options));
                 }

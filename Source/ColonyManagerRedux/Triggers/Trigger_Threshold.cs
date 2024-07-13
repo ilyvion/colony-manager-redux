@@ -40,9 +40,11 @@ namespace ColonyManagerRedux
 
         private string? _stockpile_scribe;
 
-        // public Trigger_Threshold(Manager manager) : base(manager)
-        // {
-        // }
+#pragma warning disable CS8618 // Only used by Scribe
+        public Trigger_Threshold(Manager manager) : base(manager)
+#pragma warning restore CS8618
+        {
+        }
 
         public Trigger_Threshold(ManagerJob_Hunting job) : base(job.manager)
         {
@@ -159,7 +161,7 @@ namespace ColonyManagerRedux
             }
         }
 
-        public override string StatusTooltip => "FMP.ThresholdCount".Translate(CurrentCount, TargetCount);
+        public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount);
 
         public override void DrawProgressBar(Rect rect, bool active)
         {
@@ -232,8 +234,8 @@ namespace ColonyManagerRedux
 
 
             Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
-            if (label.NullOrEmpty()) label = "FMP.ThresholdCount".Translate(CurrentCount, TargetCount) + ":";
-            if (tooltip.NullOrEmpty()) tooltip = "FMP.ThresholdCountTooltip".Translate(CurrentCount, TargetCount);
+            if (label.NullOrEmpty()) label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount) + ":";
+            if (tooltip.NullOrEmpty()) tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(CurrentCount, TargetCount);
 
             Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
 
@@ -269,7 +271,7 @@ namespace ColonyManagerRedux
                             var cell = designation.target.Cell;
                             var map = Find.CurrentMap;
                             // designation.map would be better, but that's private. We should only ever be looking at jobs on the current map anyway,
-                            // so I suppose it doesn't matter -- Fluffy.
+                            // so I suppose it doesn't matter -- ColonyManagerRedux.
                             option = designationLabelGetter?.Invoke(designation) ?? cell.GetTerrain(map).LabelCap;
                             onClick += () => CameraJumper.TryJump(cell, map);
                             onHover += (c) => CameraJumper.TryJump(cell, map);
@@ -281,8 +283,8 @@ namespace ColonyManagerRedux
                     Find.WindowStack.Add(new FloatMenu(options));
                 }
 
-            Utilities.DrawToggle(useResourceListerToggleRect, "FM.CountAllOnMap".Translate(),
-                                  "FM.CountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
+            Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.ManagerCountAllOnMap".Translate(),
+                                  "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
             TargetCount = (int)GUI.HorizontalSlider(thresholdRect, TargetCount, 0, MaxUpperThreshold);
         }
 

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
-  <Fluffy_Manager.label>Менеджер</Fluffy_Manager.label>
-  <Fluffy_Manager.description>Назначьте колонистам задачи и приоритеты их выполнения.</Fluffy_Manager.description>
+    <ColonyManagerRedux_Manager.label>Менеджер</ColonyManagerRedux_Manager.label>
+    <ColonyManagerRedux_Manager.description>Назначьте колонистам задачи и приоритеты их выполнения.</ColonyManagerRedux_Manager.description>
 
 </LanguageData>

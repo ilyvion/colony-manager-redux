@@ -1,237 +1,237 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-  <!-- Guia Gerenciador Principal -->
-  <FM.Manager>Gerenciador</FM.Manager>
-  <FM.Details>Detalhes</FM.Details>
-  <FM.Manage>Atribuir!</FM.Manage>
-  <FM.Delete>Excluir</FM.Delete>
-  <FM.All>Todos</FM.All>
-  <FM.TabDisabledBecause>(desligado: {0})</FM.TabDisabledBecause>
+    <!-- Guia Gerenciador Principal -->
+    <ColonyManagerRedux.ManagerManager>Gerenciador</ColonyManagerRedux.ManagerManager>
+    <ColonyManagerRedux.ManagerDetails>Detalhes</ColonyManagerRedux.ManagerDetails>
+    <ColonyManagerRedux.ManagerManage>Atribuir!</ColonyManagerRedux.ManagerManage>
+    <ColonyManagerRedux.ManagerDelete>Excluir</ColonyManagerRedux.ManagerDelete>
+    <ColonyManagerRedux.ManagerAll>Todos</ColonyManagerRedux.ManagerAll>
+    <ColonyManagerRedux.ManagerTabDisabledBecause>(desligado: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
-  <!-- Ajuda e mensagens de alerta para os lexicalmente desafiados. -->
-  <FM.HelpTitle>Gerenciador de colônia</FM.HelpTitle>
-  <FM.HelpMessage>Bem-vindo ao Gerenciador de Colônia.\n\nO Gerenciador de Colônia permite que você defina metas para produção, caça, registro e criação de gado. Essas tarefas são configuradas em telas diferentes e são acessíveis através dos botões na parte superior da tela, além de outras telas convenientes. \ N \ nKogda você configurar uma tarefa, um colono da habilidade do gerente de vez em quando para rever a definição de outros colonos, verificar os seus stocks e modificar tarefas executadas de acordo com os requisitos do modo de operação \ nPara \ n exigidos: \ n - Colono com a habilidade do gestor \ .. n - Tabela do gerente.</FM.HelpMessage>
-  <FM.AlertNoTableLabel>Precisa de tabela de gerenciadores</FM.AlertNoTableLabel>
-  <FM.AlertNoTable>Existem trabalhos, mas não há tabela de gerenciadores disponível</FM.AlertNoTable>
-  <FM.AlertNoManagerLabel>Gerenciador de necessidades</FM.AlertNoManagerLabel>
-  <FM.AlertNoManager>Existem trabalhos, mas não há gerenciador</FM.AlertNoManager>
+    <!-- Ajuda e mensagens de alerta para os lexicalmente desafiados. -->
+    <ColonyManagerRedux.ManagerHelpTitle>Gerenciador de colônia</ColonyManagerRedux.ManagerHelpTitle>
+    <ColonyManagerRedux.ManagerHelpMessage>Bem-vindo ao Gerenciador de Colônia.\n\nO Gerenciador de Colônia permite que você defina metas para produção, caça, registro e criação de gado. Essas tarefas são configuradas em telas diferentes e são acessíveis através dos botões na parte superior da tela, além de outras telas convenientes. \ N \ nKogda você configurar uma tarefa, um colono da habilidade do gerente de vez em quando para rever a definição de outros colonos, verificar os seus stocks e modificar tarefas executadas de acordo com os requisitos do modo de operação \ nPara \ n exigidos: \ n - Colono com a habilidade do gestor \ .. n - Tabela do gerente.</ColonyManagerRedux.ManagerHelpMessage>
+    <ColonyManagerRedux.ManagerAlertNoTableLabel>Precisa de tabela de gerenciadores</ColonyManagerRedux.ManagerAlertNoTableLabel>
+    <ColonyManagerRedux.ManagerAlertNoTable>Existem trabalhos, mas não há tabela de gerenciadores disponível</ColonyManagerRedux.ManagerAlertNoTable>
+    <ColonyManagerRedux.ManagerAlertNoManagerLabel>Gerenciador de necessidades</ColonyManagerRedux.ManagerAlertNoManagerLabel>
+    <ColonyManagerRedux.ManagerAlertNoManager>Existem trabalhos, mas não há gerenciador</ColonyManagerRedux.ManagerAlertNoManager>
 
-  <!-- Comum -->
-  <FM.LastUpdateTooltip>Esta tarefa foi atualizada {0} de volta.</FM.LastUpdateTooltip>
-  <FM.OrderUp>Aumentar prioridade</FM.OrderUp>
-  <FM.OrderDown>Reduzir prioridade</FM.OrderDown>
-  <FM.OrderTop>Prioridade máxima</FM.OrderTop>
-  <FM.OrderBottom>Prioridade mínima</FM.OrderBottom>
-  <multiple>[vários]</multiple>
-  <FM.Threshold>Limite</FM.Threshold>
-  <FM.CheckReachability>Verifique se os alvos são alcançáveis</FM.CheckReachability>
-  <FM.CheckReachability.Tip>Calcule se existe um caminho para o alvo (para qualquer peão) antes de criar uma designação.</FM.CheckReachability.Tip>
-  <FM.Expensive.Tip>A ativação dessa configuração pode diminuir o desempenho, principalmente em mapas grandes, mapas montanhosos, tarefas com muitos alvos em potencial e colônias com um grande número de colonos.</FM.Expensive.Tip>
-  <FM.PathBasedDistance>Calcular a distância com base no caminho real</FM.PathBasedDistance>
-  <FM.PathBasedDistance.Tip>Se ativado, as distâncias serão calculadas com base em caminhos reais. Se desativado, as distâncias serão calculadas "como o corvo voa". \n\nNOTA: ativar essa opção em tarefas com um grande número de possíveis destinos pode gerar picos de retardo significativos.</FM.PathBasedDistance.Tip>
-  <FM.CountAllOnMap>Conte tudo no mapa</FM.CountAllOnMap>
-  <FM.CountAllOnMap.Tip>Se ativado, conta todos os itens permitidos pelo filtro de limite no mapa. Se desativado, conta apenas aqueles em estoques e edifícios de armazenamento.</FM.CountAllOnMap.Tip>
-  <FM.None>Nada</FM.None>
-  <!-- 0: alvo (objeto), 1: distância (int), 2: quantidade de rendimento (int), 3: tipo de rendimento (def) -->
-  <Fluffy.Manager.DesignationLabel>{0}\n  distância: {1}\n  rendimento: {2}x {3}</Fluffy.Manager.DesignationLabel>
+    <!-- Comum -->
+    <ColonyManagerRedux.ManagerLastUpdateTooltip>Esta tarefa foi atualizada {0} de volta.</ColonyManagerRedux.ManagerLastUpdateTooltip>
+    <ColonyManagerRedux.ManagerOrderUp>Aumentar prioridade</ColonyManagerRedux.ManagerOrderUp>
+    <ColonyManagerRedux.ManagerOrderDown>Reduzir prioridade</ColonyManagerRedux.ManagerOrderDown>
+    <ColonyManagerRedux.ManagerOrderTop>Prioridade máxima</ColonyManagerRedux.ManagerOrderTop>
+    <ColonyManagerRedux.ManagerOrderBottom>Prioridade mínima</ColonyManagerRedux.ManagerOrderBottom>
+    <multiple>[vários]</multiple>
+    <ColonyManagerRedux.ManagerThreshold>Limite</ColonyManagerRedux.ManagerThreshold>
+    <ColonyManagerRedux.ManagerCheckReachability>Verifique se os alvos são alcançáveis</ColonyManagerRedux.ManagerCheckReachability>
+    <ColonyManagerRedux.ManagerCheckReachability.Tip>Calcule se existe um caminho para o alvo (para qualquer peão) antes de criar uma designação.</ColonyManagerRedux.ManagerCheckReachability.Tip>
+    <ColonyManagerRedux.ManagerExpensive.Tip>A ativação dessa configuração pode diminuir o desempenho, principalmente em mapas grandes, mapas montanhosos, tarefas com muitos alvos em potencial e colônias com um grande número de colonos.</ColonyManagerRedux.ManagerExpensive.Tip>
+    <ColonyManagerRedux.ManagerPathBasedDistance>Calcular a distância com base no caminho real</ColonyManagerRedux.ManagerPathBasedDistance>
+    <ColonyManagerRedux.ManagerPathBasedDistance.Tip>Se ativado, as distâncias serão calculadas com base em caminhos reais. Se desativado, as distâncias serão calculadas "como o corvo voa". \n\nNOTA: ativar essa opção em tarefas com um grande número de possíveis destinos pode gerar picos de retardo significativos.</ColonyManagerRedux.ManagerPathBasedDistance.Tip>
+    <ColonyManagerRedux.ManagerCountAllOnMap>Conte tudo no mapa</ColonyManagerRedux.ManagerCountAllOnMap>
+    <ColonyManagerRedux.ManagerCountAllOnMap.Tip>Se ativado, conta todos os itens permitidos pelo filtro de limite no mapa. Se desativado, conta apenas aqueles em estoques e edifícios de armazenamento.</ColonyManagerRedux.ManagerCountAllOnMap.Tip>
+    <ColonyManagerRedux.ManagerNone>Nada</ColonyManagerRedux.ManagerNone>
+    <!-- 0: alvo (objeto), 1: distância (int), 2: quantidade de rendimento (int), 3: tipo de rendimento (def) -->
+    <ColonyManagerRedux.Manager.DesignationLabel>{0}\n distância: {1}\n rendimento: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
 
-  <!-- período de tempo para o intervalo de atualização -->
-  <FM.DefaultUpdateInterval>Intervalo de atualização padrão</FM.DefaultUpdateInterval>
-  <FM.Hourly>A cada hora</FM.Hourly>
-  <FM.MultiHourly>A cada {0} hora \s</FM.MultiHourly>
-  <FM.Daily>Diário</FM.Daily>
-  <FM.Monthly>Mensalmente</FM.Monthly>
-  <FM.Yearly>Anualmente</FM.Yearly>
+    <!-- período de tempo para o intervalo de atualização -->
+    <ColonyManagerRedux.ManagerDefaultUpdateInterval>Intervalo de atualização padrão</ColonyManagerRedux.ManagerDefaultUpdateInterval>
+    <ColonyManagerRedux.ManagerHourly>A cada hora</ColonyManagerRedux.ManagerHourly>
+    <ColonyManagerRedux.ManagerMultiHourly>A cada {0} hora \s</ColonyManagerRedux.ManagerMultiHourly>
+    <ColonyManagerRedux.ManagerDaily>Diário</ColonyManagerRedux.ManagerDaily>
+    <ColonyManagerRedux.ManagerMonthly>Mensalmente</ColonyManagerRedux.ManagerMonthly>
+    <ColonyManagerRedux.ManagerYearly>Anualmente</ColonyManagerRedux.ManagerYearly>
 
-  <!-- Gráficos da história -->
-  <FM.HistoryPeriod>Período</FM.HistoryPeriod>
-  <FM.HistoryShowHideLegend>Mostrar/ocultar legenda</FM.HistoryShowHideLegend>
-  <FM.HistoryClickToEnable>\n\nClique {0} {1} no gráfico\nO botão direito -. Mostrar só o {1}</FM.HistoryClickToEnable>.
-  <FM.HistoryNoChapters>Nada a mostrar.</FM.HistoryNoChapters>
+    <!-- Gráficos da história -->
+    <ColonyManagerRedux.ManagerHistoryPeriod>Período</ColonyManagerRedux.ManagerHistoryPeriod>
+    <ColonyManagerRedux.ManagerHistoryShowHideLegend>Mostrar/ocultar legenda</ColonyManagerRedux.ManagerHistoryShowHideLegend>
+    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\nClique {0} {1} no gráfico\nO botão direito -. Mostrar só o {1}</ColonyManagerRedux.ManagerHistoryClickToEnable>
+    <ColonyManagerRedux.ManagerHistoryNoChapters>Nada a mostrar.</ColonyManagerRedux.ManagerHistoryNoChapters>
 
-  <!-- Guia de energia (E para energia) -->
-  <FME.PeriodShown>Período: {0}</FME.PeriodShown>
-  <FME.PeriodShownTooltip>Exibindo produção e consumo de energia ao longo da última {0}.\n\nClique para alterar o período.</FME.PeriodShownTooltip>
-  <FME.Power>Energia</FME.Power>
-  <FME.NotResearched>O gerenciamento de energia não foi pesquisado</FME.NotResearched>
-  <FME.NoPoweredStation>Nenhuma estação de gerenciamento tem energia</FME.NoPoweredStation>
-  
-  <!-- Guia Visão geral -->
-  <FM.Overview>Visão geral</FM.Overview>
-  <FM.NoJobs>Sem problemas.</FM.NoJobs>
-  <FM.Activity>Atividade atual</FM.Activity>
-  <FM.Enabled>On</FM.Enabled>
-  <FM.Priority>Trabalhar</FM.Priority>
-  <FM.ClickToJumpTo>Ir para {0}</FM.ClickToJumpTo>
-  <FM.JobCompletedTooltip>O limite de execução foi atingido.\n\nClique para suspender este trabalho.</FM.JobCompletedTooltip>
-  <FM.UnsuspendJobTooltip>O trabalho foi suspenso.\n\nClique para cancelar a suspensão.</FM.UnsuspendJobTooltip>
-  <FM.SuspendJobTooltip>Clique para suspender este trabalho.</FM.SuspendJobTooltip>
-  <FM.PluralSuffix>s</FM.PluralSuffix>
-  
-  <!-- Guia Importar/Exportar -->
-  <FM.ImportExport>Importar &amp; Exportar</FM.ImportExport>
-  <FM.CurrentJobs>Tarefas atuais:</FM.CurrentJobs>
-  <FM.Export>Exportar</FM.Export>
-  <FM.ConfirmOverwrite>{0} existe.\n\nDeseja substituir?</FM.ConfirmOverwrite>
-  <FM.JobsExported>{0} trabalhos são exportados</FM.JobsExported>
-  <FM.JobsImported>{0} funciona importado</FM.JobsImported>
-  <FM.InvalidJobsDeleted>{0} trabalhos incorretos excluídos</FM.InvalidJobsDeleted>
-  <FM.Import>Importar</FM.Import>
-  <FM.NoSaves>Não foram encontrados arquivos de exportação.</FM.NoSaves>
+    <!-- Guia de energia (E para energia) -->
+    <ColonyManagerRedux.Energy.PeriodShown>Período: {0}</ColonyManagerRedux.Energy.PeriodShown>
+    <ColonyManagerRedux.Energy.PeriodShownTooltip>Exibindo produção e consumo de energia ao longo da última {0}.\n\nClique para alterar o período.</ColonyManagerRedux.Energy.PeriodShownTooltip>
+    <ColonyManagerRedux.Energy.Power>Energia</ColonyManagerRedux.Energy.Power>
+    <ColonyManagerRedux.Energy.NotResearched>O gerenciamento de energia não foi pesquisado</ColonyManagerRedux.Energy.NotResearched>
+    <ColonyManagerRedux.Energy.NoPoweredStation>Nenhuma estação de gerenciamento tem energia</ColonyManagerRedux.Energy.NoPoweredStation>
 
-  <!-- Aba de Caça -->
-  <FMH.Hunting>Caçando</FMH.Hunting>
-  <FMH.NewHuntingJob>Nova tarefa</FMH.NewHuntingJob>
-  <FMH.NewHuntingJobTooltip>Adicionar nova atribuição de caça</FMH.NewHuntingJobTooltip>
-  <FMH.AllowHumanMeat>Considerando carne humana</FMH.AllowHumanMeat>
-  <FMH.AllowHumanMeat.Tip>A carne humana deve ser contada? \n\nNOTA: Este é um atalho para alternar carnes humanóides no filtro de limite. Você pode definir mais opções nos detalhes do limite.</FMH.AllowHumanMeat.Tip>
-  <FMH.AllowInsectMeat>Considerando carne de insetos</FMH.AllowInsectMeat>
-  <FMH.AllowInsectMeat.Tip>A carne de insetos deve ser contada? \n\nNOTA: Este é um atalho para alternar a carne de insetos no filtro de limiar. Você pode definir mais opções nos detalhes do limite.</FMH.AllowInsectMeat.Tip>
-  <FMH.UnforbidCorpses>Permitir selecionar cadáveres</FMH.UnforbidCorpses>
-  <FMH.UnforbidCorpses.Tip>Cadáveres de tipos de animais, automaticamente não podres (frescos), devem ser caçados.</FMH.UnforbidCorpses.Tip>
-  <FMH.Animals>Animais permitidos</FMH.Animals>
-  <FMH.TargetCount>Valor de segmentação: {0}+{1}+{2}/{3}</FMH.TargetCount>
-  <FMH.TargetCountTooltip>Objectivo: {3}\n{0} em estoque\n{1} esperado de corte\n{2} é esperado a partir das tarefas atuais</FMH.TargetCountTooltip>.
-  <FM.Hunting.Predators>Predadores</FM.Hunting.Predators>
-  <FM.Hunting.Predators.Tip>Alternar todos os predadores</FM.Hunting.Predators.Tip>
-  <FM.Hunting.HerdAnimals>Rebanho animais</FM.Hunting.HerdAnimals>
-  <FM.Hunting.HerdAnimals.Tip>Alternar todos os animais do rebanho</FM.Hunting.HerdAnimals.Tip>
-  <FM.Hunting.Exploding>Explodindo</FM.Hunting.Exploding>
-  <FM.Hunting.Exploding.Tip>Alternar todos os animais explodindo</FM.Hunting.Exploding.Tip>
-  <FM.Hunting.AreaRestriction>Restringir a caça a</FM.Hunting.AreaRestriction>
+    <!-- Guia Visão geral -->
+    <ColonyManagerRedux.ManagerOverview>Visão geral</ColonyManagerRedux.ManagerOverview>
+    <ColonyManagerRedux.ManagerNoJobs>Sem problemas.</ColonyManagerRedux.ManagerNoJobs>
+    <ColonyManagerRedux.ManagerActivity>Atividade atual</ColonyManagerRedux.ManagerActivity>
+    <ColonyManagerRedux.ManagerEnabled>On</ColonyManagerRedux.ManagerEnabled>
+    <ColonyManagerRedux.ManagerPriority>Trabalhar</ColonyManagerRedux.ManagerPriority>
+    <ColonyManagerRedux.ManagerClickToJumpTo>Ir para {0}</ColonyManagerRedux.ManagerClickToJumpTo>
+    <ColonyManagerRedux.ManagerJobCompletedTooltip>O limite de execução foi atingido.\n\nClique para suspender este trabalho.</ColonyManagerRedux.ManagerJobCompletedTooltip>
+    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>O trabalho foi suspenso.\n\nClique para cancelar a suspensão.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
+    <ColonyManagerRedux.ManagerSuspendJobTooltip>Clique para suspender este trabalho.</ColonyManagerRedux.ManagerSuspendJobTooltip>
+    <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 
-  <!-- Guia Florestal -->
-  <FMF.Forestry>Silvicultura</FMF.Forestry>
-  <FMF.NewForestryJob>Novo trabalho</FMF.NewForestryJob>
-  <FMF.NewForestryJobTooltip>Adicionar nova tarefa de suprimento</FMF.NewForestryJobTooltip>
-  <FMF.Options>Opções</FMF.Options>
-  <FMF.ClearWindCells>Limpar a área de trabalho do moinho de vento</FMF.ClearWindCells>
-  <FMF.ClearWindCells.Tip>Limpar todas as células que estão na área de captação das turbinas eólicas</FMF.ClearWindCells.Tip>
-  <FMF.AllowSaplings>Permitir o abate de árvores jovens</FMF.AllowSaplings>
-  <FMF.AllowSaplings.Tip>A silvicultura deve ser limitada apenas a árvores maduras?</FMF.AllowSaplings.Tip>
-  <FMF.LoggingArea>Permitir o registro na zona:</FMF.LoggingArea>
-  <FMF.TargetCount>Valor de segmentação: {0} + {1}/{2}</FMF.TargetCount>
-  <FMF.TargetCountTooltip>gol: {2}\n{0} em estoque\n{1} esperado das tarefas atuais</FMF.TargetCountTooltip>.
-  <FMF.ClearAreas>Limpando a área de toda a vegetação:</FMF.ClearAreas>
-  <FMF.JobType>Tipo de emprego</FMF.JobType>
-  <FMF.JobType.ClearArea>Limpar áreas</FMF.JobType.ClearArea>
-  <FMF.JobType.ClearArea.Tip>Limpar as áreas para manter as turbinas eólicas funcionando sem problemas e negar aos inimigos qualquer cobertura possível nos campos de extermínio</FMF.JobType.ClearArea.Tip>
-  <FMF.JobType.Logging>Registro de madeira</FMF.JobType.Logging>
-  <FMF.JobType.Logging.Tip>Cortar árvores para madeira</FMF.JobType.Logging.Tip>
-  
-  <FMF.Clear>Limpar {0}</FMF.Clear>
-  <FMF.TurbineArea>turbinas eólicas</FMF.TurbineArea>
+    <!-- Guia Importar/Exportar -->
+    <ColonyManagerRedux.ManagerImportExport>Importar &amp; Exportar</ColonyManagerRedux.ManagerImportExport>
+    <ColonyManagerRedux.ManagerCurrentJobs>Tarefas atuais:</ColonyManagerRedux.ManagerCurrentJobs>
+    <ColonyManagerRedux.ManagerExport>Exportar</ColonyManagerRedux.ManagerExport>
+    <ColonyManagerRedux.ManagerConfirmOverwrite>{0} existe.\n\nDeseja substituir?</ColonyManagerRedux.ManagerConfirmOverwrite>
+    <ColonyManagerRedux.ManagerJobsExported>{0} trabalhos são exportados</ColonyManagerRedux.ManagerJobsExported>
+    <ColonyManagerRedux.ManagerJobsImported>{0} funciona importado</ColonyManagerRedux.ManagerJobsImported>
+    <ColonyManagerRedux.ManagerInvalidJobsDeleted>{0} trabalhos incorretos excluídos</ColonyManagerRedux.ManagerInvalidJobsDeleted>
+    <ColonyManagerRedux.ManagerImport>Importar</ColonyManagerRedux.ManagerImport>
+    <ColonyManagerRedux.ManagerNoSaves>Não foram encontrados arquivos de exportação.</ColonyManagerRedux.ManagerNoSaves>
 
-  <FMF.Trees>Árvores</FMF.Trees>
-  <FMF.Trees.Tip>Selecione todas as árvores</FMF.Trees.Tip>
-  <FMF.Flammable>Inflamável</FMF.Flammable>
-  <FMF.Flammable.Tip>Selecione todas as plantas inflamaveis</FMF.Flammable.Tip>
-  <FMF.Ugly>Feio</FMF.Ugly>
-  <FMF.Ugly.Tip>Selecionar todas as plantas feias</FMF.Ugly.Tip>
-  <FMF.ProvidesCover>Cobertura</FMF.ProvidesCover>
-  <FMF.ProvidesCover.Tip>Selecione todas as plantas que fornecem cobertura</FMF.ProvidesCover.Tip>
-  <FMF.BlocksWind>Bloqueio de vento</FMF.BlocksWind>
-  <FMF.BlocksWind.Tip>Selecione todas as plantas que bloqueiam o vento</FMF.BlocksWind.Tip>
+    <!-- Aba de Caça -->
+    <ColonyManagerRedux.Hunting.Hunting>Caçando</ColonyManagerRedux.Hunting.Hunting>
+    <ColonyManagerRedux.Hunting.NewHuntingJob>Nova tarefa</ColonyManagerRedux.Hunting.NewHuntingJob>
+    <ColonyManagerRedux.Hunting.NewHuntingJobTooltip>Adicionar nova atribuição de caça</ColonyManagerRedux.Hunting.NewHuntingJobTooltip>
+    <ColonyManagerRedux.Hunting.AllowHumanMeat>Considerando carne humana</ColonyManagerRedux.Hunting.AllowHumanMeat>
+    <ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>A carne humana deve ser contada? \n\nNOTA: Este é um atalho para alternar carnes humanóides no filtro de limite. Você pode definir mais opções nos detalhes do limite.</ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>
+    <ColonyManagerRedux.Hunting.AllowInsectMeat>Considerando carne de insetos</ColonyManagerRedux.Hunting.AllowInsectMeat>
+    <ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>A carne de insetos deve ser contada? \n\nNOTA: Este é um atalho para alternar a carne de insetos no filtro de limiar. Você pode definir mais opções nos detalhes do limite.</ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>
+    <ColonyManagerRedux.Hunting.UnforbidCorpses>Permitir selecionar cadáveres</ColonyManagerRedux.Hunting.UnforbidCorpses>
+    <ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>Cadáveres de tipos de animais, automaticamente não podres (frescos), devem ser caçados.</ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>
+    <ColonyManagerRedux.Hunting.Animals>Animais permitidos</ColonyManagerRedux.Hunting.Animals>
+    <ColonyManagerRedux.Hunting.TargetCount>Valor de segmentação: {0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
+    <ColonyManagerRedux.Hunting.TargetCountTooltip>Objectivo: {3}\n{0} em estoque\n{1} esperado de corte\n{2} é esperado a partir das tarefas atuais</ColonyManagerRedux.Hunting.TargetCountTooltip>
+    <ColonyManagerRedux.ManagerHunting.Predators>Predadores</ColonyManagerRedux.ManagerHunting.Predators>
+    <ColonyManagerRedux.ManagerHunting.Predators.Tip>Alternar todos os predadores</ColonyManagerRedux.ManagerHunting.Predators.Tip>
+    <ColonyManagerRedux.ManagerHunting.HerdAnimals>Rebanho animais</ColonyManagerRedux.ManagerHunting.HerdAnimals>
+    <ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>Alternar todos os animais do rebanho</ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>
+    <ColonyManagerRedux.ManagerHunting.Exploding>Explodindo</ColonyManagerRedux.ManagerHunting.Exploding>
+    <ColonyManagerRedux.ManagerHunting.Exploding.Tip>Alternar todos os animais explodindo</ColonyManagerRedux.ManagerHunting.Exploding.Tip>
+    <ColonyManagerRedux.ManagerHunting.AreaRestriction>Restringir a caça a</ColonyManagerRedux.ManagerHunting.AreaRestriction>
+
+    <!-- Guia Florestal -->
+    <ColonyManagerRedux.Forestry.Forestry>Silvicultura</ColonyManagerRedux.Forestry.Forestry>
+    <ColonyManagerRedux.Forestry.NewForestryJob>Novo trabalho</ColonyManagerRedux.Forestry.NewForestryJob>
+    <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Adicionar nova tarefa de suprimento</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
+    <ColonyManagerRedux.Forestry.Options>Opções</ColonyManagerRedux.Forestry.Options>
+    <ColonyManagerRedux.Forestry.ClearWindCells>Limpar a área de trabalho do moinho de vento</ColonyManagerRedux.Forestry.ClearWindCells>
+    <ColonyManagerRedux.Forestry.ClearWindCells.Tip>Limpar todas as células que estão na área de captação das turbinas eólicas</ColonyManagerRedux.Forestry.ClearWindCells.Tip>
+    <ColonyManagerRedux.Forestry.AllowSaplings>Permitir o abate de árvores jovens</ColonyManagerRedux.Forestry.AllowSaplings>
+    <ColonyManagerRedux.Forestry.AllowSaplings.Tip>A silvicultura deve ser limitada apenas a árvores maduras?</ColonyManagerRedux.Forestry.AllowSaplings.Tip>
+    <ColonyManagerRedux.Forestry.LoggingArea>Permitir o registro na zona:</ColonyManagerRedux.Forestry.LoggingArea>
+    <ColonyManagerRedux.Forestry.TargetCount>Valor de segmentação: {0} + {1}/{2}</ColonyManagerRedux.Forestry.TargetCount>
+    <ColonyManagerRedux.Forestry.TargetCountTooltip>gol: {2}\n{0} em estoque\n{1} esperado das tarefas atuais</ColonyManagerRedux.Forestry.TargetCountTooltip>
+    <ColonyManagerRedux.Forestry.ClearAreas>Limpando a área de toda a vegetação:</ColonyManagerRedux.Forestry.ClearAreas>
+    <ColonyManagerRedux.Forestry.JobType>Tipo de emprego</ColonyManagerRedux.Forestry.JobType>
+    <ColonyManagerRedux.Forestry.JobType.ClearArea>Limpar áreas</ColonyManagerRedux.Forestry.JobType.ClearArea>
+    <ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>Limpar as áreas para manter as turbinas eólicas funcionando sem problemas e negar aos inimigos qualquer cobertura possível nos campos de extermínio</ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>
+    <ColonyManagerRedux.Forestry.JobType.Logging>Registro de madeira</ColonyManagerRedux.Forestry.JobType.Logging>
+    <ColonyManagerRedux.Forestry.JobType.Logging.Tip>Cortar árvores para madeira</ColonyManagerRedux.Forestry.JobType.Logging.Tip>
+
+    <ColonyManagerRedux.Forestry.Clear>Limpar {0}</ColonyManagerRedux.Forestry.Clear>
+    <ColonyManagerRedux.Forestry.TurbineArea>turbinas eólicas</ColonyManagerRedux.Forestry.TurbineArea>
+
+    <ColonyManagerRedux.Forestry.Trees>Árvores</ColonyManagerRedux.Forestry.Trees>
+    <ColonyManagerRedux.Forestry.Trees.Tip>Selecione todas as árvores</ColonyManagerRedux.Forestry.Trees.Tip>
+    <ColonyManagerRedux.Forestry.Flammable>Inflamável</ColonyManagerRedux.Forestry.Flammable>
+    <ColonyManagerRedux.Forestry.Flammable.Tip>Selecione todas as plantas inflamaveis</ColonyManagerRedux.Forestry.Flammable.Tip>
+    <ColonyManagerRedux.Forestry.Ugly>Feio</ColonyManagerRedux.Forestry.Ugly>
+    <ColonyManagerRedux.Forestry.Ugly.Tip>Selecionar todas as plantas feias</ColonyManagerRedux.Forestry.Ugly.Tip>
+    <ColonyManagerRedux.Forestry.ProvidesCover>Cobertura</ColonyManagerRedux.Forestry.ProvidesCover>
+    <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Selecione todas as plantas que fornecem cobertura</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
+    <ColonyManagerRedux.Forestry.BlocksWind>Bloqueio de vento</ColonyManagerRedux.Forestry.BlocksWind>
+    <ColonyManagerRedux.Forestry.BlocksWind.Tip>Selecione todas as plantas que bloqueiam o vento</ColonyManagerRedux.Forestry.BlocksWind.Tip>
 
 
-  <!-- Guia Forrageamento (coleta) -->
-  <FMG.Foraging>Coleção</FMG.Foraging>
-  <FMG.NewForagingJob>Novo trabalho</FMG.NewForagingJob>
-  <FMG.NewForagingJobTooltip>Adicionar uma nova tarefa de coleta</FMG.NewForagingJobTooltip>
-  <FMG.Options>Opções</FMG.Options>
-  <FMG.TargetCount>Valor de segmentação: {0} + {1} / {2}</FMG.TargetCount>
-  <FMG.TargetCountTooltip>gol: {2}\n{0} em estoque\n{1} esperado das tarefas atuais</FMG.TargetCountTooltip>.
-  <FMG.ForceMature>Somente plantas maduras</FMG.ForceMature>
-  <FMG.ForceMature.Tip>O forrageamento deve ser limitado apenas a plantas maduras?</FMG.ForceMature.Tip>
-  <FMG.ForagingArea>Permitir coleta na zona:</FMG.ForagingArea>
-  <FMG.Plants>Plantas permitidas</FMG.Plants>
-  <FM.Foraging.Edible>Plantas comestíveis</FM.Foraging.Edible>
-  <FM.Foraging.Edible.Tip>Selecione todas as plantas comestíveis</FM.Foraging.Edible.Tip>
-  <FM.Foraging.Mushrooms>Cogumelos</FM.Foraging.Mushrooms>
-  <FM.Foraging.Mushrooms.Tip>Selecione todos os cogumelos</FM.Foraging.Mushrooms.Tip>
+    <!-- Guia Forrageamento (coleta) -->
+    <ColonyManagerRedux.Foraging.Foraging>Coleção</ColonyManagerRedux.Foraging.Foraging>
+    <ColonyManagerRedux.Foraging.NewForagingJob>Novo trabalho</ColonyManagerRedux.Foraging.NewForagingJob>
+    <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Adicionar uma nova tarefa de coleta</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
+    <ColonyManagerRedux.Foraging.Options>Opções</ColonyManagerRedux.Foraging.Options>
+    <ColonyManagerRedux.Foraging.TargetCount>Valor de segmentação: {0} + {1} / {2}</ColonyManagerRedux.Foraging.TargetCount>
+    <ColonyManagerRedux.Foraging.TargetCountTooltip>gol: {2}\n{0} em estoque\n{1} esperado das tarefas atuais</ColonyManagerRedux.Foraging.TargetCountTooltip>
+    <ColonyManagerRedux.Foraging.ForceMature>Somente plantas maduras</ColonyManagerRedux.Foraging.ForceMature>
+    <ColonyManagerRedux.Foraging.ForceMature.Tip>O forrageamento deve ser limitado apenas a plantas maduras?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForagingArea>Permitir coleta na zona:</ColonyManagerRedux.Foraging.ForagingArea>
+    <ColonyManagerRedux.Foraging.Plants>Plantas permitidas</ColonyManagerRedux.Foraging.Plants>
+    <ColonyManagerRedux.ManagerForaging.Edible>Plantas comestíveis</ColonyManagerRedux.ManagerForaging.Edible>
+    <ColonyManagerRedux.ManagerForaging.Edible.Tip>Selecione todas as plantas comestíveis</ColonyManagerRedux.ManagerForaging.Edible.Tip>
+    <ColonyManagerRedux.ManagerForaging.Mushrooms>Cogumelos</ColonyManagerRedux.ManagerForaging.Mushrooms>
+    <ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>Selecione todos os cogumelos</ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>
 
-  <!-- Limites -->
-  <FMP.ThresholdCount>Limite: {0}/{1}</FMP.ThresholdCount>
-  <FMP.ThresholdCountTooltip>Clique para abrir os detalhes do limite. \n\nTarget: {1}\nEm produção: {0}</FMP.ThresholdCountTooltip>
-  <FMP.ThresholdDetails>Detalhes doo limites</FMP.ThresholdDetails>
+    <!-- Limites -->
+    <ColonyManagerRedux.Thresholds.ThresholdCount>Limite: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
+    <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Clique para abrir os detalhes do limite. \n\nTarget: {1}\nEm produção: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
+    <ColonyManagerRedux.Thresholds.ThresholdDetails>Detalhes doo limites</ColonyManagerRedux.Thresholds.ThresholdDetails>
 
-  <!-- Cabeçalhos de abas -->
-  <FMP.Current>Atual</FMP.Current>
-  <FMP.Available>Acessível</FMP.Available>
+    <!-- Cabeçalhos de abas -->
+    <ColonyManagerRedux.Thresholds.Current>Atual</ColonyManagerRedux.Thresholds.Current>
+    <ColonyManagerRedux.Thresholds.Available>Acessível</ColonyManagerRedux.Thresholds.Available>
 
-  <!-- Guia Pecuária -->
-  <FML.Livestock>Pecuária</FML.Livestock>
-  <FML.TargetCounts>Valor de destino</FML.TargetCounts>
-  <FML.Adult>Adulto</FML.Adult>
-  <FML.Juvenile>Jovem</FML.Juvenile>
-  <FML.Training>Exercício</FML.Training>
-  <FML.RestrictToArea>Atribuir zona animal?</FML.RestrictToArea>
-  <FML.RestrictToArea.Tip>Restringir os animais a uma área específica, opcionalmente separados por sexo e estilo de vida.</FML.RestrictToArea.Tip>
-  <FML.ButcherExcess>Abate de animais</FML.ButcherExcess>
-  <FML.ButcherExcess.Tip>O excesso de gado deve ser morto?</FML.ButcherExcess.Tip>
-  <FML.ButcherTrained>É treinado</FML.ButcherTrained>
-  <FML.ButcherTrained.Tip>Os animais treinados podem ser mortos?</FML.ButcherTrained.Tip>
-  <FML.ButcherPregnant>Grávida</FML.ButcherPregnant>
-  <FML.ButcherPregnant.Tip>Animais grávidas podem ser mortos?</FML.ButcherPregnant.Tip>
-  <FML.ButcherBonded>Ligação</FML.ButcherBonded>
-  <FML.ButcherBonded.Tip>Os animais com ligação podem ser mortos?</FML.ButcherBonded.Tip>
-  <FML.TameMore>Automaticamente encontrar animais para domesticação</FML.TameMore>
-  <FML.TameMore.Tip>O gerente deve designar animais selvagens para serem domados?</FML.TameMore.Tip>
-  <FML.TameArea>Permitir domar:</FML.TameArea>
-  <FML.ListEntryTooltip>{0}:\n{1}/{5} fêmeas adultas\n{2}/{6} machos adultos\n{3}/{7} fêmeas jovens\n{4}/{8 } jovens do sexo masculino</FML.ListEntryTooltip>
-  <FML.TameWildCount>{0} domesticado, selvagem {1}</FML.TameWildCount>
-  <FML.NoAnimals>Nenhum animal: {0} {1}</FML.NoAnimals>
-  <FML.GenderHeader>Sexo</FML.GenderHeader>
-  <FML.AgeHeader>Idade</FML.AgeHeader>
-  <FML.MeatHeader>Quantidade esperada de carne</FML.MeatHeader>
-  <FML.MilkHeader>Antes da próxima ordenha</FML.MilkHeader>
-  <FML.WoolHeader>Até o próximo corte de cabelo</FML.WoolHeader>
-  <FML.Yields>traz {0}x{1}</FML.Yields>
-  <FML.TrainYoung>Treinar jovens</FML.TrainYoung>
-  <FML.SendToSlaughterArea>Definir um limite para a matança de animais</FML.SendToSlaughterArea>
-  <FML.SendToSlaughterArea.Tip>Restringir os animais designados para abate a uma área específica</FML.SendToSlaughterArea.Tip>
-  <FM.Livestock.TargetCountsHeader>Contagens de alvo</FM.Livestock.TargetCountsHeader>
-  <FM.Livestock.AreaRestrictionsHeader>Restrições de área</FM.Livestock.AreaRestrictionsHeader>
-  <FM.Livestock.TrainingHeader>Treinamento</FM.Livestock.TrainingHeader>
-  <FM.Livestock.ButcherHeader>Abater</FM.Livestock.ButcherHeader>
-  <FM.Livestock.TamingHeader>Domar</FM.Livestock.TamingHeader>
-  <FML.Tame>Domar</FML.Tame>
-  <FML.Wild>Selvagem</FML.Wild>
-  <FM.Livestock.AnimalsHeader>{0} {1}</FM.Livestock.AnimalsHeader>
-  <FM.Livestock.SelectPawnKind>Nenhum trabalho selecionado</FM.Livestock.SelectPawnKind>
-  <FM.Livestock.DisabledBecauseSlaughterExcessDisabled>Desativado porque o excesso de gado não é abatido.</FM.Livestock.DisabledBecauseSlaughterExcessDisabled>
-  <FML.SendToTrainingArea>Restringir animais marcados para treinamento</FML.SendToTrainingArea>
-  <FML.SendToTrainingArea.Tip>Restringir os animais designados para treinamento a uma área específica.</FML.SendToTrainingArea.Tip>
-  <FM.Livestock.DisabledBecauseNoTrainingSet>Desabilitado porque nenhum destino de treinamento está definido.</FM.Livestock.DisabledBecauseNoTrainingSet>
-  <FM.Livestock.CannotTrainTooSmall>{0} são pequenos demais para treinar isso.</FM.Livestock.CannotTrainTooSmall>
-    
-  <!-- Seguir -->
-  <FM.Livestock.FollowHeader>Segue</FM.Livestock.FollowHeader>
-  <FM.Livestock.MasterDefault>Atribuir mestre(s)</FM.Livestock.MasterDefault>
-  <FM.Livestock.MasterDefault.Tip>Atribua animais a um mestre específico ou a grupos de colonos. Pode sobrescrever as configurações do usuário quando ativado.</FM.Livestock.MasterDefault.Tip>
-  <FM.Livestock.RespectBonds>Respeitar ligações</FM.Livestock.RespectBonds>
-  <FM.Livestock.RespectBonds.Tip>Se habilitado, sempre atribui aos animais que se ligaram com um colono à esse colono. Se desativado, as ligações são ignoradas.</FM.Livestock.RespectBonds.Tip>
-  <FM.Livestock.RespectBonds.DisabledBecauseMastersNotSet>Desativado porque o mestre está definido para um peão específico ou definido manualmente.</FM.Livestock.RespectBonds.DisabledBecauseMastersNotSet>
-  <FM.Livestock.Follow>Definir mestre seguindo</FM.Livestock.Follow>
-  <FM.Livestock.FollowTip>Definir configurações de acompanhamento mestre, sobrescreverá as configurações do usuário quando ativado. Se desativado, os mestres podem ser atribuídos manualmente.</FM.Livestock.FollowTip>
-  <FM.Livestock.FollowDrafted>Esboçado</FM.Livestock.FollowDrafted>
-  <FM.Livestock.FollowDrafted.Tip>Os animais devem seguir seus mestres designados quando o mestre é elaborado?</FM.Livestock.FollowDrafted.Tip>
-  <FM.Livestock.FollowFieldwork>Trabalho de campo</FM.Livestock.FollowFieldwork>
-  <FM.Livestock.FollowFieldwork.Tip>Os animais devem seguir seus mestres designados quando o mestre estiver fazendo trabalho de campo (por exemplo)?</FM.Livestock.FollowFieldwork.Tip>
-  <FM.Livestock.FollowTraining>Siga o treinador</FM.Livestock.FollowTraining>
-  <FM.Livestock.FollowTraining.Tip>Faça com que os animais marcados para treinamento tentem seguir o seu treinador.</FM.Livestock.FollowTraining.Tip>
-  <FM.Livestock.MasterTraining>Atribuir instrutor(es)</FM.Livestock.MasterTraining>
-  <FM.Livestock.MasterTraining.Tip>Designe animais marcados para treinamento para um mestre específico (treinador) ou para todos os treinadores. Pode sobrescrever as configurações do usuário quando ativado.</FM.Livestock.MasterTraining.Tip>
-  <FM.Livestock.Master>{0} ({1})</FM.Livestock.Master> <!-- 0; pawn name, 1; skill level -->
+    <!-- Guia Pecuária -->
+    <ColonyManagerRedux.Livestock.Livestock>Pecuária</ColonyManagerRedux.Livestock.Livestock>
+    <ColonyManagerRedux.Livestock.TargetCounts>Valor de destino</ColonyManagerRedux.Livestock.TargetCounts>
+    <ColonyManagerRedux.Livestock.Adult>Adulto</ColonyManagerRedux.Livestock.Adult>
+    <ColonyManagerRedux.Livestock.Juvenile>Jovem</ColonyManagerRedux.Livestock.Juvenile>
+    <ColonyManagerRedux.Livestock.Training>Exercício</ColonyManagerRedux.Livestock.Training>
+    <ColonyManagerRedux.Livestock.RestrictToArea>Atribuir zona animal?</ColonyManagerRedux.Livestock.RestrictToArea>
+    <ColonyManagerRedux.Livestock.RestrictToArea.Tip>Restringir os animais a uma área específica, opcionalmente separados por sexo e estilo de vida.</ColonyManagerRedux.Livestock.RestrictToArea.Tip>
+    <ColonyManagerRedux.Livestock.ButcherExcess>Abate de animais</ColonyManagerRedux.Livestock.ButcherExcess>
+    <ColonyManagerRedux.Livestock.ButcherExcess.Tip>O excesso de gado deve ser morto?</ColonyManagerRedux.Livestock.ButcherExcess.Tip>
+    <ColonyManagerRedux.Livestock.ButcherTrained>É treinado</ColonyManagerRedux.Livestock.ButcherTrained>
+    <ColonyManagerRedux.Livestock.ButcherTrained.Tip>Os animais treinados podem ser mortos?</ColonyManagerRedux.Livestock.ButcherTrained.Tip>
+    <ColonyManagerRedux.Livestock.ButcherPregnant>Grávida</ColonyManagerRedux.Livestock.ButcherPregnant>
+    <ColonyManagerRedux.Livestock.ButcherPregnant.Tip>Animais grávidas podem ser mortos?</ColonyManagerRedux.Livestock.ButcherPregnant.Tip>
+    <ColonyManagerRedux.Livestock.ButcherBonded>Ligação</ColonyManagerRedux.Livestock.ButcherBonded>
+    <ColonyManagerRedux.Livestock.ButcherBonded.Tip>Os animais com ligação podem ser mortos?</ColonyManagerRedux.Livestock.ButcherBonded.Tip>
+    <ColonyManagerRedux.Livestock.TameMore>Automaticamente encontrar animais para domesticação</ColonyManagerRedux.Livestock.TameMore>
+    <ColonyManagerRedux.Livestock.TameMore.Tip>O gerente deve designar animais selvagens para serem domados?</ColonyManagerRedux.Livestock.TameMore.Tip>
+    <ColonyManagerRedux.Livestock.TameArea>Permitir domar:</ColonyManagerRedux.Livestock.TameArea>
+    <ColonyManagerRedux.Livestock.ListEntryTooltip>{0}:\n{1}/{5} fêmeas adultas\n{2}/{6} machos adultos\n{3}/{7} fêmeas jovens\n{4}/{8 } jovens do sexo masculino</ColonyManagerRedux.Livestock.ListEntryTooltip>
+    <ColonyManagerRedux.Livestock.TameWildCount>{0} domesticado, selvagem {1}</ColonyManagerRedux.Livestock.TameWildCount>
+    <ColonyManagerRedux.Livestock.NoAnimals>Nenhum animal: {0} {1}</ColonyManagerRedux.Livestock.NoAnimals>
+    <ColonyManagerRedux.Livestock.GenderHeader>Sexo</ColonyManagerRedux.Livestock.GenderHeader>
+    <ColonyManagerRedux.Livestock.AgeHeader>Idade</ColonyManagerRedux.Livestock.AgeHeader>
+    <ColonyManagerRedux.Livestock.MeatHeader>Quantidade esperada de carne</ColonyManagerRedux.Livestock.MeatHeader>
+    <ColonyManagerRedux.Livestock.MilkHeader>Antes da próxima ordenha</ColonyManagerRedux.Livestock.MilkHeader>
+    <ColonyManagerRedux.Livestock.WoolHeader>Até o próximo corte de cabelo</ColonyManagerRedux.Livestock.WoolHeader>
+    <ColonyManagerRedux.Livestock.Yields>traz {0}x{1}</ColonyManagerRedux.Livestock.Yields>
+    <ColonyManagerRedux.Livestock.TrainYoung>Treinar jovens</ColonyManagerRedux.Livestock.TrainYoung>
+    <ColonyManagerRedux.Livestock.SendToSlaughterArea>Definir um limite para a matança de animais</ColonyManagerRedux.Livestock.SendToSlaughterArea>
+    <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>Restringir os animais designados para abate a uma área específica</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
+    <ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>Contagens de alvo</ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>
+    <ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>Restrições de área</ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>
+    <ColonyManagerRedux.ManagerLivestock.TrainingHeader>Treinamento</ColonyManagerRedux.ManagerLivestock.TrainingHeader>
+    <ColonyManagerRedux.ManagerLivestock.ButcherHeader>Abater</ColonyManagerRedux.ManagerLivestock.ButcherHeader>
+    <ColonyManagerRedux.ManagerLivestock.TamingHeader>Domar</ColonyManagerRedux.ManagerLivestock.TamingHeader>
+    <ColonyManagerRedux.Livestock.Tame>Domar</ColonyManagerRedux.Livestock.Tame>
+    <ColonyManagerRedux.Livestock.Wild>Selvagem</ColonyManagerRedux.Livestock.Wild>
+    <ColonyManagerRedux.ManagerLivestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.ManagerLivestock.AnimalsHeader>
+    <ColonyManagerRedux.ManagerLivestock.SelectPawnKind>Nenhum trabalho selecionado</ColonyManagerRedux.ManagerLivestock.SelectPawnKind>
+    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>Desativado porque o excesso de gado não é abatido.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>
+    <ColonyManagerRedux.Livestock.SendToTrainingArea>Restringir animais marcados para treinamento</ColonyManagerRedux.Livestock.SendToTrainingArea>
+    <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restringir os animais designados para treinamento a uma área específica.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
+    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>Desabilitado porque nenhum destino de treinamento está definido.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>
+    <ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>{0} são pequenos demais para treinar isso.</ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>
 
-  <!-- Enumeração do modo mestre -->
-  <FM.Livestock.MasterMode.Default>Manual</FM.Livestock.MasterMode.Default>
-  <FM.Livestock.MasterMode.Hunters>caçadores</FM.Livestock.MasterMode.Hunters>
-  <FM.Livestock.MasterMode.Trainers>Treinadores</FM.Livestock.MasterMode.Trainers>
-  <FM.Livestock.MasterMode.Melee>Corpo-a-corpo</FM.Livestock.MasterMode.Melee>
-  <FM.Livestock.MasterMode.Ranged>À distância</FM.Livestock.MasterMode.Ranged>
-  <FM.Livestock.MasterMode.Violent>Violento</FM.Livestock.MasterMode.Violent>
-  <FM.Livestock.MasterMode.NonViolent>Não-Violento</FM.Livestock.MasterMode.NonViolent>
-  <FM.Livestock.MasterMode.All>Todos</FM.Livestock.MasterMode.All>
+    <!-- Seguir -->
+    <ColonyManagerRedux.ManagerLivestock.FollowHeader>Segue</ColonyManagerRedux.ManagerLivestock.FollowHeader>
+    <ColonyManagerRedux.ManagerLivestock.MasterDefault>Atribuir mestre(s)</ColonyManagerRedux.ManagerLivestock.MasterDefault>
+    <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>Atribua animais a um mestre específico ou a grupos de colonos. Pode sobrescrever as configurações do usuário quando ativado.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
+    <ColonyManagerRedux.ManagerLivestock.RespectBonds>Respeitar ligações</ColonyManagerRedux.ManagerLivestock.RespectBonds>
+    <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>Se habilitado, sempre atribui aos animais que se ligaram com um colono à esse colono. Se desativado, as ligações são ignoradas.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
+    <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Desativado porque o mestre está definido para um peão específico ou definido manualmente.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
+    <ColonyManagerRedux.ManagerLivestock.Follow>Definir mestre seguindo</ColonyManagerRedux.ManagerLivestock.Follow>
+    <ColonyManagerRedux.ManagerLivestock.FollowTip>Definir configurações de acompanhamento mestre, sobrescreverá as configurações do usuário quando ativado. Se desativado, os mestres podem ser atribuídos manualmente.</ColonyManagerRedux.ManagerLivestock.FollowTip>
+    <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Esboçado</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
+    <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Os animais devem seguir seus mestres designados quando o mestre é elaborado?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
+    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Trabalho de campo</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
+    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>Os animais devem seguir seus mestres designados quando o mestre estiver fazendo trabalho de campo (por exemplo)?</ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>
+    <ColonyManagerRedux.ManagerLivestock.FollowTraining>Siga o treinador</ColonyManagerRedux.ManagerLivestock.FollowTraining>
+    <ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>Faça com que os animais marcados para treinamento tentem seguir o seu treinador.</ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>
+    <ColonyManagerRedux.ManagerLivestock.MasterTraining>Atribuir instrutor(es)</ColonyManagerRedux.ManagerLivestock.MasterTraining>
+    <ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>Designe animais marcados para treinamento para um mestre específico (treinador) ou para todos os treinadores. Pode sobrescrever as configurações do usuário quando ativado.</ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>
+    <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
+
+    <!-- Enumeração do modo mestre -->
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>Manual</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>caçadores</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Treinadores</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Corpo-a-corpo</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>À distância</ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>Violento</ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>Não-Violento</ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.All>Todos</ColonyManagerRedux.ManagerLivestock.MasterMode.All>
 
 </LanguageData>

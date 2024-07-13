@@ -86,7 +86,7 @@ namespace ColonyManagerRedux
             tooltipArgs.Add(pawnKind.LabelCap);
             tooltipArgs.AddRange(Counts.Select(x => x.ToString()).Cast<NamedArgument>());
             tooltipArgs.AddRange(CountTargets.Values.Select(v => v.ToString()).Cast<NamedArgument>());
-            return "FML.ListEntryTooltip".Translate(tooltipArgs.ToArray());
+            return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray());
         }
 
         private bool AllTrainingWantedSet()

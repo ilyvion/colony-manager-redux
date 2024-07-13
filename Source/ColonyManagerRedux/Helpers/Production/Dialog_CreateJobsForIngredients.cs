@@ -70,7 +70,7 @@
 //                                       Utilities.BottomButtonHeight - Utilities.Margin );
 
 //            // title
-//            Utilities.Label( titleRect, "FMP.IngredientDialogTitle".Translate(), null, TextAnchor.MiddleCenter, 0f, 0f,
+//            Utilities.Label( titleRect, "ColonyManagerRedux.Thresholds.IngredientDialogTitle".Translate(), null, TextAnchor.MiddleCenter, 0f, 0f,
 //                             GameFont.Medium );
 
 //            // start recursive list of ingredients
@@ -96,7 +96,7 @@
 //            _finalListHeight = cur.y + _entryHeight;
 
 //            // final button
-//            if ( Widgets.ButtonText( buttonRect, "FMP.AddIngredientBills".Translate() ) )
+//            if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.Thresholds.AddIngredientBills".Translate() ) )
 //            {
 //                foreach ( IngredientSelector ingredient in ingredients )
 //                {
@@ -185,7 +185,7 @@
 //                if ( curJob != null && curJob.Trigger.Count < targetCount )
 //                {
 //                    curJob.Trigger.Count = targetCount;
-//                    Messages.Message( "FMP.IncreasedThreshold".Translate( curRecipe.LabelCap, targetCount ),
+//                    Messages.Message( "ColonyManagerRedux.Thresholds.IncreasedThreshold".Translate( curRecipe.LabelCap, targetCount ),
 //                                      MessageSound.Benefit );
 //                }
 //                // otherwise create a new job.
@@ -197,11 +197,11 @@
 //                    {
 //                        curJob.Managed = true;
 //                        manager.JobStack.Add( curJob );
-//                        Messages.Message( "FMP.AddedJob".Translate( curRecipe.LabelCap ), MessageSound.Benefit );
+//                        Messages.Message( "ColonyManagerRedux.Thresholds.AddedJob".Translate( curRecipe.LabelCap ), MessageSound.Benefit );
 //                    }
 //                    else
 //                    {
-//                        Messages.Message( "FMP.CouldNotAddJob".Translate( curRecipe.LabelCap ), MessageSound.RejectInput );
+//                        Messages.Message( "ColonyManagerRedux.Thresholds.CouldNotAddJob".Translate( curRecipe.LabelCap ), MessageSound.RejectInput );
 //                    }
 //                }
 
@@ -238,9 +238,9 @@
 
 //                // THINGDEF SELECTOR
 //                // draw the label
-//                string label = recipeSelector?.target.LabelCap ?? "FMP.SelectIngredient".Translate();
+//                string label = recipeSelector?.target.LabelCap ?? "ColonyManagerRedux.Thresholds.SelectIngredient".Translate();
 //                Utilities.Label( thingRect, label,
-//                                 "FMP.SelectIngredientTooltip".Translate( targetRecipe.LabelCap,
+//                                 "ColonyManagerRedux.Thresholds.SelectIngredientTooltip".Translate( targetRecipe.LabelCap,
 //                                                                          ingredient.GetBaseCount() ),
 //                                 TextAnchor.MiddleLeft,
 //                                 Utilities.Margin );
@@ -270,7 +270,7 @@
 //                                                             } ) ).ToList();
 //                        if ( allowedThingDefs.Any( td => !RecipeSelector.HasRecipe( manager, td ) ) )
 //                        {
-//                            options.Add( new FloatMenuOption( "FMP.RawResource".Translate(),
+//                            options.Add( new FloatMenuOption( "ColonyManagerRedux.Thresholds.RawResource".Translate(),
 //                                                              delegate
 //                                                              { recipeSelector = null; } ) );
 //                        }
@@ -377,19 +377,19 @@
 //                string tooltip;
 //                if ( recipes.Count == 0 ) // raw resource / no recipe
 //                {
-//                    label = "FMP.RawResource".Translate();
-//                    tooltip = "FMP.RawResourceTooltip".Translate( target.LabelCap );
+//                    label = "ColonyManagerRedux.Thresholds.RawResource".Translate();
+//                    tooltip = "ColonyManagerRedux.Thresholds.RawResourceTooltip".Translate( target.LabelCap );
 //                }
 //                else
 //                {
-//                    label = selectedRecipe?.LabelCap ?? "FMP.SelectRecipe".Translate();
-//                    tooltip = "FMP.SelectRecipeTooltip".Translate( target.LabelCap );
+//                    label = selectedRecipe?.LabelCap ?? "ColonyManagerRedux.Thresholds.SelectRecipe".Translate();
+//                    tooltip = "ColonyManagerRedux.Thresholds.SelectRecipeTooltip".Translate( target.LabelCap );
 //                    if ( selectedRecipe != null )
 //                    {
-//                        tooltip += "FMP.SelectRecipeTooltipSelected".Translate();
+//                        tooltip += "ColonyManagerRedux.Thresholds.SelectRecipeTooltipSelected".Translate();
 //                        foreach ( IngredientCount ingredient in selectedRecipe.ingredients )
 //                        {
-//                            tooltip += "FMP.IngredientCount".Translate( ingredient.filter.Summary,
+//                            tooltip += "ColonyManagerRedux.Thresholds.IngredientCount".Translate( ingredient.filter.Summary,
 //                                                                        ingredient.GetBaseCount() );
 //                        }
 //                    }
@@ -413,7 +413,7 @@
 //                                        ")",
 //                                        delegate
 //                                        { SelectRecipe( rd ); } ) ).ToList();
-//                        options.Add( new FloatMenuOption( "FMP.DoNotUseRecipe".Translate(),
+//                        options.Add( new FloatMenuOption( "ColonyManagerRedux.Thresholds.DoNotUseRecipe".Translate(),
 //                                                          delegate
 //                                                          { SelectRecipe( null ); } ) );
 //                        Find.WindowStack.Add( new FloatMenu( options ) );

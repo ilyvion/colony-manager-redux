@@ -31,7 +31,7 @@ namespace ColonyManagerRedux
 
         public List<ManagerJob> Jobs => Manager.For(manager).JobStack.FullStack();
 
-        public override string Label { get; } = "FM.Overview".Translate();
+        public override string Label { get; } = "ColonyManagerRedux.ManagerOverview".Translate();
 
         public override ManagerJob? Selected
         {
@@ -125,13 +125,13 @@ namespace ColonyManagerRedux
         {
             if (up)
             {
-                TooltipHandler.TipRegion(step, "FM.OrderUp".Translate());
-                TooltipHandler.TipRegion(max, "FM.OrderTop".Translate());
+                TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderUp".Translate());
+                TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderTop".Translate());
             }
             else
             {
-                TooltipHandler.TipRegion(step, "FM.OrderDown".Translate());
-                TooltipHandler.TipRegion(max, "FM.OrderBottom".Translate());
+                TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderDown".Translate());
+                TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderBottom".Translate());
             }
         }
 
@@ -164,7 +164,7 @@ namespace ColonyManagerRedux
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = Color.grey;
-                Widgets.Label(rect, "FM.NoJobs".Translate());
+                Widgets.Label(rect, "ColonyManagerRedux.ManagerNoJobs".Translate());
                 Text.Anchor = TextAnchor.UpperLeft;
                 GUI.color = Color.white;
             }
@@ -236,16 +236,16 @@ namespace ColonyManagerRedux
 
             // label for priority column
             var workLabel = Find.PlaySettings.useWorkPriorities
-                ? "FM.Priority".Translate()
-                : "FM.Enabled".Translate();
+                ? "ColonyManagerRedux.ManagerPriority".Translate()
+                : "ColonyManagerRedux.ManagerEnabled".Translate();
 
             // begin drawing
             GUI.BeginGroup(rect);
 
             // draw labels
-            Widgets_Labels.Label(nameColumnHeaderRect, WorkTypeDef.pawnLabel + "FM.PluralSuffix".Translate(),
+            Widgets_Labels.Label(nameColumnHeaderRect, WorkTypeDef.pawnLabel + "ColonyManagerRedux.ManagerPluralSuffix".Translate(),
                                   TextAnchor.LowerCenter);
-            Widgets_Labels.Label(activityColumnHeaderRect, "FM.Activity".Translate(), TextAnchor.LowerCenter);
+            Widgets_Labels.Label(activityColumnHeaderRect, "ColonyManagerRedux.ManagerActivity".Translate(), TextAnchor.LowerCenter);
             Widgets_Labels.Label(priorityColumnHeaderRect, workLabel, TextAnchor.LowerCenter);
 
             // begin scrolling area
@@ -308,11 +308,11 @@ namespace ColonyManagerRedux
                 if (pawn.Spawned) Find.Selector.Select(pawn);
             }
 
-            Widgets_Labels.Label(nameRect, pawn.Name.ToStringShort, "FM.ClickToJumpTo".Translate(pawn.LabelCap),
+            Widgets_Labels.Label(nameRect, pawn.Name.ToStringShort, "ColonyManagerRedux.ManagerClickToJumpTo".Translate(pawn.LabelCap),
                                   TextAnchor.MiddleLeft, margin: Margin);
 
             // current activity (if curDriver != null)
-            var activityString = pawn.jobs.curDriver?.GetReport() ?? "FM.NoCurJob".Translate();
+            var activityString = pawn.jobs.curDriver?.GetReport() ?? "ColonyManagerRedux.ManagerNoCurJob".Translate();
             Widgets_Labels.Label(activityRect, activityString, pawn.jobs.curDriver?.GetReport(),
                                   TextAnchor.MiddleCenter, margin: Margin, font: GameFont.Tiny);
 

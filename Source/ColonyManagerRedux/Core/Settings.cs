@@ -24,7 +24,7 @@ namespace ColonyManagerRedux
 
             // labels
             Text.Anchor = TextAnchor.LowerLeft;
-            Widgets.Label(row, "FM.DefaultUpdateInterval".Translate());
+            Widgets.Label(row, "ColonyManagerRedux.ManagerDefaultUpdateInterval".Translate());
             Text.Anchor = TextAnchor.LowerRight;
             Widgets.Label(row, DefaultUpdateInterval.label);
             Text.Anchor = TextAnchor.UpperLeft;
