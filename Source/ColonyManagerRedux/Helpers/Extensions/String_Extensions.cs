@@ -5,48 +5,47 @@ using System.Collections.Generic;
 using UnityEngine;
 using Verse;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public static class String_Extensions
 {
-    public static class String_Extensions
+    private static readonly Dictionary<Pair<string, Rect>, bool> _fitsCache =
+        new Dictionary<Pair<string, Rect>, bool>();
+
+    public static string Bold(this TaggedString text)
     {
-        private static readonly Dictionary<Pair<string, Rect>, bool> _fitsCache =
-            new Dictionary<Pair<string, Rect>, bool>();
+        return text.Resolve().Bold();
+    }
 
-        public static string Bold(this TaggedString text)
-        {
-            return text.Resolve().Bold();
-        }
+    public static string Bold(this string text)
+    {
+        return $"<b>{text}</b>";
+    }
 
-        public static string Bold(this string text)
-        {
-            return $"<b>{text}</b>";
-        }
-
-        public static bool Fits(this string text, Rect rect)
-        {
-            var key = new Pair<string, Rect>(text, rect);
-            bool result;
-            if (_fitsCache.TryGetValue(key, out result))
-                return result;
-
-            // make sure WW is temporarily turned off.
-            var WW = Text.WordWrap;
-            Text.WordWrap = false;
-            result = Text.CalcSize(text).x < rect.width;
-            Text.WordWrap = WW;
-
-            _fitsCache.Add(key, result);
+    public static bool Fits(this string text, Rect rect)
+    {
+        var key = new Pair<string, Rect>(text, rect);
+        bool result;
+        if (_fitsCache.TryGetValue(key, out result))
             return result;
-        }
 
-        public static string Italic(this TaggedString text)
-        {
-            return text.Resolve().Italic();
-        }
+        // make sure WW is temporarily turned off.
+        var WW = Text.WordWrap;
+        Text.WordWrap = false;
+        result = Text.CalcSize(text).x < rect.width;
+        Text.WordWrap = WW;
 
-        public static string Italic(this string text)
-        {
-            return $"<i>{text}</i>";
-        }
+        _fitsCache.Add(key, result);
+        return result;
+    }
+
+    public static string Italic(this TaggedString text)
+    {
+        return text.Resolve().Italic();
+    }
+
+    public static string Italic(this string text)
+    {
+        return $"<i>{text}</i>";
     }
 }

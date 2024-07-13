@@ -5,14 +5,13 @@ using System.Linq;
 using RimWorld;
 using Verse;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public static class Utilities_Mining
 {
-    public static class Utilities_Mining
+    public static bool IsChunk(this ThingDef def)
     {
-        public static bool IsChunk(this ThingDef def)
-        {
-            return def?.thingCategories?.Any(c => ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.Contains(c)) ??
-                   false;
-        }
+        return def?.thingCategories?.Any(c => ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.Contains(c)) ??
+               false;
     }
 }

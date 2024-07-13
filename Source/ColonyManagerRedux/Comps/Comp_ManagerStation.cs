@@ -3,10 +3,9 @@
 
 using Verse;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public class Comp_ManagerStation : ThingComp
 {
-    public class Comp_ManagerStation : ThingComp
-    {
-        public CompProperties_ManagerStation Props => (CompProperties_ManagerStation)props;
-    }
+    public CompProperties_ManagerStation Props => (CompProperties_ManagerStation)props;
 }

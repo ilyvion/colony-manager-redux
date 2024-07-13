@@ -3,13 +3,12 @@
 
 using Verse;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public class UnlockPowerTab : ResearchMod
 {
-    public class UnlockPowerTab : ResearchMod
+    public override void Apply()
     {
-        public override void Apply()
-        {
-            ManagerTab_Power.unlocked = true;
-        }
+        ManagerTab_Power.unlocked = true;
     }
 }

@@ -5,3 +5,6 @@ root = true
 [*.{cs,xml}]
 indent_style = space
 indent_size = 4
+
+[*.cs]
+csharp_style_namespace_declarations = file_scoped:warning

@@ -10,441 +10,440 @@ using Verse;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Widgets_Labels;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+internal class ManagerTab_Forestry : ManagerTab
 {
-    internal class ManagerTab_Forestry : ManagerTab
+    private List<ManagerJob_Forestry> _jobs = [];
+    private float _leftRowHeight = 9999f;
+    private Vector2 _scrollPosition = Vector2.zero;
+    private ManagerJob_Forestry _selected;
+
+    public ManagerTab_Forestry(Manager manager) : base(manager)
     {
-        private List<ManagerJob_Forestry> _jobs = [];
-        private float _leftRowHeight = 9999f;
-        private Vector2 _scrollPosition = Vector2.zero;
-        private ManagerJob_Forestry _selected;
+        _selected = new ManagerJob_Forestry(manager);
+    }
 
-        public ManagerTab_Forestry(Manager manager) : base(manager)
+    public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
+
+    public override ManagerJob? Selected
+    {
+        get => _selected;
+        set => _selected = (ManagerJob_Forestry)value!;
+    }
+
+    public static string GetTreeTooltip(ThingDef tree)
+    {
+        return ManagerTab_Foraging.GetPlantTooltip(tree);
+    }
+
+    public void DoContent(Rect rect)
+    {
+        // layout: settings | trees
+        // draw background
+        Widgets.DrawMenuSection(rect);
+
+
+        // rects
+        var optionsColumnRect = new Rect(
+            rect.xMin,
+            rect.yMin,
+            rect.width * 3 / 5f,
+            rect.height - Margin - ButtonSize.y);
+        var treesColumnRect = new Rect(
+            optionsColumnRect.xMax,
+            rect.yMin,
+            rect.width * 2 / 5f,
+            rect.height - Margin - ButtonSize.y);
+        var buttonRect = new Rect(
+            rect.xMax - ButtonSize.x,
+            rect.yMax - ButtonSize.y,
+            ButtonSize.x - Margin,
+            ButtonSize.y - Margin);
+
+        Vector2 position;
+        float width;
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out position, out width);
+        Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
+
+        if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
+            Widgets_Section.Section(ref position, width, DrawClearArea, "ColonyManagerRedux.Forestry.JobType.ClearArea".Translate());
+
+        if (_selected.Type == ManagerJob_Forestry.ForestryJobType.Logging)
         {
-            _selected = new ManagerJob_Forestry(manager);
+            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
+            Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Forestry.LoggingArea".Translate());
+            Widgets_Section.Section(ref position, width, DrawAllowSaplings);
         }
 
-        public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
+        Widgets_Section.EndSectionColumn("Forestry.Options", position);
 
-        public override ManagerJob? Selected
+        Widgets_Section.BeginSectionColumn(treesColumnRect, "Forestry.Trees", out position, out width);
+        Widgets_Section.Section(ref position, width, DrawTreeShortcuts, "ColonyManagerRedux.Forestry.Trees".Translate());
+        Widgets_Section.Section(ref position, width, DrawTreeList);
+        Widgets_Section.EndSectionColumn("Forestry.Trees", position);
+
+        // do the button
+        if (!_selected.Managed)
         {
-            get => _selected;
-            set => _selected = (ManagerJob_Forestry)value!;
-        }
-
-        public static string GetTreeTooltip(ThingDef tree)
-        {
-            return ManagerTab_Foraging.GetPlantTooltip(tree);
-        }
-
-        public void DoContent(Rect rect)
-        {
-            // layout: settings | trees
-            // draw background
-            Widgets.DrawMenuSection(rect);
-
-
-            // rects
-            var optionsColumnRect = new Rect(
-                rect.xMin,
-                rect.yMin,
-                rect.width * 3 / 5f,
-                rect.height - Margin - ButtonSize.y);
-            var treesColumnRect = new Rect(
-                optionsColumnRect.xMax,
-                rect.yMin,
-                rect.width * 2 / 5f,
-                rect.height - Margin - ButtonSize.y);
-            var buttonRect = new Rect(
-                rect.xMax - ButtonSize.x,
-                rect.yMax - ButtonSize.y,
-                ButtonSize.x - Margin,
-                ButtonSize.y - Margin);
-
-            Vector2 position;
-            float width;
-            Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out position, out width);
-            Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
-
-            if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
-                Widgets_Section.Section(ref position, width, DrawClearArea, "ColonyManagerRedux.Forestry.JobType.ClearArea".Translate());
-
-            if (_selected.Type == ManagerJob_Forestry.ForestryJobType.Logging)
+            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
-                Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
-                Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Forestry.LoggingArea".Translate());
-                Widgets_Section.Section(ref position, width, DrawAllowSaplings);
-            }
+                // activate job, add it to the stack
+                _selected.Managed = true;
+                manager.JobStack.Add(_selected);
 
-            Widgets_Section.EndSectionColumn("Forestry.Options", position);
-
-            Widgets_Section.BeginSectionColumn(treesColumnRect, "Forestry.Trees", out position, out width);
-            Widgets_Section.Section(ref position, width, DrawTreeShortcuts, "ColonyManagerRedux.Forestry.Trees".Translate());
-            Widgets_Section.Section(ref position, width, DrawTreeList);
-            Widgets_Section.EndSectionColumn("Forestry.Trees", position);
-
-            // do the button
-            if (!_selected.Managed)
-            {
-                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
-                {
-                    // activate job, add it to the stack
-                    _selected.Managed = true;
-                    manager.JobStack.Add(_selected);
-
-                    // refresh source list
-                    Refresh();
-                }
-            }
-            else
-            {
-                if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
-                {
-                    // inactivate job, remove from the stack.
-                    manager.JobStack.Delete(_selected);
-
-                    // remove content from UI
-                    _selected = new ManagerJob_Forestry(manager);
-
-                    // refresh source list
-                    Refresh();
-                }
+                // refresh source list
+                Refresh();
             }
         }
-
-        public void DoLeftRow(Rect rect)
+        else
         {
-            Widgets.DrawMenuSection(rect);
-
-            // content
-            var height = _leftRowHeight;
-            var scrollView = new Rect(0f, 0f, rect.width, height);
-            if (height > rect.height)
-                scrollView.width -= ScrollbarWidth;
-
-            Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
-            var scrollContent = scrollView;
-
-            GUI.BeginGroup(scrollContent);
-            var cur = Vector2.zero;
-            var i = 0;
-
-            foreach (var job in _jobs)
+            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
-                var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-                Widgets.DrawHighlightIfMouseover(row);
-                if (_selected == job) Widgets.DrawHighlightSelected(row);
+                // inactivate job, remove from the stack.
+                manager.JobStack.Delete(_selected);
 
-                if (i++ % 2 == 1) Widgets.DrawAltRect(row);
+                // remove content from UI
+                _selected = new ManagerJob_Forestry(manager);
 
-                var jobRect = row;
-
-                if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
-                                                           job)) Refresh();
-                jobRect.width -= 50f;
-
-                job.DrawListEntry(jobRect, false);
-                if (Widgets.ButtonInvisible(jobRect)) _selected = job;
-
-                cur.y += LargeListEntryHeight;
+                // refresh source list
+                Refresh();
             }
+        }
+    }
 
-            // row for new job.
-            var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-            Widgets.DrawHighlightIfMouseover(newRect);
+    public void DoLeftRow(Rect rect)
+    {
+        Widgets.DrawMenuSection(rect);
 
-            if (i % 2 == 1) Widgets.DrawAltRect(newRect);
+        // content
+        var height = _leftRowHeight;
+        var scrollView = new Rect(0f, 0f, rect.width, height);
+        if (height > rect.height)
+            scrollView.width -= ScrollbarWidth;
 
-            Text.Anchor = TextAnchor.MiddleCenter;
-            Widgets.Label(newRect, "<" + "ColonyManagerRedux.Forestry.NewForestryJob".Translate().Resolve() + ">");
-            Text.Anchor = TextAnchor.UpperLeft;
+        Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
+        var scrollContent = scrollView;
 
-            if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Forestry(manager);
+        GUI.BeginGroup(scrollContent);
+        var cur = Vector2.zero;
+        var i = 0;
 
-            TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Forestry.NewForestryJobTooltip".Translate());
+        foreach (var job in _jobs)
+        {
+            var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
+            Widgets.DrawHighlightIfMouseover(row);
+            if (_selected == job) Widgets.DrawHighlightSelected(row);
+
+            if (i++ % 2 == 1) Widgets.DrawAltRect(row);
+
+            var jobRect = row;
+
+            if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
+                                                       job)) Refresh();
+            jobRect.width -= 50f;
+
+            job.DrawListEntry(jobRect, false);
+            if (Widgets.ButtonInvisible(jobRect)) _selected = job;
 
             cur.y += LargeListEntryHeight;
-
-            _leftRowHeight = cur.y;
-            GUI.EndGroup();
-            Widgets.EndScrollView();
         }
 
-        public override void DoWindowContents(Rect canvas)
+        // row for new job.
+        var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
+        Widgets.DrawHighlightIfMouseover(newRect);
+
+        if (i % 2 == 1) Widgets.DrawAltRect(newRect);
+
+        Text.Anchor = TextAnchor.MiddleCenter;
+        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Forestry.NewForestryJob".Translate().Resolve() + ">");
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        if (Widgets.ButtonInvisible(newRect)) Selected = new ManagerJob_Forestry(manager);
+
+        TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Forestry.NewForestryJobTooltip".Translate());
+
+        cur.y += LargeListEntryHeight;
+
+        _leftRowHeight = cur.y;
+        GUI.EndGroup();
+        Widgets.EndScrollView();
+    }
+
+    public override void DoWindowContents(Rect canvas)
+    {
+        // set up rects
+        var leftRow = new Rect(0f, 0f, DefaultLeftRowSize, canvas.height);
+        var contentCanvas = new Rect(leftRow.xMax + Margin, 0f, canvas.width - leftRow.width - Margin,
+                                      canvas.height);
+
+        // draw overview row
+        DoLeftRow(leftRow);
+
+        // draw job interface if something is selected.
+        if (Selected != null) DoContent(contentCanvas);
+    }
+
+    public float DrawAllowSaplings(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
+
+        // NOTE: AllowSaplings logic is the reverse from the label that is shown to the user.
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Forestry.AllowSaplings".Translate(),
+            "ColonyManagerRedux.Forestry.AllowSaplings.Tip".Translate(),
+            !_selected.AllowSaplings,
+            () => _selected.AllowSaplings = false,
+            () => _selected.AllowSaplings = true);
+        return ListEntryHeight;
+    }
+
+    public float DrawAreaRestriction(Vector2 pos, float width)
+    {
+        var start = pos;
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selected.LoggingArea, manager);
+        return pos.y - start.y;
+    }
+
+    public float DrawClearArea(Vector2 pos, float width)
+    {
+        var start = pos;
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
+        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref _selected.ClearAreas);
+        pos.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Forestry.ClearWindCells".Translate(),
+            "ColonyManagerRedux.Forestry.ClearWindCells.Tip".Translate(),
+            ref _selected.ClearWindCells);
+
+        return pos.y - start.y;
+    }
+
+    public float DrawEmpty(string label, Vector2 pos, float width)
+    {
+        var height = Mathf.Max(Text.CalcHeight(label, width), ListEntryHeight);
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            height);
+        Label(rowRect, label, TextAnchor.MiddleLeft, color: Color.gray);
+        return height;
+    }
+
+    public float DrawJobType(Vector2 pos, float width)
+    {
+        // type of job;
+        // clear clear area | logging
+        var types =
+            Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType)) as ManagerJob_Forestry.ForestryJobType
+                [];
+
+        // backwards compatibility for wind areas
+        // TODO: REMOVE ON NEXT BREAKING VERSION!
+        types = types.Where(type => type != ManagerJob_Forestry.ForestryJobType.ClearWind).ToArray();
+
+        var cellWidth = width / types.Length;
+
+        var cellRect = new Rect(
+            pos.x,
+            pos.y,
+            cellWidth,
+            ListEntryHeight);
+
+        foreach (var type in types)
         {
-            // set up rects
-            var leftRow = new Rect(0f, 0f, DefaultLeftRowSize, canvas.height);
-            var contentCanvas = new Rect(leftRow.xMax + Margin, 0f, canvas.width - leftRow.width - Margin,
-                                          canvas.height);
-
-            // draw overview row
-            DoLeftRow(leftRow);
-
-            // draw job interface if something is selected.
-            if (Selected != null) DoContent(contentCanvas);
-        }
-
-        public float DrawAllowSaplings(Vector2 pos, float width)
-        {
-            var rowRect = new Rect(
-                pos.x,
-                pos.y,
-                width,
-                ListEntryHeight);
-
-            // NOTE: AllowSaplings logic is the reverse from the label that is shown to the user.
             Utilities.DrawToggle(
-                rowRect,
-                "ColonyManagerRedux.Forestry.AllowSaplings".Translate(),
-                "ColonyManagerRedux.Forestry.AllowSaplings.Tip".Translate(),
-                !_selected.AllowSaplings,
-                () => _selected.AllowSaplings = false,
-                () => _selected.AllowSaplings = true);
-            return ListEntryHeight;
+                cellRect,
+                $"ColonyManagerRedux.Forestry.JobType.{type}".Translate(),
+                $"ColonyManagerRedux.Forestry.JobType.{type}.Tip".Translate(),
+                _selected.Type == type,
+                () => _selected.Type = type,
+                () => { },
+                wrap: false);
+            cellRect.x += cellWidth;
         }
 
-        public float DrawAreaRestriction(Vector2 pos, float width)
+        return ListEntryHeight;
+    }
+
+    public float DrawThreshold(Vector2 pos, float width)
+    {
+        var start = pos;
+        var currentCount = _selected.Trigger.CurrentCount;
+        var designatedCount = _selected.GetWoodInDesignations();
+        var targetCount = _selected.Trigger.TargetCount;
+
+        _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+                                             "ColonyManagerRedux.Forestry.TargetCount".Translate(
+                                                 currentCount, designatedCount, targetCount),
+                                             "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
+                                                 currentCount, designatedCount, targetCount),
+                                             _selected.Designations, null, _selected.DesignationLabel);
+
+        Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
+            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
+            ref _selected.PathBasedDistance,
+            true);
+
+        return pos.y - start.y;
+    }
+
+    public float DrawTreeList(Vector2 pos, float width)
+    {
+        var start = pos;
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
+        var allowedTrees = _selected.AllowedTrees;
+        var trees = new List<ThingDef>(allowedTrees.Keys);
+
+        // toggle for each tree
+        foreach (var def in trees)
         {
-            var start = pos;
-            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selected.LoggingArea, manager);
-            return pos.y - start.y;
+            Utilities.DrawToggle(rowRect, def.LabelCap,
+                                  new TipSignal(() => GetTreeTooltip(def), def.GetHashCode()),
+                                  _selected.AllowedTrees[def],
+                                  () => _selected.AllowedTrees[def] = !_selected.AllowedTrees[def]);
+            rowRect.y += ListEntryHeight;
         }
 
-        public float DrawClearArea(Vector2 pos, float width)
+        return rowRect.yMin - start.y;
+    }
+
+    public float DrawTreeShortcuts(Vector2 pos, float width)
+    {
+        var start = pos;
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
+        var allowed = _selected.AllowedTrees;
+        var plants = new List<ThingDef>(allowed.Keys);
+
+        // toggle all
+        Utilities.DrawToggle(rowRect,
+                              "ColonyManagerRedux.ManagerAll".Translate().Italic(),
+                              string.Empty,
+                              _selected.AllowedTrees.Values.All(v => v),
+                              _selected.AllowedTrees.Values.All(v => !v),
+                              () => plants.ForEach(t => allowed[t] = true),
+                              () => plants.ForEach(t => allowed[t] = false));
+
+        if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
         {
-            var start = pos;
-            var rowRect = new Rect(
-                pos.x,
-                pos.y,
-                width,
-                ListEntryHeight);
-            AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref _selected.ClearAreas);
-            pos.y += ListEntryHeight;
-            Utilities.DrawToggle(
-                ref pos,
-                width,
-                "ColonyManagerRedux.Forestry.ClearWindCells".Translate(),
-                "ColonyManagerRedux.Forestry.ClearWindCells.Tip".Translate(),
-                ref _selected.ClearWindCells);
+            rowRect.y += ListEntryHeight;
+            // trees (anything that drops wood, or has the correct harvest tag).
+            var trees = plants.Where(tree => tree.plant.harvestTag == "Wood" ||
+                                              tree.plant.harvestedThingDef == ThingDefOf.WoodLog).ToList();
+            Utilities.DrawToggle(rowRect,
+                                  "ColonyManagerRedux.Forestry.Trees".Translate().Italic(),
+                                  "ColonyManagerRedux.Forestry.Trees.Tip".Translate(),
+                                  trees.All(t => allowed[t]),
+                                  trees.All(t => !allowed[t]),
+                                  () => trees.ForEach(t => allowed[t] = true),
+                                  () => trees.ForEach(t => allowed[t] = false));
+            rowRect.y += ListEntryHeight;
 
-            return pos.y - start.y;
-        }
-
-        public float DrawEmpty(string label, Vector2 pos, float width)
-        {
-            var height = Mathf.Max(Text.CalcHeight(label, width), ListEntryHeight);
-            var rowRect = new Rect(
-                pos.x,
-                pos.y,
-                width,
-                height);
-            Label(rowRect, label, TextAnchor.MiddleLeft, color: Color.gray);
-            return height;
-        }
-
-        public float DrawJobType(Vector2 pos, float width)
-        {
-            // type of job;
-            // clear clear area | logging
-            var types =
-                Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType)) as ManagerJob_Forestry.ForestryJobType
-                    [];
-
-            // backwards compatibility for wind areas
-            // TODO: REMOVE ON NEXT BREAKING VERSION!
-            types = types.Where(type => type != ManagerJob_Forestry.ForestryJobType.ClearWind).ToArray();
-
-            var cellWidth = width / types.Length;
-
-            var cellRect = new Rect(
-                pos.x,
-                pos.y,
-                cellWidth,
-                ListEntryHeight);
-
-            foreach (var type in types)
+            // flammable (probably all - might be modded stuff).
+            var flammable = plants.Where(tree => tree.BaseFlammability > 0).ToList();
+            if (flammable.Count != plants.Count)
             {
                 Utilities.DrawToggle(
-                    cellRect,
-                    $"ColonyManagerRedux.Forestry.JobType.{type}".Translate(),
-                    $"ColonyManagerRedux.Forestry.JobType.{type}.Tip".Translate(),
-                    _selected.Type == type,
-                    () => _selected.Type = type,
-                    () => { },
-                    wrap: false);
-                cellRect.x += cellWidth;
-            }
-
-            return ListEntryHeight;
-        }
-
-        public float DrawThreshold(Vector2 pos, float width)
-        {
-            var start = pos;
-            var currentCount = _selected.Trigger.CurrentCount;
-            var designatedCount = _selected.GetWoodInDesignations();
-            var targetCount = _selected.Trigger.TargetCount;
-
-            _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
-                                                 "ColonyManagerRedux.Forestry.TargetCount".Translate(
-                                                     currentCount, designatedCount, targetCount),
-                                                 "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
-                                                     currentCount, designatedCount, targetCount),
-                                                 _selected.Designations, null, _selected.DesignationLabel);
-
-            Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
-            Utilities.DrawToggle(
-                ref pos,
-                width,
-                "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-                "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-                ref _selected.PathBasedDistance,
-                true);
-
-            return pos.y - start.y;
-        }
-
-        public float DrawTreeList(Vector2 pos, float width)
-        {
-            var start = pos;
-            var rowRect = new Rect(
-                pos.x,
-                pos.y,
-                width,
-                ListEntryHeight);
-            var allowedTrees = _selected.AllowedTrees;
-            var trees = new List<ThingDef>(allowedTrees.Keys);
-
-            // toggle for each tree
-            foreach (var def in trees)
-            {
-                Utilities.DrawToggle(rowRect, def.LabelCap,
-                                      new TipSignal(() => GetTreeTooltip(def), def.GetHashCode()),
-                                      _selected.AllowedTrees[def],
-                                      () => _selected.AllowedTrees[def] = !_selected.AllowedTrees[def]);
+                    rowRect,
+                    "ColonyManagerRedux.Forestry.Flammable".Translate().Italic(),
+                    "ColonyManagerRedux.Forestry.Flammable.Tip".Translate(),
+                    flammable.All(t => allowed[t]),
+                    flammable.All(t => !allowed[t]),
+                    () => flammable.ForEach(t => allowed[t] = true),
+                    () => flammable.ForEach(t => allowed[t] = false));
                 rowRect.y += ListEntryHeight;
             }
 
-            return rowRect.yMin - start.y;
-        }
+            // ugly (possibly none - modded stuff).
+            var ugly = plants.Where(tree => tree.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0)
+                             .ToList();
+            if (!ugly.NullOrEmpty())
+            {
+                Utilities.DrawToggle(rowRect,
+                                      "ColonyManagerRedux.Forestry.Ugly".Translate().Italic(),
+                                      "ColonyManagerRedux.Forestry.Ugly.Tip".Translate(),
+                                      ugly.All(t => allowed[t]),
+                                      ugly.All(t => !allowed[t]),
+                                      () => ugly.ForEach(t => allowed[t] = true),
+                                      () => ugly.ForEach(t => allowed[t] = false));
+                rowRect.y += ListEntryHeight;
+            }
 
-        public float DrawTreeShortcuts(Vector2 pos, float width)
-        {
-            var start = pos;
-            var rowRect = new Rect(
-                pos.x,
-                pos.y,
-                width,
-                ListEntryHeight);
-            var allowed = _selected.AllowedTrees;
-            var plants = new List<ThingDef>(allowed.Keys);
-
-            // toggle all
+            // provides cover
+            var cover = plants.Where(tree => tree.Fillage == FillCategory.Full ||
+                                              tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
+                              .ToList();
             Utilities.DrawToggle(rowRect,
-                                  "ColonyManagerRedux.ManagerAll".Translate().Italic(),
-                                  string.Empty,
-                                  _selected.AllowedTrees.Values.All(v => v),
-                                  _selected.AllowedTrees.Values.All(v => !v),
-                                  () => plants.ForEach(t => allowed[t] = true),
-                                  () => plants.ForEach(t => allowed[t] = false));
+                                  "ColonyManagerRedux.Forestry.ProvidesCover".Translate().Italic(),
+                                  "ColonyManagerRedux.Forestry.ProvidesCover.Tip".Translate(),
+                                  cover.All(t => allowed[t]),
+                                  cover.All(t => !allowed[t]),
+                                  () => cover.ForEach(t => allowed[t] = true),
+                                  () => cover.ForEach(t => allowed[t] = false));
+            rowRect.y += ListEntryHeight;
 
-            if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
-            {
-                rowRect.y += ListEntryHeight;
-                // trees (anything that drops wood, or has the correct harvest tag).
-                var trees = plants.Where(tree => tree.plant.harvestTag == "Wood" ||
-                                                  tree.plant.harvestedThingDef == ThingDefOf.WoodLog).ToList();
-                Utilities.DrawToggle(rowRect,
-                                      "ColonyManagerRedux.Forestry.Trees".Translate().Italic(),
-                                      "ColonyManagerRedux.Forestry.Trees.Tip".Translate(),
-                                      trees.All(t => allowed[t]),
-                                      trees.All(t => !allowed[t]),
-                                      () => trees.ForEach(t => allowed[t] = true),
-                                      () => trees.ForEach(t => allowed[t] = false));
-                rowRect.y += ListEntryHeight;
-
-                // flammable (probably all - might be modded stuff).
-                var flammable = plants.Where(tree => tree.BaseFlammability > 0).ToList();
-                if (flammable.Count != plants.Count)
-                {
-                    Utilities.DrawToggle(
-                        rowRect,
-                        "ColonyManagerRedux.Forestry.Flammable".Translate().Italic(),
-                        "ColonyManagerRedux.Forestry.Flammable.Tip".Translate(),
-                        flammable.All(t => allowed[t]),
-                        flammable.All(t => !allowed[t]),
-                        () => flammable.ForEach(t => allowed[t] = true),
-                        () => flammable.ForEach(t => allowed[t] = false));
-                    rowRect.y += ListEntryHeight;
-                }
-
-                // ugly (possibly none - modded stuff).
-                var ugly = plants.Where(tree => tree.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0)
-                                 .ToList();
-                if (!ugly.NullOrEmpty())
-                {
-                    Utilities.DrawToggle(rowRect,
-                                          "ColonyManagerRedux.Forestry.Ugly".Translate().Italic(),
-                                          "ColonyManagerRedux.Forestry.Ugly.Tip".Translate(),
-                                          ugly.All(t => allowed[t]),
-                                          ugly.All(t => !allowed[t]),
-                                          () => ugly.ForEach(t => allowed[t] = true),
-                                          () => ugly.ForEach(t => allowed[t] = false));
-                    rowRect.y += ListEntryHeight;
-                }
-
-                // provides cover
-                var cover = plants.Where(tree => tree.Fillage == FillCategory.Full ||
-                                                  tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
-                                  .ToList();
-                Utilities.DrawToggle(rowRect,
-                                      "ColonyManagerRedux.Forestry.ProvidesCover".Translate().Italic(),
-                                      "ColonyManagerRedux.Forestry.ProvidesCover.Tip".Translate(),
-                                      cover.All(t => allowed[t]),
-                                      cover.All(t => !allowed[t]),
-                                      () => cover.ForEach(t => allowed[t] = true),
-                                      () => cover.ForEach(t => allowed[t] = false));
-                rowRect.y += ListEntryHeight;
-
-                // blocks wind
-                var wind = plants.Where(tree => tree.blockWind).ToList();
-                Utilities.DrawToggle(rowRect,
-                                      "ColonyManagerRedux.Forestry.BlocksWind".Translate().Italic(),
-                                      "ColonyManagerRedux.Forestry.BlocksWind.Tip".Translate(),
-                                      wind.All(t => allowed[t]),
-                                      wind.All(t => !allowed[t]),
-                                      () => wind.ForEach(t => allowed[t] = true),
-                                      () => wind.ForEach(t => allowed[t] = false));
-            }
-
-            return rowRect.yMax - start.y;
+            // blocks wind
+            var wind = plants.Where(tree => tree.blockWind).ToList();
+            Utilities.DrawToggle(rowRect,
+                                  "ColonyManagerRedux.Forestry.BlocksWind".Translate().Italic(),
+                                  "ColonyManagerRedux.Forestry.BlocksWind.Tip".Translate(),
+                                  wind.All(t => allowed[t]),
+                                  wind.All(t => !allowed[t]),
+                                  () => wind.ForEach(t => allowed[t] = true),
+                                  () => wind.ForEach(t => allowed[t] = false));
         }
 
-        public override void PostClose()
-        {
-            Refresh();
-        }
+        return rowRect.yMax - start.y;
+    }
 
-        public override void PreOpen()
-        {
-            Refresh();
-        }
+    public override void PostClose()
+    {
+        Refresh();
+    }
 
-        public void Refresh()
-        {
-            _jobs = manager.JobStack.FullStack<ManagerJob_Forestry>();
+    public override void PreOpen()
+    {
+        Refresh();
+    }
 
-            // makes sure the list of possible areas is up-to-date with the area in the game.
-            foreach (var job in _jobs)
-                job.UpdateClearAreas();
+    public void Refresh()
+    {
+        _jobs = manager.JobStack.FullStack<ManagerJob_Forestry>();
+
+        // makes sure the list of possible areas is up-to-date with the area in the game.
+        foreach (var job in _jobs)
+            job.UpdateClearAreas();
 
 
-            // update plant options
-            foreach (var job in _jobs)
-                job.RefreshAllowedTrees();
+        // update plant options
+        foreach (var job in _jobs)
+            job.RefreshAllowedTrees();
 
-            // also for selected job
-            _selected?.RefreshAllowedTrees();
-        }
+        // also for selected job
+        _selected?.RefreshAllowedTrees();
     }
 }

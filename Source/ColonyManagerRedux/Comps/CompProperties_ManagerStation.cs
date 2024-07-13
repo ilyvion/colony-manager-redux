@@ -4,18 +4,17 @@
 using System;
 using Verse;
 
-namespace ColonyManagerRedux
+namespace ColonyManagerRedux;
+
+public class CompProperties_ManagerStation : CompProperties
 {
-    public class CompProperties_ManagerStation : CompProperties
+    public int speed = 250;
+
+    public CompProperties_ManagerStation()
     {
-        public int speed = 250;
+    }
 
-        public CompProperties_ManagerStation()
-        {
-        }
-
-        public CompProperties_ManagerStation(Type compClass) : base(compClass)
-        {
-        }
+    public CompProperties_ManagerStation(Type compClass) : base(compClass)
+    {
     }
 }
