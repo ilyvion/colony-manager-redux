@@ -38,10 +38,6 @@ public class ManagerJob_Forestry : ManagerJob
 
     private List<Designation> _designations = [];
 
-    // backwards compatibility for new clear jobs
-    // TODO: REMOVE ON NEXT BREAKING VERSION!
-    private bool _newClearJobs;
-
     private ForestryJobType _type = ForestryJobType.Logging;
 
     public ManagerJob_Forestry(Manager manager) : base(manager)
@@ -264,10 +260,6 @@ public class ManagerJob_Forestry : ManagerJob
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
         Scribe_Values.Look(ref ClearWindCells, "clearWindCells");
-
-        // backwards compatibility for clearing jobs
-        // TODO: REMOVE ON NEXT BREAKING VERSION!
-        Scribe_Values.Look(ref _newClearJobs, "nEW_CLEAR_JOBS");
 
         // clearing areas list
         if (Scribe.mode == LoadSaveMode.Saving)

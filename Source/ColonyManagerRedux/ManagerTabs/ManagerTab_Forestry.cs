@@ -271,12 +271,8 @@ internal class ManagerTab_Forestry : ManagerTab
         // type of job;
         // clear clear area | logging
         var types =
-            Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType)) as ManagerJob_Forestry.ForestryJobType
-                [];
-
-        // backwards compatibility for wind areas
-        // TODO: REMOVE ON NEXT BREAKING VERSION!
-        types = types.Where(type => type != ManagerJob_Forestry.ForestryJobType.ClearWind).ToArray();
+            (ManagerJob_Forestry.ForestryJobType[])
+            Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType));
 
         var cellWidth = width / types.Length;
 
