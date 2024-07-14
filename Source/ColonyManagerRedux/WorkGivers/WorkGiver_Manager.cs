@@ -21,7 +21,7 @@ internal class WorkGiver_Manage : WorkGiver_Scanner
 #if DEBUG_WORKGIVER
         Log.Message( "Checking " + t.LabelCap + " for job." );
         Log.Message( "ManagerStation" + ( t as Building_ManagerStation != null ) );
-        Log.Message( "Comp" + ( t.TryGetComp<Comp_ManagerStation>() != null ) );
+        Log.Message( "Comp" + ( t.TryGetComp<CompManagerStation>() != null ) );
         Log.Message( "Incap" + ( !pawn.Dead && !pawn.Downed && !pawn.IsBurning() && !t.IsBurning() ) );
         Log.Message( "CanReserve and reach" + pawn.CanReserveAndReach( t, PathEndMode, Danger.Some ) );
         var powera = t.TryGetComp<CompPowerTrader>();
@@ -33,7 +33,7 @@ internal class WorkGiver_Manage : WorkGiver_Scanner
             return false;
         }
 
-        if (t.TryGetComp<Comp_ManagerStation>() == null)
+        if (t.TryGetComp<CompManagerStation>() == null)
         {
             return false;
         }

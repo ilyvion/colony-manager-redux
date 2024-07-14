@@ -22,11 +22,11 @@ public class Building_AIManager : Building_ManagerStation
 
     private bool _glowDirty;
 
-    private CompGlower _glower;
+    private CompGlowerAIManager _glower;
 
     private bool _graphicDirty;
 
-    private Comp_ManagerStation? _managerStation;
+    private CompManagerStation? _managerStation;
 
     private bool _powered;
 
@@ -43,17 +43,17 @@ public class Building_AIManager : Building_ManagerStation
     public Building_AIManager()
     {
         _powerTrader = (CompPowerTrader)PowerComp;
-        _glower = GetComp<CompGlower>();
+        _glower = GetComp<CompGlowerAIManager>();
     }
 
     public override Color DrawColor => PrimaryColourBlinker;
 
     public override Color DrawColorTwo => SecondaryColour;
 
-    public CompGlower Glower => _glower ??= GetComp<CompGlower>();
+    public CompGlowerAIManager Glower => _glower ??= GetComp<CompGlowerAIManager>();
 
-    public Comp_ManagerStation ManagerStation =>
-        _managerStation ??= GetComp<Comp_ManagerStation>();
+    public CompManagerStation ManagerStation =>
+        _managerStation ??= GetComp<CompManagerStation>();
 
     public bool Powered
     {
@@ -61,7 +61,7 @@ public class Building_AIManager : Building_ManagerStation
         set
         {
             _powered = value;
-            Glower.SetLit(value);
+            Glower.Lit = value;
             PrimaryColourBlinker = value ? PrimaryColour : Color.black;
             SecondaryColour = value ? _colors[_secondaryColourIndex] : Color.black;
         }
@@ -126,7 +126,7 @@ public class Building_AIManager : Building_ManagerStation
             var tick = Find.TickManager.TicksGame;
 
             // turn on glower
-            Glower.SetLit();
+            Glower.Lit = true;
 
             // random blinking on secondary
             if (tick % 30 == Rand.RangeInclusive(0, 25))

@@ -35,7 +35,7 @@
         <tickerType>Normal</tickerType>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
-                <compClass>ColonyManagerRedux.Comp_ManagerStation</compClass>
+                <compClass>ColonyManagerRedux.CompManagerStation</compClass>
                 <speed>1000</speed>
             </li>
             <li Class="CompProperties_Forbiddable" />
@@ -86,7 +86,7 @@
                 <soundPowerOff>Power_OffSmall</soundPowerOff>
             </li>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
-                <compClass>ColonyManagerRedux.Comp_ManagerStation</compClass>
+                <compClass>ColonyManagerRedux.CompManagerStation</compClass>
                 <speed>500</speed>
             </li>
             <li Class="CompProperties_Forbiddable" />
@@ -134,11 +134,11 @@
                 <soundPowerOff>Power_OffSmall</soundPowerOff>
             </li>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
-                <compClass>ColonyManagerRedux.Comp_ManagerStation</compClass>
+                <compClass>ColonyManagerRedux.CompManagerStation</compClass>
                 <speed>250</speed>
             </li>
             <li Class="CompProperties_Glower">
-                <compClass>CompGlower</compClass>
+                <compClass>ColonyManagerRedux.CompGlowerAIManager</compClass>
                 <glowRadius>3</glowRadius>
                 <glowColor>(255,0,0,0)</glowColor>
             </li>

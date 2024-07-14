@@ -50,7 +50,7 @@ internal class JobDriver_ManagingAtManagingStation : JobDriver
             return null;
         }
 
-        var comp = station.GetComp<Comp_ManagerStation>();
+        var comp = station.GetComp<CompManagerStation>();
         if (comp == null)
         {
             Log.Error("Target of manager job does not have manager station comp. This should never happen.");
