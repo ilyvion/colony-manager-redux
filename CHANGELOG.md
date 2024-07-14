@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Job designations are now saved in the save file so job histories don't get messed up each time the game is loaded
+
 ### Changed
 
 -   Manager tabs are now defined using ManagerTabDefs; this makes it much easier for third party mods to add additional tabs.

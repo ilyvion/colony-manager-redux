@@ -373,6 +373,8 @@ public class ManagerJob_Livestock : ManagerJob
                 Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
         }
+
+        Utilities.Scribe_Designations(ref _designations, Manager);
     }
 
     public Pawn? GetMaster(Pawn animal, MasterMode mode)

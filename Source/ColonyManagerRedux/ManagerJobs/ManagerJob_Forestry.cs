@@ -259,6 +259,8 @@ public class ManagerJob_Forestry : ManagerJob
             // scribe history
             Scribe_Deep.Look(ref History, "history");
         }
+
+        Utilities.Scribe_Designations(ref _designations, Manager);
     }
 
     public int GetWoodInDesignations()

@@ -190,16 +190,13 @@ public class ManagerJob_Foraging : ManagerJob
             // scribe history
             Scribe_Deep.Look(ref History, "history");
         }
+
+        Utilities.Scribe_Designations(ref _designations, Manager);
     }
 
     public List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
     {
-        var plant = plantDef?.plant;
-        if (plant == null)
-        {
-            throw new ArgumentNullException("no valid plantdef defined");
-        }
-
+        var plant = (plantDef?.plant) ?? throw new ArgumentNullException("no valid plantdef defined");
         return new List<ThingDef>([plant.harvestedThingDef]);
     }
 

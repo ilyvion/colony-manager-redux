@@ -483,6 +483,24 @@ public static class Utilities
         }
     }
 
+    public static void Scribe_Designations(ref List<Designation> designations, Map map)
+    {
+        Scribe_Collections.Look(ref designations, "designations", LookMode.Deep);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            DesignationManager designationManager = map.designationManager;
+            for (int i = 0; i < designations.Count; i++)
+            {
+                var thing = designations[i].target.Thing;
+                if (thing == null)
+                {
+                    continue;
+                }
+                designations[i] = designationManager.DesignationOn(thing) ?? designations[i];
+            }
+        }
+    }
+
     public static string TimeString(this int ticks)
     {
         int days = ticks / GenDate.TicksPerDay,

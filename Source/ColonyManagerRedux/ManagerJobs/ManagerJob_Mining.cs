@@ -114,16 +114,24 @@ public class ManagerJob_Mining : ManagerJob
 
     public void AddDesignation(Designation designation)
     {
-        Manager.map.designationManager.AddDesignation(designation);
+        DesignationManager designationManager = Manager.map.designationManager;
+        if (designation.def.targetType == TargetType.Thing && !designationManager.HasMapDesignationOn(designation.target.Thing))
+        {
+            designationManager.AddDesignation(designation);
+        }
+        else if (designation.def.targetType == TargetType.Cell && !designationManager.HasMapDesignationAt(designation.target.Cell))
+        {
+            designationManager.AddDesignation(designation);
+        }
         _designations.Add(designation);
     }
 
     public void AddRelevantGameDesignations()
     {
         foreach (var des in Manager.map.designationManager
-                                    .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
-                                    .Except(_designations)
-                                    .Where(des => IsValidMiningTarget(des.target)))
+            .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
+            .Except(_designations)
+            .Where(des => IsValidMiningTarget(des.target)))
         {
             AddDesignation(des);
         }
@@ -269,13 +277,13 @@ public class ManagerJob_Mining : ManagerJob
         Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
 
-        //Scribe_Values.Look(ref _designations, "designations", []);
-
         // don't store history in import/export mode.
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
         {
             Scribe_Deep.Look(ref History, "history");
         }
+
+        Utilities.Scribe_Designations(ref _designations, Manager);
     }
 
     public int GetCountInBuilding(Building? building)

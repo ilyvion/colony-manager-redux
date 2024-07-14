@@ -250,6 +250,8 @@ public class ManagerJob_Hunting : ManagerJob
         {
             Scribe_Deep.Look(ref History, "history");
         }
+
+        Utilities.Scribe_Designations(ref _designations, Manager);
     }
 
     public int GetMeatInCorpses()
