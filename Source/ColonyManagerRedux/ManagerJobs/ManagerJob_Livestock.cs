@@ -333,34 +333,34 @@ public class ManagerJob_Livestock : ManagerJob
         base.ExposeData();
 
         // settings, references first!
-        Scribe_References.Look(ref TameArea, "TameArea");
-        Scribe_References.Look(ref SlaughterArea, "SlaughterArea");
-        Scribe_References.Look(ref MilkArea, "MilkArea");
-        Scribe_References.Look(ref ShearArea, "ShearArea");
-        Scribe_References.Look(ref TrainingArea, "TrainingArea");
-        Scribe_References.Look(ref Master, "Master");
-        Scribe_References.Look(ref Trainer, "Trainer");
-        Scribe_Collections.Look(ref RestrictArea, "AreaRestrictions", LookMode.Reference);
+        Scribe_References.Look(ref TameArea, "tameArea");
+        Scribe_References.Look(ref SlaughterArea, "slaughterArea");
+        Scribe_References.Look(ref MilkArea, "milkArea");
+        Scribe_References.Look(ref ShearArea, "shearArea");
+        Scribe_References.Look(ref TrainingArea, "trainingArea");
+        Scribe_References.Look(ref Master, "master");
+        Scribe_References.Look(ref Trainer, "trainer");
+        Scribe_Collections.Look(ref RestrictArea, "areaRestrictions", LookMode.Reference);
         Scribe_Deep.Look(ref Trigger, "trigger", manager);
-        Scribe_Deep.Look(ref Training, "Training");
-        Scribe_Deep.Look(ref _history, "History");
-        Scribe_Values.Look(ref ButcherExcess, "ButcherExcess", true);
-        Scribe_Values.Look(ref ButcherTrained, "ButcherTrained");
-        Scribe_Values.Look(ref ButcherPregnant, "ButcherPregnant");
-        Scribe_Values.Look(ref ButcherBonded, "ButcherBonded");
-        Scribe_Values.Look(ref RestrictToArea, "RestrictToArea");
-        Scribe_Values.Look(ref SendToSlaughterArea, "SendToSlaughterArea");
-        Scribe_Values.Look(ref SendToMilkingArea, "SendToMilkingArea");
-        Scribe_Values.Look(ref SendToShearingArea, "SendToShearingArea");
-        Scribe_Values.Look(ref SendToTrainingArea, "SendToTrainingArea");
-        Scribe_Values.Look(ref TryTameMore, "TryTameMore");
-        Scribe_Values.Look(ref SetFollow, "SetFollow", true);
-        Scribe_Values.Look(ref FollowDrafted, "FollowDrafted", true);
-        Scribe_Values.Look(ref FollowFieldwork, "FollowFieldwork", true);
-        Scribe_Values.Look(ref FollowTraining, "FollowTraining");
-        Scribe_Values.Look(ref Masters, "Masters");
-        Scribe_Values.Look(ref Trainers, "Trainers");
-        Scribe_Values.Look(ref RespectBonds, "RespectBonds", true);
+        Scribe_Deep.Look(ref Training, "training");
+        Scribe_Deep.Look(ref _history, "history");
+        Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);
+        Scribe_Values.Look(ref ButcherTrained, "butcherTrained");
+        Scribe_Values.Look(ref ButcherPregnant, "butcherPregnant");
+        Scribe_Values.Look(ref ButcherBonded, "butcherBonded");
+        Scribe_Values.Look(ref RestrictToArea, "restrictToArea");
+        Scribe_Values.Look(ref SendToSlaughterArea, "sendToSlaughterArea");
+        Scribe_Values.Look(ref SendToMilkingArea, "sendToMilkingArea");
+        Scribe_Values.Look(ref SendToShearingArea, "sendToShearingArea");
+        Scribe_Values.Look(ref SendToTrainingArea, "sendToTrainingArea");
+        Scribe_Values.Look(ref TryTameMore, "tryTameMore");
+        Scribe_Values.Look(ref SetFollow, "setFollow", true);
+        Scribe_Values.Look(ref FollowDrafted, "followDrafted", true);
+        Scribe_Values.Look(ref FollowFieldwork, "followFieldwork", true);
+        Scribe_Values.Look(ref FollowTraining, "followTraining");
+        Scribe_Values.Look(ref Masters, "masters");
+        Scribe_Values.Look(ref Trainers, "trainers");
+        Scribe_Values.Look(ref RespectBonds, "respectBonds", true);
 
         // our current designations
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -811,9 +811,9 @@ public class ManagerJob_Livestock : ManagerJob
 
         public void ExposeData()
         {
-            Scribe_Values.Look(ref TrainYoung, "TrainYoung");
-            Scribe_Values.Look(ref UnassignTraining, "UnassignTraining");
-            Scribe_Deep.Look(ref TrainingTargets, "TrainingTargets");
+            Scribe_Values.Look(ref TrainYoung, "trainYoung");
+            Scribe_Values.Look(ref UnassignTraining, "unassignTraining");
+            Scribe_Deep.Look(ref TrainingTargets, "trainingTargets");
         }
 
         private void SetWantedRecursive(TrainableDef td, bool wanted)

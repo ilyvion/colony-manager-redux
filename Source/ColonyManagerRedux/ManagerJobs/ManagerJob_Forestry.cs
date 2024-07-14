@@ -258,16 +258,16 @@ public class ManagerJob_Forestry : ManagerJob
         base.ExposeData();
 
         // settings, references first!
-        Scribe_References.Look(ref LoggingArea, "LoggingArea");
+        Scribe_References.Look(ref LoggingArea, "loggingArea");
         Scribe_Deep.Look(ref Trigger, "trigger", manager);
-        Scribe_Collections.Look(ref AllowedTrees, "AllowedTrees", LookMode.Def, LookMode.Value);
+        Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def, LookMode.Value);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
-        Scribe_Values.Look(ref AllowSaplings, "AllowSaplings");
-        Scribe_Values.Look(ref ClearWindCells, "ClearWindCells");
+        Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
+        Scribe_Values.Look(ref ClearWindCells, "clearWindCells");
 
         // backwards compatibility for clearing jobs
         // TODO: REMOVE ON NEXT BREAKING VERSION!
-        Scribe_Values.Look(ref _newClearJobs, "NEW_CLEAR_JOBS");
+        Scribe_Values.Look(ref _newClearJobs, "nEW_CLEAR_JOBS");
 
         // clearing areas list
         if (Scribe.mode == LoadSaveMode.Saving)
@@ -281,8 +281,8 @@ public class ManagerJob_Forestry : ManagerJob
         }
 
         // scribe that stuff
-        Scribe_Collections.Look(ref _clearAreas_areas, "ClearAreas_areas", LookMode.Reference);
-        Scribe_Collections.Look(ref _clearAreas_allowed, "ClearAreas_allowed", LookMode.Value);
+        Scribe_Collections.Look(ref _clearAreas_areas, "clearAreas_areas", LookMode.Reference);
+        Scribe_Collections.Look(ref _clearAreas_allowed, "clearAreas_allowed", LookMode.Value);
 
         // initialize areas dict from scribe helpers
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -300,7 +300,7 @@ public class ManagerJob_Forestry : ManagerJob
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
         {
             // scribe history
-            Scribe_Deep.Look(ref History, "History");
+            Scribe_Deep.Look(ref History, "history");
         }
     }
 

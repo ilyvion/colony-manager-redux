@@ -17,8 +17,8 @@ internal class JobDriver_ManagingAtManagingStation : JobDriver
     {
         base.ExposeData();
 
-        Scribe_Values.Look(ref workNeeded, "WorkNeeded", 100);
-        Scribe_Values.Look(ref workDone, "WorkDone");
+        Scribe_Values.Look(ref workNeeded, "workNeeded", 100);
+        Scribe_Values.Look(ref workDone, "workDone");
     }
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)

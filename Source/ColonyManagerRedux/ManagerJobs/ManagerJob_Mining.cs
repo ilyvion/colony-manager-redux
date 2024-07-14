@@ -259,22 +259,22 @@ public class ManagerJob_Mining : ManagerJob
     {
         base.ExposeData();
 
-        Scribe_References.Look(ref MiningArea, "MiningArea");
-        Scribe_Deep.Look(ref Trigger, "Trigger", manager);
-        Scribe_Collections.Look(ref AllowedMinerals, "AllowedMinerals", LookMode.Def, LookMode.Value);
-        Scribe_Collections.Look(ref AllowedBuildings, "AllowedBuildings", LookMode.Def, LookMode.Value);
-        Scribe_Values.Look(ref SyncFilterAndAllowed, "SyncFilterAndAllowed", true);
-        Scribe_Values.Look(ref DeconstructBuildings, "DeconstructBuildings");
-        Scribe_Values.Look(ref CheckRoofSupport, "CheckRoofSupport", true);
-        Scribe_Values.Look(ref CheckRoofSupportAdvanced, "CheckRoofSupportAdvanced");
-        Scribe_Values.Look(ref CheckRoomDivision, "CheckRoomDivision", true);
+        Scribe_References.Look(ref MiningArea, "miningArea");
+        Scribe_Deep.Look(ref Trigger, "trigger", manager);
+        Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def, LookMode.Value);
+        Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def, LookMode.Value);
+        Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
+        Scribe_Values.Look(ref DeconstructBuildings, "deconstructBuildings");
+        Scribe_Values.Look(ref CheckRoofSupport, "checkRoofSupport", true);
+        Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
+        Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
 
         //Scribe_Values.Look(ref _designations, "designations", []);
 
         // don't store history in import/export mode.
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
         {
-            Scribe_Deep.Look(ref History, "History");
+            Scribe_Deep.Look(ref History, "history");
         }
     }
 

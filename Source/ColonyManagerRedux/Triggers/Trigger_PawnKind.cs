@@ -75,8 +75,8 @@ public class Trigger_PawnKind : Trigger
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Collections.Look(ref CountTargets, "Targets", LookMode.Value, LookMode.Value);
-        Scribe_Defs.Look(ref pawnKind, "PawnKind");
+        Scribe_Collections.Look(ref CountTargets, "targets", LookMode.Value, LookMode.Value);
+        Scribe_Defs.Look(ref pawnKind, "pawnKind");
     }
 
     private string _getTooltip()

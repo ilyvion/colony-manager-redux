@@ -234,21 +234,21 @@ public class ManagerJob_Hunting : ManagerJob
         base.ExposeData();
 
         // references first, reasons
-        Scribe_References.Look(ref HuntingGrounds, "HuntingGrounds");
+        Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
 
         // must be after references, because reasons.
         Scribe_Deep.Look(ref Trigger, "trigger", manager);
 
         // settings
-        Scribe_Collections.Look(ref AllowedAnimals, "AllowedAnimals", LookMode.Def, LookMode.Value);
-        Scribe_Values.Look(ref UnforbidCorpses, "UnforbidCorpses", true);
-        Scribe_Values.Look(ref _allowHumanLikeMeat, "AllowHumanLikeMeat");
-        Scribe_Values.Look(ref _allowInsectMeat, "AllowInsectMeat");
+        Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def, LookMode.Value);
+        Scribe_Values.Look(ref UnforbidCorpses, "unforbidCorpses", true);
+        Scribe_Values.Look(ref _allowHumanLikeMeat, "allowHumanLikeMeat");
+        Scribe_Values.Look(ref _allowInsectMeat, "allowInsectMeat");
 
         // don't store history in import/export mode.
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
         {
-            Scribe_Deep.Look(ref History, "History");
+            Scribe_Deep.Look(ref History, "history");
         }
     }
 

@@ -130,19 +130,19 @@ public class History : IExposable
     public void ExposeData()
     {
         // settings
-        Scribe_Values.Look(ref AllowTogglingLegend, "AllowToggingLegend", true);
-        Scribe_Values.Look(ref DrawInlineLegend, "ShowLegend", true);
-        Scribe_Values.Look(ref DrawTargetLine, "DrawTargetLine", true);
-        Scribe_Values.Look(ref DrawOptions, "DrawOptions", true);
-        Scribe_Values.Look(ref Suffix, "Suffix", "");
-        Scribe_Values.Look(ref DrawIcons, "DrawIcons", true);
-        Scribe_Values.Look(ref DrawCounts, "DrawCounts", true);
-        Scribe_Values.Look(ref DrawInfoInBar, "DrawInfoInBar");
-        Scribe_Values.Look(ref DrawMaxMarkers, "DrawMaxMarkers", true);
-        Scribe_Values.Look(ref MaxPerChapter, "MaxPerChapter");
+        Scribe_Values.Look(ref AllowTogglingLegend, "allowToggingLegend", true);
+        Scribe_Values.Look(ref DrawInlineLegend, "showLegend", true);
+        Scribe_Values.Look(ref DrawTargetLine, "drawTargetLine", true);
+        Scribe_Values.Look(ref DrawOptions, "drawOptions", true);
+        Scribe_Values.Look(ref Suffix, "suffix", "");
+        Scribe_Values.Look(ref DrawIcons, "drawIcons", true);
+        Scribe_Values.Look(ref DrawCounts, "drawCounts", true);
+        Scribe_Values.Look(ref DrawInfoInBar, "drawInfoInBar");
+        Scribe_Values.Look(ref DrawMaxMarkers, "drawMaxMarkers", true);
+        Scribe_Values.Look(ref MaxPerChapter, "maxPerChapter");
 
         // history chapters
-        Scribe_Collections.Look(ref _chapters, "Chapters", LookMode.Deep);
+        Scribe_Collections.Look(ref _chapters, "chapters", LookMode.Deep);
 
         // some post load tweaks
         if (Scribe.mode == LoadSaveMode.PostLoadInit)

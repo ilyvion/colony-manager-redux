@@ -293,11 +293,11 @@ public class Trigger_Threshold : Trigger
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref TargetCount, "Count");
-        Scribe_Values.Look(ref MaxUpperThreshold, "MaxUpperThreshold");
-        Scribe_Values.Look(ref Op, "Operator");
-        Scribe_Deep.Look(ref ThresholdFilter, "ThresholdFilter");
-        Scribe_Values.Look(ref countAllOnMap, "CountAllOnMap");
+        Scribe_Values.Look(ref TargetCount, "count");
+        Scribe_Values.Look(ref MaxUpperThreshold, "maxUpperThreshold");
+        Scribe_Values.Look(ref Op, "operator");
+        Scribe_Deep.Look(ref ThresholdFilter, "thresholdFilter");
+        Scribe_Values.Look(ref countAllOnMap, "countAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
         if (Scribe.mode == LoadSaveMode.Saving)
@@ -305,7 +305,7 @@ public class Trigger_Threshold : Trigger
             _stockpile_scribe = stockpile?.ToString() ?? "null";
         }
 
-        Scribe_Values.Look(ref _stockpile_scribe, "Stockpile", "null");
+        Scribe_Values.Look(ref _stockpile_scribe, "stockpile", "null");
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             stockpile =

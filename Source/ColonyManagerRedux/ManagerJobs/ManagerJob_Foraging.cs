@@ -187,15 +187,15 @@ public class ManagerJob_Foraging : ManagerJob
         base.ExposeData();
 
         // settings, references first!
-        Scribe_References.Look(ref ForagingArea, "ForagingArea");
+        Scribe_References.Look(ref ForagingArea, "foragingArea");
         Scribe_Deep.Look(ref Trigger, "trigger", manager);
-        Scribe_Collections.Look(ref AllowedPlants, "AllowedPlants", LookMode.Def, LookMode.Value);
-        Scribe_Values.Look(ref ForceFullyMature, "ForceFullyMature");
+        Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def, LookMode.Value);
+        Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
         {
             // scribe history
-            Scribe_Deep.Look(ref History, "History");
+            Scribe_Deep.Look(ref History, "history");
         }
     }
 

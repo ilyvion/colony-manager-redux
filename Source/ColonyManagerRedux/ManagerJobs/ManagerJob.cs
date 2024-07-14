@@ -79,12 +79,12 @@ public abstract class ManagerJob : IManagerJob, IExposable
         }
 
         Scribe_References.Look(ref manager, "manager");
-        Scribe_Values.Look(ref _updateIntervalScribe, "UpdateInterval");
+        Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
         Scribe_Values.Look(ref lastAction, "lastAction");
         Scribe_Values.Look(ref priority, "priority");
-        Scribe_Values.Look(ref CheckReachable, "CheckReachable", true);
-        Scribe_Values.Look(ref PathBasedDistance, "PathBasedDistance");
-        Scribe_Values.Look(ref _suspended, "Suspended");
+        Scribe_Values.Look(ref CheckReachable, "checkReachable", true);
+        Scribe_Values.Look(ref PathBasedDistance, "pathBasedDistance");
+        Scribe_Values.Look(ref _suspended, "suspended");
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit || Manager.LoadSaveMode == Manager.Modes.ImportExport)
         {
