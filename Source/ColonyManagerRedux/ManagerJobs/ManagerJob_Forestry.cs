@@ -290,7 +290,7 @@ public class ManagerJob_Forestry : ManagerJob
         Logger.Debug("Refreshing allowed trees");
 
         // all plants
-        var options = Utilities_Forestry.GetPlants(Manager, Type == ForestryJobType.ClearArea);
+        var options = Utilities_Plants.GetForestryPlants(Manager, Type == ForestryJobType.ClearArea);
 
         // remove stuff not in new list
         foreach (var tree in AllowedTrees.ToList())

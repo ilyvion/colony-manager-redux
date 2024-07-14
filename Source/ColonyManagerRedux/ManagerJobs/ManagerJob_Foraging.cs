@@ -1,5 +1,6 @@
 ﻿// ManagerJob_Foraging.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ public class ManagerJob_Foraging : ManagerJob
 {
     private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new(0);
 
-    public Dictionary<ThingDef, bool> AllowedPlants = [];
+    public HashSet<ThingDef> AllowedPlants = [];
     public Area? ForagingArea;
     public bool ForceFullyMature;
     public History History;
@@ -32,13 +33,6 @@ public class ManagerJob_Foraging : ManagerJob
 
         // create History tracker
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
-
-        // init stuff if we're not loading
-        // TODO: please, please refactor this into something less clumsy!
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            RefreshAllowedPlants();
-        }
     }
 
     public override bool IsCompleted => !Trigger.State;
@@ -85,8 +79,7 @@ public class ManagerJob_Foraging : ManagerJob
     public override ManagerTab Tab => Manager.For(Manager).tabs.Find(tab => tab is ManagerTab_Foraging);
 
     public override string[] Targets => AllowedPlants
-                                       .Keys.Where(key => AllowedPlants[key])
-                                       .Select(plant => plant.LabelCap.Resolve()).ToArray();
+        .Select(plant => plant.LabelCap.Resolve()).ToArray();
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
 
@@ -95,8 +88,8 @@ public class ManagerJob_Foraging : ManagerJob
         // get list of game designations not managed by this job that could have been assigned by this job.
         foreach (
             var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
-                              .Except(_designations)
-                              .Where(des => IsValidForagingTarget(des.target)))
+                .Except(_designations)
+                .Where(des => IsValidForagingTarget(des.target)))
         {
             AddDesignation(des);
         }
@@ -189,7 +182,7 @@ public class ManagerJob_Foraging : ManagerJob
         // settings, references first!
         Scribe_References.Look(ref ForagingArea, "foragingArea");
         Scribe_Deep.Look(ref Trigger, "trigger", Manager);
-        Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def, LookMode.Value);
+        Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
@@ -218,10 +211,17 @@ public class ManagerJob_Foraging : ManagerJob
             return;
         }
 
-        foreach (var plant in new List<ThingDef>(AllowedPlants.Keys))
+
+        foreach (var plant in Utilities_Plants.GetForagingPlants(Manager))
         {
-            AllowedPlants[plant] = GetMaterialsInPlant(plant)
-               .Any(Trigger.ThresholdFilter.Allows);
+            if (GetMaterialsInPlant(plant).Any(Trigger.ThresholdFilter.Allows))
+            {
+                AllowedPlants.Add(plant);
+            }
+            else
+            {
+                AllowedPlants.Remove(plant);
+            }
         }
     }
 
@@ -230,42 +230,16 @@ public class ManagerJob_Foraging : ManagerJob
         Logger.Debug("Refreshing allowed plants");
 
         // all plants that yield something, and it isn't wood.
-        var options = Manager.map.Biome.AllWildPlants
+        var options = Utilities_Plants.GetForagingPlants(Manager);
 
-                             // cave plants (shrooms)
-                             .Concat(DefDatabase<ThingDef>.AllDefsListForReading
-                                                           .Where(td => td.plant?.cavePlant ?? false))
-
-                             // ambrosia
-                             .Concat(ThingDefOf.Plant_Ambrosia)
-
-                             // and anything on the map that is not in a plant zone/planter
-                             .Concat(Manager.map.listerThings.AllThings.OfType<Plant>()
-                                             .Where(p => p.Spawned &&
-                                                          !(Manager.map.zoneManager.ZoneAt(p.Position) is
-                                                              IPlantToGrowSettable) &&
-                                                          Manager.map.thingGrid.ThingsAt(p.Position)
-                                                                 .FirstOrDefault(
-                                                                      t => t is Building_PlantGrower) == null)
-                                             .Select(p => p.def)
-                                             .Distinct())
-
-                             // that yield something that is not wood
-                             .Where(plant => plant.plant.harvestYield > 0 &&
-                                              plant.plant.harvestedThingDef != null &&
-                                              plant.plant.harvestTag != "Wood")
-                             .Distinct();
-
-        foreach (var plant in options)
+        // remove stuff not in new list
+        foreach (var plant in AllowedPlants.ToList())
         {
-            if (!AllowedPlants.ContainsKey(plant))
+            if (!options.Contains(plant))
             {
-                AllowedPlants.Add(plant, false);
+                AllowedPlants.Remove(plant);
             }
         }
-
-        AllowedPlants = AllowedPlants.OrderBy(plant => plant.Key.LabelCap.RawText)
-                                     .ToDictionary(it => it.Key, it => it.Value);
     }
 
     public void SetPlantAllowed(ThingDef plant, bool allow, bool sync = true)
@@ -275,7 +249,14 @@ public class ManagerJob_Foraging : ManagerJob
             throw new ArgumentNullException(nameof(plant));
         }
 
-        AllowedPlants[plant] = allow;
+        if (allow)
+        {
+            AllowedPlants.Add(plant);
+        }
+        else
+        {
+            AllowedPlants.Remove(plant);
+        }
 
         if (SyncFilterAndAllowed && sync)
         {
@@ -361,9 +342,8 @@ public class ManagerJob_Foraging : ManagerJob
         return Manager.map.listerThings.AllThings
                       .Where(IsValidForagingTarget)
 
-                      // OrderBy defaults to ascending, switch sign on current yield to get descending
                       .Select(p => (Plant)p)
-                      .OrderBy(p => -p.YieldNow() / Distance(p, position))
+                      .OrderByDescending(p => p.YieldNow() / Distance(p, position))
                       .ToList();
     }
 
@@ -385,8 +365,7 @@ public class ManagerJob_Foraging : ManagerJob
             && target.Map == Manager.map
 
             // non-biome plants won't be on the list, also filters non-yield or wood plants
-            && AllowedPlants.ContainsKey(target.def)
-            && AllowedPlants[target.def]
+            && AllowedPlants.Contains(target.def)
             && target.Spawned
             && Manager.map.designationManager.DesignationOn(target) == null
 

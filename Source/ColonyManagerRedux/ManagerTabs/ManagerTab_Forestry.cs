@@ -328,7 +328,7 @@ internal class ManagerTab_Forestry : ManagerTab
             width,
             ListEntryHeight);
         var allowedTrees = SelectedForestryJob.AllowedTrees;
-        var allPlants = Utilities_Forestry.GetPlants(manager, SelectedForestryJob.Type == ForestryJobType.ClearArea);
+        var allPlants = Utilities_Plants.GetForestryPlants(manager, SelectedForestryJob.Type == ForestryJobType.ClearArea);
 
         // toggle for each tree
         foreach (var plantDef in allPlants)
@@ -362,7 +362,7 @@ internal class ManagerTab_Forestry : ManagerTab
             width,
             ListEntryHeight);
         var allowedTrees = SelectedForestryJob.AllowedTrees;
-        var allPlants = Utilities_Forestry.GetPlants(manager, SelectedForestryJob.Type == ForestryJobType.ClearArea).ToList();
+        var allPlants = Utilities_Plants.GetForestryPlants(manager, SelectedForestryJob.Type == ForestryJobType.ClearArea).ToList();
 
         var allSelected = allPlants.All(allowedTrees.Contains);
         var noneSelected = allPlants.All(p => !allowedTrees.Contains(p));

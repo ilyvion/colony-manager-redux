@@ -223,7 +223,7 @@ internal class ManagerTab_Foraging : ManagerTab
 
         // list of keys in allowed trees list (all plans that yield wood in biome, static)
         var allowedPlants = SelectedForagingJob.AllowedPlants;
-        var plants = allowedPlants.Keys.ToList();
+        var allPlants = Utilities_Plants.GetForagingPlants(manager);
 
         var rowRect = new Rect(
             pos.x,
@@ -232,10 +232,11 @@ internal class ManagerTab_Foraging : ManagerTab
             ListEntryHeight);
 
         // toggle for each plant
-        foreach (var plant in plants)
+        foreach (var plantDef in allPlants)
         {
-            Utilities.DrawToggle(rowRect, plant.LabelCap, new TipSignal(() => GetPlantTooltip(plant), plant.GetHashCode()), SelectedForagingJob.AllowedPlants[plant],
-                                  () => SelectedForagingJob.SetPlantAllowed(plant, !SelectedForagingJob.AllowedPlants[plant]));
+            Utilities.DrawToggle(rowRect, plantDef.LabelCap,
+                new TipSignal(() => GetPlantTooltip(plantDef), plantDef.GetHashCode()), allowedPlants.Contains(plantDef),
+                () => SelectedForagingJob.SetPlantAllowed(plantDef, !allowedPlants.Contains(plantDef)));
             rowRect.y += ListEntryHeight;
         }
 
@@ -260,7 +261,10 @@ internal class ManagerTab_Foraging : ManagerTab
 
         // list of keys in allowed trees list (all plans that yield wood in biome, static)
         var allowedPlants = SelectedForagingJob.AllowedPlants;
-        var plants = allowedPlants.Keys.ToList();
+        var allPlants = Utilities_Plants.GetForagingPlants(manager).ToList();
+
+        var allSelected = allPlants.All(allowedPlants.Contains);
+        var noneSelected = allPlants.All(p => !allowedPlants.Contains(p));
 
         var rowRect = new Rect(
             pos.x,
@@ -273,32 +277,40 @@ internal class ManagerTab_Foraging : ManagerTab
             rowRect,
             "<i>" + "ColonyManagerRedux.ManagerAll".Translate() + "</i>",
             string.Empty,
-            allowedPlants.Values.All(p => p),
-            allowedPlants.Values.All(p => !p),
-            () => plants.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
-            () => plants.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
+            allSelected,
+            noneSelected,
+            () => allPlants.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
+            () => allPlants.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
 
         // toggle edible
         rowRect.y += ListEntryHeight;
-        var edible = plants.Where(p => p.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false).ToList();
+        var edible = allPlants.Where(p => p.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false).ToList();
+
+        allSelected = edible.All(allowedPlants.Contains);
+        noneSelected = edible.All(p => !allowedPlants.Contains(p));
+
         Utilities.DrawToggle(
             rowRect,
             "<i>" + "ColonyManagerRedux.ManagerForaging.Edible".Translate() + "</i>",
             "ColonyManagerRedux.ManagerForaging.Edible.Tip".Translate(),
-            edible.All(p => allowedPlants[p]),
-            edible.All(p => !allowedPlants[p]),
+            allSelected,
+            noneSelected,
             () => edible.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
             () => edible.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
 
         // toggle shrooms
         rowRect.y += ListEntryHeight;
-        var shrooms = plants.Where(p => p.plant?.cavePlant ?? false).ToList();
+        var shrooms = allPlants.Where(p => p.plant?.cavePlant ?? false).ToList();
+
+        allSelected = shrooms.All(allowedPlants.Contains);
+        noneSelected = shrooms.All(p => !allowedPlants.Contains(p));
+
         Utilities.DrawToggle(
             rowRect,
             "<i>" + "ColonyManagerRedux.ManagerForaging.Mushrooms".Translate() + "</i>",
             "ColonyManagerRedux.ManagerForaging.Mushrooms.Tip".Translate(),
-            shrooms.All(p => allowedPlants[p]),
-            shrooms.All(p => !allowedPlants[p]),
+            allSelected,
+            noneSelected,
             () => shrooms.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
             () => shrooms.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
 
