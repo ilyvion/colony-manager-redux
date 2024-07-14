@@ -1,5 +1,6 @@
 ﻿// ManagerTab_Power.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
 using System.Linq;
@@ -107,8 +108,6 @@ public class ManagerTab_Power : ManagerTab, IExposable
     public override bool Enabled => unlocked && AnyPoweredStationOnline;
 
     public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
-
-    public override ManagerJob? Selected { get; set; }
 
     public void ExposeData()
     {

@@ -12,19 +12,23 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
+internal class ManagerTab_Hunting : ManagerTab
 {
     public List<ManagerJob_Hunting> Jobs = [];
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
-    private ManagerJob_Hunting _selected = new(manager);
+
+    public ManagerTab_Hunting(Manager manager) : base(manager)
+    {
+        SelectedHuntingJob = new(manager);
+    }
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
-    public override ManagerJob? Selected
+    public ManagerJob_Hunting SelectedHuntingJob
     {
-        get => _selected;
-        set => _selected = (ManagerJob_Hunting)value!;
+        get => (ManagerJob_Hunting)Selected!;
+        set => Selected = value;
     }
 
     public void DoContent(Rect rect)
@@ -68,7 +72,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
         {
-            _selected.RefreshAllowedAnimals();
+            SelectedHuntingJob.RefreshAllowedAnimals();
         }
 
         Widgets_Section.Section(ref position, width, DrawAnimalShortcuts, "ColonyManagerRedux.Hunting.Animals".Translate());
@@ -76,13 +80,13 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         Widgets_Section.EndSectionColumn("Hunting.Animals", position);
 
         // do the button
-        if (!_selected.Managed)
+        if (!SelectedHuntingJob.Managed)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                _selected.Managed = true;
-                Manager.For(manager).JobStack.Add(_selected);
+                SelectedHuntingJob.Managed = true;
+                Manager.For(manager).JobStack.Add(SelectedHuntingJob);
 
                 // refresh source list
                 Refresh();
@@ -93,10 +97,10 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                Manager.For(manager).JobStack.Delete(_selected);
+                Manager.For(manager).JobStack.Delete(SelectedHuntingJob);
 
                 // remove content from UI
-                _selected = new ManagerJob_Hunting(manager);
+                SelectedHuntingJob = new ManagerJob_Hunting(manager);
 
                 // refresh source list
                 Refresh();
@@ -127,7 +131,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job)
+            if (SelectedHuntingJob == job)
             {
                 Widgets.DrawHighlightSelected(row);
             }
@@ -150,7 +154,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             job.DrawListEntry(jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                _selected = job;
+                SelectedHuntingJob = job;
             }
 
             cur.y += LargeListEntryHeight;
@@ -204,7 +208,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
     {
         var start = pos;
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowed = _selected.AllowedAnimals;
+        var allowed = SelectedHuntingJob.AllowedAnimals;
         var animals = new List<PawnKindDef>(allowed.Keys);
 
         // toggle for each animal
@@ -347,7 +351,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowed = _selected.AllowedAnimals;
+        var allowed = SelectedHuntingJob.AllowedAnimals;
         var animals = new List<PawnKindDef>(allowed.Keys);
 
         // toggle all
@@ -409,7 +413,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
     public float DrawHuntingGrounds(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selected.HuntingGrounds, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedHuntingJob.HuntingGrounds, manager);
         return pos.y - start.y;
     }
 
@@ -418,32 +422,32 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // target count (1)
-        var currentCount = _selected.Trigger.CurrentCount;
-        var corpseCount = _selected.GetMeatInCorpses();
-        var designatedCount = _selected.GetMeatInDesignations();
-        var targetCount = _selected.Trigger.TargetCount;
+        var currentCount = SelectedHuntingJob.Trigger.CurrentCount;
+        var corpseCount = SelectedHuntingJob.GetMeatInCorpses();
+        var designatedCount = SelectedHuntingJob.GetMeatInDesignations();
+        var targetCount = SelectedHuntingJob.Trigger.TargetCount;
 
-        _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedHuntingJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Hunting.TargetCount".Translate(
                 currentCount, corpseCount, designatedCount, targetCount),
             "ColonyManagerRedux.Hunting.TargetCountTooltip".Translate(
                 currentCount, corpseCount, designatedCount, targetCount),
-            _selected.Designations, null, _selected.DesignationLabel);
+            SelectedHuntingJob.Designations, null, SelectedHuntingJob.DesignationLabel);
 
         // allow human & insect meat (2)
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref _selected.PathBasedDistance, true);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
+            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedHuntingJob.PathBasedDistance, true);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.CheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
-            _selected.Trigger.ThresholdFilter.Allows(Utilities_Hunting.HumanMeat),
-            () => _selected.AllowHumanLikeMeat = true,
-            () => _selected.AllowHumanLikeMeat = false);
+            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(Utilities_Hunting.HumanMeat),
+            () => SelectedHuntingJob.AllowHumanLikeMeat = true,
+            () => SelectedHuntingJob.AllowHumanLikeMeat = false);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
-            _selected.Trigger.ThresholdFilter.Allows(Utilities_Hunting.InsectMeat),
-            () => _selected.AllowInsectMeat = true,
-            () => _selected.AllowInsectMeat = false);
+            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(Utilities_Hunting.InsectMeat),
+            () => SelectedHuntingJob.AllowInsectMeat = true,
+            () => SelectedHuntingJob.AllowInsectMeat = false);
 
         return pos.y - start.y;
     }
@@ -453,7 +457,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         // unforbid corpses (3)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect, "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(), "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
-            ref _selected.UnforbidCorpses);
+            ref SelectedHuntingJob.UnforbidCorpses);
         return ListEntryHeight;
     }
 
@@ -473,6 +477,6 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             job.RefreshAllowedAnimals();
         }
 
-        _selected?.RefreshAllowedAnimals();
+        SelectedHuntingJob?.RefreshAllowedAnimals();
     }
 }

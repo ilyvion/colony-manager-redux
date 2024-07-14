@@ -1,5 +1,6 @@
 ﻿// ManagerTab_Mining.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
 using System.Linq;
@@ -11,30 +12,28 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
+public class ManagerTab_Mining : ManagerTab
 {
     public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
-                                                                                          .Where(td => td.IsStuff
-                                                                                                     && td
-                                                                                                       .stuffProps
-                                                                                                       .categories
-                                                                                                       .Contains(
-                                                                                                            StuffCategoryDefOf
-                                                                                                               .Metallic)));
+        .Where(td => td.IsStuff && td.stuffProps.categories.Contains(StuffCategoryDefOf.Metallic)));
 
     public List<ManagerJob_Mining> Jobs = [];
 
     private float _jobListHeight;
     private Vector2 _jobListScrollPosition = Vector2.zero;
-    private ManagerJob_Mining _selected = new(manager);
+
+    public ManagerJob_Mining SelectedMiningJob
+    {
+        get => (ManagerJob_Mining)Selected!;
+        set => Selected = value;
+    }
+
+    public ManagerTab_Mining(Manager manager) : base(manager)
+    {
+        SelectedMiningJob = new ManagerJob_Mining(manager);
+    }
 
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
-
-    public override ManagerJob? Selected
-    {
-        get => _selected;
-        set => _selected = (ManagerJob_Mining)value!;
-    }
 
     public static string GetMineralTooltip(ThingDef mineral)
     {
@@ -90,14 +89,14 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     {
         var start = pos;
 
-        var allowedBuildings = _selected.AllowedBuildings;
+        var allowedBuildings = SelectedMiningJob.AllowedBuildings;
         var buildings = new List<ThingDef>(allowedBuildings.Keys);
 
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var building in buildings)
         {
             Utilities.DrawToggle(rowRect, building.LabelCap, building.description, allowedBuildings[building],
-                                  () => _selected.SetAllowBuilding(building, !allowedBuildings[building]));
+                                  () => SelectedMiningJob.SetAllowBuilding(building, !allowedBuildings[building]));
             rowRect.y += ListEntryHeight;
         }
 
@@ -110,7 +109,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowedBuildings = _selected.AllowedBuildings;
+        var allowedBuildings = SelectedMiningJob.AllowedBuildings;
         var buildings = new List<ThingDef>(allowedBuildings.Keys);
 
         // toggle all
@@ -120,8 +119,8 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
                               string.Empty,
                               allowedBuildings.Values.All(v => v),
                               allowedBuildings.Values.All(v => !v),
-                              () => buildings.ForEach(b => _selected.SetAllowBuilding(b, true)),
-                              () => buildings.ForEach(b => _selected.SetAllowBuilding(b, false)));
+                              () => buildings.ForEach(b => SelectedMiningJob.SetAllowBuilding(b, true)),
+                              () => buildings.ForEach(b => SelectedMiningJob.SetAllowBuilding(b, false)));
 
         return rowRect.yMax - start.y;
     }
@@ -130,7 +129,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     {
         var start = pos;
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowedMinerals = _selected.AllowedMinerals;
+        var allowedMinerals = SelectedMiningJob.AllowedMinerals;
         var minerals = new List<ThingDef>(allowedMinerals.Keys);
 
         // toggle for each animal
@@ -140,8 +139,8 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             // draw the toggle
             Utilities.DrawToggle(rowRect, mineral.LabelCap,
                                   new TipSignal(() => GetMineralTooltip(mineral), mineral.GetHashCode()),
-                                  _selected.AllowedMinerals[mineral],
-                                  () => _selected.SetAllowMineral(mineral, !_selected.AllowedMinerals[mineral]));
+                                  SelectedMiningJob.AllowedMinerals[mineral],
+                                  () => SelectedMiningJob.SetAllowMineral(mineral, !SelectedMiningJob.AllowedMinerals[mineral]));
             rowRect.y += ListEntryHeight;
         }
 
@@ -153,17 +152,17 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowedMinerals = _selected.AllowedMinerals;
+        var allowedMinerals = SelectedMiningJob.AllowedMinerals;
         var minerals = new List<ThingDef>(allowedMinerals.Keys);
 
         // toggle all
         Utilities.DrawToggle(ref pos, width,
                               "ColonyManagerRedux.ManagerAll".Translate().Italic(),
                               string.Empty,
-                              _selected.AllowedMinerals.Values.All(v => v),
-                              _selected.AllowedMinerals.Values.All(v => !v),
-                              () => minerals.ForEach(p => _selected.SetAllowMineral(p, true)),
-                              () => minerals.ForEach(p => _selected.SetAllowMineral(p, false)));
+                              SelectedMiningJob.AllowedMinerals.Values.All(v => v),
+                              SelectedMiningJob.AllowedMinerals.Values.All(v => !v),
+                              () => minerals.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
+                              () => minerals.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
 
         // toggle stone
         var stone = minerals.Where(m => !m.building.isResourceRock).ToList();
@@ -172,8 +171,8 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
                               "ColonyManagerRedux.ManagerMining.Stone.Tip".Translate(),
                               stone.All(p => allowedMinerals[p]),
                               stone.All(p => !allowedMinerals[p]),
-                              () => stone.ForEach(p => _selected.SetAllowMineral(p, true)),
-                              () => stone.ForEach(p => _selected.SetAllowMineral(p, false)));
+                              () => stone.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
+                              () => stone.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
 
         // toggle metal
         var metal = minerals.Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing))
@@ -183,8 +182,8 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
                               "ColonyManagerRedux.ManagerMining.Metal.Tip".Translate(),
                               metal.All(p => allowedMinerals[p]),
                               metal.All(p => !allowedMinerals[p]),
-                              () => metal.ForEach(p => _selected.SetAllowMineral(p, true)),
-                              () => metal.ForEach(p => _selected.SetAllowMineral(p, false)));
+                              () => metal.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
+                              () => metal.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
 
         // toggle precious
         var precious = minerals
@@ -195,8 +194,8 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
                               "ColonyManagerRedux.ManagerMining.Precious.Tip".Translate(),
                               precious.All(p => allowedMinerals[p]),
                               precious.All(p => !allowedMinerals[p]),
-                              () => precious.ForEach(p => _selected.SetAllowMineral(p, true)),
-                              () => precious.ForEach(p => _selected.SetAllowMineral(p, false)));
+                              () => precious.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
+                              () => precious.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
 
         return pos.y - start.y;
     }
@@ -207,14 +206,14 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         Utilities.DrawToggle(rowRect,
                               "ColonyManagerRedux.ManagerMining.DeconstructBuildings".Translate(),
                               "ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip".Translate(),
-                              ref _selected.DeconstructBuildings);
+                              ref SelectedMiningJob.DeconstructBuildings);
         return ListEntryHeight;
     }
 
     public float DrawMiningArea(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selected.MiningArea, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedMiningJob.MiningArea, manager);
         return pos.y - start.y;
     }
 
@@ -222,14 +221,14 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupport".Translate(),
-                              "ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip".Translate(), ref _selected.CheckRoofSupport);
+                              "ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip".Translate(), ref SelectedMiningJob.CheckRoofSupport);
 
         rowRect.y += ListEntryHeight;
-        if (_selected.CheckRoofSupport)
+        if (SelectedMiningJob.CheckRoofSupport)
         {
             Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced".Translate(),
                                   "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip".Translate(),
-                                  ref _selected.CheckRoofSupportAdvanced, true);
+                                  ref SelectedMiningJob.CheckRoofSupportAdvanced, true);
         }
         else
         {
@@ -241,7 +240,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
 
         rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerMining.CheckRoomDivision".Translate(),
-                              "ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip".Translate(), ref _selected.CheckRoomDivision,
+                              "ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip".Translate(), ref SelectedMiningJob.CheckRoomDivision,
                               true);
 
         return rowRect.yMax - pos.y;
@@ -251,29 +250,29 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     {
         var start = pos;
 
-        var currentCount = _selected.Trigger.CurrentCount;
-        var chunkCount = _selected.GetCountInChunks();
-        var designatedCount = _selected.GetCountInDesignations();
-        var targetCount = _selected.Trigger.TargetCount;
+        var currentCount = SelectedMiningJob.Trigger.CurrentCount;
+        var chunkCount = SelectedMiningJob.GetCountInChunks();
+        var designatedCount = SelectedMiningJob.GetCountInDesignations();
+        var targetCount = SelectedMiningJob.Trigger.TargetCount;
 
-        _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedMiningJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
                                              "ColonyManagerRedux.ManagerMining.TargetCount".Translate(
                                                  currentCount, chunkCount, designatedCount, targetCount),
                                              "ColonyManagerRedux.ManagerMining.TargetCount.Tip".Translate(
                                                  currentCount, chunkCount, designatedCount, targetCount),
-                                             _selected.Designations,
-                                             delegate { _selected.Sync = Utilities.SyncDirection.FilterToAllowed; },
-                                             _selected.DesignationLabel);
+                                             SelectedMiningJob.Designations,
+                                             delegate { SelectedMiningJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
+                                             SelectedMiningJob.DesignationLabel);
 
         Utilities.DrawToggle(ref pos, width,
                               "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed".Translate(),
                               "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip".Translate(),
-                              ref _selected.SyncFilterAndAllowed);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
+                              ref SelectedMiningJob.SyncFilterAndAllowed);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedMiningJob.CheckReachable);
         Utilities.DrawToggle(ref pos, width,
                               "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
                               "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-                              ref _selected.PathBasedDistance,
+                              ref SelectedMiningJob.PathBasedDistance,
                               true);
 
         return pos.y - start.y;
@@ -300,7 +299,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             job.RefreshAllowedMinerals();
         }
 
-        _selected?.RefreshAllowedMinerals();
+        SelectedMiningJob?.RefreshAllowedMinerals();
     }
 
     private void DoJobDetails(Rect rect)
@@ -342,7 +341,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
         {
-            _selected.RefreshAllowedMinerals();
+            SelectedMiningJob.RefreshAllowedMinerals();
         }
 
         Widgets_Section.Section(ref position, width, DrawAllowedMineralsShortcuts,
@@ -356,16 +355,16 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         // do the button
         if (Event.current.control && Widgets.ButtonInvisible(buttonRect))
         {
-            Find.WindowStack.Add(new Dialog_MiningDebugOptions(_selected));
+            Find.WindowStack.Add(new Dialog_MiningDebugOptions(SelectedMiningJob));
         }
 
-        if (!_selected.Managed)
+        if (!SelectedMiningJob.Managed)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                _selected.Managed = true;
-                Manager.For(manager).JobStack.Add(_selected);
+                SelectedMiningJob.Managed = true;
+                Manager.For(manager).JobStack.Add(SelectedMiningJob);
 
                 // refresh source list
                 Refresh();
@@ -376,10 +375,10 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                Manager.For(manager).JobStack.Delete(_selected);
+                Manager.For(manager).JobStack.Delete(SelectedMiningJob);
 
                 // remove content from UI
-                _selected = new ManagerJob_Mining(manager);
+                SelectedMiningJob = new ManagerJob_Mining(manager);
 
                 // refresh source list
                 Refresh();
@@ -410,7 +409,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job)
+            if (SelectedMiningJob == job)
             {
                 Widgets.DrawHighlightSelected(row);
             }
@@ -433,7 +432,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             job.DrawListEntry(jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                _selected = job;
+                SelectedMiningJob = job;
             }
 
             cur.y += LargeListEntryHeight;

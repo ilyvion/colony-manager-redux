@@ -1,5 +1,6 @@
 ﻿// ManagerTab_Overview.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +11,12 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
+public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 {
     public const float OverviewWidthRatio = .6f;
 
-    public float OverviewHeight = 9999f;
+    private float _overviewHeight = 9999f;
     private Vector2 _overviewScrollPosition = Vector2.zero;
-    private ManagerJob? _selectedJob;
     private Vector2 _workersScrollPosition = Vector2.zero;
     private WorkTypeDef? _workType;
     private List<Pawn> Workers = [];
@@ -24,17 +24,6 @@ internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
     public List<ManagerJob> Jobs => Manager.For(manager).JobStack.FullStack();
 
     public override string Label { get; } = "ColonyManagerRedux.ManagerOverview".Translate();
-
-    public override ManagerJob? Selected
-    {
-        get => _selectedJob;
-        set
-        {
-            _selectedJob = value;
-            WorkTypeDef = _selectedJob?.WorkTypeDef ?? Utilities.WorkTypeDefOf_Managing;
-            SkillDef = _selectedJob?.SkillDef;
-        }
-    }
 
     private SkillDef? SkillDef { get; set; }
 
@@ -144,7 +133,7 @@ internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 
         // draw the selected job's details
         Widgets.DrawMenuSection(sideRectUpper);
-        _selectedJob?.DrawOverviewDetails(sideRectUpper);
+        Selected?.DrawOverviewDetails(sideRectUpper);
 
         // overview of managers & pawns (capable of) doing this job.
         Widgets.DrawMenuSection(sideRectLower);
@@ -165,8 +154,8 @@ internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
         {
             var viewRect = rect;
             var contentRect = viewRect.AtZero();
-            contentRect.height = OverviewHeight;
-            if (OverviewHeight > viewRect.height)
+            contentRect.height = _overviewHeight;
+            if (_overviewHeight > viewRect.height)
             {
                 contentRect.width -= ScrollbarWidth;
             }
@@ -186,7 +175,7 @@ internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                     Widgets.DrawAltRect(row);
                 }
 
-                if (Jobs[i] == Selected)
+                if (Jobs[i] == base.Selected)
                 {
                     Widgets.DrawHighlightSelected(row);
                 }
@@ -211,7 +200,7 @@ internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 Widgets.DrawHighlightIfMouseover(row);
                 if (Widgets.ButtonInvisible(jobRect))
                 {
-                    Selected = Jobs[i];
+                    base.Selected = Jobs[i];
                 }
 
                 cur.y += 50f;
@@ -220,7 +209,7 @@ internal class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
             Widgets.EndScrollView();
             GUI.EndGroup();
 
-            OverviewHeight = cur.y;
+            _overviewHeight = cur.y;
         }
     }
 

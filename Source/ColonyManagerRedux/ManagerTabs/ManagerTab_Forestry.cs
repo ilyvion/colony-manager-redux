@@ -1,5 +1,6 @@
 ﻿// ManagerTab_Forestry.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
@@ -12,19 +13,23 @@ using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
+internal class ManagerTab_Forestry : ManagerTab
 {
     private List<ManagerJob_Forestry> _jobs = [];
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
-    private ManagerJob_Forestry _selected = new(manager);
+
+    public ManagerTab_Forestry(Manager manager) : base(manager)
+    {
+        SelectedForestryJob = new(manager);
+    }
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
-    public override ManagerJob? Selected
+    public ManagerJob_Forestry SelectedForestryJob
     {
-        get => _selected;
-        set => _selected = (ManagerJob_Forestry)value!;
+        get => (ManagerJob_Forestry)Selected!;
+        set => Selected = value;
     }
 
     public static string GetTreeTooltip(ThingDef tree)
@@ -59,12 +64,12 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
 
-        if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
+        if (SelectedForestryJob.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
         {
             Widgets_Section.Section(ref position, width, DrawClearArea, "ColonyManagerRedux.Forestry.JobType.ClearArea".Translate());
         }
 
-        if (_selected.Type == ManagerJob_Forestry.ForestryJobType.Logging)
+        if (SelectedForestryJob.Type == ManagerJob_Forestry.ForestryJobType.Logging)
         {
             Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
             Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Forestry.LoggingArea".Translate());
@@ -79,13 +84,13 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         Widgets_Section.EndSectionColumn("Forestry.Trees", position);
 
         // do the button
-        if (!_selected.Managed)
+        if (!SelectedForestryJob.Managed)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                _selected.Managed = true;
-                manager.JobStack.Add(_selected);
+                SelectedForestryJob.Managed = true;
+                manager.JobStack.Add(SelectedForestryJob);
 
                 // refresh source list
                 Refresh();
@@ -96,10 +101,10 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobStack.Delete(_selected);
+                manager.JobStack.Delete(SelectedForestryJob);
 
                 // remove content from UI
-                _selected = new ManagerJob_Forestry(manager);
+                SelectedForestryJob = new ManagerJob_Forestry(manager);
 
                 // refresh source list
                 Refresh();
@@ -130,7 +135,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job)
+            if (SelectedForestryJob == job)
             {
                 Widgets.DrawHighlightSelected(row);
             }
@@ -153,7 +158,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             job.DrawListEntry(jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                _selected = job;
+                SelectedForestryJob = job;
             }
 
             cur.y += LargeListEntryHeight;
@@ -216,16 +221,16 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             rowRect,
             "ColonyManagerRedux.Forestry.AllowSaplings".Translate(),
             "ColonyManagerRedux.Forestry.AllowSaplings.Tip".Translate(),
-            !_selected.AllowSaplings,
-            () => _selected.AllowSaplings = false,
-            () => _selected.AllowSaplings = true);
+            !SelectedForestryJob.AllowSaplings,
+            () => SelectedForestryJob.AllowSaplings = false,
+            () => SelectedForestryJob.AllowSaplings = true);
         return ListEntryHeight;
     }
 
     public float DrawAreaRestriction(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selected.LoggingArea, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForestryJob.LoggingArea, manager);
         return pos.y - start.y;
     }
 
@@ -237,14 +242,14 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             pos.y,
             width,
             ListEntryHeight);
-        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref _selected.ClearAreas);
+        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref SelectedForestryJob.ClearAreas);
         pos.y += ListEntryHeight;
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.Forestry.ClearWindCells".Translate(),
             "ColonyManagerRedux.Forestry.ClearWindCells.Tip".Translate(),
-            ref _selected.ClearWindCells);
+            ref SelectedForestryJob.ClearWindCells);
 
         return pos.y - start.y;
     }
@@ -287,8 +292,8 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
                 cellRect,
                 $"ColonyManagerRedux.Forestry.JobType.{type}".Translate(),
                 $"ColonyManagerRedux.Forestry.JobType.{type}.Tip".Translate(),
-                _selected.Type == type,
-                () => _selected.Type = type,
+                SelectedForestryJob.Type == type,
+                () => SelectedForestryJob.Type = type,
                 () => { },
                 wrap: false);
             cellRect.x += cellWidth;
@@ -300,24 +305,24 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
     public float DrawThreshold(Vector2 pos, float width)
     {
         var start = pos;
-        var currentCount = _selected.Trigger.CurrentCount;
-        var designatedCount = _selected.GetWoodInDesignations();
-        var targetCount = _selected.Trigger.TargetCount;
+        var currentCount = SelectedForestryJob.Trigger.CurrentCount;
+        var designatedCount = SelectedForestryJob.GetWoodInDesignations();
+        var targetCount = SelectedForestryJob.Trigger.TargetCount;
 
-        _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedForestryJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
                                              "ColonyManagerRedux.Forestry.TargetCount".Translate(
                                                  currentCount, designatedCount, targetCount),
                                              "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
                                                  currentCount, designatedCount, targetCount),
-                                             _selected.Designations, null, _selected.DesignationLabel);
+                                             SelectedForestryJob.Designations, null, SelectedForestryJob.DesignationLabel);
 
-        Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForestryJob.CheckReachable);
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
             "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-            ref _selected.PathBasedDistance,
+            ref SelectedForestryJob.PathBasedDistance,
             true);
 
         return pos.y - start.y;
@@ -331,7 +336,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             pos.y,
             width,
             ListEntryHeight);
-        var allowedTrees = _selected.AllowedTrees;
+        var allowedTrees = SelectedForestryJob.AllowedTrees;
         var trees = new List<ThingDef>(allowedTrees.Keys);
 
         // toggle for each tree
@@ -339,8 +344,8 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         {
             Utilities.DrawToggle(rowRect, def.LabelCap,
                                   new TipSignal(() => GetTreeTooltip(def), def.GetHashCode()),
-                                  _selected.AllowedTrees[def],
-                                  () => _selected.AllowedTrees[def] = !_selected.AllowedTrees[def]);
+                                  SelectedForestryJob.AllowedTrees[def],
+                                  () => SelectedForestryJob.AllowedTrees[def] = !SelectedForestryJob.AllowedTrees[def]);
             rowRect.y += ListEntryHeight;
         }
 
@@ -355,19 +360,19 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             pos.y,
             width,
             ListEntryHeight);
-        var allowed = _selected.AllowedTrees;
+        var allowed = SelectedForestryJob.AllowedTrees;
         var plants = new List<ThingDef>(allowed.Keys);
 
         // toggle all
         Utilities.DrawToggle(rowRect,
                               "ColonyManagerRedux.ManagerAll".Translate().Italic(),
                               string.Empty,
-                              _selected.AllowedTrees.Values.All(v => v),
-                              _selected.AllowedTrees.Values.All(v => !v),
+                              SelectedForestryJob.AllowedTrees.Values.All(v => v),
+                              SelectedForestryJob.AllowedTrees.Values.All(v => !v),
                               () => plants.ForEach(t => allowed[t] = true),
                               () => plants.ForEach(t => allowed[t] = false));
 
-        if (_selected.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
+        if (SelectedForestryJob.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
         {
             rowRect.y += ListEntryHeight;
             // trees (anything that drops wood, or has the correct harvest tag).
@@ -467,6 +472,6 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         }
 
         // also for selected job
-        _selected?.RefreshAllowedTrees();
+        SelectedForestryJob?.RefreshAllowedTrees();
     }
 }

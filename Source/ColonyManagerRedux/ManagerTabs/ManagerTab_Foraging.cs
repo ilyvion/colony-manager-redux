@@ -1,5 +1,6 @@
 ﻿// ManagerTab_Foraging.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
 using System.Linq;
@@ -10,20 +11,23 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
+internal class ManagerTab_Foraging : ManagerTab
 {
     private List<ManagerJob_Foraging> _jobs = [];
     private float _leftRowHeight;
     private Vector2 _scrollPosition = Vector2.zero;
-    private ManagerJob_Foraging _selected = new(manager);
+
+    public ManagerTab_Foraging(Manager manager) : base(manager)
+    {
+        SelectedForagingJob = new(manager);
+    }
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
-
-    public override ManagerJob? Selected
+    public ManagerJob_Foraging SelectedForagingJob
     {
-        get => _selected;
-        set => _selected = (ManagerJob_Foraging)value!;
+        get => (ManagerJob_Foraging)Selected!;
+        set => Selected = value;
     }
 
     public void DoContent(Rect rect)
@@ -63,7 +67,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
         {
-            _selected.RefreshAllowedPlants();
+            SelectedForagingJob.RefreshAllowedPlants();
         }
 
         Widgets_Section.Section(ref position, width, DrawPlantShortcuts, "ColonyManagerRedux.Foraging.Plants".Translate());
@@ -72,13 +76,13 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
 
 
         // do the button
-        if (!_selected.Managed)
+        if (!SelectedForagingJob.Managed)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                _selected.Managed = true;
-                manager.JobStack.Add(_selected);
+                SelectedForagingJob.Managed = true;
+                manager.JobStack.Add(SelectedForagingJob);
 
                 // refresh source list
                 Refresh();
@@ -89,10 +93,10 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobStack.Delete(_selected);
+                manager.JobStack.Delete(SelectedForagingJob);
 
                 // remove content from UI
-                _selected = new ManagerJob_Foraging(manager);
+                SelectedForagingJob = new ManagerJob_Foraging(manager);
 
                 // refresh source list
                 Refresh();
@@ -123,7 +127,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
-            if (_selected == job)
+            if (SelectedForagingJob == job)
             {
                 Widgets.DrawHighlightSelected(row);
             }
@@ -146,7 +150,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             job.DrawListEntry(jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                _selected = job;
+                SelectedForagingJob = job;
             }
 
             cur.y += LargeListEntryHeight;
@@ -199,7 +203,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
     public float DrawAreaRestriction(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selected.ForagingArea, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForagingJob.ForagingArea, manager);
         return pos.y - start.y;
     }
 
@@ -208,7 +212,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         // Force mature plants only (2)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect, "ColonyManagerRedux.Foraging.ForceMature".Translate(), "ColonyManagerRedux.Foraging.ForceMature.Tip".Translate(),
-                              ref _selected.ForceFullyMature);
+                              ref SelectedForagingJob.ForceFullyMature);
 
         return ListEntryHeight;
     }
@@ -218,7 +222,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // list of keys in allowed trees list (all plans that yield wood in biome, static)
-        var allowedPlants = _selected.AllowedPlants;
+        var allowedPlants = SelectedForagingJob.AllowedPlants;
         var plants = allowedPlants.Keys.ToList();
 
         var rowRect = new Rect(
@@ -230,8 +234,8 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         // toggle for each plant
         foreach (var plant in plants)
         {
-            Utilities.DrawToggle(rowRect, plant.LabelCap, new TipSignal(() => GetPlantTooltip(plant), plant.GetHashCode()), _selected.AllowedPlants[plant],
-                                  () => _selected.SetPlantAllowed(plant, !_selected.AllowedPlants[plant]));
+            Utilities.DrawToggle(rowRect, plant.LabelCap, new TipSignal(() => GetPlantTooltip(plant), plant.GetHashCode()), SelectedForagingJob.AllowedPlants[plant],
+                                  () => SelectedForagingJob.SetPlantAllowed(plant, !SelectedForagingJob.AllowedPlants[plant]));
             rowRect.y += ListEntryHeight;
         }
 
@@ -255,7 +259,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // list of keys in allowed trees list (all plans that yield wood in biome, static)
-        var allowedPlants = _selected.AllowedPlants;
+        var allowedPlants = SelectedForagingJob.AllowedPlants;
         var plants = allowedPlants.Keys.ToList();
 
         var rowRect = new Rect(
@@ -271,8 +275,8 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             string.Empty,
             allowedPlants.Values.All(p => p),
             allowedPlants.Values.All(p => !p),
-            () => plants.ForEach(p => _selected.SetPlantAllowed(p, true)),
-            () => plants.ForEach(p => _selected.SetPlantAllowed(p, false)));
+            () => plants.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
+            () => plants.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
 
         // toggle edible
         rowRect.y += ListEntryHeight;
@@ -283,8 +287,8 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             "ColonyManagerRedux.ManagerForaging.Edible.Tip".Translate(),
             edible.All(p => allowedPlants[p]),
             edible.All(p => !allowedPlants[p]),
-            () => edible.ForEach(p => _selected.SetPlantAllowed(p, true)),
-            () => edible.ForEach(p => _selected.SetPlantAllowed(p, false)));
+            () => edible.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
+            () => edible.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
 
         // toggle shrooms
         rowRect.y += ListEntryHeight;
@@ -295,35 +299,35 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             "ColonyManagerRedux.ManagerForaging.Mushrooms.Tip".Translate(),
             shrooms.All(p => allowedPlants[p]),
             shrooms.All(p => !allowedPlants[p]),
-            () => shrooms.ForEach(p => _selected.SetPlantAllowed(p, true)),
-            () => shrooms.ForEach(p => _selected.SetPlantAllowed(p, false)));
+            () => shrooms.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, true)),
+            () => shrooms.ForEach(p => SelectedForagingJob.SetPlantAllowed(p, false)));
 
         return rowRect.yMax - start.y;
     }
 
     public float DrawThreshold(Vector2 pos, float width)
     {
-        var currentCount = _selected.Trigger.CurrentCount;
-        var designatedCount = _selected.CurrentDesignatedCount;
-        var targetCount = _selected.Trigger.TargetCount;
+        var currentCount = SelectedForagingJob.Trigger.CurrentCount;
+        var designatedCount = SelectedForagingJob.CurrentDesignatedCount;
+        var targetCount = SelectedForagingJob.Trigger.TargetCount;
         var start = pos;
 
-        _selected.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedForagingJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
                                              "ColonyManagerRedux.Foraging.TargetCount".Translate(
                                                  currentCount, designatedCount, targetCount),
                                              "ColonyManagerRedux.Foraging.TargetCountTooltip".Translate(
                                                  currentCount, designatedCount, targetCount),
-                                             _selected.Designations,
-                                             () => _selected.Sync = Utilities.SyncDirection.FilterToAllowed,
-                                             _selected.DesignationLabel);
+                                             SelectedForagingJob.Designations,
+                                             () => SelectedForagingJob.Sync = Utilities.SyncDirection.FilterToAllowed,
+                                             SelectedForagingJob.DesignationLabel);
 
         Utilities.DrawToggle(ref pos, width,
                               "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed".Translate(),
                               "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
-                              ref _selected.SyncFilterAndAllowed);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref _selected.CheckReachable);
+                              ref SelectedForagingJob.SyncFilterAndAllowed);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForagingJob.CheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-                              "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref _selected.PathBasedDistance,
+                              "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedForagingJob.PathBasedDistance,
                               true);
 
         return pos.y - start.y;
@@ -345,6 +349,6 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         }
 
         // update selected ( also update thingfilter _only_ if the job is not managed yet )
-        _selected?.RefreshAllowedPlants();
+        SelectedForagingJob?.RefreshAllowedPlants();
     }
 }

@@ -3,6 +3,7 @@
 
 // ManagerTab_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
@@ -28,25 +29,23 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
     private bool _onCurrentTab;
     private Vector2 _scrollPosition = Vector2.zero;
     private PawnKindDef _selectedAvailable;
-    private ManagerJob_Livestock _selectedCurrent;
 
     //private Vector2 optionsScrollPosition = Vector2.zero;
 
     public override string Label => "ColonyManagerRedux.Livestock.Livestock".Translate();
 
-    public override ManagerJob Selected
+    public ManagerJob_Livestock _selectedCurrent
     {
-        get => _selectedCurrent;
-        set
-        {
-            // set tab to current if we're moving to an actual job.
-            // in either case, available selection can be cleared.
-            _onCurrentTab = value != null;
-            _selectedAvailable = null;
-            _selectedCurrent = (ManagerJob_Livestock)value;
-            _newCounts =
-                _selectedCurrent?.Trigger?.CountTargets.ToDictionary(k => k.Key, v => v.Value.ToString());
-        }
+        get => (ManagerJob_Livestock)Selected!;
+        set => Selected = value;
+    }
+
+    protected override void PostSelect()
+    {
+        _onCurrentTab = Selected != null;
+        _selectedAvailable = null;
+        _newCounts =
+            _selectedCurrent?.Trigger?.CountTargets.ToDictionary(k => k.Key, v => v.Value.ToString());
     }
 
     private List<MasterMode> GetMasterModes => Enum.GetValues(typeof(MasterMode)).Cast<MasterMode>().ToList();

@@ -10,12 +10,12 @@ namespace ColonyManagerRedux;
 public abstract class ManagerTab(Manager manager)
 #pragma warning restore CS8618
 {
-
     public float DefaultLeftRowSize = 300f;
 
     public ManagerTabDef def;
 
     public Manager manager = manager;
+    private ManagerJob? selected;
 
     public virtual string DisabledReason => "";
 
@@ -23,7 +23,16 @@ public abstract class ManagerTab(Manager manager)
 
     public virtual string Label => GetType().ToString();
 
-    public abstract ManagerJob? Selected { get; set; }
+    public ManagerJob? Selected
+    {
+        get => selected;
+        set
+        {
+            PreSelect();
+            selected = value;
+            PostSelect();
+        }
+    }
 
     public abstract void DoWindowContents(Rect canvas);
 
@@ -48,6 +57,14 @@ public abstract class ManagerTab(Manager manager)
     }
 
     public virtual void Tick()
+    {
+    }
+
+    protected virtual void PreSelect()
+    {
+    }
+
+    protected virtual void PostSelect()
     {
     }
 }
