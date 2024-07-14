@@ -133,6 +133,7 @@ public class Manager : MapComponent, ILoadReferenceable
                 catch (Exception err)
                 {
                     Log.Error($"Suspending manager job because it error-ed on tick: \n{err}");
+                    job.Suspended = true;
                 }
             }
         }
@@ -149,22 +150,22 @@ public class Manager : MapComponent, ILoadReferenceable
         return JobStack.TryDoNextJob();
     }
 
-    internal void NewJobStack(JobStack jobstack)
-    {
-        // clean up old jobs
-        foreach (var job in _stack.FullStack())
-        {
-            job.CleanUp();
-        }
+    // internal void NewJobStack(JobStack jobstack)
+    // {
+    //     // clean up old jobs
+    //     foreach (var job in _stack.FullStack())
+    //     {
+    //         job.CleanUp();
+    //     }
 
-        // replace stack
-        _stack = jobstack;
+    //     // replace stack
+    //     _stack = jobstack;
 
-        // touch new jobs in inappropriate places (reset timing so they are properly performed)
-        foreach (var job in _stack.FullStack())
-        {
-            job.manager = this;
-            job.Touch();
-        }
-    }
+    //     // touch new jobs in inappropriate places (reset timing so they are properly performed)
+    //     foreach (var job in _stack.FullStack())
+    //     {
+    //         job.manager = this;
+    //         job.Touch();
+    //     }
+    // }
 }

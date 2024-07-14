@@ -120,11 +120,7 @@ internal class MainTabWindow_Manager : MainTabWindow
             if (tab == CurrentTab)
             {
                 GUI.color = GenUI.MouseoverColor;
-                if (Widgets.ButtonImage(rect, tab.def.icon, GenUI.MouseoverColor))
-                {
-                    tab.Selected = null;
-                }
-
+                Widgets.ButtonImage(rect, tab.def.icon, GenUI.MouseoverColor);
                 GUI.color = Color.white;
             }
             else if (Widgets.ButtonImage(rect, tab.def.icon))

@@ -37,39 +37,30 @@ public static class Utilities_Livestock
 {
     public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
 
-    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache =
-        new(5);
+    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache = new(5);
 
     private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
         AllSexedCache = new(5);
 
-    private static readonly Dictionary<Pawn, Utilities.CachedValue<IEnumerable<Pawn>>> FollowerCache =
-        [];
+    private static readonly Dictionary<Pawn, Utilities.CachedValue<IEnumerable<Pawn>>> FollowerCache = [];
 
     private static readonly
-        Dictionary<Triplet<PawnKindDef, Map, MasterMode>, Utilities.CachedValue<IEnumerable<Pawn>>> MasterCache =
-            [];
+        Dictionary<Triplet<PawnKindDef, Map, MasterMode>, Utilities.CachedValue<IEnumerable<Pawn>>> MasterCache = [];
 
-    private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> MilkablePawn =
-        [];
+    private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> MilkablePawn = [];
 
-    private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> MilkablePawnkind =
-        [];
+    private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> MilkablePawnkind = [];
 
-    private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> ShearablePawn =
-        [];
+    private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> ShearablePawn = [];
 
-    private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> ShearablePawnkind =
-        [];
+    private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> ShearablePawnkind = [];
 
-    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> TameCache =
-        new(5);
+    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> TameCache = new(5);
 
     private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
         TameSexedCache = new(5);
 
-    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> WildCache =
-        new(5);
+    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> WildCache = new(5);
 
     private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
         WildSexedCache = new(5);

@@ -1,5 +1,6 @@
 ﻿// Settings.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
 using RimWorld;
@@ -14,7 +15,7 @@ public class Settings : ModSettings
 
     public static UpdateInterval DefaultUpdateInterval
     {
-        get => ticksToInterval(_defaultUpdateIntervalTicks_Scribe);
+        get => TicksToInterval(_defaultUpdateIntervalTicks_Scribe);
         set => _defaultUpdateIntervalTicks_Scribe = value.ticks;
     }
 
@@ -43,7 +44,7 @@ public class Settings : ModSettings
         }
     }
 
-    private static UpdateInterval ticksToInterval(int ticks)
+    private static UpdateInterval TicksToInterval(int ticks)
     {
         foreach (var interval in Utilities.UpdateIntervalOptions)
         {

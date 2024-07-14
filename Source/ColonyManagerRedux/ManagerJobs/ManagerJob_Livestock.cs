@@ -64,7 +64,7 @@ public class ManagerJob_Livestock : ManagerJob
         _designations = [];
 
         // start history tracker
-        _history = new History(Utilities_Livestock.AgeSexArray.Select(ageSex => ageSex.ToString()).Cast<DirectHistoryLabel>().ToArray());
+        _history = new History(Utilities_Livestock.AgeSexArray.Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
 
         // set up the trigger, set all target counts to 5
         Trigger = new Trigger_PawnKind(this.manager);

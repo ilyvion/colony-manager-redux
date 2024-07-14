@@ -9,9 +9,9 @@ namespace ColonyManagerRedux;
 public static class Utilities_Hunting
 {
     public static ThingCategoryDef FoodRaw = DefDatabase<ThingCategoryDef>.GetNamed("FoodRaw");
-    public static ThingDef HumanMeat = ThingDef.Named("Human").race.meatDef;
+    public static ThingDef HumanMeat = ThingDefOf.Human.race.meatDef;
     public static ThingDef InsectMeat = ThingDef.Named("Megaspider").race.meatDef;
-    public static ThingCategoryDef MeatRaw = DefDatabase<ThingCategoryDef>.GetNamed("MeatRaw");
+    public static ThingCategoryDef MeatRaw = ThingCategoryDefOf.MeatRaw;
 
     public static int EstimatedMeatCount(this PawnKindDef kind)
     {
