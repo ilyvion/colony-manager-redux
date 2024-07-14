@@ -22,7 +22,7 @@ public class JobStack(Manager manager) : IExposable
     /// </summary>
     public List<ManagerJob> CurStack
     {
-        get { return jobStack.Where(mj => mj.ShouldDoNow).OrderBy(mj => mj.priority).ToList(); }
+        get { return jobStack.Where(mj => mj.ShouldDoNow).OrderBy(mj => mj.Priority).ToList(); }
     }
 
     /// <summary>
@@ -47,7 +47,7 @@ public class JobStack(Manager manager) : IExposable
 
     public void Add(ManagerJob job)
     {
-        job.priority = jobStack.Count + 1;
+        job.Priority = jobStack.Count + 1;
         jobStack.Add(job);
     }
 
@@ -58,19 +58,19 @@ public class JobStack(Manager manager) : IExposable
     public void BottomPriority<T>(T job) where T : ManagerJob
     {
         // get list of priorities for this type.
-        var jobsOfType = jobStack.OfType<T>().OrderBy(j => j.priority).ToList();
-        var priorities = jobsOfType.Select(j => j.priority).ToList();
+        var jobsOfType = jobStack.OfType<T>().OrderBy(j => j.Priority).ToList();
+        var priorities = jobsOfType.Select(j => j.Priority).ToList();
 
         // make sure our job is on the bottom.
-        job.priority = jobStack.Count + 10;
+        job.Priority = jobStack.Count + 10;
 
         // re-sort
-        jobsOfType = jobsOfType.OrderBy(j => j.priority).ToList();
+        jobsOfType = jobsOfType.OrderBy(j => j.Priority).ToList();
 
         // fill in priorities, making sure we don't affect other types.
         for (var i = 0; i < jobsOfType.Count; i++)
         {
-            jobsOfType[i].priority = priorities[i];
+            jobsOfType[i].Priority = priorities[i];
         }
         CleanPriorities();
     }
@@ -78,8 +78,8 @@ public class JobStack(Manager manager) : IExposable
     public void DecreasePriority<T>(T job) where T : ManagerJob
     {
         ManagerJob jobB = jobStack.OfType<T>()
-                                .OrderBy(mj => mj.priority)
-                                .First(mj => mj.priority > job.priority);
+                                .OrderBy(mj => mj.Priority)
+                                .First(mj => mj.Priority > job.Priority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
@@ -104,7 +104,7 @@ public class JobStack(Manager manager) : IExposable
     /// </summary>
     public List<T> FullStack<T>() where T : ManagerJob
     {
-        return jobStack.OrderBy(job => job.priority).OfType<T>().ToList();
+        return jobStack.OrderBy(job => job.Priority).OfType<T>().ToList();
     }
 
     /// <summary>
@@ -112,38 +112,38 @@ public class JobStack(Manager manager) : IExposable
     /// </summary>
     public List<ManagerJob> FullStack()
     {
-        return jobStack.OrderBy(job => job.priority).ToList();
+        return jobStack.OrderBy(job => job.Priority).ToList();
     }
 
     public void IncreasePriority<T>(T job) where T : ManagerJob
     {
         ManagerJob jobB =
-            jobStack.OfType<T>().OrderByDescending(mj => mj.priority).First(mj => mj.priority < job.priority);
+            jobStack.OfType<T>().OrderByDescending(mj => mj.Priority).First(mj => mj.Priority < job.Priority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
 
     public void SwitchPriorities(ManagerJob a, ManagerJob b)
     {
-        (b.priority, a.priority) = (a.priority, b.priority);
+        (b.Priority, a.Priority) = (a.Priority, b.Priority);
     }
 
     public void TopPriority<T>(T job) where T : ManagerJob
     {
         // get list of priorities for this type.
-        var jobsOfType = jobStack.OfType<T>().OrderBy(j => j.priority).ToList();
-        var priorities = jobsOfType.Select(j => j.priority).ToList();
+        var jobsOfType = jobStack.OfType<T>().OrderBy(j => j.Priority).ToList();
+        var priorities = jobsOfType.Select(j => j.Priority).ToList();
 
         // make sure our job is on top.
-        job.priority = -1;
+        job.Priority = -1;
 
         // re-sort
-        jobsOfType = jobsOfType.OrderBy(j => j.priority).ToList();
+        jobsOfType = jobsOfType.OrderBy(j => j.Priority).ToList();
 
         // fill in priorities, making sure we don't affect other types.
         for (var i = 0; i < jobsOfType.Count; i++)
         {
-            jobsOfType[i].priority = priorities[i];
+            jobsOfType[i].Priority = priorities[i];
         }
         CleanPriorities();
     }
@@ -176,9 +176,9 @@ public class JobStack(Manager manager) : IExposable
     /// </summary>
     private void CleanPriorities()
     {
-        foreach (var (job, priority) in jobStack.OrderBy(mj => mj.priority).Select((j, i) => (j, i)))
+        foreach (var (job, priority) in jobStack.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
         {
-            job.priority = priority;
+            job.Priority = priority;
         }
     }
 }

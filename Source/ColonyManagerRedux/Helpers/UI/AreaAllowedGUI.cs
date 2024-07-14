@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 
 using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -35,7 +36,7 @@ internal class AreaAllowedGUI
     }
 
     public static void DoAllowedAreaSelectors(Rect rect,
-                                               ref Area? area,
+                                               ref Area? allowedArea,
                                                Map map,
                                                float lrMargin = 0)
     {
@@ -46,37 +47,27 @@ internal class AreaAllowedGUI
         }
 
         var allAreas = map.areaManager.AllAreas;
-        var areaCount = 1;
-        for (var i = 0; i < allAreas.Count; i++)
-        {
-            if (allAreas[i].AssignableAsAllowed())
-            {
-                areaCount++;
-            }
-        }
+        var areaCount = 1 + allAreas.Where(a => a.AssignableAsAllowed()).Count();
 
         var widthPerArea = rect.width / areaCount;
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
         var nullAreaRect = new Rect(rect.x, rect.y, widthPerArea, rect.height);
-        DoAreaSelector(nullAreaRect, ref area, null);
+        DoAreaSelector(nullAreaRect, ref allowedArea, null);
         var areaIndex = 1;
-        for (var j = 0; j < allAreas.Count; j++)
+        foreach (Area area in allAreas.Where(a => a.AssignableAsAllowed()))
         {
-            if (allAreas[j].AssignableAsAllowed())
-            {
-                var xOffset = areaIndex * widthPerArea;
-                var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);
-                DoAreaSelector(areaRect, ref area, allAreas[j]);
-                areaIndex++;
-            }
+            var xOffset = areaIndex * widthPerArea;
+            var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);
+            DoAreaSelector(areaRect, ref allowedArea, area);
+            areaIndex++;
         }
 
         Text.WordWrap = true;
         Text.Font = GameFont.Small;
     }
 
-    public static void DoAllowedAreaSelectorsMC(Rect rect, ref Dictionary<Area, bool> areas, float lrMargin = 0)
+    public static void DoAllowedAreaSelectorsMC(Rect rect, ref HashSet<Area> allowedAreas, Map map, float lrMargin = 0)
     {
         if (lrMargin > 0)
         {
@@ -84,19 +75,34 @@ internal class AreaAllowedGUI
             rect.width -= lrMargin * 2;
         }
 
-        var widthPerArea = rect.width / areas.Count;
+        var allAreas = map.areaManager.AllAreas;
+        var areaCount = allAreas.Where(a => a.AssignableAsAllowed()).Count();
+
+        var widthPerArea = rect.width / areaCount;
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
         var areaIndex = 0;
-
-        // need to use a 'clean' list of keys to iterate over when changing the dictionary values
-        var _areas = new List<Area>(areas.Keys);
-
-        foreach (var area in _areas)
+        foreach (Area area in allAreas.Where(a => a.AssignableAsAllowed()))
         {
-            var xOffset = areaIndex++ * widthPerArea;
+            var xOffset = areaIndex * widthPerArea;
             var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);
-            areas[area] = DoAreaSelector(areaRect, area, areas[area]);
+            bool status = allowedAreas.Contains(area);
+            bool newStatus = DoAreaSelector(areaRect, area, status);
+            if (status != newStatus)
+            {
+                // Selection changed
+                if (newStatus)
+                {
+                    // Area should be added
+                    allowedAreas.Add(area);
+                }
+                else
+                {
+                    // Area should be removed
+                    allowedAreas.Remove(area);
+                }
+            }
+            areaIndex++;
         }
 
         Text.WordWrap = true;

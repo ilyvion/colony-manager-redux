@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System;
 using System.Reflection;
 using HarmonyLib;
 using UnityEngine;
@@ -29,4 +30,9 @@ public class ColonyManagerReduxMod : Mod
     {
         return "ColonyManagerRedux.ManagerHelpTitle".Translate();
     }
+}
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
+public sealed class HotSwappableAttribute : Attribute
+{
 }

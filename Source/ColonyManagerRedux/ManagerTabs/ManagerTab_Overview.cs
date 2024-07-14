@@ -4,6 +4,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -325,7 +327,12 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
         // priority button
         var priorityPosition = new Rect(0f, 0f, 24f, 24f).CenteredIn(priorityRect).RoundToInt();
         Text.Font = GameFont.Medium;
-        WidgetsWork.DrawWorkBoxFor(priorityPosition.xMin, priorityPosition.yMin, pawn, WorkTypeDef, false);
+        bool incapable = Utilities.IsIncapableOfWholeWorkType(pawn, WorkTypeDef);
+        WidgetsWork.DrawWorkBoxFor(priorityPosition.xMin, priorityPosition.yMin, pawn, WorkTypeDef, incapable);
+        if (Mouse.IsOver(priorityPosition))
+        {
+            TooltipHandler.TipRegion(priorityPosition, () => WidgetsWork.TipForPawnWorker(pawn, WorkTypeDef, incapable), pawn.thingIDNumber ^ WorkTypeDef.GetHashCode());
+        }
         Text.Font = GameFont.Small;
     }
 

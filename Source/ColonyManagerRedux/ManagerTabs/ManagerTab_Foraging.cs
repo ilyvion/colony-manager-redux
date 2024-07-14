@@ -76,12 +76,12 @@ internal class ManagerTab_Foraging : ManagerTab
 
 
         // do the button
-        if (!SelectedForagingJob.Managed)
+        if (!SelectedForagingJob.IsManaged)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                SelectedForagingJob.Managed = true;
+                SelectedForagingJob.IsManaged = true;
                 manager.JobStack.Add(SelectedForagingJob);
 
                 // refresh source list
@@ -325,9 +325,9 @@ internal class ManagerTab_Foraging : ManagerTab
                               "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed".Translate(),
                               "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
                               ref SelectedForagingJob.SyncFilterAndAllowed);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForagingJob.CheckReachable);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForagingJob.ShouldCheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-                              "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedForagingJob.PathBasedDistance,
+                              "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedForagingJob.UsePathBasedDistance,
                               true);
 
         return pos.y - start.y;

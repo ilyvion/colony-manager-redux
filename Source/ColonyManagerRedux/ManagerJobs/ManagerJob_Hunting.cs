@@ -18,7 +18,7 @@ public class ManagerJob_Hunting : ManagerJob
     public Dictionary<PawnKindDef, bool> AllowedAnimals = [];
     public History History;
     public Area? HuntingGrounds;
-    public new Trigger_Threshold Trigger;
+    public Trigger_Threshold Trigger;
     public bool UnforbidCorpses = true;
     private bool _allowHumanLikeMeat;
 
@@ -90,14 +90,14 @@ public class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    public override bool Completed => !Trigger.State;
+    public override bool IsCompleted => !Trigger.State;
 
     public List<Corpse> Corpses
     {
         get
         {
             var corpses =
-                manager.map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
+                Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
                        .ConvertAll(thing => (Corpse)thing);
             return
                 corpses.Where(
@@ -134,7 +134,7 @@ public class ManagerJob_Hunting : ManagerJob
 
     public override ManagerTab Tab
     {
-        get { return Manager.For(manager).tabs.Find(tab => tab is ManagerTab_Hunting); }
+        get { return Manager.For(Manager).tabs.Find(tab => tab is ManagerTab_Hunting); }
     }
 
     public override string[] Targets
@@ -155,7 +155,7 @@ public class ManagerJob_Hunting : ManagerJob
     {
         // get the intersection of bills in the game and bills in our list.
         var GameDesignations =
-            manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt).ToList();
+            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt).ToList();
         _designations = _designations.Intersect(GameDesignations).ToList();
     }
 
@@ -180,7 +180,7 @@ public class ManagerJob_Hunting : ManagerJob
         var thing = designation.target.Thing;
         return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
             thing.LabelCap,
-            Distance(thing, manager.map.GetBaseCenter()).ToString("F0"),
+            Distance(thing, Manager.map.GetBaseCenter()).ToString("F0"),
             thing.GetStatValue(StatDefOf.MeatAmount).ToString("F0"),
             thing.def.race.meatDef.LabelCap);
     }
@@ -237,7 +237,7 @@ public class ManagerJob_Hunting : ManagerJob
         Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
 
         // must be after references, because reasons.
-        Scribe_Deep.Look(ref Trigger, "trigger", manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
 
         // settings
         Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def, LookMode.Value);
@@ -270,11 +270,11 @@ public class ManagerJob_Hunting : ManagerJob
             // and that it's not forbidden (anymore) and can be reached.
             if (current is Corpse corpse &&
                  !corpse.IsForbidden(Faction.OfPlayer) &&
-                 manager.map.reachability.CanReachColony(corpse.Position))
+                 Manager.map.reachability.CanReachColony(corpse.Position))
             {
                 // check to see if it's buried.
                 var buried = false;
-                var slotGroup = manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
+                var slotGroup = Manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
 
                 // Sarcophagus inherits grave
                 if (slotGroup?.parent is Building_Storage building_Storage &&
@@ -326,10 +326,10 @@ public class ManagerJob_Hunting : ManagerJob
     public void RefreshAllowedAnimals()
     {
         // add animals that were not already in the list, disallow by default.
-        foreach (var pawnKind in manager.map.Biome.AllWildAnimals
-                                         .Concat(manager.map.mapPawns.AllPawns
+        foreach (var pawnKind in Manager.map.Biome.AllWildAnimals
+                                         .Concat(Manager.map.mapPawns.AllPawns
                                                          .Where(p => (p.RaceProps?.Animal ?? false)
-                                                                   && !(manager.map.fogGrid?.IsFogged(
+                                                                   && !(Manager.map.fogGrid?.IsFogged(
                                                                              p.Position) ?? true))
                                                          .Select(p => p.kindDef))
                                          .Distinct()
@@ -394,7 +394,7 @@ public class ManagerJob_Hunting : ManagerJob
         // add to game
         if (addToGame)
         {
-            manager.map.designationManager.AddDesignation(des);
+            Manager.map.designationManager.AddDesignation(des);
         }
 
         // add to internal list
@@ -414,7 +414,7 @@ public class ManagerJob_Hunting : ManagerJob
     {
         foreach (
             var des in
-            manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
+            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
                    .Except(_designations)
                    .Where(des => IsValidHuntingTarget(des.target, true)))
         {
@@ -466,9 +466,9 @@ public class ManagerJob_Hunting : ManagerJob
     private List<Pawn> GetHuntableAnimalsSorted()
     {
         // get the 'home' position
-        var position = manager.map.GetBaseCenter();
+        var position = Manager.map.GetBaseCenter();
 
-        return manager.map.mapPawns.AllPawns
+        return Manager.map.mapPawns.AllPawns
                       .Where(p => IsValidHuntingTarget(p, false))
                       .OrderBy(p => -p.EstimatedMeatCount() / Distance(p, position))
                       .ToList();
@@ -493,7 +493,7 @@ public class ManagerJob_Hunting : ManagerJob
             // non-biome animals won't be on the list
             && AllowedAnimals.ContainsKey(target.kindDef)
             && AllowedAnimals[target.kindDef]
-            && (allowHunted || manager.map.designationManager.DesignationOn(target) == null)
+            && (allowHunted || Manager.map.designationManager.DesignationOn(target) == null)
             && (HuntingGrounds == null ||
                  HuntingGrounds.ActiveCells.Contains(target.Position))
             && IsReachable(target);

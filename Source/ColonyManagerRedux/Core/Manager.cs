@@ -9,6 +9,7 @@ using Verse;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class Manager : MapComponent, ILoadReferenceable
 {
     public enum Modes
@@ -29,9 +30,12 @@ public class Manager : MapComponent, ILoadReferenceable
     private JobStack _stack;
     private int id = -1;
 
+    internal DebugComponent debugComponent;
+
     public Manager(Map map) : base(map)
     {
-        _stack = new JobStack(this);
+        debugComponent = new(this);
+        _stack = new(this);
 
         tabs = DefDatabase<ManagerTabDef>.AllDefs
             .OrderBy(m => m.order)
@@ -124,7 +128,7 @@ public class Manager : MapComponent, ILoadReferenceable
         // tick jobs
         foreach (var job in JobStack.FullStack())
         {
-            if (!job.Suspended)
+            if (!job.IsSuspended)
             {
                 try
                 {
@@ -133,7 +137,7 @@ public class Manager : MapComponent, ILoadReferenceable
                 catch (Exception err)
                 {
                     Log.Error($"Suspending manager job because it error-ed on tick: \n{err}");
-                    job.Suspended = true;
+                    job.IsSuspended = true;
                 }
             }
         }
@@ -143,6 +147,12 @@ public class Manager : MapComponent, ILoadReferenceable
         {
             tab.Tick();
         }
+    }
+
+    public override void MapComponentUpdate()
+    {
+        base.MapComponentUpdate();
+        debugComponent.Update();
     }
 
     public bool TryDoWork()

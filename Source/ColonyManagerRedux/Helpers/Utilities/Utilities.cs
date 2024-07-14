@@ -169,19 +169,19 @@ public static class Utilities
         // draw stamp
         if (Widgets.ButtonImage(
             stampRect,
-            job.Completed ? Resources.StampCompleted :
-            job.Suspended ? Resources.StampStart : Resources.StampSuspended))
+            job.IsCompleted ? Resources.StampCompleted :
+            job.IsSuspended ? Resources.StampStart : Resources.StampSuspended))
         {
-            job.Suspended = !job.Suspended;
+            job.IsSuspended = !job.IsSuspended;
         }
 
-        if (job.Suspended)
+        if (job.IsSuspended)
         {
             TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerUnsuspendJobTooltip".Translate());
             return;
         }
 
-        if (job.Completed)
+        if (job.IsCompleted)
         {
             TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerJobCompletedTooltip".Translate());
             return;
@@ -200,7 +200,7 @@ public static class Utilities
         TooltipHandler.TipRegion(progressRect, () => trigger.StatusTooltip, trigger.GetHashCode());
 
         // draw update interval
-        var timeSinceLastUpdate = Find.TickManager.TicksGame - job.lastAction;
+        var timeSinceLastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
         job.UpdateInterval?.Draw(lastUpdateRect, job);
     }
 
@@ -299,7 +299,7 @@ public static class Utilities
     }
 
 
-    public static void DrawToggle(Rect rect, string label, TipSignal? tooltip, bool checkOn, bool checkOff, Action on,
+    public static void DrawToggle(Rect rect, string label, TipSignal? tooltip, bool allOn, bool allOff, Action on,
                                    Action off, bool expensive = false, float size = SmallIconSize,
                                    float margin = Margin, bool wrap = true)
     {
@@ -321,11 +321,11 @@ public static class Utilities
         }
 
         // draw check
-        if (checkOn)
+        if (allOn)
         {
             GUI.DrawTexture(iconRect, Widgets.CheckboxOnTex);
         }
-        else if (checkOff)
+        else if (allOff)
         {
             GUI.DrawTexture(iconRect, Widgets.CheckboxOffTex);
         }
@@ -339,7 +339,7 @@ public static class Utilities
         {
             iconRect.x -= size + margin;
             TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.ManagerExpensive.Tip".Translate());
-            GUI.color = checkOn ? Resources.Orange : Color.grey;
+            GUI.color = allOn ? Resources.Orange : Color.grey;
             GUI.DrawTexture(iconRect, Resources.Stopwatch);
             GUI.color = Color.white;
         }
@@ -348,7 +348,7 @@ public static class Utilities
         Widgets.DrawHighlightIfMouseover(rect);
         if (Widgets.ButtonInvisible(rect))
         {
-            if (!checkOn)
+            if (!allOn)
             {
                 on();
             }
@@ -381,23 +381,31 @@ public static class Utilities
         // otherwise, use the average of the home area. Not ideal, but it'll do.
         var homeCells =
             map.areaManager.Get<Area_Home>().ActiveCells.ToList();
-        for (var i = 0; i < homeCells.Count; i++)
+        if (homeCells.Count > 0)
         {
-            position += homeCells[i];
+            for (var i = 0; i < homeCells.Count; i++)
+            {
+                position += homeCells[i];
+            }
+
+            position.x /= homeCells.Count;
+            position.y /= homeCells.Count;
+            position.z /= homeCells.Count;
+            var standableCell = position;
+
+            // find the closest traversable cell to the center
+            for (var i = 0; !standableCell.Walkable(map); i++)
+            {
+                standableCell = position + GenRadial.RadialPattern[i];
+            }
+
+            return standableCell;
         }
-
-        position.x /= homeCells.Count;
-        position.y /= homeCells.Count;
-        position.z /= homeCells.Count;
-        var standableCell = position;
-
-        // find the closest traversable cell to the center
-        for (var i = 0; !standableCell.Walkable(map); i++)
+        else
         {
-            standableCell = position + GenRadial.RadialPattern[i];
+            // Just return the position of a pawn (or, if nobody is alive, the map center)
+            return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement().Position ?? map.Center;
         }
-
-        return standableCell;
     }
 
     public static object GetPrivatePropertyValue(this object src, string propName,
@@ -490,6 +498,29 @@ public static class Utilities
         s += hours + "LetterHour".Translate();
 
         return s;
+    }
+
+    // PawnColumnWorker_WorkPriority.IsIncapableOfWholeWorkType, but static
+    public static bool IsIncapableOfWholeWorkType(Pawn p, WorkTypeDef work)
+    {
+        for (int i = 0; i < work.workGiversByPriority.Count; i++)
+        {
+            bool flag = true;
+            for (int j = 0; j < work.workGiversByPriority[i].requiredCapacities.Count; j++)
+            {
+                PawnCapacityDef capacity = work.workGiversByPriority[i].requiredCapacities[j];
+                if (!p.health.capacities.CapableOf(capacity))
+                {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag)
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static bool TryGetPrivateField(Type type, object instance, string fieldName, out object? value,

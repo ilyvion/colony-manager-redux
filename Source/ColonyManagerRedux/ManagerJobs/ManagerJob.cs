@@ -21,45 +21,42 @@ public abstract class ManagerJob : IManagerJob, IExposable
                         ProgressRectWidth = 10f,
                         StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
 
-    public bool CheckReachable = true;
+    public bool ShouldCheckReachable = true;
 
-    public int lastAction;
+    public int LastActionTick;
 
-    public Manager manager;
-    public bool PathBasedDistance;
+    public Manager Manager;
+    public bool UsePathBasedDistance;
 
-    public int priority;
+    public int Priority;
 
-    public Trigger? Trigger;
-    private bool _suspended;
+    private bool _isSuspended;
 
     private UpdateInterval? _updateInterval;
     private int _updateIntervalScribe;
 
     public ManagerJob(Manager manager)
     {
-        this.manager = manager;
+        Manager = manager;
         Touch(); // set last updated to current time.
     }
 
-    public abstract bool Completed { get; }
-    public virtual bool IsValid => manager != null;
+    public abstract bool IsCompleted { get; }
+    public virtual bool IsValid => Manager != null;
     public abstract string Label { get; }
-    public virtual bool Managed { get; set; }
+    public virtual bool IsManaged { get; set; }
 
 
-    public virtual bool ShouldDoNow => Managed && !Suspended && !Completed &&
-                                       lastAction + UpdateInterval.ticks < Find.TickManager.TicksGame;
+    public virtual bool ShouldDoNow => IsManaged && !IsSuspended && !IsCompleted && ShouldUpdate;
 
-    public virtual SkillDef? SkillDef { get; } = null;
+    private bool ShouldUpdate => LastActionTick + UpdateInterval.ticks < Find.TickManager.TicksGame;
 
-    public virtual bool Suspended
+    public virtual bool IsSuspended
     {
-        get => _suspended;
-        set => _suspended = value;
+        get => _isSuspended;
+        set => _isSuspended = value;
     }
 
-    // TODO: Do we really need this here? Maybe store elsewhere statically later.
     public abstract ManagerTab? Tab { get; }
     public abstract string[] Targets { get; }
 
@@ -69,7 +66,7 @@ public abstract class ManagerJob : IManagerJob, IExposable
         set => _updateInterval = value;
     }
 
-    public abstract WorkTypeDef WorkTypeDef { get; }
+    public abstract WorkTypeDef? WorkTypeDef { get; }
 
     public virtual void ExposeData()
     {
@@ -78,18 +75,18 @@ public abstract class ManagerJob : IManagerJob, IExposable
             _updateIntervalScribe = UpdateInterval.ticks;
         }
 
-        Scribe_References.Look(ref manager, "manager");
+        Scribe_References.Look(ref Manager, "manager");
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
-        Scribe_Values.Look(ref lastAction, "lastAction");
-        Scribe_Values.Look(ref priority, "priority");
-        Scribe_Values.Look(ref CheckReachable, "checkReachable", true);
-        Scribe_Values.Look(ref PathBasedDistance, "pathBasedDistance");
-        Scribe_Values.Look(ref _suspended, "suspended");
+        Scribe_Values.Look(ref LastActionTick, "lastActionTick");
+        Scribe_Values.Look(ref Priority, "priority");
+        Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
+        Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
+        Scribe_Values.Look(ref _isSuspended, "isSuspended");
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit || Manager.LoadSaveMode == Manager.Modes.ImportExport)
         {
             // must be true if it was saved.
-            Managed = true;
+            IsManaged = true;
 
             try
             {
@@ -114,12 +111,12 @@ public abstract class ManagerJob : IManagerJob, IExposable
             CleanUp();
         }
 
-        Manager.For(manager).JobStack.Delete(this, false);
+        Manager.For(Manager).JobStack.Delete(this, false);
     }
 
     public virtual float Distance(Thing target, IntVec3 source)
     {
-        if (PathBasedDistance)
+        if (UsePathBasedDistance)
         {
             var path = target.Map.pathFinder.FindPath(source, target,
                                                        TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
@@ -138,9 +135,9 @@ public abstract class ManagerJob : IManagerJob, IExposable
 
     public virtual bool IsReachable(Thing target)
     {
-        return !target.Position.Fogged(manager.map)
-            && (!CheckReachable ||
-                 manager.map.mapPawns.FreeColonistsSpawned.Any(
+        return !target.Position.Fogged(Manager.map)
+            && (!ShouldCheckReachable ||
+                 Manager.map.mapPawns.FreeColonistsSpawned.Any(
                      p => p.CanReach(target, PathEndMode.Touch, Danger.Some)));
     }
 
@@ -151,9 +148,9 @@ public abstract class ManagerJob : IManagerJob, IExposable
     public override string ToString()
     {
         var s = new StringBuilder();
-        s.AppendLine("Priority: " + priority);
-        s.AppendLine("Active: " + Suspended);
-        s.AppendLine("LastAction: " + lastAction);
+        s.AppendLine("Priority: " + Priority);
+        s.AppendLine("Active: " + IsSuspended);
+        s.AppendLine("LastAction: " + LastActionTick);
         s.AppendLine("Interval: " + UpdateInterval);
         s.AppendLine("GameTick: " + Find.TickManager.TicksGame);
         return s.ToString();
@@ -161,6 +158,6 @@ public abstract class ManagerJob : IManagerJob, IExposable
 
     public void Touch()
     {
-        lastAction = Find.TickManager.TicksGame;
+        LastActionTick = Find.TickManager.TicksGame;
     }
 }

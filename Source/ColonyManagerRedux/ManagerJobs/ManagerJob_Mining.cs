@@ -28,7 +28,7 @@ public class ManagerJob_Mining : ManagerJob
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
 
     public bool SyncFilterAndAllowed = true;
-    public new Trigger_Threshold Trigger;
+    public Trigger_Threshold Trigger;
     private List<Designation> _designations = [];
 
     public ManagerJob_Mining(Manager manager) : base(manager)
@@ -47,14 +47,14 @@ public class ManagerJob_Mining : ManagerJob
         }
     }
 
-    public override bool Completed => !Trigger.State;
+    public override bool IsCompleted => !Trigger.State;
 
     public List<Designation> Designations => new(_designations);
 
 
     public override bool IsValid => base.IsValid && History != null && Trigger != null;
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
-    public override ManagerTab Tab => manager.tabs.Find(tab => tab is ManagerTab_Mining);
+    public override ManagerTab Tab => Manager.tabs.Find(tab => tab is ManagerTab_Mining);
 
     public override string[] Targets => AllowedMinerals.Keys
                                                        .Where(key => AllowedMinerals[key])
@@ -114,13 +114,13 @@ public class ManagerJob_Mining : ManagerJob
 
     public void AddDesignation(Designation designation)
     {
-        manager.map.designationManager.AddDesignation(designation);
+        Manager.map.designationManager.AddDesignation(designation);
         _designations.Add(designation);
     }
 
     public void AddRelevantGameDesignations()
     {
-        foreach (var des in manager.map.designationManager
+        foreach (var des in Manager.map.designationManager
                                     .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
                                     .Except(_designations)
                                     .Where(des => IsValidMiningTarget(des.target)))
@@ -128,7 +128,7 @@ public class ManagerJob_Mining : ManagerJob
             AddDesignation(des);
         }
 
-        foreach (var des in manager.map.designationManager
+        foreach (var des in Manager.map.designationManager
                                     .SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
                                     .Except(_designations)
                                     .Where(des => IsValidDeconstructionTarget(des.target)))
@@ -195,16 +195,16 @@ public class ManagerJob_Mining : ManagerJob
             var building = designation.target.Thing;
             return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                 building.LabelCap,
-                Distance(building, manager.map.GetBaseCenter()).ToString("F0"),
+                Distance(building, Manager.map.GetBaseCenter()).ToString("F0"),
                 "?", "?");
         }
 
         if (designation.def == DesignationDefOf.Mine)
         {
-            var mineable = designation.target.Cell.GetFirstMineable(manager.map);
+            var mineable = designation.target.Cell.GetFirstMineable(Manager.map);
             return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
                 mineable.LabelCap,
-                Distance(mineable, manager.map.GetBaseCenter()).ToString("F0"),
+                Distance(mineable, Manager.map.GetBaseCenter()).ToString("F0"),
                 GetCountInMineral(mineable),
                 GetMaterialsInMineral(mineable.def)?.First().LabelCap ?? "?");
         }
@@ -260,7 +260,7 @@ public class ManagerJob_Mining : ManagerJob
         base.ExposeData();
 
         Scribe_References.Look(ref MiningArea, "miningArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
         Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def, LookMode.Value);
         Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def, LookMode.Value);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
@@ -316,7 +316,7 @@ public class ManagerJob_Mining : ManagerJob
             return count;
         }
 
-        count = manager.map.listerThings.AllThings
+        count = Manager.map.listerThings.AllThings
                        .Where(t => t.Faction == Faction.OfPlayer
                                  && !t.IsForbidden(Faction.OfPlayer)
                                  && t.def.IsChunk())
@@ -339,7 +339,7 @@ public class ManagerJob_Mining : ManagerJob
 
         // mining jobs
         var mineralCounts = _designations.Where(d => d.def == DesignationDefOf.Mine)
-                                         .Select(d => manager
+                                         .Select(d => Manager
                                                       .map.thingGrid.ThingsListAtFast(d.target.Cell)
                                                       .FirstOrDefault()?.def)
                                          .Where(d => d != null)
@@ -386,9 +386,9 @@ public class ManagerJob_Mining : ManagerJob
 
     public List<Building> GetDeconstructibleBuildingsSorted()
     {
-        var position = manager.map.GetBaseCenter();
+        var position = Manager.map.GetBaseCenter();
 
-        return manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).OfType<Building>()
+        return Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).OfType<Building>()
                       .Where(IsValidDeconstructionTarget)
                       .OrderBy(b => -GetCountInBuilding(b) / Distance(b, position))
                       .ToList();
@@ -453,9 +453,9 @@ public class ManagerJob_Mining : ManagerJob
 
     public List<Mineable> GetMinableMineralsSorted()
     {
-        var position = manager.map.GetBaseCenter();
+        var position = Manager.map.GetBaseCenter();
 
-        return manager.map.listerThings.AllThings.OfType<Mineable>()
+        return Manager.map.listerThings.AllThings.OfType<Mineable>()
                       .Where(IsValidMiningTarget)
                       .OrderBy(r => -GetCountInMineral(r) / Distance(r, position))
                       .ToList();
@@ -472,7 +472,7 @@ public class ManagerJob_Mining : ManagerJob
         for (var i = RoofCollapseUtility.RoofSupportRadialCellsCount - 1; i >= 0; i--)
         {
             if (WouldCollapseIfSupportDestroyed(GenRadial.RadialPattern[i] + building.Position, building.Position,
-                                                  manager.map))
+                                                  Manager.map))
             {
                 return true;
             }
@@ -505,13 +505,13 @@ public class ManagerJob_Mining : ManagerJob
         }
 
         var adjacent = GenAdjFast.AdjacentCells8Way(target.Position)
-                                 .Where(c => c.InBounds(manager.map)
-                                           && !c.Fogged(manager.map)
-                                           && !c.Impassable(manager.map))
+                                 .Where(c => c.InBounds(Manager.map)
+                                           && !c.Fogged(Manager.map)
+                                           && !c.Impassable(Manager.map))
                                  .ToArray();
 
         // check if there are more than two rooms in the surrounding cells.
-        var rooms = adjacent.Select(c => c.GetRoom(manager.map))
+        var rooms = adjacent.Select(c => c.GetRoom(Manager.map))
                             .Where(r => r != null)
                             .Distinct()
                             .ToList();
@@ -526,7 +526,7 @@ public class ManagerJob_Mining : ManagerJob
         {
             for (var j = i + 1; j < adjacent.Count(); j++)
             {
-                var path = manager.map.pathFinder.FindPath(adjacent[i], adjacent[j],
+                var path = Manager.map.pathFinder.FindPath(adjacent[i], adjacent[j],
                                                             TraverseParms.For(
                                                                 TraverseMode.NoPassClosedDoors, Danger.Some));
                 var cost = path.TotalCost;
@@ -571,7 +571,7 @@ public class ManagerJob_Mining : ManagerJob
             && target.Faction != Faction.OfPlayer
 
             // not already designated
-            && manager.map.designationManager.DesignationOn(target) == null
+            && Manager.map.designationManager.DesignationOn(target) == null
 
             // allowed
             && !target.IsForbidden(Faction.OfPlayer)
@@ -615,10 +615,10 @@ public class ManagerJob_Mining : ManagerJob
 
             // discovered 
             // NOTE: also in IsReachable, but we expect a lot of fogged tiles, so move this check up a bit.
-            && !target.Position.Fogged(manager.map)
+            && !target.Position.Fogged(Manager.map)
 
             // not yet designated
-            && manager.map.designationManager.DesignationOn(target) == null
+            && Manager.map.designationManager.DesignationOn(target) == null
 
             // matches settings
             && IsInAllowedArea(target)
@@ -655,9 +655,9 @@ public class ManagerJob_Mining : ManagerJob
 
     public void RefreshAllowedMinerals()
     {
-        var deconstructibleDefs = manager.map.listerThings.AllThings.OfType<Building>()
+        var deconstructibleDefs = Manager.map.listerThings.AllThings.OfType<Building>()
                                          .Where(b => b.Faction != Faction.OfPlayer
-                                                   && !b.Position.Fogged(manager.map)
+                                                   && !b.Position.Fogged(Manager.map)
                                                    && b.def.building.IsDeconstructible
                                                    && !b.CostListAdjusted().NullOrEmpty()
                                                    && b.def.resourcesFractionWhenDeconstructed > 0)
@@ -792,10 +792,10 @@ public class ManagerJob_Mining : ManagerJob
     private void RemoveObsoleteDesignations()
     {
         // get the intersection of bills in the game and bills in our list.
-        var designations = manager.map.designationManager.AllDesignations
+        var designations = Manager.map.designationManager.AllDesignations
             .Where(d =>
                 (d.def == DesignationDefOf.Mine || d.def == DesignationDefOf.Deconstruct) &&
-                (!d.target.HasThing || d.target.Thing.Map == manager.map)); // equates to SpawnedDesignationsOfDef, with two defs.
+                (!d.target.HasThing || d.target.Thing.Map == Manager.map)); // equates to SpawnedDesignationsOfDef, with two defs.
         _designations = _designations.Intersect(designations).ToList();
     }
 }

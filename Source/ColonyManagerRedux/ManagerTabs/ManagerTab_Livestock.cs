@@ -173,7 +173,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
 
         // add / remove to the stack
-        if (_selectedCurrent.Managed)
+        if (_selectedCurrent.IsManaged)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
@@ -190,7 +190,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
-                _selectedCurrent.Managed = true;
+                _selectedCurrent.IsManaged = true;
                 _onCurrentTab = true;
                 Manager.For(manager).JobStack.Add(_selectedCurrent);
                 Refresh();
@@ -921,11 +921,11 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         if (_selectedCurrent.TryTameMore)
         {
             AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref _selectedCurrent.TameArea, manager);
-            DrawReachabilityToggle(ref pos, width, ref _selectedCurrent.CheckReachable);
+            DrawReachabilityToggle(ref pos, width, ref _selectedCurrent.ShouldCheckReachable);
             DrawToggle(ref pos, width,
                         "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
                         "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-                        ref _selectedCurrent.PathBasedDistance, true);
+                        ref _selectedCurrent.UsePathBasedDistance, true);
         }
 
         return pos.y - start.y;

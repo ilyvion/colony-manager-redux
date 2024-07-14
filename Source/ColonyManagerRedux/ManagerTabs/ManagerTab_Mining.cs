@@ -268,11 +268,11 @@ public class ManagerTab_Mining : ManagerTab
                               "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed".Translate(),
                               "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip".Translate(),
                               ref SelectedMiningJob.SyncFilterAndAllowed);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedMiningJob.CheckReachable);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedMiningJob.ShouldCheckReachable);
         Utilities.DrawToggle(ref pos, width,
                               "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
                               "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-                              ref SelectedMiningJob.PathBasedDistance,
+                              ref SelectedMiningJob.UsePathBasedDistance,
                               true);
 
         return pos.y - start.y;
@@ -322,6 +322,8 @@ public class ManagerTab_Mining : ManagerTab
             rect.yMax - ButtonSize.y,
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
+        var debugButtonRect = new Rect(buttonRect);
+        debugButtonRect.x -= ButtonSize.x + Margin;
 
 
         // options
@@ -352,18 +354,17 @@ public class ManagerTab_Mining : ManagerTab
         Widgets_Section.Section(ref position, width, DrawAllowedBuildings);
         Widgets_Section.EndSectionColumn("Mining.Minerals", position);
 
-        // do the button
-        if (Event.current.control && Widgets.ButtonInvisible(buttonRect))
+        if (Prefs.DevMode && Widgets.ButtonText(debugButtonRect, "DEV: Debug Options"))
         {
             Find.WindowStack.Add(new Dialog_MiningDebugOptions(SelectedMiningJob));
         }
 
-        if (!SelectedMiningJob.Managed)
+        if (!SelectedMiningJob.IsManaged)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                SelectedMiningJob.Managed = true;
+                SelectedMiningJob.IsManaged = true;
                 Manager.For(manager).JobStack.Add(SelectedMiningJob);
 
                 // refresh source list

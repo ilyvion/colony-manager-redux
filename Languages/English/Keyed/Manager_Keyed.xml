@@ -123,7 +123,6 @@
     <ColonyManagerRedux.Forestry.JobType.Logging.Tip>Chop trees for wood</ColonyManagerRedux.Forestry.JobType.Logging.Tip>
 
     <ColonyManagerRedux.Forestry.Clear>Clear {0}</ColonyManagerRedux.Forestry.Clear>
-    <ColonyManagerRedux.Forestry.TurbineArea>wind turbines</ColonyManagerRedux.Forestry.TurbineArea>
 
     <ColonyManagerRedux.Forestry.Trees>Trees</ColonyManagerRedux.Forestry.Trees>
     <ColonyManagerRedux.Forestry.Trees.Tip>Select all trees</ColonyManagerRedux.Forestry.Trees.Tip>
@@ -133,8 +132,6 @@
     <ColonyManagerRedux.Forestry.Ugly.Tip>Select all ugly plants</ColonyManagerRedux.Forestry.Ugly.Tip>
     <ColonyManagerRedux.Forestry.ProvidesCover>Cover</ColonyManagerRedux.Forestry.ProvidesCover>
     <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Select all plants that provide cover</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
-    <ColonyManagerRedux.Forestry.BlocksWind>Blocks wind</ColonyManagerRedux.Forestry.BlocksWind>
-    <ColonyManagerRedux.Forestry.BlocksWind.Tip>Select all plants that block wind</ColonyManagerRedux.Forestry.BlocksWind.Tip>
 
     <!-- Foraging (Gathering) tab -->
     <ColonyManagerRedux.Foraging.Foraging>Foraging</ColonyManagerRedux.Foraging.Foraging>

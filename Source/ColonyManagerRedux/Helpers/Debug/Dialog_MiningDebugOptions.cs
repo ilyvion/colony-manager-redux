@@ -1,14 +1,17 @@
 ﻿// Dialog_MiningDebugOptions.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Linq;
 using LudeonTK;
 using RimWorld;
 using UnityEngine;
 using Verse;
+using Verse.AI;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_DebugOptionLister
 {
     private readonly ManagerJob_Mining job = job;
@@ -119,30 +122,27 @@ public class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_DebugOpti
 
         DebugAction("DrawSupportGrid", columnWidth, delegate
         {
-            foreach (var cell in job.manager.map.AllCells)
+            foreach (var cell in job.Manager.map.AllCells)
             {
                 if (job.IsARoofSupport_Basic(cell))
                 {
-                    job.manager.map.debugDrawer.FlashCell(cell, DebugSolidColorMats.MaterialOf(Color.green));
+                    job.Manager.map.debugDrawer.FlashCell(cell, DebugSolidColorMats.MaterialOf(Color.green));
                 }
             }
         }, false);
 
         DebugAction("GetBaseCenter", columnWidth, delegate
         {
-            var cell = Utilities.GetBaseCenter(job.manager);
-            job.manager.map.debugDrawer.FlashCell(cell, DebugSolidColorMats.MaterialOf(Color.blue));
+            var cell = Utilities.GetBaseCenter(job.Manager);
+            job.Manager.map.debugDrawer.FlashCell(cell, DebugSolidColorMats.MaterialOf(Color.blue));
         }, false);
 
         DebugToolMap("DrawPath", columnWidth, delegate
         {
-            var source = Utilities.GetBaseCenter(job.manager);
+            var source = Utilities.GetBaseCenter(job.Manager);
             var target = UI.MouseCell();
-            var path = job.manager.map.pathFinder.FindPath(source, target,
-                                                            TraverseParms.For(
-                                                                TraverseMode.PassDoors, Danger.Some));
-            path.DrawPath(null);
-            path.ReleaseToPool();
+
+            job.Manager.debugComponent.SetPath(source, target);
         }, false
         );
 

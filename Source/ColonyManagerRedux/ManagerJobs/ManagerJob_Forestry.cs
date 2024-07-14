@@ -1,6 +1,8 @@
 ﻿// ManagerJob_Forestry.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RimWorld;
@@ -15,7 +17,6 @@ public class ManagerJob_Forestry : ManagerJob
     public enum ForestryJobType
     {
         ClearArea,
-        ClearWind,
         Logging
     }
 
@@ -25,16 +26,12 @@ public class ManagerJob_Forestry : ManagerJob
     private readonly Utilities.CachedValue<int>
         _designatedWoodCachedValue = new(0);
 
-    public Dictionary<ThingDef, bool> AllowedTrees = [];
+    public HashSet<ThingDef> AllowedTrees = [];
     public bool AllowSaplings;
-    public Dictionary<Area, bool> ClearAreas = [];
-    public bool ClearWindCells;
+    public HashSet<Area> ClearAreas = [];
     public History History;
     public Area? LoggingArea;
-    public new Trigger_Threshold Trigger;
-
-    private List<bool>? _clearAreas_allowed;
-    private List<Area>? _clearAreas_areas;
+    public Trigger_Threshold Trigger;
 
     private List<Designation> _designations = [];
 
@@ -47,21 +44,10 @@ public class ManagerJob_Forestry : ManagerJob
         Trigger.ThresholdFilter.SetDisallowAll();
         Trigger.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
 
-        // initialize clearAreas list with current areas
-        UpdateClearAreas();
-
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
-
-
-        // init stuff if we're not loading
-        // todo: please, please refactor this into something less clumsy!
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            RefreshAllowedTrees();
-        }
     }
 
-    public override bool Completed
+    public override bool IsCompleted
     {
         get
         {
@@ -81,7 +67,7 @@ public class ManagerJob_Forestry : ManagerJob
 
     public override ManagerTab Tab
     {
-        get { return manager.tabs.Find(tab => tab is ManagerTab_Forestry); }
+        get { return Manager.tabs.Find(tab => tab is ManagerTab_Forestry); }
     }
 
     public override string[] Targets
@@ -91,17 +77,12 @@ public class ManagerJob_Forestry : ManagerJob
             switch (Type)
             {
                 case ForestryJobType.Logging:
-                    return AllowedTrees.Keys.Where(key => AllowedTrees[key])
-                                       .Select(tree => tree.LabelCap.Resolve())
-                                       .ToArray();
-                default:
+                    return AllowedTrees
+                        .Select(tree => tree.LabelCap.Resolve())
+                        .ToArray();
+                case ForestryJobType.ClearArea:
                     var targets = ClearAreas
-                                 .Where(ca => ca.Value)
-                                 .Select(ca => ca.Key.Label);
-                    if (ClearWindCells)
-                    {
-                        targets = targets.Concat("ColonyManagerRedux.Forestry.TurbineArea".Translate().Resolve());
-                    }
+                        .Select(ca => ca.Label);
 
                     if (!targets.Any())
                     {
@@ -109,6 +90,9 @@ public class ManagerJob_Forestry : ManagerJob
                     }
 
                     return targets.ToArray();
+
+                default:
+                    throw new Exception($"Invalid ForestryJobType value: {Type}");
             }
         }
     }
@@ -128,7 +112,7 @@ public class ManagerJob_Forestry : ManagerJob
     public void AddRelevantGameDesignations()
     {
         // get list of game designations not managed by this job that could have been assigned by this job.
-        foreach (var des in manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.CutPlant)
+        foreach (var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.CutPlant)
                                     .Except(_designations)
                                     .Where(des => IsValidForestryTarget(des.target)))
         {
@@ -142,7 +126,7 @@ public class ManagerJob_Forestry : ManagerJob
     public void CleanDesignations()
     {
         // get the intersection of bills in the game and bills in our list.
-        var gameDesignations = manager.map.designationManager
+        var gameDesignations = Manager.map.designationManager
                                       .SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant).ToList();
         _designations = _designations.Intersect(gameDesignations).ToList();
     }
@@ -168,14 +152,14 @@ public class ManagerJob_Forestry : ManagerJob
         var plant = (Plant)designation.target.Thing;
         return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
             plant.LabelCap,
-            Distance(plant, manager.map.GetBaseCenter()).ToString("F0"),
+            Distance(plant, Manager.map.GetBaseCenter()).ToString("F0"),
             plant.YieldNow(),
             plant.def.plant.harvestedThingDef.LabelCap);
     }
 
     public void DoClearAreaDesignations(IEnumerable<IntVec3> cells, ref bool workDone)
     {
-        var map = manager.map;
+        var map = Manager.map;
         var designationManager = map.designationManager;
 
         foreach (var cell in cells)
@@ -190,7 +174,7 @@ public class ManagerJob_Forestry : ManagerJob
             }
 
             // if the plant is not in the allowed filter
-            if (!AllowedTrees.ContainsKey(plant.def) || !AllowedTrees[plant.def])
+            if (!AllowedTrees.Contains(plant.def))
             {
                 continue;
             }
@@ -255,39 +239,20 @@ public class ManagerJob_Forestry : ManagerJob
 
         // settings, references first!
         Scribe_References.Look(ref LoggingArea, "loggingArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", manager);
-        Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def, LookMode.Value);
+        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
+        Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
-        Scribe_Values.Look(ref ClearWindCells, "clearWindCells");
 
         // clearing areas list
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             // make sure areas list doesn't contain deleted areas
             UpdateClearAreas();
-
-            // create scribe helper vars
-            _clearAreas_areas = new List<Area>(ClearAreas.Keys);
-            _clearAreas_allowed = new List<bool>(ClearAreas.Values);
         }
 
         // scribe that stuff
-        Scribe_Collections.Look(ref _clearAreas_areas, "clearAreas_areas", LookMode.Reference);
-        Scribe_Collections.Look(ref _clearAreas_allowed, "clearAreas_allowed", LookMode.Value);
-
-        // initialize areas dict from scribe helpers
-        if (Scribe.mode == LoadSaveMode.PostLoadInit)
-        {
-            ClearAreas = [];
-            for (var i = 0; i < _clearAreas_areas.Count; i++)
-            {
-                if (_clearAreas_areas[i] != null)
-                {
-                    ClearAreas.Add(_clearAreas_areas[i], _clearAreas_allowed[i]);
-                }
-            }
-        }
+        Scribe_Collections.Look(ref ClearAreas, "clearAreas", LookMode.Reference);
 
         if (Manager.LoadSaveMode == Manager.Modes.Normal)
         {
@@ -325,56 +290,16 @@ public class ManagerJob_Forestry : ManagerJob
         Logger.Debug("Refreshing allowed trees");
 
         // all plants
-        var options = manager.map.Biome.AllWildPlants
-
-                             // cave plants (shrooms)
-                             .Concat(DefDatabase<ThingDef>.AllDefsListForReading
-                                                           .Where(td => td.plant?.cavePlant ?? false))
-
-                             // ambrosia
-                             .Concat(ThingDefOf.Plant_Ambrosia)
-
-                             // and anything on the map that is not in a plant zone/planter
-                             .Concat(manager.map.listerThings.AllThings.OfType<Plant>()
-                                             .Where(p => p.Spawned &&
-                                                          !(manager.map.zoneManager.ZoneAt(p.Position) is
-                                                              IPlantToGrowSettable) &&
-                                                          manager.map.thingGrid.ThingsAt(p.Position)
-                                                                 .FirstOrDefault(
-                                                                      t => t is Building_PlantGrower) == null)
-                                             .Select(p => p.def))
-
-                             // add stuff in the current list
-                             .Concat(AllowedTrees.Keys.ToList())
-
-                             // if type == logging, remove things that do not yield wood
-                             .Where(td => Type == ForestryJobType.ClearArea ||
-                                           (td.plant.harvestTag == "Wood" ||
-                                             td.plant.harvestedThingDef == ThingDefOf.WoodLog) &&
-                                           td.plant.harvestYield > 0)
-                             .Distinct();
+        var options = Utilities_Forestry.GetPlants(Manager, Type == ForestryJobType.ClearArea);
 
         // remove stuff not in new list
-        foreach (var tree in AllowedTrees.Keys.ToList())
+        foreach (var tree in AllowedTrees.ToList())
         {
             if (!options.Contains(tree))
             {
                 AllowedTrees.Remove(tree);
             }
         }
-
-        // add stuff not in current list
-        foreach (var tree in options)
-        {
-            if (!AllowedTrees.ContainsKey(tree))
-            {
-                AllowedTrees.Add(tree, false);
-            }
-        }
-
-        // sort
-        AllowedTrees = AllowedTrees.OrderBy(at => at.Key.LabelCap.RawText)
-                                   .ToDictionary(at => at.Key, at => at.Value);
     }
 
     public string SubLabel(Rect rect)
@@ -425,11 +350,6 @@ public class ManagerJob_Forestry : ManagerJob
                 DoLoggingJob(ref workDone);
                 break;
             case ForestryJobType.ClearArea:
-                if (ClearWindCells)
-                {
-                    DoClearAreaDesignations(GetWindCells(), ref workDone);
-                }
-
                 if (ClearAreas.Any())
                 {
                     DoClearAreas(ref workDone);
@@ -443,32 +363,13 @@ public class ManagerJob_Forestry : ManagerJob
 
     internal void UpdateClearAreas()
     {
-        // init list of areas
-        if (ClearAreas == null || ClearAreas.Count == 0)
+        // iterate over existing areas, remove deleted areas.
+        var Areas = new List<Area>(ClearAreas);
+        foreach (var area in Areas)
         {
-            ClearAreas =
-                manager.map.areaManager.AllAreas.Where(area => area.AssignableAsAllowed())
-                       .ToDictionary(a => a, v => false);
-        }
-        else
-        {
-            // iterate over areas, add new areas.
-            foreach (var area in manager.map.areaManager.AllAreas.Where(a => a.AssignableAsAllowed()))
+            if (!Manager.map.areaManager.AllAreas.Contains(area))
             {
-                if (!ClearAreas.ContainsKey(area))
-                {
-                    ClearAreas.Add(area, false);
-                }
-            }
-
-            // iterate over existing areas, clear deleted areas.
-            var Areas = new List<Area>(ClearAreas.Keys);
-            foreach (var area in Areas)
-            {
-                if (!manager.map.areaManager.AllAreas.Contains(area))
-                {
-                    ClearAreas.Remove(area);
-                }
+                ClearAreas.Remove(area);
             }
         }
     }
@@ -476,7 +377,7 @@ public class ManagerJob_Forestry : ManagerJob
     private void AddDesignation(Designation des)
     {
         // add to game
-        manager.map.designationManager.AddDesignation(des);
+        Manager.map.designationManager.AddDesignation(des);
 
         // add to internal list
         _designations.Add(des);
@@ -510,10 +411,7 @@ public class ManagerJob_Forestry : ManagerJob
     {
         foreach (var area in ClearAreas)
         {
-            if (area.Value)
-            {
-                DoClearAreaDesignations(area.Key.ActiveCells, ref workDone);
-            }
+            DoClearAreaDesignations(area.ActiveCells, ref workDone);
         }
     }
 
@@ -545,12 +443,12 @@ public class ManagerJob_Forestry : ManagerJob
 
     private List<Plant> GetLoggableTreesSorted()
     {
-        var position = manager.map.GetBaseCenter();
+        var position = Manager.map.GetBaseCenter();
 
 #if DEBUG_PERFORMANCE
         DeepProfiler.Start( "GetLoggableTreesSorted" );
 #endif
-        var list = manager.map.listerThings.AllThings.Where(IsValidForestryTarget)
+        var list = Manager.map.listerThings.AllThings.Where(IsValidForestryTarget)
                           .Select(p => (Plant)p)
                           .OrderByDescending(p => p.YieldNow() / Distance(p, position))
                           .ToList();
@@ -564,7 +462,7 @@ public class ManagerJob_Forestry : ManagerJob
 
     private List<IntVec3> GetWindCells()
     {
-        return manager.map.listerBuildings
+        return Manager.map.listerBuildings
                       .allBuildingsColonist
                       .Where(b => b.GetComp<CompPowerPlantWind>() != null)
                       .SelectMany(turbine => WindTurbineUtility.CalculateWindCells(turbine.Position,
@@ -594,13 +492,10 @@ public class ManagerJob_Forestry : ManagerJob
     {
         return target.def.plant != null
 
-            // non-biome trees won't be on the list
-            && AllowedTrees.ContainsKey(target.def)
+            && AllowedTrees.Contains(target.def)
 
-            // also filters out non-tree plants
-            && AllowedTrees[target.def]
             && target.Spawned
-            && manager.map.designationManager.DesignationOn(target) == null
+            && Manager.map.designationManager.DesignationOn(target) == null
 
             // cut only mature trees, or saplings that yield something right now.
             && (AllowSaplings || target.LifeStage == PlantLifeStage.Mature) && target.YieldNow() > 1

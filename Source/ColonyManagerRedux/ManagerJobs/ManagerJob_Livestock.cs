@@ -41,7 +41,7 @@ public class ManagerJob_Livestock : ManagerJob
     public MasterMode Trainers;
     public TrainingTracker Training;
     public Area? TrainingArea;
-    public new Trigger_PawnKind Trigger;
+    public Trigger_PawnKind Trigger;
     public bool TryTameMore;
 
     private Utilities.CachedValue<string>? _cachedLabel;
@@ -67,7 +67,7 @@ public class ManagerJob_Livestock : ManagerJob
         _history = new History(Utilities_Livestock.AgeSexArray.Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
 
         // set up the trigger, set all target counts to 5
-        Trigger = new Trigger_PawnKind(this.manager);
+        Trigger = new Trigger_PawnKind(this.Manager);
 
         // set all training to false
         Training = new TrainingTracker();
@@ -120,7 +120,7 @@ public class ManagerJob_Livestock : ManagerJob
         Trigger.pawnKind = pawnKindDef;
     }
 
-    public override bool Completed => Trigger.State;
+    public override bool IsCompleted => Trigger.State;
 
     public List<Designation> Designations => new(_designations);
 
@@ -138,12 +138,12 @@ public class ManagerJob_Livestock : ManagerJob
                 var text = Label + "\n<i>";
                 foreach (var ageSex in Utilities_Livestock.AgeSexArray)
                 {
-                    text += Trigger.pawnKind.GetTame(manager, ageSex).Count() + "/" +
+                    text += Trigger.pawnKind.GetTame(Manager, ageSex).Count() + "/" +
                             Trigger.CountTargets[ageSex] +
                             ", ";
                 }
 
-                text += Trigger.pawnKind.GetWild(manager).Count() + "</i>";
+                text += Trigger.pawnKind.GetWild(Manager).Count() + "</i>";
                 return text;
             }
             _cachedLabel = new Utilities.CachedValue<string>(labelGetter(), 250, labelGetter);
@@ -155,7 +155,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     public override string Label => Trigger.pawnKind.LabelCap;
 
-    public override ManagerTab Tab => manager.tabs.OfType<ManagerTab_Livestock>().First();
+    public override ManagerTab Tab => Manager.tabs.OfType<ManagerTab_Livestock>().First();
 
     public override string[] Targets
     {
@@ -167,7 +167,7 @@ public class ManagerJob_Livestock : ManagerJob
                                                                                                Trigger
                                                                                                   .pawnKind
                                                                                                   .GetTame(
-                                                                                                       manager,
+                                                                                                       Manager,
                                                                                                        ageSex)
                                                                                                   .Count(),
                                                                                                Trigger.CountTargets
@@ -184,7 +184,7 @@ public class ManagerJob_Livestock : ManagerJob
         // create and add designation to the game and our managed list.
         var des = new Designation(p, def);
         _designations.Add(des);
-        manager.map.designationManager.AddDesignation(des);
+        Manager.map.designationManager.AddDesignation(des);
     }
 
     public AcceptanceReport CanBeTrained(PawnKindDef pawnKind, TrainableDef td, out bool visible)
@@ -265,7 +265,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     public void DoFollowSettings(ref bool actionTaken)
     {
-        foreach (var animal in Trigger.pawnKind.GetTame(manager).ToList())
+        foreach (var animal in Trigger.pawnKind.GetTame(Manager).ToList())
         {
             // training
             Logger.Follow(animal.LabelShort);
@@ -341,7 +341,7 @@ public class ManagerJob_Livestock : ManagerJob
         Scribe_References.Look(ref Master, "master");
         Scribe_References.Look(ref Trainer, "trainer");
         Scribe_Collections.Look(ref RestrictArea, "areaRestrictions", LookMode.Reference);
-        Scribe_Deep.Look(ref Trigger, "trigger", manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
         Scribe_Deep.Look(ref Training, "training");
         Scribe_Deep.Look(ref _history, "history");
         Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);
@@ -367,10 +367,10 @@ public class ManagerJob_Livestock : ManagerJob
         {
             // populate with all designations.
             _designations.AddRange(
-                manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
+                Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
             _designations.AddRange(
-                manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
+                Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
         }
     }
@@ -378,7 +378,7 @@ public class ManagerJob_Livestock : ManagerJob
     public Pawn? GetMaster(Pawn animal, MasterMode mode)
     {
         var master = animal.playerSettings.Master;
-        var options = animal.kindDef.GetMasterOptions(manager, mode);
+        var options = animal.kindDef.GetMasterOptions(Manager, mode);
 
         // if the animal is bonded, and we care about bonds, there's no discussion
         if (RespectBonds)
@@ -487,7 +487,7 @@ public class ManagerJob_Livestock : ManagerJob
         // This should handle manual cancellations and natural completions.
         // it deliberately won't add new designations made manually.
         // Note that this also has the unfortunate side-effect of not re-adding designations after loading a game.
-        _designations = _designations.Intersect(manager.map.designationManager.AllDesignations).ToList();
+        _designations = _designations.Intersect(Manager.map.designationManager.AllDesignations).ToList();
 
         // handle butchery
         DoButcherJobs(ref actionTaken);
@@ -519,7 +519,7 @@ public class ManagerJob_Livestock : ManagerJob
                 continue;
             }
 
-            foreach (var animal in Trigger.pawnKind.GetTame(manager, ageSex))
+            foreach (var animal in Trigger.pawnKind.GetTame(Manager, ageSex))
             {
                 foreach (var def in Training.Defs)
                 {
@@ -552,11 +552,11 @@ public class ManagerJob_Livestock : ManagerJob
 
         for (var i = 0; i < Utilities_Livestock.AgeSexArray.Length; i++)
         {
-            foreach (var p in Trigger.pawnKind.GetTame(manager, Utilities_Livestock.AgeSexArray[i]))
+            foreach (var p in Trigger.pawnKind.GetTame(Manager, Utilities_Livestock.AgeSexArray[i]))
             {
                 // slaughter
                 if (SendToSlaughterArea &&
-                     manager.map.designationManager.DesignationOn(p, DesignationDefOf.Slaughter) != null)
+                     Manager.map.designationManager.DesignationOn(p, DesignationDefOf.Slaughter) != null)
                 {
                     actionTaken = p.playerSettings.AreaRestrictionInPawnCurrentMap != SlaughterArea;
                     p.playerSettings.AreaRestrictionInPawnCurrentMap = SlaughterArea;
@@ -620,7 +620,7 @@ public class ManagerJob_Livestock : ManagerJob
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
-            var surplus = Trigger.pawnKind.GetTame(manager, ageSex).Count()
+            var surplus = Trigger.pawnKind.GetTame(Manager, ageSex).Count()
                         - DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count
                         - Trigger.CountTargets[ageSex];
 
@@ -635,9 +635,9 @@ public class ManagerJob_Livestock : ManagerJob
                                   ageSex == AgeAndSex.AdultMale;
 
                 // get list of animals in correct sort order.
-                var animals = Trigger.pawnKind.GetTame(manager, ageSex)
+                var animals = Trigger.pawnKind.GetTame(Manager, ageSex)
                                      .Where(
-                                          p => manager.map.designationManager.DesignationOn(
+                                          p => Manager.map.designationManager.DesignationOn(
                                                    p, DesignationDefOf.Slaughter) == null
                                             && (ButcherTrained ||
                                                  !p.training.HasLearned(TrainableDefOf.Obedience))
@@ -690,7 +690,7 @@ public class ManagerJob_Livestock : ManagerJob
         {
             // not enough animals?
             var deficit = Trigger.CountTargets[ageSex]
-                        - Trigger.pawnKind.GetTame(manager, ageSex).Count()
+                        - Trigger.pawnKind.GetTame(Manager, ageSex).Count()
                         - DesignationsOfOn(DesignationDefOf.Tame, ageSex).Count;
 
 #if DEBUG_LIFESTOCK
@@ -700,13 +700,13 @@ public class ManagerJob_Livestock : ManagerJob
             if (deficit > 0)
             {
                 // get the 'home' position
-                var position = manager.map.GetBaseCenter();
+                var position = Manager.map.GetBaseCenter();
 
                 // get list of animals in sorted by youngest weighted to distance.
-                var animals = Trigger.pawnKind.GetWild(manager, ageSex)
+                var animals = Trigger.pawnKind.GetWild(Manager, ageSex)
                                      .Where(p => p != null &&
                                                  p.Spawned &&
-                                                 manager.map.designationManager.DesignationOn(p) == null &&
+                                                 Manager.map.designationManager.DesignationOn(p) == null &&
                                                  (TameArea == null ||
                                                    TameArea.ActiveCells.Contains(p.Position)) &&
                                                  IsReachable(p)).ToList();

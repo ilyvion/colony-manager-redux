@@ -80,12 +80,12 @@ internal class ManagerTab_Hunting : ManagerTab
         Widgets_Section.EndSectionColumn("Hunting.Animals", position);
 
         // do the button
-        if (!SelectedHuntingJob.Managed)
+        if (!SelectedHuntingJob.IsManaged)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                SelectedHuntingJob.Managed = true;
+                SelectedHuntingJob.IsManaged = true;
                 Manager.For(manager).JobStack.Add(SelectedHuntingJob);
 
                 // refresh source list
@@ -436,8 +436,8 @@ internal class ManagerTab_Hunting : ManagerTab
 
         // allow human & insect meat (2)
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedHuntingJob.PathBasedDistance, true);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.CheckReachable);
+            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedHuntingJob.UsePathBasedDistance, true);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.ShouldCheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
             SelectedHuntingJob.Trigger.ThresholdFilter.Allows(Utilities_Hunting.HumanMeat),

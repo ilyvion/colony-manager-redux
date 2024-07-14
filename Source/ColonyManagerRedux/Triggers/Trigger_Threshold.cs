@@ -46,7 +46,7 @@ public class Trigger_Threshold : Trigger
     {
     }
 
-    public Trigger_Threshold(ManagerJob_Hunting job) : base(job.manager)
+    public Trigger_Threshold(ManagerJob_Hunting job) : base(job.Manager)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -60,7 +60,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
     }
 
-    public Trigger_Threshold(ManagerJob_Forestry job) : base(job.manager)
+    public Trigger_Threshold(ManagerJob_Forestry job) : base(job.Manager)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -72,7 +72,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter = new ThingFilter();
     }
 
-    public Trigger_Threshold(ManagerJob_Foraging job) : base(job.manager)
+    public Trigger_Threshold(ManagerJob_Foraging job) : base(job.Manager)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -84,7 +84,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter.SetAllowAll(null);
     }
 
-    public Trigger_Threshold(ManagerJob_Mining job) : base(job.manager)
+    public Trigger_Threshold(ManagerJob_Mining job) : base(job.Manager)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;

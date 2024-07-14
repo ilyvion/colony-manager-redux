@@ -29,7 +29,7 @@ public class UpdateInterval(int ticks, string label)
         Text.Anchor = TextAnchor.MiddleCenter;
 
         // how many hours have passed since the last update?
-        var lastUpdate = Find.TickManager.TicksGame - job.lastAction;
+        var lastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
         var progress = (float)lastUpdate / GenDate.TicksPerHour;
         var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;
 

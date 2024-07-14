@@ -9,6 +9,7 @@ using RimWorld;
 using UnityEngine;
 using Verse;
 using static ColonyManagerRedux.Constants;
+using static ColonyManagerRedux.ManagerJob_Forestry;
 using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
@@ -84,12 +85,12 @@ internal class ManagerTab_Forestry : ManagerTab
         Widgets_Section.EndSectionColumn("Forestry.Trees", position);
 
         // do the button
-        if (!SelectedForestryJob.Managed)
+        if (!SelectedForestryJob.IsManaged)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
             {
                 // activate job, add it to the stack
-                SelectedForestryJob.Managed = true;
+                SelectedForestryJob.IsManaged = true;
                 manager.JobStack.Add(SelectedForestryJob);
 
                 // refresh source list
@@ -242,14 +243,8 @@ internal class ManagerTab_Forestry : ManagerTab
             pos.y,
             width,
             ListEntryHeight);
-        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref SelectedForestryJob.ClearAreas);
+        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref SelectedForestryJob.ClearAreas, manager);
         pos.y += ListEntryHeight;
-        Utilities.DrawToggle(
-            ref pos,
-            width,
-            "ColonyManagerRedux.Forestry.ClearWindCells".Translate(),
-            "ColonyManagerRedux.Forestry.ClearWindCells.Tip".Translate(),
-            ref SelectedForestryJob.ClearWindCells);
 
         return pos.y - start.y;
     }
@@ -312,13 +307,13 @@ internal class ManagerTab_Forestry : ManagerTab
                                                  currentCount, designatedCount, targetCount),
                                              SelectedForestryJob.Designations, null, SelectedForestryJob.DesignationLabel);
 
-        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForestryJob.CheckReachable);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForestryJob.ShouldCheckReachable);
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
             "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-            ref SelectedForestryJob.PathBasedDistance,
+            ref SelectedForestryJob.UsePathBasedDistance,
             true);
 
         return pos.y - start.y;
@@ -333,15 +328,25 @@ internal class ManagerTab_Forestry : ManagerTab
             width,
             ListEntryHeight);
         var allowedTrees = SelectedForestryJob.AllowedTrees;
-        var trees = new List<ThingDef>(allowedTrees.Keys);
+        var allPlants = Utilities_Forestry.GetPlants(manager, SelectedForestryJob.Type == ForestryJobType.ClearArea);
 
         // toggle for each tree
-        foreach (var def in trees)
+        foreach (var plantDef in allPlants)
         {
-            Utilities.DrawToggle(rowRect, def.LabelCap,
-                                  new TipSignal(() => GetTreeTooltip(def), def.GetHashCode()),
-                                  SelectedForestryJob.AllowedTrees[def],
-                                  () => SelectedForestryJob.AllowedTrees[def] = !SelectedForestryJob.AllowedTrees[def]);
+            Utilities.DrawToggle(rowRect, plantDef.LabelCap,
+                new TipSignal(() => GetTreeTooltip(plantDef), plantDef.GetHashCode()),
+                allowedTrees.Contains(plantDef),
+                () =>
+                {
+                    if (allowedTrees.Contains(plantDef))
+                    {
+                        allowedTrees.Remove(plantDef);
+                    }
+                    else
+                    {
+                        allowedTrees.Add(plantDef);
+                    }
+                });
             rowRect.y += ListEntryHeight;
         }
 
@@ -356,85 +361,93 @@ internal class ManagerTab_Forestry : ManagerTab
             pos.y,
             width,
             ListEntryHeight);
-        var allowed = SelectedForestryJob.AllowedTrees;
-        var plants = new List<ThingDef>(allowed.Keys);
+        var allowedTrees = SelectedForestryJob.AllowedTrees;
+        var allPlants = Utilities_Forestry.GetPlants(manager, SelectedForestryJob.Type == ForestryJobType.ClearArea).ToList();
+
+        var allSelected = allPlants.All(allowedTrees.Contains);
+        var noneSelected = allPlants.All(p => !allowedTrees.Contains(p));
 
         // toggle all
         Utilities.DrawToggle(rowRect,
-                              "ColonyManagerRedux.ManagerAll".Translate().Italic(),
-                              string.Empty,
-                              SelectedForestryJob.AllowedTrees.Values.All(v => v),
-                              SelectedForestryJob.AllowedTrees.Values.All(v => !v),
-                              () => plants.ForEach(t => allowed[t] = true),
-                              () => plants.ForEach(t => allowed[t] = false));
+            "ColonyManagerRedux.ManagerAll".Translate().Italic(),
+            string.Empty,
+            allSelected,
+            noneSelected,
+            () => { allowedTrees.AddRange(allPlants); },
+            allowedTrees.Clear);
 
-        if (SelectedForestryJob.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
+        if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {
             rowRect.y += ListEntryHeight;
             // trees (anything that drops wood, or has the correct harvest tag).
-            var trees = plants.Where(tree => tree.plant.harvestTag == "Wood" ||
-                                              tree.plant.harvestedThingDef == ThingDefOf.WoodLog).ToList();
+            var trees = allPlants
+                .Where(tree => tree.plant.harvestTag == "Wood" ||
+                    tree.plant.harvestedThingDef == ThingDefOf.WoodLog)
+                .ToList();
+
+            allSelected = trees.All(allowedTrees.Contains);
+            noneSelected = trees.All(p => !allowedTrees.Contains(p));
+
             Utilities.DrawToggle(rowRect,
-                                  "ColonyManagerRedux.Forestry.Trees".Translate().Italic(),
-                                  "ColonyManagerRedux.Forestry.Trees.Tip".Translate(),
-                                  trees.All(t => allowed[t]),
-                                  trees.All(t => !allowed[t]),
-                                  () => trees.ForEach(t => allowed[t] = true),
-                                  () => trees.ForEach(t => allowed[t] = false));
+                "ColonyManagerRedux.Forestry.Trees".Translate().Italic(),
+                "ColonyManagerRedux.Forestry.Trees.Tip".Translate(),
+                allSelected,
+                noneSelected,
+                () => trees.ForEach(t => allowedTrees.Add(t)),
+                () => trees.ForEach(t => allowedTrees.Remove(t)));
             rowRect.y += ListEntryHeight;
 
             // flammable (probably all - might be modded stuff).
-            var flammable = plants.Where(tree => tree.BaseFlammability > 0).ToList();
-            if (flammable.Count != plants.Count)
+            var flammable = allPlants.Where(tree => tree.BaseFlammability > 0).ToList();
+            if (flammable.Count != allPlants.Count)
             {
+                allSelected = flammable.All(allowedTrees.Contains);
+                noneSelected = flammable.All(p => !allowedTrees.Contains(p));
+
                 Utilities.DrawToggle(
                     rowRect,
                     "ColonyManagerRedux.Forestry.Flammable".Translate().Italic(),
                     "ColonyManagerRedux.Forestry.Flammable.Tip".Translate(),
-                    flammable.All(t => allowed[t]),
-                    flammable.All(t => !allowed[t]),
-                    () => flammable.ForEach(t => allowed[t] = true),
-                    () => flammable.ForEach(t => allowed[t] = false));
+                    allSelected,
+                    noneSelected,
+                    () => flammable.ForEach(t => allowedTrees.Add(t)),
+                    () => flammable.ForEach(t => allowedTrees.Remove(t)));
                 rowRect.y += ListEntryHeight;
             }
 
             // ugly (possibly none - modded stuff).
-            var ugly = plants.Where(tree => tree.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0)
-                             .ToList();
+            var ugly = allPlants.Where(tree => tree.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0)
+                .ToList();
             if (!ugly.NullOrEmpty())
             {
+                allSelected = ugly.All(allowedTrees.Contains);
+                noneSelected = ugly.All(p => !allowedTrees.Contains(p));
                 Utilities.DrawToggle(rowRect,
-                                      "ColonyManagerRedux.Forestry.Ugly".Translate().Italic(),
-                                      "ColonyManagerRedux.Forestry.Ugly.Tip".Translate(),
-                                      ugly.All(t => allowed[t]),
-                                      ugly.All(t => !allowed[t]),
-                                      () => ugly.ForEach(t => allowed[t] = true),
-                                      () => ugly.ForEach(t => allowed[t] = false));
+                    "ColonyManagerRedux.Forestry.Ugly".Translate().Italic(),
+                    "ColonyManagerRedux.Forestry.Ugly.Tip".Translate(),
+                    allSelected,
+                    noneSelected,
+                    () => ugly.ForEach(t => allowedTrees.Add(t)),
+                    () => ugly.ForEach(t => allowedTrees.Remove(t)));
                 rowRect.y += ListEntryHeight;
             }
 
             // provides cover
-            var cover = plants.Where(tree => tree.Fillage == FillCategory.Full ||
-                                              tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
-                              .ToList();
-            Utilities.DrawToggle(rowRect,
-                                  "ColonyManagerRedux.Forestry.ProvidesCover".Translate().Italic(),
-                                  "ColonyManagerRedux.Forestry.ProvidesCover.Tip".Translate(),
-                                  cover.All(t => allowed[t]),
-                                  cover.All(t => !allowed[t]),
-                                  () => cover.ForEach(t => allowed[t] = true),
-                                  () => cover.ForEach(t => allowed[t] = false));
-            rowRect.y += ListEntryHeight;
+            var cover = allPlants
+                .Where(tree => tree.Fillage == FillCategory.Full ||
+                    tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
+                .ToList();
 
-            // blocks wind
-            var wind = plants.Where(tree => tree.blockWind).ToList();
+            allSelected = cover.All(allowedTrees.Contains);
+            noneSelected = cover.All(p => !allowedTrees.Contains(p));
+
             Utilities.DrawToggle(rowRect,
-                                  "ColonyManagerRedux.Forestry.BlocksWind".Translate().Italic(),
-                                  "ColonyManagerRedux.Forestry.BlocksWind.Tip".Translate(),
-                                  wind.All(t => allowed[t]),
-                                  wind.All(t => !allowed[t]),
-                                  () => wind.ForEach(t => allowed[t] = true),
-                                  () => wind.ForEach(t => allowed[t] = false));
+                "ColonyManagerRedux.Forestry.ProvidesCover".Translate().Italic(),
+                "ColonyManagerRedux.Forestry.ProvidesCover.Tip".Translate(),
+                allSelected,
+                noneSelected,
+                () => cover.ForEach(t => allowedTrees.Add(t)),
+                () => cover.ForEach(t => allowedTrees.Remove(t)));
         }
 
         return rowRect.yMax - start.y;
