@@ -1,9 +1,11 @@
 ﻿// Trigger_Threshold.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -11,6 +13,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class Trigger_Threshold : Trigger
 {
     public enum Ops
@@ -67,9 +70,10 @@ public class Trigger_Threshold : Trigger
         TargetCount = DefaultCount;
         ThresholdFilter = new ThingFilter();
         ThresholdFilter.SetDisallowAll();
-        ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
 
         ParentFilter = new ThingFilter();
+        ParentFilter.SetDisallowAll();
+        ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
     }
 
     public Trigger_Threshold(ManagerJob_Foraging job) : base(job.Manager)
@@ -81,7 +85,11 @@ public class Trigger_Threshold : Trigger
         ThresholdFilter.SetDisallowAll();
 
         ParentFilter = new ThingFilter();
-        ParentFilter.SetAllowAll(null);
+        ParentFilter.SetDisallowAll();
+        foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(manager).Select(p => p.plant.harvestedThingDef))
+        {
+            ParentFilter.SetAllow(harvestedThingDef, true);
+        }
     }
 
     public Trigger_Threshold(ManagerJob_Mining job) : base(job.Manager)

@@ -18,5 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   History labels now store translation keys instead of finished translations so that changing the UI language also changes the label values where appropriate.
+-   Threshold details window wasn't working properly, but is now fixed.
 
 [Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...HEAD

@@ -1,21 +1,26 @@
 ﻿// Window_TriggerThresholdDetails.cs
 // Copyright Karel Kroeze, 2017-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
+using System.Reflection;
+using HarmonyLib;
 using UnityEngine;
 using Verse;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 {
-    private readonly ThingFilterUI filterUI = new();
-    public Vector2 FilterScrollPosition = Vector2.zero;
     public string Input = "";
     public Trigger_Threshold Trigger = trigger;
 
+    private Verse.ThingFilterUI.UIState _uIState = new();
+
     public override Vector2 InitialSize => new(300f, 500);
 
+    private static FieldInfo _viewHeightField = AccessTools.Field(typeof(ThingFilterUI), "viewHeight");
     public override void DoWindowContents(Rect inRect)
     {
         // set up rects
@@ -27,8 +32,13 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
                                    (filterRect.width - Margin) / 2f, Constants.ListEntryHeight);
 
         // draw thingfilter
-        filterUI.DoThingFilterConfigWindow(filterRect, ref FilterScrollPosition, Trigger.ThresholdFilter,
-                                            Trigger.ParentFilter);
+        ThingFilterUI.DoThingFilterConfigWindow(filterRect, _uIState, Trigger.ThresholdFilter, Trigger.ParentFilter);
+        if (Event.current.type == EventType.Layout)
+        {
+            // For whatever reason, Rimworld adds a 90 pixel margin to the bottom of the filter
+            // list. We don't want that, so remove it again.
+            _viewHeightField.SetValue(null, (float)_viewHeightField.GetValue(null) - 90f);
+        }
 
         // draw zone selector
         StockpileGUI.DoStockpileSelectors(zoneRect, ref Trigger.stockpile, Trigger.manager);
