@@ -1,6 +1,11 @@
 ﻿// Utilities_Hunting.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using RimWorld;
 using Verse;
 
@@ -26,5 +31,16 @@ public static class Utilities_Hunting
     public static int EstimatedMeatCount(this Corpse c)
     {
         return EstimatedMeatCount(c.InnerPawn);
+    }
+
+    internal static IEnumerable<PawnKindDef> GetAnimals(Map map)
+    {
+        return map.Biome.AllWildAnimals
+            .Concat(map.mapPawns.AllPawns
+                .Where(p => (p.RaceProps?.Animal ?? false)
+                            && !(map.fogGrid?.IsFogged(p.Position) ?? true))
+                .Select(p => p.kindDef)
+            .Distinct()
+            .OrderBy(pk => pk.label));
     }
 }

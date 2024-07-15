@@ -26,6 +26,16 @@ public class ManagerJob_Foraging : ManagerJob
 
     private List<Designation> _designations = [];
 
+    private List<ThingDef>? _allPlants;
+    public List<ThingDef> AllPlants
+    {
+        get
+        {
+            _allPlants ??= Utilities_Plants.GetForagingPlants(Manager).ToList();
+            return _allPlants;
+        }
+    }
+
     public ManagerJob_Foraging(Manager manager) : base(manager)
     {
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
@@ -209,7 +219,7 @@ public class ManagerJob_Foraging : ManagerJob
         }
 
 
-        foreach (var plant in Utilities_Plants.GetForagingPlants(Manager))
+        foreach (var plant in AllPlants)
         {
             if (GetMaterialsInPlant(plant).Any(Trigger.ThresholdFilter.Allows))
             {
@@ -222,12 +232,13 @@ public class ManagerJob_Foraging : ManagerJob
         }
     }
 
-    public void RefreshAllowedPlants()
+    public void RefreshAllPlants()
     {
-        Logger.Debug("Refreshing allowed plants");
+        Logger.Debug("Refreshing all plants");
 
         // all plants that yield something, and it isn't wood.
-        var options = Utilities_Plants.GetForagingPlants(Manager);
+        _allPlants = null;
+        var options = AllPlants;
 
         // remove stuff not in new list
         foreach (var plant in AllowedPlants.ToList())
@@ -241,11 +252,6 @@ public class ManagerJob_Foraging : ManagerJob
 
     public void SetPlantAllowed(ThingDef plant, bool allow, bool sync = true)
     {
-        if (plant == null)
-        {
-            throw new ArgumentNullException(nameof(plant));
-        }
-
         if (allow)
         {
             AllowedPlants.Add(plant);

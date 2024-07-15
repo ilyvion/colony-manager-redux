@@ -35,6 +35,16 @@ public class ManagerJob_Forestry : ManagerJob
 
     private List<Designation> _designations = [];
 
+    private List<ThingDef>? _allPlants;
+    public List<ThingDef> AllPlants
+    {
+        get
+        {
+            _allPlants ??= Utilities_Plants.GetForestryPlants(Manager, Type == ForestryJobType.ClearArea).ToList();
+            return _allPlants;
+        }
+    }
+
     private ForestryJobType _type = ForestryJobType.Logging;
 
     public ManagerJob_Forestry(Manager manager) : base(manager)
@@ -103,7 +113,7 @@ public class ManagerJob_Forestry : ManagerJob
         set
         {
             _type = value;
-            RefreshAllowedTrees();
+            RefreshAllTrees();
         }
     }
 
@@ -287,12 +297,13 @@ public class ManagerJob_Forestry : ManagerJob
         return count;
     }
 
-    public void RefreshAllowedTrees()
+    public void RefreshAllTrees()
     {
-        Logger.Debug("Refreshing allowed trees");
+        Logger.Debug("Refreshing all trees");
 
         // all plants
-        var options = Utilities_Plants.GetForestryPlants(Manager, Type == ForestryJobType.ClearArea);
+        _allPlants = null;
+        var options = AllPlants;
 
         // remove stuff not in new list
         foreach (var tree in AllowedTrees.ToList())
@@ -301,6 +312,18 @@ public class ManagerJob_Forestry : ManagerJob
             {
                 AllowedTrees.Remove(tree);
             }
+        }
+    }
+
+    public void SetTreeAllowed(ThingDef tree, bool allow)
+    {
+        if (allow)
+        {
+            AllowedTrees.Add(tree);
+        }
+        else
+        {
+            AllowedTrees.Remove(tree);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿// ManagerJob_Mining.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
@@ -346,10 +347,10 @@ public class ManagerJob_Mining : ManagerJob
                               .Sum(d => GetCountInBuilding(d.target.Thing as Building));
 
         // mining jobs
-        var mineralCounts = _designations.Where(d => d.def == DesignationDefOf.Mine)
+        var mineralCounts = _designations.Where(d => d.def == DesignationDefOf.Mine && d.target.Cell.IsValid)
                                          .Select(d => Manager
-                                                      .map.thingGrid.ThingsListAtFast(d.target.Cell)
-                                                      .FirstOrDefault()?.def)
+                                            .map.thingGrid.ThingsListAtFast(d.target.Cell)
+                                            .FirstOrDefault()?.def)
                                          .Where(d => d != null)
                                          .GroupBy(d => d, d => d, (d, g) => new { def = d, count = g.Count() })
                                          .Where(g => Allowed(g.def));

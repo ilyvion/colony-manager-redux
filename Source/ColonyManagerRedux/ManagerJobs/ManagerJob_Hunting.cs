@@ -1,5 +1,6 @@
 ﻿// ManagerJob_Hunting.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ public class ManagerJob_Hunting : ManagerJob
     private readonly Utilities.CachedValue<int> _corpseCachedValue = new(0);
     private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
 
-    public Dictionary<PawnKindDef, bool> AllowedAnimals = [];
+    public HashSet<PawnKindDef> AllowedAnimals = [];
     public History History;
     public Area? HuntingGrounds;
     public Trigger_Threshold Trigger;
@@ -25,6 +26,16 @@ public class ManagerJob_Hunting : ManagerJob
     private bool _allowInsectMeat;
     private List<Designation> _designations = [];
     private List<ThingDef>? _humanLikeMeatDefs;
+
+    private List<PawnKindDef>? _allAnimals;
+    public List<PawnKindDef> AllAnimals
+    {
+        get
+        {
+            _allAnimals ??= Utilities_Hunting.GetAnimals(Manager).ToList();
+            return _allAnimals;
+        }
+    }
 
     public ManagerJob_Hunting(Manager manager) : base(manager)
     {
@@ -45,12 +56,6 @@ public class ManagerJob_Hunting : ManagerJob
         // start the history tracker;
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
                                [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
-
-        // init stuff if we're not loading
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            RefreshAllowedAnimals();
-        }
     }
 
     public bool AllowHumanLikeMeat
@@ -98,14 +103,12 @@ public class ManagerJob_Hunting : ManagerJob
         {
             var corpses =
                 Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
-                       .ConvertAll(thing => (Corpse)thing);
-            return
-                corpses.Where(
-                    thing => thing?.InnerPawn != null &&
-                             (HuntingGrounds == null ||
-                               HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
-                             AllowedAnimals.ContainsKey(thing.InnerPawn.kindDef) &&
-                             AllowedAnimals[thing.InnerPawn.kindDef]).ToList();
+                    .ConvertAll(thing => (Corpse)thing);
+            return corpses.Where(
+                thing => thing?.InnerPawn != null &&
+                         (HuntingGrounds == null ||
+                          HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
+                          AllowedAnimals.Contains(thing.InnerPawn.kindDef)).ToList();
         }
     }
 
@@ -132,19 +135,12 @@ public class ManagerJob_Hunting : ManagerJob
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
-    public override ManagerTab Tab
-    {
-        get { return Manager.For(Manager).tabs.Find(tab => tab is ManagerTab_Hunting); }
-    }
+    public override ManagerTab Tab =>
+        Manager.For(Manager).tabs.Find(tab => tab is ManagerTab_Hunting);
 
-    public override string[] Targets
-    {
-        get
-        {
-            return AllowedAnimals.Keys.Where(key => AllowedAnimals[key]).Select(pk => pk.LabelCap.Resolve())
-                                 .ToArray();
-        }
-    }
+    public override string[] Targets => AllowedAnimals
+        .Select(pk => pk.LabelCap.Resolve())
+        .ToArray();
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Hunting;
 
@@ -240,7 +236,7 @@ public class ManagerJob_Hunting : ManagerJob
         Scribe_Deep.Look(ref Trigger, "trigger", Manager);
 
         // settings
-        Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def, LookMode.Value);
+        Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def);
         Scribe_Values.Look(ref UnforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _allowHumanLikeMeat, "allowHumanLikeMeat");
         Scribe_Values.Look(ref _allowInsectMeat, "allowInsectMeat");
@@ -325,27 +321,22 @@ public class ManagerJob_Hunting : ManagerJob
         return count;
     }
 
-    public void RefreshAllowedAnimals()
+    public void RefreshAllAnimals()
     {
-        // add animals that were not already in the list, disallow by default.
-        foreach (var pawnKind in Manager.map.Biome.AllWildAnimals
-                                         .Concat(Manager.map.mapPawns.AllPawns
-                                                         .Where(p => (p.RaceProps?.Animal ?? false)
-                                                                   && !(Manager.map.fogGrid?.IsFogged(
-                                                                             p.Position) ?? true))
-                                                         .Select(p => p.kindDef))
-                                         .Distinct()
-                                         .OrderBy(pk => pk.label))
-        {
-            if (!AllowedAnimals.ContainsKey(pawnKind))
-            {
-                AllowedAnimals.Add(pawnKind, false);
-            }
-        }
+        Logger.Debug("Refreshing all animals");
 
-        AllowedAnimals = AllowedAnimals
-                        .OrderBy(x => x.Key.label)
-                        .ToDictionary(k => k.Key, v => v.Value);
+        _allAnimals = null;
+    }
+    public void SetAnimalAllowed(PawnKindDef animal, bool allow)
+    {
+        if (allow)
+        {
+            AllowedAnimals.Add(animal);
+        }
+        else
+        {
+            AllowedAnimals.Remove(animal);
+        }
     }
 
     public override void Tick()
@@ -472,7 +463,7 @@ public class ManagerJob_Hunting : ManagerJob
 
         return Manager.map.mapPawns.AllPawns
                       .Where(p => IsValidHuntingTarget(p, false))
-                      .OrderBy(p => -p.EstimatedMeatCount() / Distance(p, position))
+                      .OrderByDescending(p => p.EstimatedMeatCount() / Distance(p, position))
                       .ToList();
     }
 
@@ -493,8 +484,7 @@ public class ManagerJob_Hunting : ManagerJob
             && target.Faction == null
 
             // non-biome animals won't be on the list
-            && AllowedAnimals.ContainsKey(target.kindDef)
-            && AllowedAnimals[target.kindDef]
+            && AllowedAnimals.Contains(target.kindDef)
             && (allowHunted || Manager.map.designationManager.DesignationOn(target) == null)
             && (HuntingGrounds == null ||
                  HuntingGrounds.ActiveCells.Contains(target.Position))

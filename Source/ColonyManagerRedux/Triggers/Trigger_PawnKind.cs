@@ -85,8 +85,8 @@ public class Trigger_PawnKind : Trigger
         {
             pawnKind.LabelCap
         };
-        tooltipArgs.AddRange(Counts.Select(x => x.ToString()).Cast<NamedArgument>());
-        tooltipArgs.AddRange(CountTargets.Values.Select(v => v.ToString()).Cast<NamedArgument>());
+        tooltipArgs.AddRange(CountTargets.Values.Select(v => new NamedArgument(v.ToString(), null)));
+        tooltipArgs.AddRange(Counts.Select(x => new NamedArgument(x.ToString(), null)));
         return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray());
     }
 

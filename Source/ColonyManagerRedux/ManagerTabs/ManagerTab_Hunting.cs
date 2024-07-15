@@ -1,5 +1,6 @@
 ﻿// ManagerTab_Hunting.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System;
 using System.Collections.Generic;
@@ -72,7 +73,7 @@ internal class ManagerTab_Hunting : ManagerTab
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
         {
-            SelectedHuntingJob.RefreshAllowedAnimals();
+            SelectedHuntingJob.RefreshAllAnimals();
         }
 
         Widgets_Section.Section(ref position, width, DrawAnimalShortcuts, "ColonyManagerRedux.Hunting.Animals".Translate());
@@ -208,25 +209,36 @@ internal class ManagerTab_Hunting : ManagerTab
     {
         var start = pos;
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowed = SelectedHuntingJob.AllowedAnimals;
-        var animals = new List<PawnKindDef>(allowed.Keys);
+        var allowedAnimals = SelectedHuntingJob.AllowedAnimals;
+        var allAnimals = SelectedHuntingJob.AllAnimals;
 
         // toggle for each animal
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var animal in animals)
+        foreach (var animalDef in allAnimals)
         {
             // draw the toggle
-            Utilities.DrawToggle(rowRect, animal.LabelCap,
-                new TipSignal(GetAnimalKindTooltip(animal), animal.GetHashCode()), allowed[animal],
-                () => allowed[animal] = !allowed[animal]);
+            Utilities.DrawToggle(rowRect, animalDef.LabelCap,
+                new TipSignal(GetAnimalKindTooltip(animalDef),
+                    animalDef.GetHashCode()), allowedAnimals.Contains(animalDef),
+                () =>
+                {
+                    if (allowedAnimals.Contains(animalDef))
+                    {
+                        allowedAnimals.Remove(animalDef);
+                    }
+                    else
+                    {
+                        allowedAnimals.Add(animalDef);
+                    }
+                });
 
             // if aggressive, draw warning icon
-            if (animal.RaceProps.manhunterOnDamageChance >= 0.1)
+            if (animalDef.RaceProps.manhunterOnDamageChance >= 0.1)
             {
                 var color = GUI.color;
-                if (allowed[animal])
+                if (allowedAnimals.Contains(animalDef))
                 {
-                    if (animal.RaceProps.manhunterOnDamageChance > 0.25)
+                    if (animalDef.RaceProps.manhunterOnDamageChance > 0.25)
                     {
                         GUI.color = Color.red;
                     }
@@ -351,61 +363,44 @@ internal class ManagerTab_Hunting : ManagerTab
         var start = pos;
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowed = SelectedHuntingJob.AllowedAnimals;
-        var animals = new List<PawnKindDef>(allowed.Keys);
+        var allowedAnimals = SelectedHuntingJob.AllowedAnimals;
+        var allAnimals = SelectedHuntingJob.AllAnimals;
 
         // toggle all
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerAll".Translate().Italic(),
-            string.Empty,
-            allowed.Values.All(v => v),
-            allowed.Values.All(v => !v),
-            () => animals.ForEach(a => allowed[a] = true),
-            () => animals.ForEach(a => allowed[a] = false));
+        DrawShortcutToggle(allAnimals, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
+            "ManagerAll", null);
 
         // toggle predators
         rowRect.y += ListEntryHeight;
-        var predators = animals.Where(a => a.RaceProps.predator).ToList();
-        Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerHunting.Predators".Translate().Italic(),
-            "ColonyManagerRedux.ManagerHunting.Predators.Tip".Translate(),
-            predators.All(p => allowed[p]),
-            predators.All(p => !allowed[p]),
-            () => predators.ForEach(p => allowed[p] = true),
-            () => predators.ForEach(p => allowed[p] = false));
+        var predators = allAnimals.Where(a => a.RaceProps.predator).ToList();
+        DrawShortcutToggle(predators, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
+            "ManagerHunting.Predators", "ManagerHunting.Predators.Tip");
 
         // aggressive animals
         rowRect.y += ListEntryHeight;
-        var aggressive = animals.Where(a => a.RaceProps.manhunterOnDamageChance >= 0.05).ToList();
-        Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerHunting.Aggressive".Translate().Italic(),
-            "ColonyManagerRedux.ManagerHunting.Aggressive.Tip".Translate(),
-            aggressive.All(a => allowed[a]),
-            aggressive.All(a => !allowed[a]),
-            () => aggressive.ForEach(a => allowed[a] = true),
-            () => aggressive.ForEach(a => allowed[a] = false));
+        var aggressive = allAnimals.Where(a => a.RaceProps.manhunterOnDamageChance >= 0.05).ToList();
+        DrawShortcutToggle(aggressive, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
+            "ManagerHunting.Aggressive", "ManagerHunting.Aggressive.Tip");
 
         // toggle herd animals
         rowRect.y += ListEntryHeight;
-        var herders = animals.Where(a => a.RaceProps.herdAnimal).ToList();
-        Utilities.DrawToggle(rowRect, "ColonyManagerRedux.ManagerHunting.HerdAnimals".Translate().Italic(),
-            "ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip".Translate(),
-            herders.All(h => allowed[h]),
-            herders.All(h => !allowed[h]),
-            () => herders.ForEach(h => allowed[h] = true),
-            () => herders.ForEach(h => allowed[h] = false));
+        var herders = allAnimals.Where(a => a.RaceProps.herdAnimal).ToList();
+        DrawShortcutToggle(herders, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
+            "ManagerHunting.HerdAnimals", "ManagerHunting.HerdAnimals.Tip");
 
         // exploding animals
-        rowRect.y += ListEntryHeight;
-        var exploding = animals
+        var exploding = allAnimals
             .Where(a => a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
                         || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion))
             .ToList();
-        Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerHunting.Exploding".Translate().Italic(),
-            "ColonyManagerRedux.ManagerHunting.Exploding.Tip".Translate(),
-            exploding.All(e => allowed[e]),
-            exploding.All(e => !allowed[e]),
-            () => exploding.ForEach(e => allowed[e] = true),
-            () => exploding.ForEach(e => allowed[e] = false));
+
+        if (exploding.Count > 0)
+        {
+            rowRect.y += ListEntryHeight;
+            DrawShortcutToggle(exploding, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
+                "ManagerHunting.Exploding", "ManagerHunting.Exploding.Tip");
+        }
 
         return rowRect.yMax - start.y;
     }
@@ -474,9 +469,9 @@ internal class ManagerTab_Hunting : ManagerTab
         // update pawnkind options
         foreach (var job in Jobs)
         {
-            job.RefreshAllowedAnimals();
+            job.RefreshAllAnimals();
         }
 
-        SelectedHuntingJob?.RefreshAllowedAnimals();
+        SelectedHuntingJob?.RefreshAllAnimals();
     }
 }

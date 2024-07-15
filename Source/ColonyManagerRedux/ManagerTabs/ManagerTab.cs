@@ -2,7 +2,11 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Verse;
 
 namespace ColonyManagerRedux;
 
@@ -66,5 +70,20 @@ public abstract class ManagerTab(Manager manager)
 
     protected virtual void PostSelect()
     {
+    }
+
+    protected void DrawShortcutToggle<T>(List<T> options, HashSet<T> selected, Action<T, bool> setAllowed, Rect rect, string labelKey, string? toolTipKey)
+    {
+        var allSelected = options.All(selected.Contains);
+        var noneSelected = options.All(p => !selected.Contains(p));
+
+        Utilities.DrawToggle(
+            rect,
+            "<i>" + $"ColonyManagerRedux.{labelKey}".Translate() + "</i>",
+            toolTipKey != null ? $"ColonyManagerRedux.{toolTipKey}".Translate() : string.Empty,
+            allSelected,
+            noneSelected,
+            () => options.ForEach(p => setAllowed(p, true)),
+            () => options.ForEach(p => setAllowed(p, false)));
     }
 }
