@@ -574,6 +574,7 @@ public static class Utilities
             if (Find.TickManager.TicksGame - filterCountCache.TimeSet < 250 && // less than 250 ticks ago
                  Find.TickManager.TicksGame > filterCountCache.TimeSet)
             // cache is not from future (switching games without restarting could cause this).
+            // TODO: avoid this issue properly by cleaning up things like caches on game exit.
             {
                 count = filterCountCache.Cache;
                 return true;

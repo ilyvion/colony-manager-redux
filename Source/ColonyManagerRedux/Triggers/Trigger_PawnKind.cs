@@ -3,6 +3,7 @@
 
 // Trigger_PawnKind.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
@@ -11,12 +12,12 @@ public class Trigger_PawnKind : Trigger
     private readonly Utilities.CachedValue<string> _cachedTooltip;
     private readonly Utilities.CachedValue<bool> _state = new(false);
 
-    public Dictionary<AgeAndSex, int> CountTargets;
+    public int[] CountTargets;
     public PawnKindDef pawnKind;
 
     public Trigger_PawnKind(Manager manager) : base(manager)
     {
-        CountTargets = Utilities_Livestock.AgeSexArray.ToDictionary(k => k, v => 5);
+        CountTargets = Utilities_Livestock.AgeSexArray.Select(_ => 5).ToArray();
 
         _cachedTooltip = new Utilities.CachedValue<string>("", 250, _getTooltip);
     }
@@ -26,8 +27,8 @@ public class Trigger_PawnKind : Trigger
         get
         {
             return Utilities_Livestock.AgeSexArray
-                                      .Select(ageSex => pawnKind.GetTame(manager, ageSex).Count())
-                                      .ToArray();
+                .Select(ageSex => pawnKind.GetTame(manager, ageSex).Count())
+                .ToArray();
         }
     }
 
@@ -47,7 +48,7 @@ public class Trigger_PawnKind : Trigger
             if (!_state.TryGetValue(out bool state))
             {
                 state = Utilities_Livestock.AgeSexArray.All(
-                            ageSex => CountTargets[ageSex] ==
+                            ageSex => CountTargets[(int)ageSex] ==
                                       pawnKind.GetTame(manager, ageSex).Count())
                      && AllTrainingWantedSet();
                 _state.Update(state);
@@ -69,7 +70,10 @@ public class Trigger_PawnKind : Trigger
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Collections.Look(ref CountTargets, "targets", LookMode.Value, LookMode.Value);
+        foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
+        {
+            Scribe_Values.Look(ref CountTargets[(int)ageAndSex], $"{ageAndSex.ToString().UncapitalizeFirst()}TargetCount");
+        }
         Scribe_Defs.Look(ref pawnKind, "pawnKind");
     }
 
@@ -79,7 +83,7 @@ public class Trigger_PawnKind : Trigger
         {
             pawnKind.LabelCap
         };
-        tooltipArgs.AddRange(CountTargets.Values.Select(v => new NamedArgument(v.ToString(), null)));
+        tooltipArgs.AddRange(CountTargets.Select(v => new NamedArgument(v.ToString(), null)));
         tooltipArgs.AddRange(Counts.Select(x => new NamedArgument(x.ToString(), null)));
         return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray());
     }

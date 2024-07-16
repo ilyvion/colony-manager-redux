@@ -3,6 +3,8 @@
 
 namespace ColonyManagerRedux;
 
+// NOTE: These enum names are used to name save game labels, do not change them without the proper
+// care, as it'll cause save/load issues for players.
 public enum AgeAndSex
 {
     AdultFemale = 0,
@@ -329,20 +331,19 @@ public static class Utilities_Livestock
 
     public static bool Milkable(this Pawn pawn)
     {
-        var ret = false;
-        if (MilkablePawn.ContainsKey(pawn))
+        if (MilkablePawn.TryGetValue(pawn, out var cachedValue))
         {
-            if (MilkablePawn[pawn].TryGetValue(out ret))
+            if (cachedValue.TryGetValue(out var value))
             {
-                return ret;
+                return value;
             }
 
-            ret = pawn._milkable();
-            MilkablePawn[pawn].Update(ret);
-            return ret;
+            value = pawn._milkable();
+            MilkablePawn[pawn].Update(value);
+            return value;
         }
 
-        ret = pawn._milkable();
+        var ret = pawn._milkable();
         MilkablePawn.Add(pawn, new Utilities.CachedValue<bool>(ret, 5000));
         return ret;
     }
@@ -392,20 +393,19 @@ public static class Utilities_Livestock
 
     public static bool Shearable(this Pawn pawn)
     {
-        var ret = false;
-        if (ShearablePawn.ContainsKey(pawn))
+        if (ShearablePawn.TryGetValue(pawn, out var cachedValue))
         {
-            if (ShearablePawn[pawn].TryGetValue(out ret))
+            if (cachedValue.TryGetValue(out var value))
             {
-                return ret;
+                return value;
             }
 
-            ret = pawn._shearable();
-            ShearablePawn[pawn].Update(ret);
-            return ret;
+            value = pawn._shearable();
+            ShearablePawn[pawn].Update(value);
+            return value;
         }
 
-        ret = pawn._shearable();
+        var ret = pawn._shearable();
         ShearablePawn.Add(pawn, new Utilities.CachedValue<bool>(ret, 5000));
         return ret;
     }

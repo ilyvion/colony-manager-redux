@@ -24,7 +24,9 @@ public class History : IExposable
     private const int Size = 100;
 
     // interval per period
-    private static readonly Dictionary<Period, int> _intervals = [];
+    private const int IntervalPerDay = GenDate.TicksPerDay / Size;
+    private const int IntervalPerMonth = GenDate.TicksPerTwelfth / Size;
+    private const int IntervalPerYear = GenDate.TicksPerYear / Size;
 
     private static readonly float _yAxisMargin = 40f;
 
@@ -149,18 +151,12 @@ public class History : IExposable
 
     public static int Interval(Period period)
     {
-        if (!_intervals.ContainsKey(period))
+        return period switch
         {
-            var ticks = period switch
-            {
-                Period.Month => GenDate.TicksPerTwelfth,
-                Period.Year => GenDate.TicksPerYear,
-                _ => GenDate.TicksPerDay,
-            };
-            _intervals[period] = ticks / Size;
-        }
-
-        return _intervals[period];
+            Period.Month => IntervalPerMonth,
+            Period.Year => IntervalPerYear,
+            _ => IntervalPerDay,
+        };
     }
 
     /// <summary>

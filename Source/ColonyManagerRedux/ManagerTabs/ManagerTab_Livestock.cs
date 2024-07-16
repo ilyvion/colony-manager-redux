@@ -17,9 +17,8 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
     private List<ManagerJob_Livestock> _currentJobs;
 
     // init with 5's if new job.
-    // TODO: This does not need to be a dictionary; it's always the same four keys
-    private Dictionary<AgeAndSex, string> _newCounts =
-        Utilities_Livestock.AgeSexArray.ToDictionary(k => k, v => "5");
+    private string[] _newCounts =
+        Utilities_Livestock.AgeSexArray.Select(_ => "5").ToArray();
 
     private bool _onCurrentTab;
     private Vector2 _scrollPosition = Vector2.zero;
@@ -40,7 +39,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         _onCurrentTab = Selected != null;
         _selectedAvailable = null;
         _newCounts =
-            _selectedCurrent?.Trigger?.CountTargets.ToDictionary(k => k.Key, v => v.Value.ToString());
+            _selectedCurrent?.Trigger?.CountTargets.Select(v => v.ToString()).ToArray();
     }
 
     private List<MasterMode> GetMasterModes => Enum.GetValues(typeof(MasterMode)).Cast<MasterMode>().ToList();
@@ -197,22 +196,24 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
     private void DoCountField(Rect rect, AgeAndSex ageSex)
     {
-        if (_newCounts == null || _newCounts[ageSex] == null)
+        int ageSexIndex = (int)ageSex;
+
+        if (_newCounts == null || _newCounts[ageSexIndex] == null)
         {
             _newCounts =
-                _selectedCurrent?.Trigger?.CountTargets.ToDictionary(k => k.Key, v => v.Value.ToString());
+                _selectedCurrent?.Trigger?.CountTargets.Select(v => v.ToString()).ToArray();
         }
 
-        if (!_newCounts[ageSex].IsInt())
+        if (!_newCounts[ageSexIndex].IsInt())
         {
             GUI.color = Color.red;
         }
         else
         {
-            _selectedCurrent.Trigger.CountTargets[ageSex] = int.Parse(_newCounts[ageSex]);
+            _selectedCurrent.Trigger.CountTargets[ageSexIndex] = int.Parse(_newCounts[ageSexIndex]);
         }
 
-        _newCounts[ageSex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSex]);
+        _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);
         GUI.color = Color.white;
     }
 

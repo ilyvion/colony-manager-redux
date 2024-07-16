@@ -1,5 +1,6 @@
 ﻿// ManagerJob_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Reflection;
 using Verse.Sound;
@@ -7,6 +8,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerJob_Livestock : ManagerJob
 {
     private static readonly MethodInfo SetWanted_MI;
@@ -21,7 +23,7 @@ public class ManagerJob_Livestock : ManagerJob
     public MasterMode Masters;
     public Area? MilkArea;
     public bool RespectBonds = true;
-    public List<Area?> RestrictArea;
+    public Area?[] RestrictArea;
     public bool RestrictToArea;
     public bool SendToMilkingArea;
     public bool SendToShearingArea;
@@ -58,7 +60,8 @@ public class ManagerJob_Livestock : ManagerJob
         _designations = [];
 
         // start history tracker
-        _history = new History(Utilities_Livestock.AgeSexArray.Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
+        _history = new History(Utilities_Livestock.AgeSexArray
+            .Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
 
         // set up the trigger, set all target counts to 5
         Trigger = new Trigger_PawnKind(this.Manager);
@@ -69,7 +72,7 @@ public class ManagerJob_Livestock : ManagerJob
         // set areas for restriction and taming to unrestricted
         TameArea = null;
         RestrictToArea = false;
-        RestrictArea = Utilities_Livestock.AgeSexArray.Select(k => (Area?)null).ToList();
+        RestrictArea = Utilities_Livestock.AgeSexArray.Select(k => (Area?)null).ToArray();
 
         // set up sending animals designated for slaughter to an area (freezer)
         SendToSlaughterArea = false;
@@ -133,8 +136,8 @@ public class ManagerJob_Livestock : ManagerJob
                 foreach (var ageSex in Utilities_Livestock.AgeSexArray)
                 {
                     text += Trigger.pawnKind.GetTame(Manager, ageSex).Count() + "/" +
-                            Trigger.CountTargets[ageSex] +
-                            ", ";
+                        Trigger.CountTargets[(int)ageSex] +
+                        ", ";
                 }
 
                 text += Trigger.pawnKind.GetWild(Manager).Count() + "</i>";
@@ -156,18 +159,11 @@ public class ManagerJob_Livestock : ManagerJob
         get
         {
             return Utilities_Livestock.AgeSexArray
-                                      .Select(ageSex =>
-                                                  ("ColonyManagerRedux.Thresholds." + ageSex.ToString() + "Count").Translate(
-                                                                                               Trigger
-                                                                                                  .pawnKind
-                                                                                                  .GetTame(
-                                                                                                       Manager,
-                                                                                                       ageSex)
-                                                                                                  .Count(),
-                                                                                               Trigger.CountTargets
-                                                                                                   [ageSex])
-                                                                                          .Resolve())
-                                      .ToArray();
+                .Select(ageSex => $"ColonyManagerRedux.Thresholds.{ageSex}Count".Translate(
+                    Trigger.pawnKind.GetTame(Manager, ageSex).Count(),
+                    Trigger.CountTargets[(int)ageSex])
+                .Resolve())
+                .ToArray();
         }
     }
 
@@ -250,11 +246,12 @@ public class ManagerJob_Livestock : ManagerJob
 
     public List<Designation> DesignationsOfOn(DesignationDef def, AgeAndSex ageSex)
     {
-        return _designations.Where(des => des.def == def
-                                       && des.target.HasThing
-                                       && des.target.Thing is Pawn pawn
-                                       && pawn.PawnIsOfAgeSex(ageSex))
-                            .ToList();
+        return _designations
+            .Where(des => des.def == def
+                && des.target.HasThing
+                && des.target.Thing is Pawn pawn
+                && pawn.PawnIsOfAgeSex(ageSex))
+            .ToList();
     }
 
     public void DoFollowSettings(ref bool actionTaken)
@@ -295,10 +292,10 @@ public class ManagerJob_Livestock : ManagerJob
 
         // set up rects
         Rect labelRect = new(
-                 Margin, Margin, rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-                 rect.height - 2 * Margin),
-             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth,
-                                    rect.height - 2 * Margin);
+            Margin, Margin, rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+            rect.height - 2 * Margin),
+        statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth,
+            rect.height - 2 * Margin);
 
 
         // do the drawing
@@ -334,7 +331,12 @@ public class ManagerJob_Livestock : ManagerJob
         Scribe_References.Look(ref TrainingArea, "trainingArea");
         Scribe_References.Look(ref Master, "master");
         Scribe_References.Look(ref Trainer, "trainer");
-        Scribe_Collections.Look(ref RestrictArea, "areaRestrictions", LookMode.Reference);
+        foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
+        {
+            Scribe_References.Look(
+                ref RestrictArea[(int)ageAndSex],
+                $"{ageAndSex.ToString().UncapitalizeFirst()}AreaRestriction");
+        }
         Scribe_Deep.Look(ref Trigger, "trigger", Manager);
         Scribe_Deep.Look(ref Training, "training");
         Scribe_Deep.Look(ref _history, "history");
@@ -362,10 +364,10 @@ public class ManagerJob_Livestock : ManagerJob
             // populate with all designations.
             _designations.AddRange(
                 Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
-                       .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
+                    .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
             _designations.AddRange(
                 Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
-                       .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
+                    .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
@@ -618,7 +620,7 @@ public class ManagerJob_Livestock : ManagerJob
             // too many animals?
             var surplus = Trigger.pawnKind.GetTame(Manager, ageSex).Count()
                         - DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count
-                        - Trigger.CountTargets[ageSex];
+                        - Trigger.CountTargets[(int)ageSex];
 
 #if DEBUG_LIFESTOCK
             Log.Message( "Butchering " + ageSex + ", surplus" + surplus );
@@ -628,20 +630,20 @@ public class ManagerJob_Livestock : ManagerJob
             {
                 // should slaughter oldest adults, youngest juveniles.
                 var oldestFirst = ageSex == AgeAndSex.AdultFemale ||
-                                  ageSex == AgeAndSex.AdultMale;
+                    ageSex == AgeAndSex.AdultMale;
 
                 // get list of animals in correct sort order.
                 var animals = Trigger.pawnKind.GetTame(Manager, ageSex)
-                                     .Where(
-                                          p => Manager.map.designationManager.DesignationOn(
-                                                   p, DesignationDefOf.Slaughter) == null
-                                            && (ButcherTrained ||
-                                                 !p.training.HasLearned(TrainableDefOf.Obedience))
-                                            && (ButcherPregnant || !p.VisiblyPregnant())
-                                            && (ButcherBonded || !p.BondedWithColonist()))
-                                     .OrderBy(
-                                          p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks)
-                                     .ToList();
+                    .Where(
+                        p => Manager.map.designationManager.DesignationOn(
+                            p, DesignationDefOf.Slaughter) == null
+                        && (ButcherTrained ||
+                            !p.training.HasLearned(TrainableDefOf.Obedience))
+                        && (ButcherPregnant || !p.VisiblyPregnant())
+                        && (ButcherBonded || !p.BondedWithColonist()))
+                    .OrderBy(
+                        p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks)
+                    .ToList();
 
 #if DEBUG_LIFESTOCK
                 Log.Message( "Tame animals: " + animals.Count );
@@ -685,9 +687,9 @@ public class ManagerJob_Livestock : ManagerJob
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // not enough animals?
-            var deficit = Trigger.CountTargets[ageSex]
-                        - Trigger.pawnKind.GetTame(Manager, ageSex).Count()
-                        - DesignationsOfOn(DesignationDefOf.Tame, ageSex).Count;
+            var deficit = Trigger.CountTargets[(int)ageSex]
+                - Trigger.pawnKind.GetTame(Manager, ageSex).Count()
+                - DesignationsOfOn(DesignationDefOf.Tame, ageSex).Count;
 
 #if DEBUG_LIFESTOCK
             Log.Message( "Taming " + ageSex + ", deficit: " + deficit );
@@ -700,12 +702,12 @@ public class ManagerJob_Livestock : ManagerJob
 
                 // get list of animals in sorted by youngest weighted to distance.
                 var animals = Trigger.pawnKind.GetWild(Manager, ageSex)
-                                     .Where(p => p != null &&
-                                                 p.Spawned &&
-                                                 Manager.map.designationManager.DesignationOn(p) == null &&
-                                                 (TameArea == null ||
-                                                   TameArea.ActiveCells.Contains(p.Position)) &&
-                                                 IsReachable(p)).ToList();
+                    .Where(p => p != null &&
+                        p.Spawned &&
+                        Manager.map.designationManager.DesignationOn(p) == null &&
+                        (TameArea == null || TameArea.ActiveCells.Contains(p.Position)) &&
+                        IsReachable(p))
+                    .ToList();
 
                 // skip if no animals available.
                 if (animals.Count == 0)

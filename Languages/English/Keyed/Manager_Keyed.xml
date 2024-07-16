@@ -192,6 +192,7 @@
     <ColonyManagerRedux.Livestock.UnassignTraining>Unassign training</ColonyManagerRedux.Livestock.UnassignTraining>
     <ColonyManagerRedux.Livestock.UnassignTraining.Tip>Unassign training targets for animals</ColonyManagerRedux.Livestock.UnassignTraining.Tip>
     <ColonyManagerRedux.Livestock.TrainYoung>Train young animals</ColonyManagerRedux.Livestock.TrainYoung>
+    <ColonyManagerRedux.Livestock.TrainYoung.Tip>When assigning training to animals, also include juvenile animals</ColonyManagerRedux.Livestock.TrainYoung.Tip>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea>Restrict animals marked for slaughter</ColonyManagerRedux.Livestock.SendToSlaughterArea>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>Restrict animals designated for slaughtering to a specific area</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
     <ColonyManagerRedux.Livestock.SendToMilkingArea>Restrict animals ready to be milked</ColonyManagerRedux.Livestock.SendToMilkingArea>
