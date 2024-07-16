@@ -3,16 +3,16 @@
 
 namespace ColonyManagerRedux;
 
-public abstract class Trigger(Manager manager) : IExposable
+public abstract class Trigger(ManagerJob job) : IExposable
 {
-    public Manager manager = manager;
+    public ManagerJob job = job;
 
     public abstract bool State { get; }
     public virtual string StatusTooltip { get; } = string.Empty;
 
     public virtual void ExposeData()
     {
-        Scribe_References.Look(ref manager, "manager");
+        Scribe_References.Look(ref job, "job");
     }
 
     public virtual void DrawProgressBar(Rect progressRect, bool active)

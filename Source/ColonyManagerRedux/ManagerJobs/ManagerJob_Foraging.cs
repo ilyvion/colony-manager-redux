@@ -6,6 +6,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerJob_Foraging : ManagerJob
 {
     private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new(0);
@@ -185,11 +186,11 @@ public class ManagerJob_Foraging : ManagerJob
 
         // settings, references first!
         Scribe_References.Look(ref ForagingArea, "foragingArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
-        if (Manager.LoadSaveMode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.Modes.Normal)
         {
             // scribe history
             Scribe_Deep.Look(ref History, "history");

@@ -64,7 +64,7 @@ public class ManagerJob_Livestock : ManagerJob
             .Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
 
         // set up the trigger, set all target counts to 5
-        Trigger = new Trigger_PawnKind(this.Manager);
+        Trigger = new Trigger_PawnKind(this);
 
         // set all training to false
         Training = new TrainingTracker();
@@ -337,7 +337,7 @@ public class ManagerJob_Livestock : ManagerJob
                 ref RestrictArea[(int)ageAndSex],
                 $"{ageAndSex.ToString().UncapitalizeFirst()}AreaRestriction");
         }
-        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", this);
         Scribe_Deep.Look(ref Training, "training");
         Scribe_Deep.Look(ref _history, "history");
         Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);

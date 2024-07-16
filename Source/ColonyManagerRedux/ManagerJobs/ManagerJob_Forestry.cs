@@ -243,7 +243,7 @@ public class ManagerJob_Forestry : ManagerJob
 
         // settings, references first!
         Scribe_References.Look(ref LoggingArea, "loggingArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
@@ -258,7 +258,7 @@ public class ManagerJob_Forestry : ManagerJob
         // scribe that stuff
         Scribe_Collections.Look(ref ClearAreas, "clearAreas", LookMode.Reference);
 
-        if (Manager.LoadSaveMode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.Modes.Normal)
         {
             // scribe history
             Scribe_Deep.Look(ref History, "history");

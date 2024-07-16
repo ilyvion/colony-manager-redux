@@ -373,7 +373,7 @@
 //                MainProduct = new MainProductTracker( Bill.recipe );
 //            }
 
-//            Scribe_Deep.Look( ref Trigger, "trigger", manager );
+//            Scribe_Deep.Look( ref Trigger, "trigger", this );
 //            Scribe_Values.Look( ref _hasMeaningfulIngredientChoices, "hasMeaningFulIngredientChoices", false );
 //            Scribe_Values.Look( ref _createIngredientBills, "createIngredientBills", true );
 

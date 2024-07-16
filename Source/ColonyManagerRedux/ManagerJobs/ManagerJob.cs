@@ -6,12 +6,7 @@ using Verse.AI;
 
 namespace ColonyManagerRedux;
 
-internal interface IManagerJob
-{
-    bool TryDoJob();
-}
-
-public abstract class ManagerJob : IManagerJob, IExposable
+public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
     public static float SuspendStampWidth = Constants.MediumIconSize,
                         LastUpdateRectWidth = 50f,
@@ -32,6 +27,9 @@ public abstract class ManagerJob : IManagerJob, IExposable
     private UpdateInterval? _updateInterval;
     private int _updateIntervalScribe;
 
+    public int loadID = -1;
+    private bool isManaged;
+
     public ManagerJob(Manager manager)
     {
         Manager = manager;
@@ -41,7 +39,18 @@ public abstract class ManagerJob : IManagerJob, IExposable
     public abstract bool IsCompleted { get; }
     public virtual bool IsValid => Manager != null;
     public abstract string Label { get; }
-    public virtual bool IsManaged { get; set; }
+    public virtual bool IsManaged
+    {
+        get => isManaged;
+        set
+        {
+            isManaged = value;
+            if (isManaged && loadID == -1)
+            {
+                loadID = Manager.GetNextManagerJobID();
+            }
+        }
+    }
 
 
     public virtual bool ShouldDoNow => IsManaged && !IsSuspended && !IsCompleted && ShouldUpdate;
@@ -72,6 +81,7 @@ public abstract class ManagerJob : IManagerJob, IExposable
             _updateIntervalScribe = UpdateInterval.ticks;
         }
 
+        Scribe_Values.Look(ref loadID, "loadID", 0);
         Scribe_References.Look(ref Manager, "manager");
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
         Scribe_Values.Look(ref LastActionTick, "lastActionTick");
@@ -80,7 +90,7 @@ public abstract class ManagerJob : IManagerJob, IExposable
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
         Scribe_Values.Look(ref _isSuspended, "isSuspended");
 
-        if (Scribe.mode == LoadSaveMode.PostLoadInit || Manager.LoadSaveMode == Manager.Modes.ImportExport)
+        if (Scribe.mode == LoadSaveMode.PostLoadInit || Manager.Mode == Manager.Modes.ImportExport)
         {
             // must be true if it was saved.
             IsManaged = true;
@@ -156,5 +166,10 @@ public abstract class ManagerJob : IManagerJob, IExposable
     public void Touch()
     {
         LastActionTick = Find.TickManager.TicksGame;
+    }
+
+    public string GetUniqueLoadID()
+    {
+        return $"ColonyManagerRedux_ManagerJob_{Manager.id}_{loadID}";
     }
 }

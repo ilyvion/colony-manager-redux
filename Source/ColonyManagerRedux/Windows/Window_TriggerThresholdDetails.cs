@@ -37,7 +37,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw zone selector
-        StockpileGUI.DoStockpileSelectors(zoneRect, ref Trigger.stockpile, Trigger.manager);
+        StockpileGUI.DoStockpileSelectors(zoneRect, ref Trigger.stockpile, Trigger.job.Manager);
 
         // draw operator button
         if (Widgets.ButtonText(buttonRect, Trigger.OpString))

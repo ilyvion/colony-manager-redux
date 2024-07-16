@@ -278,7 +278,7 @@ public class ManagerJob_Mining : ManagerJob
         base.ExposeData();
 
         Scribe_References.Look(ref MiningArea, "miningArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", Manager);
+        Scribe_Deep.Look(ref Trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def);
         Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
@@ -288,7 +288,7 @@ public class ManagerJob_Mining : ManagerJob
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
 
         // don't store history in import/export mode.
-        if (Manager.LoadSaveMode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.Modes.Normal)
         {
             Scribe_Deep.Look(ref History, "history");
         }

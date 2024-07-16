@@ -15,7 +15,7 @@ public class Manager : MapComponent, ILoadReferenceable
 
     public static bool helpShown;
 
-    public static Modes LoadSaveMode = Modes.Normal;
+    public static Modes Mode = Modes.Normal;
 
     public List<ManagerTab> tabs;
 
@@ -23,7 +23,10 @@ public class Manager : MapComponent, ILoadReferenceable
     private List<ManagerTab>? _managerTabsMiddle;
     private List<ManagerTab>? _managerTabsRight;
     private JobStack _stack;
-    private int id = -1;
+    internal int id = -1;
+
+    private bool _wasLoaded;
+    private int _nextManagerJobID;
 
     internal DebugComponent debugComponent;
 
@@ -100,10 +103,11 @@ public class Manager : MapComponent, ILoadReferenceable
 
     public override void ExposeData()
     {
-        base.ExposeData();
         Scribe_Values.Look(ref id, "id", -1, true);
         Scribe_Values.Look(ref helpShown, "helpShown");
         Scribe_Deep.Look(ref _stack, "jobStack", this);
+
+        Scribe_Values.Look(ref _nextManagerJobID, "nextManagerJobID", 0);
 
         foreach (var tab in tabs)
         {
@@ -111,6 +115,11 @@ public class Manager : MapComponent, ILoadReferenceable
             {
                 Scribe_Deep.Look(ref exposableTab, tab.def.defName, this);
             }
+        }
+
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            _wasLoaded = true;
         }
 
         _stack ??= new JobStack(this);
@@ -153,6 +162,27 @@ public class Manager : MapComponent, ILoadReferenceable
     public bool TryDoWork()
     {
         return JobStack.TryDoNextJob();
+    }
+
+    internal int GetNextManagerJobID()
+    {
+        if (Scribe.mode == LoadSaveMode.LoadingVars && !_wasLoaded)
+        {
+            Log.Warning("Getting next unique manager job ID during LoadingVars before Manager was loaded. Assigning a random value.");
+            return Rand.Int;
+        }
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            Log.Warning("Getting next unique manager job ID during saving. This may cause bugs.");
+        }
+        int result = _nextManagerJobID;
+        _nextManagerJobID++;
+        if (_nextManagerJobID == int.MaxValue)
+        {
+            Log.Warning("Next manager job ID is at max value. Resetting to 0. This may cause bugs.");
+            _nextManagerJobID = 0;
+        }
+        return result;
     }
 
     // internal void NewJobStack(JobStack jobstack)

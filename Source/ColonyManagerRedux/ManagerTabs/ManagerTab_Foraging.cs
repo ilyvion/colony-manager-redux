@@ -18,6 +18,17 @@ internal class ManagerTab_Foraging : ManagerTab
         SelectedForagingJob = new(manager);
     }
 
+    public override void PostOpen()
+    {
+        if (SelectedForagingJob.Trigger.ParentFilter.AllowedDefCount == 0)
+        {
+            // HACK: This sucks, but for whatever reason, it seems to be necessary for the
+            // Trigger to work right after a game load. Anything else I tried failed, like
+            // using LoadSaveMode.PostLoadInit in ExposeData.
+            SelectedForagingJob = new(manager);
+        }
+    }
+
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
     public ManagerJob_Foraging SelectedForagingJob

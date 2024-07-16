@@ -37,12 +37,12 @@ public class Trigger_Threshold : Trigger
     private string? _stockpile_scribe;
 
 #pragma warning disable CS8618 // Only used by Scribe
-    public Trigger_Threshold(Manager manager) : base(manager)
+    public Trigger_Threshold(ManagerJob job) : base(job)
 #pragma warning restore CS8618
     {
     }
 
-    public Trigger_Threshold(ManagerJob_Hunting job) : base(job.Manager)
+    public Trigger_Threshold(ManagerJob_Hunting job) : base(job)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -56,7 +56,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
     }
 
-    public Trigger_Threshold(ManagerJob_Forestry job) : base(job.Manager)
+    public Trigger_Threshold(ManagerJob_Forestry job) : base(job)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -69,7 +69,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
     }
 
-    public Trigger_Threshold(ManagerJob_Foraging job) : base(job.Manager)
+    public Trigger_Threshold(ManagerJob_Foraging job) : base(job)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -79,13 +79,16 @@ public class Trigger_Threshold : Trigger
 
         ParentFilter = new ThingFilter();
         ParentFilter.SetDisallowAll();
-        foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(manager).Select(p => p.plant.harvestedThingDef))
+        if (Scribe.mode == LoadSaveMode.Inactive || Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            ParentFilter.SetAllow(harvestedThingDef, true);
+            foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(base.job.Manager).Select(p => p.plant.harvestedThingDef))
+            {
+                ParentFilter.SetAllow(harvestedThingDef, true);
+            }
         }
     }
 
-    public Trigger_Threshold(ManagerJob_Mining job) : base(job.Manager)
+    public Trigger_Threshold(ManagerJob_Mining job) : base(job)
     {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
@@ -102,7 +105,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
     }
 
-    public int CurrentCount => manager.map.CountProducts(ThresholdFilter, stockpile, countAllOnMap);
+    public int CurrentCount => job.Manager.map.CountProducts(ThresholdFilter, stockpile, countAllOnMap);
 
     public WindowTriggerThresholdDetails DetailsWindow
     {
@@ -310,9 +313,16 @@ public class Trigger_Threshold : Trigger
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             stockpile =
-                manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
-                                                                      z.label == _stockpile_scribe)
-                    as Zone_Stockpile;
+                job.Manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
+                    z.label == _stockpile_scribe) as Zone_Stockpile;
+
+            if (job is ManagerJob_Foraging)
+            {
+                foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(job.Manager).Select(p => p.plant.harvestedThingDef))
+                {
+                    ParentFilter.SetAllow(harvestedThingDef, true);
+                }
+            }
         }
     }
 

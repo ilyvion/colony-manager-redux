@@ -15,7 +15,7 @@ public class Trigger_PawnKind : Trigger
     public int[] CountTargets;
     public PawnKindDef pawnKind;
 
-    public Trigger_PawnKind(Manager manager) : base(manager)
+    public Trigger_PawnKind(ManagerJob job) : base(job)
     {
         CountTargets = Utilities_Livestock.AgeSexArray.Select(_ => 5).ToArray();
 
@@ -27,7 +27,7 @@ public class Trigger_PawnKind : Trigger
         get
         {
             return Utilities_Livestock.AgeSexArray
-                .Select(ageSex => pawnKind.GetTame(manager, ageSex).Count())
+                .Select(ageSex => pawnKind.GetTame(job.Manager, ageSex).Count())
                 .ToArray();
         }
     }
@@ -36,7 +36,7 @@ public class Trigger_PawnKind : Trigger
     {
         get
         {
-            return manager.JobStack.FullStack<ManagerJob_Livestock>()
+            return job.Manager.JobStack.FullStack<ManagerJob_Livestock>()
                           .FirstOrDefault(job => job.Trigger == this);
         }
     }
@@ -49,7 +49,7 @@ public class Trigger_PawnKind : Trigger
             {
                 state = Utilities_Livestock.AgeSexArray.All(
                             ageSex => CountTargets[(int)ageSex] ==
-                                      pawnKind.GetTame(manager, ageSex).Count())
+                                      pawnKind.GetTame(job.Manager, ageSex).Count())
                      && AllTrainingWantedSet();
                 _state.Update(state);
             }
