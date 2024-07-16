@@ -79,7 +79,7 @@ public abstract class ManagerTab(Manager manager)
 
         Utilities.DrawToggle(
             rect,
-            "<i>" + $"ColonyManagerRedux.{labelKey}".Translate() + "</i>",
+            $"ColonyManagerRedux.{labelKey}".Translate().Italic(),
             toolTipKey != null ? $"ColonyManagerRedux.{toolTipKey}".Translate() : string.Empty,
             allSelected,
             noneSelected,

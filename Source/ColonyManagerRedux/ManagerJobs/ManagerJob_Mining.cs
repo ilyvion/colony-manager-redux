@@ -12,14 +12,15 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerJob_Mining : ManagerJob
 {
     private const int RoofSupportGridSpacing = 5;
     private readonly Utilities.CachedValue<int> _chunksCachedValue = new(0);
     private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
-    public Dictionary<ThingDef, bool> AllowedBuildings = [];
+    public HashSet<ThingDef> AllowedBuildings = [];
 
-    public Dictionary<ThingDef, bool> AllowedMinerals = [];
+    public HashSet<ThingDef> AllowedMinerals = [];
     public bool CheckRoofSupport = true;
     public bool CheckRoofSupportAdvanced;
     public bool CheckRoomDivision = true;
@@ -32,20 +33,35 @@ public class ManagerJob_Mining : ManagerJob
     public Trigger_Threshold Trigger;
     private List<Designation> _designations = [];
 
+    private List<ThingDef>? _allDeconstructibleBuildings;
+    public List<ThingDef> AllDeconstructibleBuildings
+    {
+        get
+        {
+            _allDeconstructibleBuildings ??= Utilities_Mining.GetDeconstructibleBuildings(Manager).ToList();
+            return _allDeconstructibleBuildings;
+        }
+    }
+
+    private List<ThingDef>? _allMinerals;
+    public List<ThingDef> AllMinerals
+    {
+        get
+        {
+            _allMinerals ??= Utilities_Mining.GetMinerals().ToList();
+            return _allMinerals;
+        }
+    }
+
     public ManagerJob_Mining(Manager manager) : base(manager)
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
         Trigger = new Trigger_Threshold(this);
 
         // start the history tracker;
-        History = new History(new[] { I18n.HistoryStock, I18n.HistoryChunks, I18n.HistoryDesignated },
-                               [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
-
-        // init stuff if we're not loading
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            RefreshAllowedMinerals();
-        }
+        History = new History(
+            new[] { I18n.HistoryStock, I18n.HistoryChunks, I18n.HistoryDesignated },
+            [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
     }
 
     public override bool IsCompleted => !Trigger.State;
@@ -57,9 +73,8 @@ public class ManagerJob_Mining : ManagerJob
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
     public override ManagerTab Tab => Manager.tabs.Find(tab => tab is ManagerTab_Mining);
 
-    public override string[] Targets => AllowedMinerals.Keys
-                                                       .Where(key => AllowedMinerals[key])
-                                                       .Select(pk => pk.LabelCap.Resolve()).ToArray();
+    public override string[] Targets => AllowedMinerals
+        .Select(pk => pk.LabelCap.Resolve()).ToArray();
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Mining;
 
@@ -68,7 +83,7 @@ public class ManagerJob_Mining : ManagerJob
         var designation = map.designationManager.DesignationOn(building);
 
         return designation != null && (designation.def == DesignationDefOf.Mine ||
-                                        designation.def == DesignationDefOf.Deconstruct);
+            designation.def == DesignationDefOf.Deconstruct);
     }
 
     // largely copypasta from RoofCollapseUtility.WithinRangeOfRoofHolder
@@ -163,7 +178,7 @@ public class ManagerJob_Mining : ManagerJob
             return false;
         }
 
-        return AllowedBuildings.ContainsKey(thingDef) && AllowedBuildings[thingDef];
+        return AllowedBuildings.Contains(thingDef);
     }
 
     public bool AllowedMineral(ThingDef? thingDef)
@@ -173,7 +188,7 @@ public class ManagerJob_Mining : ManagerJob
             return false;
         }
 
-        return AllowedMinerals.ContainsKey(thingDef) && AllowedMinerals[thingDef];
+        return AllowedMinerals.Contains(thingDef);
     }
 
     public override void CleanUp()
@@ -248,7 +263,7 @@ public class ManagerJob_Mining : ManagerJob
         GUI.BeginGroup(rect);
 
         // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
+        Widgets_Labels.Label(labelRect, text, subtext.NullOrEmpty() ? "<none>" : subtext, TextAnchor.MiddleLeft, margin: Margin);
 
         // if the bill has a manager job, give some more info.
         if (active)
@@ -270,8 +285,8 @@ public class ManagerJob_Mining : ManagerJob
 
         Scribe_References.Look(ref MiningArea, "miningArea");
         Scribe_Deep.Look(ref Trigger, "trigger", Manager);
-        Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def, LookMode.Value);
-        Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def, LookMode.Value);
+        Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def);
+        Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref DeconstructBuildings, "deconstructBuildings");
         Scribe_Values.Look(ref CheckRoofSupport, "checkRoofSupport", true);
@@ -649,55 +664,54 @@ public class ManagerJob_Mining : ManagerJob
             return;
         }
 
-        foreach (var building in new List<ThingDef>(AllowedBuildings.Keys))
+        foreach (var building in AllDeconstructibleBuildings)
         {
-            AllowedBuildings[building] = GetMaterialsInBuilding(building)
-               .Any(Trigger.ThresholdFilter.Allows);
+            if (GetMaterialsInBuilding(building).Any(Trigger.ThresholdFilter.Allows))
+            {
+                AllowedBuildings.Add(building);
+            }
+            else
+            {
+                AllowedBuildings.Remove(building);
+            }
         }
 
-        foreach (var mineral in new List<ThingDef>(AllowedMinerals.Keys))
+        foreach (var mineral in AllMinerals)
         {
-            AllowedMinerals[mineral] = GetMaterialsInMineral(mineral)
-               .Any(Trigger.ThresholdFilter.Allows);
+            if (GetMaterialsInMineral(mineral).Any(Trigger.ThresholdFilter.Allows))
+            {
+                AllowedMinerals.Add(mineral);
+            }
+            else
+            {
+                AllowedMinerals.Remove(mineral);
+            }
         }
     }
 
-    public void RefreshAllowedMinerals()
+    public void RefreshAllBuildingsAndMinerals()
     {
-        var deconstructibleDefs = Manager.map.listerThings.AllThings.OfType<Building>()
-                                         .Where(b => b.Faction != Faction.OfPlayer
-                                                   && !b.Position.Fogged(Manager.map)
-                                                   && b.def.building.IsDeconstructible
-                                                   && !b.CostListAdjusted().NullOrEmpty()
-                                                   && b.def.resourcesFractionWhenDeconstructed > 0)
-                                         .Select(b => b.def)
-                                         .Distinct()
-                                         .OrderBy(b => b.LabelCap.RawText)
-                                         .ToDictionary(d => d, AllowedBuilding);
+        Logger.Debug("Refreshing all buildings and minerals");
 
-        AllowedBuildings = deconstructibleDefs;
-
-        var mineralDefs = DefDatabase<ThingDef>.AllDefsListForReading
-                                               .Where(d => d.building != null
-                                                         && d.building.isNaturalRock)
-                                               .OrderBy(d => d.LabelCap.RawText)
-                                               .ToDictionary(d => d, AllowedMineral);
-
-        AllowedMinerals = mineralDefs;
+        _allDeconstructibleBuildings = null;
+        _allMinerals = null;
     }
 
-    public void SetAllowBuilding(ThingDef building, bool allow, bool sync = true)
+    public void SetBuildingAllowed(ThingDef building, bool allow, bool sync = true)
     {
-        if (building == null)
+        if (allow)
         {
-            throw new ArgumentNullException(nameof(building));
+            AllowedBuildings.Add(building);
         }
-
-        AllowedBuildings[building] = allow;
+        else
+        {
+            AllowedBuildings.Remove(building);
+        }
 
         if (SyncFilterAndAllowed && sync)
         {
             Sync = Utilities.SyncDirection.AllowedToFilter;
+
             foreach (var material in GetMaterialsInBuilding(building))
             {
                 if (Trigger.ParentFilter.Allows(material))
@@ -710,12 +724,14 @@ public class ManagerJob_Mining : ManagerJob
 
     public void SetAllowMineral(ThingDef mineral, bool allow, bool sync = true)
     {
-        if (mineral == null)
+        if (allow)
         {
-            throw new ArgumentNullException(nameof(mineral));
+            AllowedMinerals.Add(mineral);
         }
-
-        AllowedMinerals[mineral] = allow;
+        else
+        {
+            AllowedMinerals.Remove(mineral);
+        }
 
         if (SyncFilterAndAllowed && sync)
         {

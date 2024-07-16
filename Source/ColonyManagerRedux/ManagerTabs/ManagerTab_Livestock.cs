@@ -23,6 +23,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
     private List<ManagerJob_Livestock> _currentJobs;
 
     // init with 5's if new job.
+    // TODO: This does not need to be a dictionary; it's always the same four keys
     private Dictionary<AgeAndSex, string> _newCounts =
         Utilities_Livestock.AgeSexArray.ToDictionary(k => k, v => "5");
 

@@ -12,6 +12,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerTab_Mining : ManagerTab
 {
     public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
@@ -90,13 +91,13 @@ public class ManagerTab_Mining : ManagerTab
         var start = pos;
 
         var allowedBuildings = SelectedMiningJob.AllowedBuildings;
-        var buildings = new List<ThingDef>(allowedBuildings.Keys);
+        var allBuildings = SelectedMiningJob.AllDeconstructibleBuildings;
 
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var building in buildings)
+        foreach (var building in allBuildings)
         {
-            Utilities.DrawToggle(rowRect, building.LabelCap, building.description, allowedBuildings[building],
-                                  () => SelectedMiningJob.SetAllowBuilding(building, !allowedBuildings[building]));
+            Utilities.DrawToggle(rowRect, building.LabelCap, building.description, allowedBuildings.Contains(building),
+                () => SelectedMiningJob.SetBuildingAllowed(building, !allowedBuildings.Contains(building)));
             rowRect.y += ListEntryHeight;
         }
 
@@ -110,17 +111,11 @@ public class ManagerTab_Mining : ManagerTab
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedBuildings = SelectedMiningJob.AllowedBuildings;
-        var buildings = new List<ThingDef>(allowedBuildings.Keys);
+        var allBuildings = SelectedMiningJob.AllDeconstructibleBuildings;
 
         // toggle all
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Utilities.DrawToggle(rowRect,
-                              "ColonyManagerRedux.ManagerAll".Translate().Italic(),
-                              string.Empty,
-                              allowedBuildings.Values.All(v => v),
-                              allowedBuildings.Values.All(v => !v),
-                              () => buildings.ForEach(b => SelectedMiningJob.SetAllowBuilding(b, true)),
-                              () => buildings.ForEach(b => SelectedMiningJob.SetAllowBuilding(b, false)));
+        DrawShortcutToggle(allBuildings, allowedBuildings, (b, v) => SelectedMiningJob.SetBuildingAllowed(b, v), rowRect, "ManagerAll", null);
 
         return rowRect.yMax - start.y;
     }
@@ -130,17 +125,17 @@ public class ManagerTab_Mining : ManagerTab
         var start = pos;
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
-        var minerals = new List<ThingDef>(allowedMinerals.Keys);
+        var allMinerals = SelectedMiningJob.AllMinerals;
 
         // toggle for each animal
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var mineral in minerals)
+        foreach (var mineral in allMinerals)
         {
             // draw the toggle
             Utilities.DrawToggle(rowRect, mineral.LabelCap,
-                                  new TipSignal(() => GetMineralTooltip(mineral), mineral.GetHashCode()),
-                                  SelectedMiningJob.AllowedMinerals[mineral],
-                                  () => SelectedMiningJob.SetAllowMineral(mineral, !SelectedMiningJob.AllowedMinerals[mineral]));
+                new TipSignal(() => GetMineralTooltip(mineral), mineral.GetHashCode()),
+                allowedMinerals.Contains(mineral),
+                () => SelectedMiningJob.SetAllowMineral(mineral, !allowedMinerals.Contains(mineral)));
             rowRect.y += ListEntryHeight;
         }
 
@@ -153,51 +148,37 @@ public class ManagerTab_Mining : ManagerTab
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
-        var minerals = new List<ThingDef>(allowedMinerals.Keys);
+        var allMinerals = SelectedMiningJob.AllMinerals;
+
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
 
         // toggle all
-        Utilities.DrawToggle(ref pos, width,
-                              "ColonyManagerRedux.ManagerAll".Translate().Italic(),
-                              string.Empty,
-                              SelectedMiningJob.AllowedMinerals.Values.All(v => v),
-                              SelectedMiningJob.AllowedMinerals.Values.All(v => !v),
-                              () => minerals.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
-                              () => minerals.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
+        DrawShortcutToggle(allMinerals, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ManagerAll", null);
 
         // toggle stone
-        var stone = minerals.Where(m => !m.building.isResourceRock).ToList();
-        Utilities.DrawToggle(ref pos, width,
-                              "ColonyManagerRedux.ManagerMining.Stone".Translate().Italic(),
-                              "ColonyManagerRedux.ManagerMining.Stone.Tip".Translate(),
-                              stone.All(p => allowedMinerals[p]),
-                              stone.All(p => !allowedMinerals[p]),
-                              () => stone.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
-                              () => stone.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
+        rowRect.y += ListEntryHeight;
+        var stone = allMinerals.Where(m => !m.building.isResourceRock).ToList();
+        DrawShortcutToggle(stone, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ManagerMining.Stone", "ManagerMining.Stone.Tip");
 
         // toggle metal
-        var metal = minerals.Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing))
-                            .ToList();
-        Utilities.DrawToggle(ref pos, width,
-                              "ColonyManagerRedux.ManagerMining.Metal".Translate().Italic(),
-                              "ColonyManagerRedux.ManagerMining.Metal.Tip".Translate(),
-                              metal.All(p => allowedMinerals[p]),
-                              metal.All(p => !allowedMinerals[p]),
-                              () => metal.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
-                              () => metal.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
+        rowRect.y += ListEntryHeight;
+        var metal = allMinerals
+            .Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing))
+            .ToList();
+        DrawShortcutToggle(metal, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ManagerMining.Metal", "ManagerMining.Metal.Tip");
 
         // toggle precious
-        var precious = minerals
-                      .Where(m => m.building.isResourceRock && (m.building.mineableThing?.smallVolume ?? false))
-                      .ToList();
-        Utilities.DrawToggle(ref pos, width,
-                              "ColonyManagerRedux.ManagerMining.Precious".Translate().Italic(),
-                              "ColonyManagerRedux.ManagerMining.Precious.Tip".Translate(),
-                              precious.All(p => allowedMinerals[p]),
-                              precious.All(p => !allowedMinerals[p]),
-                              () => precious.ForEach(p => SelectedMiningJob.SetAllowMineral(p, true)),
-                              () => precious.ForEach(p => SelectedMiningJob.SetAllowMineral(p, false)));
+        rowRect.y += ListEntryHeight;
+        var precious = allMinerals
+            .Where(m => m.building.isResourceRock && (m.building.mineableThing?.smallVolume ?? false))
+            .ToList();
+        DrawShortcutToggle(precious, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ManagerMining.Precious", "ManagerMining.Precious.Tip");
 
-        return pos.y - start.y;
+        return rowRect.yMax - start.y;
     }
 
     public float DrawDeconstructBuildings(Vector2 pos, float width)
@@ -296,10 +277,10 @@ public class ManagerTab_Mining : ManagerTab
         // update pawnkind options
         foreach (var job in Jobs)
         {
-            job.RefreshAllowedMinerals();
+            job.RefreshAllBuildingsAndMinerals();
         }
 
-        SelectedMiningJob?.RefreshAllowedMinerals();
+        SelectedMiningJob?.RefreshAllBuildingsAndMinerals();
     }
 
     private void DoJobDetails(Rect rect)
@@ -343,7 +324,7 @@ public class ManagerTab_Mining : ManagerTab
             SmallIconSize);
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
         {
-            SelectedMiningJob.RefreshAllowedMinerals();
+            SelectedMiningJob.RefreshAllBuildingsAndMinerals();
         }
 
         Widgets_Section.Section(ref position, width, DrawAllowedMineralsShortcuts,

@@ -263,9 +263,6 @@ internal class ManagerTab_Foraging : ManagerTab
         var allowedPlants = SelectedForagingJob.AllowedPlants;
         var allPlants = SelectedForagingJob.AllPlants;
 
-        var allSelected = allPlants.All(allowedPlants.Contains);
-        var noneSelected = allPlants.All(p => !allowedPlants.Contains(p));
-
         var rowRect = new Rect(
             pos.x,
             pos.y,
