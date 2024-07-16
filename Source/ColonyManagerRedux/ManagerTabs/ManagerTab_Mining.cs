@@ -2,12 +2,7 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using RimWorld;
-using UnityEngine;
-using Verse;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;

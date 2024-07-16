@@ -1,9 +1,6 @@
 ﻿// MainTabWindow_Manager.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using RimWorld;
-using UnityEngine;
-using Verse;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;

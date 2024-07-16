@@ -4,12 +4,6 @@
 // Trigger_PawnKind.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class Trigger_PawnKind : Trigger

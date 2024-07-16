@@ -2,9 +2,6 @@
 // Copyright Karel Kroeze, 2018-2020
 
 using System.Text;
-using RimWorld;
-using UnityEngine;
-using Verse;
 using Verse.AI;
 
 namespace ColonyManagerRedux;

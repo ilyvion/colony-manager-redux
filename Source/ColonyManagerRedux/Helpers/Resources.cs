@@ -1,9 +1,6 @@
 ﻿// Resources.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 [StaticConstructorOnStartup]

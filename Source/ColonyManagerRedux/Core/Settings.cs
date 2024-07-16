@@ -2,11 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Collections.Generic;
-using RimWorld;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class Settings : ModSettings

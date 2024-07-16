@@ -1,9 +1,6 @@
 ﻿// Triplet.cs
 // Copyright Karel Kroeze, 2017-2020
 
-using System;
-using System.Collections.Generic;
-
 namespace ColonyManagerRedux;
 
 public readonly struct Triplet<T1, T2, T3>(T1 first, T2 second, T3 third) : IEquatable<Triplet<T1, T2, T3>>

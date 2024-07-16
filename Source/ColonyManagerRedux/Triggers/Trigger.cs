@@ -1,12 +1,6 @@
 ﻿// Trigger.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using Verse;
-using static System.String;
-
 namespace ColonyManagerRedux;
 
 public abstract class Trigger(Manager manager) : IExposable
@@ -14,7 +8,7 @@ public abstract class Trigger(Manager manager) : IExposable
     public Manager manager = manager;
 
     public abstract bool State { get; }
-    public virtual string StatusTooltip { get; } = Empty;
+    public virtual string StatusTooltip { get; } = string.Empty;
 
     public virtual void ExposeData()
     {

@@ -1,14 +1,6 @@
 ﻿// Utilities_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using HarmonyLib;
-using RimWorld;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public enum AgeAndSex

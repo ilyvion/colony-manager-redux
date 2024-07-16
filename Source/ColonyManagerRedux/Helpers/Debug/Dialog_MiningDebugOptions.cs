@@ -2,12 +2,7 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Linq;
 using LudeonTK;
-using RimWorld;
-using UnityEngine;
-using Verse;
-using Verse.AI;
 
 namespace ColonyManagerRedux;
 

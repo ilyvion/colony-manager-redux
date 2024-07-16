@@ -1,11 +1,6 @@
 ﻿// UpdateInterval.cs
 // Copyright Karel Kroeze, 2019-2020
 
-using System.Collections.Generic;
-using RimWorld;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class UpdateInterval(int ticks, string label)

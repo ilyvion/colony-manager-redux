@@ -1,11 +1,6 @@
 ﻿// AreaAllowedGUI.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System.Collections.Generic;
-using System.Linq;
-using RimWorld;
-using UnityEngine;
-using Verse;
 using Verse.Sound;
 
 namespace ColonyManagerRedux;

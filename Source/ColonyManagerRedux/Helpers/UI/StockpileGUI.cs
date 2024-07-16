@@ -1,12 +1,7 @@
 ﻿// StockpileGUI.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using RimWorld;
-using UnityEngine;
-using Verse;
 using Verse.Sound;
 
 namespace ColonyManagerRedux;
@@ -55,7 +50,7 @@ public class StockpileGUI
         {
             foreach (var tex in textures)
             {
-                Object.DestroyImmediate(tex);
+                UnityEngine.Object.DestroyImmediate(tex);
             }
 
             textures.Clear();

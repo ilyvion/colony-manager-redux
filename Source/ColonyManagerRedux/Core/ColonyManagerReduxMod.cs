@@ -2,11 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System;
 using System.Reflection;
-using HarmonyLib;
-using UnityEngine;
-using Verse;
 
 namespace ColonyManagerRedux;
 

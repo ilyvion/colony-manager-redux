@@ -1,10 +1,6 @@
 ﻿// WorkGiver_Manager.cs
 // Copyright Karel Kroeze, 2017-2020
 
-using System.Collections.Generic;
-using System.Linq;
-using RimWorld;
-using Verse;
 using Verse.AI;
 
 namespace ColonyManagerRedux;

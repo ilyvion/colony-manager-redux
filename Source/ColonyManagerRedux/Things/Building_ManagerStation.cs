@@ -1,10 +1,6 @@
 ﻿// Building_ManagerStation.cs
 // Copyright Karel Kroeze, 2017-2020
 
-using RimWorld;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 // special blinking LED texture/glower logic + automagically doing jobs.

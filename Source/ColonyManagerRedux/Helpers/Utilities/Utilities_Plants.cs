@@ -2,11 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Collections.Generic;
-using System.Linq;
-using RimWorld;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public static class Utilities_Plants

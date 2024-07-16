@@ -1,10 +1,6 @@
 ﻿// Widgets_Section.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using Verse;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;

@@ -1,13 +1,7 @@
 ﻿// ManagerJob_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using RimWorld;
-using UnityEngine;
-using Verse;
 using Verse.Sound;
 using static ColonyManagerRedux.Constants;
 

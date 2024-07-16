@@ -1,8 +1,6 @@
 // CompManagerStation.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class CompGlowerAIManager : CompGlower

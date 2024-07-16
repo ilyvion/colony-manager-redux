@@ -1,10 +1,6 @@
 ﻿// Clock.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System.Collections.Generic;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class ClockHandle(float hours, Color? color = null, float length = 1f, float thickness = 1.5f) : HourTick(

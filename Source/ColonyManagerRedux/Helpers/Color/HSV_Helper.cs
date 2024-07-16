@@ -1,8 +1,6 @@
 ﻿// HSV_Helper.cs
 // Copyright Karel Kroeze, 2016-2020
 
-using UnityEngine;
-
 namespace ColonyManagerRedux;
 
 internal class HSV_Helper

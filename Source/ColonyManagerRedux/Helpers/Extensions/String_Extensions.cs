@@ -1,10 +1,6 @@
 ﻿// String_Extensions.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System.Collections.Generic;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public static class String_Extensions

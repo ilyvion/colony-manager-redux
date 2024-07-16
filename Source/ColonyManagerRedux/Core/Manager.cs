@@ -2,11 +2,6 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 [HotSwappable]

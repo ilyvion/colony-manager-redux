@@ -1,12 +1,6 @@
 ﻿// Calendar.cs
 // Copyright Karel Kroeze, 2019-2020
 
-using System.Collections.Generic;
-using System.Linq;
-using RimWorld;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class CalendarMarker(float days, Color color, bool fill, bool debug = false)

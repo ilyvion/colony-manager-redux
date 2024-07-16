@@ -1,10 +1,6 @@
 ﻿// Alerts.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using System.Linq;
-using RimWorld;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 internal class Alert_NoManager : Alert

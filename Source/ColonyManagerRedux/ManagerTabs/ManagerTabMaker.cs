@@ -1,8 +1,6 @@
 // ManagerTabDef.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System;
-
 namespace ColonyManagerRedux;
 
 public static class ManagerTabMaker

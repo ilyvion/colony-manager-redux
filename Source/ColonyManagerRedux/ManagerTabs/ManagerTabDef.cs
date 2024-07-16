@@ -1,11 +1,6 @@
 // ManagerTabDef.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class ManagerTabDef : Def

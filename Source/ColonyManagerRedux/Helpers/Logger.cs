@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2017-2020
 
 using System.Diagnostics;
-using Verse;
 
 namespace ColonyManagerRedux;
 

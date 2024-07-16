@@ -1,9 +1,6 @@
 ﻿// CompProperties_ManagerStation.cs
 // Copyright Karel Kroeze, 2017-2020
 
-using System;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 public class CompProperties_ManagerStation : CompProperties

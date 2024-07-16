@@ -1,14 +1,7 @@
 ﻿// Utilities.cs
 // Copyright Karel Kroeze, 2020-2020
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
-using RimWorld;
-using UnityEngine;
-using Verse;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Widgets_Labels;
 
@@ -55,8 +48,8 @@ public static class Utilities
         }
     }
 
-    public static int CountProducts([NotNull] this Map map, [NotNull] ThingFilter filter, [CanBeNull] Zone_Stockpile? stockpile = null,
-                                     bool countAllOnMap = false)
+    public static int CountProducts(this Map map, ThingFilter filter, Zone_Stockpile? stockpile = null,
+        bool countAllOnMap = false)
     {
         if (map == null)
         {

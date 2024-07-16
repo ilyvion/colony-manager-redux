@@ -2,12 +2,6 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using Verse;
-
 namespace ColonyManagerRedux;
 
 #pragma warning disable CS8618 // Set by ManagerTabMaker.MakeManagerTab
