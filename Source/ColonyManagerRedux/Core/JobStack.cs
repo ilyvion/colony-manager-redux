@@ -21,6 +21,8 @@ public class JobStack(Manager manager) : IExposable
         get { return jobStack.Where(mj => mj.ShouldDoNow).OrderBy(mj => mj.Priority).ToList(); }
     }
 
+    public bool IsEmpty => jobStack.Count == 0;
+
     /// <summary>
     ///     Highest priority available job
     /// </summary>
@@ -95,12 +97,17 @@ public class JobStack(Manager manager) : IExposable
         CleanPriorities();
     }
 
+    public IEnumerable<T> JobsOfType<T>() where T : ManagerJob
+    {
+        return jobStack.OrderBy(job => job.Priority).OfType<T>();
+    }
+
     /// <summary>
     ///     Jobs of type T in jobstack, in order of priority
     /// </summary>
     public List<T> FullStack<T>() where T : ManagerJob
     {
-        return jobStack.OrderBy(job => job.Priority).OfType<T>().ToList();
+        return JobsOfType<T>().ToList();
     }
 
     /// <summary>

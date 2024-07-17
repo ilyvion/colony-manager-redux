@@ -132,7 +132,7 @@ public class ManagerJob_Hunting : ManagerJob
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
     public override ManagerTab Tab =>
-        Manager.For(Manager).tabs.Find(tab => tab is ManagerTab_Hunting);
+        Manager.tabs.Find(tab => tab is ManagerTab_Hunting);
 
     public override string[] Targets => AllowedAnimals
         .Select(pk => pk.LabelCap.Resolve())

@@ -13,8 +13,6 @@ public class ManagerTab_Mining : ManagerTab
     public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
         .Where(td => td.IsStuff && td.stuffProps.categories.Contains(StuffCategoryDefOf.Metallic)));
 
-    public List<ManagerJob_Mining> Jobs = [];
-
     private float _jobListHeight;
     private Vector2 _jobListScrollPosition = Vector2.zero;
 
@@ -266,11 +264,8 @@ public class ManagerTab_Mining : ManagerTab
 
     public void Refresh()
     {
-        // upate our list of jobs
-        Jobs = Manager.For(manager).JobStack.FullStack<ManagerJob_Mining>();
-
         // update pawnkind options
-        foreach (var job in Jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Mining>())
         {
             job.RefreshAllBuildingsAndMinerals();
         }
@@ -341,7 +336,7 @@ public class ManagerTab_Mining : ManagerTab
             {
                 // activate job, add it to the stack
                 SelectedMiningJob.IsManaged = true;
-                Manager.For(manager).JobStack.Add(SelectedMiningJob);
+                manager.JobStack.Add(SelectedMiningJob);
 
                 // refresh source list
                 Refresh();
@@ -352,7 +347,7 @@ public class ManagerTab_Mining : ManagerTab
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                Manager.For(manager).JobStack.Delete(SelectedMiningJob);
+                manager.JobStack.Delete(SelectedMiningJob);
 
                 // remove content from UI
                 SelectedMiningJob = new ManagerJob_Mining(manager);
@@ -382,7 +377,7 @@ public class ManagerTab_Mining : ManagerTab
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in Jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Mining>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);

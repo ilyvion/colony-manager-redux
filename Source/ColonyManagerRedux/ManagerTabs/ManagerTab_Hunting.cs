@@ -9,7 +9,6 @@ namespace ColonyManagerRedux;
 
 internal class ManagerTab_Hunting : ManagerTab
 {
-    public List<ManagerJob_Hunting> Jobs = [];
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
 
@@ -81,7 +80,7 @@ internal class ManagerTab_Hunting : ManagerTab
             {
                 // activate job, add it to the stack
                 SelectedHuntingJob.IsManaged = true;
-                Manager.For(manager).JobStack.Add(SelectedHuntingJob);
+                manager.JobStack.Add(SelectedHuntingJob);
 
                 // refresh source list
                 Refresh();
@@ -92,7 +91,7 @@ internal class ManagerTab_Hunting : ManagerTab
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                Manager.For(manager).JobStack.Delete(SelectedHuntingJob);
+                manager.JobStack.Delete(SelectedHuntingJob);
 
                 // remove content from UI
                 SelectedHuntingJob = new ManagerJob_Hunting(manager);
@@ -122,7 +121,7 @@ internal class ManagerTab_Hunting : ManagerTab
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in Jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Hunting>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
@@ -457,11 +456,8 @@ internal class ManagerTab_Hunting : ManagerTab
 
     public void Refresh()
     {
-        // upate our list of jobs
-        Jobs = Manager.For(manager).JobStack.FullStack<ManagerJob_Hunting>();
-
         // update pawnkind options
-        foreach (var job in Jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Hunting>())
         {
             job.RefreshAllAnimals();
         }

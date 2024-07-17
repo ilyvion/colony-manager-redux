@@ -118,7 +118,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             CleanUp();
         }
 
-        Manager.For(Manager).JobStack.Delete(this, false);
+        Manager.JobStack.Delete(this, false);
     }
 
     public virtual float Distance(Thing target, IntVec3 source)

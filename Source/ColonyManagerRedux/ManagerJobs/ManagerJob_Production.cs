@@ -240,7 +240,7 @@
 
 //            // get a list of all assigned bills, their worktables, and the priority of the job they belong to.
 //            var all = new List<BillTablePriority>();
-//            foreach ( ManagerJob_Production job in Manager.For( manager ).JobStack.FullStack<ManagerJob_Production>() )
+//            foreach ( ManagerJob_Production job in manager.JobStack.FullStack<ManagerJob_Production>() )
 //            {
 //                var dump = false;
 //                job.CleanBillgivers( ref dump );

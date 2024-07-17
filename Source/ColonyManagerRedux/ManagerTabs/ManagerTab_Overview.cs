@@ -16,8 +16,6 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
     private WorkTypeDef? _workType;
     private List<Pawn> Workers = [];
 
-    public List<ManagerJob> Jobs => Manager.For(manager).JobStack.FullStack();
-
     public override string Label { get; } = "ColonyManagerRedux.ManagerOverview".Translate();
 
     private SkillDef? SkillDef { get; set; }
@@ -137,7 +135,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 
     public void DrawOverview(Rect rect)
     {
-        if (Jobs.NullOrEmpty())
+        if (manager.JobStack.IsEmpty)
         {
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = Color.grey;
@@ -160,17 +158,19 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 
             var cur = Vector2.zero;
 
-            for (var i = 0; i < Jobs.Count; i++)
+            var alternate = false;
+            foreach (ManagerJob job in manager.JobStack.JobsOfType<ManagerJob>())
             {
                 var row = new Rect(cur.x, cur.y, contentRect.width, 50f);
 
                 // highlights
-                if (i % 2 == 1)
+                if (alternate)
                 {
                     Widgets.DrawAltRect(row);
                 }
+                alternate = !alternate;
 
-                if (Jobs[i] == base.Selected)
+                if (job == Selected)
                 {
                     Widgets.DrawHighlightSelected(row);
                 }
@@ -178,24 +178,24 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 // go to job icon
                 var iconRect = new Rect(Margin, row.yMin + (LargeListEntryHeight - LargeIconSize) / 2,
                                          LargeIconSize, LargeIconSize);
-                var tab = Jobs[i]?.Tab;
-                if (Widgets.ButtonImage(iconRect, tab?.def.icon) && tab != null)
+                var tab = job.Tab;
+                if (tab != null && Widgets.ButtonImage(iconRect, tab.def.icon))
                 {
-                    MainTabWindow_Manager.GoTo(tab, Jobs[i]);
+                    MainTabWindow_Manager.GoTo(tab, job);
                 }
 
                 // order buttons
-                DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), Manager.For(manager), Jobs[i]);
+                DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager, job);
 
                 // job specific overview.
                 var jobRect = row;
                 jobRect.width -= LargeListEntryHeight + LargeIconSize + 2 * Margin; // - (a + b)?
                 jobRect.x += LargeIconSize + 2 * Margin;
-                Jobs[i].DrawListEntry(jobRect);
+                job.DrawListEntry(jobRect);
                 Widgets.DrawHighlightIfMouseover(row);
                 if (Widgets.ButtonInvisible(jobRect))
                 {
-                    base.Selected = Jobs[i];
+                    Selected = job;
                 }
 
                 cur.y += 50f;

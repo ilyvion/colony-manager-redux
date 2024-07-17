@@ -10,7 +10,6 @@ namespace ColonyManagerRedux;
 
 internal class ManagerTab_Forestry : ManagerTab
 {
-    private List<ManagerJob_Forestry> _jobs = [];
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
 
@@ -59,12 +58,12 @@ internal class ManagerTab_Forestry : ManagerTab
         Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
 
-        if (SelectedForestryJob.Type == ManagerJob_Forestry.ForestryJobType.ClearArea)
+        if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {
             Widgets_Section.Section(ref position, width, DrawClearArea, "ColonyManagerRedux.Forestry.JobType.ClearArea".Translate());
         }
 
-        if (SelectedForestryJob.Type == ManagerJob_Forestry.ForestryJobType.Logging)
+        if (SelectedForestryJob.Type == ForestryJobType.Logging)
         {
             Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
             Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Forestry.LoggingArea".Translate());
@@ -126,7 +125,7 @@ internal class ManagerTab_Forestry : ManagerTab
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in _jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Forestry>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
@@ -414,18 +413,10 @@ internal class ManagerTab_Forestry : ManagerTab
 
     public void Refresh()
     {
-        _jobs = manager.JobStack.FullStack<ManagerJob_Forestry>();
-
         // makes sure the list of possible areas is up-to-date with the area in the game.
-        foreach (var job in _jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Forestry>())
         {
             job.UpdateClearAreas();
-        }
-
-
-        // update plant options
-        foreach (var job in _jobs)
-        {
             job.RefreshAllTrees();
         }
 

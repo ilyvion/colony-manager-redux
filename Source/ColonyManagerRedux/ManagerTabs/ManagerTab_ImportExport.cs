@@ -104,7 +104,7 @@
 //        public void Refresh()
 //        {
 //            // List of current job counts
-//            _jobCounts = ( from job in Manager.For( manager ).JobStack.FullStack()
+//            _jobCounts = ( from job in manager.JobStack.FullStack()
 //                           group job by job.Tab.Label
 //                           into jobs
 //                           select new Pair<string, int>( jobs.Key, jobs.Count() ) ).ToList();
@@ -146,7 +146,7 @@
 
 //                ScribeMetaHeaderUtility.WriteMetaHeader();
 
-//                _jobStackIO = Manager.For( manager ).JobStack;
+//                _jobStackIO = manager.JobStack;
 //                Scribe_Deep.Look( ref _jobStackIO, "JobStack" );
 //            }
 //            catch ( Exception ex2 )
@@ -180,11 +180,11 @@
 //                CrossRefResolver.ResolveAllCrossReferences();
 
 //                // replace the old jobstack
-//                Manager.For( manager ).NewJobStack( _jobStackIO );
+//                manager.NewJobStack( _jobStackIO );
 
 //                // remove invalid jobs
 //                var invalid = 0;
-//                foreach ( ManagerJob job in Manager.For( manager ).JobStack.FullStack() )
+//                foreach ( ManagerJob job in manager.JobStack.FullStack() )
 //                {
 //                    if ( !job.IsValid )
 //                    {

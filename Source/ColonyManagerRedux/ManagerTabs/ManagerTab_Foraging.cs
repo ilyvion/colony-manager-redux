@@ -7,9 +7,9 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 internal class ManagerTab_Foraging : ManagerTab
 {
-    private List<ManagerJob_Foraging> _jobs = [];
     private float _leftRowHeight;
     private Vector2 _scrollPosition = Vector2.zero;
 
@@ -130,7 +130,7 @@ internal class ManagerTab_Foraging : ManagerTab
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in _jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Foraging>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
@@ -328,10 +328,8 @@ internal class ManagerTab_Foraging : ManagerTab
 
     public void Refresh()
     {
-        _jobs = Manager.For(manager).JobStack.FullStack<ManagerJob_Foraging>();
-
         // update plant options
-        foreach (var job in _jobs)
+        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Foraging>())
         {
             job.RefreshAllPlants();
         }

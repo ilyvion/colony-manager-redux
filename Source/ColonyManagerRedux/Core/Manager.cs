@@ -5,7 +5,7 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class Manager : MapComponent, ILoadReferenceable
+public class Manager : CustomMapComponent, ILoadReferenceable
 {
     public enum Modes
     {
@@ -41,7 +41,7 @@ public class Manager : MapComponent, ILoadReferenceable
             .ToList();
 
         // if not created in SavingLoading, give yourself the ID of the map you were constructed on.
-        if (Scribe.mode == Verse.LoadSaveMode.Inactive)
+        if (Scribe.mode == LoadSaveMode.Inactive)
         {
             id = map.uniqueID;
         }
@@ -85,15 +85,7 @@ public class Manager : MapComponent, ILoadReferenceable
 
     public static Manager For(Map map)
     {
-        var instance = map.GetComponent<Manager>();
-        if (instance != null)
-        {
-            return instance;
-        }
-
-        instance = new Manager(map);
-        map.components.Add(instance);
-        return instance;
+        return map.GetComponent<Manager>();
     }
 
     public static implicit operator Map(Manager manager)

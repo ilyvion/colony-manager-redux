@@ -14,7 +14,6 @@ namespace ColonyManagerRedux;
 public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 {
     private List<PawnKindDef> _availablePawnKinds;
-    private List<ManagerJob_Livestock> _currentJobs;
 
     // init with 5's if new job.
     private string[] _newCounts =
@@ -186,7 +185,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
             {
                 _selectedCurrent.IsManaged = true;
                 _onCurrentTab = true;
-                Manager.For(manager).JobStack.Add(_selectedCurrent);
+                manager.JobStack.Add(_selectedCurrent);
                 Refresh();
             }
 
@@ -723,8 +722,10 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
     private void DrawCurrentJobList(Rect outRect, Rect viewRect)
     {
+        var currentJobs = manager.JobStack.JobsOfType<ManagerJob_Livestock>().ToList();
+
         // set sizes
-        viewRect.height = _currentJobs.Count * LargeListEntryHeight;
+        viewRect.height = currentJobs.Count * LargeListEntryHeight;
         if (viewRect.height > outRect.height)
         {
             viewRect.width -= ScrollbarWidth;
@@ -733,7 +734,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);
         GUI.BeginGroup(viewRect);
 
-        for (var i = 0; i < _currentJobs.Count; i++)
+        for (var i = 0; i < currentJobs.Count; i++)
         {
             // set up rect
             var row = new Rect(0f, LargeListEntryHeight * i, viewRect.width, LargeListEntryHeight);
@@ -745,18 +746,18 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
                 Widgets.DrawAltRect(row);
             }
 
-            if (_currentJobs[i] == _selectedCurrent)
+            if (currentJobs[i] == _selectedCurrent)
             {
                 Widgets.DrawHighlightSelected(row);
             }
 
             // draw label
-            _currentJobs[i].DrawListEntry(row, false);
+            currentJobs[i].DrawListEntry(row, false);
 
             // button
             if (Widgets.ButtonInvisible(row))
             {
-                Selected = _currentJobs[i];
+                Selected = currentJobs[i];
             }
         }
 
@@ -1002,24 +1003,24 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
     private void Refresh()
     {
         // currently managed
-        _currentJobs = Manager.For(manager).JobStack.FullStack<ManagerJob_Livestock>();
+        var currentJobs = manager.JobStack.JobsOfType<ManagerJob_Livestock>().ToList();
 
         // concatenate lists of animals on biome and animals in colony.
         _availablePawnKinds = manager.map.Biome.AllWildAnimals.ToList();
         _availablePawnKinds.AddRange(
             manager.map.mapPawns.AllPawns
-                   .Where(p => p.RaceProps.Animal)
-                   .Select(p => p.kindDef));
+                .Where(p => p.RaceProps.Animal)
+                .Select(p => p.kindDef));
         _availablePawnKinds = _availablePawnKinds
 
-                             // get distinct pawnkinds from the merges
-                             .Distinct()
+            // get distinct pawnkinds from the merges
+            .Distinct()
 
-                             // remove already managed pawnkinds
-                             .Where(pk => !_currentJobs.Select(job => job.Trigger.pawnKind).Contains(pk))
+            // remove already managed pawnkinds
+            .Where(pk => !currentJobs.Select(job => job.Trigger.pawnKind).Contains(pk))
 
-                             // order by label
-                             .OrderBy(def => def.LabelCap.RawText)
-                             .ToList();
+            // order by label
+            .OrderBy(def => def.LabelCap.RawText)
+            .ToList();
     }
 }

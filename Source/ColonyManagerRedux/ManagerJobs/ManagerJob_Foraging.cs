@@ -82,7 +82,7 @@ public class ManagerJob_Foraging : ManagerJob
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
-    public override ManagerTab Tab => Manager.For(Manager).tabs.Find(tab => tab is ManagerTab_Foraging);
+    public override ManagerTab Tab => Manager.tabs.Find(tab => tab is ManagerTab_Foraging);
 
     public override string[] Targets => AllowedPlants
         .Select(plant => plant.LabelCap.Resolve()).ToArray();
