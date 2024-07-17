@@ -393,8 +393,7 @@ public class ManagerTab_Mining : ManagerTab
 
             var jobRect = row;
 
-            if (ManagerTab_Overview.DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager,
-                                                       job))
+            if (DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager, job))
             {
                 Refresh();
             }

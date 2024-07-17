@@ -80,4 +80,74 @@ public abstract class ManagerTab(Manager manager)
             () => options.ForEach(p => setAllowed(p, true)),
             () => options.ForEach(p => setAllowed(p, false)));
     }
+
+    /// <summary>
+    ///     Draw a square group of ordering buttons for a job in rect.
+    /// </summary>
+    public static bool DrawOrderButtons<T>(Rect rect, Manager manager, T job) where T : ManagerJob
+    {
+        var ret = false;
+        var jobStack = manager.JobStack;
+
+        float width = rect.width / 2,
+              height = rect.height / 2;
+
+        Rect upRect = new Rect(rect.xMin, rect.yMin, width, height).ContractedBy(1f),
+             downRect = new Rect(rect.xMin, rect.yMin + height, width, height).ContractedBy(1f),
+             topRect = new Rect(rect.xMin + width, rect.yMin, width, height).ContractedBy(1f),
+             bottomRect = new Rect(rect.xMin + width, rect.yMin + height, width, height).ContractedBy(1f);
+
+        var jobsOfType = jobStack.FullStack<T>();
+
+        bool top = jobsOfType.IndexOf(job) == 0,
+             bottom = jobsOfType.IndexOf(job) == jobsOfType.Count - 1;
+
+        if (!top)
+        {
+            DrawOrderTooltips(upRect, topRect);
+            if (Widgets.ButtonImage(topRect, Resources.ArrowTop))
+            {
+                jobStack.TopPriority(job);
+                ret = true;
+            }
+
+            if (Widgets.ButtonImage(upRect, Resources.ArrowUp))
+            {
+                jobStack.IncreasePriority(job);
+                ret = true;
+            }
+        }
+
+        if (!bottom)
+        {
+            DrawOrderTooltips(downRect, bottomRect, false);
+            if (Widgets.ButtonImage(downRect, Resources.ArrowDown))
+            {
+                jobStack.DecreasePriority(job);
+                ret = true;
+            }
+
+            if (Widgets.ButtonImage(bottomRect, Resources.ArrowBottom))
+            {
+                jobStack.BottomPriority(job);
+                ret = true;
+            }
+        }
+
+        return ret;
+    }
+
+    private static void DrawOrderTooltips(Rect step, Rect max, bool up = true)
+    {
+        if (up)
+        {
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderUp".Translate());
+            TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderTop".Translate());
+        }
+        else
+        {
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderDown".Translate());
+            TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderBottom".Translate());
+        }
+    }
 }
