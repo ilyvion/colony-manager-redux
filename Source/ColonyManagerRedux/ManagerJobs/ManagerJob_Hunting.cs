@@ -2,19 +2,15 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using static ColonyManagerRedux.Constants;
-
 namespace ColonyManagerRedux;
 
-public class ManagerJob_Hunting : ManagerJob
+public class ManagerJob_Hunting : ManagerJob, IHasHistory
 {
     private readonly Utilities.CachedValue<int> _corpseCachedValue = new(0);
     private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
 
     public HashSet<PawnKindDef> AllowedAnimals = [];
-    public History History;
     public Area? HuntingGrounds;
-    public Trigger_Threshold Trigger;
     public bool UnforbidCorpses = true;
     private bool _allowHumanLikeMeat;
 
@@ -32,25 +28,31 @@ public class ManagerJob_Hunting : ManagerJob
         }
     }
 
+    private History history;
+    public History History { get => history; }
+
+    private Trigger_Threshold trigger;
+    public Trigger_Threshold Trigger { get => trigger; }
+
     public ManagerJob_Hunting(Manager manager) : base(manager)
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
-        Trigger = new Trigger_Threshold(this);
-        Trigger.ThresholdFilter.SetAllow(Utilities_Hunting.MeatRaw, true);
+        trigger = new Trigger_Threshold(this);
+        trigger.ThresholdFilter.SetAllow(Utilities_Hunting.MeatRaw, true);
 
         // disallow humanlike
         foreach (var def in HumanLikeMeatDefs)
         {
-            Trigger.ThresholdFilter.SetAllow(def, false);
+            trigger.ThresholdFilter.SetAllow(def, false);
         }
 
         // disallow insect
-        Trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
+        trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
 
         ConfigureThresholdTriggerParentFilter();
 
         // start the history tracker;
-        History = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
+        history = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
                                [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
     }
 
@@ -69,7 +71,7 @@ public class ManagerJob_Hunting : ManagerJob
             _allowHumanLikeMeat = value;
             foreach (var def in HumanLikeMeatDefs)
             {
-                Trigger.ThresholdFilter.SetAllow(def, value);
+                trigger.ThresholdFilter.SetAllow(def, value);
             }
         }
     }
@@ -87,11 +89,11 @@ public class ManagerJob_Hunting : ManagerJob
 
             // update value and filter
             _allowInsectMeat = value;
-            Trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, value);
+            trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, value);
         }
     }
 
-    public override bool IsCompleted => !Trigger.State;
+    public override bool IsCompleted => !trigger.State;
 
     public List<Corpse> Corpses
     {
@@ -127,7 +129,7 @@ public class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    public override bool IsValid => base.IsValid && History != null && Trigger != null;
+    public override bool IsValid => base.IsValid && history != null && trigger != null;
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
@@ -177,49 +179,6 @@ public class ManagerJob_Hunting : ManagerJob
             thing.def.race.meatDef.LabelCap);
     }
 
-    public override void DrawListEntry(Rect rect, bool overview = true, bool active = true)
-    {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-        var shownTargets = overview ? 4 : 3; // there's more space on the overview
-
-        // set up rects
-        Rect labelRect = new(Margin, Margin, rect.width -
-                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-                                   rect.height - 2 * Margin),
-             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var text = Label + "\n";
-        var subtext = string.Join(", ", Targets);
-        if (subtext.Fits(labelRect))
-        {
-            text += subtext.Italic();
-        }
-        else
-        {
-            text += "multiple".Translate().Italic();
-        }
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            this.DrawStatusForListEntry(statusRect, Trigger);
-        }
-
-        GUI.EndGroup();
-    }
-
-    public override void DrawOverviewDetails(Rect rect)
-    {
-        History.DrawPlot(rect, Trigger.TargetCount);
-    }
-
     public override void ExposeData()
     {
         // scribe base things
@@ -229,7 +188,7 @@ public class ManagerJob_Hunting : ManagerJob
         Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
 
         // must be after references, because reasons.
-        Scribe_Deep.Look(ref Trigger, "trigger", this);
+        Scribe_Deep.Look(ref trigger, "trigger", this);
 
         // settings
         Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def);
@@ -240,7 +199,7 @@ public class ManagerJob_Hunting : ManagerJob
         // don't store history in import/export mode.
         if (Manager.Mode == Manager.Modes.Normal)
         {
-            Scribe_Deep.Look(ref History, "history");
+            Scribe_Deep.Look(ref history, "history");
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
@@ -342,7 +301,7 @@ public class ManagerJob_Hunting : ManagerJob
 
     public override void Tick()
     {
-        History.Update(Trigger.CurrentCount, GetMeatInCorpses(), GetMeatInDesignations());
+        history.Update(trigger.CurrentCount, GetMeatInCorpses(), GetMeatInDesignations());
     }
 
     public override bool TryDoJob()
@@ -360,14 +319,14 @@ public class ManagerJob_Hunting : ManagerJob
         AddRelevantGameDesignations();
 
         // get the total count of meat in storage, expected meat in corpses and expected meat in designations.
-        var totalCount = Trigger.CurrentCount + GetMeatInCorpses() + GetMeatInDesignations();
+        var totalCount = trigger.CurrentCount + GetMeatInCorpses() + GetMeatInDesignations();
 
         // get a list of huntable animals sorted by distance (ignoring obstacles) and expected meat count.
         // note; attempt to balance cost and benefit, current formula: value = meat / ( distance ^ 2)
         var huntableAnimals = GetHuntableAnimalsSorted();
 
         // while totalCount < count AND we have animals that can be designated, designate animal.
-        for (var i = 0; i < huntableAnimals.Count && totalCount < Trigger.TargetCount; i++)
+        for (var i = 0; i < huntableAnimals.Count && totalCount < trigger.TargetCount; i++)
         {
             AddDesignation(huntableAnimals[i]);
             totalCount += huntableAnimals[i].EstimatedMeatCount();
@@ -494,6 +453,6 @@ public class ManagerJob_Hunting : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        Trigger.ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
+        trigger.ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
     }
 }

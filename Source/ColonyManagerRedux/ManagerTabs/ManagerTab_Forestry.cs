@@ -148,7 +148,7 @@ internal class ManagerTab_Forestry : ManagerTab
 
             jobRect.width -= 50f;
 
-            job.DrawListEntry(jobRect, false);
+            DrawListEntry(job, jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
                 SelectedForestryJob = job;
@@ -198,6 +198,67 @@ internal class ManagerTab_Forestry : ManagerTab
         if (Selected != null)
         {
             DoContent(contentCanvas);
+        }
+    }
+
+    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    {
+        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
+        //var shownTargets = overview ? 4 : 3; // there's more space on the overview
+
+        var forestryJob = (ManagerJob_Forestry)job;
+
+        // set up rects
+        Rect labelRect = new(Margin, Margin, rect.width -
+                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+                                   rect.height - 2 * Margin),
+             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
+
+        // create label string
+        var subtext = SubLabel(forestryJob, labelRect);
+        var text = Label + "\n" + subtext;
+
+        // do the drawing
+        GUI.BeginGroup(rect);
+
+        // draw label
+        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
+
+        // if the bill has a manager job, give some more info.
+        if (active)
+        {
+            forestryJob.DrawStatusForListEntry(statusRect, forestryJob.Trigger);
+        }
+
+        GUI.EndGroup();
+    }
+
+    public string SubLabel(ManagerJob_Forestry job, Rect rect)
+    {
+        string sublabel;
+        switch (job.Type)
+        {
+            case ForestryJobType.Logging:
+                sublabel = string.Join(", ", job.Targets);
+                if (sublabel.Fits(rect))
+                {
+                    return sublabel.Italic();
+                }
+                else
+                {
+                    return "multiple".Translate().Italic();
+                }
+
+            default:
+                sublabel = "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", job.Targets));
+                if (sublabel.Fits(rect))
+                {
+                    return sublabel.Italic();
+                }
+                else
+                {
+                    return "ColonyManagerRedux.Forestry.Clear".Translate("multiple".Translate()).Italic();
+                }
         }
     }
 

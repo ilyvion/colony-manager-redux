@@ -153,7 +153,7 @@ internal class ManagerTab_Foraging : ManagerTab
 
             jobRect.width -= 50f;
 
-            job.DrawListEntry(jobRect, false);
+            DrawListEntry(job, jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
                 SelectedForagingJob = job;
@@ -204,6 +204,47 @@ internal class ManagerTab_Foraging : ManagerTab
         {
             DoContent(contentCanvas);
         }
+    }
+
+    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    {
+        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
+
+        var foragingJob = (ManagerJob_Foraging)job;
+
+        // set up rects
+        var labelRect = new Rect(
+            Margin,
+            Margin,
+            rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+            rect.height - 2 * Margin);
+        var statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
+
+        // create label string
+        var text = Label + "\n";
+        var subtext = string.Join(", ", foragingJob.Targets);
+        if (subtext.Fits(labelRect))
+        {
+            text += subtext.Italic();
+        }
+        else
+        {
+            text += "multiple".Translate().Resolve().Italic();
+        }
+
+        // do the drawing
+        GUI.BeginGroup(rect);
+
+        // draw label
+        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
+
+        // if the bill has a manager job, give some more info.
+        if (active)
+        {
+            foragingJob.DrawStatusForListEntry(statusRect, foragingJob.Trigger);
+        }
+
+        GUI.EndGroup();
     }
 
     public float DrawAreaRestriction(Vector2 pos, float width)

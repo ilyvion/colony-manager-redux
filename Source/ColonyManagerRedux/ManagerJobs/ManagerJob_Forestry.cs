@@ -2,11 +2,9 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using static ColonyManagerRedux.Constants;
-
 namespace ColonyManagerRedux;
 
-public class ManagerJob_Forestry : ManagerJob
+public class ManagerJob_Forestry : ManagerJob, IHasHistory
 {
     public enum ForestryJobType
     {
@@ -23,9 +21,7 @@ public class ManagerJob_Forestry : ManagerJob
     public HashSet<ThingDef> AllowedTrees = [];
     public bool AllowSaplings;
     public HashSet<Area> ClearAreas = [];
-    public History History;
     public Area? LoggingArea;
-    public Trigger_Threshold Trigger;
 
     private List<Designation> _designations = [];
 
@@ -41,14 +37,20 @@ public class ManagerJob_Forestry : ManagerJob
 
     private ForestryJobType _type = ForestryJobType.Logging;
 
+    private History history;
+    public History History { get => history; }
+
+    private Trigger_Threshold trigger;
+    public Trigger_Threshold Trigger { get => trigger; }
+
     public ManagerJob_Forestry(Manager manager) : base(manager)
     {
         // populate the trigger field, set the root category to wood.
-        Trigger = new Trigger_Threshold(this);
-        Trigger.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
+        trigger = new Trigger_Threshold(this);
+        trigger.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
         ConfigureThresholdTriggerParentFilter();
 
-        History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
+        history = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
 
     public override bool IsCompleted
@@ -57,7 +59,7 @@ public class ManagerJob_Forestry : ManagerJob
         {
             return Type switch
             {
-                ForestryJobType.Logging => !Trigger.State,
+                ForestryJobType.Logging => !trigger.State,
                 _ => false,
             };
         }
@@ -65,7 +67,7 @@ public class ManagerJob_Forestry : ManagerJob
 
     public List<Designation> Designations => new(_designations);
 
-    public override bool IsValid => base.IsValid && Trigger != null && History != null;
+    public override bool IsValid => base.IsValid && trigger != null && history != null;
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
@@ -201,41 +203,6 @@ public class ManagerJob_Forestry : ManagerJob
         }
     }
 
-    public override void DrawListEntry(Rect rect, bool overview = true, bool active = true)
-    {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-        //var shownTargets = overview ? 4 : 3; // there's more space on the overview
-
-        // set up rects
-        Rect labelRect = new(Margin, Margin, rect.width -
-                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-                                   rect.height - 2 * Margin),
-             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var subtext = SubLabel(labelRect);
-        var text = Label + "\n" + subtext;
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            this.DrawStatusForListEntry(statusRect, Trigger);
-        }
-
-        GUI.EndGroup();
-    }
-
-    public override void DrawOverviewDetails(Rect rect)
-    {
-        History.DrawPlot(rect, Trigger.TargetCount);
-    }
-
     public override void ExposeData()
     {
         // scribe base things
@@ -243,7 +210,7 @@ public class ManagerJob_Forestry : ManagerJob
 
         // settings, references first!
         Scribe_References.Look(ref LoggingArea, "loggingArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", this);
+        Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
@@ -261,7 +228,7 @@ public class ManagerJob_Forestry : ManagerJob
         if (Manager.Mode == Manager.Modes.Normal)
         {
             // scribe history
-            Scribe_Deep.Look(ref History, "history");
+            Scribe_Deep.Look(ref history, "history");
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
@@ -326,38 +293,9 @@ public class ManagerJob_Forestry : ManagerJob
         }
     }
 
-    public string SubLabel(Rect rect)
-    {
-        string sublabel;
-        switch (Type)
-        {
-            case ForestryJobType.Logging:
-                sublabel = string.Join(", ", Targets);
-                if (sublabel.Fits(rect))
-                {
-                    return sublabel.Italic();
-                }
-                else
-                {
-                    return "multiple".Translate().Italic();
-                }
-
-            default:
-                sublabel = "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", Targets));
-                if (sublabel.Fits(rect))
-                {
-                    return sublabel.Italic();
-                }
-                else
-                {
-                    return "ColonyManagerRedux.Forestry.Clear".Translate("multiple".Translate()).Italic();
-                }
-        }
-    }
-
     public override void Tick()
     {
-        History.Update(Trigger.CurrentCount, GetWoodInDesignations());
+        history.Update(trigger.CurrentCount, GetWoodInDesignations());
     }
 
     public override bool TryDoJob()
@@ -451,13 +389,13 @@ public class ManagerJob_Forestry : ManagerJob
         AddRelevantGameDesignations();
 
         // get current lumber count
-        var count = Trigger.CurrentCount + GetWoodInDesignations();
+        var count = trigger.CurrentCount + GetWoodInDesignations();
 
         // get sorted list of loggable trees
         var trees = GetLoggableTreesSorted();
 
         // designate untill we're either out of trees or we have enough designated.
-        for (var i = 0; i < trees.Count && count < Trigger.TargetCount; i++)
+        for (var i = 0; i < trees.Count && count < trigger.TargetCount; i++)
         {
             workDone = true;
             AddDesignation(trees[i], DesignationDefOf.HarvestPlant);
@@ -531,6 +469,6 @@ public class ManagerJob_Forestry : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        Trigger.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
+        trigger.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
     }
 }

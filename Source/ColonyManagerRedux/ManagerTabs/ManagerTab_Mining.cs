@@ -79,6 +79,46 @@ public class ManagerTab_Mining : ManagerTab
         }
     }
 
+    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    {
+        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
+        //var shownTargets = overview ? 4 : 3; // there's more space on the overview
+
+        var miningJob = (ManagerJob_Mining)job;
+
+        // set up rects
+        Rect labelRect = new(Margin, Margin, rect.width -
+                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+                                   rect.height - 2 * Margin),
+             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
+
+        // create label string
+        var text = Label + "\n";
+        var subtext = string.Join(", ", miningJob.Targets);
+        if (subtext.Fits(labelRect))
+        {
+            text += subtext.Italic();
+        }
+        else
+        {
+            text += "multiple".Translate().Italic();
+        }
+
+        // do the drawing
+        GUI.BeginGroup(rect);
+
+        // draw label
+        Widgets_Labels.Label(labelRect, text, subtext.NullOrEmpty() ? "<none>" : subtext, TextAnchor.MiddleLeft, margin: Margin);
+
+        // if the bill has a manager job, give some more info.
+        if (active)
+        {
+            miningJob.DrawStatusForListEntry(statusRect, miningJob.Trigger);
+        }
+
+        GUI.EndGroup();
+    }
+
     public float DrawAllowedBuildings(Vector2 pos, float width)
     {
         var start = pos;
@@ -400,7 +440,7 @@ public class ManagerTab_Mining : ManagerTab
 
             jobRect.width -= 50f;
 
-            job.DrawListEntry(jobRect, false);
+            DrawListEntry(job, jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
                 SelectedMiningJob = job;

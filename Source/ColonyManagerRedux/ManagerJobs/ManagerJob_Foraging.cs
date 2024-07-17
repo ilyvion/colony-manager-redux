@@ -2,22 +2,18 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using static ColonyManagerRedux.Constants;
-
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Foraging : ManagerJob
+public class ManagerJob_Foraging : ManagerJob, IHasHistory
 {
     private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new(0);
 
     public HashSet<ThingDef> AllowedPlants = [];
     public Area? ForagingArea;
     public bool ForceFullyMature;
-    public History History;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
     public bool SyncFilterAndAllowed = true;
-    public Trigger_Threshold Trigger;
 
     private List<Designation> _designations = [];
 
@@ -31,17 +27,23 @@ public class ManagerJob_Foraging : ManagerJob
         }
     }
 
+    private History history;
+    public History History { get => history; }
+
+    private Trigger_Threshold trigger;
+    public Trigger_Threshold Trigger { get => trigger; }
+
     public ManagerJob_Foraging(Manager manager) : base(manager)
     {
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
-        Trigger = new Trigger_Threshold(this);
+        trigger = new Trigger_Threshold(this);
         ConfigureThresholdTrigger();
 
         // create History tracker
-        History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
+        history = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
 
-    public override bool IsCompleted => !Trigger.State;
+    public override bool IsCompleted => !trigger.State;
 
     public int CurrentDesignatedCount
     {
@@ -78,7 +80,7 @@ public class ManagerJob_Foraging : ManagerJob
 
     public List<Designation> Designations => new(_designations);
 
-    public override bool IsValid => base.IsValid && Trigger != null && History != null;
+    public override bool IsValid => base.IsValid && trigger != null && History != null;
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
@@ -88,6 +90,7 @@ public class ManagerJob_Foraging : ManagerJob
         .Select(plant => plant.LabelCap.Resolve()).ToArray();
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
+
 
     public void AddRelevantGameDesignations()
     {
@@ -136,50 +139,6 @@ public class ManagerJob_Foraging : ManagerJob
             plant.def.plant.harvestedThingDef.LabelCap);
     }
 
-    public override void DrawListEntry(Rect rect, bool overview = true, bool active = true)
-    {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-
-        // set up rects
-        var labelRect = new Rect(
-            Margin,
-            Margin,
-            rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-            rect.height - 2 * Margin);
-        var statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var text = Label + "\n";
-        var subtext = string.Join(", ", Targets);
-        if (subtext.Fits(labelRect))
-        {
-            text += subtext.Italic();
-        }
-        else
-        {
-            text += "multiple".Translate().Resolve().Italic();
-        }
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            this.DrawStatusForListEntry(statusRect, Trigger);
-        }
-
-        GUI.EndGroup();
-    }
-
-    public override void DrawOverviewDetails(Rect rect)
-    {
-        History.DrawPlot(rect, Trigger.TargetCount);
-    }
-
     public override void ExposeData()
     {
         // scribe base things
@@ -187,14 +146,14 @@ public class ManagerJob_Foraging : ManagerJob
 
         // settings, references first!
         Scribe_References.Look(ref ForagingArea, "foragingArea");
-        Scribe_Deep.Look(ref Trigger, "trigger", this);
+        Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
         if (Manager.Mode == Manager.Modes.Normal)
         {
             // scribe history
-            Scribe_Deep.Look(ref History, "history");
+            Scribe_Deep.Look(ref history, "history");
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
@@ -222,7 +181,7 @@ public class ManagerJob_Foraging : ManagerJob
 
         foreach (var plant in AllPlants)
         {
-            if (GetMaterialsInPlant(plant).Any(Trigger.ThresholdFilter.Allows))
+            if (GetMaterialsInPlant(plant).Any(trigger.ThresholdFilter.Allows))
             {
                 AllowedPlants.Add(plant);
             }
@@ -268,9 +227,9 @@ public class ManagerJob_Foraging : ManagerJob
 
             foreach (var material in GetMaterialsInPlant(plant))
             {
-                if (Trigger.ParentFilter.Allows(material))
+                if (trigger.ParentFilter.Allows(material))
                 {
-                    Trigger.ThresholdFilter.SetAllow(material, allow);
+                    trigger.ThresholdFilter.SetAllow(material, allow);
                 }
             }
         }
@@ -278,7 +237,7 @@ public class ManagerJob_Foraging : ManagerJob
 
     public override void Tick()
     {
-        History.Update(Trigger.CurrentCount, CurrentDesignatedCount);
+        History.Update(trigger.CurrentCount, CurrentDesignatedCount);
     }
 
     public override bool TryDoJob()
@@ -296,12 +255,12 @@ public class ManagerJob_Foraging : ManagerJob
         AddRelevantGameDesignations();
 
         // designate plants until trigger is met.
-        var count = Trigger.CurrentCount + CurrentDesignatedCount;
-        if (count < Trigger.TargetCount)
+        var count = trigger.CurrentCount + CurrentDesignatedCount;
+        if (count < trigger.TargetCount)
         {
             var targets = GetValidForagingTargetsSorted();
 
-            for (var i = 0; i < targets.Count && count < Trigger.TargetCount; i++)
+            for (var i = 0; i < targets.Count && count < trigger.TargetCount; i++)
             {
                 var des = new Designation(targets[i], DesignationDefOf.HarvestPlant);
                 count += targets[i].YieldNow();
@@ -387,8 +346,8 @@ public class ManagerJob_Foraging : ManagerJob
 
     private void ConfigureThresholdTrigger()
     {
-        Trigger.ThresholdFilter = new ThingFilter(Notify_ThresholdFilterChanged);
-        Trigger.ThresholdFilter.SetDisallowAll();
+        trigger.ThresholdFilter = new ThingFilter(Notify_ThresholdFilterChanged);
+        trigger.ThresholdFilter.SetDisallowAll();
         if (Scribe.mode == LoadSaveMode.Inactive)
         {
             ConfigureThresholdTriggerParentFilter();
@@ -397,7 +356,7 @@ public class ManagerJob_Foraging : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        ThingFilter parentFilter = Trigger.ParentFilter;
+        ThingFilter parentFilter = trigger.ParentFilter;
         foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
         {
             parentFilter.SetAllow(harvestedThingDef, true);

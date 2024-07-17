@@ -10,6 +10,12 @@ public abstract class ManagerTab(Manager manager)
 {
     public float DefaultLeftRowSize = 300f;
 
+
+    public static float SuspendStampWidth = Constants.MediumIconSize,
+                        LastUpdateRectWidth = 50f,
+                        ProgressRectWidth = 10f,
+                        StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
+
     public ManagerTabDef def;
 
     public Manager manager = manager;
@@ -33,6 +39,21 @@ public abstract class ManagerTab(Manager manager)
     }
 
     public abstract void DoWindowContents(Rect canvas);
+
+    /// <summary>
+    /// Used by the
+    /// </summary>
+    public virtual void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    {
+    }
+
+    public virtual void DrawOverviewDetails(ManagerJob job, Rect rect)
+    {
+        if (job is IHasHistory hasHistory)
+        {
+            hasHistory.History.DrawPlot(rect, hasHistory.Trigger.TargetCount);
+        }
+    }
 
     public virtual void PostMake()
     {

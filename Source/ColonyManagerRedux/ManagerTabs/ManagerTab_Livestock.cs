@@ -53,6 +53,42 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         DoContent(contentCanvas);
     }
 
+    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    {
+        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
+
+        var livestockJob = (ManagerJob_Livestock)job;
+
+        // set up rects
+        Rect labelRect = new(
+            Margin, Margin, rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+            rect.height - 2 * Margin),
+        statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth,
+            rect.height - 2 * Margin);
+
+
+        // do the drawing
+        GUI.BeginGroup(rect);
+
+        // draw label
+        Widgets.Label(labelRect, livestockJob.FullLabel);
+        TooltipHandler.TipRegion(labelRect, () => livestockJob.Trigger.StatusTooltip, GetHashCode());
+
+        // if the bill has a manager job, give some more info.
+        if (active)
+        {
+            livestockJob.DrawStatusForListEntry(statusRect, livestockJob.Trigger);
+        }
+
+        GUI.EndGroup();
+    }
+
+    public override void DrawOverviewDetails(ManagerJob job, Rect rect)
+    {
+        var livestockJob = (ManagerJob_Livestock)job;
+        livestockJob.History.DrawPlot(rect);
+    }
+
     public void DrawTrainingSelector(Rect rect)
     {
         var cellCount = _selectedCurrent.Training.Count;
@@ -752,7 +788,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
             }
 
             // draw label
-            currentJobs[i].DrawListEntry(row, false);
+            DrawListEntry(currentJobs[i], row, false);
 
             // button
             if (Widgets.ButtonInvisible(row))

@@ -144,19 +144,19 @@ public static class Utilities
     {
         // set up rects
         var stampRect = new Rect(
-            rect.xMax - ManagerJob.SuspendStampWidth - Margin,
+            rect.xMax - ManagerTab.SuspendStampWidth - Margin,
             rect.yMin,
-            ManagerJob.SuspendStampWidth,
-            ManagerJob.SuspendStampWidth).CenteredOnYIn(rect);
+            ManagerTab.SuspendStampWidth,
+            ManagerTab.SuspendStampWidth).CenteredOnYIn(rect);
         var lastUpdateRect = new Rect(
-            stampRect.xMin - Margin - ManagerJob.LastUpdateRectWidth,
+            stampRect.xMin - Margin - ManagerTab.LastUpdateRectWidth,
             rect.yMin,
-            ManagerJob.LastUpdateRectWidth,
+            ManagerTab.LastUpdateRectWidth,
             rect.height);
         var progressRect = new Rect(
-            lastUpdateRect.xMin - Margin - ManagerJob.ProgressRectWidth,
+            lastUpdateRect.xMin - Margin - ManagerTab.ProgressRectWidth,
             rect.yMin,
-            ManagerJob.ProgressRectWidth,
+            ManagerTab.ProgressRectWidth,
             rect.height);
 
         // draw stamp

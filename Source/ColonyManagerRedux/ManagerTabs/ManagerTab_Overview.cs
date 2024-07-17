@@ -51,7 +51,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 
         // draw the selected job's details
         Widgets.DrawMenuSection(sideRectUpper);
-        Selected?.DrawOverviewDetails(sideRectUpper);
+        Selected?.Tab?.DrawOverviewDetails(Selected, sideRectUpper);
 
         // overview of managers & pawns (capable of) doing this job.
         Widgets.DrawMenuSection(sideRectLower);
@@ -116,7 +116,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 var jobRect = row;
                 jobRect.width -= LargeListEntryHeight + LargeIconSize + 2 * Margin; // - (a + b)?
                 jobRect.x += LargeIconSize + 2 * Margin;
-                job.DrawListEntry(jobRect);
+                job.Tab.DrawListEntry(job, jobRect);
                 Widgets.DrawHighlightIfMouseover(row);
                 if (Widgets.ButtonInvisible(jobRect))
                 {

@@ -42,7 +42,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     private Utilities.CachedValue<string>? _cachedLabel;
     private List<Designation> _designations;
-    private History _history;
+    public History History;
 
     static ManagerJob_Livestock()
     {
@@ -60,7 +60,7 @@ public class ManagerJob_Livestock : ManagerJob
         _designations = [];
 
         // start history tracker
-        _history = new History(Utilities_Livestock.AgeSexArray
+        History = new History(Utilities_Livestock.AgeSexArray
             .Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
 
         // set up the trigger, set all target counts to 5
@@ -148,7 +148,7 @@ public class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    public override bool IsValid => base.IsValid && _history != null && Training != null && Trigger != null;
+    public override bool IsValid => base.IsValid && History != null && Training != null && Trigger != null;
 
     public override string Label => Trigger.pawnKind.LabelCap;
 
@@ -286,39 +286,6 @@ public class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    public override void DrawListEntry(Rect rect, bool overview = true, bool active = true)
-    {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-
-        // set up rects
-        Rect labelRect = new(
-            Margin, Margin, rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-            rect.height - 2 * Margin),
-        statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth,
-            rect.height - 2 * Margin);
-
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets.Label(labelRect, FullLabel);
-        TooltipHandler.TipRegion(labelRect, () => Trigger.StatusTooltip, GetHashCode());
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            this.DrawStatusForListEntry(statusRect, Trigger);
-        }
-
-        GUI.EndGroup();
-    }
-
-    public override void DrawOverviewDetails(Rect rect)
-    {
-        _history.DrawPlot(rect);
-    }
-
     public override void ExposeData()
     {
         base.ExposeData();
@@ -339,7 +306,7 @@ public class ManagerJob_Livestock : ManagerJob
         }
         Scribe_Deep.Look(ref Trigger, "trigger", this);
         Scribe_Deep.Look(ref Training, "training");
-        Scribe_Deep.Look(ref _history, "history");
+        Scribe_Deep.Look(ref History, "history");
         Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);
         Scribe_Values.Look(ref ButcherTrained, "butcherTrained");
         Scribe_Values.Look(ref ButcherPregnant, "butcherPregnant");
@@ -465,9 +432,9 @@ public class ManagerJob_Livestock : ManagerJob
 
     public override void Tick()
     {
-        if (_history.IsRelevantTick)
+        if (History.IsRelevantTick)
         {
-            _history.Update(Trigger.Counts);
+            History.Update(Trigger.Counts);
         }
     }
 

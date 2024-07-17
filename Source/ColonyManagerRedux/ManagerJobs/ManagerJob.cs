@@ -8,11 +8,6 @@ namespace ColonyManagerRedux;
 
 public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
-    public static float SuspendStampWidth = Constants.MediumIconSize,
-                        LastUpdateRectWidth = 50f,
-                        ProgressRectWidth = 10f,
-                        StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
-
     public bool ShouldCheckReachable = true;
 
     public int LastActionTick;
@@ -63,7 +58,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         set => _isSuspended = value;
     }
 
-    public abstract ManagerTab? Tab { get; }
+    public abstract ManagerTab Tab { get; }
     public abstract string[] Targets { get; }
 
     public virtual UpdateInterval UpdateInterval
@@ -136,10 +131,6 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         return Mathf.Sqrt(source.DistanceToSquared(target.Position)) * 2;
     }
 
-    public abstract void DrawListEntry(Rect rect, bool overview = true, bool active = true);
-
-    public abstract void DrawOverviewDetails(Rect rect);
-
     public virtual bool IsReachable(Thing target)
     {
         return !target.Position.Fogged(Manager.map)
@@ -172,4 +163,11 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         return $"ColonyManagerRedux_ManagerJob_{Manager.id}_{loadID}";
     }
+}
+
+
+public interface IHasHistory
+{
+    History History { get; }
+    Trigger_Threshold Trigger { get; }
 }
