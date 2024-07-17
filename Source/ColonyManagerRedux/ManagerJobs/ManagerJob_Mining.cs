@@ -51,6 +51,7 @@ public class ManagerJob_Mining : ManagerJob
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
         Trigger = new Trigger_Threshold(this);
+        ConfigureThresholdTriggerParentFilter();
 
         // start the history tracker;
         History = new History(
@@ -294,6 +295,11 @@ public class ManagerJob_Mining : ManagerJob
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            ConfigureThresholdTriggerParentFilter();
+        }
     }
 
     public int GetCountInBuilding(Building? building)
@@ -816,5 +822,14 @@ public class ManagerJob_Mining : ManagerJob
                 (d.def == DesignationDefOf.Mine || d.def == DesignationDefOf.Deconstruct) &&
                 (!d.target.HasThing || d.target.Thing.Map == Manager.map)); // equates to SpawnedDesignationsOfDef, with two defs.
         _designations = _designations.Intersect(designations).ToList();
+    }
+
+    private void ConfigureThresholdTriggerParentFilter()
+    {
+        // TODO: More precise thingdefs/categorydefs
+        Trigger.ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, true);
+        Trigger.ParentFilter.SetAllow(ThingCategoryDefOf.PlantMatter, false);
+        Trigger.ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
+        Trigger.ParentFilter.SetAllow(ThingCategoryDefOf.ResourcesRaw, true);
     }
 }

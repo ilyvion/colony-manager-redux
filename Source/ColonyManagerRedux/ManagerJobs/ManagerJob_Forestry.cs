@@ -45,8 +45,8 @@ public class ManagerJob_Forestry : ManagerJob
     {
         // populate the trigger field, set the root category to wood.
         Trigger = new Trigger_Threshold(this);
-        Trigger.ThresholdFilter.SetDisallowAll();
         Trigger.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
+        ConfigureThresholdTriggerParentFilter();
 
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
@@ -265,6 +265,11 @@ public class ManagerJob_Forestry : ManagerJob
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            ConfigureThresholdTriggerParentFilter();
+        }
     }
 
     public int GetWoodInDesignations()
@@ -522,5 +527,10 @@ public class ManagerJob_Forestry : ManagerJob
 
             // reachable
             && IsReachable(target);
+    }
+
+    private void ConfigureThresholdTriggerParentFilter()
+    {
+        Trigger.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
     }
 }

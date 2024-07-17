@@ -36,73 +36,17 @@ public class Trigger_Threshold : Trigger
 
     private string? _stockpile_scribe;
 
-#pragma warning disable CS8618 // Only used by Scribe
     public Trigger_Threshold(ManagerJob job) : base(job)
-#pragma warning restore CS8618
     {
-    }
+        ParentFilter = new ThingFilter();
+        ParentFilter.SetDisallowAll();
 
-    public Trigger_Threshold(ManagerJob_Hunting job) : base(job)
-    {
-        Op = Ops.LowerThan;
-        MaxUpperThreshold = DefaultMaxUpperThreshold;
-        TargetCount = DefaultCount;
         ThresholdFilter = new ThingFilter();
         ThresholdFilter.SetDisallowAll();
 
-        // limit selection to food only.
-        ParentFilter = new ThingFilter();
-        ParentFilter.SetDisallowAll();
-        ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
-    }
-
-    public Trigger_Threshold(ManagerJob_Forestry job) : base(job)
-    {
         Op = Ops.LowerThan;
         MaxUpperThreshold = DefaultMaxUpperThreshold;
         TargetCount = DefaultCount;
-        ThresholdFilter = new ThingFilter();
-        ThresholdFilter.SetDisallowAll();
-
-        ParentFilter = new ThingFilter();
-        ParentFilter.SetDisallowAll();
-        ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
-    }
-
-    public Trigger_Threshold(ManagerJob_Foraging job) : base(job)
-    {
-        Op = Ops.LowerThan;
-        MaxUpperThreshold = DefaultMaxUpperThreshold;
-        TargetCount = DefaultCount;
-        ThresholdFilter = new ThingFilter(job.Notify_ThresholdFilterChanged);
-        ThresholdFilter.SetDisallowAll();
-
-        ParentFilter = new ThingFilter();
-        ParentFilter.SetDisallowAll();
-        if (Scribe.mode == LoadSaveMode.Inactive || Scribe.mode == LoadSaveMode.PostLoadInit)
-        {
-            foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(base.job.Manager).Select(p => p.plant.harvestedThingDef))
-            {
-                ParentFilter.SetAllow(harvestedThingDef, true);
-            }
-        }
-    }
-
-    public Trigger_Threshold(ManagerJob_Mining job) : base(job)
-    {
-        Op = Ops.LowerThan;
-        MaxUpperThreshold = DefaultMaxUpperThreshold;
-        TargetCount = DefaultCount;
-        ThresholdFilter = new ThingFilter(job.Notify_ThresholdFilterChanged);
-        ThresholdFilter.SetDisallowAll();
-
-        // limit selection to stone, chunks, minerals and components only.
-        ParentFilter = new ThingFilter();
-        ParentFilter.SetDisallowAll();
-        ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, true);
-        ParentFilter.SetAllow(ThingCategoryDefOf.ResourcesRaw, true);
-        ParentFilter.SetAllow(ThingCategoryDefOf.PlantMatter, false);
-        ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
     }
 
     public int CurrentCount => job.Manager.map.CountProducts(ThresholdFilter, stockpile, countAllOnMap);
@@ -315,14 +259,6 @@ public class Trigger_Threshold : Trigger
             stockpile =
                 job.Manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
                     z.label == _stockpile_scribe) as Zone_Stockpile;
-
-            if (job is ManagerJob_Foraging)
-            {
-                foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(job.Manager).Select(p => p.plant.harvestedThingDef))
-                {
-                    ParentFilter.SetAllow(harvestedThingDef, true);
-                }
-            }
         }
     }
 

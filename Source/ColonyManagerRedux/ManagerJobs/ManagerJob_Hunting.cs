@@ -36,7 +36,6 @@ public class ManagerJob_Hunting : ManagerJob
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
         Trigger = new Trigger_Threshold(this);
-        Trigger.ThresholdFilter.SetDisallowAll();
         Trigger.ThresholdFilter.SetAllow(Utilities_Hunting.MeatRaw, true);
 
         // disallow humanlike
@@ -47,6 +46,8 @@ public class ManagerJob_Hunting : ManagerJob
 
         // disallow insect
         Trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
+
+        ConfigureThresholdTriggerParentFilter();
 
         // start the history tracker;
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
@@ -243,6 +244,11 @@ public class ManagerJob_Hunting : ManagerJob
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            ConfigureThresholdTriggerParentFilter();
+        }
     }
 
     public int GetMeatInCorpses()
@@ -484,5 +490,10 @@ public class ManagerJob_Hunting : ManagerJob
             && (HuntingGrounds == null ||
                  HuntingGrounds.ActiveCells.Contains(target.Position))
             && IsReachable(target);
+    }
+
+    private void ConfigureThresholdTriggerParentFilter()
+    {
+        Trigger.ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
     }
 }

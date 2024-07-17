@@ -35,6 +35,7 @@ public class ManagerJob_Foraging : ManagerJob
     {
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
         Trigger = new Trigger_Threshold(this);
+        ConfigureThresholdTrigger();
 
         // create History tracker
         History = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
@@ -197,6 +198,11 @@ public class ManagerJob_Foraging : ManagerJob
         }
 
         Utilities.Scribe_Designations(ref _designations, Manager);
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            ConfigureThresholdTriggerParentFilter();
+        }
     }
 
     public List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
@@ -377,5 +383,24 @@ public class ManagerJob_Foraging : ManagerJob
 
             // reachable
             && IsReachable(target);
+    }
+
+    private void ConfigureThresholdTrigger()
+    {
+        Trigger.ThresholdFilter = new ThingFilter(Notify_ThresholdFilterChanged);
+        Trigger.ThresholdFilter.SetDisallowAll();
+        if (Scribe.mode == LoadSaveMode.Inactive)
+        {
+            ConfigureThresholdTriggerParentFilter();
+        }
+    }
+
+    private void ConfigureThresholdTriggerParentFilter()
+    {
+        ThingFilter parentFilter = Trigger.ParentFilter;
+        foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
+        {
+            parentFilter.SetAllow(harvestedThingDef, true);
+        }
     }
 }
