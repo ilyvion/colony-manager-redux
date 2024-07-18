@@ -1,12 +1,14 @@
-// ManagerTabDef.cs
+// ManagerDef.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
-public class ManagerTabDef : Def
+public class ManagerDef : Def
 {
     public int order;
+    public Type? managerJobClass;
     public Type managerTabClass = typeof(ManagerTab);
+    public Type? managerJobSettingsClass;
 
     public IconArea iconArea = IconArea.Middle;
     [Unsaved(false)]
@@ -31,13 +33,24 @@ public class ManagerTabDef : Def
         {
             yield return item;
         }
+
+        if (managerJobClass != null && !typeof(ManagerJob).IsAssignableFrom(managerJobClass))
+        {
+            yield return $"{nameof(managerJobClass)} is not {nameof(ManagerJob)} or a subclass thereof";
+        }
+
         if (managerTabClass == null)
         {
-            yield return "managerTabClass is null";
+            yield return $"{nameof(managerTabClass)} is null";
         }
         if (!typeof(ManagerTab).IsAssignableFrom(managerTabClass))
         {
-            yield return "managerTabClass is not ManagerTab or a subclass thereof";
+            yield return $"{nameof(managerTabClass)} is not {nameof(ManagerTab)} or a subclass thereof";
+        }
+
+        if (managerJobSettingsClass != null && !typeof(ManagerJobSettings).IsAssignableFrom(managerJobSettingsClass))
+        {
+            yield return $"{nameof(managerJobSettingsClass)} is not a subclass of {nameof(ManagerJobSettings)}";
         }
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_LivestockManager</defName>
+        <order>500</order>
+        <managerJobClass>ColonyManagerRedux.ManagerJob_Livestock</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Livestock</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Livestock</managerTabClass>
+        <iconPath>UI/Icons/CMR_Livestock</iconPath>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

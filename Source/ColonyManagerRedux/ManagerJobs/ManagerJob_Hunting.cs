@@ -40,20 +40,35 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         trigger = new Trigger_Threshold(this);
         trigger.ThresholdFilter.SetAllow(Utilities_Hunting.MeatRaw, true);
 
-        // disallow humanlike
-        foreach (var def in HumanLikeMeatDefs)
-        {
-            trigger.ThresholdFilter.SetAllow(def, false);
-        }
-
-        // disallow insect
-        trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
-
         ConfigureThresholdTriggerParentFilter();
 
         // start the history tracker;
         history = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
                                [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
+    }
+
+    public override void PostMake()
+    {
+        var huntingSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Hunting>(def);
+        if (huntingSettings != null)
+        {
+            UnforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
+            _allowHumanLikeMeat = huntingSettings.DefaultAllowHumanLikeMeat;
+            _allowInsectMeat = huntingSettings.DefaultAllowInsectMeat;
+
+            if (!_allowHumanLikeMeat)
+            {
+                foreach (var def in HumanLikeMeatDefs)
+                {
+                    trigger.ThresholdFilter.SetAllow(def, false);
+                }
+            }
+
+            if (!_allowInsectMeat)
+            {
+                trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
+            }
+        }
     }
 
     public bool AllowHumanLikeMeat
@@ -132,9 +147,6 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
     public override bool IsValid => base.IsValid && history != null && trigger != null;
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
-
-    public override ManagerTab Tab =>
-        Manager.tabs.Find(tab => tab is ManagerTab_Hunting);
 
     public override string[] Targets => AllowedAnimals
         .Select(pk => pk.LabelCap.Resolve())

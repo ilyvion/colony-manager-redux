@@ -43,6 +43,13 @@ public static class Widgets_Section
         _columnHeights[identifier] = position.y;
     }
 
+    public static void Section<T>(T data, ref Vector2 position, float width, Func<T, Vector2, float, float> drawerFunc,
+                                string header = "", int id = 0)
+    {
+        id = id != 0 ? id : drawerFunc.GetHashCode();
+        Section(ref position, width, (p, w) => drawerFunc(data, p, w), header, id);
+    }
+
     public static void Section(ref Vector2 position, float width, Func<Vector2, float, float> drawerFunc,
                                 string header = "", int id = 0)
     {

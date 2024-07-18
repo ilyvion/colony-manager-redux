@@ -97,7 +97,7 @@
     <ColonyManagerRedux.Foraging.Options>選項</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>目標計數：{0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>目標：{2}\n儲存{0}\n當前命令預期{1}。</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>只允許完全成熟的植物。</ColonyManagerRedux.Foraging.ForceMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>只允許完全成熟的植物。</ColonyManagerRedux.Foraging.ForceFullyMature>
     <ColonyManagerRedux.Foraging.ForagingArea>允許採集於：</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>允許植物</ColonyManagerRedux.Foraging.Plants>
 

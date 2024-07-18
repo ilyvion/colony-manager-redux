@@ -141,8 +141,8 @@
     <ColonyManagerRedux.Foraging.Options>Opções</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>Valor de segmentação: {0} + {1} / {2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>gol: {2}\n{0} em estoque\n{1} esperado das tarefas atuais</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>Somente plantas maduras</ColonyManagerRedux.Foraging.ForceMature>
-    <ColonyManagerRedux.Foraging.ForceMature.Tip>O forrageamento deve ser limitado apenas a plantas maduras?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>Somente plantas maduras</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>O forrageamento deve ser limitado apenas a plantas maduras?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Permitir coleta na zona:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>Plantas permitidas</ColonyManagerRedux.Foraging.Plants>
     <ColonyManagerRedux.ManagerForaging.Edible>Plantas comestíveis</ColonyManagerRedux.ManagerForaging.Edible>
@@ -213,7 +213,7 @@
     <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>Se habilitado, sempre atribui aos animais que se ligaram com um colono à esse colono. Se desativado, as ligações são ignoradas.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
     <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Desativado porque o mestre está definido para um peão específico ou definido manualmente.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
     <ColonyManagerRedux.ManagerLivestock.Follow>Definir mestre seguindo</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.FollowTip>Definir configurações de acompanhamento mestre, sobrescreverá as configurações do usuário quando ativado. Se desativado, os mestres podem ser atribuídos manualmente.</ColonyManagerRedux.ManagerLivestock.FollowTip>
+    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Definir configurações de acompanhamento mestre, sobrescreverá as configurações do usuário quando ativado. Se desativado, os mestres podem ser atribuídos manualmente.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Esboçado</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Os animais devem seguir seus mestres designados quando o mestre é elaborado?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Trabalho de campo</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
@@ -225,7 +225,7 @@
     <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- Enumeração do modo mestre -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>Manual</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>Manual</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>caçadores</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Treinadores</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Corpo-a-corpo</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>

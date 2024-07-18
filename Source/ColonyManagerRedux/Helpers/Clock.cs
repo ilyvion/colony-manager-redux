@@ -1,5 +1,6 @@
 ﻿// Clock.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
@@ -17,11 +18,12 @@ public class HourTick(Color? color = null, float length = .2f, float thickness =
     public float Thickness { get; } = thickness;
 }
 
+[HotSwappable]
 public static class Clock
 {
     public static void Draw(Rect canvas, params ClockHandle[] clockHandles)
     {
-        Draw(canvas, clockHandles, new HourTick(length: .3f), new HourTick());
+        Draw(canvas, clockHandles, new HourTick(length: .5f), new HourTick(length: .3f));
     }
 
     public static void Draw(Rect canvas, IEnumerable<ClockHandle> clockHandles, HourTick major, HourTick minor)
@@ -32,14 +34,16 @@ public static class Clock
             {
                 if (major != null)
                 {
-                    DrawTick(canvas, major, h);
+                    // XXX: This tiny subtraction aligns the ticks
+                    DrawTick(canvas, major, h - 0.01f);
                 }
             }
             else
             {
                 if (minor != null)
                 {
-                    DrawTick(canvas, minor, h);
+                    // XXX: This tiny subtraction aligns the ticks
+                    DrawTick(canvas, minor, h - 0.01f);
                 }
             }
         }

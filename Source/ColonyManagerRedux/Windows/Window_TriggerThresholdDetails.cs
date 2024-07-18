@@ -12,7 +12,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
     public string Input = "";
     public Trigger_Threshold Trigger = trigger;
 
-    private Verse.ThingFilterUI.UIState _uIState = new();
+    private ThingFilterUI.UIState _uIState = new();
 
     public override Vector2 InitialSize => new(300f, 500);
 

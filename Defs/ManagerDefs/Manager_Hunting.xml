@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_HuntingManager</defName>
+        <order>300</order>
+        <managerJobClass>ColonyManagerRedux.ManagerJob_Hunting</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Hunting</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Hunting</managerTabClass>
+        <iconPath>UI/Icons/CMR_Hunting</iconPath>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

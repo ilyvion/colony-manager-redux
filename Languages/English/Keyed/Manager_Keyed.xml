@@ -18,6 +18,7 @@
     <ColonyManagerRedux.ManagerAlertNoManager>Manager targets are set, but no pawn has the managing job enabled</ColonyManagerRedux.ManagerAlertNoManager>
 
     <!-- Common -->
+    <ColonyManagerRedux.ManagerNeverUpdatedTooltip>This job has never been updated, and is scheduled to be updated every {0}.\n\nClick to change update interval.</ColonyManagerRedux.ManagerNeverUpdatedTooltip>
     <ColonyManagerRedux.ManagerLastUpdateTooltip>This job was last updated {0} ago, and is scheduled to be updated every {1}.\n\nClick to change update interval.</ColonyManagerRedux.ManagerLastUpdateTooltip>
     <ColonyManagerRedux.ManagerOrderUp>Increase job priority</ColonyManagerRedux.ManagerOrderUp>
     <ColonyManagerRedux.ManagerOrderDown>Decrease job priority</ColonyManagerRedux.ManagerOrderDown>
@@ -37,7 +38,6 @@
     <ColonyManagerRedux.Manager.DesignationLabel>{0}\n distance: {1}\n yield: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
 
     <!-- time periods for update interval -->
-    <ColonyManagerRedux.ManagerDefaultUpdateInterval>Default update interval</ColonyManagerRedux.ManagerDefaultUpdateInterval>
     <ColonyManagerRedux.ManagerHourly>Every hour</ColonyManagerRedux.ManagerHourly>
     <ColonyManagerRedux.ManagerMultiHourly>Every {0} hours</ColonyManagerRedux.ManagerMultiHourly>
     <ColonyManagerRedux.ManagerDaily>Daily</ColonyManagerRedux.ManagerDaily>
@@ -140,8 +140,8 @@
     <ColonyManagerRedux.Foraging.Options>Options</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>Target count: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>Target: {2}\n{0} in storage\n{1} expected from current designations.</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>Only fully matured plants</ColonyManagerRedux.Foraging.ForceMature>
-    <ColonyManagerRedux.Foraging.ForceMature.Tip>Should foraging be limited to fully mature plants only?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>Only fully matured plants</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>Should foraging be limited to fully mature plants only?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Allow foraging in:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>Allowed plants</ColonyManagerRedux.Foraging.Plants>
     <ColonyManagerRedux.ManagerForaging.Edible>Edible plants</ColonyManagerRedux.ManagerForaging.Edible>
@@ -224,7 +224,7 @@
     <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>If enabled, always assigns animals that have bonded with a colonist to that colonist. If disabled, bonds are ignored.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
     <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Disabled because master is set to a specific pawn, or set manually.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
     <ColonyManagerRedux.ManagerLivestock.Follow>Set master following</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.FollowTip>Set master follow settings, will overwrite user settings when enabled. If disabled, follow settings can be assigned manually.</ColonyManagerRedux.ManagerLivestock.FollowTip>
+    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Set master follow settings, will overwrite user settings when enabled. If disabled, follow settings can be assigned manually.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Drafted</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Should animals follow their assigned masters when the master is drafted?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Fieldwork</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
@@ -237,7 +237,7 @@
     <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>Manual</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>Manual</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Hunters</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Trainers</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Melee</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>

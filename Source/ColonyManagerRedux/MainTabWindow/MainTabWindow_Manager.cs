@@ -103,7 +103,7 @@ internal class MainTabWindow_Manager : MainTabWindow
         var contentCanvas = new Rect(0f, LargeIconSize + Margin, canvas.width,
                                       canvas.height - LargeIconSize - Margin);
         GUI.BeginGroup(contentCanvas);
-        CurrentTab.DoWindowContents(contentCanvas);
+        CurrentTab.DoWindowContents(contentCanvas.AtZero());
         GUI.EndGroup();
 
         // for some stupid reason, we sometimes get left a bad anchor

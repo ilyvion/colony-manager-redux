@@ -9,11 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   Job designations are now saved in the save file so job histories don't get messed up each time the game is loaded
+-   Job designations are now saved in the save file so job histories don't get messed up each time the game is loaded.
+-   Every non-game-specific aspect (specific pawns, specific storage areas, etc.) of a manager job can now have its default values configured in the mod's settings.
 
 ### Changed
 
--   Manager tabs are now defined using ManagerTabDefs; this makes it much easier for third party mods to add additional tabs.
+-   Manager tabs are now defined using ManagerDefs; this makes it much easier for third party mods to add additional tabs without having to resort to patching.
+-   Newly created jobs are now marked as immediately needing to be updated by managers. This avoids having to wait as long as the update interval before it is tended to. A setting has been added to make it work as before, if desirable.
 
 ### Fixed
 

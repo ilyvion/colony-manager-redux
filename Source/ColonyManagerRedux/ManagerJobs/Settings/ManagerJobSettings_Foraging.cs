@@ -1,0 +1,66 @@
+// ManagerJobSettings_Foraging.cs
+// Copyright (c) 2024 Alexander Krivács Schrøder
+
+using static ColonyManagerRedux.Constants;
+
+namespace ColonyManagerRedux;
+
+[HotSwappable]
+public class ManagerJobSettings_Foraging : ManagerJobSettings
+{
+    public bool DefaultSyncFilterAndAllowed = true;
+    public bool DefaultForceFullyMature = false;
+
+    public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
+
+    public override void DoPanelContents(Rect rect)
+    {
+        var panelRect = new Rect(
+            rect.xMin,
+            rect.yMin,
+            rect.width,
+            rect.height - Margin);
+
+        Widgets_Section.BeginSectionColumn(panelRect, "Foraging.Settings", out Vector2 position, out float width);
+        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.Section(ref position, width, DrawForceFullyMature);
+        Widgets_Section.EndSectionColumn("Foraging.Settings", position);
+    }
+
+    public float DrawSyncFilterAndAllowed(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
+
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
+            ref DefaultSyncFilterAndAllowed);
+
+        return ListEntryHeight;
+    }
+
+    public float DrawForceFullyMature(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Foraging.ForceFullyMature".Translate(),
+            "ColonyManagerRedux.Foraging.ForceFullyMature.Tip".Translate(),
+            ref DefaultForceFullyMature);
+
+        return ListEntryHeight;
+    }
+
+    public override void ExposeData()
+    {
+        base.ExposeData();
+
+        Scribe_Values.Look(ref DefaultSyncFilterAndAllowed, "defaultSyncFilterAndAllowed", true);
+        Scribe_Values.Look(ref DefaultForceFullyMature, "defaultForceFullyMature", false);
+    }
+}

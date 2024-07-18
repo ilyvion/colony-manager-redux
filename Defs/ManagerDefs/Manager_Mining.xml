@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_MiningManager</defName>
+        <order>700</order>
+        <managerJobClass>ColonyManagerRedux.ManagerJob_Mining</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Mining</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Mining</managerTabClass>
+        <iconPath>UI/Icons/CMR_Mining</iconPath>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

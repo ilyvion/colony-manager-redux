@@ -8,23 +8,14 @@ using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Forestry : ManagerTab
+internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
 
-    public ManagerTab_Forestry(Manager manager) : base(manager)
-    {
-        SelectedForestryJob = new(manager);
-    }
-
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
-    public ManagerJob_Forestry SelectedForestryJob
-    {
-        get => (ManagerJob_Forestry)Selected!;
-        set => Selected = value;
-    }
+    public ManagerJob_Forestry SelectedForestryJob => (ManagerJob_Forestry)Selected!;
 
     public static string GetTreeTooltip(ThingDef tree)
     {
@@ -98,7 +89,7 @@ internal class ManagerTab_Forestry : ManagerTab
                 manager.JobStack.Delete(SelectedForestryJob);
 
                 // remove content from UI
-                SelectedForestryJob = new ManagerJob_Forestry(manager);
+                Selected = MakeNewJob();
 
                 // refresh source list
                 Refresh();
@@ -151,7 +142,7 @@ internal class ManagerTab_Forestry : ManagerTab
             DrawListEntry(job, jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                SelectedForestryJob = job;
+                Selected = job;
             }
 
             cur.y += LargeListEntryHeight;
@@ -172,7 +163,7 @@ internal class ManagerTab_Forestry : ManagerTab
 
         if (Widgets.ButtonInvisible(newRect))
         {
-            Selected = new ManagerJob_Forestry(manager);
+            Selected = MakeNewJob();
         }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Forestry.NewForestryJobTooltip".Translate());
@@ -319,8 +310,8 @@ internal class ManagerTab_Forestry : ManagerTab
         // type of job;
         // clear clear area | logging
         var types =
-            (ManagerJob_Forestry.ForestryJobType[])
-            Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType));
+            (ForestryJobType[])
+            Enum.GetValues(typeof(ForestryJobType));
 
         var cellWidth = width / types.Length;
 
@@ -354,11 +345,11 @@ internal class ManagerTab_Forestry : ManagerTab
         var targetCount = SelectedForestryJob.Trigger.TargetCount;
 
         SelectedForestryJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
-                                             "ColonyManagerRedux.Forestry.TargetCount".Translate(
-                                                 currentCount, designatedCount, targetCount),
-                                             "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
-                                                 currentCount, designatedCount, targetCount),
-                                             SelectedForestryJob.Designations, null, SelectedForestryJob.DesignationLabel);
+            "ColonyManagerRedux.Forestry.TargetCount".Translate(
+                currentCount, designatedCount, targetCount),
+            "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
+                currentCount, designatedCount, targetCount),
+            SelectedForestryJob.Designations, null, SelectedForestryJob.DesignationLabel);
 
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForestryJob.ShouldCheckReachable);
         Utilities.DrawToggle(

@@ -16,7 +16,7 @@ public enum AgeAndSex
 [Flags]
 public enum MasterMode
 {
-    Default = 0,
+    Manual = 0,
     Hunters = 1,
     Trainers = 2,
     Melee = 4,
@@ -30,6 +30,7 @@ public enum MasterMode
 public static class Utilities_Livestock
 {
     public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
+    public static MasterMode[] MasterModeArray => (MasterMode[])Enum.GetValues(typeof(MasterMode));
 
     private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache = new(5);
 
@@ -144,7 +145,7 @@ public static class Utilities_Livestock
 
     public static MasterMode GetMasterMode(this Pawn pawn)
     {
-        var mode = MasterMode.Default;
+        var mode = MasterMode.Manual;
 
         if (pawn.workSettings.WorkIsActive(WorkTypeDefOf.Hunting))
         {
@@ -198,7 +199,7 @@ public static class Utilities_Livestock
                     .Where(p => !p.Dead &&
 
                                  // matches mode
-                                 (p.GetMasterMode() & mode) != MasterMode.Default
+                                 (p.GetMasterMode() & mode) != MasterMode.Manual
                      );
 
         // update if key exists

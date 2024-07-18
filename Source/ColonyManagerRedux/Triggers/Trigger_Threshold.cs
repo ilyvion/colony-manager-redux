@@ -16,11 +16,7 @@ public class Trigger_Threshold : Trigger
         HigherThan
     }
 
-    public static int DefaultCount = 500;
-
-    public static int DefaultMaxUpperThreshold = 3000;
-
-    public bool countAllOnMap;
+    public bool CountAllOnMap;
 
     public int MaxUpperThreshold;
 
@@ -38,6 +34,9 @@ public class Trigger_Threshold : Trigger
 
     public Trigger_Threshold(ManagerJob job) : base(job)
     {
+        Settings settings = ColonyManagerReduxMod.Instance.Settings;
+        CountAllOnMap = settings.DefaultCountAllOnMap;
+
         ParentFilter = new ThingFilter();
         ParentFilter.SetDisallowAll();
 
@@ -45,11 +44,11 @@ public class Trigger_Threshold : Trigger
         ThresholdFilter.SetDisallowAll();
 
         Op = Ops.LowerThan;
-        MaxUpperThreshold = DefaultMaxUpperThreshold;
-        TargetCount = DefaultCount;
+        MaxUpperThreshold = job.MaxUpperThreshold;
+        TargetCount = settings.DefaultTargetCount;
     }
 
-    public int CurrentCount => job.Manager.map.CountProducts(ThresholdFilter, stockpile, countAllOnMap);
+    public int CurrentCount => job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
 
     public WindowTriggerThresholdDetails DetailsWindow
     {
@@ -134,9 +133,9 @@ public class Trigger_Threshold : Trigger
     }
 
     public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string? label = null,
-                                            string? tooltip = null, List<Designation>? designations = null,
-                                            Action? onOpenFilterDetails = null,
-                                            Func<Designation, string>? designationLabelGetter = null)
+        string? tooltip = null, List<Designation>? designations = null,
+        Action? onOpenFilterDetails = null,
+        Func<Designation, string>? designationLabelGetter = null)
     {
         var hasTargets = !designations.NullOrEmpty();
 
@@ -234,7 +233,7 @@ public class Trigger_Threshold : Trigger
         }
 
         Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.ManagerCountAllOnMap".Translate(),
-                              "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
+            "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref CountAllOnMap, true);
         TargetCount = (int)GUI.HorizontalSlider(thresholdRect, TargetCount, 0, MaxUpperThreshold);
     }
 
@@ -245,7 +244,7 @@ public class Trigger_Threshold : Trigger
         Scribe_Values.Look(ref MaxUpperThreshold, "maxUpperThreshold");
         Scribe_Values.Look(ref Op, "operator");
         Scribe_Deep.Look(ref ThresholdFilter, "thresholdFilter");
-        Scribe_Values.Look(ref countAllOnMap, "countAllOnMap");
+        Scribe_Values.Look(ref CountAllOnMap, "countAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
         if (Scribe.mode == LoadSaveMode.Saving)

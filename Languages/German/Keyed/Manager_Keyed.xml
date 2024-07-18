@@ -141,8 +141,8 @@
     <ColonyManagerRedux.Foraging.Options>Optionen</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>Zielanzahl: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>Ziel: {2}\n{0} im Lager\n{1} mit Ausnahme von momentanen Festlegungen.</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>Nur komplett ausgewachsene Pflanzen</ColonyManagerRedux.Foraging.ForceMature>
-    <ColonyManagerRedux.Foraging.ForceMature.Tip>Soll das Sammeln auf ausgewachsene Pflanzen beschränkt sein?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>Nur komplett ausgewachsene Pflanzen</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>Soll das Sammeln auf ausgewachsene Pflanzen beschränkt sein?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Erlaube sammeln in:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>Erlaube Pflanzen</ColonyManagerRedux.Foraging.Plants>
     <ColonyManagerRedux.ManagerForaging.Edible>Essbare Pflanzen</ColonyManagerRedux.ManagerForaging.Edible>
@@ -209,7 +209,7 @@
     <ColonyManagerRedux.ManagerLivestock.MasterDefault>Meister zuweisen</ColonyManagerRedux.ManagerLivestock.MasterDefault>
     <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>Weise Tiere einem Meister oder einer Gruppe von Kolonisten zu. Kann Benutzereinstellungen überschreiben, wenn aktiviert.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
     <ColonyManagerRedux.ManagerLivestock.Follow>Setzt Meister folgen</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.FollowTip>Legt die Meister-Folgen-Einstellung fest. Die Benutzereinstellungen werden überschrieben, wenn dies aktiviert ist. Wenn deaktiviert, können Master manuell zugewiesen werden.</ColonyManagerRedux.ManagerLivestock.FollowTip>
+    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Legt die Meister-Folgen-Einstellung fest. Die Benutzereinstellungen werden überschrieben, wenn dies aktiviert ist. Wenn deaktiviert, können Master manuell zugewiesen werden.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Verfasst</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Sollten Tiere ihren zugewiesenen Meister folgen, wenn dieser eingezogen wird?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Feldarbeit</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
@@ -221,7 +221,7 @@
     <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>Manuell</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>Manuell</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Jäger</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Trainer</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Nahkampf</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>

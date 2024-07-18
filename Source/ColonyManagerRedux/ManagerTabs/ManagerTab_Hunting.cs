@@ -7,23 +7,14 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class ManagerTab_Hunting : ManagerTab
+internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
 
-    public ManagerTab_Hunting(Manager manager) : base(manager)
-    {
-        SelectedHuntingJob = new(manager);
-    }
-
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
-    public ManagerJob_Hunting SelectedHuntingJob
-    {
-        get => (ManagerJob_Hunting)Selected!;
-        set => Selected = value;
-    }
+    public ManagerJob_Hunting SelectedHuntingJob => (ManagerJob_Hunting)Selected!;
 
     public void DoContent(Rect rect)
     {
@@ -94,7 +85,7 @@ internal class ManagerTab_Hunting : ManagerTab
                 manager.JobStack.Delete(SelectedHuntingJob);
 
                 // remove content from UI
-                SelectedHuntingJob = new ManagerJob_Hunting(manager);
+                Selected = MakeNewJob();
 
                 // refresh source list
                 Refresh();
@@ -187,7 +178,7 @@ internal class ManagerTab_Hunting : ManagerTab
             DrawListEntry(job, jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                SelectedHuntingJob = job;
+                Selected = job;
             }
 
             cur.y += LargeListEntryHeight;
@@ -208,7 +199,7 @@ internal class ManagerTab_Hunting : ManagerTab
 
         if (Widgets.ButtonInvisible(newRect))
         {
-            Selected = new ManagerJob_Hunting(manager);
+            Selected = MakeNewJob();
         }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Hunting.NewHuntingJobTooltip".Translate());
@@ -481,7 +472,6 @@ internal class ManagerTab_Hunting : ManagerTab
 
     public float DrawUnforbidCorpses(Vector2 pos, float width)
     {
-        // unforbid corpses (3)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect, "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(), "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
             ref SelectedHuntingJob.UnforbidCorpses);

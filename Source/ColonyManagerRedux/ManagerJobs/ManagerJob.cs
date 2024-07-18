@@ -1,5 +1,6 @@
 ﻿// ManagerJob.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Text;
 using Verse.AI;
@@ -8,9 +9,11 @@ namespace ColonyManagerRedux;
 
 public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
-    public bool ShouldCheckReachable = true;
+    public ManagerDef def;
 
-    public int LastActionTick;
+    public bool ShouldCheckReachable;
+
+    public int LastActionTick = -1;
 
     public Manager Manager;
     public bool UsePathBasedDistance;
@@ -25,10 +28,20 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public int loadID = -1;
     private bool isManaged;
 
-    public ManagerJob(Manager manager)
+#pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerJob
+    protected ManagerJob(Manager manager)
+#pragma warning restore CS8618
     {
+        Settings settings = ColonyManagerReduxMod.Instance.Settings;
+        ShouldCheckReachable = settings.DefaultShouldCheckReachable;
+        UsePathBasedDistance = settings.DefaultUsePathBasedDistance;
+        if (!settings.NewJobsAreImmediatelyOutdated)
+        {
+            // set last updated to current time
+            Touch();
+        }
+
         Manager = manager;
-        Touch(); // set last updated to current time.
     }
 
     public abstract bool IsCompleted { get; }
@@ -50,7 +63,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public virtual bool ShouldDoNow => IsManaged && !IsSuspended && !IsCompleted && ShouldUpdate;
 
-    private bool ShouldUpdate => LastActionTick + UpdateInterval.ticks < Find.TickManager.TicksGame;
+    private bool ShouldUpdate => LastActionTick < 0 || ((LastActionTick + UpdateInterval.ticks) < Find.TickManager.TicksGame);
 
     public virtual bool IsSuspended
     {
@@ -58,16 +71,22 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         set => _isSuspended = value;
     }
 
-    public abstract ManagerTab Tab { get; }
+    public ManagerTab Tab => Manager.tabs.Find(tab => tab.GetType() == def.managerTabClass);
     public abstract string[] Targets { get; }
 
     public virtual UpdateInterval UpdateInterval
     {
-        get => _updateInterval ?? Settings.DefaultUpdateInterval;
+        get => _updateInterval ?? ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
         set => _updateInterval = value;
     }
 
     public abstract WorkTypeDef? WorkTypeDef { get; }
+
+    public virtual int MaxUpperThreshold { get; } = Constants.DefaultMaxUpperThreshold;
+
+    public virtual void PostMake()
+    {
+    }
 
     public virtual void ExposeData()
     {
@@ -76,6 +95,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             _updateIntervalScribe = UpdateInterval.ticks;
         }
 
+        Scribe_Defs.Look(ref def, "def");
         Scribe_Values.Look(ref loadID, "loadID", 0);
         Scribe_References.Look(ref Manager, "manager");
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
@@ -93,11 +113,11 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             try
             {
                 _updateInterval = Utilities.UpdateIntervalOptions.Find(ui => ui.ticks == _updateIntervalScribe) ??
-                                  Settings.DefaultUpdateInterval;
+                                  ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
             }
             catch
             {
-                _updateInterval = Settings.DefaultUpdateInterval;
+                _updateInterval = ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
             }
         }
     }
@@ -165,9 +185,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     }
 }
 
+public interface IHasTreshold
+{
+    Trigger_Threshold Trigger { get; }
+}
 
-public interface IHasHistory
+public interface IHasHistory : IHasTreshold
 {
     History History { get; }
-    Trigger_Threshold Trigger { get; }
 }

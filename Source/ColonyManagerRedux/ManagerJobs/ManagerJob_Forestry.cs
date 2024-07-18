@@ -4,6 +4,7 @@
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerJob_Forestry : ManagerJob, IHasHistory
 {
     public enum ForestryJobType
@@ -53,6 +54,16 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
         history = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
 
+    public override void PostMake()
+    {
+        var forestrySettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Forestry>(def);
+        if (forestrySettings != null)
+        {
+            _type = forestrySettings.DefaultForestryJobType;
+            AllowSaplings = forestrySettings.DefaultAllowSaplings;
+        }
+    }
+
     public override bool IsCompleted
     {
         get
@@ -70,11 +81,6 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
     public override bool IsValid => base.IsValid && trigger != null && history != null;
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
-
-    public override ManagerTab Tab
-    {
-        get { return Manager.tabs.Find(tab => tab is ManagerTab_Forestry); }
-    }
 
     public override string[] Targets
     {

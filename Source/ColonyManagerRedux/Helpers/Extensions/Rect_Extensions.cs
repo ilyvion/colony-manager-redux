@@ -21,4 +21,18 @@ public static class Rect_Extensions
             Mathf.RoundToInt(rect.width),
             Mathf.RoundToInt(rect.height));
     }
+
+    public static Rect TrimLeft(this Rect rect, float amount)
+    {
+        rect = new(rect);
+        rect.xMin += amount;
+        return rect;
+    }
+
+    public static Rect TrimRight(this Rect rect, float amount)
+    {
+        rect = new(rect);
+        rect.width -= amount;
+        return rect;
+    }
 }

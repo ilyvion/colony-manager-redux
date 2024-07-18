@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_ForestryManager</defName>
+        <order>400</order>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Forestry</managerTabClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Forestry</managerJobSettingsClass>
+        <managerJobClass>ColonyManagerRedux.ManagerJob_Forestry</managerJobClass>
+        <iconPath>UI/Icons/CMR_Tree</iconPath>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

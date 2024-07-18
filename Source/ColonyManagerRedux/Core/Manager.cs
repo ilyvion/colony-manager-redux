@@ -5,7 +5,7 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class Manager : CustomMapComponent, ILoadReferenceable
+public class Manager : MapComponent, ILoadReferenceable
 {
     public enum Modes
     {
@@ -35,9 +35,9 @@ public class Manager : CustomMapComponent, ILoadReferenceable
         debugComponent = new(this);
         _stack = new(this);
 
-        tabs = DefDatabase<ManagerTabDef>.AllDefs
+        tabs = DefDatabase<ManagerDef>.AllDefs
             .OrderBy(m => m.order)
-            .Select(m => ManagerTabMaker.MakeManagerTab(m, this))
+            .Select(m => ManagerDefMaker.MakeManagerTab(m, this))
             .ToList();
 
         // if not created in SavingLoading, give yourself the ID of the map you were constructed on.

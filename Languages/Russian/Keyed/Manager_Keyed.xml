@@ -141,8 +141,8 @@
     <ColonyManagerRedux.Foraging.Options>Настройки</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>Целевое значение: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>Цель: {2}\n{0} на складе\n{1} ожидается от текущих заданий</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>Только созревшие растения</ColonyManagerRedux.Foraging.ForceMature>
-    <ColonyManagerRedux.Foraging.ForceMature.Tip>Надо ли собирать только зрелые растения?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>Только созревшие растения</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>Надо ли собирать только зрелые растения?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Разрешить сбор в:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>Разрешенные растения</ColonyManagerRedux.Foraging.Plants>
     <ColonyManagerRedux.ManagerForaging.Edible>Съедобные растения</ColonyManagerRedux.ManagerForaging.Edible>
@@ -235,7 +235,7 @@
     <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>В ручную</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>В ручную</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Охотники</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Дресировщики</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Рукопашники</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>

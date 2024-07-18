@@ -43,6 +43,16 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
         history = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
 
+    public override void PostMake()
+    {
+        var foragingSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Foraging>(def);
+        if (foragingSettings != null)
+        {
+            SyncFilterAndAllowed = foragingSettings.DefaultSyncFilterAndAllowed;
+            ForceFullyMature = foragingSettings.DefaultForceFullyMature;
+        }
+    }
+
     public override bool IsCompleted => !trigger.State;
 
     public int CurrentDesignatedCount
@@ -83,8 +93,6 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
     public override bool IsValid => base.IsValid && trigger != null && History != null;
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
-
-    public override ManagerTab Tab => Manager.tabs.Find(tab => tab is ManagerTab_Foraging);
 
     public override string[] Targets => AllowedPlants
         .Select(plant => plant.LabelCap.Resolve()).ToArray();

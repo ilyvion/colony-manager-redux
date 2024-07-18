@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_ForagingManager</defName>
+        <order>600</order>
+        <managerJobClass>ColonyManagerRedux.ManagerJob_Foraging</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Foraging</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Foraging</managerTabClass>
+        <iconPath>UI/Icons/CMR_Foraging</iconPath>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

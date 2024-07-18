@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <ColonyManagerRedux.SharedSettingsTabLabel>Shared</ColonyManagerRedux.SharedSettingsTabLabel>
+    <ColonyManagerRedux.GeneralSettingsTabLabel>General</ColonyManagerRedux.GeneralSettingsTabLabel>
+
+    <ColonyManagerRedux.ManagerDefaultUpdateInterval>Default update interval</ColonyManagerRedux.ManagerDefaultUpdateInterval>
+    <ColonyManagerRedux.NewJobsAreImmediatelyOutdated>New jobs should be immediately handled</ColonyManagerRedux.NewJobsAreImmediatelyOutdated>
+    <ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip>When this setting is enabled, a newly created manager job will immediately require a manager to go deal with it. Otherwise, the job will start out as updated and not be worked on until its update interval elapses for the first time.</ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip>
+
+    <ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings>
+    <ColonyManagerRedux.ManagerJobSettings.TargetCount>Target count: {0}</ColonyManagerRedux.ManagerJobSettings.TargetCount>
+
+    <ColonyManagerRedux.ForestryJobSettings.DefaultJobType>Default job type</ColonyManagerRedux.ForestryJobSettings.DefaultJobType>
+
+    <ColonyManagerRedux.LivestockJobSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.LivestockJobSettings.DefaultTargetCountsHeader>
+    <ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader>
+    <ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader>
+    <ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader>
+
+    <ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>
+</LanguageData>

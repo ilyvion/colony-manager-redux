@@ -23,10 +23,6 @@ public static class Widgets_Labels
         {
             TooltipHandler.TipRegion(rect, tooltip);
         }
-        else
-        {
-            Logger.Debug($"Label({rect}, {label}) called with null tooltip. This should never happen.");
-        }
 
         Label(rect, label, anchor, font, color, margin);
     }

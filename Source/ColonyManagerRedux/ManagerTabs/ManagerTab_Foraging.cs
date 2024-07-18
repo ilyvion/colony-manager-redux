@@ -8,15 +8,10 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal class ManagerTab_Foraging : ManagerTab
+internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight;
     private Vector2 _scrollPosition = Vector2.zero;
-
-    public ManagerTab_Foraging(Manager manager) : base(manager)
-    {
-        SelectedForagingJob = new(manager);
-    }
 
     public override void PostOpen()
     {
@@ -25,17 +20,13 @@ internal class ManagerTab_Foraging : ManagerTab
             // HACK: This sucks, but for whatever reason, it seems to be necessary for the
             // Trigger to work right after a game load. Anything else I tried failed, like
             // using LoadSaveMode.PostLoadInit in ExposeData.
-            SelectedForagingJob = new(manager);
+            Selected = MakeNewJob();
         }
     }
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
-    public ManagerJob_Foraging SelectedForagingJob
-    {
-        get => (ManagerJob_Foraging)Selected!;
-        set => Selected = value;
-    }
+    public ManagerJob_Foraging SelectedForagingJob => (ManagerJob_Foraging)Selected!;
 
     public void DoContent(Rect rect)
     {
@@ -103,7 +94,7 @@ internal class ManagerTab_Foraging : ManagerTab
                 manager.JobStack.Delete(SelectedForagingJob);
 
                 // remove content from UI
-                SelectedForagingJob = new ManagerJob_Foraging(manager);
+                Selected = MakeNewJob();
 
                 // refresh source list
                 Refresh();
@@ -156,7 +147,7 @@ internal class ManagerTab_Foraging : ManagerTab
             DrawListEntry(job, jobRect, false);
             if (Widgets.ButtonInvisible(jobRect))
             {
-                SelectedForagingJob = job;
+                Selected = job;
             }
 
             cur.y += LargeListEntryHeight;
@@ -177,7 +168,7 @@ internal class ManagerTab_Foraging : ManagerTab
 
         if (Widgets.ButtonInvisible(newRect))
         {
-            Selected = new ManagerJob_Foraging(manager);
+            Selected = MakeNewJob();
         }
 
         TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Foraging.NewForagingJobTooltip".Translate().Resolve());
@@ -256,10 +247,12 @@ internal class ManagerTab_Foraging : ManagerTab
 
     public float DrawMaturePlants(Vector2 pos, float width)
     {
-        // Force mature plants only (2)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Utilities.DrawToggle(rowRect, "ColonyManagerRedux.Foraging.ForceMature".Translate(), "ColonyManagerRedux.Foraging.ForceMature.Tip".Translate(),
-                              ref SelectedForagingJob.ForceFullyMature);
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Foraging.ForceFullyMature".Translate(),
+            "ColonyManagerRedux.Foraging.ForceFullyMature.Tip".Translate(),
+            ref SelectedForagingJob.ForceFullyMature);
 
         return ListEntryHeight;
     }

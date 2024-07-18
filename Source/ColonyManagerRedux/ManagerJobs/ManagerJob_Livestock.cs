@@ -4,7 +4,6 @@
 
 using System.Reflection;
 using Verse.Sound;
-using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
@@ -105,13 +104,49 @@ public class ManagerJob_Livestock : ManagerJob
         FollowDrafted = true;
         FollowFieldwork = true;
         FollowTraining = false;
-        Masters = MasterMode.Default;
+        Masters = MasterMode.Manual;
         Master = null;
-        Trainers = MasterMode.Default;
+        Trainers = MasterMode.Manual;
         Trainer = null;
     }
 
-    public ManagerJob_Livestock(PawnKindDef pawnKindDef, Manager manager) : this(manager) // set defaults
+    public override void PostMake()
+    {
+        var livestockSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(def);
+        if (livestockSettings != null)
+        {
+            for (int i = 0; i < livestockSettings.DefaultCountTargets.Length; i++)
+            {
+                Trigger.CountTargets[i] = livestockSettings.DefaultCountTargets[i];
+            }
+            TryTameMore = livestockSettings.DefaultTryTameMore;
+            ButcherExcess = livestockSettings.DefaultButcherExcess;
+            ButcherTrained = livestockSettings.DefaultButcherTrained;
+            ButcherPregnant = livestockSettings.DefaultButcherPregnant;
+            ButcherBonded = livestockSettings.DefaultButcherBonded;
+
+            foreach (var def in Training.Defs)
+            {
+                var report = CanBeTrained(Trigger.pawnKind, def, out bool visible);
+                if (report.Accepted && visible && livestockSettings.EnabledTrainingTargets.Contains(def))
+                {
+                    Training[def] = true;
+                }
+            }
+            Training.UnassignTraining = livestockSettings.DefaultUnassignTraining;
+            Training.TrainYoung = livestockSettings.DefaultTrainYoung;
+
+            Masters = livestockSettings.DefaultMasterMode;
+            RespectBonds = livestockSettings.DefaultRespectBonds;
+            SetFollow = livestockSettings.DefaultSetFollow;
+            FollowDrafted = livestockSettings.DefaultFollowDrafted;
+            FollowFieldwork = livestockSettings.DefaultFollowFieldwork;
+            FollowTraining = livestockSettings.DefaultFollowTraining;
+            Trainers = livestockSettings.DefaultTrainerMode;
+        }
+    }
+
+    public ManagerJob_Livestock(Manager manager, PawnKindDef pawnKindDef) : this(manager) // set defaults
     {
         // set pawnkind and get list of current colonist pawns of that def.
         Trigger.pawnKind = pawnKindDef;
@@ -151,8 +186,6 @@ public class ManagerJob_Livestock : ManagerJob
     public override bool IsValid => base.IsValid && History != null && Training != null && Trigger != null;
 
     public override string Label => Trigger.pawnKind.LabelCap;
-
-    public override ManagerTab Tab => Manager.tabs.OfType<ManagerTab_Livestock>().First();
 
     public override string[] Targets
     {
@@ -263,7 +296,7 @@ public class ManagerJob_Livestock : ManagerJob
             if (FollowTraining && animal.training.NextTrainableToTrain() != null)
             {
                 Logger.Follow("\ttraining");
-                if (Trainers != MasterMode.Default)
+                if (Trainers != MasterMode.Manual)
                 {
                     SetMaster(animal, Trainers, Trainer, ref actionTaken);
                     SetFollowing(animal, false, true, ref actionTaken);
@@ -273,7 +306,7 @@ public class ManagerJob_Livestock : ManagerJob
             // default 
             else
             {
-                if (Masters != MasterMode.Default)
+                if (Masters != MasterMode.Manual)
                 {
                     SetMaster(animal, Masters, Master, ref actionTaken);
                 }
@@ -408,7 +441,7 @@ public class ManagerJob_Livestock : ManagerJob
     {
         switch (mode)
         {
-            case MasterMode.Default:
+            case MasterMode.Manual:
                 break;
             case MasterMode.Specific:
                 SetMaster(animal, specificMaster, ref actionTaken);
@@ -529,8 +562,8 @@ public class ManagerJob_Livestock : ManagerJob
 
                 // milking
                 else if (SendToMilkingArea &&
-                          p.GetComp<CompMilkable>() != null &&
-                          p.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.ticks)
+                    p.GetComp<CompMilkable>() != null &&
+                    p.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.ticks)
                 {
                     if (p.playerSettings.AreaRestrictionInPawnCurrentMap != MilkArea)
                     {
@@ -541,8 +574,8 @@ public class ManagerJob_Livestock : ManagerJob
 
                 // shearing
                 else if (SendToShearingArea &&
-                          p.GetComp<CompShearable>() != null &&
-                          p.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.ticks)
+                    p.GetComp<CompShearable>() != null &&
+                    p.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.ticks)
                 {
                     if (p.playerSettings.AreaRestrictionInPawnCurrentMap != ShearArea)
                     {
@@ -586,8 +619,8 @@ public class ManagerJob_Livestock : ManagerJob
         {
             // too many animals?
             var surplus = Trigger.pawnKind.GetTame(Manager, ageSex).Count()
-                        - DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count
-                        - Trigger.CountTargets[(int)ageSex];
+                - DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count
+                - Trigger.CountTargets[(int)ageSex];
 
 #if DEBUG_LIFESTOCK
             Log.Message( "Butchering " + ageSex + ", surplus" + surplus );

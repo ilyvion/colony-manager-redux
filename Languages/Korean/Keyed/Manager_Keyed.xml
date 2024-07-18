@@ -141,8 +141,8 @@
     <ColonyManagerRedux.Foraging.Options>설정</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>목표 재고: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>재고: {2}\n{0} 창고\n{1} 현재 지정된 수확 예상</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>완전히 성장한 작물만 허용</ColonyManagerRedux.Foraging.ForceMature>
-    <ColonyManagerRedux.Foraging.ForceMature.Tip>완전히 성장한 작물만 수확을 허용토록 할까요?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>완전히 성장한 작물만 허용</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>완전히 성장한 작물만 수확을 허용토록 할까요?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>수확이 허용된 구역:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>허용된 작물</ColonyManagerRedux.Foraging.Plants>
     <ColonyManagerRedux.ManagerForaging.Edible>먹을 수 있는 작물</ColonyManagerRedux.ManagerForaging.Edible>
@@ -209,7 +209,7 @@
     <ColonyManagerRedux.ManagerLivestock.MasterDefault>주인 할당</ColonyManagerRedux.ManagerLivestock.MasterDefault>
     <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>동물을 특정 림 혹은 그룹으로 할당합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
     <ColonyManagerRedux.ManagerLivestock.Follow>주인 따라가기</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.FollowTip>주인을 따라가도록 설정합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다. 비활성화 되어있는 경우 수동으로 활성화 가능합니다.</ColonyManagerRedux.ManagerLivestock.FollowTip>
+    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>주인을 따라가도록 설정합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다. 비활성화 되어있는 경우 수동으로 활성화 가능합니다.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted>소집</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>주인이 소집되면 동물을 따라다니게 할까요?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>외부 작업</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
@@ -221,7 +221,7 @@
     <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>수동</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>수동</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>사냥꾼</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>조련사</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>근접</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>

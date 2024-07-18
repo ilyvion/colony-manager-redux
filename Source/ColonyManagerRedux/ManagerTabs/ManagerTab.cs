@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux;
 
-#pragma warning disable CS8618 // Set by ManagerTabMaker.MakeManagerTab
+#pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerTab
 public abstract class ManagerTab(Manager manager)
 #pragma warning restore CS8618
 {
@@ -16,7 +16,7 @@ public abstract class ManagerTab(Manager manager)
                         ProgressRectWidth = 10f,
                         StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
 
-    public ManagerTabDef def;
+    public ManagerDef def;
 
     public Manager manager = manager;
     private ManagerJob? selected;
@@ -24,6 +24,8 @@ public abstract class ManagerTab(Manager manager)
     public virtual string DisabledReason => "";
 
     public virtual bool Enabled => true;
+
+    protected virtual bool CreateNewSelectedJobOnMake => true;
 
     public virtual string Label => GetType().ToString();
 
@@ -57,6 +59,15 @@ public abstract class ManagerTab(Manager manager)
 
     public virtual void PostMake()
     {
+        if (CreateNewSelectedJobOnMake)
+        {
+            Selected = MakeNewJob();
+        }
+    }
+
+    public ManagerJob? MakeNewJob(params object[] args)
+    {
+        return ManagerDefMaker.MakeManagerJob(def, manager, args);
     }
 
     public virtual void PostClose()

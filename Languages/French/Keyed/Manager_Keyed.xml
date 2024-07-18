@@ -141,8 +141,8 @@
     <ColonyManagerRedux.Foraging.Options>Options</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>Quantité ciblée: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>Objectif: {2}\n{0} dans la zone de stockage\n{1} attendu par les désignations actuelles.</ColonyManagerRedux.Foraging.TargetCountTooltip>
-    <ColonyManagerRedux.Foraging.ForceMature>Seulement les plantes totalement mûres</ColonyManagerRedux.Foraging.ForceMature>
-    <ColonyManagerRedux.Foraging.ForceMature.Tip>La cueillette doit-elle être limitée aux plantes matûres seulement?</ColonyManagerRedux.Foraging.ForceMature.Tip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>Seulement les plantes totalement mûres</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>La cueillette doit-elle être limitée aux plantes matûres seulement?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Autoriser la cueillette dans:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>Plantes autorisées</ColonyManagerRedux.Foraging.Plants>
     <ColonyManagerRedux.ManagerForaging.Edible>Plantes comestibles</ColonyManagerRedux.ManagerForaging.Edible>
@@ -213,7 +213,7 @@
     <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>Si activé, un animal ayant un lien avec un colon sera toujours assigné à ce colon. Si désactivé, les liens sont ignorés.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
     <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Disabled because master is set to a specific pawn, or set manually.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
     <ColonyManagerRedux.ManagerLivestock.Follow>Configurer maître suivi</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.FollowTip>Configurer le maître à suite, écrasera les réglages utilisateur si activé. Si désactivé, les règles de suivi peuvent être assignées manuellement.</ColonyManagerRedux.ManagerLivestock.FollowTip>
+    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Configurer le maître à suite, écrasera les réglages utilisateur si activé. Si désactivé, les règles de suivi peuvent être assignées manuellement.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Mobilisé</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
     <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Les animaux doivent-ils suivre leur maître s'il est mobilisé?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
     <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Travaux</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
@@ -225,7 +225,7 @@
     <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Default>Manuel</ColonyManagerRedux.ManagerLivestock.MasterMode.Default>
+    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>Manuel</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Chasseur</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Dresseur</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
     <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Melée</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>

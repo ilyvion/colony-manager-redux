@@ -63,6 +63,19 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
             [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
     }
 
+    public override void PostMake()
+    {
+        var miningSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Mining>(def);
+        if (miningSettings != null)
+        {
+            SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;
+            DeconstructBuildings = miningSettings.DefaultDeconstructBuildings;
+            CheckRoofSupport = miningSettings.DefaultCheckRoofSupport;
+            CheckRoofSupportAdvanced = miningSettings.DefaultCheckRoofSupportAdvanced;
+            CheckRoomDivision = miningSettings.DefaultCheckRoomDivision;
+        }
+    }
+
     public override bool IsCompleted => !trigger.State;
 
     public List<Designation> Designations => new(_designations);
@@ -70,7 +83,6 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
 
     public override bool IsValid => base.IsValid && history != null && trigger != null;
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
-    public override ManagerTab Tab => Manager.tabs.Find(tab => tab is ManagerTab_Mining);
 
     public override string[] Targets => AllowedMinerals
         .Select(pk => pk.LabelCap.Resolve()).ToArray();
@@ -152,9 +164,9 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
 
         foreach (var des in Manager.map.designationManager
-                                    .SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
-                                    .Except(_designations)
-                                    .Where(des => IsValidDeconstructionTarget(des.target)))
+            .SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
+            .Except(_designations)
+            .Where(des => IsValidDeconstructionTarget(des.target)))
         {
             AddDesignation(des);
         }
@@ -272,8 +284,8 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
 
         var count = def.CostListAdjusted(building.Stuff)
-                       .Where(Counted)
-                       .Sum(tc => tc.count * def.resourcesFractionWhenDeconstructed);
+            .Where(Counted)
+            .Sum(tc => tc.count * def.resourcesFractionWhenDeconstructed);
         return Mathf.RoundToInt(count);
     }
 
@@ -290,8 +302,8 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
 
         return chunk.butcherProducts
-                    .Where(Counted)
-                    .Sum(tc => tc.count);
+            .Where(Counted)
+            .Sum(tc => tc.count);
     }
 
     public int GetCountInChunks()
@@ -302,10 +314,10 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
 
         count = Manager.map.listerThings.AllThings
-                       .Where(t => t.Faction == Faction.OfPlayer
-                                 && !t.IsForbidden(Faction.OfPlayer)
-                                 && t.def.IsChunk())
-                       .Sum(GetCountInChunk);
+            .Where(t => t.Faction == Faction.OfPlayer
+                && !t.IsForbidden(Faction.OfPlayer)
+                && t.def.IsChunk())
+            .Sum(GetCountInChunk);
 
         _chunksCachedValue.Update(count);
         return count;
@@ -324,12 +336,11 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
 
         // mining jobs
         var mineralCounts = _designations.Where(d => d.def == DesignationDefOf.Mine && d.target.Cell.IsValid)
-                                         .Select(d => Manager
-                                            .map.thingGrid.ThingsListAtFast(d.target.Cell)
-                                            .FirstOrDefault()?.def)
-                                         .Where(d => d != null)
-                                         .GroupBy(d => d, d => d, (d, g) => new { def = d, count = g.Count() })
-                                         .Where(g => Allowed(g.def));
+            .Select(d => Manager.map.thingGrid.ThingsListAtFast(d.target.Cell)
+                .FirstOrDefault()?.def)
+            .Where(d => d != null)
+            .GroupBy(d => d, d => d, (d, g) => new { def = d, count = g.Count() })
+            .Where(g => Allowed(g.def));
 
         foreach (var mineralCount in mineralCounts)
         {
@@ -363,7 +374,7 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         if (Counted(resource))
         {
             return (int)(rock.building.mineableYield * Find.Storyteller.difficulty.mineYieldFactor *
-                           rock.building.mineableDropChance);
+                rock.building.mineableDropChance);
         }
 
         return 0;
@@ -374,9 +385,9 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).OfType<Building>()
-                      .Where(IsValidDeconstructionTarget)
-                      .OrderBy(b => -GetCountInBuilding(b) / Distance(b, position))
-                      .ToList();
+            .Where(IsValidDeconstructionTarget)
+            .OrderBy(b => -GetCountInBuilding(b) / Distance(b, position))
+            .ToList();
     }
 
     public List<ThingDef> GetMaterialsInBuilding(ThingDef building)
@@ -390,11 +401,10 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
             ? []
             : building.costList.Select(tc => tc.thingDef);
         var possibleStuffs = DefDatabase<ThingDef>.AllDefsListForReading
-                                                  .Where(td => td.IsStuff
-                                                             && !td.stuffProps.categories.NullOrEmpty()
-                                                             && !building.stuffCategories.NullOrEmpty()
-                                                             && td.stuffProps.categories
-                                                                  .Intersect(building.stuffCategories).Any());
+            .Where(td => td.IsStuff
+                && !td.stuffProps.categories.NullOrEmpty()
+                && !building.stuffCategories.NullOrEmpty()
+                && td.stuffProps.categories.Intersect(building.stuffCategories).Any());
 
         return baseCosts.Concat(possibleStuffs).ToList();
     }
@@ -441,9 +451,9 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.listerThings.AllThings.OfType<Mineable>()
-                      .Where(IsValidMiningTarget)
-                      .OrderBy(r => -GetCountInMineral(r) / Distance(r, position))
-                      .ToList();
+            .Where(IsValidMiningTarget)
+            .OrderByDescending(r => GetCountInMineral(r) / Distance(r, position))
+            .ToList();
     }
 
     public bool IsARoofSupport_Advanced(Building building)
@@ -457,7 +467,7 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         for (var i = RoofCollapseUtility.RoofSupportRadialCellsCount - 1; i >= 0; i--)
         {
             if (WouldCollapseIfSupportDestroyed(GenRadial.RadialPattern[i] + building.Position, building.Position,
-                                                  Manager.map))
+                Manager.map))
             {
                 return true;
             }
@@ -490,16 +500,16 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
 
         var adjacent = GenAdjFast.AdjacentCells8Way(target.Position)
-                                 .Where(c => c.InBounds(Manager.map)
-                                           && !c.Fogged(Manager.map)
-                                           && !c.Impassable(Manager.map))
-                                 .ToArray();
+            .Where(c => c.InBounds(Manager.map)
+                && !c.Fogged(Manager.map)
+                && !c.Impassable(Manager.map))
+            .ToArray();
 
         // check if there are more than two rooms in the surrounding cells.
         var rooms = adjacent.Select(c => c.GetRoom(Manager.map))
-                            .Where(r => r != null)
-                            .Distinct()
-                            .ToList();
+            .Where(r => r != null)
+            .Distinct()
+            .ToList();
 
         if (rooms.Count() >= 2)
         {
@@ -512,8 +522,7 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
             for (var j = i + 1; j < adjacent.Count(); j++)
             {
                 var path = Manager.map.pathFinder.FindPath(adjacent[i], adjacent[j],
-                                                            TraverseParms.For(
-                                                                TraverseMode.NoPassClosedDoors, Danger.Some));
+                    TraverseParms.For(TraverseMode.NoPassClosedDoors, Danger.Some));
                 var cost = path.TotalCost;
                 path.ReleaseToPool();
 
@@ -539,7 +548,7 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         return target.def.building.IsDeconstructible
             && target.def.resourcesFractionWhenDeconstructed > 0
             && target.def.CostListAdjusted(target.Stuff)
-                     .Any(tc => trigger.ThresholdFilter.Allows(tc.thingDef));
+                .Any(tc => trigger.ThresholdFilter.Allows(tc.thingDef));
     }
 
     public bool IsRelevantMiningTarget(Mineable target)
@@ -609,9 +618,8 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
             && IsInAllowedArea(target)
             && IsRelevantMiningTarget(target)
             && !IsARoomDivider(target)
-             &&
-               !IsARoofSupport_Basic(
-                   target) // note, returns true if advanced checking is enabled - checks will then be done before designating
+            // note, returns true if advanced checking is enabled - checks will then be done before designating
+            && !IsARoofSupport_Basic(target)
 
             // can be reached
             && IsReachable(target);
