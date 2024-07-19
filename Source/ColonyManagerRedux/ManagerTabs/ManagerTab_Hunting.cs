@@ -7,6 +7,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight = 9999f;
@@ -93,7 +94,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
         // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
         //var shownTargets = overview ? 4 : 3; // there's more space on the overview
@@ -115,19 +116,19 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         }
         else
         {
-            text += "multiple".Translate().Italic();
+            text += "ColonyManagerRedux.Multiple".Translate().Italic();
         }
 
         // do the drawing
         GUI.BeginGroup(rect);
 
         // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
+        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft);
 
         // if the bill has a manager job, give some more info.
         if (active)
         {
-            huntingJob.DrawStatusForListEntry(statusRect, huntingJob.Trigger);
+            huntingJob.DrawStatusForListEntry(statusRect, huntingJob.Trigger, mode == ListEntryDrawMode.Export);
         }
 
         GUI.EndGroup();
@@ -175,7 +176,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
 
             jobRect.width -= 50f;
 
-            DrawListEntry(job, jobRect, false);
+            DrawListEntry(job, jobRect, ListEntryDrawMode.Local);
             if (Widgets.ButtonInvisible(jobRect))
             {
                 Selected = job;

@@ -1,5 +1,6 @@
 ﻿// Utilities.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Reflection;
 using static ColonyManagerRedux.Constants;
@@ -7,6 +8,7 @@ using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public static class Utilities
 {
     public enum SyncDirection
@@ -140,7 +142,7 @@ public static class Utilities
                     ref reachability, true);
     }
 
-    public static void DrawStatusForListEntry<T>(this T job, Rect rect, Trigger trigger) where T : ManagerJob
+    public static void DrawStatusForListEntry<T>(this T job, Rect rect, Trigger trigger, bool exporting) where T : ManagerJob
     {
         // set up rects
         var stampRect = new Rect(
@@ -160,41 +162,38 @@ public static class Utilities
             rect.height);
 
         // draw stamp
-        if (Widgets.ButtonImage(
-            stampRect,
-            job.IsCompleted ? Resources.StampCompleted :
-            job.IsSuspended ? Resources.StampStart : Resources.StampSuspended))
+        if (!exporting)
         {
-            job.IsSuspended = !job.IsSuspended;
+            if (Widgets.ButtonImage(
+                stampRect,
+                job.IsCompleted ? Resources.StampCompleted :
+                job.IsSuspended ? Resources.StampStart : Resources.StampSuspended))
+            {
+                job.IsSuspended = !job.IsSuspended;
+            }
+
+            if (job.IsSuspended)
+            {
+                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerUnsuspendJobTooltip".Translate());
+                return;
+            }
+
+            if (job.IsCompleted)
+            {
+                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerJobCompletedTooltip".Translate());
+                return;
+            }
+
+            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerSuspendJobTooltip".Translate());
+
+            // draw progress bar
+            trigger.DrawProgressBar(progressRect, true);
+            TooltipHandler.TipRegion(progressRect, () => trigger.StatusTooltip, trigger.GetHashCode());
         }
-
-        if (job.IsSuspended)
-        {
-            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerUnsuspendJobTooltip".Translate());
-            return;
-        }
-
-        if (job.IsCompleted)
-        {
-            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerJobCompletedTooltip".Translate());
-            return;
-        }
-
-        TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerSuspendJobTooltip".Translate());
-
-        // should never happen?
-        if (trigger == null)
-        {
-            return;
-        }
-
-        // draw progress bar
-        trigger.DrawProgressBar(progressRect, true);
-        TooltipHandler.TipRegion(progressRect, () => trigger.StatusTooltip, trigger.GetHashCode());
 
         // draw update interval
         var timeSinceLastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
-        job.UpdateInterval?.Draw(lastUpdateRect, job);
+        job.UpdateInterval?.Draw(lastUpdateRect, job, exporting);
     }
 
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, ref bool checkOn,

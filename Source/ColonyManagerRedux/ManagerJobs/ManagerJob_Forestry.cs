@@ -64,6 +64,14 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
         }
     }
 
+    public override void PostImport()
+    {
+        base.PostImport();
+        trigger.job = this;
+
+        AllowedTrees.RemoveWhere(t => !AllPlants.Contains(t));
+    }
+
     public override bool IsCompleted
     {
         get
@@ -215,29 +223,31 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
         base.ExposeData();
 
         // settings, references first!
-        Scribe_References.Look(ref LoggingArea, "loggingArea");
         Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
 
-        // clearing areas list
-        if (Scribe.mode == LoadSaveMode.Saving)
-        {
-            // make sure areas list doesn't contain deleted areas
-            UpdateClearAreas();
-        }
 
-        // scribe that stuff
-        Scribe_Collections.Look(ref ClearAreas, "clearAreas", LookMode.Reference);
-
-        if (Manager.Mode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.ScribingMode.Normal)
         {
+            Scribe_References.Look(ref LoggingArea, "loggingArea");
+
+            // clearing areas list
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                // make sure areas list doesn't contain deleted areas
+                UpdateClearAreas();
+            }
+
+            // scribe that stuff
+            Scribe_Collections.Look(ref ClearAreas, "clearAreas", LookMode.Reference);
+
             // scribe history
             Scribe_Deep.Look(ref history, "history");
-        }
 
-        Utilities.Scribe_Designations(ref _designations, Manager);
+            Utilities.Scribe_Designations(ref _designations, Manager);
+        }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {

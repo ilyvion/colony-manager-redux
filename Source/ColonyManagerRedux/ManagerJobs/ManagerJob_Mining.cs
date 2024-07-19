@@ -76,6 +76,15 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
     }
 
+    public override void PostImport()
+    {
+        base.PostImport();
+        trigger.job = this;
+
+        AllowedMinerals.RemoveWhere(m => !AllMinerals.Contains(m));
+        AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));
+    }
+
     public override bool IsCompleted => !trigger.State;
 
     public List<Designation> Designations => new(_designations);
@@ -251,7 +260,6 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
     {
         base.ExposeData();
 
-        Scribe_References.Look(ref MiningArea, "miningArea");
         Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def);
         Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def);
@@ -262,12 +270,14 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
 
         // don't store history in import/export mode.
-        if (Manager.Mode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.ScribingMode.Normal)
         {
-            Scribe_Deep.Look(ref history, "history");
-        }
+            Scribe_References.Look(ref MiningArea, "miningArea");
 
-        Utilities.Scribe_Designations(ref _designations, Manager);
+            Scribe_Deep.Look(ref history, "history");
+
+            Utilities.Scribe_Designations(ref _designations, Manager);
+        }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {

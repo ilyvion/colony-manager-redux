@@ -18,13 +18,15 @@
     <ColonyManagerRedux.ManagerAlertNoManager>Manager targets are set, but no pawn has the managing job enabled</ColonyManagerRedux.ManagerAlertNoManager>
 
     <!-- Common -->
-    <ColonyManagerRedux.ManagerNeverUpdatedTooltip>This job has never been updated, and is scheduled to be updated every {0}.\n\nClick to change update interval.</ColonyManagerRedux.ManagerNeverUpdatedTooltip>
-    <ColonyManagerRedux.ManagerLastUpdateTooltip>This job was last updated {0} ago, and is scheduled to be updated every {1}.\n\nClick to change update interval.</ColonyManagerRedux.ManagerLastUpdateTooltip>
+    <ColonyManagerRedux.ManagerNeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.ManagerNeverUpdatedTooltip>
+    <ColonyManagerRedux.ManagerLastUpdateTooltip>This job was last updated {0} ago.</ColonyManagerRedux.ManagerLastUpdateTooltip>
+    <ColonyManagerRedux.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.ScheduledToBeUpdatedTooltip>
+    <ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>Click to change update interval.</ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>
     <ColonyManagerRedux.ManagerOrderUp>Increase job priority</ColonyManagerRedux.ManagerOrderUp>
     <ColonyManagerRedux.ManagerOrderDown>Decrease job priority</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>Maximum priority</ColonyManagerRedux.ManagerOrderTop>
     <ColonyManagerRedux.ManagerOrderBottom>Minimum priority</ColonyManagerRedux.ManagerOrderBottom>
-    <multiple>[multiple]</multiple>
+    <ColonyManagerRedux.Multiple>[multiple]</ColonyManagerRedux.Multiple>
     <ColonyManagerRedux.ManagerThreshold>Threshold</ColonyManagerRedux.ManagerThreshold>
     <ColonyManagerRedux.ManagerCheckReachability>Check if targets are reachable</ColonyManagerRedux.ManagerCheckReachability>
     <ColonyManagerRedux.ManagerCheckReachability.Tip>Calculate if a path to the target exists (for any pawn) before creating a designation.</ColonyManagerRedux.ManagerCheckReachability.Tip>
@@ -71,14 +73,16 @@
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>Import &amp; Export</ColonyManagerRedux.ManagerImportExport>
-    <ColonyManagerRedux.ManagerCurrentJobs>Current Jobs:</ColonyManagerRedux.ManagerCurrentJobs>
+    <ColonyManagerRedux.SelectExportJobs>Select which jobs to export</ColonyManagerRedux.SelectExportJobs>
+    <ColonyManagerRedux.SelectImportJobs>Select which jobs to import</ColonyManagerRedux.SelectImportJobs>
     <ColonyManagerRedux.ManagerExport>Export</ColonyManagerRedux.ManagerExport>
     <ColonyManagerRedux.ManagerConfirmOverwrite>{0} exists.\n\nAre you sure you want to overwrite?</ColonyManagerRedux.ManagerConfirmOverwrite>
     <ColonyManagerRedux.ManagerJobsExported>{0} jobs exported</ColonyManagerRedux.ManagerJobsExported>
     <ColonyManagerRedux.ManagerJobsImported>{0} jobs imported</ColonyManagerRedux.ManagerJobsImported>
-    <ColonyManagerRedux.ManagerInvalidJobsDeleted>{0} invalid jobs removed</ColonyManagerRedux.ManagerInvalidJobsDeleted>
     <ColonyManagerRedux.ManagerImport>Import</ColonyManagerRedux.ManagerImport>
     <ColonyManagerRedux.ManagerNoSaves>No exports found.</ColonyManagerRedux.ManagerNoSaves>
+    <ColonyManagerRedux.DeleteThisManagerFile>Delete this export file.</ColonyManagerRedux.DeleteThisManagerFile>
+    <ColonyManagerRedux.InvalidJob>Cannot import job '{0}' because it is invalid.</ColonyManagerRedux.InvalidJob>
 
     <!-- Hunting Tab -->
     <ColonyManagerRedux.Hunting.Hunting>Hunting</ColonyManagerRedux.Hunting.Hunting>

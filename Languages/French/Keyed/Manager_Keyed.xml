@@ -22,7 +22,7 @@
     <ColonyManagerRedux.ManagerOrderDown>Diminuer la priorité de travail</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>Priorité maximale</ColonyManagerRedux.ManagerOrderTop>
     <ColonyManagerRedux.ManagerOrderBottom>Priorité minimale</ColonyManagerRedux.ManagerOrderBottom>
-    <multiple>[multiple]</multiple>
+    <ColonyManagerRedux.Multiple>[multiple]</ColonyManagerRedux.Multiple>
     <ColonyManagerRedux.ManagerThreshold>Seuil</ColonyManagerRedux.ManagerThreshold>
     <ColonyManagerRedux.ManagerCheckReachability>Vérifie si la cible est atteignable</ColonyManagerRedux.ManagerCheckReachability>
     <ColonyManagerRedux.ManagerCheckReachability.Tip>Calcule si un trajet vers la cible esty possible (pour n'importe quel colon) avant de créer une désignation.</ColonyManagerRedux.ManagerCheckReachability.Tip>

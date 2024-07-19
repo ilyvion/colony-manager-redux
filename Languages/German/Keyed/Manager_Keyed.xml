@@ -22,7 +22,7 @@
     <ColonyManagerRedux.ManagerOrderDown>Senke Auftragspriorität</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>Maximale Priorität</ColonyManagerRedux.ManagerOrderTop>
     <ColonyManagerRedux.ManagerOrderBottom>Minimale Priorität</ColonyManagerRedux.ManagerOrderBottom>
-    <multiple>[multiple]</multiple>
+    <ColonyManagerRedux.Multiple>[multiple]</ColonyManagerRedux.Multiple>
     <ColonyManagerRedux.ManagerThreshold>Schwellwert</ColonyManagerRedux.ManagerThreshold>
     <ColonyManagerRedux.ManagerCheckReachability>Prüfe ob die Ziele erreichbar sind</ColonyManagerRedux.ManagerCheckReachability>
     <ColonyManagerRedux.ManagerCheckReachability.Tip>Berechnet bevor es einen Auftrag erstellt, ob ein Pfad zum Ziel (für einen Kolonisten) existiert.</ColonyManagerRedux.ManagerCheckReachability.Tip>

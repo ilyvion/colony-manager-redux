@@ -7,6 +7,7 @@ using Verse.AI;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
     public ManagerDef def;
@@ -88,6 +89,28 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
     }
 
+    public virtual void PreExport()
+    {
+    }
+
+    public virtual void PostExport()
+    {
+    }
+
+    public virtual void PreImport()
+    {
+    }
+
+    public virtual void PostImport()
+    {
+        IsManaged = true;
+        if (!ColonyManagerReduxMod.Instance.Settings.NewJobsAreImmediatelyOutdated)
+        {
+            // set last updated to current time
+            Touch();
+        }
+    }
+
     public virtual void ExposeData()
     {
         if (Scribe.mode == LoadSaveMode.Saving)
@@ -96,28 +119,39 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
 
         Scribe_Defs.Look(ref def, "def");
-        Scribe_Values.Look(ref loadID, "loadID", 0);
-        Scribe_References.Look(ref Manager, "manager");
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
-        Scribe_Values.Look(ref LastActionTick, "lastActionTick");
-        Scribe_Values.Look(ref Priority, "priority");
         Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
-        Scribe_Values.Look(ref _isSuspended, "isSuspended");
 
-        if (Scribe.mode == LoadSaveMode.PostLoadInit || Manager.Mode == Manager.Modes.ImportExport)
+        if (Manager.Mode == Manager.ScribingMode.Normal)
         {
-            // must be true if it was saved.
-            IsManaged = true;
+            Scribe_Values.Look(ref loadID, "loadID", 0);
+            Scribe_References.Look(ref Manager, "manager");
+            Scribe_Values.Look(ref LastActionTick, "lastActionTick");
+            Scribe_Values.Look(ref Priority, "priority");
+            Scribe_Values.Look(ref _isSuspended, "isSuspended");
 
-            try
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                _updateInterval = Utilities.UpdateIntervalOptions.Find(ui => ui.ticks == _updateIntervalScribe) ??
-                                  ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
+                // must be true if it was saved.
+                IsManaged = true;
+
+                try
+                {
+                    _updateInterval = Utilities.UpdateIntervalOptions.Find(ui => ui.ticks == _updateIntervalScribe) ??
+                        ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
+                }
+                catch
+                {
+                    _updateInterval = ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
+                }
             }
-            catch
+        }
+        else if (Manager.Mode == Manager.ScribingMode.Transfer)
+        {
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
-                _updateInterval = ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
+                loadID = Manager.GetNextManagerJobID();
             }
         }
     }

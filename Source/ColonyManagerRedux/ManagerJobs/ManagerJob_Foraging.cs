@@ -53,6 +53,14 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
         }
     }
 
+    public override void PostImport()
+    {
+        base.PostImport();
+        trigger.job = this;
+
+        AllowedPlants.RemoveWhere(p => !AllPlants.Contains(p));
+    }
+
     public override bool IsCompleted => !trigger.State;
 
     public int CurrentDesignatedCount
@@ -153,18 +161,19 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
         base.ExposeData();
 
         // settings, references first!
-        Scribe_References.Look(ref ForagingArea, "foragingArea");
         Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
-        if (Manager.Mode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.ScribingMode.Normal)
         {
+            Scribe_References.Look(ref ForagingArea, "foragingArea");
+
             // scribe history
             Scribe_Deep.Look(ref history, "history");
-        }
 
-        Utilities.Scribe_Designations(ref _designations, Manager);
+            Utilities.Scribe_Designations(ref _designations, Manager);
+        }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {

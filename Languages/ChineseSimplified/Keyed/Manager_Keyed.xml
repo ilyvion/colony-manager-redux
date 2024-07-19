@@ -21,7 +21,7 @@
     <ColonyManagerRedux.ManagerOrderDown>降低工作优先级</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>最高优先级</ColonyManagerRedux.ManagerOrderTop>
     <ColonyManagerRedux.ManagerOrderBottom>最低优先级</ColonyManagerRedux.ManagerOrderBottom>
-    <multiple>[多种]</multiple>
+    <ColonyManagerRedux.Multiple>[多种]</ColonyManagerRedux.Multiple>
 
     <!-- time periods for update interval -->
     <ColonyManagerRedux.ManagerDefaultUpdateInterval>默认更新时间间隔</ColonyManagerRedux.ManagerDefaultUpdateInterval>

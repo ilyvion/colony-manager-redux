@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_ImportExportManager</defName>
+        <order>1000</order>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_ImportExport</managerTabClass>
+        <iconArea>Right</iconArea>
+        <iconPath>UI/Icons/CMR_ImportExport</iconPath>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

@@ -144,7 +144,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
 
             jobRect.width -= 50f;
 
-            DrawListEntry(job, jobRect, false);
+            DrawListEntry(job, jobRect, ListEntryDrawMode.Local);
             if (Widgets.ButtonInvisible(jobRect))
             {
                 Selected = job;
@@ -197,7 +197,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
         // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
 
@@ -220,19 +220,19 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         }
         else
         {
-            text += "multiple".Translate().Resolve().Italic();
+            text += "ColonyManagerRedux.Multiple".Translate().Resolve().Italic();
         }
 
         // do the drawing
         GUI.BeginGroup(rect);
 
         // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft, margin: Margin);
+        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft);
 
         // if the bill has a manager job, give some more info.
         if (active)
         {
-            foragingJob.DrawStatusForListEntry(statusRect, foragingJob.Trigger);
+            foragingJob.DrawStatusForListEntry(statusRect, foragingJob.Trigger, mode == ListEntryDrawMode.Export);
         }
 
         GUI.EndGroup();

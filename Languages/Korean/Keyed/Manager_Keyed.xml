@@ -22,7 +22,7 @@
     <ColonyManagerRedux.ManagerOrderDown>작업 우선순위 감소</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>최대 우선순위</ColonyManagerRedux.ManagerOrderTop>
     <ColonyManagerRedux.ManagerOrderBottom>최소 우선순위</ColonyManagerRedux.ManagerOrderBottom>
-    <multiple>[다중]</multiple>
+    <ColonyManagerRedux.Multiple>[다중]</ColonyManagerRedux.Multiple>
     <ColonyManagerRedux.ManagerThreshold>임계값</ColonyManagerRedux.ManagerThreshold>
     <ColonyManagerRedux.ManagerCheckReachability>목표에 도달할 수 있는지 확인</ColonyManagerRedux.ManagerCheckReachability>
     <ColonyManagerRedux.ManagerCheckReachability.Tip>목표를 지정하기 전에 목표에 도달할 수 있는 경로가 존재하는지 (아무 림에 대해) 계산합니다.</ColonyManagerRedux.ManagerCheckReachability.Tip>

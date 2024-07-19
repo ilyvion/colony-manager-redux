@@ -22,7 +22,7 @@
     <ColonyManagerRedux.ManagerOrderDown>Снизить приоритет</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>Максимальный приоритет</ColonyManagerRedux.ManagerOrderTop>
     <ColonyManagerRedux.ManagerOrderBottom>Минимальный приоритет</ColonyManagerRedux.ManagerOrderBottom>
-    <multiple>[многократно]</multiple>
+    <ColonyManagerRedux.Multiple>[многократно]</ColonyManagerRedux.Multiple>
     <ColonyManagerRedux.ManagerThreshold>Лимит</ColonyManagerRedux.ManagerThreshold>
     <ColonyManagerRedux.ManagerCheckReachability>Проверять доступность цели</ColonyManagerRedux.ManagerCheckReachability>
     <ColonyManagerRedux.ManagerCheckReachability.Tip>Вычислять наличие пути к цели(для любой пешки) перед созданием задания.</ColonyManagerRedux.ManagerCheckReachability.Tip>

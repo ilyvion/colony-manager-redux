@@ -7,15 +7,15 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class Manager : MapComponent, ILoadReferenceable
 {
-    public enum Modes
+    public enum ScribingMode
     {
-        ImportExport,
+        Transfer,
         Normal
     }
 
     public static bool helpShown;
 
-    public static Modes Mode = Modes.Normal;
+    public static ScribingMode Mode = ScribingMode.Normal;
 
     public List<ManagerTab> tabs;
 

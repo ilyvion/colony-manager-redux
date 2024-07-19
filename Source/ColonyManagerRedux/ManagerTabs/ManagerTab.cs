@@ -42,10 +42,17 @@ public abstract class ManagerTab(Manager manager)
 
     public abstract void DoWindowContents(Rect canvas);
 
+    public enum ListEntryDrawMode
+    {
+        Local,
+        Overview,
+        Export
+    }
+
     /// <summary>
     /// Used by the
     /// </summary>
-    public virtual void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    public virtual void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
     }
 

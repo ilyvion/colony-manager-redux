@@ -50,7 +50,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         DoContent(contentCanvas);
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
         // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
 
@@ -73,7 +73,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         // if the bill has a manager job, give some more info.
         if (active)
         {
-            livestockJob.DrawStatusForListEntry(statusRect, livestockJob.Trigger);
+            livestockJob.DrawStatusForListEntry(statusRect, livestockJob.Trigger, mode == ListEntryDrawMode.Export);
         }
 
         GUI.EndGroup();
@@ -787,7 +787,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
             }
 
             // draw label
-            DrawListEntry(currentJobs[i], row, false);
+            DrawListEntry(currentJobs[i], row, ListEntryDrawMode.Local);
 
             // button
             if (Widgets.ButtonInvisible(row))

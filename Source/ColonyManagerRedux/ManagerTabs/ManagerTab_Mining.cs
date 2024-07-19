@@ -73,7 +73,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, bool overview = true, bool active = true)
+    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
         // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
         //var shownTargets = overview ? 4 : 3; // there's more space on the overview
@@ -89,25 +89,30 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         // create label string
         var text = Label + "\n";
         var subtext = string.Join(", ", miningJob.Targets);
+        if (miningJob.DeconstructBuildings)
+        {
+            subtext += "\n\n" + string.Join(", ", miningJob.AllowedBuildings
+                .Select(pk => pk.LabelCap.Resolve()));
+        }
         if (subtext.Fits(labelRect))
         {
             text += subtext.Italic();
         }
         else
         {
-            text += "multiple".Translate().Italic();
+            text += "ColonyManagerRedux.Multiple".Translate().Italic();
         }
 
         // do the drawing
         GUI.BeginGroup(rect);
 
         // draw label
-        Widgets_Labels.Label(labelRect, text, subtext.NullOrEmpty() ? "<none>" : subtext, TextAnchor.MiddleLeft, margin: Margin);
+        Widgets_Labels.Label(labelRect, text, subtext.NullOrEmpty() ? "<none>" : subtext, TextAnchor.MiddleLeft);
 
         // if the bill has a manager job, give some more info.
         if (active)
         {
-            miningJob.DrawStatusForListEntry(statusRect, miningJob.Trigger);
+            miningJob.DrawStatusForListEntry(statusRect, miningJob.Trigger, mode == ListEntryDrawMode.Export);
         }
 
         GUI.EndGroup();
@@ -439,7 +444,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
 
             jobRect.width -= 50f;
 
-            DrawListEntry(job, jobRect, false);
+            DrawListEntry(job, jobRect, ListEntryDrawMode.Local);
             if (Widgets.ButtonInvisible(jobRect))
             {
                 Selected = job;

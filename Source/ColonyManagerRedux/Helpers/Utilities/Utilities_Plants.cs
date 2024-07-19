@@ -12,8 +12,8 @@ public static class Utilities_Plants
 
             // if !clearArea, remove things that do not yield wood
             .Where(td => clearArea || (td.plant.harvestTag == "Wood" ||
-                                    td.plant.harvestedThingDef == ThingDefOf.WoodLog) &&
-                                    td.plant.harvestYield > 0)
+                td.plant.harvestedThingDef == ThingDefOf.WoodLog) &&
+                td.plant.harvestYield > 0)
             .Distinct();
     }
 
@@ -23,8 +23,8 @@ public static class Utilities_Plants
 
             // that yield something that is not wood
             .Where(plant => plant.plant.harvestYield > 0 &&
-                            plant.plant.harvestedThingDef != null &&
-                            plant.plant.harvestTag != "Wood")
+                plant.plant.harvestedThingDef != null &&
+                plant.plant.harvestTag != "Wood")
             .Distinct();
     }
 
@@ -42,9 +42,9 @@ public static class Utilities_Plants
             // and anything on the map that is not in a plant zone/planter
             .Concat(map.listerThings.AllThings.OfType<Plant>()
                 .Where(p => p.Spawned &&
-                            map.zoneManager.ZoneAt(p.Position) is not IPlantToGrowSettable &&
-                            map.thingGrid.ThingsAt(p.Position)
-                                .FirstOrDefault(t => t is Building_PlantGrower) == null)
+                    map.zoneManager.ZoneAt(p.Position) is not IPlantToGrowSettable &&
+                    map.thingGrid.ThingsAt(p.Position)
+                        .FirstOrDefault(t => t is Building_PlantGrower) == null)
                 .Select(p => p.def));
     }
 }

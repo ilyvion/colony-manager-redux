@@ -21,16 +21,33 @@ public class UpdateInterval(int ticks, string label)
         }
     }
 
-    public void Draw(Rect canvas, ManagerJob job)
+    public void Draw(Rect canvas, ManagerJob job, bool exporting)
     {
-        Text.Anchor = TextAnchor.MiddleCenter;
+        string lastUpdateTooltip;
+        var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;
+        if (exporting)
+        {
+            if (nextUpdate < 12)
+            {
+                var nextUpdateHandle = new ClockHandle(nextUpdate, GenUI.MouseoverColor);
+                var progressHandle = new ClockHandle(0f, Color.white);
+                Clock.Draw(canvas.ContractedBy(4f), nextUpdateHandle, progressHandle);
+            }
+            else
+            {
+                var nextUpdateMarker =
+                    new CalendarMarker(nextUpdate / GenDate.HoursPerDay, GenUI.MouseoverColor, false);
+                var progressMarker = new CalendarMarker(0f, Color.white, true);
+                Calendar.Draw(canvas.ContractedBy(2f), progressMarker, nextUpdateMarker);
+            }
 
-        if (job.LastActionTick != -1)
+            lastUpdateTooltip = "";
+        }
+        else if (job.LastActionTick != -1)
         {
             // how many hours have passed since the last update?
             var lastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
             var progress = (float)lastUpdate / GenDate.TicksPerHour;
-            var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;
 
             // how far over time are we? Draw redder if further over time.
             var progressColour = progress < nextUpdate
@@ -40,8 +57,7 @@ public class UpdateInterval(int ticks, string label)
             if (nextUpdate < 12 && progress < 12)
             {
                 var nextUpdateHandle = new ClockHandle(nextUpdate, GenUI.MouseoverColor);
-                var progressHandle =
-                    new ClockHandle(progress, progressColour);
+                var progressHandle = new ClockHandle(progress, progressColour);
                 Clock.Draw(canvas.ContractedBy(4f), nextUpdateHandle, progressHandle);
             }
             else
@@ -52,10 +68,8 @@ public class UpdateInterval(int ticks, string label)
                 Calendar.Draw(canvas.ContractedBy(2f), progressMarker, nextUpdateMarker);
             }
 
-            TooltipHandler.TipRegion(canvas,
-                "ColonyManagerRedux.ManagerLastUpdateTooltip".Translate(
-                    lastUpdate.TimeString(),
-                    job.UpdateInterval.ticks.TimeString()));
+            lastUpdateTooltip = "ColonyManagerRedux.ManagerLastUpdateTooltip".Translate(
+                lastUpdate.TimeString()) + " ";
         }
         else
         {
@@ -67,21 +81,31 @@ public class UpdateInterval(int ticks, string label)
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.LowerLeft;
 
-            TooltipHandler.TipRegion(canvas,
-                "ColonyManagerRedux.ManagerNeverUpdatedTooltip".Translate(
-                    job.UpdateInterval.ticks.TimeString()));
+            lastUpdateTooltip = "ColonyManagerRedux.ManagerNeverUpdatedTooltip".Translate() + " ";
         }
 
-        Widgets.DrawHighlightIfMouseover(canvas);
-        if (Widgets.ButtonInvisible(canvas))
-        {
-            var options = new List<FloatMenuOption>();
-            foreach (var interval in Utilities.UpdateIntervalOptions)
-            {
-                options.Add(new FloatMenuOption(interval.label, () => job.UpdateInterval = interval));
-            }
+        lastUpdateTooltip += "ColonyManagerRedux.ScheduledToBeUpdatedTooltip".Translate(
+            job.UpdateInterval.ticks.TimeString());
 
-            Find.WindowStack.Add(new FloatMenu(options));
+        if (!exporting)
+        {
+            lastUpdateTooltip += "\n\n" + "ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip".Translate();
+        }
+        TooltipHandler.TipRegion(canvas, lastUpdateTooltip);
+
+        if (!exporting)
+        {
+            Widgets.DrawHighlightIfMouseover(canvas);
+            if (Widgets.ButtonInvisible(canvas))
+            {
+                var options = new List<FloatMenuOption>();
+                foreach (var interval in Utilities.UpdateIntervalOptions)
+                {
+                    options.Add(new FloatMenuOption(interval.label, () => job.UpdateInterval = interval));
+                }
+
+                Find.WindowStack.Add(new FloatMenu(options));
+            }
         }
     }
 }

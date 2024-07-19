@@ -45,12 +45,9 @@ public class ManagerJob_Livestock : ManagerJob
 
     static ManagerJob_Livestock()
     {
-        SetWanted_MI =
-            typeof(Pawn_TrainingTracker).GetMethod("SetWanted", BindingFlags.NonPublic | BindingFlags.Instance);
-        if (SetWanted_MI == null)
-        {
+        SetWanted_MI = typeof(Pawn_TrainingTracker)
+            .GetMethod("SetWanted", BindingFlags.NonPublic | BindingFlags.Instance) ??
             throw new NullReferenceException("Could not find Pawn_TrainingTracker.SetWanted()");
-        }
     }
 
     public ManagerJob_Livestock(Manager manager) : base(manager)
@@ -144,6 +141,12 @@ public class ManagerJob_Livestock : ManagerJob
             FollowTraining = livestockSettings.DefaultFollowTraining;
             Trainers = livestockSettings.DefaultTrainerMode;
         }
+    }
+
+    public override void PostImport()
+    {
+        base.PostImport();
+        Trigger.job = this;
     }
 
     public ManagerJob_Livestock(Manager manager, PawnKindDef pawnKindDef) : this(manager) // set defaults
@@ -323,23 +326,7 @@ public class ManagerJob_Livestock : ManagerJob
     {
         base.ExposeData();
 
-        // settings, references first!
-        Scribe_References.Look(ref TameArea, "tameArea");
-        Scribe_References.Look(ref SlaughterArea, "slaughterArea");
-        Scribe_References.Look(ref MilkArea, "milkArea");
-        Scribe_References.Look(ref ShearArea, "shearArea");
-        Scribe_References.Look(ref TrainingArea, "trainingArea");
-        Scribe_References.Look(ref Master, "master");
-        Scribe_References.Look(ref Trainer, "trainer");
-        foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
-        {
-            Scribe_References.Look(
-                ref RestrictArea[(int)ageAndSex],
-                $"{ageAndSex.ToString().UncapitalizeFirst()}AreaRestriction");
-        }
         Scribe_Deep.Look(ref Trigger, "trigger", this);
-        Scribe_Deep.Look(ref Training, "training");
-        Scribe_Deep.Look(ref History, "history");
         Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);
         Scribe_Values.Look(ref ButcherTrained, "butcherTrained");
         Scribe_Values.Look(ref ButcherPregnant, "butcherPregnant");
@@ -358,19 +345,40 @@ public class ManagerJob_Livestock : ManagerJob
         Scribe_Values.Look(ref Trainers, "trainers");
         Scribe_Values.Look(ref RespectBonds, "respectBonds", true);
 
-        // our current designations
-        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        if (Manager.Mode == Manager.ScribingMode.Normal)
         {
-            // populate with all designations.
-            _designations.AddRange(
-                Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
-                    .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
-            _designations.AddRange(
-                Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
-                    .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
-        }
+            foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
+            {
+                Scribe_References.Look(
+                    ref RestrictArea[(int)ageAndSex],
+                    $"{ageAndSex.ToString().UncapitalizeFirst()}AreaRestriction");
+            }
 
-        Utilities.Scribe_Designations(ref _designations, Manager);
+            Scribe_References.Look(ref TameArea, "tameArea");
+            Scribe_References.Look(ref SlaughterArea, "slaughterArea");
+            Scribe_References.Look(ref MilkArea, "milkArea");
+            Scribe_References.Look(ref ShearArea, "shearArea");
+            Scribe_References.Look(ref TrainingArea, "trainingArea");
+            Scribe_References.Look(ref Master, "master");
+            Scribe_References.Look(ref Trainer, "trainer");
+
+            Scribe_Deep.Look(ref Training, "training");
+            Scribe_Deep.Look(ref History, "history");
+
+            Utilities.Scribe_Designations(ref _designations, Manager);
+
+            // our current designations
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                // populate with all designations.
+                _designations.AddRange(
+                    Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
+                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
+                _designations.AddRange(
+                    Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
+                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
+            }
+        }
     }
 
     public Pawn? GetMaster(Pawn animal, MasterMode mode)

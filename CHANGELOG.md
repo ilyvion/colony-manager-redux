@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Job designations are now saved in the save file so job histories don't get messed up each time the game is loaded.
 -   Every non-game-specific aspect (specific pawns, specific storage areas, etc.) of a manager job can now have its default values configured in the mod's settings.
+-   Reinvented/reimplemented import/export feature that existed in a very early version of the original Fluffy's Colony Manager.
 
 ### Changed
 

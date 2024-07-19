@@ -71,6 +71,14 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         }
     }
 
+    public override void PostImport()
+    {
+        base.PostImport();
+        trigger.job = this;
+
+        AllowedAnimals.RemoveWhere(a => !AllAnimals.Contains(a));
+    }
+
     public bool AllowHumanLikeMeat
     {
         get => _allowHumanLikeMeat;
@@ -196,9 +204,6 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         // scribe base things
         base.ExposeData();
 
-        // references first, reasons
-        Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
-
         // must be after references, because reasons.
         Scribe_Deep.Look(ref trigger, "trigger", this);
 
@@ -209,12 +214,15 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         Scribe_Values.Look(ref _allowInsectMeat, "allowInsectMeat");
 
         // don't store history in import/export mode.
-        if (Manager.Mode == Manager.Modes.Normal)
+        if (Manager.Mode == Manager.ScribingMode.Normal)
         {
-            Scribe_Deep.Look(ref history, "history");
-        }
+            // references first, reasons
+            Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
 
-        Utilities.Scribe_Designations(ref _designations, Manager);
+            Scribe_Deep.Look(ref history, "history");
+
+            Utilities.Scribe_Designations(ref _designations, Manager);
+        }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {

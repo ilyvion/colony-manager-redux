@@ -656,7 +656,7 @@
 //            if ( subtext.Fits( labelRect ) )
 //                text += subtext.Italic();
 //            else
-//                text += "multiple".Translate().Italic();
+//                text += "ColonyManagerRedux.Multiple".Translate().Italic();
 
 //            // do the drawing
 //            GUI.BeginGroup( rect );

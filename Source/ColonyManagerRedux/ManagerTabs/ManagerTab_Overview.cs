@@ -116,7 +116,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 var jobRect = row;
                 jobRect.width -= LargeListEntryHeight + LargeIconSize + 2 * Margin; // - (a + b)?
                 jobRect.x += LargeIconSize + 2 * Margin;
-                job.Tab.DrawListEntry(job, jobRect);
+                job.Tab.DrawListEntry(job, jobRect, ListEntryDrawMode.Overview);
                 Widgets.DrawHighlightIfMouseover(row);
                 if (Widgets.ButtonInvisible(jobRect))
                 {
