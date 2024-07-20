@@ -1,5 +1,6 @@
 ﻿// Triplet.cs
 // Copyright Karel Kroeze, 2017-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
@@ -20,24 +21,15 @@ public readonly struct Triplet<T1, T2, T3>(T1 first, T2 second, T3 third) : IEqu
 
     public override bool Equals(object obj)
     {
-        if (ReferenceEquals(null, obj))
+        if (obj is null)
         {
             return false;
         }
 
-        return obj is Triplet<T1, T2, T3> && Equals((Triplet<T1, T2, T3>)obj);
+        return obj is Triplet<T1, T2, T3> triplet && Equals(triplet);
     }
 
-    public override int GetHashCode()
-    {
-        unchecked
-        {
-            var hashCode = EqualityComparer<T1>.Default.GetHashCode(First);
-            hashCode = (hashCode * 397) ^ EqualityComparer<T2>.Default.GetHashCode(Second);
-            hashCode = (hashCode * 397) ^ EqualityComparer<T3>.Default.GetHashCode(Third);
-            return hashCode;
-        }
-    }
+    public override int GetHashCode() => HashCode.Combine(First, Second, Third);
 
     public static bool operator ==(Triplet<T1, T2, T3> left, Triplet<T1, T2, T3> right)
     {
