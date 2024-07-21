@@ -27,7 +27,7 @@ public static class Resources
         BarShader,
         Refresh,
         Stopwatch,
-        Claw,
+        ClawIcon,
 
         // livestock header icons
         WoolIcon,
@@ -38,7 +38,10 @@ public static class Resources
         FemaleIcon,
         MaleIcon,
         MeatIcon,
-        UnkownIcon;
+        UnkownIcon,
+        TrainableNoneIcon,
+        TrainableIntermediateIcon,
+        TrainableAdvancedIcon;
 
     public static readonly Color Orange, SlightlyDarkBackgroundColour;
 
@@ -68,7 +71,7 @@ public static class Resources
         BarShader = ContentFinder<Texture2D>.Get("UI/Misc/CMR_BarShader");
         Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh");
         Stopwatch = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stopwatch");
-        Claw = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw");
+        ClawIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw");
 
         // livestock header icons
         WoolIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_wool");
@@ -80,6 +83,9 @@ public static class Resources
         MaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_male");
         MeatIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_meat");
         UnkownIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_unknown");
+        TrainableNoneIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_none");
+        TrainableIntermediateIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_intermediate");
+        TrainableAdvancedIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_advanced");
     }
 
     public static Texture2D LifeStages(int lifeStageIndex)

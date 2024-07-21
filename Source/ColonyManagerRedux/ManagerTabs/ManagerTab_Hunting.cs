@@ -280,7 +280,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
                     new Rect(rowRect.xMax - 2 * (SmallIconSize + Margin) - Margin,
                         rowRect.yMin + (rowRect.height - SmallIconSize) / 2,
                         SmallIconSize, SmallIconSize),
-                    Resources.Claw);
+                    Resources.ClawIcon);
                 GUI.color = color;
             }
 

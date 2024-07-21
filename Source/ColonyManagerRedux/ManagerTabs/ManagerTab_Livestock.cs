@@ -97,7 +97,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
             if (visible && report.Accepted)
             {
                 var checkOn = job.Training[keys[i]];
-                DrawToggle(cell, keys[i].LabelCap, keys[i].description, ref checkOn, size: 16f,
+                DrawToggle(cell, keys[i].LabelCap, keys[i].description, ref checkOn, size: SmallIconSize,
                             font: GameFont.Tiny, wrap: false);
                 job.Training[keys[i]] = checkOn;
             }
@@ -684,6 +684,8 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
         for (var i = 0; i < _availablePawnKinds.Count; i++)
         {
+            PawnKindDef animalDef = _availablePawnKinds[i];
+
             // set up rect
             var row = new Rect(0f, LargeListEntryHeight * i, viewRect.width, LargeListEntryHeight);
 
@@ -694,23 +696,69 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
                 Widgets.DrawAltRect(row);
             }
 
-            if (_availablePawnKinds[i] == _selectedAvailable)
+            if (animalDef == _selectedAvailable)
             {
                 Widgets.DrawHighlightSelected(row);
             }
 
+            // draw trainability icon
+            var iconRect = new Rect(row)
+            {
+                width = SmallIconSize,
+                height = SmallIconSize
+            };
+            iconRect.y += LargeListEntryHeight / 2 - SmallIconSize / 2;
+            iconRect.x = viewRect.width - Margin - SmallIconSize;
+            if (animalDef.RaceProps.trainability == TrainabilityDefOf.Advanced)
+            {
+                GUI.DrawTexture(iconRect, Resources.TrainableAdvancedIcon);
+            }
+            else if (animalDef.RaceProps.trainability == TrainabilityDefOf.Intermediate)
+            {
+                GUI.DrawTexture(iconRect, Resources.TrainableIntermediateIcon);
+            }
+            else if (animalDef.RaceProps.trainability == TrainabilityDefOf.None)
+            {
+                GUI.DrawTexture(iconRect, Resources.TrainableNoneIcon);
+            }
+            else
+            {
+                GUI.DrawTexture(iconRect, Resources.UnkownIcon);
+            }
+            TooltipHandler.TipRegion(iconRect,
+                "Trainability".Translate() + ": " + animalDef.RaceProps.trainability.LabelCap);
+
+            // if aggressive, draw warning icon
+            iconRect.x -= Margin + SmallIconSize;
+            if (animalDef.RaceProps.manhunterOnTameFailChance >= 0.1)
+            {
+                var color = GUI.color;
+                if (animalDef.RaceProps.manhunterOnTameFailChance > 0.25)
+                {
+                    GUI.color = Color.red;
+                }
+                else
+                {
+                    GUI.color = Resources.Orange;
+                }
+
+                GUI.DrawTexture(iconRect, Resources.ClawIcon);
+                GUI.color = color;
+                TooltipHandler.TipRegion(iconRect, I18n.Aggressiveness(animalDef.RaceProps.manhunterOnTameFailChance));
+            }
+
             // draw label
-            var label = _availablePawnKinds[i].LabelCap + "\n<i>" +
+            var label = animalDef.LabelCap + "\n<i>" +
                 "ColonyManagerRedux.Livestock.TameWildCount".Translate(
-                    _availablePawnKinds[i].GetTame(manager).Count(),
-                    _availablePawnKinds[i].GetWild(manager).Count()) + "</i>";
+                    animalDef.GetTame(manager).Count(),
+                    animalDef.GetWild(manager).Count()) + "</i>";
             Label(row, label, TextAnchor.MiddleLeft, margin: Margin * 2);
 
             // button
             if (Widgets.ButtonInvisible(row))
             {
-                _selectedAvailable = _availablePawnKinds[i];
-                Selected = MakeNewJob(_availablePawnKinds[i]);
+                _selectedAvailable = animalDef;
+                Selected = MakeNewJob(animalDef);
             }
         }
 
