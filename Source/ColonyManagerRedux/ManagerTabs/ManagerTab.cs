@@ -69,7 +69,19 @@ public abstract class ManagerTab(Manager manager)
     {
         if (CreateNewSelectedJobOnMake)
         {
-            Selected = MakeNewJob();
+            if (Scribe.mode == LoadSaveMode.LoadingVars)
+            {
+                // Postpone creation until after LoadingVars, since it's too early in the scribing
+                // process for things like defs to be ready yet.
+                LongEventHandler.ExecuteWhenFinished(() =>
+                {
+                    Selected = MakeNewJob();
+                });
+            }
+            else
+            {
+                Selected = MakeNewJob();
+            }
         }
     }
 

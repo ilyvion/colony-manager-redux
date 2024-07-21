@@ -13,17 +13,6 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
     private float _leftRowHeight;
     private Vector2 _scrollPosition = Vector2.zero;
 
-    public override void PostOpen()
-    {
-        if (SelectedForagingJob.Trigger.ParentFilter.AllowedDefCount == 0)
-        {
-            // HACK: This sucks, but for whatever reason, it seems to be necessary for the
-            // Trigger to work right after a game load. Anything else I tried failed, like
-            // using LoadSaveMode.PostLoadInit in ExposeData.
-            Selected = MakeNewJob();
-        }
-    }
-
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
     public ManagerJob_Foraging SelectedForagingJob => (ManagerJob_Foraging)Selected!;
