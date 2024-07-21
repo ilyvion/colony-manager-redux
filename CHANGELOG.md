@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   History now records targets as well, so they render with changes over time just like values do
 -   The inline legend in history graphs are now interactive and can be clicked to show/hide that chapter or be right-clicked to hide every chapter but the right-clicked one.
 -   Added trainability icons and aggression icons to the available livestock animal list.
+-   When a job is selected in the overview tab, show the workers for that job in the work panel.
 
 ### Changed
 

@@ -14,13 +14,13 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
     private float _overviewHeight = 9999f;
     private Vector2 _overviewScrollPosition = Vector2.zero;
     private Vector2 _workersScrollPosition = Vector2.zero;
-    private WorkTypeDef? _workType;
     private List<Pawn> Workers = [];
 
     public override string Label { get; } = "ColonyManagerRedux.ManagerOverview".Translate();
 
     private SkillDef? SkillDef { get; set; }
 
+    private WorkTypeDef? _workType;
     private WorkTypeDef WorkTypeDef
     {
         get
@@ -34,6 +34,11 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
             _workType = value;
             RefreshWorkers();
         }
+    }
+
+    protected override void PostSelect()
+    {
+        WorkTypeDef = Selected?.WorkTypeDef ?? ManagerWorkTypeDefOf.Managing;
     }
 
     public override void DoWindowContents(Rect canvas)
@@ -121,7 +126,14 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 Widgets.DrawHighlightIfMouseover(row);
                 if (Widgets.ButtonInvisible(jobRect))
                 {
-                    Selected = job;
+                    if (Selected != job)
+                    {
+                        Selected = job;
+                    }
+                    else
+                    {
+                        Selected = null;
+                    }
                 }
 
                 cur.y += 50f;
