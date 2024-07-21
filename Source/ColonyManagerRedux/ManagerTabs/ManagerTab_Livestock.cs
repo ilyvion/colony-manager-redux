@@ -79,12 +79,6 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         GUI.EndGroup();
     }
 
-    public override void DrawOverviewDetails(ManagerJob job, Rect rect)
-    {
-        var livestockJob = (ManagerJob_Livestock)job;
-        livestockJob.History.DrawPlot(rect);
-    }
-
     public void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect)
     {
         var cellCount = job.Training.Count;

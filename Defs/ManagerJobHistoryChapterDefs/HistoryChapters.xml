@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryStock</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.ColonyManager.HistoryStock</translationKey>
+        </historyLabel>
+        <color>(1, 1, 1)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryDesignated</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.ColonyManager.HistoryDesignated</translationKey>
+        </historyLabel>
+        <color>(.5, .5, .5)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryCorpses</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.ColonyManager.HistoryCorpses</translationKey>
+        </historyLabel>
+        <color>(.7, .7, .7)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryChunks</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.ColonyManager.HistoryChunks</translationKey>
+        </historyLabel>
+        <color>(.7, .7, .7)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryAdultFemale</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.AgeAndSex.AdultFemale</translationKey>
+        </historyLabel>
+        <color>(1, 0, 0)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryAdultMale</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.AgeAndSex.AdultMale</translationKey>
+        </historyLabel>
+        <color>(0, 1, 0)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryJuvenileFemale</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.AgeAndSex.JuvenileFemale</translationKey>
+        </historyLabel>
+        <color>(0, 1, 1)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryJuvenileMale</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.AgeAndSex.JuvenileMale</translationKey>
+        </historyLabel>
+        <color>(1, 1, 0)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+</Defs>

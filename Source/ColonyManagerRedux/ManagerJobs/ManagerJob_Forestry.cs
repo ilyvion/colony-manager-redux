@@ -5,8 +5,36 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Forestry : ManagerJob, IHasHistory
+public class ManagerJob_Forestry : ManagerJob
 {
+    public class History : HistoryWorker<ManagerJob_Forestry>
+    {
+        public override int GetCountForHistoryChapter(ManagerJob_Forestry managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.CurrentCount;
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
+            {
+                return managerJob.CurrentDesignatedCount;
+            }
+            else
+            {
+                throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+            }
+        }
+
+        public override int GetTargetForHistoryChapter(ManagerJob_Forestry managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.TargetCount;
+            }
+            return 0;
+        }
+    }
+
     public enum ForestryJobType
     {
         ClearArea,
@@ -38,9 +66,6 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
 
     private ForestryJobType _type = ForestryJobType.Logging;
 
-    private History history;
-    public History History { get => history; }
-
     private Trigger_Threshold trigger;
     public Trigger_Threshold Trigger { get => trigger; }
 
@@ -50,8 +75,6 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
         trigger = new Trigger_Threshold(this);
         trigger.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
         ConfigureThresholdTriggerParentFilter();
-
-        history = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
 
     public override void PostMake()
@@ -86,7 +109,7 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
 
     public List<Designation> Designations => new(_designations);
 
-    public override bool IsValid => base.IsValid && trigger != null && history != null;
+    public override bool IsValid => base.IsValid && trigger != null;
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
@@ -243,9 +266,6 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
             // scribe that stuff
             Scribe_Collections.Look(ref ClearAreas, "clearAreas", LookMode.Reference);
 
-            // scribe history
-            Scribe_Deep.Look(ref history, "history");
-
             Utilities.Scribe_Designations(ref _designations, Manager);
         }
 
@@ -255,6 +275,8 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
         }
     }
 
+
+    public int CurrentDesignatedCount => GetWoodInDesignations();
     public int GetWoodInDesignations()
     {
 
@@ -307,11 +329,6 @@ public class ManagerJob_Forestry : ManagerJob, IHasHistory
         {
             AllowedTrees.Remove(tree);
         }
-    }
-
-    public override void Tick()
-    {
-        history.Update(trigger.CurrentCount, GetWoodInDesignations());
     }
 
     public override bool TryDoJob()

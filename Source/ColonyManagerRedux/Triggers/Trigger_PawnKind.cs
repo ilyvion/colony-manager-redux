@@ -1,12 +1,10 @@
-﻿// TODO: Nullability uncertain; rewrite?
-#nullable disable
-
-// Trigger_PawnKind.cs
+﻿// Trigger_PawnKind.cs
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class Trigger_PawnKind : Trigger
 {
     private readonly Utilities.CachedValue<string> _cachedTooltip;
@@ -15,11 +13,13 @@ public class Trigger_PawnKind : Trigger
     public int[] CountTargets;
     public PawnKindDef pawnKind;
 
+#pragma warning disable CS8618 // Set by using class
     public Trigger_PawnKind(ManagerJob job) : base(job)
+#pragma warning restore CS8618
     {
         CountTargets = Utilities_Livestock.AgeSexArray.Select(_ => 5).ToArray();
 
-        _cachedTooltip = new Utilities.CachedValue<string>("", 250, _getTooltip);
+        _cachedTooltip = new Utilities.CachedValue<string>("", 250, GetTooltip);
     }
 
     public int[] Counts
@@ -30,6 +30,16 @@ public class Trigger_PawnKind : Trigger
                 .Select(ageSex => pawnKind.GetTame(job.Manager, ageSex).Count())
                 .ToArray();
         }
+    }
+
+    public int GetCountFor(AgeAndSex ageAndSex)
+    {
+        return pawnKind.GetTame(job.Manager, ageAndSex).Count();
+    }
+
+    public int GetTargetFor(AgeAndSex ageAndSex)
+    {
+        return CountTargets[(int)ageAndSex];
     }
 
     public ManagerJob_Livestock Job
@@ -61,9 +71,9 @@ public class Trigger_PawnKind : Trigger
     public override string StatusTooltip => _cachedTooltip.Value;
 
     public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight,
-                                            string label = null, string tooltip = null,
-                                            List<Designation> targets = null, Action onOpenFilterDetails = null,
-                                            Func<Designation, string> designationLabelGetter = null)
+        string? label = null, string? tooltip = null,
+        List<Designation>? targets = null, Action? onOpenFilterDetails = null,
+        Func<Designation, string>? designationLabelGetter = null)
     {
     }
 
@@ -77,15 +87,18 @@ public class Trigger_PawnKind : Trigger
         Scribe_Defs.Look(ref pawnKind, "pawnKind");
     }
 
-    private string _getTooltip()
+    private string GetTooltip()
     {
         var tooltipArgs = new List<NamedArgument>
         {
-            pawnKind.LabelCap
+            pawnKind.Named("PAWNKIND")
         };
-        tooltipArgs.AddRange(CountTargets.Select(v => new NamedArgument(v.ToString(), null)));
-        tooltipArgs.AddRange(Counts.Select(x => new NamedArgument(x.ToString(), null)));
-        return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray());
+        tooltipArgs.AddRange(
+            Counts.Zip(CountTargets, (c, t) => (c, t))
+            .Zip(Utilities_Livestock.AgeSexArray, (v, l) => new NamedArgument(
+                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(v.c, v.t,
+                    $"ColonyManagerRedux.AgeAndSex.{l}".Translate()), null)));
+        return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray()).Resolve().CapitalizeFirst();
     }
 
     private bool AllTrainingWantedSet()

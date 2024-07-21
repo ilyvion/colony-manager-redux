@@ -8,6 +8,16 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Hunting</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Hunting</managerTabClass>
         <iconPath>UI/Icons/CMR_Hunting</iconPath>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
+                <workerClass>ColonyManagerRedux.ManagerJob_Hunting+History</workerClass>
+                <chapters>
+                    <li>CM_HistoryStock</li>
+                    <li>CM_HistoryCorpses</li>
+                    <li>CM_HistoryDesignated</li>
+                </chapters>
+            </li>
+        </comps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

@@ -5,6 +5,7 @@
 namespace ColonyManagerRedux;
 
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerTab
+[HotSwappable]
 public abstract class ManagerTab(Manager manager)
 #pragma warning restore CS8618
 {
@@ -58,9 +59,9 @@ public abstract class ManagerTab(Manager manager)
 
     public virtual void DrawOverviewDetails(ManagerJob job, Rect rect)
     {
-        if (job is IHasHistory hasHistory)
+        if (job.CompOfType<CompManagerJobHistory>() is CompManagerJobHistory historyComp)
         {
-            hasHistory.History.DrawPlot(rect, hasHistory.Trigger.TargetCount);
+            historyComp.History.DrawPlot(rect);
         }
     }
 

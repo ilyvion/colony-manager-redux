@@ -5,8 +5,36 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Foraging : ManagerJob, IHasHistory
+public class ManagerJob_Foraging : ManagerJob
 {
+    public class History : HistoryWorker<ManagerJob_Foraging>
+    {
+        public override int GetCountForHistoryChapter(ManagerJob_Foraging managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.CurrentCount;
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
+            {
+                return managerJob.CurrentDesignatedCount;
+            }
+            else
+            {
+                throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+            }
+        }
+
+        public override int GetTargetForHistoryChapter(ManagerJob_Foraging managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.TargetCount;
+            }
+            return 0;
+        }
+    }
+
     private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new(0);
 
     public HashSet<ThingDef> AllowedPlants = [];
@@ -27,9 +55,6 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
         }
     }
 
-    private History history;
-    public History History { get => history; }
-
     private Trigger_Threshold trigger;
     public Trigger_Threshold Trigger { get => trigger; }
 
@@ -38,9 +63,6 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
         trigger = new Trigger_Threshold(this);
         ConfigureThresholdTrigger();
-
-        // create History tracker
-        history = new History(new[] { I18n.HistoryStock, I18n.HistoryDesignated }, [Color.white, Color.grey]);
     }
 
     public override void PostMake()
@@ -98,7 +120,7 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
 
     public List<Designation> Designations => new(_designations);
 
-    public override bool IsValid => base.IsValid && trigger != null && History != null;
+    public override bool IsValid => base.IsValid && trigger != null;
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
@@ -168,9 +190,6 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
         if (Manager.Mode == Manager.ScribingMode.Normal)
         {
             Scribe_References.Look(ref ForagingArea, "foragingArea");
-
-            // scribe history
-            Scribe_Deep.Look(ref history, "history");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
         }
@@ -250,11 +269,6 @@ public class ManagerJob_Foraging : ManagerJob, IHasHistory
                 }
             }
         }
-    }
-
-    public override void Tick()
-    {
-        History.Update(trigger.CurrentCount, CurrentDesignatedCount);
     }
 
     public override bool TryDoJob()

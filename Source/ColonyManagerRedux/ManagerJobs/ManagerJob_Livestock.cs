@@ -10,6 +10,54 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class ManagerJob_Livestock : ManagerJob
 {
+    public class History : HistoryWorker<ManagerJob_Livestock>
+    {
+        public override int GetCountForHistoryChapter(ManagerJob_Livestock managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
+            {
+                return managerJob.Trigger.GetCountFor(AgeAndSex.AdultFemale);
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
+            {
+                return managerJob.Trigger.GetCountFor(AgeAndSex.AdultMale);
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
+            {
+                return managerJob.Trigger.GetCountFor(AgeAndSex.JuvenileFemale);
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
+            {
+                return managerJob.Trigger.GetCountFor(AgeAndSex.JuvenileMale);
+            }
+            else
+            {
+                throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+            }
+        }
+
+        public override int GetTargetForHistoryChapter(ManagerJob_Livestock managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
+            {
+                return managerJob.Trigger.GetTargetFor(AgeAndSex.AdultFemale);
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
+            {
+                return managerJob.Trigger.GetTargetFor(AgeAndSex.AdultMale);
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
+            {
+                return managerJob.Trigger.GetTargetFor(AgeAndSex.JuvenileFemale);
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
+            {
+                return managerJob.Trigger.GetTargetFor(AgeAndSex.JuvenileMale);
+            }
+            return 0;
+        }
+    }
+
     private static readonly MethodInfo SetWanted_MI;
     public bool ButcherBonded;
     public bool ButcherExcess;
@@ -41,7 +89,6 @@ public class ManagerJob_Livestock : ManagerJob
 
     private Utilities.CachedValue<string>? _cachedLabel;
     private List<Designation> _designations;
-    public History History;
 
     static ManagerJob_Livestock()
     {
@@ -54,10 +101,6 @@ public class ManagerJob_Livestock : ManagerJob
     {
         // init designations
         _designations = [];
-
-        // start history tracker
-        History = new History(Utilities_Livestock.AgeSexArray
-            .Select(ageSex => new DirectHistoryLabel(ageSex.ToString())).ToArray());
 
         // set up the trigger, set all target counts to 5
         Trigger = new Trigger_PawnKind(this);
@@ -186,7 +229,7 @@ public class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    public override bool IsValid => base.IsValid && History != null && Training != null && Trigger != null;
+    public override bool IsValid => base.IsValid && Training != null && Trigger != null;
 
     public override string Label => Trigger.pawnKind.LabelCap;
 
@@ -363,7 +406,6 @@ public class ManagerJob_Livestock : ManagerJob
             Scribe_References.Look(ref Trainer, "trainer");
 
             Scribe_Deep.Look(ref Training, "training");
-            Scribe_Deep.Look(ref History, "history");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
 
@@ -468,14 +510,6 @@ public class ManagerJob_Livestock : ManagerJob
         {
             animal.playerSettings.Master = master;
             actionTaken = true;
-        }
-    }
-
-    public override void Tick()
-    {
-        if (History.IsRelevantTick)
-        {
-            History.Update(Trigger.Counts);
         }
     }
 

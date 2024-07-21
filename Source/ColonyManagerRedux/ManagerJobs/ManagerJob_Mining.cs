@@ -7,8 +7,40 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Mining : ManagerJob, IHasHistory
+public class ManagerJob_Mining : ManagerJob
 {
+    public class History : HistoryWorker<ManagerJob_Mining>
+    {
+        public override int GetCountForHistoryChapter(ManagerJob_Mining managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.CurrentCount;
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
+            {
+                return managerJob.GetCountInDesignations();
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryChunks)
+            {
+                return managerJob.GetCountInChunks();
+            }
+            else
+            {
+                throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+            }
+        }
+
+        public override int GetTargetForHistoryChapter(ManagerJob_Mining managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.TargetCount;
+            }
+            return 0;
+        }
+    }
+
     private const int RoofSupportGridSpacing = 5;
     private readonly Utilities.CachedValue<int> _chunksCachedValue = new(0);
     private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
@@ -45,9 +77,6 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         }
     }
 
-    private History history;
-    public History History { get => history; }
-
     private Trigger_Threshold trigger;
     public Trigger_Threshold Trigger { get => trigger; }
 
@@ -56,11 +85,6 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
         trigger = new Trigger_Threshold(this);
         ConfigureThresholdTriggerParentFilter();
-
-        // start the history tracker;
-        history = new History(
-            new[] { I18n.HistoryStock, I18n.HistoryChunks, I18n.HistoryDesignated },
-            [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
     }
 
     public override void PostMake()
@@ -90,7 +114,7 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
     public List<Designation> Designations => new(_designations);
 
 
-    public override bool IsValid => base.IsValid && history != null && trigger != null;
+    public override bool IsValid => base.IsValid && trigger != null;
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
 
     public override string[] Targets => AllowedMinerals
@@ -274,8 +298,6 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
         {
             Scribe_References.Look(ref MiningArea, "miningArea");
 
-            Scribe_Deep.Look(ref history, "history");
-
             Utilities.Scribe_Designations(ref _designations, Manager);
         }
 
@@ -316,6 +338,7 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
             .Sum(tc => tc.count);
     }
 
+    public int CurrentDesignatedCount => GetCountInChunks();
     public int GetCountInChunks()
     {
         if (_chunksCachedValue.TryGetValue(out int count))
@@ -723,11 +746,6 @@ public class ManagerJob_Mining : ManagerJob, IHasHistory
                 }
             }
         }
-    }
-
-    public override void Tick()
-    {
-        history.Update(trigger.CurrentCount, GetCountInChunks(), GetCountInDesignations());
     }
 
     public override bool TryDoJob()

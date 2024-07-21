@@ -101,16 +101,22 @@ public class Manager : MapComponent, ILoadReferenceable
 
         Scribe_Values.Look(ref _nextManagerJobID, "nextManagerJobID", 0);
 
-        foreach (var tab in tabs)
-        {
-            if (tab is IExposable exposableTab)
-            {
-                Scribe_Deep.Look(ref exposableTab, tab.def.defName, this);
-            }
-        }
-
+        var exposableTabs = tabs.OfType<IExposable>().ToList();
+        Scribe_Collections.Look(ref exposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
+            foreach (var exposableTab in exposableTabs)
+            {
+                var oldTab = tabs.Select((t, i) => (t, i))
+                    .SingleOrDefault(v => v.t.GetType() == exposableTab.GetType());
+                if (oldTab.t != null)
+                {
+                    var newTab = (ManagerTab)exposableTab;
+                    newTab.def = oldTab.t.def;
+                    tabs[oldTab.i] = newTab;
+                }
+            }
+
             _wasLoaded = true;
         }
 
@@ -132,7 +138,7 @@ public class Manager : MapComponent, ILoadReferenceable
                 }
                 catch (Exception err)
                 {
-                    Log.Error($"Suspending manager job because it error-ed on tick: \n{err}");
+                    Log.Error($"Suspending manager job because it errored on tick: \n{err}");
                     job.IsSuspended = true;
                 }
             }

@@ -10,6 +10,8 @@ public class ManagerDef : Def
     public Type managerTabClass = typeof(ManagerTab);
     public Type? managerJobSettingsClass;
 
+    public List<ManagerJobCompProperties> comps = [];
+
     public IconArea iconArea = IconArea.Middle;
     [Unsaved(false)]
     public Texture2D icon = BaseContent.BadTex;
@@ -51,6 +53,14 @@ public class ManagerDef : Def
         if (managerJobSettingsClass != null && !typeof(ManagerJobSettings).IsAssignableFrom(managerJobSettingsClass))
         {
             yield return $"{nameof(managerJobSettingsClass)} is not a subclass of {nameof(ManagerJobSettings)}";
+        }
+
+        foreach (ManagerJobCompProperties comp in comps)
+        {
+            foreach (string item in comp.ConfigErrors(this))
+            {
+                yield return item;
+            }
         }
     }
 }

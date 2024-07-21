@@ -4,8 +4,40 @@
 
 namespace ColonyManagerRedux;
 
-public class ManagerJob_Hunting : ManagerJob, IHasHistory
+public class ManagerJob_Hunting : ManagerJob
 {
+    public class History : HistoryWorker<ManagerJob_Hunting>
+    {
+        public override int GetCountForHistoryChapter(ManagerJob_Hunting managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.CurrentCount;
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
+            {
+                return managerJob.GetMeatInDesignations();
+            }
+            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
+            {
+                return managerJob.GetMeatInCorpses();
+            }
+            else
+            {
+                throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+            }
+        }
+
+        public override int GetTargetForHistoryChapter(ManagerJob_Hunting managerJob, ManagerJobHistoryChapterDef chapterDef)
+        {
+            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
+            {
+                return managerJob.trigger.TargetCount;
+            }
+            return 0;
+        }
+    }
+
     private readonly Utilities.CachedValue<int> _corpseCachedValue = new(0);
     private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
 
@@ -28,9 +60,6 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         }
     }
 
-    private History history;
-    public History History { get => history; }
-
     private Trigger_Threshold trigger;
     public Trigger_Threshold Trigger { get => trigger; }
 
@@ -41,10 +70,6 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         trigger.ThresholdFilter.SetAllow(Utilities_Hunting.MeatRaw, true);
 
         ConfigureThresholdTriggerParentFilter();
-
-        // start the history tracker;
-        history = new History(new[] { I18n.HistoryStock, I18n.HistoryCorpses, I18n.HistoryDesignated },
-                               [Color.white, new Color(.7f, .7f, .7f), new Color(.4f, .4f, .4f)]);
     }
 
     public override void PostMake()
@@ -152,7 +177,7 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         }
     }
 
-    public override bool IsValid => base.IsValid && history != null && trigger != null;
+    public override bool IsValid => base.IsValid && trigger != null;
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
@@ -218,8 +243,6 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         {
             // references first, reasons
             Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
-
-            Scribe_Deep.Look(ref history, "history");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
         }
@@ -317,11 +340,6 @@ public class ManagerJob_Hunting : ManagerJob, IHasHistory
         {
             AllowedAnimals.Remove(animal);
         }
-    }
-
-    public override void Tick()
-    {
-        history.Update(trigger.CurrentCount, GetMeatInCorpses(), GetMeatInDesignations());
     }
 
     public override bool TryDoJob()

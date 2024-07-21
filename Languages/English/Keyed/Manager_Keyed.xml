@@ -49,11 +49,18 @@
     <!-- History graphs -->
     <ColonyManagerRedux.ManagerHistoryPeriod>Period</ColonyManagerRedux.ManagerHistoryPeriod>
     <ColonyManagerRedux.ManagerHistoryShowHideLegend>Show/Hide legend</ColonyManagerRedux.ManagerHistoryShowHideLegend>
-    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\nClick to {0} {1} in plot.\nRight click to show only {1}.</ColonyManagerRedux.ManagerHistoryClickToEnable>
+    <ColonyManagerRedux.ManagerHistoryShow>show</ColonyManagerRedux.ManagerHistoryShow>
+    <ColonyManagerRedux.ManagerHistoryHide>hide</ColonyManagerRedux.ManagerHistoryHide>
+    <ColonyManagerRedux.ManagerHistoryClickToEnable>Click to {0} {1} in plot.\nRight click to show only {1}.</ColonyManagerRedux.ManagerHistoryClickToEnable>
     <ColonyManagerRedux.ManagerHistoryNoChapters>Nothing to show!</ColonyManagerRedux.ManagerHistoryNoChapters>
+    <ColonyManagerRedux.ManagerHistoryValueTooltip>{0}: {1}</ColonyManagerRedux.ManagerHistoryValueTooltip>
+    <ColonyManagerRedux.ManagerHistoryTargetTooltip>{0} target: {1}</ColonyManagerRedux.ManagerHistoryTargetTooltip>
 
     <!-- Power Tab (E for energy) -->
-    <ColonyManagerRedux.Energy.PeriodShown>Period: {0}</ColonyManagerRedux.Energy.PeriodShown>
+    <ColonyManagerRedux.Energy.PeriodShown>Period</ColonyManagerRedux.Energy.PeriodShown>
+    <ColonyManagerRedux.Energy.PeriodShown.Day>day</ColonyManagerRedux.Energy.PeriodShown.Day>
+    <ColonyManagerRedux.Energy.PeriodShown.Month>month</ColonyManagerRedux.Energy.PeriodShown.Month>
+    <ColonyManagerRedux.Energy.PeriodShown.Year>year</ColonyManagerRedux.Energy.PeriodShown.Year>
     <ColonyManagerRedux.Energy.PeriodShownTooltip>Currently showing power production and consumption for the last {0}.\n\nClick to change the period.</ColonyManagerRedux.Energy.PeriodShownTooltip>
     <ColonyManagerRedux.Energy.Power>Power</ColonyManagerRedux.Energy.Power>
     <ColonyManagerRedux.Energy.NotResearched>Power management has not been researched</ColonyManagerRedux.Energy.NotResearched>
@@ -184,7 +191,8 @@
     <ColonyManagerRedux.Livestock.TameMore>Auto-designate animals to be tamed</ColonyManagerRedux.Livestock.TameMore>
     <ColonyManagerRedux.Livestock.TameMore.Tip>Should the manager designate wild animals to be tamed?</ColonyManagerRedux.Livestock.TameMore.Tip>
     <ColonyManagerRedux.Livestock.TameArea>Allow taming in:</ColonyManagerRedux.Livestock.TameArea>
-    <ColonyManagerRedux.Livestock.ListEntryTooltip>{0}s:\n{1}/{5} adult females\n{2}/{6} adult males\n{3}/{7} juvenile females\n{4}/{8} juvenile males</ColonyManagerRedux.Livestock.ListEntryTooltip>
+    <ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>{0}/{1} {2}</ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>
+    <ColonyManagerRedux.Livestock.ListEntryTooltip>{PAWNKIND_labelPlural}:\n{1}\n{2}\n{3}\n{4}</ColonyManagerRedux.Livestock.ListEntryTooltip>
     <ColonyManagerRedux.Livestock.TameWildCount>{0} tamed, {1} in the wild.</ColonyManagerRedux.Livestock.TameWildCount>
     <ColonyManagerRedux.Livestock.NoAnimals>no {0} {1}</ColonyManagerRedux.Livestock.NoAnimals>
     <ColonyManagerRedux.Livestock.GenderHeader>Gender</ColonyManagerRedux.Livestock.GenderHeader>
@@ -263,6 +271,11 @@
     <ColonyManagerRedux.ColonyManager.HistoryProduction>production</ColonyManagerRedux.ColonyManager.HistoryProduction>
     <ColonyManagerRedux.ColonyManager.HistoryConsumption>consumption</ColonyManagerRedux.ColonyManager.HistoryConsumption>
     <ColonyManagerRedux.ColonyManager.HistoryBatteries>batteries</ColonyManagerRedux.ColonyManager.HistoryBatteries>
+
+    <ColonyManagerRedux.AgeAndSex.AdultFemale>adult females</ColonyManagerRedux.AgeAndSex.AdultFemale>
+    <ColonyManagerRedux.AgeAndSex.AdultMale>adult males</ColonyManagerRedux.AgeAndSex.AdultMale>
+    <ColonyManagerRedux.AgeAndSex.JuvenileFemale>juvenile females</ColonyManagerRedux.AgeAndSex.JuvenileFemale>
+    <ColonyManagerRedux.AgeAndSex.JuvenileMale>juvenile males</ColonyManagerRedux.AgeAndSex.JuvenileMale>
 
     <!-- manager tab target list extra info labels -->
     <ColonyManagerRedux.ColonyManager.Yield>Expected yield:</ColonyManagerRedux.ColonyManager.Yield>

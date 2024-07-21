@@ -12,6 +12,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
     public ManagerDef def;
 
+    public List<ManagerJobComp>? comps;
+
     public bool ShouldCheckReachable;
 
     public int LastActionTick = -1;
@@ -85,6 +87,33 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public virtual int MaxUpperThreshold { get; } = Constants.DefaultMaxUpperThreshold;
 
+    internal void Initialize()
+    {
+        if (def.comps.Any())
+        {
+            comps = [];
+            foreach (var compProperties in def.comps)
+            {
+                ManagerJobComp? managerJobComp = null;
+                try
+                {
+                    managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
+                    managerJobComp.parent = this;
+                    comps.Add(managerJobComp);
+                    managerJobComp.Initialize(compProperties);
+                }
+                catch (Exception ex)
+                {
+                    Log.Error("Could not instantiate or initialize a ManagerJobComp: " + ex);
+                    if (managerJobComp != null)
+                    {
+                        comps.Remove(managerJobComp);
+                    }
+                }
+            }
+        }
+    }
+
     public virtual void PostMake()
     {
     }
@@ -119,6 +148,11 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
 
         Scribe_Defs.Look(ref def, "def");
+        if (def == null)
+        {
+            return;
+        }
+
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
         Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
@@ -154,6 +188,18 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                 loadID = Manager.GetNextManagerJobID();
             }
         }
+
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            Initialize();
+        }
+        if (comps != null)
+        {
+            foreach (ManagerJobComp comp in comps)
+            {
+                comp.PostExposeData();
+            }
+        }
     }
 
     public abstract bool TryDoJob();
@@ -175,8 +221,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         if (UsePathBasedDistance)
         {
             var path = target.Map.pathFinder.FindPath(source, target,
-                                                       TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
-                                                       PathEndMode.Touch);
+                TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
+                PathEndMode.Touch);
             var cost = path.Found ? path.TotalCost : int.MaxValue;
             path.ReleaseToPool();
             return cost * 2;
@@ -189,12 +235,19 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         return !target.Position.Fogged(Manager.map)
             && (!ShouldCheckReachable ||
-                 Manager.map.mapPawns.FreeColonistsSpawned.Any(
-                     p => p.CanReach(target, PathEndMode.Touch, Danger.Some)));
+                Manager.map.mapPawns.FreeColonistsSpawned.Any(
+                    p => p.CanReach(target, PathEndMode.Touch, Danger.Some)));
     }
 
     public virtual void Tick()
     {
+        if (!comps.NullOrEmpty())
+        {
+            foreach (ManagerJobComp c in comps!)
+            {
+                c.CompTick();
+            }
+        }
     }
 
     public override string ToString()
@@ -217,14 +270,14 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         return $"ColonyManagerRedux_ManagerJob_{Manager.id}_{loadID}";
     }
-}
 
-public interface IHasTreshold
-{
-    Trigger_Threshold Trigger { get; }
-}
+    public T? CompOfType<T>() where T : ManagerJobComp
+    {
+        return comps?.FirstOrDefault(c => c is T) as T;
+    }
 
-public interface IHasHistory : IHasTreshold
-{
-    History History { get; }
+    public IEnumerable<T> CompsOfType<T>() where T : ManagerJobComp
+    {
+        return comps?.Where(c => c is T).Cast<T>() ?? [];
+    }
 }

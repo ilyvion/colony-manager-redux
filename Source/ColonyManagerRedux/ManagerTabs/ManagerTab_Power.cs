@@ -6,6 +6,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerTab_Power : ManagerTab, IExposable
 {
     public static bool unlocked = false;
@@ -37,28 +38,27 @@ public class ManagerTab_Power : ManagerTab, IExposable
         RefreshCompLists();
 
         // set up the history trackers.
-        tradingHistory =
-            new History(
-                _traderDefs.Select(
-                                def =>
-                                    new ThingDefCount(def,
-                                                       manager.map.listerBuildings.AllBuildingsColonistOfDef(def)
-                                                              .Count()))
-                           .ToArray())
-            {
-                DrawOptions = false,
-                DrawInlineLegend = false,
-                Suffix = "W",
-                DrawInfoInBar = true,
-                DrawMaxMarkers = true
-            };
+        tradingHistory = new History(_traderDefs
+            .Select(
+                def => new ThingDefCount(
+                    def,
+                    manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count()))
+            .ToArray())
+        {
+            DrawOptions = false,
+            DrawInlineLegend = false,
+            Suffix = "W",
+            DrawInfoInBar = true,
+            DrawMaxMarkers = true,
+            DrawTargetLine = false,
+        };
 
         overallHistory = new History(new[]
         {
             I18n.HistoryProduction,
             I18n.HistoryConsumption,
             I18n.HistoryBatteries
-        })
+        }, [Color.red, Color.green, ColorLibrary.Teal])
         {
             DrawOptions = false,
             DrawInlineLegend = false,
@@ -67,7 +67,7 @@ public class ManagerTab_Power : ManagerTab, IExposable
             DrawCounts = false,
             DrawInfoInBar = true,
             DrawMaxMarkers = true,
-            MaxPerChapter = true
+            MaxPerChapter = true,
         };
     }
 
@@ -76,9 +76,9 @@ public class ManagerTab_Power : ManagerTab, IExposable
         get
         {
             return manager.map.listerBuildings
-                          .AllBuildingsColonistOfClass<Building_ManagerStation>()
-                          .Select(t => t.TryGetComp<CompPowerTrader>())
-                          .Any(c => c != null && c.PowerOn);
+                .AllBuildingsColonistOfClass<Building_ManagerStation>()
+                .Select(t => t.TryGetComp<CompPowerTrader>())
+                .Any(c => c != null && c.PowerOn);
         }
     }
 
@@ -106,8 +106,14 @@ public class ManagerTab_Power : ManagerTab, IExposable
 
     public void ExposeData()
     {
+
         Scribe_Deep.Look(ref tradingHistory, "tradingHistory");
         Scribe_Deep.Look(ref overallHistory, "overallHistory");
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            RefreshCompLists();
+        }
     }
 
     public override void DoWindowContents(Rect canvas)
@@ -168,16 +174,14 @@ public class ManagerTab_Power : ManagerTab, IExposable
 
             // update theoretical max for batteries, and reset observed max.
             overallHistory.UpdateMax(0, 0,
-                                      (int)
-                                      _batteries.Sum(
-                                          list => list.Sum(battery => battery.Props.storedEnergyMax)));
+                (int)_batteries.Sum(list => list.Sum(battery => battery.Props.storedEnergyMax)));
 
             // update the history tracker.
             var trade = GetCurrentTrade();
             tradingHistory.Update(trade);
-            overallHistory.Update(trade.Where(i => i > 0).Sum(),
-                                   trade.Where(i => i < 0).Sum(Utilities.SafeAbs),
-                                   GetCurrentBatteries().Sum());
+            overallHistory.Update((trade.Where(i => i.current > 0).Sum(i => i.current), 0),
+                (trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current)), 0),
+                GetCurrentBatteries().SumTuple());
         }
     }
 
@@ -211,38 +215,36 @@ public class ManagerTab_Power : ManagerTab, IExposable
         // draw the detailed legend
         overallHistory.DrawDetailedLegend(legendRect, ref _overallScrollPos, null);
 
-        // draw period switcher
         var periodRect = buttonsRect;
-        periodRect.width /= 2f;
+        periodRect.xMin += Margin;
 
         // label
-        Widgets_Labels.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate(tradingHistory.periodShown.ToString()),
-                              "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(tradingHistory.periodShown.ToString()));
+        Text.Anchor = TextAnchor.MiddleLeft;
+        var labelTextSize = Text.CalcSize("ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
+        Widgets.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
 
-        // mark interactivity
-        var searchIconRect = periodRect;
-        searchIconRect.xMin = searchIconRect.xMax - searchIconRect.height;
-        if (searchIconRect.height > SmallIconSize)
-        {
-            // center it.
-            searchIconRect = searchIconRect.ContractedBy((searchIconRect.height - SmallIconSize) / 2);
-        }
+        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.periodShown}".Translate().CapitalizeFirst());
+        periodRect.xMin += Margin + labelTextSize.x;
+        periodRect.yMin += (periodRect.height - 30f) / 2;
+        periodRect.width = buttonTextSize.x + LargeIconSize;
+        periodRect.height = 30f;
 
-        GUI.DrawTexture(searchIconRect, Resources.Search);
-        Widgets.DrawHighlightIfMouseover(periodRect);
-        if (Widgets.ButtonInvisible(periodRect))
+        var tooltip = "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(
+            $"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.periodShown}".Translate());
+        TooltipHandler.TipRegion(periodRect, tooltip);
+        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.periodShown}".Translate().CapitalizeFirst()))
         {
             var periodOptions = new List<FloatMenuOption>();
-            for (var i = 0; i < History.periods.Length; i++)
+            for (var i = 0; i < History.Periods.Length; i++)
             {
-                var period = History.periods[i];
-                periodOptions.Add(new FloatMenuOption(period.ToString(), delegate
-                {
-                    tradingHistory.periodShown =
-                        period;
-                    overallHistory.periodShown =
-                        period;
-                }));
+                var period = History.Periods[i];
+                periodOptions.Add(new FloatMenuOption(
+                    $"ColonyManagerRedux.Energy.PeriodShown.{period}".Translate().CapitalizeFirst(),
+                    delegate
+                    {
+                        tradingHistory.periodShown = period;
+                        overallHistory.periodShown = period;
+                    }));
             }
 
             Find.WindowStack.Add(new FloatMenu(periodOptions));
@@ -270,16 +272,20 @@ public class ManagerTab_Power : ManagerTab, IExposable
                select td;
     }
 
-    private int[] GetCurrentBatteries()
+    private (int current, int)[] GetCurrentBatteries()
     {
-        return _batteries.Select(list => (int)list.Sum(battery => battery.StoredEnergy)).ToArray();
+        return _batteries
+            .Select(list => (
+                (int)list.Sum(battery => battery.StoredEnergy),
+                (int)list.Sum(battery => battery.Props.storedEnergyMax)))
+            .ToArray();
     }
 
-    private int[] GetCurrentTrade()
+    private (int current, int)[] GetCurrentTrade()
     {
-        return
-            _traders.Select(list => (int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f))
-                    .ToArray();
+        return _traders
+            .Select(list => ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0))
+            .ToArray();
     }
 
     private IEnumerable<ThingDef> GetTraderDefs()

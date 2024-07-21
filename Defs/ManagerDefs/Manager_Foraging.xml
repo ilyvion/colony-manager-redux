@@ -8,6 +8,15 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Foraging</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Foraging</managerTabClass>
         <iconPath>UI/Icons/CMR_Foraging</iconPath>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
+                <workerClass>ColonyManagerRedux.ManagerJob_Foraging+History</workerClass>
+                <chapters>
+                    <li>CM_HistoryStock</li>
+                    <li>CM_HistoryDesignated</li>
+                </chapters>
+            </li>
+        </comps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

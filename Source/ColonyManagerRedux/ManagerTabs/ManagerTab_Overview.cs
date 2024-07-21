@@ -6,6 +6,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 {
     public const float OverviewWidthRatio = .6f;
@@ -43,7 +44,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                                       (canvas.height - Margin) / 2).RoundToInt();
         var sideRectLower = new Rect(overviewRect.xMax + Margin, sideRectUpper.yMax + Margin,
                                       sideRectUpper.width,
-                                      sideRectUpper.height - 1).RoundToInt();
+                                      sideRectUpper.height).RoundToInt();
 
         // draw the listing of current jobs.
         Widgets.DrawMenuSection(overviewRect);

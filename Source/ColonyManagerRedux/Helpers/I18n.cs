@@ -6,10 +6,6 @@ namespace ColonyManagerRedux;
 
 public class I18n
 {
-    public static TranslationHistoryLabel HistoryStock = "ColonyManagerRedux.ColonyManager.HistoryStock";
-    public static TranslationHistoryLabel HistoryDesignated = "ColonyManagerRedux.ColonyManager.HistoryDesignated";
-    public static TranslationHistoryLabel HistoryCorpses = "ColonyManagerRedux.ColonyManager.HistoryCorpses";
-    public static TranslationHistoryLabel HistoryChunks = "ColonyManagerRedux.ColonyManager.HistoryChunks";
     public static TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.ColonyManager.HistoryProduction";
     public static TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.ColonyManager.HistoryConsumption";
     public static TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.ColonyManager.HistoryBatteries";

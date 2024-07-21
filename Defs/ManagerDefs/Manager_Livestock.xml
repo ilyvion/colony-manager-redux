@@ -8,6 +8,17 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Livestock</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Livestock</managerTabClass>
         <iconPath>UI/Icons/CMR_Livestock</iconPath>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
+                <workerClass>ColonyManagerRedux.ManagerJob_Livestock+History</workerClass>
+                <chapters>
+                    <li>CM_HistoryAdultMale</li>
+                    <li>CM_HistoryAdultFemale</li>
+                    <li>CM_HistoryJuvenileMale</li>
+                    <li>CM_HistoryJuvenileFemale</li>
+                </chapters>
+            </li>
+        </comps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

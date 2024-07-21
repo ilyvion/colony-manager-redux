@@ -4,10 +4,19 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_ForestryManager</defName>
         <order>400</order>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Forestry</managerTabClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Forestry</managerJobSettingsClass>
         <managerJobClass>ColonyManagerRedux.ManagerJob_Forestry</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Forestry</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Forestry</managerTabClass>
         <iconPath>UI/Icons/CMR_Tree</iconPath>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
+                <workerClass>ColonyManagerRedux.ManagerJob_Forestry+History</workerClass>
+                <chapters>
+                    <li>CM_HistoryStock</li>
+                    <li>CM_HistoryDesignated</li>
+                </chapters>
+            </li>
+        </comps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

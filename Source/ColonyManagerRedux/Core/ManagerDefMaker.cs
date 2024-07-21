@@ -14,6 +14,7 @@ public static class ManagerDefMaker
 
         ManagerJob job = (ManagerJob)Activator.CreateInstance(def.managerJobClass, [manager, .. args]);
         job.def = def;
+        job.Initialize();
         job.PostMake();
         return job;
     }

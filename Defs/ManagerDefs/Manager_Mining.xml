@@ -8,6 +8,16 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Mining</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Mining</managerTabClass>
         <iconPath>UI/Icons/CMR_Mining</iconPath>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
+                <workerClass>ColonyManagerRedux.ManagerJob_Mining+History</workerClass>
+                <chapters>
+                    <li>CM_HistoryStock</li>
+                    <li>CM_HistoryChunks</li>
+                    <li>CM_HistoryDesignated</li>
+                </chapters>
+            </li>
+        </comps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>
