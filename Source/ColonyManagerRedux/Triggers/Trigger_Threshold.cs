@@ -260,10 +260,4 @@ public class Trigger_Threshold : Trigger
                     z.label == _stockpile_scribe) as Zone_Stockpile;
         }
     }
-
-    public override string ToString()
-    {
-        // TODO: Implement Trigger_Threshold.ToString()
-        return "Trigger_Threshold.ToString() not implemented";
-    }
 }
