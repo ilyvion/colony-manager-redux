@@ -57,7 +57,7 @@ public class Building_AIManager : Building_ManagerStation
         set
         {
             _powered = value;
-            Glower.Lit = value;
+            Glower.IsLit = value;
             PrimaryColourBlinker = value ? PrimaryColour : Color.black;
             SecondaryColour = value ? _colors[_secondaryColourIndex] : Color.black;
         }
@@ -122,7 +122,7 @@ public class Building_AIManager : Building_ManagerStation
             var tick = Find.TickManager.TicksGame;
 
             // turn on glower
-            Glower.Lit = true;
+            Glower.IsLit = true;
 
             // random blinking on secondary
             if (tick % 30 == Rand.RangeInclusive(0, 25))

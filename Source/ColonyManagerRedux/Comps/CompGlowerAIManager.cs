@@ -7,7 +7,7 @@ public class CompGlowerAIManager : CompGlower
 {
     private bool _lit;
 
-    public bool Lit
+    public bool IsLit
     {
         get => _lit; set
         {
