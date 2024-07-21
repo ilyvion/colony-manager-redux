@@ -112,6 +112,11 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
     public string GetMasterLabel(ManagerJob_Livestock job)
     {
+        var report = job.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
+        if (!report.Accepted)
+        {
+            return "ColonyManagerRedux.ManagerLivestock.MasterUnavailable".Translate();
+        }
         return job.Masters switch
         {
             MasterMode.Specific => job.Master?.LabelShort ?? "ColonyManagerRedux.ManagerNone".Translate(),
@@ -810,11 +815,22 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
                 .CenteredOnYIn(rowRect);
 
         // master selection
-        Label(rowRect,
-            "ColonyManagerRedux.ManagerLivestock.MasterDefault".Translate(),
-            "ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip".Translate(),
-            TextAnchor.MiddleLeft, margin: Margin);
-        if (Widgets.ButtonText(buttonRect, GetMasterLabel(job)))
+        var report = job.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
+        if (report.Accepted)
+        {
+            Label(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.MasterDefault".Translate(),
+                "ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip".Translate(),
+                TextAnchor.MiddleLeft, margin: Margin);
+        }
+        else
+        {
+            Label(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.MasterDefault".Translate(),
+                report.Reason,
+                TextAnchor.MiddleLeft, margin: Margin, color: Color.gray);
+        }
+        if (Widgets_Buttons.DisableableButtonText(buttonRect, GetMasterLabel(job), enabled: report.Accepted))
         {
             var options = new List<FloatMenuOption>();
 
@@ -844,7 +860,14 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
         // respect bonds?
         rowRect.y += ListEntryHeight;
-        if (job.Masters != MasterMode.Manual && job.Masters != MasterMode.Specific)
+        if (!report.Accepted)
+        {
+            Label(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
+                report.Reason,
+                color: Color.grey, margin: Margin);
+        }
+        else if (job.Masters != MasterMode.Manual && job.Masters != MasterMode.Specific)
         {
             DrawToggle(rowRect,
                 "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
@@ -861,12 +884,22 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
         // default follow
         rowRect.y += ListEntryHeight;
-        DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerLivestock.Follow".Translate(),
-            "ColonyManagerRedux.ManagerLivestock.Follow.Tip".Translate(),
-            ref job.SetFollow);
+        if (report.Accepted)
+        {
+            DrawToggle(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.Follow".Translate(),
+                "ColonyManagerRedux.ManagerLivestock.Follow.Tip".Translate(),
+                ref job.SetFollow);
+        }
+        else
+        {
+            Label(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.Follow".Translate(),
+                report.Reason,
+                color: Color.grey, margin: Margin);
+        }
 
-        if (job.SetFollow)
+        if (job.SetFollow && report.Accepted)
         {
             rowRect.y += ListEntryHeight;
             var followRect = rowRect;
@@ -886,14 +919,23 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
         // follow when training
         rowRect.y += ListEntryHeight;
-        TooltipHandler.TipRegion(rowRect, "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate());
-        DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerLivestock.FollowTraining".Translate(),
-            "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate(),
-            ref job.FollowTraining);
-
+        if (report.Accepted)
+        {
+            TooltipHandler.TipRegion(rowRect, "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate());
+            DrawToggle(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.FollowTraining".Translate(),
+                "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate(),
+                ref job.FollowTraining);
+        }
+        else
+        {
+            Label(rowRect,
+                "ColonyManagerRedux.ManagerLivestock.FollowTraining".Translate(),
+                report.Reason,
+                color: Color.grey, margin: Margin);
+        }
         // trainer selection
-        if (job.FollowTraining)
+        if (job.FollowTraining && report.Accepted)
         {
             rowRect.y += ListEntryHeight;
             Label(rowRect, "ColonyManagerRedux.ManagerLivestock.MasterTraining".Translate(),

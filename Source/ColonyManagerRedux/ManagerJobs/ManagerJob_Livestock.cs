@@ -299,7 +299,8 @@ public class ManagerJob_Livestock : ManagerJob
         {
             visible = true;
             return new AcceptanceReport(
-                "ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall".Translate(pawnKind.GetLabelPlural()));
+                "ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall".Translate(
+                    pawnKind.GetLabelPlural().CapitalizeFirst()));
         }
 
         if (pawnKind.RaceProps.trainability.intelligenceOrder < td.requiredTrainability.intelligenceOrder)
@@ -339,27 +340,29 @@ public class ManagerJob_Livestock : ManagerJob
         {
             // training
             Logger.Follow(animal.LabelShort);
-            if (FollowTraining && animal.training.NextTrainableToTrain() != null)
+            if (animal.training.HasLearned(TrainableDefOf.Obedience))
             {
-                Logger.Follow("\ttraining");
-                if (Trainers != MasterMode.Manual)
+                if (FollowTraining && animal.training.NextTrainableToTrain() != null)
                 {
-                    SetMaster(animal, Trainers, Trainer, ref actionTaken);
-                    SetFollowing(animal, false, true, ref actionTaken);
+                    Logger.Follow("\ttraining");
+                    if (Trainers != MasterMode.Manual)
+                    {
+                        SetMaster(animal, Trainers, Trainer, ref actionTaken);
+                        SetFollowing(animal, false, true, ref actionTaken);
+                    }
                 }
-            }
-
-            // default 
-            else
-            {
-                if (Masters != MasterMode.Manual)
+                // default 
+                else
                 {
-                    SetMaster(animal, Masters, Master, ref actionTaken);
-                }
+                    if (Masters != MasterMode.Manual)
+                    {
+                        SetMaster(animal, Masters, Master, ref actionTaken);
+                    }
 
-                if (SetFollow)
-                {
-                    SetFollowing(animal, FollowDrafted, FollowFieldwork, ref actionTaken);
+                    if (SetFollow)
+                    {
+                        SetFollowing(animal, FollowDrafted, FollowFieldwork, ref actionTaken);
+                    }
                 }
             }
         }

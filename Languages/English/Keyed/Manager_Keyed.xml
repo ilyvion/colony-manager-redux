@@ -244,6 +244,7 @@
     <ColonyManagerRedux.ManagerLivestock.MasterTraining>Assign trainer(s)</ColonyManagerRedux.ManagerLivestock.MasterTraining>
     <ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>Assign animals marked for training to a specific master (trainer), or to all trainers. May overwrite user settings when enabled.</ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>
     <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master>
+    <ColonyManagerRedux.ManagerLivestock.MasterUnavailable>Unavailable</ColonyManagerRedux.ManagerLivestock.MasterUnavailable>
     <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->

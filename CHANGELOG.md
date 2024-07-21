@@ -29,5 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Numerous minor interactivity and rendering bugs in the history graph and the power tab
 -   The power tab now properly saves and loads its history
 -   Render the training job selectors over multiple lines (3 jobs per line) so they're not so crowded, which is especially relevant if mods add additional TrainableDefs or uses a UI language more verbose than English.
+-   It is no longer possible to attempt to assign a master to animals that cannot be trained in guarding/obedience.
 
 [Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...HEAD
