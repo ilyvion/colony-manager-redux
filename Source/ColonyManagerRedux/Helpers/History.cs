@@ -12,9 +12,9 @@ public class History : IExposable
     // types
     public enum Period
     {
-        Day,
-        Month,
-        Year
+        Day = 0,
+        Month = 1,
+        Year = 2
     }
 
     public static Color DefaultLineColor = Color.white;
@@ -190,8 +190,8 @@ public class History : IExposable
         var sign = negativeOnly ? -1 : 1;
 
         var chaptersOrdered = _chapters
-            .Where(chapter => !positiveOnly || chapter.pages[periodShown].Any(i => i.count > 0))
-            .Where(chapter => !negativeOnly || chapter.pages[periodShown].Any(i => i.count < 0))
+            .Where(chapter => !positiveOnly || chapter.pages[(int)periodShown].Any(i => i.count > 0))
+            .Where(chapter => !negativeOnly || chapter.pages[(int)periodShown].Any(i => i.count < 0))
             .OrderByDescending(chapter => chapter.Last(periodShown).count * sign).ToList();
 
         // get out early if no chapters.
@@ -365,8 +365,8 @@ public class History : IExposable
 
         // subset chapters
         var chapters =
-            _chaptersShown.Where(chapter => !positiveOnly || chapter.pages[periodShown].Any(i => i.count > 0))
-                .Where(chapter => !negativeOnly || chapter.pages[periodShown].Any(i => i.count < 0))
+            _chaptersShown.Where(chapter => !positiveOnly || chapter.pages[(int)periodShown].Any(i => i.count > 0))
+                .Where(chapter => !negativeOnly || chapter.pages[(int)periodShown].Any(i => i.count < 0))
                 .ToList();
 
         // get out early if no chapters.
@@ -701,8 +701,7 @@ public class History : IExposable
         public Texture2D? _texture;
         public HistoryLabel label = new DirectHistoryLabel(string.Empty);
         public Color lineColor = DefaultLineColor;
-        // TODO: Don't use dictionary here ffs
-        public Dictionary<Period, List<(int count, int target)>> pages = [];
+        public List<(int count, int target)>[] pages;
         public int entriesPerInterval = EntriesPerInterval;
         public ThingDefCountClass ThingDefCount = new();
         private int _observedMax = -1;
@@ -722,9 +721,7 @@ public class History : IExposable
 
         public Chapter()
         {
-            // empty for scribe.
-            // create a dictionary of histories, one for each period, initialize with a zero to avoid errors.
-            pages = Periods.ToDictionary(k => k, v => new List<(int, int)>([(0, 0)]));
+            pages = Periods.Select(_ => new List<(int, int)>([(0, 0)])).ToArray();
         }
 
         public Chapter(HistoryLabel label, int entriesPerInterval, Color color) : this()
@@ -767,7 +764,7 @@ public class History : IExposable
 
         public bool HasTarget(Period period)
         {
-            return pages[period].Any(p => p.target != 0);
+            return pages[(int)period].Any(p => p.target != 0);
         }
 
         public void ExposeData()
@@ -781,17 +778,16 @@ public class History : IExposable
             Scribe_Values.Look(ref _observedMax, "observedMax");
             Scribe_Values.Look(ref _specificMax, "specificMax");
 
-            var periods = new List<Period>(pages.Keys);
-            foreach (var period in periods)
+            foreach (var period in Periods)
             {
-                var values = pages[period];
-                Utilities.Scribe_IntTupleArray(ref values, period.ToString());
+                var page = pages[(int)period];
+                Utilities.Scribe_IntTupleArray(ref page, period.ToString().UncapitalizeFirst());
 
 #if DEBUG_SCRIBE
                 Log.Message( Scribe.mode + " for " + label + ", daycount: " + pages[Period.Day].Count );
 #endif
 
-                pages[period] = values;
+                pages[(int)period] = page;
             }
         }
 
@@ -802,7 +798,9 @@ public class History : IExposable
             {
                 if (curTick % Interval(period) == 0)
                 {
-                    pages[period].Add((count, target));
+                    var page = pages[(int)period];
+
+                    page.Add((count, target));
                     if (Utilities.SafeAbs(count) > _observedMax)
                     {
                         _observedMax = Utilities.SafeAbs(count);
@@ -810,9 +808,9 @@ public class History : IExposable
 
                     // cull the list back down to size.
                     // TODO: Use a ring buffer instead a list to avoid having to do `RemoveAt(0)`.
-                    while (pages[period].Count > EntriesPerInterval)
+                    while (page.Count > EntriesPerInterval)
                     {
-                        pages[period].RemoveAt(0);
+                        page.RemoveAt(0);
                     }
                 }
             }
@@ -820,21 +818,23 @@ public class History : IExposable
 
         public (int count, int target) Last(Period period)
         {
-            return pages[period].Last();
+            return pages[(int)period].Last();
         }
 
         public int Max(Period period, bool positive = true, bool showTargets = true)
         {
+            var page = pages[(int)period];
             return positive
-                ? pages[period].Max(p => showTargets ? Math.Max(p.count, p.target) : p.count)
-                : Math.Abs(pages[period].Min(p => p.count));
+                ? page.Max(p => showTargets ? Math.Max(p.count, p.target) : p.count)
+                : Math.Abs(page.Min(p => p.count));
         }
 
         public void PlotCount(Period period, Rect canvas, float wu, float hu, int sign = 1)
         {
-            if (pages[period].Count > 1)
+            var page = pages[(int)period];
+            if (page.Count > 1)
             {
-                var hist = pages[period];
+                var hist = page;
                 Vector2? lastEnd = null;
                 for (var i = 0; i < hist.Count - 1; i++) // line segments, so up till n-1
                 {
@@ -847,15 +847,15 @@ public class History : IExposable
 
         public void PlotTarget(Period period, Rect canvas, float wu, float hu, int sign = 1)
         {
-            Color targetColor = TargetColor;
-            if (pages[period].Count > 1)
+            var page = pages[(int)period];
+            if (page.Count > 1)
             {
-                var hist = pages[period];
+                Color targetColor = TargetColor;
                 Vector2? lastEnd = null;
-                for (var i = 0; i < hist.Count - 1; i++) // line segments, so up till n-1
+                for (var i = 0; i < page.Count - 1; i++) // line segments, so up till n-1
                 {
-                    var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * hist[i].target * sign);
-                    var end = new Vector2(wu * (i + 1) - 1, canvas.height - hu * hist[i + 1].target * sign);
+                    var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * page[i].target * sign);
+                    var end = new Vector2(wu * (i + 1) - 1, canvas.height - hu * page[i + 1].target * sign);
 
                     if (start.y != end.y)
                     {
@@ -872,22 +872,24 @@ public class History : IExposable
 
         public int ValueAt(Period period, int x, int sign = 1)
         {
-            if (x < 0 || x >= pages[period].Count)
+            var page = pages[(int)period];
+            if (x < 0 || x >= page.Count)
             {
                 return -1;
             }
 
-            return pages[period][x].count * sign;
+            return page[x].count * sign;
         }
 
         public int TargetAt(Period period, int x, int sign = 1)
         {
-            if (x < 0 || x >= pages[period].Count)
+            var page = pages[(int)period];
+            if (x < 0 || x >= page.Count)
             {
                 return -1;
             }
 
-            return pages[period][x].target * sign;
+            return page[x].target * sign;
         }
     }
 }
