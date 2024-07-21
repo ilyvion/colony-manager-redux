@@ -34,7 +34,7 @@ public static class Clock
             {
                 if (major != null)
                 {
-                    // XXX: This tiny subtraction aligns the ticks
+                    // NOTE: This tiny subtraction aligns the ticks
                     DrawTick(canvas, major, h - 0.01f);
                 }
             }
@@ -42,7 +42,7 @@ public static class Clock
             {
                 if (minor != null)
                 {
-                    // XXX: This tiny subtraction aligns the ticks
+                    // NOTE: This tiny subtraction aligns the ticks
                     DrawTick(canvas, minor, h - 0.01f);
                 }
             }
