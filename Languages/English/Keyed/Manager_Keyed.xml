@@ -199,8 +199,8 @@
     <ColonyManagerRedux.Livestock.MilkHeader>Progress till next milking</ColonyManagerRedux.Livestock.MilkHeader>
     <ColonyManagerRedux.Livestock.WoolHeader>Progress till next shearing</ColonyManagerRedux.Livestock.WoolHeader>
     <ColonyManagerRedux.Livestock.Yields>Expected yield: {0} x{1}</ColonyManagerRedux.Livestock.Yields>
-    <ColonyManagerRedux.Livestock.UnassignTraining>Unassign training</ColonyManagerRedux.Livestock.UnassignTraining>
-    <ColonyManagerRedux.Livestock.UnassignTraining.Tip>Unassign training targets for animals</ColonyManagerRedux.Livestock.UnassignTraining.Tip>
+    <ColonyManagerRedux.Livestock.UnassignTraining>Unassign other training</ColonyManagerRedux.Livestock.UnassignTraining>
+    <ColonyManagerRedux.Livestock.UnassignTraining.Tip>Unassign other existing training targets for animals that don't match these settings</ColonyManagerRedux.Livestock.UnassignTraining.Tip>
     <ColonyManagerRedux.Livestock.TrainYoung>Train young animals</ColonyManagerRedux.Livestock.TrainYoung>
     <ColonyManagerRedux.Livestock.TrainYoung.Tip>When assigning training to animals, also include juvenile animals</ColonyManagerRedux.Livestock.TrainYoung.Tip>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea>Restrict animals marked for slaughter</ColonyManagerRedux.Livestock.SendToSlaughterArea>

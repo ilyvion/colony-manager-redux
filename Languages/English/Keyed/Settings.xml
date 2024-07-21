@@ -16,6 +16,7 @@
     <ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader>
     <ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader>
     <ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader>
+    <ColonyManagerRedux.LivestockJobSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.LivestockJobSettings.DefaultFollowHeader>
 
     <ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>
 </LanguageData>

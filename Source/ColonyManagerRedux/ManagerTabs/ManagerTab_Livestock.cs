@@ -2,14 +2,18 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using Verse.Noise;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Utilities;
 using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 {
+    internal const int TrainingJobsPerRow = 3;
+
     private List<PawnKindDef> _availablePawnKinds = [];
 
     private string[] _newCounts = ["", "", "", ""];
@@ -79,16 +83,16 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         GUI.EndGroup();
     }
 
-    public void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect)
+    public void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
     {
-        var cellCount = job.Training.Count;
+        var cellCount = Math.Min(TrainingJobsPerRow, job.Training.Count);
         var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
         var keys = job.Training.Defs;
 
         GUI.BeginGroup(rect);
         for (var i = 0; i < job.Training.Count; i++)
         {
-            var cell = new Rect(i * (cellWidth + Margin), 0f, cellWidth, rect.height);
+            var cell = new Rect(i % cellCount * (cellWidth + Margin), i / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
             var report = job.CanBeTrained(job.Trigger.pawnKind, keys[i], out bool visible);
             if (visible && report.Accepted)
             {
@@ -999,10 +1003,10 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
     private float DrawTrainingSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
-        // TODO: Render this selector over multiple lines (4 entries per line)
-        var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        DrawTrainingSelector(job, trainingRect);
-        var height = ListEntryHeight;
+        int rowCount = (int)Math.Ceiling((double)job.Training.Count / TrainingJobsPerRow);
+        var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * rowCount);
+        DrawTrainingSelector(job, trainingRect, rowCount);
+        var height = ListEntryHeight * rowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
         DrawToggle(unassignTrainingRect,

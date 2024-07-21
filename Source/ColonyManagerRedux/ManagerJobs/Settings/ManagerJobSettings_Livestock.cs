@@ -50,7 +50,7 @@ public class ManagerJobSettings_Livestock : ManagerJobSettings
         Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawButcherSection, "ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawTrainingSection, "ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader".Translate());
-        Widgets_Section.Section(ref position, width, DrawFollowSection, "ColonyManagerRedux.ManagerLivestock.FollowHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawFollowSection, "ColonyManagerRedux.LivestockJobSettings.DefaultFollowHeader".Translate());
         Widgets_Section.EndSectionColumn("Livestock.Settings", position);
     }
 
@@ -160,10 +160,11 @@ public class ManagerJobSettings_Livestock : ManagerJobSettings
 
     private float DrawTrainingSection(Vector2 pos, float width)
     {
-        // TODO: Render this selector over multiple lines (4 entries per line)
-        var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        DrawTrainingSelector(trainingRect);
-        var height = ListEntryHeight;
+        var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
+        int rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / ManagerTab_Livestock.TrainingJobsPerRow);
+        var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * rowCount);
+        DrawTrainingSelector(trainingRect, rowCount);
+        var height = ListEntryHeight * rowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
         Utilities.DrawToggle(unassignTrainingRect,
@@ -182,16 +183,16 @@ public class ManagerJobSettings_Livestock : ManagerJobSettings
         return height;
     }
 
-    public void DrawTrainingSelector(Rect rect)
+    public void DrawTrainingSelector(Rect rect, int rowCount)
     {
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
-        var cellCount = allTrainingTargets.Count;
+        var cellCount = Math.Min(ManagerTab_Livestock.TrainingJobsPerRow, allTrainingTargets.Count);
         var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
 
         GUI.BeginGroup(rect);
-        for (var i = 0; i < cellCount; i++)
+        for (var i = 0; i < allTrainingTargets.Count; i++)
         {
-            var cell = new Rect(i * (cellWidth + Margin), 0f, cellWidth, rect.height);
+            var cell = new Rect((i % cellCount) * (cellWidth + Margin), (i / cellCount) * ListEntryHeight, cellWidth, rect.height / rowCount);
 
             Utilities.DrawToggle(cell, allTrainingTargets[i].LabelCap, allTrainingTargets[i].description,
                 EnabledTrainingTargets.Contains(allTrainingTargets[i]),
