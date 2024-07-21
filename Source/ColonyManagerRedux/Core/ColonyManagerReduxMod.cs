@@ -32,7 +32,7 @@ public class ColonyManagerReduxMod : Mod
 
     public override string SettingsCategory()
     {
-        return "ColonyManagerRedux.ManagerHelpTitle".Translate();
+        return Content.Name;
     }
 }
 

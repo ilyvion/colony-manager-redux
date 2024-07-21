@@ -9,8 +9,6 @@
     <ColonyManagerRedux.ManagerTabDisabledBecause>(deaktiviert: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerHelpTitle>Colony Manager Redux</ColonyManagerRedux.ManagerHelpTitle>
-    <ColonyManagerRedux.ManagerHelpMessage>Willkommen im Colony Manager Redux!\n\nDer Colony Manager erlaubt dir Aufträge für Produktion, Jagd, Försterei und Tierpflege zu erstellen. Jeder dieser Aufträge kann durch die etlichen Managerfenster, wie durch andere nützliche Fenster gesetzt werden. \n\nWenn du einen Befehl aufgibst, wird ein Kollonist mit ausgewählten Managerberuf sich der Sache annehmen. Er überwacht Lager an seinem Managertisch und erstellt und bearbeitete Aufträge.\n\nUm die Mod zu nutzen brauchst du zwei Dinge: einen Kollonist mit ausgewählten Managerjob.\n Und einen Managertisch.\n\nHappy hunting!Fröhliche Jagd!</ColonyManagerRedux.ManagerHelpMessage>
     <ColonyManagerRedux.ManagerAlertNoTableLabel>Managertisch fehlt</ColonyManagerRedux.ManagerAlertNoTableLabel>
     <ColonyManagerRedux.ManagerAlertNoTable>Manageraufträge sind angeordnet, aber der Managertisch fehlt</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>Kein Manager gesetzt</ColonyManagerRedux.ManagerAlertNoManagerLabel>

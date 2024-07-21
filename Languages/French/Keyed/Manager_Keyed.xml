@@ -9,8 +9,6 @@
     <ColonyManagerRedux.ManagerTabDisabledBecause>(désactivé: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerHelpTitle>Gestionnaire de Colonie Redux</ColonyManagerRedux.ManagerHelpTitle>
-    <ColonyManagerRedux.ManagerHelpMessage>Bienvenue sur le Gestionnaire de Colonie Redux!\n\nLa gestion de colonie vous permet de désigner des cibles de production, de chasse, de foresterie et de gestion du bétail. Vous pouvez paramètrer chacune de ces catégories de diverses façons, par le biais des icones en haut de la fenêtre. \n\nDès qu'une tâche de travail est désignée, un colon avec le métier de gestionnaire passera occasionellement en revue les tâches et les stocks de la colonie au bureau de gestion, et mettra à jour les désignations et la quantité à produire. \n\nPour que le mod fonctionne, vous avez besoin de deux choses : \n - Un colon avec le travail de gestionnaire \n - Un bureau de gestion. \n\n Bonne gestion!</ColonyManagerRedux.ManagerHelpMessage>
     <ColonyManagerRedux.ManagerAlertNoTableLabel>Nécessite le bureau de gestionnaire</ColonyManagerRedux.ManagerAlertNoTableLabel>
     <ColonyManagerRedux.ManagerAlertNoTable>Les cibles de tâches sont établies, mais il n'y a pas de bureau de gestionnaire disponible</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>Nécessite un colon gestionnaire</ColonyManagerRedux.ManagerAlertNoManagerLabel>

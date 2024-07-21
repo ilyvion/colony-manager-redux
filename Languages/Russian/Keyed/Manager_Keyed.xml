@@ -9,8 +9,6 @@
     <ColonyManagerRedux.ManagerTabDisabledBecause>(отключено: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerHelpTitle>Менеджер Колонии</ColonyManagerRedux.ManagerHelpTitle>
-    <ColonyManagerRedux.ManagerHelpMessage>Добро пожаловать в Менеджер Колонии.\n\nМенеджер Колонии позволяет устанавливать цели для производства, охоты, лесозаготовки и животноводства. Эти задачи настраиваются на различных экранах и доступны посредством кнопок вверху экрана, также есть другие удобные экраны. \n\nКогда вы настраиваете задачу, поселенец с навыком менеджера будет время от времени пересматривать задания других колонистов, проверять ваши склады и изменять выполняемые задачи в соответствии с потребностями.\n\nДля работы мода требуются:\n - Поселенец с навыком менеджера.\n - Стол менеджера.</ColonyManagerRedux.ManagerHelpMessage>
     <ColonyManagerRedux.ManagerAlertNoTableLabel>Нужен стол менеджера</ColonyManagerRedux.ManagerAlertNoTableLabel>
     <ColonyManagerRedux.ManagerAlertNoTable>Есть задания, но нет доступного стола менеджера</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>Нужен менеджер</ColonyManagerRedux.ManagerAlertNoManagerLabel>

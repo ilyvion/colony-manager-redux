@@ -158,13 +158,6 @@ internal class MainTabWindow_Manager : MainTabWindow
     {
         base.PreOpen();
 
-        // TODO: reimplement help dialog
-        //if ( !Manager.For( Find.CurrentMap ).HelpShown )
-        //{
-        //    Find.WindowStack.Add( new Dialog_Message( "ColonyManagerRedux.ManagerHelpMessage".Translate(), "ColonyManagerRedux.ManagerHelpTitle".Translate() ) );
-        //    Manager.For( Find.CurrentMap ).HelpShown = true;
-        //}
-
         // make sure the currently open tab is for this map
         if (CurrentTab.manager.map != Find.CurrentMap)
         {

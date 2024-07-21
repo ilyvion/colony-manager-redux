@@ -9,8 +9,6 @@
     <ColonyManagerRedux.ManagerTabDisabledBecause>(desligado: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
     <!-- Ajuda e mensagens de alerta para os lexicalmente desafiados. -->
-    <ColonyManagerRedux.ManagerHelpTitle>Gerenciador de colônia</ColonyManagerRedux.ManagerHelpTitle>
-    <ColonyManagerRedux.ManagerHelpMessage>Bem-vindo ao Gerenciador de Colônia.\n\nO Gerenciador de Colônia permite que você defina metas para produção, caça, registro e criação de gado. Essas tarefas são configuradas em telas diferentes e são acessíveis através dos botões na parte superior da tela, além de outras telas convenientes. \ N \ nKogda você configurar uma tarefa, um colono da habilidade do gerente de vez em quando para rever a definição de outros colonos, verificar os seus stocks e modificar tarefas executadas de acordo com os requisitos do modo de operação \ nPara \ n exigidos: \ n - Colono com a habilidade do gestor \ .. n - Tabela do gerente.</ColonyManagerRedux.ManagerHelpMessage>
     <ColonyManagerRedux.ManagerAlertNoTableLabel>Precisa de tabela de gerenciadores</ColonyManagerRedux.ManagerAlertNoTableLabel>
     <ColonyManagerRedux.ManagerAlertNoTable>Existem trabalhos, mas não há tabela de gerenciadores disponível</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>Gerenciador de necessidades</ColonyManagerRedux.ManagerAlertNoManagerLabel>
