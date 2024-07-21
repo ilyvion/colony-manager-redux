@@ -17,16 +17,9 @@ public static class Utilities
         AllowedToFilter
     }
 
-    public static Dictionary<MapStockpileFilter, FilterCountCache> CountCache =
-        [];
-
     public static WorkTypeDef WorkTypeDefOf_Managing = DefDatabase<WorkTypeDef>.GetNamed("Managing");
 
     private static List<UpdateInterval>? _updateIntervalOptions;
-
-    static Utilities()
-    {
-    }
 
     public static List<UpdateInterval> UpdateIntervalOptions
     {
@@ -63,8 +56,8 @@ public static class Utilities
             throw new NullReferenceException(nameof(filter));
         }
 
-        var key = new MapStockpileFilter(map, filter, stockpile, countAllOnMap);
-        if (TryGetCached(key, out var count))
+        var key = new MapStockpileFilter(filter, stockpile, countAllOnMap);
+        if (TryGetCached(map, key, out var count))
         {
             return count;
         }
@@ -114,7 +107,7 @@ public static class Utilities
 
 
 #if DEBUG_COUNTS
-                        Log.Message(t.LabelCap + ": " + CountProducts(t));
+                    Log.Message(t.LabelCap + ": " + t.stackCount);
 #endif
 
                     count += t.stackCount;
@@ -122,14 +115,15 @@ public static class Utilities
             }
 
             // update cache if exists.
-            if (CountCache.ContainsKey(key))
+            var countCache = Manager.For(map).CountCache;
+            if (countCache.ContainsKey(key))
             {
-                CountCache[key].Cache = count;
-                CountCache[key].TimeSet = Find.TickManager.TicksGame;
+                countCache[key].Cache = count;
+                countCache[key].TimeSet = Find.TickManager.TicksGame;
             }
             else
             {
-                CountCache.Add(key, new FilterCountCache(count));
+                countCache.Add(key, new FilterCountCache(count));
             }
         }
 
@@ -573,15 +567,13 @@ public static class Utilities
         return test == value;
     }
 
-    private static bool TryGetCached(MapStockpileFilter mapStockpileFilter, out int count)
+    private static bool TryGetCached(Map map, MapStockpileFilter mapStockpileFilter, out int count)
     {
-        if (CountCache.ContainsKey(mapStockpileFilter))
+        var countCache = Manager.For(map).CountCache;
+        if (countCache.ContainsKey(mapStockpileFilter))
         {
-            var filterCountCache = CountCache[mapStockpileFilter];
-            if (Find.TickManager.TicksGame - filterCountCache.TimeSet < 250 && // less than 250 ticks ago
-                 Find.TickManager.TicksGame > filterCountCache.TimeSet)
-            // cache is not from future (switching games without restarting could cause this).
-            // TODO: avoid this issue properly by cleaning up things like caches on game exit.
+            var filterCountCache = countCache[mapStockpileFilter];
+            if (Find.TickManager.TicksGame - filterCountCache.TimeSet < 250)
             {
                 count = filterCountCache.Cache;
                 return true;
@@ -594,14 +586,10 @@ public static class Utilities
         return false;
     }
 
-    public struct MapStockpileFilter(Map map, ThingFilter filter, Zone_Stockpile? stockpile,
-                               bool countAllOnMap = false)
-    {
-        private ThingFilter filter = filter;
-        private Zone_Stockpile? stockpile = stockpile;
-        private Map map = map;
-        private bool countAllOnMap = countAllOnMap;
-    }
+    public record MapStockpileFilter(
+        ThingFilter Filter,
+        Zone_Stockpile? Stockpile,
+        bool CountAllOnMap = false);
 
     public class CachedValues<T, V>(int updateInterval = 250)
     {
