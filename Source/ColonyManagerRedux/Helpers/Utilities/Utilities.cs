@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Reflection;
+using CircularBuffer;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Widgets_Labels;
 
@@ -454,26 +455,31 @@ public static class Utilities
         return -value;
     }
 
-    public static void Scribe_IntTupleArray(ref List<(int, int)> values, string label)
+    public static void Scribe_IntTupleArray(ref CircularBuffer<(int, int)> values, string label)
     {
+        int capacity = 0;
         string? text = null;
         if (Scribe.mode == LoadSaveMode.Saving)
         {
-            text = string.Join(":", values.ConvertAll(i => $"{i.Item1},{i.Item2}").ToArray());
+            capacity = values.Capacity;
+            text = values.Join(i => $"{i.Item1},{i.Item2}", ":");
         }
 
+        Scribe_Values.Look(ref capacity, $"{label}Capacity", History.EntriesPerInterval);
         Scribe_Values.Look(ref text, label);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            values = text?.Split(':')
-                .Select(v =>
-                {
-                    var values = v.Split(',');
-                    var count = int.Parse(values[0]);
-                    var target = int.Parse(values[1]);
-                    return (count, target);
-                })
-                .ToList() ?? [];
+            values = new CircularBuffer<(int, int)>(
+                capacity,
+                text?.Split(':')
+                    .Select(v =>
+                    {
+                        var values = v.Split(',');
+                        var count = int.Parse(values[0]);
+                        var target = int.Parse(values[1]);
+                        return (count, target);
+                    })
+                    .ToArray() ?? []);
         }
     }
 

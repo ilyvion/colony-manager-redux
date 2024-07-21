@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using CircularBuffer;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -21,7 +22,7 @@ public class History : IExposable
     public static Period[] Periods = (Period[])Enum.GetValues(typeof(Period));
 
     private const int Breaks = 4;
-    private const int EntriesPerInterval = 100;
+    internal const int EntriesPerInterval = 100;
     private const float YAxisMargin = 40f;
 
     // How often to record a value for a given period
@@ -700,7 +701,7 @@ public class History : IExposable
     {
         public Texture2D? _texture;
         public HistoryLabel label = new DirectHistoryLabel(string.Empty);
-        public List<(int count, int target)>[] pages;
+        public CircularBuffer<(int count, int target)>[] pages;
         public int entriesPerInterval = EntriesPerInterval;
         public ThingDefCountClass ThingDefCount = new();
         private int _observedMax = -1;
@@ -736,7 +737,9 @@ public class History : IExposable
 
         public Chapter()
         {
-            pages = Periods.Select(_ => new List<(int, int)>([(0, 0)])).ToArray();
+            pages = Periods
+                .Select(_ => new CircularBuffer<(int, int)>(EntriesPerInterval, [(0, 0)]))
+                .ToArray();
         }
 
         public Chapter(HistoryLabel label, int entriesPerInterval, Color color) : this()
@@ -815,17 +818,10 @@ public class History : IExposable
                 {
                     var page = pages[(int)period];
 
-                    page.Add((count, target));
+                    page.PushBack((count, target));
                     if (Utilities.SafeAbs(count) > _observedMax)
                     {
                         _observedMax = Utilities.SafeAbs(count);
-                    }
-
-                    // cull the list back down to size.
-                    // TODO: Use a ring buffer instead a list to avoid having to do `RemoveAt(0)`.
-                    while (page.Count > EntriesPerInterval)
-                    {
-                        page.RemoveAt(0);
                     }
                 }
             }
@@ -847,14 +843,13 @@ public class History : IExposable
         public void PlotCount(Period period, Rect canvas, float wu, float hu, int sign = 1)
         {
             var page = pages[(int)period];
-            if (page.Count > 1)
+            if (page.Size > 1)
             {
-                var hist = page;
                 Vector2? lastEnd = null;
-                for (var i = 0; i < hist.Count - 1; i++) // line segments, so up till n-1
+                for (var i = 0; i < page.Size - 1; i++) // line segments, so up till n-1
                 {
-                    var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * hist[i].count * sign);
-                    var end = new Vector2(Mathf.Round(wu * (i + 1)), Mathf.Round(canvas.height - hu * hist[i + 1].count * sign));
+                    var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * page[i].count * sign);
+                    var end = new Vector2(Mathf.Round(wu * (i + 1)), Mathf.Round(canvas.height - hu * page[i + 1].count * sign));
                     Widgets.DrawLine(start, end, LineColor, 1f);
                 }
             }
@@ -863,11 +858,11 @@ public class History : IExposable
         public void PlotTarget(Period period, Rect canvas, float wu, float hu, int sign = 1)
         {
             var page = pages[(int)period];
-            if (page.Count > 1)
+            if (page.Size > 1)
             {
                 Color targetColor = TargetColor;
                 Vector2? lastEnd = null;
-                for (var i = 0; i < page.Count - 1; i++) // line segments, so up till n-1
+                for (var i = 0; i < page.Size - 1; i++) // line segments, so up till n-1
                 {
                     var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * page[i].target * sign);
                     var end = new Vector2(wu * (i + 1) - 1, canvas.height - hu * page[i + 1].target * sign);
@@ -888,7 +883,7 @@ public class History : IExposable
         public int ValueAt(Period period, int x, int sign = 1)
         {
             var page = pages[(int)period];
-            if (x < 0 || x >= page.Count)
+            if (x < 0 || x >= page.Size)
             {
                 return -1;
             }
@@ -899,7 +894,7 @@ public class History : IExposable
         public int TargetAt(Period period, int x, int sign = 1)
         {
             var page = pages[(int)period];
-            if (x < 0 || x >= page.Count)
+            if (x < 0 || x >= page.Size)
             {
                 return -1;
             }
