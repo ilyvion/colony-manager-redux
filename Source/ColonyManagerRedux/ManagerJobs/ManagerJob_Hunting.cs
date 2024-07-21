@@ -357,16 +357,25 @@ public class ManagerJob_Hunting : ManagerJob
 
         // get the total count of meat in storage, expected meat in corpses and expected meat in designations.
         var totalCount = trigger.CurrentCount + GetMeatInCorpses() + GetMeatInDesignations();
+        if (totalCount >= trigger.TargetCount)
+        {
+            return false;
+        }
 
         // get a list of huntable animals sorted by distance (ignoring obstacles) and expected meat count.
         // note; attempt to balance cost and benefit, current formula: value = meat / ( distance ^ 2)
         var huntableAnimals = GetHuntableAnimalsSorted();
 
         // while totalCount < count AND we have animals that can be designated, designate animal.
-        for (var i = 0; i < huntableAnimals.Count && totalCount < trigger.TargetCount; i++)
+        foreach (var huntableAnimal in huntableAnimals)
         {
-            AddDesignation(huntableAnimals[i]);
-            totalCount += huntableAnimals[i].EstimatedMeatCount();
+            if (totalCount >= trigger.TargetCount)
+            {
+                break;
+            }
+            //  var i = 0; i < huntableAnimals.Count && totalCount < trigger.TargetCount; i++)
+            AddDesignation(huntableAnimal);
+            totalCount += huntableAnimal.EstimatedMeatCount();
             workDone = true;
         }
 
@@ -451,16 +460,14 @@ public class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    // TODO: refactor into a yielding iterator for performance?
-    private List<Pawn> GetHuntableAnimalsSorted()
+    private IEnumerable<Pawn> GetHuntableAnimalsSorted()
     {
         // get the 'home' position
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.mapPawns.AllPawns
             .Where(p => IsValidHuntingTarget(p, false))
-            .OrderByDescending(p => p.EstimatedMeatCount() / Distance(p, position))
-            .ToList();
+            .OrderByDescending(p => p.EstimatedMeatCount() / Distance(p, position));
     }
 
     private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)
