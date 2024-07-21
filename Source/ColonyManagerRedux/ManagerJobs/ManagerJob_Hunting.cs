@@ -152,9 +152,9 @@ public class ManagerJob_Hunting : ManagerJob
                     .ConvertAll(thing => (Corpse)thing);
             return corpses.Where(
                 thing => thing?.InnerPawn != null &&
-                         (HuntingGrounds == null ||
-                          HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
-                          AllowedAnimals.Contains(thing.InnerPawn.kindDef)).ToList();
+                    (HuntingGrounds == null ||
+                    HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
+                    AllowedAnimals.Contains(thing.InnerPawn.kindDef)).ToList();
         }
     }
 
@@ -164,14 +164,13 @@ public class ManagerJob_Hunting : ManagerJob
     {
         get
         {
-            _humanLikeMeatDefs ??=
-                    DefDatabase<ThingDef>.AllDefsListForReading
-                                         .Where(def => def.category == ThingCategory.Pawn &&
-                                                        (def.race?.Humanlike ?? false) &&
-                                                        (def.race?.IsFlesh ?? false))
-                                         .Select(pk => pk.race.meatDef)
-                                         .Distinct()
-                                         .ToList();
+            _humanLikeMeatDefs ??= DefDatabase<ThingDef>.AllDefsListForReading
+                .Where(def => def.category == ThingCategory.Pawn &&
+                    (def.race?.Humanlike ?? false) &&
+                    (def.race?.IsFlesh ?? false))
+                .Select(pk => pk.race.meatDef)
+                .Distinct()
+                .ToList();
 
             return _humanLikeMeatDefs;
         }
@@ -403,11 +402,10 @@ public class ManagerJob_Hunting : ManagerJob
 
     private void AddRelevantGameDesignations()
     {
-        foreach (
-            var des in
+        foreach (var des in
             Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
-                   .Except(_designations)
-                   .Where(des => IsValidHuntingTarget(des.target, true)))
+                .Except(_designations)
+                .Where(des => IsValidHuntingTarget(des.target, true)))
         {
             AddDesignation(des, false);
         }
@@ -460,9 +458,9 @@ public class ManagerJob_Hunting : ManagerJob
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.mapPawns.AllPawns
-                      .Where(p => IsValidHuntingTarget(p, false))
-                      .OrderByDescending(p => p.EstimatedMeatCount() / Distance(p, position))
-                      .ToList();
+            .Where(p => IsValidHuntingTarget(p, false))
+            .OrderByDescending(p => p.EstimatedMeatCount() / Distance(p, position))
+            .ToList();
     }
 
     private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)
