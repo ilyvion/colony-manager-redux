@@ -1,28 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
 
-  <!-- Work tables -->
+    <!-- Work tables -->
 
-  <FM_BasicManagerStation.label>基础管理办公桌</FM_BasicManagerStation.label>
-  <FM_BasicManagerStation.description>一张简单的办公桌，上面有一些管理者工作所必须的工具。</FM_BasicManagerStation.description>
-  <FM_BasicManagerStation_Blueprint.label>基础管理办公桌（蓝图）</FM_BasicManagerStation_Blueprint.label>
-  <FM_BasicManagerStation_Blueprint_Install.label>基础管理办公桌（蓝图）</FM_BasicManagerStation_Blueprint_Install.label>
-  <FM_BasicManagerStation_Frame.label>基础管理办公桌（建造中）</FM_BasicManagerStation_Frame.label>
-  <FM_BasicManagerStation_Frame.description>一张简单的办公桌，上面有一些管理者工作所必须的工具。</FM_BasicManagerStation_Frame.description>
+    <CM_BasicManagerStation.label>基础管理办公桌</CM_BasicManagerStation.label>
+    <CM_BasicManagerStation.description>一张简单的办公桌，上面有一些管理者工作所必须的工具。</CM_BasicManagerStation.description>
+    <CM_BasicManagerStation_Blueprint.label>基础管理办公桌（蓝图）</CM_BasicManagerStation_Blueprint.label>
+    <CM_BasicManagerStation_Blueprint_Install.label>基础管理办公桌（蓝图）</CM_BasicManagerStation_Blueprint_Install.label>
+    <CM_BasicManagerStation_Frame.label>基础管理办公桌（建造中）</CM_BasicManagerStation_Frame.label>
+    <CM_BasicManagerStation_Frame.description>一张简单的办公桌，上面有一些管理者工作所必须的工具。</CM_BasicManagerStation_Frame.description>
 
-  <FM_ManagerStation.label>管理办公桌</FM_ManagerStation.label>
-  <FM_ManagerStation.description>一张办公桌，带有电脑和必要的工具，让管理者更高效地工作。</FM_ManagerStation.description>
-  <FM_ManagerStation_Blueprint.label>管理办公桌（蓝图）</FM_ManagerStation_Blueprint.label>
-  <FM_ManagerStation_Blueprint_Install.label>管理办公桌（蓝图）</FM_ManagerStation_Blueprint_Install.label>
-  <FM_ManagerStation_Frame.label>管理办公桌（建造中）</FM_ManagerStation_Frame.label>
-  <FM_ManagerStation_Frame.description>一张办公桌，带有电脑和必要的工具，让管理者更高效地工作。</FM_ManagerStation_Frame.description>
+    <CM_ManagerStation.label>管理办公桌</CM_ManagerStation.label>
+    <CM_ManagerStation.description>一张办公桌，带有电脑和必要的工具，让管理者更高效地工作。</CM_ManagerStation.description>
+    <CM_ManagerStation_Blueprint.label>管理办公桌（蓝图）</CM_ManagerStation_Blueprint.label>
+    <CM_ManagerStation_Blueprint_Install.label>管理办公桌（蓝图）</CM_ManagerStation_Blueprint_Install.label>
+    <CM_ManagerStation_Frame.label>管理办公桌（建造中）</CM_ManagerStation_Frame.label>
+    <CM_ManagerStation_Frame.description>一张办公桌，带有电脑和必要的工具，让管理者更高效地工作。</CM_ManagerStation_Frame.description>
 
-  <FM_AIManager.label>AI管理者</FM_AIManager.label>
-  <FM_AIManager.description>一台能够自主管理你的殖民地的超级计算机。我们再次申明：那些声称我们的AI带有邪恶心灵子程序的完全是诽谤！</FM_AIManager.description>
-  <FM_AIManager_Blueprint.label>AI管理者（蓝图）</FM_AIManager_Blueprint.label>
-  <FM_AIManager_Blueprint_Install.label>AI管理者（蓝图）</FM_AIManager_Blueprint_Install.label>
-  <FM_AIManager_Frame.label>AI管理者（建造中）</FM_AIManager_Frame.label>
-  <FM_AIManager_Frame.description>一台能够自主管理你的殖民地的超级计算机。我们再次申明：那些声称我们的AI带有邪恶心灵子程序的完全是诽谤！</FM_AIManager_Frame.description>
+    <CM_AIManager.label>AI管理者</CM_AIManager.label>
+    <CM_AIManager.description>一台能够自主管理你的殖民地的超级计算机。我们再次申明：那些声称我们的AI带有邪恶心灵子程序的完全是诽谤！</CM_AIManager.description>
+    <CM_AIManager_Blueprint.label>AI管理者（蓝图）</CM_AIManager_Blueprint.label>
+    <CM_AIManager_Blueprint_Install.label>AI管理者（蓝图）</CM_AIManager_Blueprint_Install.label>
+    <CM_AIManager_Frame.label>AI管理者（建造中）</CM_AIManager_Frame.label>
+    <CM_AIManager_Frame.description>一台能够自主管理你的殖民地的超级计算机。我们再次申明：那些声称我们的AI带有邪恶心灵子程序的完全是诽谤！</CM_AIManager_Frame.description>
 
 
 </LanguageData>

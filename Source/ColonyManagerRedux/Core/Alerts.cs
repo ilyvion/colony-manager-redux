@@ -26,7 +26,7 @@ internal class Alert_NoManager : Alert
                     pawn.workSettings.WorkIsActive(
                         Utilities.WorkTypeDefOf_Managing)) ||
                     Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
-                        DefDatabase<ThingDef>.GetNamed("FM_AIManager"));
+                        ManagerThingDefOf.CM_AIManager);
     }
 }
 
