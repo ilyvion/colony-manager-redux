@@ -428,7 +428,7 @@ public class History : IExposable
                 Rect butRect = new(legendPos.x, legendPos.y, lineLength + Margin + labelWidth, rowHeight);
                 bool isShown = _chaptersShown.Contains(chapter);
 
-                GUI.color = isShown ? chapter.lineColor : chapter.TargetColor;
+                GUI.color = isShown ? chapter.LineColor : chapter.TargetColor;
                 Widgets.DrawLineHorizontal(legendPos.x, legendPos.y + rowHeight / 2f, lineLength);
                 legendPos.x += lineLength + Margin;
                 Widgets_Labels.Label(ref legendPos, labelWidth, rowHeight, chapter.label.Label,
@@ -536,7 +536,7 @@ public class History : IExposable
             var blipRect = new Rect(realpos.x - SmallIconSize / 2f,
                                      realpos.y - SmallIconSize / 2f, SmallIconSize,
                                      SmallIconSize);
-            GUI.color = useValue ? closest.lineColor : closest.TargetColor;
+            GUI.color = useValue ? closest.LineColor : closest.TargetColor;
             GUI.DrawTexture(blipRect, Resources.StageB);
             GUI.color = Color.white;
 
@@ -700,22 +700,37 @@ public class History : IExposable
     {
         public Texture2D? _texture;
         public HistoryLabel label = new DirectHistoryLabel(string.Empty);
-        public Color lineColor = DefaultLineColor;
         public List<(int count, int target)>[] pages;
         public int entriesPerInterval = EntriesPerInterval;
         public ThingDefCountClass ThingDefCount = new();
         private int _observedMax = -1;
         private int _specificMax = -1;
 
+
+        private Color _lineColor = DefaultLineColor;
+        public Color LineColor
+        {
+            get => _lineColor;
+            set
+            {
+                _lineColor = value;
+                _targetColor = null;
+            }
+        }
+
+        private Color? _targetColor;
         public Color TargetColor
         {
             get
             {
-                // TODO: Cache?
-                Color.RGBToHSV(lineColor, out var H, out var S, out var V);
-                S /= 2;
-                V /= 2;
-                return Color.HSVToRGB(H, S, V);
+                if (!_targetColor.HasValue)
+                {
+                    Color.RGBToHSV(LineColor, out var H, out var S, out var V);
+                    S /= 2;
+                    V /= 2;
+                    _targetColor = Color.HSVToRGB(H, S, V);
+                }
+                return _targetColor.Value;
             }
         }
 
@@ -728,15 +743,15 @@ public class History : IExposable
         {
             this.label = label;
             this.entriesPerInterval = entriesPerInterval;
-            lineColor = color;
+            LineColor = color;
         }
 
-        public Chapter(ThingDefCountClass thingDefCount, int size, Color color) : this()
+        public Chapter(ThingDefCountClass thingDefCount, int entriesPerInterval, Color color) : this()
         {
             label = new DefHistoryLabel<ThingDef>(thingDefCount.thingDef);
             ThingDefCount = thingDefCount;
-            this.entriesPerInterval = size;
-            lineColor = color;
+            this.entriesPerInterval = entriesPerInterval;
+            LineColor = color;
         }
 
         public Texture2D Texture
@@ -745,7 +760,7 @@ public class History : IExposable
             {
                 if (_texture == null)
                 {
-                    _texture = SolidColorMaterials.NewSolidColorTexture(lineColor);
+                    _texture = SolidColorMaterials.NewSolidColorTexture(LineColor);
                 }
 
                 return _texture;
@@ -771,7 +786,7 @@ public class History : IExposable
         {
             Scribe_Deep.Look(ref label, "label");
             Scribe_Values.Look(ref entriesPerInterval, "entriesPerInterval", 100);
-            Scribe_Values.Look(ref lineColor, "lineColor", Color.white);
+            Scribe_Values.Look(ref _lineColor, "lineColor", Color.white);
             Scribe_Values.Look(ref ThingDefCount.count, "count");
             Scribe_Defs.Look(ref ThingDefCount.thingDef, "thingDef");
 
@@ -840,7 +855,7 @@ public class History : IExposable
                 {
                     var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * hist[i].count * sign);
                     var end = new Vector2(Mathf.Round(wu * (i + 1)), Mathf.Round(canvas.height - hu * hist[i + 1].count * sign));
-                    Widgets.DrawLine(start, end, lineColor, 1f);
+                    Widgets.DrawLine(start, end, LineColor, 1f);
                 }
             }
         }
