@@ -24,7 +24,7 @@ internal class Alert_NoManager : Alert
             Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(
                 pawn => !pawn.health.Dead && !pawn.Downed &&
                     pawn.workSettings.WorkIsActive(
-                        Utilities.WorkTypeDefOf_Managing)) ||
+                        ManagerWorkTypeDefOf.Managing)) ||
                     Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
                         ManagerThingDefOf.CM_AIManager);
     }

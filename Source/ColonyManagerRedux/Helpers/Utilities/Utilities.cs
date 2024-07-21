@@ -18,8 +18,6 @@ public static class Utilities
         AllowedToFilter
     }
 
-    public static WorkTypeDef WorkTypeDefOf_Managing = DefDatabase<WorkTypeDef>.GetNamed("Managing");
-
     private static List<UpdateInterval>? _updateIntervalOptions;
 
     public static List<UpdateInterval> UpdateIntervalOptions

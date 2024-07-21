@@ -41,9 +41,6 @@ public class ManagerJob_Forestry : ManagerJob
         Logging
     }
 
-    private static readonly WorkTypeDef PlantCutting =
-        DefDatabase<WorkTypeDef>.GetNamed("PlantCutting");
-
     private readonly Utilities.CachedValue<int>
         _designatedWoodCachedValue = new(0);
 
@@ -150,7 +147,7 @@ public class ManagerJob_Forestry : ManagerJob
         }
     }
 
-    public override WorkTypeDef WorkTypeDef => PlantCutting;
+    public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.PlantCutting;
 
     public void AddRelevantGameDesignations()
     {

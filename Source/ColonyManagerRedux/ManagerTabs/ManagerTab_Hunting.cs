@@ -459,12 +459,12 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.ShouldCheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
-            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(Utilities_Hunting.HumanMeat),
+            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(ThingDefOf.Meat_Human),
             () => SelectedHuntingJob.AllowHumanLikeMeat = true,
             () => SelectedHuntingJob.AllowHumanLikeMeat = false);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
-            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(Utilities_Hunting.InsectMeat),
+            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Megaspider),
             () => SelectedHuntingJob.AllowInsectMeat = true,
             () => SelectedHuntingJob.AllowInsectMeat = false);
 

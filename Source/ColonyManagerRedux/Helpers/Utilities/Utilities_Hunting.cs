@@ -6,11 +6,6 @@ namespace ColonyManagerRedux;
 
 public static class Utilities_Hunting
 {
-    public static ThingCategoryDef FoodRaw = DefDatabase<ThingCategoryDef>.GetNamed("FoodRaw");
-    public static ThingDef HumanMeat = ThingDefOf.Human.race.meatDef;
-    public static ThingDef InsectMeat = ThingDef.Named("Megaspider").race.meatDef;
-    public static ThingCategoryDef MeatRaw = ThingCategoryDefOf.MeatRaw;
-
     public static int EstimatedMeatCount(this PawnKindDef kind)
     {
         return (int)kind.race.GetStatValueAbstract(StatDefOf.MeatAmount);
@@ -31,7 +26,7 @@ public static class Utilities_Hunting
         return map.Biome.AllWildAnimals
             .Concat(map.mapPawns.AllPawns
                 .Where(p => (p.RaceProps?.Animal ?? false)
-                            && !(map.fogGrid?.IsFogged(p.Position) ?? true))
+                    && !(map.fogGrid?.IsFogged(p.Position) ?? true))
                 .Select(p => p.kindDef)
             .Distinct()
             .OrderBy(pk => pk.label));

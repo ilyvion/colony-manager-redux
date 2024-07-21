@@ -25,7 +25,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
     {
         get
         {
-            _workType ??= Utilities.WorkTypeDefOf_Managing;
+            _workType ??= ManagerWorkTypeDefOf.Managing;
 
             return _workType;
         }

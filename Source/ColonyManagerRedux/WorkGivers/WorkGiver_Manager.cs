@@ -72,7 +72,7 @@ internal class WorkGiver_Manage : WorkGiver_Scanner
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced)
     {
-        return new Job(DefDatabase<JobDef>.GetNamed("ManagingAtManagingStation"), t as Building_ManagerStation);
+        return new Job(ManagerJobDefOf.ManagingAtManagingStation, t as Building_ManagerStation);
     }
 
     public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)

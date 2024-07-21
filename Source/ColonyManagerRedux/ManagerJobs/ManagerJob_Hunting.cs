@@ -67,7 +67,7 @@ public class ManagerJob_Hunting : ManagerJob
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
         trigger = new Trigger_Threshold(this);
-        trigger.ThresholdFilter.SetAllow(Utilities_Hunting.MeatRaw, true);
+        trigger.ThresholdFilter.SetAllow(ThingCategoryDefOf.MeatRaw, true);
 
         ConfigureThresholdTriggerParentFilter();
     }
@@ -91,7 +91,7 @@ public class ManagerJob_Hunting : ManagerJob
 
             if (!_allowInsectMeat)
             {
-                trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, false);
+                trigger.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, false);
             }
         }
     }
@@ -137,7 +137,7 @@ public class ManagerJob_Hunting : ManagerJob
 
             // update value and filter
             _allowInsectMeat = value;
-            trigger.ThresholdFilter.SetAllow(Utilities_Hunting.InsectMeat, value);
+            trigger.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, value);
         }
     }
 
@@ -496,6 +496,6 @@ public class ManagerJob_Hunting : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        trigger.ParentFilter.SetAllow(Utilities_Hunting.FoodRaw, true);
+        trigger.ParentFilter.SetAllow(ManagerThingCategoryDefOf.FoodRaw, true);
     }
 }

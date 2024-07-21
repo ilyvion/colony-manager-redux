@@ -62,15 +62,13 @@ internal class JobDriver_ManagingAtManagingStation : JobDriver
                 workDone = 0;
                 workNeeded = comp.Props.speed;
             },
-
             tickAction = () =>
             {
                 // learn a bit
-                pawn.skills.GetSkill(DefDatabase<SkillDef>.GetNamed("Intellectual"))
-                    .Learn(0.11f);
+                pawn.skills.GetSkill(SkillDefOf.Intellectual).Learn(0.11f);
 
                 // update counter
-                workDone += pawn.GetStatValue(StatDef.Named("ManagingSpeed"));
+                workDone += pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed);
 
                 // are we done yet?
                 if (workDone > workNeeded)
