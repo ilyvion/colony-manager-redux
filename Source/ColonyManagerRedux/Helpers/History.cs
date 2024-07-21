@@ -432,9 +432,11 @@ public class History : IExposable
                 GUI.color = isShown ? chapter.LineColor : chapter.TargetColor;
                 Widgets.DrawLineHorizontal(legendPos.x, legendPos.y + rowHeight / 2f, lineLength);
                 legendPos.x += lineLength + Margin;
+                legendPos.y += 1f;
                 Widgets_Labels.Label(ref legendPos, labelWidth, rowHeight, chapter.label.Label,
                     font: GameFont.Tiny, color: isShown ? Color.white : Color.gray);
                 legendPos.x = 0f;
+                legendPos.y -= 1f;
 
                 var tooltip = "ColonyManagerRedux.ManagerHistoryClickToEnable"
                     .Translate(isShown
