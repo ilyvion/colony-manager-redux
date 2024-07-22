@@ -181,8 +181,8 @@ public static class Utilities
         {
             if (Widgets.ButtonImage(
                 stampRect,
-                job.IsCompleted ? Resources.StampCompleted :
-                job.IsSuspended ? Resources.StampStart : Resources.StampSuspended))
+                job.IsSuspended ? Resources.StampStart :
+                job.IsCompleted ? Resources.StampCompleted : Resources.StampSuspended))
             {
                 job.IsSuspended = !job.IsSuspended;
             }
