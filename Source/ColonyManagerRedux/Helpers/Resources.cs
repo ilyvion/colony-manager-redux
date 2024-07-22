@@ -8,6 +8,10 @@ namespace ColonyManagerRedux;
 public static class Resources
 #pragma warning restore CA1724
 {
+    public static readonly Color
+        Orange = new(1f, 144 / 255f, 0f),
+        SlightlyDarkBackgroundColour = new(0f, 0f, 0f, .2f);
+
     public static readonly Texture2D
         // sorting arrows
         ArrowTop = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowTop"),
@@ -44,10 +48,6 @@ public static class Resources
         TrainableNoneIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_none"),
         TrainableIntermediateIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_intermediate"),
         TrainableAdvancedIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_advanced");
-
-    public static readonly Color
-        Orange = new(1f, 144 / 255f, 0f),
-        SlightlyDarkBackgroundColour = new(0f, 0f, 0f, .2f);
 
     public static Texture2D GetLifeStageIcon(int lifeStageIndex)
     {
