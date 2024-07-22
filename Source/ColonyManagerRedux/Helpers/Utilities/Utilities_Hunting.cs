@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux;
 
-public static class Utilities_Hunting
+internal static class Utilities_Hunting
 {
     public static int EstimatedMeatCount(this PawnKindDef kind)
     {

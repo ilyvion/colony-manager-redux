@@ -4,11 +4,11 @@
 
 namespace ColonyManagerRedux;
 
-public class I18n
+internal static class I18n
 {
-    public static TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.ColonyManager.HistoryProduction";
-    public static TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.ColonyManager.HistoryConsumption";
-    public static TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.ColonyManager.HistoryBatteries";
+    public static readonly TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.ColonyManager.HistoryProduction";
+    public static readonly TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.ColonyManager.HistoryConsumption";
+    public static readonly TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.ColonyManager.HistoryBatteries";
 
 
     public static string Aggressiveness(float aggression)

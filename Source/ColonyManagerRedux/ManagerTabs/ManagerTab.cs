@@ -9,10 +9,10 @@ namespace ColonyManagerRedux;
 public abstract class ManagerTab(Manager manager)
 #pragma warning restore CS8618
 {
-    public float DefaultLeftRowSize = 300f;
+    public const float DefaultLeftRowSize = 300f;
 
 
-    public static float SuspendStampWidth = Constants.MediumIconSize,
+    public const float SuspendStampWidth = Constants.MediumIconSize,
                         LastUpdateRectWidth = 50f,
                         ProgressRectWidth = 10f,
                         StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
@@ -50,19 +50,21 @@ public abstract class ManagerTab(Manager manager)
         Export
     }
 
-    /// <summary>
-    /// Used by the
-    /// </summary>
+#pragma warning disable CA1062 // Validate arguments of public methods
+    // TODO: Make overview rendering a comp
+    // TODO: A lot of the DrawListEntry methods are very similar, consider abstracting
     public virtual void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
     }
 
+    // TODO: Make overview rendering a comp
     public virtual void DrawOverviewDetails(ManagerJob job, Rect rect)
     {
         if (job.CompOfType<CompManagerJobHistory>() is CompManagerJobHistory historyComp)
         {
             historyComp.History.DrawPlot(rect);
         }
+#pragma warning restore CA1062 // Validate arguments of public methods
     }
 
     public virtual void PostMake()
@@ -118,8 +120,19 @@ public abstract class ManagerTab(Manager manager)
     {
     }
 
-    protected void DrawShortcutToggle<T>(List<T> options, HashSet<T> selected, Action<T, bool> setAllowed, Rect rect, string labelKey, string? toolTipKey)
+#pragma warning disable CA1002 // Do not expose generic lists
+    protected static void DrawShortcutToggle<T>(List<T> options, HashSet<T> selected, Action<T, bool> setAllowed, Rect rect, string labelKey, string? toolTipKey)
+#pragma warning restore CA1002 // Do not expose generic lists
     {
+        if (options == null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+        if (selected == null)
+        {
+            throw new ArgumentNullException(nameof(selected));
+        }
+
         var allSelected = options.All(selected.Contains);
         var noneSelected = options.All(p => !selected.Contains(p));
 
@@ -138,8 +151,17 @@ public abstract class ManagerTab(Manager manager)
     /// </summary>
     public static bool DrawOrderButtons<T>(Rect rect, Manager manager, T job) where T : ManagerJob
     {
+        if (manager == null)
+        {
+            throw new ArgumentNullException(nameof(manager));
+        }
+        if (job == null)
+        {
+            throw new ArgumentNullException(nameof(job));
+        }
+
         var ret = false;
-        var jobStack = manager.JobStack;
+        var jobStack = manager.JobTracker;
 
         float width = rect.width / 2,
               height = rect.height / 2;
@@ -149,7 +171,7 @@ public abstract class ManagerTab(Manager manager)
              topRect = new Rect(rect.xMin + width, rect.yMin, width, height).ContractedBy(1f),
              bottomRect = new Rect(rect.xMin + width, rect.yMin + height, width, height).ContractedBy(1f);
 
-        var jobsOfType = jobStack.FullStack<T>();
+        var jobsOfType = jobStack.JobsOfType<T>().ToList();
 
         bool top = jobsOfType.IndexOf(job) == 0,
              bottom = jobsOfType.IndexOf(job) == jobsOfType.Count - 1;

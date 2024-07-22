@@ -6,10 +6,10 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJobSettings_Foraging : ManagerJobSettings
+internal sealed class ManagerJobSettings_Foraging : ManagerJobSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
-    public bool DefaultForceFullyMature = false;
+    public bool DefaultForceFullyMature;
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 

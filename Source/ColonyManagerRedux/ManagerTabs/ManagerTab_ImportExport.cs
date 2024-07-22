@@ -8,11 +8,12 @@ using System.Reflection;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
 {
     private static readonly Color DefaultFileTextColor = new(1f, 1f, 0.6f);
 
-    private static readonly MethodInfo FolderUnderSaveData_MI;
+    private static readonly MethodInfo FolderUnderSaveData_MI
+        = AccessTools.Method(typeof(GenFilePaths), "FolderUnderSaveData");
 
     private string _folder = "";
 
@@ -35,19 +36,12 @@ internal class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
     private List<ManagerJob> _jobs = [];
     private List<MultiCheckboxState> _selectedJobs = [];
 
-    static ManagerTab_ImportExport()
-    {
-        FolderUnderSaveData_MI = typeof(GenFilePaths)
-            .GetMethod("FolderUnderSaveData", BindingFlags.NonPublic | BindingFlags.Static) ??
-            throw new NullReferenceException("Could not find GenFilePaths.FolderUnderSaveData()");
-    }
-
     public override string Label
     {
         get { return "ColonyManagerRedux.ManagerImportExport".Translate(); }
     }
 
-    protected List<ManagerJob> SelectedJobs =>
+    private List<ManagerJob> SelectedJobs =>
         _jobs.Where((_, i) => _selectedJobs[i] == MultiCheckboxState.On).ToList();
 
     public override void DoWindowContents(Rect canvas)
@@ -80,7 +74,7 @@ internal class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
 
     public void Refresh()
     {
-        _jobs = manager.JobStack.FullStack();
+        _jobs = manager.JobTracker.JobsOfType<ManagerJob>().ToList();
         _selectedJobs = _jobs.Select(_ => new MultiCheckboxState()).ToList();
 
         // fetch the list of saved jobs
@@ -135,6 +129,7 @@ internal class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
         catch (Exception ex)
         {
             Log.Error("Exception while exporting jobs: " + ex);
+            throw;
         }
         finally
         {
@@ -349,13 +344,14 @@ internal class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
             catch (Exception ex)
             {
                 Log.Error("Exception loading " + current.Name + ": " + ex);
+                throw;
             }
         }
 
         return saves;
     }
 
-    private string GetSaveLocation()
+    private static string GetSaveLocation()
     {
         return (string)FolderUnderSaveData_MI.Invoke(null, ["ManagerJobs"]);
     }

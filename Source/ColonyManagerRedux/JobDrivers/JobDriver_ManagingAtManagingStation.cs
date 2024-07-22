@@ -5,7 +5,11 @@ using Verse.AI;
 
 namespace ColonyManagerRedux;
 
-internal class JobDriver_ManagingAtManagingStation : JobDriver
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
 {
     private float workDone;
     private float workNeeded;
@@ -36,7 +40,7 @@ internal class JobDriver_ManagingAtManagingStation : JobDriver
 
         // if made to by player, keep doing that untill we're out of jobs
         yield return Toils_Jump.JumpIf(
-            manage, () => GetActor().CurJob.playerForced && Manager.For(Map).JobStack.NextJob != null);
+            manage, () => GetActor().CurJob.playerForced && Manager.For(Map).JobTracker.NextJob != null);
     }
 
     private Toil? Manage(TargetIndex targetIndex)

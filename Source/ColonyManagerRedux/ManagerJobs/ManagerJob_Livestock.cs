@@ -8,9 +8,9 @@ using Verse.Sound;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Livestock : ManagerJob
+internal sealed class ManagerJob_Livestock : ManagerJob
 {
-    public class History : HistoryWorker<ManagerJob_Livestock>
+    public sealed class History : HistoryWorker<ManagerJob_Livestock>
     {
         public override int GetCountForHistoryChapter(ManagerJob_Livestock managerJob, ManagerJobHistoryChapterDef chapterDef)
         {
@@ -58,7 +58,8 @@ public class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    private static readonly MethodInfo SetWanted_MI;
+    private static readonly MethodInfo SetWanted_MI
+        = AccessTools.Method(typeof(Pawn_TrainingTracker), "SetWanted");
     public bool ButcherBonded;
     public bool ButcherExcess;
     public bool ButcherPregnant;
@@ -87,15 +88,15 @@ public class ManagerJob_Livestock : ManagerJob
     public Trigger_PawnKind Trigger;
     public bool TryTameMore;
 
-    private Utilities.CachedValue<string>? _cachedLabel;
+    private CachedValue<string>? _cachedLabel;
     private List<Designation> _designations;
 
-    static ManagerJob_Livestock()
-    {
-        SetWanted_MI = typeof(Pawn_TrainingTracker)
-            .GetMethod("SetWanted", BindingFlags.NonPublic | BindingFlags.Instance) ??
-            throw new NullReferenceException("Could not find Pawn_TrainingTracker.SetWanted()");
-    }
+    // static ManagerJob_Livestock()
+    // {
+    //     SetWanted_MI = typeof(Pawn_TrainingTracker)
+    //         .GetMethod("SetWanted", BindingFlags.NonPublic | BindingFlags.Instance) ??
+    //         throw new NullReferenceException("Could not find Pawn_TrainingTracker.SetWanted()");
+    // }
 
     public ManagerJob_Livestock(Manager manager) : base(manager)
     {
@@ -152,7 +153,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     public override void PostMake()
     {
-        var livestockSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(def);
+        var livestockSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(def);
         if (livestockSettings != null)
         {
             for (int i = 0; i < livestockSettings.DefaultCountTargets.Length; i++)
@@ -165,7 +166,7 @@ public class ManagerJob_Livestock : ManagerJob
             ButcherPregnant = livestockSettings.DefaultButcherPregnant;
             ButcherBonded = livestockSettings.DefaultButcherBonded;
 
-            foreach (var def in Training.Defs)
+            foreach (var def in TrainingTracker.TrainableDefs)
             {
                 var report = CanBeTrained(Trigger.pawnKind, def, out bool visible);
                 if (report.Accepted && visible && livestockSettings.EnabledTrainingTargets.Contains(def))
@@ -224,7 +225,7 @@ public class ManagerJob_Livestock : ManagerJob
                 text += Trigger.pawnKind.GetWild(Manager).Count() + "</i>";
                 return text;
             }
-            _cachedLabel = new Utilities.CachedValue<string>(labelGetter(), 250, labelGetter);
+            _cachedLabel = new CachedValue<string>(labelGetter(), 250, labelGetter);
             return labelGetter();
         }
     }
@@ -233,7 +234,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     public override string Label => Trigger.pawnKind.LabelCap;
 
-    public override string[] Targets
+    public override IEnumerable<string> Targets
     {
         get
         {
@@ -241,8 +242,7 @@ public class ManagerJob_Livestock : ManagerJob
                 .Select(ageSex => $"ColonyManagerRedux.Thresholds.{ageSex}Count".Translate(
                     Trigger.pawnKind.GetTame(Manager, ageSex).Count(),
                     Trigger.CountTargets[(int)ageSex])
-                .Resolve())
-                .ToArray();
+                .Resolve());
         }
     }
 
@@ -256,7 +256,7 @@ public class ManagerJob_Livestock : ManagerJob
         Manager.map.designationManager.AddDesignation(des);
     }
 
-    public AcceptanceReport CanBeTrained(PawnKindDef pawnKind, TrainableDef td, out bool visible)
+    public static AcceptanceReport CanBeTrained(PawnKindDef pawnKind, TrainableDef td, out bool visible)
     {
         if (pawnKind.RaceProps.untrainableTags != null)
         {
@@ -467,7 +467,7 @@ public class ManagerJob_Livestock : ManagerJob
         return options.MinBy(p => p.GetFollowers().Count);
     }
 
-    public void SetFollowing(Pawn animal, bool drafted, bool fieldwork, ref bool actionTaken)
+    public static void SetFollowing(Pawn animal, bool drafted, bool fieldwork, ref bool actionTaken)
     {
         if (animal?.playerSettings == null)
         {
@@ -506,7 +506,7 @@ public class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    public void SetMaster(Pawn animal, Pawn? master, ref bool actionTaken)
+    public static void SetMaster(Pawn animal, Pawn? master, ref bool actionTaken)
     {
         Logger.Follow($"Current: {master?.LabelShort ?? "None"}, New: {master?.LabelShort ?? "None"}");
         if (animal.playerSettings.Master != master)
@@ -564,7 +564,7 @@ public class ManagerJob_Livestock : ManagerJob
 
             foreach (var animal in Trigger.pawnKind.GetTame(Manager, ageSex))
             {
-                foreach (var def in Training.Defs)
+                foreach (var def in TrainingTracker.TrainableDefs)
                 {
                     if ( // only train if allowed.
                         animal.training.CanAssignToTrain(def, out _).Accepted &&
@@ -797,7 +797,7 @@ public class ManagerJob_Livestock : ManagerJob
 
     private bool RoughlyEquallyDistributed(List<Pawn> masters)
     {
-        var followerCounts = masters.Select(p => p.GetFollowers(Trigger.pawnKind).Count);
+        var followerCounts = masters.Select(p => p.GetFollowers(Trigger.pawnKind).Count).ToArray();
         return followerCounts.Max() - followerCounts.Min() <= 1;
     }
 
@@ -820,7 +820,7 @@ public class ManagerJob_Livestock : ManagerJob
     }
 
 
-    public class TrainingTracker : IExposable
+    internal sealed class TrainingTracker : IExposable
     {
         public DefMap<TrainableDef, bool> TrainingTargets = new();
         public bool TrainYoung;
@@ -830,7 +830,7 @@ public class ManagerJob_Livestock : ManagerJob
         {
             get
             {
-                foreach (var def in Defs)
+                foreach (var def in TrainableDefs)
                 {
                     if (TrainingTargets[def])
                     {
@@ -844,7 +844,7 @@ public class ManagerJob_Livestock : ManagerJob
 
         public int Count => TrainingTargets.Count;
 
-        public List<TrainableDef> Defs => DefDatabase<TrainableDef>.AllDefsListForReading;
+        public static List<TrainableDef> TrainableDefs => DefDatabase<TrainableDef>.AllDefsListForReading;
 
         public bool this[TrainableDef index]
         {

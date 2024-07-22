@@ -21,7 +21,7 @@ public class UpdateInterval(int ticks, string label)
         }
     }
 
-    public void Draw(Rect canvas, ManagerJob job, bool exporting)
+    internal static void Draw(Rect canvas, ManagerJob job, bool exporting)
     {
         string lastUpdateTooltip;
         var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;

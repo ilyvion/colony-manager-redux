@@ -7,6 +7,11 @@ public static class Enumerable_Extensions
 {
     public static IEnumerable<(T, T)> ChunkToTuple<T>(this IEnumerable<T> items)
     {
+        if (items == null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+
         using var enumerator = items.GetEnumerator();
 
         while (enumerator.MoveNext())
@@ -27,8 +32,9 @@ public static class Enumerable_Extensions
     {
         if (source == null)
         {
-            throw new ArgumentNullException("source");
+            throw new ArgumentNullException(nameof(source));
         }
+
         int num1 = 0;
         int num2 = 0;
         foreach (var item in source)

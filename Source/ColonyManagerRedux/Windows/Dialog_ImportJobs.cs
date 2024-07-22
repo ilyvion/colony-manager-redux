@@ -4,7 +4,7 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal class Dialog_ImportJobs : Window
+internal sealed class Dialog_ImportJobs : Window
 {
     private readonly Action<int>? _onImport;
     private readonly List<ManagerJob> _jobs;
@@ -17,7 +17,7 @@ internal class Dialog_ImportJobs : Window
 
     private static readonly Vector2 ButtonSize = new(175f, 38f);
 
-    protected List<ManagerJob> SelectedJobs
+    private List<ManagerJob> SelectedJobs
     {
         get
         {
@@ -37,7 +37,7 @@ internal class Dialog_ImportJobs : Window
         closeOnAccept = false;
     }
 
-    protected virtual void DoJobListGUI(Rect jobsRect)
+    private void DoJobListGUI(Rect jobsRect)
     {
         Rect jobViewRect = new(0f, 0f, jobsRect.width, _jobListScrollViewHeight);
         Widgets.BeginScrollView(jobsRect, ref _jobListScrollPosition, jobViewRect);
@@ -132,13 +132,13 @@ internal class Dialog_ImportJobs : Window
         }
     }
 
-    protected void OnAccept()
+    private void OnAccept()
     {
         var selectedJobs = SelectedJobs;
         foreach (var job in selectedJobs)
         {
             job.PreImport();
-            Manager.For(Find.CurrentMap).JobStack.Add(job);
+            Manager.For(Find.CurrentMap).JobTracker.Add(job);
             job.PostImport();
         }
         _onImport?.Invoke(selectedJobs.Count);

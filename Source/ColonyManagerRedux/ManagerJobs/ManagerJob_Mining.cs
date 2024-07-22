@@ -7,9 +7,9 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Mining : ManagerJob
+internal sealed class ManagerJob_Mining : ManagerJob
 {
-    public class History : HistoryWorker<ManagerJob_Mining>
+    public sealed class History : HistoryWorker<ManagerJob_Mining>
     {
         public override int GetCountForHistoryChapter(ManagerJob_Mining managerJob, ManagerJobHistoryChapterDef chapterDef)
         {
@@ -42,8 +42,8 @@ public class ManagerJob_Mining : ManagerJob
     }
 
     private const int RoofSupportGridSpacing = 5;
-    private readonly Utilities.CachedValue<int> _chunksCachedValue = new(0);
-    private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
+    private readonly CachedValue<int> _chunksCachedValue = new(0);
+    private readonly CachedValue<int> _designatedCachedValue = new(0);
     public HashSet<ThingDef> AllowedBuildings = [];
 
     public HashSet<ThingDef> AllowedMinerals = [];
@@ -89,7 +89,7 @@ public class ManagerJob_Mining : ManagerJob
 
     public override void PostMake()
     {
-        var miningSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Mining>(def);
+        var miningSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Mining>(def);
         if (miningSettings != null)
         {
             SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;
@@ -117,8 +117,8 @@ public class ManagerJob_Mining : ManagerJob
     public override bool IsValid => base.IsValid && trigger != null;
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
 
-    public override string[] Targets => AllowedMinerals
-        .Select(pk => pk.LabelCap.Resolve()).ToArray();
+    public override IEnumerable<string> Targets => AllowedMinerals
+        .Select(pk => pk.LabelCap.Resolve());
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Mining;
 
@@ -423,7 +423,7 @@ public class ManagerJob_Mining : ManagerJob
             .ToList();
     }
 
-    public List<ThingDef> GetMaterialsInBuilding(ThingDef building)
+    public static List<ThingDef> GetMaterialsInBuilding(ThingDef building)
     {
         if (building == null)
         {
@@ -442,7 +442,7 @@ public class ManagerJob_Mining : ManagerJob
         return baseCosts.Concat(possibleStuffs).ToList();
     }
 
-    public List<ThingDef> GetMaterialsInChunk(ThingDef chunk)
+    public static List<ThingDef> GetMaterialsInChunk(ThingDef chunk)
     {
         var materials = new List<ThingDef>
         {
@@ -457,7 +457,7 @@ public class ManagerJob_Mining : ManagerJob
         return materials;
     }
 
-    public List<ThingDef> GetMaterialsInMineral(ThingDef mineral)
+    public static List<ThingDef> GetMaterialsInMineral(ThingDef mineral)
     {
         var resource = mineral.building?.mineableThing;
         if (resource == null)
@@ -520,7 +520,7 @@ public class ManagerJob_Mining : ManagerJob
         return IsARoofSupport_Basic(building.Position);
     }
 
-    public bool IsARoofSupport_Basic(IntVec3 cell)
+    public static bool IsARoofSupport_Basic(IntVec3 cell)
     {
         return cell.x % RoofSupportGridSpacing == 0 && cell.z % RoofSupportGridSpacing == 0;
     }
@@ -544,15 +544,15 @@ public class ManagerJob_Mining : ManagerJob
             .Distinct()
             .ToList();
 
-        if (rooms.Count() >= 2)
+        if (rooms.Count >= 2)
         {
             return true;
         }
 
         // check if any adjacent region is more than x regions from any other region
-        for (var i = 0; i < adjacent.Count(); i++)
+        for (var i = 0; i < adjacent.Length; i++)
         {
-            for (var j = i + 1; j < adjacent.Count(); j++)
+            for (var j = i + 1; j < adjacent.Length; j++)
             {
                 var path = Manager.map.pathFinder.FindPath(adjacent[i], adjacent[j],
                     TraverseParms.For(TraverseMode.NoPassClosedDoors, Danger.Some));
@@ -795,7 +795,7 @@ public class ManagerJob_Mining : ManagerJob
         AddDesignation(new Designation(target, designationDef));
     }
 
-    private bool RegionsAreClose(Region start, Region end, int depth = 0)
+    private static bool RegionsAreClose(Region start, Region end, int depth = 0)
     {
         if (depth > MaxRegionDistance)
         {

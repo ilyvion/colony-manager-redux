@@ -1,11 +1,12 @@
 ﻿// AreaAllowedGUI.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using Verse.Sound;
 
 namespace ColonyManagerRedux;
 
-internal class AreaAllowedGUI
+public static class AreaAllowedGUI
 {
     public static Area? DoAllowedAreaSelectors(Rect rect,
                                                Area? areaIn,
@@ -18,8 +19,12 @@ internal class AreaAllowedGUI
     }
 
     // RimWorld.AreaAllowedGUI
-    public static void DoAllowedAreaSelectors(ref Vector2 pos, float width, ref Area? area, Map map,
-                                               float margin = 0)
+    public static void DoAllowedAreaSelectors(
+        ref Vector2 pos,
+        float width,
+        ref Area? area,
+        Map map,
+        float margin = 0)
     {
         var rect = new Rect(
             pos.x,
@@ -30,11 +35,17 @@ internal class AreaAllowedGUI
         DoAllowedAreaSelectors(rect, ref area, map, margin);
     }
 
-    public static void DoAllowedAreaSelectors(Rect rect,
-                                               ref Area? allowedArea,
-                                               Map map,
-                                               float lrMargin = 0)
+    public static void DoAllowedAreaSelectors(
+        Rect rect,
+        ref Area? allowedArea,
+        Map map,
+        float lrMargin = 0)
     {
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
+
         if (lrMargin > 0)
         {
             rect.xMin += lrMargin;
@@ -62,8 +73,21 @@ internal class AreaAllowedGUI
         Text.Font = GameFont.Small;
     }
 
-    public static void DoAllowedAreaSelectorsMC(Rect rect, ref HashSet<Area> allowedAreas, Map map, float lrMargin = 0)
+    public static void DoAllowedAreaSelectorsMC(
+        Rect rect,
+        ref HashSet<Area> allowedAreas,
+        Map map,
+        float lrMargin = 0)
     {
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
+        if (allowedAreas == null)
+        {
+            throw new ArgumentNullException(nameof(allowedAreas));
+        }
+
         if (lrMargin > 0)
         {
             rect.xMin += lrMargin;

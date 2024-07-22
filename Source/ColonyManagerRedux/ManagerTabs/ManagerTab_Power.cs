@@ -7,9 +7,9 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerTab_Power : ManagerTab, IExposable
+internal sealed class ManagerTab_Power : ManagerTab, IExposable
 {
-    public static bool unlocked = false;
+    public static bool unlocked;
 
     private readonly List<ThingDef> _batteryDefs;
 
@@ -42,7 +42,7 @@ public class ManagerTab_Power : ManagerTab, IExposable
             .Select(
                 def => new ThingDefCount(
                     def,
-                    manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count()))
+                    manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count))
             .ToArray())
         {
             DrawOptions = false,
@@ -223,16 +223,16 @@ public class ManagerTab_Power : ManagerTab, IExposable
         var labelTextSize = Text.CalcSize("ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
         Widgets.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
 
-        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.periodShown}".Translate().CapitalizeFirst());
+        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst());
         periodRect.xMin += Margin + labelTextSize.x;
         periodRect.yMin += (periodRect.height - 30f) / 2;
         periodRect.width = buttonTextSize.x + LargeIconSize;
         periodRect.height = 30f;
 
         var tooltip = "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(
-            $"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.periodShown}".Translate());
+            $"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.PeriodShown}".Translate());
         TooltipHandler.TipRegion(periodRect, tooltip);
-        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.periodShown}".Translate().CapitalizeFirst()))
+        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.Energy.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst()))
         {
             var periodOptions = new List<FloatMenuOption>();
             for (var i = 0; i < History.Periods.Length; i++)
@@ -242,8 +242,8 @@ public class ManagerTab_Power : ManagerTab, IExposable
                     $"ColonyManagerRedux.Energy.PeriodShown.{period}".Translate().CapitalizeFirst(),
                     delegate
                     {
-                        tradingHistory.periodShown = period;
-                        overallHistory.periodShown = period;
+                        tradingHistory.PeriodShown = period;
+                        overallHistory.PeriodShown = period;
                     }));
             }
 
@@ -265,7 +265,7 @@ public class ManagerTab_Power : ManagerTab, IExposable
         tradingHistory.DrawDetailedLegend(legendRect, ref _productionScrollPos, null, true);
     }
 
-    private IEnumerable<ThingDef> GetBatteryDefs()
+    private static IEnumerable<ThingDef> GetBatteryDefs()
     {
         return from td in DefDatabase<ThingDef>.AllDefsListForReading
                where td.HasComp(typeof(CompPowerBattery))
@@ -288,7 +288,7 @@ public class ManagerTab_Power : ManagerTab, IExposable
             .ToArray();
     }
 
-    private IEnumerable<ThingDef> GetTraderDefs()
+    private static IEnumerable<ThingDef> GetTraderDefs()
     {
         return from td in DefDatabase<ThingDef>.AllDefsListForReading
                where td.HasCompOrChildCompOf(typeof(CompPowerTrader))

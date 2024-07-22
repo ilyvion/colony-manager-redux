@@ -6,10 +6,10 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJobSettings_Forestry : ManagerJobSettings
+internal sealed class ManagerJobSettings_Forestry : ManagerJobSettings
 {
     public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType = ManagerJob_Forestry.ForestryJobType.Logging;
-    public bool DefaultAllowSaplings = false;
+    public bool DefaultAllowSaplings;
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 

@@ -3,7 +3,7 @@
 
 namespace ColonyManagerRedux;
 
-public static class ManagerDefMaker
+internal static class ManagerDefMaker
 {
     public static ManagerJob? MakeManagerJob(ManagerDef def, Manager manager, params object[] args)
     {

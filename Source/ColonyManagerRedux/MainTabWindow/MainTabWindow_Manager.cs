@@ -5,7 +5,11 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-internal class MainTabWindow_Manager : MainTabWindow
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+internal sealed class MainTabWindow_Manager : MainTabWindow
 {
     private static ManagerTab? currentTab;
 
@@ -19,7 +23,7 @@ internal class MainTabWindow_Manager : MainTabWindow
         set => currentTab = value;
     }
 
-    public static ManagerTab DefaultTab => Manager.For(Find.CurrentMap).tabs[0];
+    public static ManagerTab DefaultTab => Manager.For(Find.CurrentMap).Tabs[0];
 
     public static void GoTo(ManagerTab tab, ManagerJob? job = null)
     {
@@ -110,7 +114,7 @@ internal class MainTabWindow_Manager : MainTabWindow
         Text.Anchor = TextAnchor.UpperLeft;
     }
 
-    public void DrawTabIcon(Rect rect, ManagerTab tab)
+    public static void DrawTabIcon(Rect rect, ManagerTab tab)
     {
         if (tab.Enabled)
         {
@@ -132,7 +136,8 @@ internal class MainTabWindow_Manager : MainTabWindow
             GUI.color = Color.grey;
             GUI.DrawTexture(rect, tab.def.icon);
             GUI.color = Color.white;
-            TooltipHandler.TipRegion(rect, tab.Label + "ColonyManagerRedux.ManagerTabDisabledBecause".Translate(tab.DisabledReason));
+            TooltipHandler.TipRegion(rect, tab.Label +
+                "ColonyManagerRedux.ManagerTabDisabledBecause".Translate(tab.DisabledReason));
         }
     }
 

@@ -18,8 +18,8 @@ public class History : IExposable
         Year = 2
     }
 
-    public static Color DefaultLineColor = Color.white;
-    public static Period[] Periods = (Period[])Enum.GetValues(typeof(Period));
+    public static readonly Color DefaultLineColor = Color.white;
+    public static readonly Period[] Periods = (Period[])Enum.GetValues(typeof(Period));
 
     private const int Breaks = 4;
     internal const int EntriesPerInterval = 100;
@@ -46,7 +46,7 @@ public class History : IExposable
     public bool MaxPerChapter;
 
     // Shared settings
-    public Period periodShown = Period.Day;
+    public Period PeriodShown = Period.Day;
     public string Suffix = string.Empty;
 
     // each chapter holds the history for all periods.
@@ -57,7 +57,7 @@ public class History : IExposable
     {
     }
 
-    public History(List<ManagerJobHistoryChapterDef> chapters)
+    internal History(List<ManagerJobHistoryChapterDef> chapters)
     {
         // create a chapter for each label
         for (var i = 0; i < chapters.Count; i++)
@@ -71,6 +71,11 @@ public class History : IExposable
 
     public History(HistoryLabel[] labels, Color[]? colors = null)
     {
+        if (labels == null)
+        {
+            throw new ArgumentNullException(nameof(labels));
+        }
+
 #if DEBUG_HISTORY
         Log.Message( "History created" + string.Join( ", ", labels ) );
 #endif
@@ -102,6 +107,11 @@ public class History : IExposable
 
     public History(ThingDefCount[] thingCounts, Color[]? colors = null)
     {
+        if (thingCounts == null)
+        {
+            throw new ArgumentNullException(nameof(thingCounts));
+        }
+
         // get range of colors if not set
         if (colors == null)
         {
@@ -130,7 +140,7 @@ public class History : IExposable
         _chaptersShown.AddRange(_chapters);
     }
 
-    public bool IsRelevantTick
+    public static bool IsUpdateTick
     {
         get { return Periods.Any(p => Find.TickManager.TicksGame % Interval(p) == 0); }
     }
@@ -177,7 +187,7 @@ public class History : IExposable
     /// <param name="x">input</param>
     /// <param name="precision">number of digits to preserve past the magnitude, should be equal to or greater than zero.</param>
     /// <returns></returns>
-    public int CeilToPrecision(float x, int precision = 1)
+    private static int CeilToPrecision(float x, int precision = 1)
     {
         var magnitude = Mathf.FloorToInt(Mathf.Log10(x + 1));
         var unit = Mathf.FloorToInt(Mathf.Pow(10, Mathf.Max(magnitude - precision, 1)));
@@ -191,9 +201,9 @@ public class History : IExposable
         var sign = negativeOnly ? -1 : 1;
 
         var chaptersOrdered = _chapters
-            .Where(chapter => !positiveOnly || chapter.pages[(int)periodShown].Any(i => i.count > 0))
-            .Where(chapter => !negativeOnly || chapter.pages[(int)periodShown].Any(i => i.count < 0))
-            .OrderByDescending(chapter => chapter.Last(periodShown).count * sign).ToList();
+            .Where(chapter => !positiveOnly || chapter.pages[(int)PeriodShown].Any(i => i.count > 0))
+            .Where(chapter => !negativeOnly || chapter.pages[(int)PeriodShown].Any(i => i.count < 0))
+            .OrderByDescending(chapter => chapter.Last(PeriodShown).count * sign).ToList();
 
         // get out early if no chapters.
         if (chaptersOrdered.Count == 0)
@@ -208,7 +218,7 @@ public class History : IExposable
         float _max = max
             ?? (DrawMaxMarkers
                 ? chaptersOrdered.Max(chapter => chapter.TrueMax)
-                : chaptersOrdered.FirstOrDefault()?.Last(periodShown).count * sign)
+                : chaptersOrdered.FirstOrDefault()?.Last(PeriodShown).count * sign)
             ?? 0;
 
         // cell height
@@ -249,11 +259,11 @@ public class History : IExposable
             var maxWidth = barFill.width;
             if (MaxPerChapter)
             {
-                barFill.width *= chaptersOrdered[i].Last(periodShown).count * sign / (float)chaptersOrdered[i].TrueMax;
+                barFill.width *= chaptersOrdered[i].Last(PeriodShown).count * sign / (float)chaptersOrdered[i].TrueMax;
             }
             else
             {
-                barFill.width *= chaptersOrdered[i].Last(periodShown).count * sign / _max;
+                barFill.width *= chaptersOrdered[i].Last(PeriodShown).count * sign / _max;
             }
 
             GUI.BeginGroup(viewRect);
@@ -293,7 +303,7 @@ public class History : IExposable
             if (DrawInfoInBar)
             {
                 var info = chaptersOrdered[i].label + ": " +
-                    FormatCount(chaptersOrdered[i].Last(periodShown).count * sign);
+                    FormatCount(chaptersOrdered[i].Last(PeriodShown).count * sign);
 
                 if (DrawMaxMarkers)
                 {
@@ -317,7 +327,7 @@ public class History : IExposable
 
             // tooltip on entire row
             var tooltip = $"{chaptersOrdered[i].label}: " +
-                FormatCount(Mathf.Abs(chaptersOrdered[i].Last(periodShown).count)) + "\n\n" +
+                FormatCount(Mathf.Abs(chaptersOrdered[i].Last(PeriodShown).count)) + "\n\n" +
                 "ColonyManagerRedux.ManagerHistoryClickToEnable"
                     .Translate(shown
                         ? "ColonyManagerRedux.ManagerHistoryHide".Translate()
@@ -366,8 +376,8 @@ public class History : IExposable
 
         // subset chapters
         var chapters =
-            _chaptersShown.Where(chapter => !positiveOnly || chapter.pages[(int)periodShown].Any(i => i.count > 0))
-                .Where(chapter => !negativeOnly || chapter.pages[(int)periodShown].Any(i => i.count < 0))
+            _chaptersShown.Where(chapter => !positiveOnly || chapter.pages[(int)PeriodShown].Any(i => i.count > 0))
+                .Where(chapter => !negativeOnly || chapter.pages[(int)PeriodShown].Any(i => i.count < 0))
                 .ToList();
 
         // get out early if no chapters.
@@ -396,7 +406,7 @@ public class History : IExposable
                 var options =
                     Periods.Select(p =>
                         new FloatMenuOption("ColonyManagerRedux.ManagerHistoryPeriod".Translate() + ": " + p.ToString(),
-                            delegate { periodShown = p; })).ToList();
+                            delegate { PeriodShown = p; })).ToList();
                 if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
                 {
                     options.Add(new FloatMenuOption("ColonyManagerRedux.ManagerHistoryShowHideLegend".Translate(),
@@ -482,7 +492,7 @@ public class History : IExposable
         // maximum of all chapters.
         var max = CeilToPrecision(
             chapters
-                .Select(c => c.Max(periodShown, !negativeOnly, DrawTargetLine))
+                .Select(c => c.Max(PeriodShown, !negativeOnly, DrawTargetLine))
                 .Max());
 
         // size, and pixels per node.
@@ -495,7 +505,7 @@ public class History : IExposable
 
         foreach (var chapter in chapters)
         {
-            chapter.PlotCount(periodShown, plot, wu, hu, sign);
+            chapter.PlotCount(PeriodShown, plot, wu, hu, sign);
         }
 
         // handle mouseover events
@@ -507,17 +517,17 @@ public class History : IExposable
 
             // get distances
             var distances = chapters
-                .Select(c => Math.Abs(c.ValueAt(periodShown, (int)upos.x, sign) - upos.y))
+                .Select(c => Math.Abs(c.ValueAt(PeriodShown, (int)upos.x, sign) - upos.y))
                 .Concat(chapters
-                    .Select(c => Math.Abs(c.TargetAt(periodShown, (int)upos.x, sign) - upos.y)))
+                    .Select(c => Math.Abs(c.TargetAt(PeriodShown, (int)upos.x, sign) - upos.y)))
                 .ToArray();
 
             // get the minimum index
             float min = int.MaxValue;
             var minIndex = 0;
-            for (var i = distances.Count() - 1; i >= 0; i--)
+            for (var i = distances.Length - 1; i >= 0; i--)
             {
-                if (distances[i] < min && (i < chapters.Count || chapters[i % chapters.Count].HasTarget(periodShown)))
+                if (distances[i] < min && (i < chapters.Count || chapters[i % chapters.Count].HasTarget(PeriodShown)))
                 {
                     minIndex = i;
                     min = distances[i];
@@ -531,8 +541,8 @@ public class History : IExposable
 
             // do minimum stuff.
             var valueAt = useValue
-                ? closest.ValueAt(periodShown, (int)upos.x, sign)
-                : closest.TargetAt(periodShown, (int)upos.x, sign);
+                ? closest.ValueAt(PeriodShown, (int)upos.x, sign)
+                : closest.TargetAt(PeriodShown, (int)upos.x, sign);
             var realpos = new Vector2(
                 (int)upos.x * wu,
                 plot.height - Math.Max(0, valueAt) * hu);
@@ -548,10 +558,10 @@ public class History : IExposable
             var tip = useValue
                 ? "ColonyManagerRedux.ManagerHistoryValueTooltip".Translate(
                     closest.label.Label,
-                    FormatCount(closest.ValueAt(periodShown, (int)upos.x, sign)))
+                    FormatCount(closest.ValueAt(PeriodShown, (int)upos.x, sign)))
                 : "ColonyManagerRedux.ManagerHistoryTargetTooltip".Translate(
                     closest.label.Label,
-                    FormatCount(closest.TargetAt(periodShown, (int)upos.x, sign)));
+                    FormatCount(closest.TargetAt(PeriodShown, (int)upos.x, sign)));
             var tipsize = Text.CalcSize(tip);
             bool up = false, left = false;
             if (tippos.x + tipsize.x > plot.width)
@@ -591,7 +601,7 @@ public class History : IExposable
         {
             foreach (var chapter in chapters)
             {
-                chapter.PlotTarget(periodShown, plot, wu, hu, sign);
+                chapter.PlotTarget(PeriodShown, plot, wu, hu, sign);
             }
         }
 
@@ -644,6 +654,11 @@ public class History : IExposable
 
     public void Update(params (int count, int target)[] counts)
     {
+        if (counts == null)
+        {
+            throw new ArgumentNullException(nameof(counts));
+        }
+
         if (counts.Length != _chapters.Count)
         {
             Log.Warning("History updated with incorrect number of chapters");
@@ -657,6 +672,11 @@ public class History : IExposable
 
     public void UpdateMax(params int[] maxes)
     {
+        if (maxes == null)
+        {
+            throw new ArgumentNullException(nameof(maxes));
+        }
+
         if (maxes.Length != _chapters.Count)
         {
             Log.Warning("History updated with incorrect number of chapters");
@@ -670,6 +690,15 @@ public class History : IExposable
 
     public void UpdateThingCountAndMax(int[] counts, int[] maxes)
     {
+        if (counts == null)
+        {
+            throw new ArgumentNullException(nameof(counts));
+        }
+        if (maxes == null)
+        {
+            throw new ArgumentNullException(nameof(maxes));
+        }
+
         if (maxes.Length != _chapters.Count || maxes.Length != _chapters.Count)
         {
             Log.Warning("History updated with incorrect number of chapters");
@@ -687,6 +716,11 @@ public class History : IExposable
 
     public void UpdateThingCounts(params int[] counts)
     {
+        if (counts == null)
+        {
+            throw new ArgumentNullException(nameof(counts));
+        }
+
         if (counts.Length != _chapters.Count)
         {
             Log.Warning("History updated with incorrect number of chapters");
@@ -699,11 +733,11 @@ public class History : IExposable
     }
 
     [HotSwappable]
-    public class Chapter : IExposable
+    private sealed class Chapter : IExposable
     {
         public Texture2D? _texture;
         public HistoryLabel label = new DirectHistoryLabel(string.Empty);
-        public CircularBuffer<(int count, int target)>[] pages;
+        internal CircularBuffer<(int count, int target)>[] pages;
         public int entriesPerInterval = EntriesPerInterval;
         public ThingDefCountClass ThingDefCount = new();
         private int _observedMax = -1;
@@ -853,6 +887,8 @@ public class History : IExposable
                     var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * page[i].count * sign);
                     var end = new Vector2(Mathf.Round(wu * (i + 1)), Mathf.Round(canvas.height - hu * page[i + 1].count * sign));
                     Widgets.DrawLine(start, end, LineColor, 1f);
+
+                    lastEnd = end;
                 }
             }
         }
@@ -869,6 +905,7 @@ public class History : IExposable
                     var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * page[i].target * sign);
                     var end = new Vector2(wu * (i + 1) - 1, canvas.height - hu * page[i + 1].target * sign);
 
+                    // When a target value changes, make the line non-continuous
                     if (start.y != end.y)
                     {
                         lastEnd = null;
@@ -944,6 +981,11 @@ public class DirectHistoryLabel : HistoryLabel
     {
         return new(direct);
     }
+
+    public static DirectHistoryLabel FromString(string direct)
+    {
+        return direct;
+    }
 }
 
 public class DefHistoryLabel<T> : HistoryLabel where T : Def, new()
@@ -968,7 +1010,9 @@ public class DefHistoryLabel<T> : HistoryLabel where T : Def, new()
         Scribe_Defs.Look(ref def, "def");
     }
 
+#pragma warning disable CA2225 // Operator overloads have named alternates
     public static implicit operator DefHistoryLabel<T>(T def)
+#pragma warning restore CA2225 // Operator overloads have named alternates
     {
         return new(def);
     }
@@ -999,5 +1043,10 @@ public class TranslationHistoryLabel : HistoryLabel
     public static implicit operator TranslationHistoryLabel(string translationKey)
     {
         return new(translationKey);
+    }
+
+    public static DirectHistoryLabel FromString(string translationKey)
+    {
+        return translationKey;
     }
 }

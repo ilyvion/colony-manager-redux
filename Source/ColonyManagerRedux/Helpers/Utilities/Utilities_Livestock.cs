@@ -1,5 +1,8 @@
 ﻿// Utilities_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
+
+using System.Reflection;
 
 namespace ColonyManagerRedux;
 
@@ -14,7 +17,7 @@ public enum AgeAndSex
 }
 
 [Flags]
-public enum MasterMode
+internal enum MasterMode
 {
     Manual = 0,
     Hunters = 1,
@@ -27,37 +30,37 @@ public enum MasterMode
     Specific = 64
 }
 
-public static class Utilities_Livestock
+internal static class Utilities_Livestock
 {
     public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
     public static MasterMode[] MasterModeArray => (MasterMode[])Enum.GetValues(typeof(MasterMode));
 
-    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache = new(5);
+    private static readonly CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache = new(5);
 
-    private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
+    private static readonly CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
         AllSexedCache = new(5);
 
-    private static readonly Dictionary<Pawn, Utilities.CachedValue<IEnumerable<Pawn>>> FollowerCache = [];
+    private static readonly Dictionary<Pawn, CachedValue<IEnumerable<Pawn>>> FollowerCache = [];
 
     private static readonly
-        Dictionary<Triplet<PawnKindDef, Map, MasterMode>, Utilities.CachedValue<IEnumerable<Pawn>>> MasterCache = [];
+        Dictionary<Triplet<PawnKindDef, Map, MasterMode>, CachedValue<IEnumerable<Pawn>>> MasterCache = [];
 
-    private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> MilkablePawn = [];
+    private static readonly Dictionary<Pawn, CachedValue<bool>> MilkablePawn = [];
 
-    private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> MilkablePawnkind = [];
+    private static readonly Dictionary<PawnKindDef, CachedValue<bool>> MilkablePawnkind = [];
 
-    private static readonly Dictionary<Pawn, Utilities.CachedValue<bool>> ShearablePawn = [];
+    private static readonly Dictionary<Pawn, CachedValue<bool>> ShearablePawn = [];
 
-    private static readonly Dictionary<PawnKindDef, Utilities.CachedValue<bool>> ShearablePawnkind = [];
+    private static readonly Dictionary<PawnKindDef, CachedValue<bool>> ShearablePawnkind = [];
 
-    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> TameCache = new(5);
+    private static readonly CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> TameCache = new(5);
 
-    private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
+    private static readonly CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
         TameSexedCache = new(5);
 
-    private static readonly Utilities.CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> WildCache = new(5);
+    private static readonly CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> WildCache = new(5);
 
-    private static readonly Utilities.CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
+    private static readonly CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
         WildSexedCache = new(5);
 
     public static bool BondedWithColonist(this Pawn pawn)
@@ -132,7 +135,7 @@ public static class Utilities_Livestock
         else
         {
             // severely limit cache to only apply for one cycle (one job)
-            FollowerCache.Add(pawn, new Utilities.CachedValue<IEnumerable<Pawn>>(cached, 2));
+            FollowerCache.Add(pawn, new CachedValue<IEnumerable<Pawn>>(cached, 2));
         }
 
         return cached.ToList();
@@ -212,7 +215,7 @@ public static class Utilities_Livestock
         else
         {
             // severely limit cache to only apply for one cycle (one job)
-            MasterCache.Add(key, new Utilities.CachedValue<IEnumerable<Pawn>>(cached, 2));
+            MasterCache.Add(key, new CachedValue<IEnumerable<Pawn>>(cached, 2));
         }
 
         return cached.ToList();
@@ -313,20 +316,20 @@ public static class Utilities_Livestock
         }
 
         var ret = false;
-        if (MilkablePawnkind.ContainsKey(pawnKind))
+        if (MilkablePawnkind.TryGetValue(pawnKind, out CachedValue<bool>? cachedValue))
         {
-            if (MilkablePawnkind[pawnKind].TryGetValue(out ret))
+            if (cachedValue.TryGetValue(out ret))
             {
                 return ret;
             }
 
             ret = pawnKind.race.comps.OfType<CompProperties_Milkable>().Any(cp => cp.milkDef != null);
-            MilkablePawnkind[pawnKind].Update(ret);
+            cachedValue.Update(ret);
             return ret;
         }
 
         ret = pawnKind.race.comps.OfType<CompProperties_Milkable>().Any(cp => cp.milkDef != null);
-        MilkablePawnkind.Add(pawnKind, new Utilities.CachedValue<bool>(ret, int.MaxValue));
+        MilkablePawnkind.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
         return ret;
     }
 
@@ -339,13 +342,13 @@ public static class Utilities_Livestock
                 return value;
             }
 
-            value = pawn._milkable();
+            value = pawn.IsPawnMilkable();
             MilkablePawn[pawn].Update(value);
             return value;
         }
 
-        var ret = pawn._milkable();
-        MilkablePawn.Add(pawn, new Utilities.CachedValue<bool>(ret, 5000));
+        var ret = pawn.IsPawnMilkable();
+        MilkablePawn.Add(pawn, new CachedValue<bool>(ret, 5000));
         return ret;
     }
 
@@ -375,20 +378,20 @@ public static class Utilities_Livestock
         }
 
         var ret = false;
-        if (ShearablePawnkind.ContainsKey(pawnKind))
+        if (ShearablePawnkind.TryGetValue(pawnKind, out CachedValue<bool>? cachedValue))
         {
-            if (ShearablePawnkind[pawnKind].TryGetValue(out ret))
+            if (cachedValue.TryGetValue(out ret))
             {
                 return ret;
             }
 
             ret = pawnKind.race.comps.OfType<CompProperties_Shearable>().Any(cp => cp.woolDef != null);
-            ShearablePawnkind[pawnKind].Update(ret);
+            cachedValue.Update(ret);
             return ret;
         }
 
         ret = pawnKind.race.comps.OfType<CompProperties_Shearable>().Any(cp => cp.woolDef != null);
-        ShearablePawnkind.Add(pawnKind, new Utilities.CachedValue<bool>(ret, int.MaxValue));
+        ShearablePawnkind.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
         return ret;
     }
 
@@ -401,13 +404,13 @@ public static class Utilities_Livestock
                 return value;
             }
 
-            value = pawn._shearable();
+            value = pawn.IsPawnShearable();
             ShearablePawn[pawn].Update(value);
             return value;
         }
 
-        var ret = pawn._shearable();
-        ShearablePawn.Add(pawn, new Utilities.CachedValue<bool>(ret, 5000));
+        var ret = pawn.IsPawnShearable();
+        ShearablePawn.Add(pawn, new CachedValue<bool>(ret, 5000));
         return ret;
     }
 
@@ -433,25 +436,27 @@ public static class Utilities_Livestock
         return pawn?.health.hediffSet.GetFirstHediff<Hediff_Pregnant>()?.Visible ?? false;
     }
 
-    private static bool _milkable(this Pawn pawn)
+    private static readonly MethodInfo CompMilkable_Active = AccessTools.PropertyGetter(typeof(CompMilkable), "Active");
+    private static bool IsPawnMilkable(this Pawn pawn)
     {
         var comp = pawn?.TryGetComp<CompMilkable>();
         object active = false;
         if (comp != null)
         {
-            active = comp.GetPrivatePropertyValue("Active");
+            active = CompMilkable_Active.Invoke(comp, []);
         }
 
         return (bool)active;
     }
 
-    private static bool _shearable(this Pawn pawn)
+    private static readonly MethodInfo CompShearable_Active = AccessTools.PropertyGetter(typeof(CompShearable), "Active");
+    private static bool IsPawnShearable(this Pawn pawn)
     {
         var comp = pawn?.TryGetComp<CompShearable>();
         object active = false;
         if (comp != null)
         {
-            active = comp.GetPrivatePropertyValue("Active");
+            active = CompShearable_Active.Invoke(comp, []);
         }
 
         return (bool)active;

@@ -8,7 +8,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
@@ -72,7 +72,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             {
                 // activate job, add it to the stack
                 SelectedHuntingJob.IsManaged = true;
-                manager.JobStack.Add(SelectedHuntingJob);
+                manager.JobTracker.Add(SelectedHuntingJob);
 
                 // refresh source list
                 Refresh();
@@ -83,7 +83,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobStack.Delete(SelectedHuntingJob);
+                manager.JobTracker.Delete(SelectedHuntingJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -153,7 +153,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Hunting>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Hunting>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
@@ -246,6 +246,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
                     animalDef.GetHashCode()), allowedAnimals.Contains(animalDef),
                 () =>
                 {
+#pragma warning disable CA1868 // Unnecessary call to 'Contains(item)'
                     if (allowedAnimals.Contains(animalDef))
                     {
                         allowedAnimals.Remove(animalDef);
@@ -254,6 +255,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
                     {
                         allowedAnimals.Add(animalDef);
                     }
+#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
                 });
 
             // if aggressive, draw warning icon
@@ -487,7 +489,7 @@ internal class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
     public void Refresh()
     {
         // update pawnkind options
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Hunting>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Hunting>())
         {
             job.RefreshAllAnimals();
         }

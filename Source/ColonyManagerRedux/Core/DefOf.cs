@@ -3,7 +3,7 @@
 
 namespace ColonyManagerRedux;
 
-#pragma warning disable CS8618
+#pragma warning disable CS8618,CA2211
 
 [DefOf]
 public static class ManagerJobHistoryChapterDefOf

@@ -10,7 +10,7 @@ using static ColonyManagerRedux.Widgets_Labels;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 {
     internal const int TrainingJobsPerRow = 3;
 
@@ -83,17 +83,17 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         GUI.EndGroup();
     }
 
-    public void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
+    public static void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
     {
         var cellCount = Math.Min(TrainingJobsPerRow, job.Training.Count);
         var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
-        var keys = job.Training.Defs;
+        var keys = ManagerJob_Livestock.TrainingTracker.TrainableDefs;
 
         GUI.BeginGroup(rect);
         for (var i = 0; i < job.Training.Count; i++)
         {
             var cell = new Rect(i % cellCount * (cellWidth + Margin), i / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
-            var report = job.CanBeTrained(job.Trigger.pawnKind, keys[i], out bool visible);
+            var report = ManagerJob_Livestock.CanBeTrained(job.Trigger.pawnKind, keys[i], out bool visible);
             if (visible && report.Accepted)
             {
                 var checkOn = job.Training[keys[i]];
@@ -110,9 +110,9 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         GUI.EndGroup();
     }
 
-    public string GetMasterLabel(ManagerJob_Livestock job)
+    public static string GetMasterLabel(ManagerJob_Livestock job)
     {
-        var report = job.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = ManagerJob_Livestock.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (!report.Accepted)
         {
             return "ColonyManagerRedux.ManagerLivestock.MasterUnavailable".Translate();
@@ -124,7 +124,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         };
     }
 
-    public string GetTrainerLabel(ManagerJob_Livestock job)
+    public static string GetTrainerLabel(ManagerJob_Livestock job)
     {
         return job.Trainers switch
         {
@@ -223,7 +223,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
             {
                 SelectedCurrentLivestockJob.IsManaged = true;
                 _onCurrentTab = true;
-                manager.JobStack.Add(SelectedCurrentLivestockJob);
+                manager.JobTracker.Add(SelectedCurrentLivestockJob);
                 Refresh();
             }
 
@@ -283,7 +283,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         }
     }
 
-    private void DrawAnimalListheader(ref Vector2 pos, Vector2 size, PawnKindDef pawnKind)
+    private static void DrawAnimalListheader(ref Vector2 pos, Vector2 size, PawnKindDef pawnKind)
     {
         var start = pos;
 
@@ -324,9 +324,9 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         var ageRectC = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect, SmallIconSize / 2);
         var ageRectB = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect);
         var ageRectA = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect, -SmallIconSize / 2);
-        GUI.DrawTexture(ageRectC, Resources.LifeStages(2));
-        GUI.DrawTexture(ageRectB, Resources.LifeStages(1));
-        GUI.DrawTexture(ageRectA, Resources.LifeStages(0));
+        GUI.DrawTexture(ageRectC, Resources.GetLifeStageIcon(2));
+        GUI.DrawTexture(ageRectB, Resources.GetLifeStageIcon(1));
+        GUI.DrawTexture(ageRectA, Resources.GetLifeStageIcon(0));
         TooltipHandler.TipRegion(ageRect, "ColonyManagerRedux.Livestock.AgeHeader".Translate());
         pos.x += colwidth;
 
@@ -365,7 +365,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         pos.y += size.y;
     }
 
-    private void DrawAnimalRow(ref Vector2 pos, Vector2 size, Pawn p)
+    private static void DrawAnimalRow(ref Vector2 pos, Vector2 size, Pawn p)
     {
         var start = pos;
 
@@ -430,7 +430,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         // lifestage column
         var ageRect = new Rect(pos.x, pos.y, colwidth, size.y);
         var ageIconRect = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect);
-        GUI.DrawTexture(ageIconRect, Resources.LifeStages(p.ageTracker.CurLifeStageIndex));
+        GUI.DrawTexture(ageIconRect, Resources.GetLifeStageIcon(p.ageTracker.CurLifeStageIndex));
         TooltipHandler.TipRegion(ageRect, p.ageTracker.AgeTooltipString);
         pos.x += colwidth;
 
@@ -477,7 +477,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         pos.y += size.y;
     }
 
-    private float DrawAnimalSection(ref Vector2 pos, float width, string type, PawnKindDef pawnKind,
+    private static float DrawAnimalSection(ref Vector2 pos, float width, string type, PawnKindDef pawnKind,
                                      IEnumerable<Pawn> animals)
     {
         if (animals == null)
@@ -488,17 +488,19 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         var start = pos;
         DrawAnimalListheader(ref pos, new Vector2(width, ListEntryHeight / 3 * 2), pawnKind);
 
-        if (!animals.Any())
+        bool anyAnimals = false;
+        foreach (var animal in animals)
+        {
+            DrawAnimalRow(ref pos, new Vector2(width, ListEntryHeight), animal);
+            anyAnimals = true;
+        }
+
+        if (!anyAnimals)
         {
             Label(new Rect(pos.x, pos.y, width, ListEntryHeight),
                 "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
                 TextAnchor.MiddleCenter, color: Color.grey);
             pos.y += ListEntryHeight;
-        }
-
-        foreach (var animal in animals)
-        {
-            DrawAnimalRow(ref pos, new Vector2(width, ListEntryHeight), animal);
         }
 
         return pos.y - start.y;
@@ -540,7 +542,9 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
             float[] widths = [fifth, fifth * 2, fifth * 2];
             float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
             var areaRects = new Rect[cols, cols];
+#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
             for (var x = 0; x < cols; x++)
             {
                 for (var y = 0; y < cols; y++)
@@ -808,7 +812,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 
     private void DrawCurrentJobList(Rect outRect, Rect viewRect)
     {
-        var currentJobs = manager.JobStack.JobsOfType<ManagerJob_Livestock>().ToList();
+        var currentJobs = manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();
 
         // set sizes
         viewRect.height = currentJobs.Count * LargeListEntryHeight;
@@ -863,7 +867,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
                 .CenteredOnYIn(rowRect);
 
         // master selection
-        var report = job.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = ManagerJob_Livestock.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (report.Accepted)
         {
             Label(rowRect,
@@ -1062,7 +1066,9 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
         float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
         // set up a 3x3 table of rects
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
         var countRects = new Rect[rows, cols];
+#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
         for (var x = 0; x < cols; x++)
         {
             for (var y = 0; y < rows; y++)
@@ -1128,7 +1134,7 @@ public class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
     private void Refresh()
     {
         // currently managed
-        var currentJobs = manager.JobStack.JobsOfType<ManagerJob_Livestock>().ToList();
+        var currentJobs = manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();
 
         // concatenate lists of animals on biome and animals in colony.
         _availablePawnKinds = manager.map.Biome.AllWildAnimals.ToList();

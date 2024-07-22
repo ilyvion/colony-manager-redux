@@ -6,10 +6,10 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJobSettings_Hunting : ManagerJobSettings
+internal sealed class ManagerJobSettings_Hunting : ManagerJobSettings
 {
-    public bool DefaultAllowHumanLikeMeat = false;
-    public bool DefaultAllowInsectMeat = false;
+    public bool DefaultAllowHumanLikeMeat;
+    public bool DefaultAllowInsectMeat;
     public bool DefaultUnforbidCorpses = true;
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();

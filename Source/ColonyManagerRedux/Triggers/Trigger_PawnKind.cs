@@ -5,10 +5,10 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class Trigger_PawnKind : Trigger
+internal sealed class Trigger_PawnKind : Trigger
 {
-    private readonly Utilities.CachedValue<string> _cachedTooltip;
-    private readonly Utilities.CachedValue<bool> _state = new(false);
+    private readonly CachedValue<string> _cachedTooltip;
+    private readonly CachedValue<bool> _state = new(false);
 
     public int[] CountTargets;
     public PawnKindDef pawnKind;
@@ -19,7 +19,7 @@ public class Trigger_PawnKind : Trigger
     {
         CountTargets = Utilities_Livestock.AgeSexArray.Select(_ => 5).ToArray();
 
-        _cachedTooltip = new Utilities.CachedValue<string>("", 250, GetTooltip);
+        _cachedTooltip = new CachedValue<string>("", 250, GetTooltip);
     }
 
     public int[] Counts
@@ -46,8 +46,8 @@ public class Trigger_PawnKind : Trigger
     {
         get
         {
-            return job.Manager.JobStack.FullStack<ManagerJob_Livestock>()
-                          .FirstOrDefault(job => job.Trigger == this);
+            return job.Manager.JobTracker.JobsOfType<ManagerJob_Livestock>()
+                .FirstOrDefault(job => job.Trigger == this);
         }
     }
 

@@ -1,18 +1,23 @@
 ﻿// StockpileGUI.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
 using Verse.Sound;
 
 namespace ColonyManagerRedux;
 
-public class StockpileGUI
+public static class StockpileGUI
 {
     private static List<Texture2D>? textures;
 
-    // RimWorld.AreaAllowedGUI
     public static void DoStockpileSelectors(Rect rect, ref Zone_Stockpile? stockpile, Map map)
     {
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
+
         // get all stockpiles
         var allStockpiles = map.zoneManager.AllZones.OfType<Zone_Stockpile>().ToList();
 

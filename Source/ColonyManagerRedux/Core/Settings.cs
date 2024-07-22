@@ -10,21 +10,56 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class Settings : ModSettings
 {
-    private bool _jobDefSettingsAreLoaded = false;
+    private bool _jobDefSettingsAreLoaded;
     private List<ManagerJobSettings> _jobSettings = [];
     private int _currentJobSettingsTab = -1;
 
-    public int DefaultUpdateIntervalTicks = GenDate.TicksPerDay;
-    public int DefaultTargetCount = 500;
-    public bool DefaultCountAllOnMap = false;
-    public bool DefaultShouldCheckReachable = true;
-    public bool DefaultUsePathBasedDistance = false;
-    public bool NewJobsAreImmediatelyOutdated = true;
+    private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
+    public int DefaultUpdateIntervalTicks
+    {
+        get => _defaultUpdateIntervalTicks;
+        internal set => _defaultUpdateIntervalTicks = value;
+    }
+
+    private int _defaultTargetCount = 500;
+    public int DefaultTargetCount
+    {
+        get => _defaultTargetCount;
+        internal set => _defaultTargetCount = value;
+    }
+
+    private bool _defaultCountAllOnMap;
+    public bool DefaultCountAllOnMap
+    {
+        get => _defaultCountAllOnMap;
+        internal set => _defaultCountAllOnMap = value;
+    }
+
+    private bool _defaultShouldCheckReachable = true;
+    public bool DefaultShouldCheckReachable
+    {
+        get => _defaultShouldCheckReachable;
+        internal set => _defaultShouldCheckReachable = value;
+    }
+
+    private bool _defaultUsePathBasedDistance;
+    public bool DefaultUsePathBasedDistance
+    {
+        get => _defaultUsePathBasedDistance;
+        internal set => _defaultUsePathBasedDistance = value;
+    }
+
+    private bool newJobsAreImmediatelyOutdated = true;
+    public bool NewJobsAreImmediatelyOutdated
+    {
+        get => newJobsAreImmediatelyOutdated;
+        internal set => newJobsAreImmediatelyOutdated = value;
+    }
 
     public UpdateInterval DefaultUpdateInterval
     {
         get => TicksToInterval(DefaultUpdateIntervalTicks);
-        set => DefaultUpdateIntervalTicks = value.ticks;
+        internal set => DefaultUpdateIntervalTicks = value.ticks;
     }
 
     public Settings()
@@ -56,7 +91,8 @@ public class Settings : ModSettings
         }.Concat(_jobSettings.Select((s, i) => new TabRecord(s.Label, () =>
             {
                 _currentJobSettingsTab = i;
-            }, _currentJobSettingsTab == i))).ToList();
+            }, _currentJobSettingsTab == i)))
+        .ToList();
 
         int rowCount = (int)Math.Ceiling((double)tabs.Count / 5);
         rect.yMin += rowCount * SectionHeaderHeight + Margin;
@@ -115,7 +151,7 @@ public class Settings : ModSettings
         Utilities.DrawToggle(ref pos, width,
             "ColonyManagerRedux.NewJobsAreImmediatelyOutdated".Translate(),
             "ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip".Translate(),
-            ref NewJobsAreImmediatelyOutdated);
+            ref newJobsAreImmediatelyOutdated);
 
         return pos.y - start.y;
     }
@@ -128,13 +164,13 @@ public class Settings : ModSettings
             "ColonyManagerRedux.ManagerJobSettings.TargetCount".Translate(
                 DefaultTargetCount));
 
-        Utilities.DrawReachabilityToggle(ref pos, width, ref DefaultShouldCheckReachable);
+        Utilities.DrawReachabilityToggle(ref pos, width, ref _defaultShouldCheckReachable);
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
             "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
-            ref DefaultUsePathBasedDistance,
+            ref _defaultUsePathBasedDistance,
             true);
 
         return pos.y - start.y;
@@ -170,7 +206,7 @@ public class Settings : ModSettings
         Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
 
         Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.ManagerCountAllOnMap".Translate(),
-                              "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref DefaultCountAllOnMap, true);
+                              "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref _defaultCountAllOnMap, true);
         DefaultTargetCount = (int)GUI.HorizontalSlider(thresholdRect, DefaultTargetCount, 0, DefaultMaxUpperThreshold);
     }
 
@@ -197,11 +233,11 @@ public class Settings : ModSettings
             return;
         }
 
-        Scribe_Values.Look(ref DefaultUpdateIntervalTicks, "defaultUpdateInterval", GenDate.TicksPerDay);
-        Scribe_Values.Look(ref DefaultTargetCount, "defaultTargetCount", 500);
-        Scribe_Values.Look(ref DefaultShouldCheckReachable, "defaultShouldCheckReachable", true);
-        Scribe_Values.Look(ref DefaultUsePathBasedDistance, "defaultUsePathBasedDistance", false);
-        Scribe_Values.Look(ref DefaultCountAllOnMap, "defaultCountAllOnMap", false);
+        Scribe_Values.Look(ref _defaultUpdateIntervalTicks, "defaultUpdateInterval", GenDate.TicksPerDay);
+        Scribe_Values.Look(ref _defaultTargetCount, "defaultTargetCount", 500);
+        Scribe_Values.Look(ref _defaultShouldCheckReachable, "defaultShouldCheckReachable", true);
+        Scribe_Values.Look(ref _defaultUsePathBasedDistance, "defaultUsePathBasedDistance", false);
+        Scribe_Values.Look(ref _defaultCountAllOnMap, "defaultCountAllOnMap", false);
 
         Scribe_Collections.Look(ref _jobSettings, "jobSettings", LookMode.Deep);
 

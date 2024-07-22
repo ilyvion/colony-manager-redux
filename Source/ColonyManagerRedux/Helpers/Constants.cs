@@ -19,6 +19,6 @@ public static class Constants
     public const float SmallIconSize = 16f;
     public const float TitleHeight = 50f;
     public const float TopAreaHeight = 30f;
-    public static Vector2 ButtonSize = new(200f, 40f);
+    public static readonly Vector2 ButtonSize = new(200f, 40f);
     public const int DefaultMaxUpperThreshold = 3000;
 }

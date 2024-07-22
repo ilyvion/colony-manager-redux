@@ -6,13 +6,32 @@
         <LangVersion>12.0</LangVersion>
         <Nullable>enable</Nullable>
 
-        <!-- TODO: Deal with later -->
-        <!-- <EnableNETAnalyzers>True</EnableNETAnalyzers>
+        <EnableNETAnalyzers>True</EnableNETAnalyzers>
         <AnalysisLevel>preview-all</AnalysisLevel>
         <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>5</WarningLevel> -->
+        <WarningLevel>5</WarningLevel>
 
-        <NoWarn>CA1707;CS8620;IDE0305</NoWarn>
+        <!-- 
+            Reasons:
+
+            CA1002: Do not expose generic lists
+                1) This is a game mod, not a library;
+                2) Rimworld makes very public use of these already
+
+            CA1305: Specify IFormatProvider
+                RimWorld always runs in the US culture for the sake of formatting.
+            
+            CA1707: Identifiers should not contain underscores
+                RimWorld's naming convention uses underscores.
+            
+            CA2201: Do not raise reserved exception types
+                This is a game mod, not a library; nobody's going to be catching these exceptions
+                except the game logger. They don't need to be fancy.
+        -->
+        <NoWarn>CA1002;CA1305;CA1707;CA2201</NoWarn>
+
+        <!-- TODO: Deal properly with these later -->
+        <NoWarn>$(NoWarn);CA1051</NoWarn>
 
         <RootNamespace>ColonyManagerRedux</RootNamespace>
         <AssemblyName>ColonyManagerRedux</AssemblyName>
@@ -39,8 +58,8 @@
 
     <ItemGroup>
         <PackageReference Include="IsExternalInit" Version="1.0.3">
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-          <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Lib.Harmony" Version="2.3.3">
             <ExcludeAssets>runtime</ExcludeAssets>

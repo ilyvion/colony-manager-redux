@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace ColonyManagerRedux;
 
-public static class Logger
+internal static class Logger
 {
     public const string identifier = "Colony Manager";
 

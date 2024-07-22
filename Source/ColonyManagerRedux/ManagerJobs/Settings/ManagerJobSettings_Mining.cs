@@ -6,14 +6,14 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJobSettings_Mining : ManagerJobSettings
+internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
 
-    public bool DefaultDeconstructBuildings = false;
+    public bool DefaultDeconstructBuildings;
 
     public bool DefaultCheckRoofSupport = true;
-    public bool DefaultCheckRoofSupportAdvanced = false;
+    public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
 
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();

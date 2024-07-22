@@ -24,6 +24,11 @@ public static class Calendar
 
     public static void Draw(Rect canvas, Color color, CalendarMarker[] markers)
     {
+        if (markers == null)
+        {
+            throw new ArgumentNullException(nameof(markers));
+        }
+
         var days = markers.NullOrEmpty()
             ? GenDate.DaysPerTwelfth
             : Mathf.CeilToInt(markers.Max(m => m.Days) / GenDate.DaysPerTwelfth) * GenDate.DaysPerTwelfth;

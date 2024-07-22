@@ -1,5 +1,6 @@
 ﻿// Widgets_Section.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
 
@@ -43,16 +44,35 @@ public static class Widgets_Section
         _columnHeights[identifier] = position.y;
     }
 
-    public static void Section<T>(T data, ref Vector2 position, float width, Func<T, Vector2, float, float> drawerFunc,
-                                string header = "", int id = 0)
+    public static void Section<T>(
+        T data,
+        ref Vector2 position,
+        float width,
+        Func<T, Vector2, float, float> drawerFunc,
+        string header = "",
+        int id = 0)
     {
+        if (drawerFunc == null)
+        {
+            throw new ArgumentNullException(nameof(drawerFunc));
+        }
+
         id = id != 0 ? id : drawerFunc.GetHashCode();
         Section(ref position, width, (p, w) => drawerFunc(data, p, w), header, id);
     }
 
-    public static void Section(ref Vector2 position, float width, Func<Vector2, float, float> drawerFunc,
-                                string header = "", int id = 0)
+    public static void Section(
+        ref Vector2 position,
+        float width,
+        Func<Vector2, float, float> drawerFunc,
+        string header = "",
+        int id = 0)
     {
+        if (drawerFunc == null)
+        {
+            throw new ArgumentNullException(nameof(drawerFunc));
+        }
+
         var hasHeader = !header.NullOrEmpty();
         id = id != 0 ? id : drawerFunc.GetHashCode();
 

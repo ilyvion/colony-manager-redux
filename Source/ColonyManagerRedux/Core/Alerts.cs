@@ -1,9 +1,14 @@
 ﻿// Alerts.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
-internal class Alert_NoManager : Alert
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+internal sealed class Alert_NoManager : Alert
 {
     public Alert_NoManager()
     {
@@ -15,10 +20,10 @@ internal class Alert_NoManager : Alert
 
     public override AlertReport GetReport()
     {
-        return Manager.For(Find.CurrentMap).JobStack.FullStack().Count > 0 && !AnyConsciousManagerPawn();
+        return Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any() && !AnyConsciousManagerPawn();
     }
 
-    private bool AnyConsciousManagerPawn()
+    private static bool AnyConsciousManagerPawn()
     {
         return
             Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(
@@ -30,7 +35,11 @@ internal class Alert_NoManager : Alert
     }
 }
 
-internal class Alert_NoTable : Alert
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+internal sealed class Alert_NoTable : Alert
 {
     public Alert_NoTable()
     {
@@ -42,10 +51,10 @@ internal class Alert_NoTable : Alert
 
     public override AlertReport GetReport()
     {
-        return Manager.For(Find.CurrentMap).JobStack.FullStack().Count > 0 && !AnyManagerTable();
+        return Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerTable();
     }
 
-    private bool AnyManagerTable()
+    private static bool AnyManagerTable()
     {
         return Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any();
     }

@@ -68,7 +68,7 @@
 //            get { return Bill.recipe.LabelCap; }
 //        }
 
-//        public override string[] Targets
+//        public override IEnumerable<string> Targets
 //        {
 //            get
 //            {

@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux;
 
-public static class Utilities_Plants
+internal static class Utilities_Plants
 {
     public static IEnumerable<ThingDef> GetForestryPlants(Map map, bool clearArea)
     {

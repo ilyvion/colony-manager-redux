@@ -12,7 +12,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
     public ManagerDef def;
 
-    public List<ManagerJobComp>? comps;
+    private List<ManagerJobComp>? _comps;
 
     public bool ShouldCheckReachable;
 
@@ -28,14 +28,14 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     private UpdateInterval? _updateInterval;
     private int _updateIntervalScribe;
 
-    public int loadID = -1;
+    private int _loadID = -1;
     private bool isManaged;
 
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerJob
     protected ManagerJob(Manager manager)
 #pragma warning restore CS8618
     {
-        Settings settings = ColonyManagerReduxMod.Instance.Settings;
+        Settings settings = ColonyManagerReduxMod.Settings;
         ShouldCheckReachable = settings.DefaultShouldCheckReachable;
         UsePathBasedDistance = settings.DefaultUsePathBasedDistance;
         if (!settings.NewJobsAreImmediatelyOutdated)
@@ -56,9 +56,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         set
         {
             isManaged = value;
-            if (isManaged && loadID == -1)
+            if (isManaged && _loadID == -1)
             {
-                loadID = Manager.GetNextManagerJobID();
+                _loadID = Manager.GetNextManagerJobID();
             }
         }
     }
@@ -74,12 +74,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         set => _isSuspended = value;
     }
 
-    public ManagerTab Tab => Manager.tabs.Find(tab => tab.GetType() == def.managerTabClass);
-    public abstract string[] Targets { get; }
+    public ManagerTab Tab => Manager.Tabs.First(tab => tab.GetType() == def.managerTabClass);
+    public abstract IEnumerable<string> Targets { get; }
 
     public virtual UpdateInterval UpdateInterval
     {
-        get => _updateInterval ?? ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
+        get => _updateInterval ?? ColonyManagerReduxMod.Settings.DefaultUpdateInterval;
         set => _updateInterval = value;
     }
 
@@ -91,15 +91,16 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         if (def.comps.Any())
         {
-            comps = [];
+            _comps = [];
             foreach (var compProperties in def.comps)
             {
                 ManagerJobComp? managerJobComp = null;
+#pragma warning disable CA1031 // Do not catch general exception types
                 try
                 {
                     managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
                     managerJobComp.parent = this;
-                    comps.Add(managerJobComp);
+                    _comps.Add(managerJobComp);
                     managerJobComp.Initialize(compProperties);
                 }
                 catch (Exception ex)
@@ -107,9 +108,10 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                     Log.Error("Could not instantiate or initialize a ManagerJobComp: " + ex);
                     if (managerJobComp != null)
                     {
-                        comps.Remove(managerJobComp);
+                        _comps.Remove(managerJobComp);
                     }
                 }
+#pragma warning restore CA1031 // Do not catch general exception types
             }
         }
     }
@@ -133,7 +135,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public virtual void PostImport()
     {
         IsManaged = true;
-        if (!ColonyManagerReduxMod.Instance.Settings.NewJobsAreImmediatelyOutdated)
+        if (!ColonyManagerReduxMod.Settings.NewJobsAreImmediatelyOutdated)
         {
             // set last updated to current time
             Touch();
@@ -159,7 +161,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
         if (Manager.Mode == Manager.ScribingMode.Normal)
         {
-            Scribe_Values.Look(ref loadID, "loadID", 0);
+            Scribe_Values.Look(ref _loadID, "loadID", 0);
             Scribe_References.Look(ref Manager, "manager");
             Scribe_Values.Look(ref LastActionTick, "lastActionTick");
             Scribe_Values.Look(ref Priority, "priority");
@@ -170,22 +172,15 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                 // must be true if it was saved.
                 IsManaged = true;
 
-                try
-                {
-                    _updateInterval = Utilities.UpdateIntervalOptions.Find(ui => ui.ticks == _updateIntervalScribe) ??
-                        ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
-                }
-                catch
-                {
-                    _updateInterval = ColonyManagerReduxMod.Instance.Settings.DefaultUpdateInterval;
-                }
+                _updateInterval = Utilities.UpdateIntervalOptions.FirstOrDefault(ui => ui.ticks == _updateIntervalScribe) ??
+                    ColonyManagerReduxMod.Settings.DefaultUpdateInterval;
             }
         }
         else if (Manager.Mode == Manager.ScribingMode.Transfer)
         {
             if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
-                loadID = Manager.GetNextManagerJobID();
+                _loadID = Manager.GetNextManagerJobID();
             }
         }
 
@@ -193,9 +188,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         {
             Initialize();
         }
-        if (comps != null)
+        if (_comps != null)
         {
-            foreach (ManagerJobComp comp in comps)
+            foreach (ManagerJobComp comp in _comps)
             {
                 comp.PostExposeData();
             }
@@ -213,11 +208,16 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             CleanUp();
         }
 
-        Manager.JobStack.Delete(this, false);
+        Manager.JobTracker.Delete(this, false);
     }
 
     public virtual float Distance(Thing target, IntVec3 source)
     {
+        if (target == null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
         if (UsePathBasedDistance)
         {
             var path = target.Map.pathFinder.FindPath(source, target,
@@ -233,6 +233,11 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public virtual bool IsReachable(Thing target)
     {
+        if (target == null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
         return !target.Position.Fogged(Manager.map)
             && (!ShouldCheckReachable ||
                 Manager.map.mapPawns.FreeColonistsSpawned.Any(
@@ -241,9 +246,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public virtual void Tick()
     {
-        if (!comps.NullOrEmpty())
+        if (!_comps.NullOrEmpty())
         {
-            foreach (ManagerJobComp c in comps!)
+            foreach (ManagerJobComp c in _comps!)
             {
                 c.CompTick();
             }
@@ -268,16 +273,16 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public string GetUniqueLoadID()
     {
-        return $"ColonyManagerRedux_ManagerJob_{Manager.id}_{loadID}";
+        return $"ColonyManagerRedux_ManagerJob_{Manager.id}_{_loadID}";
     }
 
     public T? CompOfType<T>() where T : ManagerJobComp
     {
-        return comps?.FirstOrDefault(c => c is T) as T;
+        return _comps?.FirstOrDefault(c => c is T) as T;
     }
 
     public IEnumerable<T> CompsOfType<T>() where T : ManagerJobComp
     {
-        return comps?.Where(c => c is T).Cast<T>() ?? [];
+        return _comps?.Where(c => c is T).Cast<T>() ?? [];
     }
 }

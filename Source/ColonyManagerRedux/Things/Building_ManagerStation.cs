@@ -4,6 +4,8 @@
 namespace ColonyManagerRedux;
 
 // special blinking LED texture/glower logic + automagically doing jobs.
+// TODO: Make actually autonomous; currently it's just a faster version of
+// the worktable and still requires a pawn to do work.
 public class Building_AIManager : Building_ManagerStation
 {
     private readonly Color[] _colors =

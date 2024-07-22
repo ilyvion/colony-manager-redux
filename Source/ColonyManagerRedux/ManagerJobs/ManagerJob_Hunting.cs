@@ -4,9 +4,9 @@
 
 namespace ColonyManagerRedux;
 
-public class ManagerJob_Hunting : ManagerJob
+internal sealed class ManagerJob_Hunting : ManagerJob
 {
-    public class History : HistoryWorker<ManagerJob_Hunting>
+    public sealed class History : HistoryWorker<ManagerJob_Hunting>
     {
         public override int GetCountForHistoryChapter(ManagerJob_Hunting managerJob, ManagerJobHistoryChapterDef chapterDef)
         {
@@ -38,8 +38,8 @@ public class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    private readonly Utilities.CachedValue<int> _corpseCachedValue = new(0);
-    private readonly Utilities.CachedValue<int> _designatedCachedValue = new(0);
+    private readonly CachedValue<int> _corpseCachedValue = new(0);
+    private readonly CachedValue<int> _designatedCachedValue = new(0);
 
     public HashSet<PawnKindDef> AllowedAnimals = [];
     public Area? HuntingGrounds;
@@ -74,7 +74,7 @@ public class ManagerJob_Hunting : ManagerJob
 
     public override void PostMake()
     {
-        var huntingSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Hunting>(def);
+        var huntingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Hunting>(def);
         if (huntingSettings != null)
         {
             UnforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
@@ -180,9 +180,8 @@ public class ManagerJob_Hunting : ManagerJob
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
-    public override string[] Targets => AllowedAnimals
-        .Select(pk => pk.LabelCap.Resolve())
-        .ToArray();
+    public override IEnumerable<string> Targets => AllowedAnimals
+        .Select(pk => pk.LabelCap.Resolve());
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Hunting;
 

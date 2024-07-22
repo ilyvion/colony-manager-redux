@@ -8,7 +8,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight;
     private Vector2 _scrollPosition = Vector2.zero;
@@ -69,7 +69,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             {
                 // activate job, add it to the stack
                 SelectedForagingJob.IsManaged = true;
-                manager.JobStack.Add(SelectedForagingJob);
+                manager.JobTracker.Add(SelectedForagingJob);
 
                 // refresh source list
                 Refresh();
@@ -80,7 +80,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobStack.Delete(SelectedForagingJob);
+                manager.JobTracker.Delete(SelectedForagingJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -110,7 +110,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Foraging>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Foraging>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
@@ -351,7 +351,7 @@ internal class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
     public void Refresh()
     {
         // update plant options
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Foraging>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Foraging>())
         {
             job.RefreshAllPlants();
         }

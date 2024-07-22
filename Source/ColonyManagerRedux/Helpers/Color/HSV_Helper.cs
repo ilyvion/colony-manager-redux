@@ -3,7 +3,7 @@
 
 namespace ColonyManagerRedux;
 
-internal class HSV_Helper
+internal static class HSV_Helper
 {
     /// <summary>
     ///     From http://answers.unity3d.com/questions/701956/hsv-to-rgb-without-editorguiutilityhsvtorgb.html

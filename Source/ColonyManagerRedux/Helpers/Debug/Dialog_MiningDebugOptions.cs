@@ -7,7 +7,7 @@ using LudeonTK;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_DebugOptionLister
+internal sealed class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_DebugOptionLister
 {
     private readonly ManagerJob_Mining job = job;
 
@@ -119,7 +119,7 @@ public class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_DebugOpti
         {
             foreach (var cell in job.Manager.map.AllCells)
             {
-                if (job.IsARoofSupport_Basic(cell))
+                if (ManagerJob_Mining.IsARoofSupport_Basic(cell))
                 {
                     job.Manager.map.debugDrawer.FlashCell(cell, DebugSolidColorMats.MaterialOf(Color.green));
                 }

@@ -16,7 +16,7 @@ namespace CircularBuffer;
 /// http://www.boost.org/doc/libs/1_53_0/libs/circular_buffer/doc/circular_buffer.html
 /// because I liked their interface.
 /// </summary>
-public class CircularBuffer<T> : IEnumerable<T>
+internal sealed class CircularBuffer<T> : IEnumerable<T>
 {
     private readonly T?[] _buffer;
 
@@ -154,11 +154,11 @@ public class CircularBuffer<T> : IEnumerable<T>
         {
             if (IsEmpty)
             {
-                throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                throw new ArgumentException(string.Format("Cannot access index {0}. Buffer is empty", index));
             }
             if (index >= _size)
             {
-                throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
+                throw new ArgumentException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
             }
             int actualIndex = InternalIndex(index);
             return _buffer[actualIndex]!;
@@ -167,11 +167,11 @@ public class CircularBuffer<T> : IEnumerable<T>
         {
             if (IsEmpty)
             {
-                throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer is empty", index));
+                throw new ArgumentException(string.Format("Cannot access index {0}. Buffer is empty", index));
             }
             if (index >= _size)
             {
-                throw new IndexOutOfRangeException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
+                throw new ArgumentException(string.Format("Cannot access index {0}. Buffer size is {1}", index, _size));
             }
             int actualIndex = InternalIndex(index);
             _buffer[actualIndex] = value;
@@ -381,6 +381,7 @@ public class CircularBuffer<T> : IEnumerable<T>
     // The array is composed by at most two non-contiguous segments, 
     // the next two methods allow easy access to those.
 
+#pragma warning disable CS8620 // Nullability validity ensured by keeping values in _start/_end non-null
     private ArraySegment<T> ArrayOne()
     {
         if (IsEmpty)
@@ -412,5 +413,6 @@ public class CircularBuffer<T> : IEnumerable<T>
             return new ArraySegment<T>(_buffer, 0, _end);
         }
     }
+#pragma warning restore CS8620
     #endregion
 }

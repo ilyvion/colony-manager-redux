@@ -10,6 +10,11 @@ public class ManagerJobCompProperties
 
     public virtual IEnumerable<string> ConfigErrors(ManagerDef parentDef)
     {
+        if (parentDef == null)
+        {
+            throw new ArgumentNullException(nameof(parentDef));
+        }
+
         if (compClass == null)
         {
             yield return "compClass is null";

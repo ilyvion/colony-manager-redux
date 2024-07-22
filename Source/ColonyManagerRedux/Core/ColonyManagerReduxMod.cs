@@ -9,13 +9,19 @@ namespace ColonyManagerRedux;
 public class ColonyManagerReduxMod : Mod
 {
 #pragma warning disable CS8618 // Set by constructor
-    public static ColonyManagerReduxMod Instance;
+    internal static ColonyManagerReduxMod Instance;
 #pragma warning restore CS8618
 
-    public Settings Settings => GetSettings<Settings>();
+    public static Settings Settings => Instance.GetSettings<Settings>();
 
     public ColonyManagerReduxMod(ModContentPack content) : base(content)
     {
+        // This is kind of stupid, but also kind of correct. Correct wins.
+        if (content == null)
+        {
+            throw new ArgumentNullException(nameof(content));
+        }
+
         Instance = this;
 
         // apply fixes

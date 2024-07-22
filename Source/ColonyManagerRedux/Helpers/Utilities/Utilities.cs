@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Collections.ObjectModel;
 using System.Reflection;
 using CircularBuffer;
 using static ColonyManagerRedux.Constants;
@@ -42,17 +43,20 @@ public static class Utilities
         }
     }
 
-    public static int CountProducts(this Map map, ThingFilter filter, Zone_Stockpile? stockpile = null,
+    public static int CountProducts(
+        this Map map,
+        ThingFilter filter,
+        Zone_Stockpile? stockpile = null,
         bool countAllOnMap = false)
     {
         if (map == null)
         {
-            throw new NullReferenceException(nameof(map));
+            throw new ArgumentNullException(nameof(map));
         }
 
         if (filter == null)
         {
-            throw new NullReferenceException(nameof(filter));
+            throw new ArgumentNullException(nameof(filter));
         }
 
         var key = new MapStockpileFilter(filter, stockpile, countAllOnMap);
@@ -115,10 +119,10 @@ public static class Utilities
 
             // update cache if exists.
             var countCache = Manager.For(map).CountCache;
-            if (countCache.ContainsKey(key))
+            if (countCache.TryGetValue(key, out FilterCountCache? value))
             {
-                countCache[key].Cache = count;
-                countCache[key].TimeSet = Find.TickManager.TicksGame;
+                value.Cache = count;
+                value.TimeSet = Find.TickManager.TicksGame;
             }
             else
             {
@@ -131,12 +135,30 @@ public static class Utilities
 
     public static void DrawReachabilityToggle(ref Vector2 pos, float width, ref bool reachability)
     {
-        DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerCheckReachability".Translate(), "ColonyManagerRedux.ManagerCheckReachability.Tip".Translate(),
-                    ref reachability, true);
+        DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.ManagerCheckReachability".Translate(),
+            "ColonyManagerRedux.ManagerCheckReachability.Tip".Translate(),
+            ref reachability,
+            expensive: true);
     }
 
-    public static void DrawStatusForListEntry<T>(this T job, Rect rect, Trigger trigger, bool exporting) where T : ManagerJob
+    public static void DrawStatusForListEntry<T>(
+        this T job,
+        Rect rect,
+        Trigger trigger,
+        bool exporting) where T : ManagerJob
     {
+        if (job == null)
+        {
+            throw new ArgumentNullException(nameof(job));
+        }
+        if (trigger == null)
+        {
+            throw new ArgumentNullException(nameof(trigger));
+        }
+
         // set up rects
         var stampRect = new Rect(
             rect.xMax - ManagerTab.SuspendStampWidth - Margin,
@@ -186,7 +208,7 @@ public static class Utilities
 
         // draw update interval
         var timeSinceLastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
-        job.UpdateInterval?.Draw(lastUpdateRect, job, exporting);
+        UpdateInterval.Draw(lastUpdateRect, job, exporting);
     }
 
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, ref bool checkOn,
@@ -288,6 +310,15 @@ public static class Utilities
                                    Action off, bool expensive = false, float size = SmallIconSize,
                                    float margin = Margin, bool wrap = true)
     {
+        if (on == null)
+        {
+            throw new ArgumentNullException(nameof(on));
+        }
+        if (off == null)
+        {
+            throw new ArgumentNullException(nameof(off));
+        }
+
         // set up rects
         var labelRect = rect;
         var iconRect = new Rect(rect.xMax - size - margin, 0f, size, size);
@@ -353,6 +384,11 @@ public static class Utilities
 
     public static IntVec3 GetBaseCenter(this Map map)
     {
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
+
         // we need to define a 'base' position to calculate distances.
         // Try to find a managerstation (in all non-debug cases this method will only fire if there is such a station).
         var position = IntVec3.Zero;
@@ -393,15 +429,17 @@ public static class Utilities
         }
     }
 
-    public static object GetPrivatePropertyValue(this object src, string propName,
-                                                  BindingFlags flags =
-                                                      BindingFlags.Instance | BindingFlags.NonPublic)
-    {
-        return src.GetType().GetProperty(propName, flags).GetValue(src, null);
-    }
-
     public static bool HasCompOrChildCompOf(this ThingDef def, Type compType)
     {
+        if (def == null)
+        {
+            throw new ArgumentNullException(nameof(def));
+        }
+        if (compType == null)
+        {
+            throw new ArgumentNullException(nameof(compType));
+        }
+
         for (var index = 0; index < def.comps.Count; ++index)
         {
             if (compType.IsAssignableFrom(def.comps[index].compClass))
@@ -415,7 +453,7 @@ public static class Utilities
 
     public static bool IsInt(this string text)
     {
-        return int.TryParse(text, out var num);
+        return int.TryParse(text, out var _);
     }
 
     public static void LabelOutline(Rect icon, string label, string? tooltip, TextAnchor anchor, float margin,
@@ -453,7 +491,7 @@ public static class Utilities
         return -value;
     }
 
-    public static void Scribe_IntTupleArray(ref CircularBuffer<(int, int)> values, string label)
+    internal static void Scribe_IntTupleArray(ref CircularBuffer<(int, int)> values, string label)
     {
         int capacity = 0;
         string? text = null;
@@ -483,6 +521,15 @@ public static class Utilities
 
     public static void Scribe_Designations(ref List<Designation> designations, Map map)
     {
+        if (designations == null)
+        {
+            throw new ArgumentNullException(nameof(designations));
+        }
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
+
         Scribe_Collections.Look(ref designations, "designations", LookMode.Deep);
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
@@ -517,15 +564,24 @@ public static class Utilities
     }
 
     // PawnColumnWorker_WorkPriority.IsIncapableOfWholeWorkType, but static
-    public static bool IsIncapableOfWholeWorkType(Pawn p, WorkTypeDef work)
+    public static bool IsIncapableOfWholeWorkType(Pawn pawn, WorkTypeDef work)
     {
+        if (pawn == null)
+        {
+            throw new ArgumentNullException(nameof(pawn));
+        }
+        if (work == null)
+        {
+            throw new ArgumentNullException(nameof(work));
+        }
+
         for (int i = 0; i < work.workGiversByPriority.Count; i++)
         {
             bool flag = true;
             for (int j = 0; j < work.workGiversByPriority[i].requiredCapacities.Count; j++)
             {
                 PawnCapacityDef capacity = work.workGiversByPriority[i].requiredCapacities[j];
-                if (!p.health.capacities.CapableOf(capacity))
+                if (!pawn.health.capacities.CapableOf(capacity))
                 {
                     flag = false;
                     break;
@@ -539,49 +595,17 @@ public static class Utilities
         return true;
     }
 
-    public static bool TryGetPrivateField(Type type, object instance, string fieldName, out object? value,
-                                           BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
-    {
-        var field = type.GetField(fieldName, flags);
-        value = field?.GetValue(instance);
-        return value != null;
-    }
-
-    public static bool TrySetPrivateField(Type type, object instance, string fieldName, object value,
-                                           BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance)
-    {
-        // get field info
-        var field = type.GetField(fieldName, flags);
-
-        // failed?
-        if (field == null)
-        {
-            return false;
-        }
-
-        // try setting it.
-        field.SetValue(instance, value);
-
-        // test by fetching the field again. (this is highly, stupidly inefficient, but ok).
-        if (!TryGetPrivateField(type, instance, fieldName, out object? test, flags))
-        {
-            return false;
-        }
-
-        return test == value;
-    }
-
     private static bool TryGetCached(Map map, MapStockpileFilter mapStockpileFilter, out int count)
     {
         var countCache = Manager.For(map).CountCache;
-        if (countCache.ContainsKey(mapStockpileFilter))
+        if (countCache.TryGetValue(mapStockpileFilter, out FilterCountCache filterCountCache))
         {
-            var filterCountCache = countCache[mapStockpileFilter];
             if (Find.TickManager.TicksGame - filterCountCache.TimeSet < 250)
             {
                 count = filterCountCache.Cache;
                 return true;
             }
+
         }
 #if DEBUG_COUNTS
         Log.Message("not cached");
@@ -590,140 +614,8 @@ public static class Utilities
         return false;
     }
 
-    public record MapStockpileFilter(
+    internal sealed record MapStockpileFilter(
         ThingFilter Filter,
         Zone_Stockpile? Stockpile,
         bool CountAllOnMap = false);
-
-    public class CachedValues<T, V>(int updateInterval = 250)
-    {
-        private readonly Dictionary<T, CachedValue<V>> _cache = [];
-        private readonly int updateInterval = updateInterval;
-
-        public V? this[T index]
-        {
-            get
-            {
-                TryGetValue(index, out var value);
-                return value;
-            }
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value));
-                }
-                Update(index, value);
-            }
-        }
-
-        public void Add(T key, Func<V> updater)
-        {
-            // Log.Message( $"Adding cached value for: {key}", true );
-
-            var value = updater();
-            var cached = new CachedValue<V>(value, updateInterval, updater);
-            _cache.Add(key, cached);
-        }
-
-        public bool TryGetValue(T key, out V? value)
-        {
-            if (_cache.TryGetValue(key, out var cachedValue))
-            {
-                return cachedValue.TryGetValue(out value);
-            }
-
-            value = default;
-            return false;
-        }
-
-        public void Update(T key, V value)
-        {
-            if (_cache.TryGetValue(key, out var cachedValue))
-            {
-                cachedValue.Update(value);
-            }
-            else
-            {
-                _cache.Add(key, new CachedValue<V>(value, updateInterval));
-            }
-        }
-    }
-
-    public class CachedValue<T>
-    {
-        private readonly T _default;
-        private readonly int _updateInterval;
-        private readonly Func<T>? _updater;
-        private T _cached;
-        private int? _timeSet;
-
-        public CachedValue(T @default, int updateInterval = 250, Func<T>? updater = null)
-        {
-            _updateInterval = updateInterval;
-            _cached = _default = @default;
-            _updater = updater;
-            _timeSet = null;
-        }
-
-        public T Value
-        {
-            get
-            {
-                if (TryGetValue(out var value))
-                {
-                    return value;
-                }
-
-                throw new InvalidOperationException(
-                    "get_Value() on a CachedValue that is out of date, and has no updater.");
-            }
-        }
-
-        public bool TryGetValue(out T value)
-        {
-            if (_timeSet.HasValue && Find.TickManager.TicksGame - _timeSet.Value <= _updateInterval)
-            {
-                value = _cached;
-                return true;
-            }
-
-            if (_updater != null)
-            {
-                Update();
-                value = _cached;
-                return true;
-            }
-
-            value = _default;
-            return false;
-        }
-
-        public void Update(T value)
-        {
-            _cached = value;
-            _timeSet = Find.TickManager.TicksGame;
-        }
-
-        public void Update()
-        {
-            // Log.Message( $"Running Update()", true );
-
-            if (_updater == null)
-            {
-                Log.Error("Calling Update() without updater");
-            }
-            else
-            {
-                Update(_updater());
-            }
-        }
-    }
-
-    // count cache for multiple products
-    public class FilterCountCache(int count)
-    {
-        public int Cache = count;
-        public int TimeSet = Find.TickManager.TicksGame;
-    }
 }

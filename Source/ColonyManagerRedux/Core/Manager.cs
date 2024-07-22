@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Collections.ObjectModel;
+
 namespace ColonyManagerRedux;
 
 [HotSwappable]
@@ -13,16 +15,14 @@ public class Manager : MapComponent, ILoadReferenceable
         Normal
     }
 
-    public static bool helpShown;
+    public static ScribingMode Mode { get; internal set; } = ScribingMode.Normal;
 
-    public static ScribingMode Mode = ScribingMode.Normal;
-
-    public List<ManagerTab> tabs;
+    private readonly List<ManagerTab> _tabs;
+    public List<ManagerTab> Tabs => _tabs;
 
     private List<ManagerTab>? _managerTabsLeft;
     private List<ManagerTab>? _managerTabsMiddle;
     private List<ManagerTab>? _managerTabsRight;
-    private JobStack _stack;
     internal int id = -1;
 
     private bool _wasLoaded;
@@ -30,14 +30,19 @@ public class Manager : MapComponent, ILoadReferenceable
 
     internal DebugComponent debugComponent;
 
-    public Dictionary<Utilities.MapStockpileFilter, Utilities.FilterCountCache> CountCache = [];
+    internal Dictionary<Utilities.MapStockpileFilter, FilterCountCache> CountCache = [];
 
     public Manager(Map map) : base(map)
     {
-        debugComponent = new(this);
-        _stack = new(this);
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
 
-        tabs = DefDatabase<ManagerDef>.AllDefs
+        debugComponent = new(this);
+        _jobTracker = new(this);
+
+        _tabs = DefDatabase<ManagerDef>.AllDefs
             .OrderBy(m => m.order)
             .Select(m => ManagerDefMaker.MakeManagerTab(m, this))
             .ToList();
@@ -49,33 +54,34 @@ public class Manager : MapComponent, ILoadReferenceable
         }
     }
 
-    public JobStack JobStack => _stack ??= new JobStack(this);
+    private JobTracker _jobTracker;
+    public JobTracker JobTracker => _jobTracker ??= new JobTracker(this);
 
-    public List<ManagerTab> ManagerTabsLeft
+    internal List<ManagerTab> ManagerTabsLeft
     {
         get
         {
-            _managerTabsLeft ??= tabs.Where(tab => tab.def.iconArea == IconArea.Left).ToList();
+            _managerTabsLeft ??= _tabs.Where(tab => tab.def.iconArea == IconArea.Left).ToList();
             return _managerTabsLeft;
         }
     }
 
-    public List<ManagerTab> ManagerTabsMiddle
+    internal List<ManagerTab> ManagerTabsMiddle
     {
         get
         {
             _managerTabsMiddle ??=
-                tabs.Where(tab => tab.def.iconArea == IconArea.Middle).ToList();
+                _tabs.Where(tab => tab.def.iconArea == IconArea.Middle).ToList();
             return _managerTabsMiddle;
         }
     }
 
-    public List<ManagerTab> ManagerTabsRight
+    internal List<ManagerTab> ManagerTabsRight
     {
         get
         {
             _managerTabsRight ??=
-                tabs.Where(tab => tab.def.iconArea == IconArea.Right).ToList();
+                _tabs.Where(tab => tab.def.iconArea == IconArea.Right).ToList();
             return _managerTabsRight;
         }
     }
@@ -87,42 +93,51 @@ public class Manager : MapComponent, ILoadReferenceable
 
     public static Manager For(Map map)
     {
+        if (map == null)
+        {
+            throw new ArgumentNullException(nameof(map));
+        }
+
         return map.GetComponent<Manager>();
     }
 
     public static implicit operator Map(Manager manager)
     {
-        return manager.map;
+        return manager?.map!;
+    }
+
+    public Map ToMap()
+    {
+        return this;
     }
 
     public override void ExposeData()
     {
         Scribe_Values.Look(ref id, "id", -1, true);
-        Scribe_Values.Look(ref helpShown, "helpShown");
-        Scribe_Deep.Look(ref _stack, "jobStack", this);
+        Scribe_Deep.Look(ref _jobTracker, "jobStack", this);
 
         Scribe_Values.Look(ref _nextManagerJobID, "nextManagerJobID", 0);
 
-        var exposableTabs = tabs.OfType<IExposable>().ToList();
+        var exposableTabs = _tabs.OfType<IExposable>().ToList();
         Scribe_Collections.Look(ref exposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             foreach (var exposableTab in exposableTabs)
             {
-                var oldTab = tabs.Select((t, i) => (t, i))
+                var oldTab = _tabs.Select((t, i) => (t, i))
                     .SingleOrDefault(v => v.t.GetType() == exposableTab.GetType());
                 if (oldTab.t != null)
                 {
                     var newTab = (ManagerTab)exposableTab;
                     newTab.def = oldTab.t.def;
-                    tabs[oldTab.i] = newTab;
+                    _tabs[oldTab.i] = newTab;
                 }
             }
 
             _wasLoaded = true;
         }
 
-        _stack ??= new JobStack(this);
+        _jobTracker ??= new JobTracker(this);
     }
 
     public override void MapComponentTick()
@@ -130,10 +145,11 @@ public class Manager : MapComponent, ILoadReferenceable
         base.MapComponentTick();
 
         // tick jobs
-        foreach (var job in JobStack.FullStack())
+        foreach (var job in JobTracker.JobsOfType<ManagerJob>())
         {
             if (!job.IsSuspended)
             {
+#pragma warning disable CA1031 // Do not catch general exception types
                 try
                 {
                     job.Tick();
@@ -143,11 +159,12 @@ public class Manager : MapComponent, ILoadReferenceable
                     Log.Error($"Suspending manager job because it errored on tick: \n{err}");
                     job.IsSuspended = true;
                 }
+#pragma warning restore CA1031 // Do not catch general exception types
             }
         }
 
         // tick tabs
-        foreach (var tab in tabs)
+        foreach (var tab in _tabs)
         {
             tab.Tick();
         }
@@ -161,7 +178,7 @@ public class Manager : MapComponent, ILoadReferenceable
 
     public bool TryDoWork()
     {
-        return JobStack.TryDoNextJob();
+        return JobTracker.TryDoNextJob();
     }
 
     internal int GetNextManagerJobID()

@@ -9,7 +9,7 @@ using static ColonyManagerRedux.Widgets_Labels;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
 {
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
@@ -76,7 +76,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             {
                 // activate job, add it to the stack
                 SelectedForestryJob.IsManaged = true;
-                manager.JobStack.Add(SelectedForestryJob);
+                manager.JobTracker.Add(SelectedForestryJob);
 
                 // refresh source list
                 Refresh();
@@ -87,7 +87,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobStack.Delete(SelectedForestryJob);
+                manager.JobTracker.Delete(SelectedForestryJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -117,7 +117,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Forestry>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Forestry>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);
@@ -225,7 +225,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         GUI.EndGroup();
     }
 
-    public string SubLabel(ManagerJob_Forestry job, Rect rect)
+    public static string SubLabel(ManagerJob_Forestry job, Rect rect)
     {
         string sublabel;
         switch (job.Type)
@@ -294,7 +294,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         return pos.y - start.y;
     }
 
-    public float DrawEmpty(string label, Vector2 pos, float width)
+    public static float DrawEmpty(string label, Vector2 pos, float width)
     {
         var height = Mathf.Max(Text.CalcHeight(label, width), ListEntryHeight);
         var rowRect = new Rect(
@@ -382,6 +382,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
                 allowedTrees.Contains(plantDef),
                 () =>
                 {
+#pragma warning disable CA1868 // Unnecessary call to 'Contains(item)'
                     if (allowedTrees.Contains(plantDef))
                     {
                         allowedTrees.Remove(plantDef);
@@ -390,6 +391,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
                     {
                         allowedTrees.Add(plantDef);
                     }
+#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
                 });
             rowRect.y += ListEntryHeight;
         }
@@ -466,7 +468,7 @@ internal class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
     public void Refresh()
     {
         // makes sure the list of possible areas is up-to-date with the area in the game.
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Forestry>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Forestry>())
         {
             job.UpdateClearAreas();
             job.RefreshAllTrees();

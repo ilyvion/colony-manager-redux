@@ -5,9 +5,9 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Foraging : ManagerJob
+internal sealed class ManagerJob_Foraging : ManagerJob
 {
-    public class History : HistoryWorker<ManagerJob_Foraging>
+    public sealed class History : HistoryWorker<ManagerJob_Foraging>
     {
         public override int GetCountForHistoryChapter(ManagerJob_Foraging managerJob, ManagerJobHistoryChapterDef chapterDef)
         {
@@ -35,7 +35,7 @@ public class ManagerJob_Foraging : ManagerJob
         }
     }
 
-    private readonly Utilities.CachedValue<int> _cachedCurrentDesignatedCount = new(0);
+    private readonly CachedValue<int> _cachedCurrentDesignatedCount = new(0);
 
     public HashSet<ThingDef> AllowedPlants = [];
     public Area? ForagingArea;
@@ -67,7 +67,7 @@ public class ManagerJob_Foraging : ManagerJob
 
     public override void PostMake()
     {
-        var foragingSettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Foraging>(def);
+        var foragingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Foraging>(def);
         if (foragingSettings != null)
         {
             SyncFilterAndAllowed = foragingSettings.DefaultSyncFilterAndAllowed;
@@ -124,8 +124,8 @@ public class ManagerJob_Foraging : ManagerJob
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
-    public override string[] Targets => AllowedPlants
-        .Select(plant => plant.LabelCap.Resolve()).ToArray();
+    public override IEnumerable<string> Targets => AllowedPlants
+        .Select(plant => plant.LabelCap.Resolve());
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
 
@@ -200,9 +200,9 @@ public class ManagerJob_Foraging : ManagerJob
         }
     }
 
-    public List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
+    public static List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
     {
-        var plant = (plantDef?.plant) ?? throw new ArgumentNullException("no valid plantdef defined");
+        var plant = (plantDef?.plant) ?? throw new ArgumentNullException(nameof(plantDef));
         return new List<ThingDef>([plant.harvestedThingDef]);
     }
 

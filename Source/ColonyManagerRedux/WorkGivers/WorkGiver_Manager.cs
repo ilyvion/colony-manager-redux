@@ -5,7 +5,11 @@ using Verse.AI;
 
 namespace ColonyManagerRedux;
 
-internal class WorkGiver_Manage : WorkGiver_Scanner
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+internal sealed class WorkGiver_Manage : WorkGiver_Scanner
 {
     public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
 
@@ -55,13 +59,13 @@ internal class WorkGiver_Manage : WorkGiver_Scanner
             return false;
         }
 
-        if (!Manager.For(pawn.Map).JobStack.FullStack().Any())
+        if (!Manager.For(pawn.Map).JobTracker.JobsOfType<ManagerJob>().Any())
         {
             JobFailReason.Is("ColonyManagerRedux.CannotManage.NoJobs".Translate());
             return false;
         }
 
-        if (Manager.For(pawn.Map).JobStack.NextJob == null)
+        if (Manager.For(pawn.Map).JobTracker.NextJob == null)
         {
             JobFailReason.Is("ColonyManagerRedux.CannotManage.NoActiveJobs".Translate());
             return false;

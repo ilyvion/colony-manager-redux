@@ -5,9 +5,9 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJob_Forestry : ManagerJob
+internal sealed class ManagerJob_Forestry : ManagerJob
 {
-    public class History : HistoryWorker<ManagerJob_Forestry>
+    public sealed class History : HistoryWorker<ManagerJob_Forestry>
     {
         public override int GetCountForHistoryChapter(ManagerJob_Forestry managerJob, ManagerJobHistoryChapterDef chapterDef)
         {
@@ -41,7 +41,7 @@ public class ManagerJob_Forestry : ManagerJob
         Logging
     }
 
-    private readonly Utilities.CachedValue<int>
+    private readonly CachedValue<int>
         _designatedWoodCachedValue = new(0);
 
     public HashSet<ThingDef> AllowedTrees = [];
@@ -76,7 +76,7 @@ public class ManagerJob_Forestry : ManagerJob
 
     public override void PostMake()
     {
-        var forestrySettings = ColonyManagerReduxMod.Instance.Settings.ManagerJobSettingsFor<ManagerJobSettings_Forestry>(def);
+        var forestrySettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Forestry>(def);
         if (forestrySettings != null)
         {
             _type = forestrySettings.DefaultForestryJobType;
@@ -110,26 +110,21 @@ public class ManagerJob_Forestry : ManagerJob
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
-    public override string[] Targets
+    public override IEnumerable<string> Targets
     {
         get
         {
             switch (Type)
             {
                 case ForestryJobType.Logging:
-                    return AllowedTrees
-                        .Select(tree => tree.LabelCap.Resolve())
-                        .ToArray();
+                    return AllowedTrees.Select(tree => tree.LabelCap.Resolve());
                 case ForestryJobType.ClearArea:
-                    var targets = ClearAreas
-                        .Select(ca => ca.Label);
-
-                    if (!targets.Any())
+                    if (ClearAreas.Count == 0)
                     {
                         return ["ColonyManagerRedux.ManagerNone".Translate().RawText];
                     }
 
-                    return targets.ToArray();
+                    return ClearAreas.Select(ca => ca.Label);
 
                 default:
                     throw new Exception($"Invalid ForestryJobType value: {Type}");

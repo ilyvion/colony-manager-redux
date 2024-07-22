@@ -6,28 +6,28 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerJobSettings_Livestock : ManagerJobSettings
+internal sealed class ManagerJobSettings_Livestock : ManagerJobSettings
 {
     public int[] DefaultCountTargets = Utilities_Livestock.AgeSexArray
                 .Select(_ => 5)
                 .ToArray();
 
-    public bool DefaultTryTameMore = false;
+    public bool DefaultTryTameMore;
 
     public bool DefaultButcherExcess = true;
-    public bool DefaultButcherTrained = false;
-    public bool DefaultButcherPregnant = false;
-    public bool DefaultButcherBonded = false;
+    public bool DefaultButcherTrained;
+    public bool DefaultButcherPregnant;
+    public bool DefaultButcherBonded;
 
-    public bool DefaultUnassignTraining = false;
-    public bool DefaultTrainYoung = false;
+    public bool DefaultUnassignTraining;
+    public bool DefaultTrainYoung;
 
     public MasterMode DefaultMasterMode = MasterMode.Manual;
     public bool DefaultRespectBonds = true;
     public bool DefaultSetFollow = true;
     public bool DefaultFollowDrafted = true;
     public bool DefaultFollowFieldwork = true;
-    public bool DefaultFollowTraining = false;
+    public bool DefaultFollowTraining;
     public MasterMode DefaultTrainerMode = MasterMode.Manual;
 
     private string[] _newCounts =
@@ -57,14 +57,17 @@ public class ManagerJobSettings_Livestock : ManagerJobSettings
     private float DrawTargetCounts(Vector2 pos, float width)
     {
         // counts table
-        var cols = 3;
-        var rows = 3;
+        const int cols = 3;
+        const int rows = 3;
+
         var fifth = width / 5;
         float[] widths = [fifth, fifth * 2, fifth * 2];
         float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
         // set up a 3x3 table of rects
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
         var countRects = new Rect[rows, cols];
+#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
         for (var x = 0; x < cols; x++)
         {
             for (var y = 0; y < rows; y++)

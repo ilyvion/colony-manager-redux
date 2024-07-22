@@ -8,7 +8,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
 {
     public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
         .Where(td => td.IsStuff && td.stuffProps.categories.Contains(StuffCategoryDefOf.Metallic)));
@@ -296,7 +296,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         return pos.y - start.y;
     }
 
-    public bool IsMetal(ThingDef def)
+    public static bool IsMetal(ThingDef def)
     {
         return def != null && _metals.Contains(def);
     }
@@ -309,7 +309,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     public void Refresh()
     {
         // update pawnkind options
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Mining>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Mining>())
         {
             job.RefreshAllBuildingsAndMinerals();
         }
@@ -380,7 +380,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             {
                 // activate job, add it to the stack
                 SelectedMiningJob.IsManaged = true;
-                manager.JobStack.Add(SelectedMiningJob);
+                manager.JobTracker.Add(SelectedMiningJob);
 
                 // refresh source list
                 Refresh();
@@ -391,7 +391,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobStack.Delete(SelectedMiningJob);
+                manager.JobTracker.Delete(SelectedMiningJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -421,7 +421,7 @@ public class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         var cur = Vector2.zero;
         var i = 0;
 
-        foreach (var job in manager.JobStack.JobsOfType<ManagerJob_Mining>())
+        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Mining>())
         {
             var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
             Widgets.DrawHighlightIfMouseover(row);

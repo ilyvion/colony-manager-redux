@@ -24,7 +24,7 @@ public class CompManagerJobHistory : ManagerJobComp
     {
         base.CompTick();
 
-        if (!History.IsRelevantTick)
+        if (!History.IsUpdateTick)
         {
             return;
         }
@@ -71,6 +71,11 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
 
     public override IEnumerable<string> ConfigErrors(ManagerDef parentDef)
     {
+        if (parentDef == null)
+        {
+            throw new ArgumentNullException(nameof(parentDef));
+        }
+
         foreach (string item in base.ConfigErrors(parentDef))
         {
             yield return item;

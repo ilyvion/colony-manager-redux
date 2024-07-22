@@ -3,9 +3,16 @@
 
 namespace ColonyManagerRedux;
 
-internal static class Widgets_Buttons
+public static class Widgets_Buttons
 {
-    public static bool DisableableButtonText(Rect rect, string label, bool drawBackground = true, bool doMouseoverSound = true, Color? textColor = null, bool enabled = true, TextAnchor? overrideTextAnchor = null)
+    public static bool DisableableButtonText(
+        Rect rect,
+        string label,
+        bool drawBackground = true,
+        bool doMouseoverSound = true,
+        Color? textColor = null,
+        bool enabled = true,
+        TextAnchor? overrideTextAnchor = null)
     {
         Color realizedTextColor = textColor ?? Widgets.NormalOptionColor;
 

@@ -4,91 +4,52 @@
 namespace ColonyManagerRedux;
 
 [StaticConstructorOnStartup]
+#pragma warning disable CA1724
 public static class Resources
+#pragma warning restore CA1724
 {
-    public static Texture2D
+    public static readonly Texture2D
         // sorting arrows
-        ArrowTop,
-        ArrowUp,
-        ArrowDown,
-        ArrowBottom,
+        ArrowTop = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowTop"),
+        ArrowUp = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowUp"),
+        ArrowDown = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowDown"),
+        ArrowBottom = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowBottom"),
 
         // stamps
-        StampCompleted,
-        StampSuspended,
-        StampStart,
+        StampCompleted = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Completed"),
+        StampSuspended = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Suspended"),
+        StampStart = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Start"),
 
         // misc
-        SlightlyDarkBackground,
-        Cog,
-        BarBackgroundActiveTexture,
-        BarBackgroundInactiveTexture,
-        Search,
-        BarShader,
-        Refresh,
-        Stopwatch,
-        ClawIcon,
+        SlightlyDarkBackground = SolidColorMaterials.NewSolidColorTexture(SlightlyDarkBackgroundColour),
+        Cog = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Cog"),
+        BarBackgroundActiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f)),
+        BarBackgroundInactiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0.7f, 0.7f)),
+        Search = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Search"),
+        BarShader = ContentFinder<Texture2D>.Get("UI/Misc/CMR_BarShader"),
+        Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh"),
+        Stopwatch = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stopwatch"),
+        ClawIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw"),
 
         // livestock header icons
-        WoolIcon,
-        MilkIcon,
-        StageC,
-        StageB,
-        StageA,
-        FemaleIcon,
-        MaleIcon,
-        MeatIcon,
-        UnkownIcon,
-        TrainableNoneIcon,
-        TrainableIntermediateIcon,
-        TrainableAdvancedIcon;
-
-    public static readonly Color Orange, SlightlyDarkBackgroundColour;
-
-    //public static Texture2D[] LifeStages = {StageA, StageB, StageC};
-
-    static Resources()
-    {
-        Orange = new Color(1f, 144 / 255f, 0f);
-        SlightlyDarkBackgroundColour = new Color(0f, 0f, 0f, .2f);
-
-        ArrowTop = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowTop");
-        ArrowUp = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowUp");
-        ArrowDown = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowDown");
-        ArrowBottom = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowBottom");
-
-        // stamps
-        StampCompleted = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Completed");
-        StampSuspended = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Suspended");
-        StampStart = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Start");
-
-        // misc
-        SlightlyDarkBackground = SolidColorMaterials.NewSolidColorTexture(SlightlyDarkBackgroundColour);
-        Cog = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Cog");
-        BarBackgroundActiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f));
-        BarBackgroundInactiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0.7f, 0.7f));
-        Search = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Search");
-        BarShader = ContentFinder<Texture2D>.Get("UI/Misc/CMR_BarShader");
-        Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh");
-        Stopwatch = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stopwatch");
-        ClawIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw");
-
-        // livestock header icons
-        WoolIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_wool");
-        MilkIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_milk");
-        StageC = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-3");
-        StageB = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-2");
-        StageA = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-1");
-        FemaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_female");
-        MaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_male");
-        MeatIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_meat");
-        UnkownIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_unknown");
-        TrainableNoneIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_none");
-        TrainableIntermediateIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_intermediate");
+        WoolIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_wool"),
+        MilkIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_milk"),
+        StageC = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-3"),
+        StageB = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-2"),
+        StageA = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-1"),
+        FemaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_female"),
+        MaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_male"),
+        MeatIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_meat"),
+        UnkownIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_unknown"),
+        TrainableNoneIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_none"),
+        TrainableIntermediateIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_intermediate"),
         TrainableAdvancedIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_advanced");
-    }
 
-    public static Texture2D LifeStages(int lifeStageIndex)
+    public static readonly Color
+        Orange = new(1f, 144 / 255f, 0f),
+        SlightlyDarkBackgroundColour = new(0f, 0f, 0f, .2f);
+
+    public static Texture2D GetLifeStageIcon(int lifeStageIndex)
     {
         return lifeStageIndex switch
         {

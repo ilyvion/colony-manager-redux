@@ -28,6 +28,11 @@ public static class Clock
 
     public static void Draw(Rect canvas, IEnumerable<ClockHandle> clockHandles, HourTick major, HourTick minor)
     {
+        if (clockHandles == null)
+        {
+            throw new ArgumentNullException(nameof(clockHandles));
+        }
+
         for (var h = 0; h < 12; h++)
         {
             if (h % 3 == 0)
@@ -56,6 +61,11 @@ public static class Clock
 
     public static void DrawHandle(Rect canvas, ClockHandle handle)
     {
+        if (handle == null)
+        {
+            throw new ArgumentNullException(nameof(handle));
+        }
+
         DrawMarker(canvas, handle.Hours, handle.Thickness, handle.Color, 0f, handle.Length);
     }
 
@@ -72,6 +82,11 @@ public static class Clock
 
     public static void DrawTick(Rect canvas, HourTick tick, float hour)
     {
+        if (tick == null)
+        {
+            throw new ArgumentNullException(nameof(tick));
+        }
+
         DrawMarker(canvas, hour, tick.Thickness, tick.Color, 1f - tick.Length, 1f);
     }
 }

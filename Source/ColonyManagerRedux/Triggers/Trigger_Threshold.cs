@@ -34,7 +34,12 @@ public class Trigger_Threshold : Trigger
 
     public Trigger_Threshold(ManagerJob job) : base(job)
     {
-        Settings settings = ColonyManagerReduxMod.Instance.Settings;
+        if (job == null)
+        {
+            throw new ArgumentNullException(nameof(job));
+        }
+
+        Settings settings = ColonyManagerReduxMod.Settings;
         CountAllOnMap = settings.DefaultCountAllOnMap;
 
         ParentFilter = new ThingFilter();
@@ -103,18 +108,18 @@ public class Trigger_Threshold : Trigger
 
     public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount);
 
-    public override void DrawProgressBar(Rect rect, bool active)
+    public override void DrawProgressBar(Rect progressRect, bool active)
     {
         // bar always goes a little beyond the actual target
         var max = Math.Max((int)(TargetCount * 1.2f), CurrentCount);
 
         // draw a box for the bar
         GUI.color = Color.gray;
-        Widgets.DrawBox(rect.ContractedBy(1f));
+        Widgets.DrawBox(progressRect.ContractedBy(1f));
         GUI.color = Color.white;
 
         // get the bar rect
-        var barRect = rect.ContractedBy(2f);
+        var barRect = progressRect.ContractedBy(2f);
         var unit = barRect.height / max;
         var markHeight = barRect.yMin + (max - TargetCount) * unit;
         barRect.yMin += (max - CurrentCount) * unit;
@@ -127,17 +132,22 @@ public class Trigger_Threshold : Trigger
         GUI.DrawTexture(barRect, barTex);
 
         // draw a mark at the treshold
-        Widgets.DrawLineHorizontal(rect.xMin, markHeight, rect.width);
+        Widgets.DrawLineHorizontal(progressRect.xMin, markHeight, progressRect.width);
 
-        TooltipHandler.TipRegion(rect, () => StatusTooltip, GetHashCode());
+        TooltipHandler.TipRegion(progressRect, () => StatusTooltip, GetHashCode());
     }
 
     public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string? label = null,
-        string? tooltip = null, List<Designation>? designations = null,
+        string? tooltip = null, List<Designation>? targets = null,
         Action? onOpenFilterDetails = null,
         Func<Designation, string>? designationLabelGetter = null)
     {
-        var hasTargets = !designations.NullOrEmpty();
+        if (targets == null)
+        {
+            throw new ArgumentNullException(nameof(targets));
+        }
+
+        var hasTargets = !targets.NullOrEmpty();
 
         // target threshold
         var thresholdLabelRect = new Rect(
@@ -202,7 +212,7 @@ public class Trigger_Threshold : Trigger
             if (Widgets.ButtonImage(targetsButtonRect, Resources.Search))
             {
                 var options = new List<FloatMenuOption>();
-                foreach (var designation in designations!)
+                foreach (var designation in targets!)
                 {
                     var option = string.Empty;
                     Action onClick = () => Find.WindowStack.TryRemove(typeof(MainTabWindow_Manager), false);

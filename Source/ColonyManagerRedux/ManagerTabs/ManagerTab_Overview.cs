@@ -7,7 +7,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 {
     public const float OverviewWidthRatio = .6f;
 
@@ -66,7 +66,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 
     public void DrawOverview(Rect rect)
     {
-        if (manager.JobStack.IsEmpty)
+        if (manager.JobTracker.HasNoJobs)
         {
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = Color.grey;
@@ -90,7 +90,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
             var cur = Vector2.zero;
 
             var alternate = false;
-            foreach (ManagerJob job in manager.JobStack.JobsOfType<ManagerJob>())
+            foreach (ManagerJob job in manager.JobTracker.JobsOfType<ManagerJob>())
             {
                 var row = new Rect(cur.x, cur.y, contentRect.width, 50f);
 
@@ -194,6 +194,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 Widgets.DrawAltRect(row);
             }
 
+#pragma warning disable CA1031 // Do not catch general exception types
             try
             {
                 DrawPawnOverviewRow(Workers[i], row);
@@ -205,6 +206,7 @@ public class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
                 Widgets.EndScrollView();
                 return;
             }
+#pragma warning restore CA1031 // Do not catch general exception types
 
             cur.y += ListEntryHeight;
         }

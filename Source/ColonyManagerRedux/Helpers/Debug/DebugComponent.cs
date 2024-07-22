@@ -5,7 +5,7 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class DebugComponent(Manager manager)
+internal sealed class DebugComponent(Manager manager)
 {
     private (IntVec3 source, IntVec3 target) debugPath;
     private int debugPathFrameCounter = -1;

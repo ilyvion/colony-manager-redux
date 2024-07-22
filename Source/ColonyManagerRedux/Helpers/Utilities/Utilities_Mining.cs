@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux;
 
-public static class Utilities_Mining
+internal static class Utilities_Mining
 {
     public static bool IsChunk(this ThingDef def)
     {

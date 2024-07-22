@@ -1,66 +1,63 @@
-﻿// JobStack.cs
+﻿// JobTracker.cs
 // Copyright Karel Kroeze, 2017-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
-/// <summary>
-///     Full jobstack, in order of assignment
-/// </summary>
-public class JobStack(Manager manager) : IExposable
+public class JobTracker(Manager manager) : IExposable
 {
-    public Manager manager = manager;
+    private readonly Manager _manager = manager;
 
-    private List<ManagerJob> jobStack = [];
-
-    /// <summary>
-    ///     Jobstack of jobs that are available now
-    /// </summary>
-    public List<ManagerJob> CurStack
+    private List<ManagerJob> jobs = [];
+    private IEnumerable<ManagerJob> JobsInOrderOfPriority
     {
-        get { return jobStack.Where(mj => mj.ShouldDoNow).OrderBy(mj => mj.Priority).ToList(); }
+        get { return jobs.Where(mj => mj.ShouldDoNow).OrderBy(mj => mj.Priority); }
     }
 
-    public bool IsEmpty => jobStack.Count == 0;
+    public bool HasNoJobs => jobs.Count == 0;
 
     /// <summary>
     ///     Highest priority available job
     /// </summary>
-    public ManagerJob NextJob => CurStack.FirstOrDefault();
+    public ManagerJob? NextJob => JobsInOrderOfPriority.FirstOrDefault();
 
     public void ExposeData()
     {
-        Scribe_Collections.Look(ref jobStack, "jobStack", LookMode.Deep, manager);
+        Scribe_Collections.Look(ref jobs, "jobs", LookMode.Deep, _manager);
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            if (jobStack.Any(j => !j.IsValid))
+            if (jobs.Any(j => !j.IsValid))
             {
                 Log.Error(
-                    $"Colony Manager :: Removing {jobStack.Count(j => !j.IsValid)} invalid manager jobs. If this keeps happening, please report it.");
-                jobStack = jobStack.Where(job => job.IsValid).ToList();
+                    $"Colony Manager :: Removing {jobs.Count(j => !j.IsValid)} invalid manager jobs. If this keeps happening, please report it.");
+                jobs = jobs.Where(job => job.IsValid).ToList();
             }
         }
     }
 
     public void Add(ManagerJob job)
     {
-        job.Priority = jobStack.Count + 1;
-        jobStack.Add(job);
+        if (job == null)
+        {
+            throw new ArgumentNullException(nameof(job));
+        }
+
+        job.Priority = jobs.Count + 1;
+        jobs.Add(job);
     }
 
     /// <summary>
     ///     Add job to the stack with bottom priority.
     /// </summary>
-    /// <param name="job"></param>
-    public void BottomPriority<T>(T job) where T : ManagerJob
+    internal void BottomPriority<T>(T job) where T : ManagerJob
     {
         // get list of priorities for this type.
-        var jobsOfType = jobStack.OfType<T>().OrderBy(j => j.Priority).ToList();
+        var jobsOfType = jobs.OfType<T>().OrderBy(j => j.Priority).ToList();
         var priorities = jobsOfType.Select(j => j.Priority).ToList();
 
         // make sure our job is on the bottom.
-        job.Priority = jobStack.Count + 10;
+        job.Priority = jobs.Count + 10;
 
         // re-sort
         jobsOfType = jobsOfType.OrderBy(j => j.Priority).ToList();
@@ -73,11 +70,11 @@ public class JobStack(Manager manager) : IExposable
         CleanPriorities();
     }
 
-    public void DecreasePriority<T>(T job) where T : ManagerJob
+    internal void DecreasePriority<T>(T job) where T : ManagerJob
     {
-        ManagerJob jobB = jobStack.OfType<T>()
-                                .OrderBy(mj => mj.Priority)
-                                .First(mj => mj.Priority > job.Priority);
+        ManagerJob jobB = jobs.OfType<T>()
+            .OrderBy(mj => mj.Priority)
+            .First(mj => mj.Priority > job.Priority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
@@ -88,53 +85,42 @@ public class JobStack(Manager manager) : IExposable
     /// <param name="job"></param>
     public void Delete(ManagerJob job, bool cleanup = true)
     {
+        if (job == null)
+        {
+            throw new ArgumentNullException(nameof(job));
+        }
+
         if (cleanup)
         {
             job.CleanUp();
         }
 
-        jobStack.Remove(job);
+        jobs.Remove(job);
         CleanPriorities();
     }
 
     public IEnumerable<T> JobsOfType<T>() where T : ManagerJob
     {
-        return jobStack.OrderBy(job => job.Priority).OfType<T>();
+        return jobs.OrderBy(job => job.Priority).OfType<T>();
     }
 
-    /// <summary>
-    ///     Jobs of type T in jobstack, in order of priority
-    /// </summary>
-    public List<T> FullStack<T>() where T : ManagerJob
-    {
-        return JobsOfType<T>().ToList();
-    }
-
-    /// <summary>
-    ///     Jobs in jobstack, in order of priority
-    /// </summary>
-    public List<ManagerJob> FullStack()
-    {
-        return jobStack.OrderBy(job => job.Priority).ToList();
-    }
-
-    public void IncreasePriority<T>(T job) where T : ManagerJob
+    internal void IncreasePriority<T>(T job) where T : ManagerJob
     {
         ManagerJob jobB =
-            jobStack.OfType<T>().OrderByDescending(mj => mj.Priority).First(mj => mj.Priority < job.Priority);
+            jobs.OfType<T>().OrderByDescending(mj => mj.Priority).First(mj => mj.Priority < job.Priority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
 
-    public void SwitchPriorities(ManagerJob a, ManagerJob b)
+    private static void SwitchPriorities(ManagerJob a, ManagerJob b)
     {
         (b.Priority, a.Priority) = (a.Priority, b.Priority);
     }
 
-    public void TopPriority<T>(T job) where T : ManagerJob
+    internal void TopPriority<T>(T job) where T : ManagerJob
     {
         // get list of priorities for this type.
-        var jobsOfType = jobStack.OfType<T>().OrderBy(j => j.Priority).ToList();
+        var jobsOfType = jobs.OfType<T>().OrderBy(j => j.Priority).ToList();
         var priorities = jobsOfType.Select(j => j.Priority).ToList();
 
         // make sure our job is on top.
@@ -154,7 +140,7 @@ public class JobStack(Manager manager) : IExposable
     /// <summary>
     ///     Call the worker for the next available job
     /// </summary>
-    public bool TryDoNextJob()
+    internal bool TryDoNextJob()
     {
         var job = NextJob;
         if (job == null)
@@ -179,7 +165,7 @@ public class JobStack(Manager manager) : IExposable
     /// </summary>
     private void CleanPriorities()
     {
-        foreach (var (job, priority) in jobStack.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
+        foreach (var (job, priority) in jobs.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
         {
             job.Priority = priority;
         }
