@@ -79,3 +79,15 @@ public static class ManagerThingCategoryDefOf
         DefOfHelper.EnsureInitializedInCtor(typeof(ManagerThingCategoryDefOf));
     }
 }
+
+
+[DefOf]
+public static class ManagerPawnTableDefOf
+{
+    public static PawnTableDef CM_ManagerJobWorkTable;
+
+    static ManagerPawnTableDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(ManagerPawnTableDefOf));
+    }
+}

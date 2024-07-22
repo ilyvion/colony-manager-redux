@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Defs>
+    <PawnTableDef>
+        <defName>CM_ManagerJobWorkTable</defName>
+        <workerClass>PawnTable_PlayerPawns</workerClass>
+        <columns>
+            <li>CM_LabelShortWithIcon</li>
+            <li>CM_CurrentActivity</li>
+            <li>CM_WorkPriorities</li>
+            <li>RemainingSpace</li>
+        </columns>
+    </PawnTableDef>
+</Defs>

@@ -1,23 +1,23 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
 
-	<WorkTypeDef>
-		<defName>Managing</defName>
-		<labelShort>Managing</labelShort>
-		<pawnLabel>Manager</pawnLabel>
-		<gerundLabel>Managing</gerundLabel>
-		<description>Managers assign jobs and orders to your colony.</description>
-		<verb>Manage at</verb>
-		<naturalPriority>95</naturalPriority>
-		<relevantSkills>
-			<li>Social</li>
-			<li>Intellectual</li>
-		</relevantSkills>
-		<workTags>
-			<li>Social</li>
-			<li>Intellectual</li>
-			<li>AllWork</li>
-		</workTags>
-	</WorkTypeDef>
+    <WorkTypeDef>
+        <defName>Managing</defName>
+        <labelShort>managing</labelShort>
+        <pawnLabel>Manager</pawnLabel>
+        <gerundLabel>managing</gerundLabel>
+        <description>Managers assign jobs and orders to your colony.</description>
+        <verb>Manage at</verb>
+        <naturalPriority>95</naturalPriority>
+        <relevantSkills>
+            <li>Social</li>
+            <li>Intellectual</li>
+        </relevantSkills>
+        <workTags>
+            <li>Social</li>
+            <li>Intellectual</li>
+            <li>AllWork</li>
+        </workTags>
+    </WorkTypeDef>
 
 </Defs>

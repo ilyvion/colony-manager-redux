@@ -55,14 +55,14 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>Aucun poste de gestionnaire n'est alimenté</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.ManagerOverview>Aperçu</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>Pas de travail établi.</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>Activité actuelle</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>Travail</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>Travail</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>Cliquer pour se rendre sur {0}</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>Le seuil de travail a été atteint.</ColonyManagerRedux.ManagerJobCompletedTooltip>
-    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>Le travail a été suspendu.\n\nCliquer pour rétablir.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.Overview>Aperçu</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>Pas de travail établi.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>Activité actuelle</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>Travail</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>Travail</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>Cliquer pour se rendre sur {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>Le seuil de travail a été atteint.</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Le travail a été suspendu.\n\nCliquer pour rétablir.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
     <ColonyManagerRedux.ManagerJobSuspendedTooltip>Cliquer ici pour suspendre le travail</ColonyManagerRedux.ManagerJobSuspendedTooltip>
     <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 

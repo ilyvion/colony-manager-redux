@@ -51,21 +51,22 @@ public abstract class ManagerTab(Manager manager)
     }
 
 #pragma warning disable CA1062 // Validate arguments of public methods
-    // TODO: Make overview rendering a comp
     // TODO: A lot of the DrawListEntry methods are very similar, consider abstracting
     public virtual void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
     }
 
-    // TODO: Make overview rendering a comp
-    public virtual void DrawOverviewDetails(ManagerJob job, Rect rect)
+    public virtual bool DrawOverviewDetails(ManagerJob job, Rect rect)
     {
-        if (job.CompOfType<CompManagerJobHistory>() is CompManagerJobHistory historyComp)
+        if (job.CompOfType<CompManagerJobHistory>() is not CompManagerJobHistory historyComp)
         {
-            historyComp.History.DrawPlot(rect);
+            return false;
         }
-#pragma warning restore CA1062 // Validate arguments of public methods
+
+        historyComp.History.DrawPlot(rect);
+        return true;
     }
+#pragma warning restore CA1062 // Validate arguments of public methods
 
     public virtual void PostMake()
     {
@@ -223,5 +224,9 @@ public abstract class ManagerTab(Manager manager)
             TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderDown".Translate());
             TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderBottom".Translate());
         }
+    }
+
+    internal virtual void Notify_PawnsChanged()
+    {
     }
 }

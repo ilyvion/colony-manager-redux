@@ -55,15 +55,15 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>Kein Managertisch hat Strom</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.ManagerOverview>Übersicht</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>Keine Aufträge geplant.</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>Momentane Aktivität</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>Arbeit</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>Arbeit</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>Klick umzu {0} zu springen</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>Auftragslimit erreicht.\n\nKlick um diesen Job aussetzen.</ColonyManagerRedux.ManagerJobCompletedTooltip>
-    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>Auftrag wurde gesperrt.\n\nKlick um zu entsperren.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
-    <ColonyManagerRedux.ManagerSuspendJobTooltip>Klick um den Auftrag zu sperren.</ColonyManagerRedux.ManagerSuspendJobTooltip>
+    <ColonyManagerRedux.Overview.Overview>Übersicht</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>Keine Aufträge geplant.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>Momentane Aktivität</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>Arbeit</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>Arbeit</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>Klick umzu {0} zu springen</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>Auftragslimit erreicht.\n\nKlick um diesen Job aussetzen.</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Auftrag wurde gesperrt.\n\nKlick um zu entsperren.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.SuspendJobTooltip>Klick um den Auftrag zu sperren.</ColonyManagerRedux.Overview.SuspendJobTooltip>
     <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 
     <!--Import/Export Tab-->

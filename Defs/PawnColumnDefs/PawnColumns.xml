@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Defs>
+    <PawnColumnDef>
+        <defName>CM_CurrentActivity</defName>
+        <label>current activity</label>
+        <headerTip>Current activity</headerTip>
+        <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_CurrentActivity</workerClass>
+        <sortable>true</sortable>
+        <widthPriority>100</widthPriority>
+    </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_WorkPriorities</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_WorkPriorities</workerClass>
+        <sortable>true</sortable>
+        <widthPriority>100</widthPriority>
+    </PawnColumnDef>
+
+    <PawnColumnDef ParentName="LabelShortWithIcon">
+        <defName>CM_LabelShortWithIcon</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_Label</workerClass>
+    </PawnColumnDef>
+</Defs>

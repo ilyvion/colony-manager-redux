@@ -7,16 +7,15 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
+internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 {
     public const float OverviewWidthRatio = .6f;
 
     private float _overviewHeight = 9999f;
     private Vector2 _overviewScrollPosition = Vector2.zero;
-    private Vector2 _workersScrollPosition = Vector2.zero;
     private List<Pawn> Workers = [];
 
-    public override string Label { get; } = "ColonyManagerRedux.ManagerOverview".Translate();
+    public override string Label { get; } = "ColonyManagerRedux.Overview.Overview".Translate();
 
     private SkillDef? SkillDef { get; set; }
 
@@ -36,9 +35,26 @@ internal sealed class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
         }
     }
 
+    public override void PreOpen()
+    {
+        RefreshWorkers();
+    }
+
+    public override void PostOpen()
+    {
+        pawnOverviewTable?.SetDirty();
+    }
+
     protected override void PostSelect()
     {
         WorkTypeDef = Selected?.WorkTypeDef ?? ManagerWorkTypeDefOf.Managing;
+        pawnOverviewTable?.SetDirty();
+    }
+
+    internal override void Notify_PawnsChanged()
+    {
+        RefreshWorkers();
+        pawnOverviewTable?.SetDirty();
     }
 
     public override void DoWindowContents(Rect canvas)
@@ -57,11 +73,31 @@ internal sealed class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
 
         // draw the selected job's details
         Widgets.DrawMenuSection(sideRectUpper);
-        Selected?.Tab?.DrawOverviewDetails(Selected, sideRectUpper);
+        if (Selected?.Tab is ManagerTab managerTab)
+        {
+            if (!managerTab.DrawOverviewDetails(Selected, sideRectUpper))
+            {
+                Text.Anchor = TextAnchor.MiddleCenter;
+                GUI.color = Color.gray;
+                Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.Overview.NoJobDetails".Translate());
+                GUI.color = Color.white;
+                Text.Anchor = TextAnchor.LowerLeft;
+            }
+        }
+        else
+        {
+            Text.Anchor = TextAnchor.MiddleCenter;
+            GUI.color = Color.gray;
+            Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.Overview.NoJobSelected".Translate());
+            GUI.color = Color.white;
+            Text.Anchor = TextAnchor.LowerLeft;
+        }
 
         // overview of managers & pawns (capable of) doing this job.
         Widgets.DrawMenuSection(sideRectLower);
-        DrawPawnOverview(sideRectLower);
+        GUI.BeginGroup(sideRectLower);
+        DrawPawnOverview(sideRectLower.AtZero());
+        GUI.EndGroup();
     }
 
     public void DrawOverview(Rect rect)
@@ -70,7 +106,7 @@ internal sealed class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
         {
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = Color.grey;
-            Widgets.Label(rect, "ColonyManagerRedux.ManagerNoJobs".Translate());
+            Widgets.Label(rect, "ColonyManagerRedux.Overview.NoJobs".Translate());
             Text.Anchor = TextAnchor.UpperLeft;
             GUI.color = Color.white;
         }
@@ -146,127 +182,16 @@ internal sealed class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
         }
     }
 
+
     public void DrawPawnOverview(Rect rect)
     {
-        // table body viewport
-        var tableOutRect = new Rect(0f, ListEntryHeight, rect.width, rect.height - ListEntryHeight).RoundToInt();
-        var tableViewRect =
-            new Rect(0f, ListEntryHeight, rect.width, Workers.Count * ListEntryHeight).RoundToInt();
-        if (tableViewRect.height > tableOutRect.height)
+        if (pawnOverviewTable == null)
         {
-            tableViewRect.width -= ScrollbarWidth;
+            pawnOverviewTable = CreatePawnOverviewTable();
+            pawnOverviewTable.SetFixedSize(new(rect.width, rect.height));
         }
 
-        // column width
-        var colWidth = tableViewRect.width / 4 - Margin;
-
-        // column headers
-        var nameColumnHeaderRect = new Rect(colWidth * 0, 0f, colWidth, ListEntryHeight).RoundToInt();
-        var activityColumnHeaderRect = new Rect(colWidth * 1, 0f, colWidth * 2.5f, ListEntryHeight).RoundToInt();
-        var priorityColumnHeaderRect =
-            new Rect(colWidth * 3.5f, 0f, colWidth * .5f, ListEntryHeight).RoundToInt();
-
-        // label for priority column
-        var workLabel = Find.PlaySettings.useWorkPriorities
-            ? "ColonyManagerRedux.ManagerPriority".Translate()
-            : "ColonyManagerRedux.ManagerEnabled".Translate();
-
-        // begin drawing
-        GUI.BeginGroup(rect);
-
-        // draw labels
-        Widgets_Labels.Label(nameColumnHeaderRect, WorkTypeDef.pawnLabel + "ColonyManagerRedux.ManagerPluralSuffix".Translate(),
-                              TextAnchor.LowerCenter);
-        Widgets_Labels.Label(activityColumnHeaderRect, "ColonyManagerRedux.ManagerActivity".Translate(), TextAnchor.LowerCenter);
-        Widgets_Labels.Label(priorityColumnHeaderRect, workLabel, TextAnchor.LowerCenter);
-
-        // begin scrolling area
-        Widgets.BeginScrollView(tableOutRect, ref _workersScrollPosition, tableViewRect);
-        GUI.BeginGroup(tableViewRect);
-
-        // draw pawn rows
-        var cur = Vector2.zero;
-        for (var i = 0; i < Workers.Count; i++)
-        {
-            var row = new Rect(cur.x, cur.y, tableViewRect.width, ListEntryHeight);
-            if (i % 2 == 0)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-#pragma warning disable CA1031 // Do not catch general exception types
-            try
-            {
-                DrawPawnOverviewRow(Workers[i], row);
-            }
-            catch // pawn death, etc.
-            {
-                // rehresh the list and skip drawing untill the next GUI tick.
-                RefreshWorkers();
-                Widgets.EndScrollView();
-                return;
-            }
-#pragma warning restore CA1031 // Do not catch general exception types
-
-            cur.y += ListEntryHeight;
-        }
-
-        // end scrolling area
-        GUI.EndGroup();
-        Widgets.EndScrollView();
-
-        // done!
-        GUI.EndGroup();
-    }
-
-    public override void PreOpen()
-    {
-        RefreshWorkers();
-    }
-
-    private void DrawPawnOverviewRow(Pawn pawn, Rect rect)
-    {
-        // column width
-        var colWidth = rect.width / 4 - Margin;
-
-        // cell rects
-        var nameRect = new Rect(colWidth * 0, rect.yMin, colWidth, ListEntryHeight).RoundToInt();
-        var activityRect = new Rect(colWidth * 1, rect.yMin, colWidth * 2.5f, ListEntryHeight).RoundToInt();
-        var priorityRect = new Rect(colWidth * 3.5f, rect.yMin, colWidth * .5f, ListEntryHeight).RoundToInt();
-
-        // name
-        Widgets.DrawHighlightIfMouseover(nameRect);
-
-        // on click select and jump to location
-        if (Widgets.ButtonInvisible(nameRect))
-        {
-            Find.MainTabsRoot.EscapeCurrentTab();
-            CameraJumper.TryJump(pawn.PositionHeld, pawn.Map);
-            Find.Selector.ClearSelection();
-            if (pawn.Spawned)
-            {
-                Find.Selector.Select(pawn);
-            }
-        }
-
-        Widgets_Labels.Label(nameRect, pawn.Name.ToStringShort, "ColonyManagerRedux.ManagerClickToJumpTo".Translate(pawn.LabelCap),
-                              TextAnchor.MiddleLeft, margin: Margin);
-
-        // current activity (if curDriver != null)
-        var activityString = pawn.jobs.curDriver?.GetReport() ?? "ColonyManagerRedux.ManagerNoCurJob".Translate();
-        Widgets_Labels.Label(activityRect, activityString, pawn.jobs.curDriver?.GetReport(),
-                              TextAnchor.MiddleCenter, margin: Margin, font: GameFont.Tiny);
-
-        // priority button
-        var priorityPosition = new Rect(0f, 0f, 24f, 24f).CenteredIn(priorityRect).RoundToInt();
-        Text.Font = GameFont.Medium;
-        bool incapable = Utilities.IsIncapableOfWholeWorkType(pawn, WorkTypeDef);
-        WidgetsWork.DrawWorkBoxFor(priorityPosition.xMin, priorityPosition.yMin, pawn, WorkTypeDef, incapable);
-        if (Mouse.IsOver(priorityPosition))
-        {
-            TooltipHandler.TipRegion(priorityPosition, () => WidgetsWork.TipForPawnWorker(pawn, WorkTypeDef, incapable), pawn.thingIDNumber ^ WorkTypeDef.GetHashCode());
-        }
-        Text.Font = GameFont.Small;
+        pawnOverviewTable.PawnTableOnGUI(Vector2.zero);
     }
 
     private void RefreshWorkers()

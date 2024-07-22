@@ -55,15 +55,15 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>Нужен стол менеджера или ИИ-менеджер!</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.ManagerOverview>Обзор</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>Нет задач.</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>Текущая активность</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>Вкл</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>Работа</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>Перейти к {0}</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.ManagerJobCompletedTooltip>
-    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
-    <ColonyManagerRedux.ManagerSuspendJobTooltip>Нажмите, чтобы приостановить это задание.</ColonyManagerRedux.ManagerSuspendJobTooltip>
+    <ColonyManagerRedux.Overview.Overview>Обзор</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>Нет задач.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>Текущая активность</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>Вкл</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>Работа</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>Перейти к {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.SuspendJobTooltip>Нажмите, чтобы приостановить это задание.</ColonyManagerRedux.Overview.SuspendJobTooltip>
     <ColonyManagerRedux.ManagerPluralSuffix></ColonyManagerRedux.ManagerPluralSuffix>
 
     <!--Import/Export Tab-->

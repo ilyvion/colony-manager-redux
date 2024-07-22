@@ -189,17 +189,17 @@ public static class Utilities
 
             if (job.IsSuspended)
             {
-                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerUnsuspendJobTooltip".Translate());
+                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.Overview.UnsuspendJobTooltip".Translate());
                 return;
             }
 
             if (job.IsCompleted)
             {
-                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerJobCompletedTooltip".Translate());
+                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.Overview.JobCompletedTooltip".Translate());
                 return;
             }
 
-            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.ManagerSuspendJobTooltip".Translate());
+            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.Overview.SuspendJobTooltip".Translate());
 
             // draw progress bar
             trigger.DrawProgressBar(progressRect, true);

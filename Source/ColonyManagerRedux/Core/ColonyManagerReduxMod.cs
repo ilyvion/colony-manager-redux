@@ -26,7 +26,9 @@ public class ColonyManagerReduxMod : Mod
 
         // apply fixes
         var harmony = new Harmony(content.Name);
+        //Harmony.DEBUG = true;
         harmony.PatchAll(Assembly.GetExecutingAssembly());
+        //Harmony.DEBUG = false;
 
         GetSettings<Settings>();
     }

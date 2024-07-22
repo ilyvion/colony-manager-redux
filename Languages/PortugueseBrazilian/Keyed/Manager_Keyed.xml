@@ -55,15 +55,15 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>Nenhuma estação de gerenciamento tem energia</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Guia Visão geral -->
-    <ColonyManagerRedux.ManagerOverview>Visão geral</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>Sem problemas.</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>Atividade atual</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>On</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>Trabalhar</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>Ir para {0}</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>O limite de execução foi atingido.\n\nClique para suspender este trabalho.</ColonyManagerRedux.ManagerJobCompletedTooltip>
-    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>O trabalho foi suspenso.\n\nClique para cancelar a suspensão.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
-    <ColonyManagerRedux.ManagerSuspendJobTooltip>Clique para suspender este trabalho.</ColonyManagerRedux.ManagerSuspendJobTooltip>
+    <ColonyManagerRedux.Overview.Overview>Visão geral</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>Sem problemas.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>Atividade atual</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>On</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>Trabalhar</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>Ir para {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>O limite de execução foi atingido.\n\nClique para suspender este trabalho.</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>O trabalho foi suspenso.\n\nClique para cancelar a suspensão.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.SuspendJobTooltip>Clique para suspender este trabalho.</ColonyManagerRedux.Overview.SuspendJobTooltip>
     <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 
     <!-- Guia Importar/Exportar -->

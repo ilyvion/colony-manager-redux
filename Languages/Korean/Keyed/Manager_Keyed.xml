@@ -55,15 +55,15 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>관리 스테이션에 전력이 없습니다.</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.ManagerOverview>요약</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>작업이 설정되지 않음.</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>현재 활동</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>작업</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>작업</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>클릭하여 이동 {0}</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>작업이 임계값에 도달했습니다.\n\n클릭해서 이 작업을 일시정지 합니다.</ColonyManagerRedux.ManagerJobCompletedTooltip>
-    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>작업이 일시정지 되었습니다.\n\n클릭해서 재개합니다.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
-    <ColonyManagerRedux.ManagerSuspendJobTooltip>클릭해서 이 작업을 일시정지 합니다.</ColonyManagerRedux.ManagerSuspendJobTooltip>
+    <ColonyManagerRedux.Overview.Overview>요약</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>작업이 설정되지 않음.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>현재 활동</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>작업</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>작업</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>클릭하여 이동 {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>작업이 임계값에 도달했습니다.\n\n클릭해서 이 작업을 일시정지 합니다.</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>작업이 일시정지 되었습니다.\n\n클릭해서 재개합니다.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.SuspendJobTooltip>클릭해서 이 작업을 일시정지 합니다.</ColonyManagerRedux.Overview.SuspendJobTooltip>
     <ColonyManagerRedux.ManagerPluralSuffix>들</ColonyManagerRedux.ManagerPluralSuffix>
 
     <!--Import/Export Tab-->

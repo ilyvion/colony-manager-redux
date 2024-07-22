@@ -41,13 +41,13 @@
     <ColonyManagerRedux.Energy.Power>電力</ColonyManagerRedux.Energy.Power>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.ManagerOverview>概覽</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>未設定工作</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>當前活動</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>工作</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>工作</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>點擊跳轉至{0}</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>工作以達到閾值。</ColonyManagerRedux.ManagerJobCompletedTooltip>
+    <ColonyManagerRedux.Overview.Overview>概覽</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>未設定工作</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>當前活動</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>工作</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>工作</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>點擊跳轉至{0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>工作以達到閾值。</ColonyManagerRedux.Overview.JobCompletedTooltip>
     <ColonyManagerRedux.ManagerJobSuspendedTooltip>工作已暫停。\n\n點擊解除暫停狀態。</ColonyManagerRedux.ManagerJobSuspendedTooltip>
     <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 

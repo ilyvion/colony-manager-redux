@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Newly created jobs are now marked as immediately needing to be updated by managers. This avoids having to wait as long as the update interval before it is tended to. A setting has been added to make it work as before, if desirable.
 -   Added comp support to ManagerDefs using the ManagerJobComp as the base comp class.
 -   Job history chapters are now defined using ManagerJobHistoryChapterDefs; this was done so that the ManagerDefs could have a CompManagerJobHistory be responsible for recording history.
+-   Use a proper PawnTable for rendering pawn details in the overview tab rather than a custom table.
 
 ### Fixed
 

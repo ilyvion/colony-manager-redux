@@ -34,6 +34,7 @@
     <ColonyManagerRedux.ManagerCountAllOnMap>Count all on map</ColonyManagerRedux.ManagerCountAllOnMap>
     <ColonyManagerRedux.ManagerCountAllOnMap.Tip>If enabled, counts all items allowed by the threshold filter on the map. If disabled, counts only those in stockpiles and storage buildings.</ColonyManagerRedux.ManagerCountAllOnMap.Tip>
     <ColonyManagerRedux.ManagerNone>None</ColonyManagerRedux.ManagerNone>
+    <ColonyManagerRedux.ManagerNoCurJob>no current job</ColonyManagerRedux.ManagerNoCurJob>
     <!-- 0: target (thing), 1: distance (int), 2: yield amount (int), 3: yield type (def) -->
     <ColonyManagerRedux.Manager.DesignationLabel>{0}\n distance: {1}\n yield: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
 
@@ -65,16 +66,17 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>No managing station has power</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.ManagerOverview>Overview</ColonyManagerRedux.ManagerOverview>
-    <ColonyManagerRedux.ManagerNoJobs>No jobs set.</ColonyManagerRedux.ManagerNoJobs>
-    <ColonyManagerRedux.ManagerActivity>Current activity</ColonyManagerRedux.ManagerActivity>
-    <ColonyManagerRedux.ManagerEnabled>Work</ColonyManagerRedux.ManagerEnabled>
-    <ColonyManagerRedux.ManagerPriority>Work</ColonyManagerRedux.ManagerPriority>
-    <ColonyManagerRedux.ManagerClickToJumpTo>Click to jump to {0}</ColonyManagerRedux.ManagerClickToJumpTo>
-    <ColonyManagerRedux.ManagerJobCompletedTooltip>Job threshold has been reached.\n\nClick to suspend this job.</ColonyManagerRedux.ManagerJobCompletedTooltip>
-    <ColonyManagerRedux.ManagerUnsuspendJobTooltip>Job has been suspended.\n\nClick to unsuspend.</ColonyManagerRedux.ManagerUnsuspendJobTooltip>
-    <ColonyManagerRedux.ManagerSuspendJobTooltip>Click to suspend this job.</ColonyManagerRedux.ManagerSuspendJobTooltip>
-    <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
+    <ColonyManagerRedux.Overview.Overview>Overview</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>No jobs set.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>Current activity</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>Enabled</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>Priority</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>Click to jump to {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobCompletedTooltip>Job threshold has been reached.\n\nClick to suspend this job.</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Job has been suspended.\n\nClick to unsuspend.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.SuspendJobTooltip>Click to suspend this job.</ColonyManagerRedux.Overview.SuspendJobTooltip>
+    <ColonyManagerRedux.Overview.Overview.NoJobSelected>No job selected</ColonyManagerRedux.Overview.Overview.NoJobSelected>
+    <ColonyManagerRedux.Overview.Overview.NoJobDetails>No job details</ColonyManagerRedux.Overview.Overview.NoJobDetails>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>Import &amp; Export</ColonyManagerRedux.ManagerImportExport>

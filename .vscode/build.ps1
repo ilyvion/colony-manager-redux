@@ -23,6 +23,7 @@ Copy-Item -Path 1.5 $Target\1.5 -Recurse
 
 Copy-Item -Path Defs $Target\Defs -Recurse
 Copy-Item -Path Languages $Target\Languages -Recurse
+Copy-Item -Path Patches $Target\Patches -Recurse
 Copy-Item -Path Textures $Target\Textures -Recurse
 
 New-Item -Path $Target -ItemType Directory -Name About
@@ -31,7 +32,7 @@ Copy-Item -Path About\Preview.png $Target\About
 #Copy-Item -Path About\ModIcon.png $Target\About
 Copy-Item -Path About\PublishedFileId.txt $Target\About
 
-#Copy-Item -Path CHANGELOG.md $Target
+Copy-Item -Path CHANGELOG.md $Target
 Copy-Item -Path LICENSE $Target
 #Copy-Item -Path LICENSE.Apache-2.0 $Target
 #Copy-Item -Path LICENSE.MIT $Target
