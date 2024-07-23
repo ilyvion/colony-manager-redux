@@ -78,6 +78,9 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
             return manager.map.listerBuildings
                 .AllBuildingsColonistOfClass<Building_ManagerStation>()
                 .Select(t => t.TryGetComp<CompPowerTrader>())
+                .Concat(manager.map.listerBuildings
+                    .AllBuildingsColonistOfClass<Building_AIManager>()
+                    .Select(t => t.TryGetComp<CompPowerTrader>()))
                 .Any(c => c != null && c.PowerOn);
         }
     }
@@ -156,7 +159,7 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         base.Tick();
 
         // once in a while, update the list of comps, and history thingcounts + theoretical maxes (where known).
-        if (Find.TickManager.TicksGame % 2000 == 0 && Enabled)
+        if (Enabled && Find.TickManager.TicksGame % 2000 == 0)
         {
 #if DEBUG_POWER
             Log.Message( string.Join( ", ", _traderDefs.Select( d => d.LabelCap ).ToArray() ) );

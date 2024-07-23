@@ -97,17 +97,24 @@
             <li>ManagingSoftware</li>
         </researchPrerequisites>
     </ThingDef>
-    <ThingDef ParentName="BenchBase">
+    <ThingDef ParentName="BuildingBase">
         <defName>CM_AIManager</defName>
         <label>AI manager</label>
         <thingClass>ColonyManagerRedux.Building_AIManager</thingClass>
-        <description>An enormous supercomputer capable of autonously managing your colony. Claims that the AI has a malevolent psychopath subroutine are entirely false. We promise.</description>
+        <description>An enormous supercomputer capable of automously managing your colony. Claims that the AI has a malevolent psychopath subroutine are entirely false. We promise.</description>
         <graphicData>
             <texPath>Buildings/AI_ManagerStation</texPath>
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(2.5,2.5)</drawSize>
         </graphicData>
+        <rotatable>false</rotatable>
+        <altitudeLayer>Building</altitudeLayer>
+        <minifiedDef>MinifiedThing</minifiedDef>
+        <terrainAffordanceNeeded>Medium</terrainAffordanceNeeded>
+        <thingCategories>
+            <li>BuildingsProduction</li>
+        </thingCategories>
         <costList>
             <Plasteel>75</Plasteel>
             <Silver>5</Silver>
@@ -119,7 +126,9 @@
             <WorkToBuild>5000</WorkToBuild>
             <MaxHitPoints>100</MaxHitPoints>
             <Flammability>0.5</Flammability>
+            <Mass>65</Mass>
         </statBases>
+        <selectable>true</selectable>
         <size>(2,2)</size>
         <designationCategory>Production</designationCategory>
         <passability>PassThroughOnly</passability>
@@ -128,19 +137,20 @@
         <comps>
             <li Class="CompProperties_Power">
                 <compClass>CompPowerTrader</compClass>
-                <basePowerConsumption>500</basePowerConsumption>
+                <basePowerConsumption>750</basePowerConsumption>
+                <idlePowerDraw>250</idlePowerDraw>
                 <shortCircuitInRain>true</shortCircuitInRain>
                 <soundPowerOn>Power_OnSmall</soundPowerOn>
                 <soundPowerOff>Power_OffSmall</soundPowerOff>
-            </li>
-            <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
-                <compClass>ColonyManagerRedux.CompManagerStation</compClass>
-                <speed>250</speed>
             </li>
             <li Class="CompProperties_Glower">
                 <compClass>ColonyManagerRedux.CompGlowerAIManager</compClass>
                 <glowRadius>3</glowRadius>
                 <glowColor>(255,0,0,0)</glowColor>
+            </li>
+            <li Class="CompProperties_HeatPusher">
+                <compClass>CompHeatPusherPowered</compClass>
+                <heatPerSecond>3</heatPerSecond>
             </li>
             <li Class="CompProperties_Forbiddable" />
             <li Class="CompProperties_Flickable" />
@@ -149,5 +159,10 @@
         <researchPrerequisites>
             <li>AdvancedManagingSoftware</li>
         </researchPrerequisites>
+        <building>
+            <buildingTags>
+                <li>Production</li>
+            </buildingTags>
+        </building>
     </ThingDef>
 </Defs>

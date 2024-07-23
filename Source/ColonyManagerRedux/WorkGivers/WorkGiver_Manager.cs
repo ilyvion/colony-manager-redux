@@ -28,7 +28,8 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         Log.Message( "Power" + ( powera == null || powera.PowerOn ) );
         Log.Message( "Job" + ( Manager.For( pawn.Map ).JobStack.NextJob != null ) );
 #endif
-        if (!(t is Building_ManagerStation))
+
+        if (t is not Building_ManagerStation)
         {
             return false;
         }

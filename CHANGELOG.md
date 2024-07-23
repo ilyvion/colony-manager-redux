@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Use a proper PawnTable for rendering pawn details in the overview tab rather than a custom table.
 -   Suspended job stamp now has priority over job completed/not completed stamps.
 -   Show progress bars even when a job is suspended/completed.
+-   AI manager gives off a bit of heat.
+-   AI manager now costs 750 W when doing work, but only 250 W when idle.
 
 ### Fixed
 
