@@ -56,6 +56,44 @@ internal sealed class Alert_NoTable : Alert
 
     private static bool AnyManagerTable()
     {
-        return Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any();
+        ListerBuildings listerBuildings = Find.CurrentMap.listerBuildings;
+        return listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any() ||
+            listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
+    }
+}
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+internal sealed class Alert_TableAndAI : Alert
+{
+    public Alert_TableAndAI()
+    {
+        defaultLabel = "ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel".Translate();
+        defaultExplanation = "ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager".Translate();
+    }
+
+    public override AlertPriority Priority => AlertPriority.Medium;
+
+    public override AlertReport GetReport()
+    {
+        return AlertReport.CulpritsAre(ManagerStations);
+    }
+
+    private readonly List<Thing> managerStations = [];
+    private List<Thing> ManagerStations
+    {
+        get
+        {
+            ListerBuildings listerBuildings = Find.CurrentMap.listerBuildings;
+
+            managerStations.Clear();
+            if (listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager))
+            {
+                managerStations.AddRange(listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>());
+            }
+            return managerStations;
+        }
     }
 }

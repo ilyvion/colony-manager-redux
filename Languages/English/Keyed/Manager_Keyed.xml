@@ -10,10 +10,12 @@
     <ColonyManagerRedux.ManagerTabDisabledBecause>(disabled: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerAlertNoTableLabel>Need manager's desk</ColonyManagerRedux.ManagerAlertNoTableLabel>
-    <ColonyManagerRedux.ManagerAlertNoTable>Manager targets are set, but no manager's desk is available</ColonyManagerRedux.ManagerAlertNoTable>
+    <ColonyManagerRedux.ManagerAlertNoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.ManagerAlertNoTableLabel>
+    <ColonyManagerRedux.ManagerAlertNoTable>Manager jobs exist, but no manager's desk or AI manager have been constructed</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>Need manager</ColonyManagerRedux.ManagerAlertNoManagerLabel>
-    <ColonyManagerRedux.ManagerAlertNoManager>Manager targets are set, but no pawn has the managing job enabled</ColonyManagerRedux.ManagerAlertNoManager>
+    <ColonyManagerRedux.ManagerAlertNoManager>Manager targets are set, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.ManagerAlertNoManager>
+    <ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel>
+    <ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager>
 
     <!-- Common -->
     <ColonyManagerRedux.ManagerNeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.ManagerNeverUpdatedTooltip>
@@ -263,9 +265,10 @@
     <ColonyManagerRedux.ManagerLivestock.MasterMode.All>All</ColonyManagerRedux.ManagerLivestock.MasterMode.All>
 
     <!-- Right click job fail reasons -->
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoPower>no power</ColonyManagerRedux.ColonyManager.CannotManage.NoPower>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>no jobs set</ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>all jobs are done</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoPower>desk has no power</ColonyManagerRedux.ColonyManager.CannotManage.NoPower>
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>no jobs have been set</ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>all jobs have reached their targets or are suspended</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
+    <ColonyManagerRedux.ColonyManager.CannotManage.AIManager>managers won't do manual managing work when an AI manager is active</ColonyManagerRedux.ColonyManager.CannotManage.AIManager>
 
     <!-- History chapter labels -->
     <ColonyManagerRedux.ColonyManager.HistoryStock>stock</ColonyManagerRedux.ColonyManager.HistoryStock>

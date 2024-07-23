@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Added trainability icons and aggression icons to the available livestock animal list.
 -   When a job is selected in the overview tab, show the workers for that job in the work panel.
 -   Show progress bars on livestock tab.
+-   Show an alert when an AI manager has been constructed and there are still manager's desks constructed.
 
 ### Changed
 
