@@ -84,7 +84,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
             }
             else if (visible)
             {
-                Label(cell, keys[i].LabelCap, report.Reason, TextAnchor.MiddleCenter, GameFont.Tiny, Color.grey);
+                Label(cell, keys[i].LabelCap, report.Reason, TextAnchor.MiddleLeft, GameFont.Tiny, Color.grey, Margin);
             }
         }
 
@@ -357,12 +357,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         {
             // move camera and select
             Find.MainTabsRoot.EscapeCurrentTab();
-            CameraJumper.TryJump(p.PositionHeld, p.Map);
-            Find.Selector.ClearSelection();
-            if (p.Spawned)
-            {
-                Find.Selector.Select(p);
-            }
+            CameraJumper.TryJumpAndSelect(p);
         }
 
         // use a third of available screenspace for labels
