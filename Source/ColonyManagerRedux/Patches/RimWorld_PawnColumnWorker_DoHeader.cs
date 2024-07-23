@@ -12,11 +12,11 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
     private static readonly MethodInfo Widgets_Label_MethodInfo
         = AccessTools.Method(typeof(Widgets), nameof(Widgets.Label), [typeof(Rect), typeof(string)]);
 
-    private static readonly MethodInfo DrawHeader_MethodInfo
-        = AccessTools.Method(typeof(ManagerTab_Overview.PawnColumnWorker_Label), nameof(ManagerTab_Overview.PawnColumnWorker_Label.DrawHeader));
+    private static readonly MethodInfo Action_Invoke
+        = AccessTools.Method(typeof(Action<Rect, string, PawnTable, PawnColumnWorker_Label>), nameof(Action.Invoke));
 
     [HarmonyReversePatch]
-    internal static void CustomDoHeader(PawnColumnWorker_Label @this, Rect rect, PawnTable table)
+    internal static void CustomLabelDoHeader(PawnColumnWorker_Label @this, Rect rect, PawnTable table, Action<Rect, string, PawnTable, PawnColumnWorker_Label> customDoHeaderAction)
     {
         IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions, ILGenerator generator)
         {
@@ -37,11 +37,25 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
                 return original;
             }
 
-            codeMatcher.Instruction.operand = DrawHeader_MethodInfo;
+            codeMatcher.RemoveInstruction();
 
             codeMatcher.Insert([
                 new(OpCodes.Ldarg_2),
-                new(OpCodes.Ldarg_0)
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Callvirt, Action_Invoke),
+            ]);
+
+            codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Ldloc_0);
+            if (!codeMatcher.IsValid)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Could not reverse patch PawnColumnWorker.DoHeader, " +
+                    "IL does not match expectations: [ldloc.0] not found.");
+                return original;
+            }
+
+            codeMatcher.Insert([
+                new(OpCodes.Ldarg_3),
             ]);
 
             return codeMatcher.Instructions();
@@ -51,6 +65,7 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
         _ = @this;
         _ = rect;
         _ = table;
+        _ = customDoHeaderAction;
         Transpiler(null!, null!);
     }
 }

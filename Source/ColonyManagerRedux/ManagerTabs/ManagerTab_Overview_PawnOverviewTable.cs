@@ -27,7 +27,7 @@ partial class ManagerTab_Overview
 
         public override void DoHeader(Rect rect, PawnTable table)
         {
-            RimWorld_PawnColumnWorker_DoHeader.CustomDoHeader(this, rect, table);
+            RimWorld_PawnColumnWorker_DoHeader.CustomLabelDoHeader(this, rect, table, (a, b, c, d) => DrawHeader(a, b, c, (PawnColumnWorker_Label)d));
         }
 
         protected override string GetHeaderTip(PawnTable table)
