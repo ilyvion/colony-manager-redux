@@ -661,7 +661,7 @@ public class History : IExposable
 
         if (counts.Length != _chapters.Count)
         {
-            Log.Warning("History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance.LogWarning("History updated with incorrect number of chapters");
         }
 
         for (var i = 0; i < counts.Length; i++)
@@ -679,7 +679,7 @@ public class History : IExposable
 
         if (maxes.Length != _chapters.Count)
         {
-            Log.Warning("History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance.LogWarning("History updated with incorrect number of chapters");
         }
 
         for (var i = 0; i < maxes.Length; i++)
@@ -701,7 +701,8 @@ public class History : IExposable
 
         if (maxes.Length != _chapters.Count || maxes.Length != _chapters.Count)
         {
-            Log.Warning("History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance
+                .LogWarning("History updated with incorrect number of chapters");
         }
 
         for (var i = 0; i < maxes.Length; i++)
@@ -723,7 +724,8 @@ public class History : IExposable
 
         if (counts.Length != _chapters.Count)
         {
-            Log.Warning("History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance
+                .LogWarning("History updated with incorrect number of chapters");
         }
 
         for (var i = 0; i < counts.Length; i++)

@@ -16,8 +16,15 @@
             <downloadUrl>https://steamcommunity.com/workshop/filedetails/?id=2009463077</downloadUrl>
             <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
         </li>
+        <li>
+            <packageId>ilyvion.Laboratory</packageId>
+            <displayName>ilyvion's Laboratory</displayName>
+            <downloadUrl>https://steamcommunity.com/workshop/filedetails/?id=0</downloadUrl>
+            <steamWorkshopUrl>steam://url/CommunityFilePage/0</steamWorkshopUrl>
+        </li>
     </modDependencies>
     <loadAfter>
         <li>brrainz.harmony</li>
+        <li>ilyvion.Laboratory</li>
     </loadAfter>
 </ModMetaData>

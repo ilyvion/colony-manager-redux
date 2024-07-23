@@ -47,14 +47,17 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
     {
         if (GetActor().jobs.curJob.GetTarget(targetIndex).Thing is not Building_ManagerStation station)
         {
-            Log.Error("Target of manager job was not a manager station.");
+            ColonyManagerReduxMod.Instance
+                .LogError("Target of manager job was not a manager station.");
             return null;
         }
 
         var comp = station.GetComp<CompManagerStation>();
         if (comp == null)
         {
-            Log.Error("Target of manager job does not have manager station comp. This should never happen.");
+            ColonyManagerReduxMod.Instance
+                .LogError("Target of manager job does not have manager station comp. " +
+                    "This should never happen.");
             return null;
         }
 

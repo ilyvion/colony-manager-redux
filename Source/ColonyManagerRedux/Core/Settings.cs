@@ -306,10 +306,10 @@ public class Settings : ModSettings
                 }
             }
         }
-        catch
+        catch (Exception e)
         {
-            Log.Error($"Caught exception while reloading mod settings data for {Mod.Content.FolderName}:");
-            throw;
+            ColonyManagerReduxMod.Instance
+                .LogException($"Caught exception while reloading mod settings data for {Mod.Content.FolderName}", e);
         };
     }
 

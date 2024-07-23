@@ -100,7 +100,8 @@ public class Trigger_Threshold : Trigger
                     return CurrentCount > TargetCount;
 
                 default:
-                    Log.Warning("Trigger_ThingThreshold was defined without a correct operator");
+                    ColonyManagerReduxMod.Instance.LogWarning(
+                        "Trigger_ThingThreshold was defined without a correct operator");
                     return true;
             }
         }

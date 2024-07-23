@@ -119,11 +119,9 @@ public class CachedValue<T>
 
     public void Update()
     {
-        // Log.Message( $"Running Update()", true );
-
         if (_updater == null)
         {
-            Log.Error("Calling Update() without updater");
+            ColonyManagerReduxMod.Instance.LogError("Calling Update() without updater");
         }
         else
         {

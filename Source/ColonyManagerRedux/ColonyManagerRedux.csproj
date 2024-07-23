@@ -18,6 +18,10 @@
                 1) This is a game mod, not a library;
                 2) Rimworld makes very public use of these already
 
+            CA1031: Do not catch general exception types
+                This is a game mod, not a library; I'm only catching these exceptions to
+                prevent them from causing more trouble.
+
             CA1305: Specify IFormatProvider
                 RimWorld always runs in the US culture for the sake of formatting.
             
@@ -28,7 +32,7 @@
                 This is a game mod, not a library; nobody's going to be catching these exceptions
                 except the game logger. They don't need to be fancy.
         -->
-        <NoWarn>CA1002;CA1305;CA1707;CA2201</NoWarn>
+        <NoWarn>CA1002;CA1031;CA1305;CA1707;CA2201</NoWarn>
 
         <!-- TODO: Deal properly with these later -->
         <NoWarn>$(NoWarn);CA1051</NoWarn>
@@ -72,5 +76,11 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\ilyvion.Laboratory\ilvyion.Laboratory\ilvyion.Laboratory.csproj">
+            <Private>false</Private>
+        </ProjectReference>
     </ItemGroup>
 </Project>

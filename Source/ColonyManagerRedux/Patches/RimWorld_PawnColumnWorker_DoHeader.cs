@@ -31,7 +31,9 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
             codeMatcher.SearchForward(i => i.opcode == OpCodes.Call && i.operand is MethodInfo m && m == Widgets_Label_MethodInfo);
             if (!codeMatcher.IsValid)
             {
-                Log.Error("Could not reverse patch PawnColumnWorker.DoHeader, IL does not match expectations: call to Widgets.Label not found.");
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Could not reverse patch PawnColumnWorker.DoHeader, " +
+                    "IL does not match expectations: call to Widgets.Label not found.");
                 return original;
             }
 

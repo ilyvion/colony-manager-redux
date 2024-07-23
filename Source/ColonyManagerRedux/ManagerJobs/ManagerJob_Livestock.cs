@@ -464,7 +464,9 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     {
         if (animal?.playerSettings == null)
         {
-            Log.Warning("NULL!");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"Attempted to use SetFollowing on {animal}, which is either null or has " +
+                "a null playerSettings field");
             return;
         }
 

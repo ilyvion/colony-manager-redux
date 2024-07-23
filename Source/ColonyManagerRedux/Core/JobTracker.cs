@@ -29,8 +29,9 @@ public class JobTracker(Manager manager) : IExposable
         {
             if (jobs.Any(j => !j.IsValid))
             {
-                Log.Error(
-                    $"Colony Manager :: Removing {jobs.Count(j => !j.IsValid)} invalid manager jobs. If this keeps happening, please report it.");
+                ColonyManagerReduxMod.Instance.LogError(
+                    $"Removing {jobs.Count(j => !j.IsValid)} invalid manager jobs. " +
+                    "If this keeps happening, please report it.");
                 jobs = jobs.Where(job => job.IsValid).ToList();
             }
         }

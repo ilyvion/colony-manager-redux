@@ -111,7 +111,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
             catch (Exception ex)
             {
                 GenUI.ErrorDialog("ProblemSavingFile".Translate(ex.ToString()));
-                throw;
+                return;
             }
 
             ScribeMetaHeaderUtility.WriteMetaHeader();
@@ -128,8 +128,8 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         }
         catch (Exception ex)
         {
-            Log.Error("Exception while exporting jobs: " + ex);
-            throw;
+            ColonyManagerReduxMod.Instance.LogError(
+                "Exception while exporting jobs: " + ex);
         }
         finally
         {
@@ -154,7 +154,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         catch
         {
             Scribe.ForceStop();
-            throw;
+            return;
         }
         finally
         {
@@ -343,8 +343,9 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
             }
             catch (Exception ex)
             {
-                Log.Error("Exception loading " + current.Name + ": " + ex);
-                throw;
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Exception loading " + current.Name + ": " + ex);
+                continue;
             }
         }
 

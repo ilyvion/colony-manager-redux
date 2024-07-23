@@ -3,14 +3,17 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Reflection;
+using ilvyion.Laboratory;
 
 namespace ColonyManagerRedux;
 
-public class ColonyManagerReduxMod : Mod
+public class ColonyManagerReduxMod : IlyvionMod
 {
 #pragma warning disable CS8618 // Set by constructor
     internal static ColonyManagerReduxMod Instance;
 #pragma warning restore CS8618
+
+    protected override bool HasSettings => true;
 
     public static Settings Settings => Instance.GetSettings<Settings>();
 
@@ -36,11 +39,6 @@ public class ColonyManagerReduxMod : Mod
     public override void DoSettingsWindowContents(Rect inRect)
     {
         Settings.DoSettingsWindowContents(inRect);
-    }
-
-    public override string SettingsCategory()
-    {
-        return Content.Name;
     }
 }
 

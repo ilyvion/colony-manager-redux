@@ -115,7 +115,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                 }
                 catch (Exception ex)
                 {
-                    Log.Error("Could not instantiate or initialize a ManagerJobComp: " + ex);
+                    ColonyManagerReduxMod.Instance.LogError(
+                        "Could not instantiate or initialize a ManagerJobComp: " + ex);
                     if (managerJobComp != null)
                     {
                         _comps.Remove(managerJobComp);

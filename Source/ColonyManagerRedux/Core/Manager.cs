@@ -156,7 +156,8 @@ public class Manager : MapComponent, ILoadReferenceable
                 }
                 catch (Exception err)
                 {
-                    Log.Error($"Suspending manager job because it errored on tick: \n{err}");
+                    ColonyManagerReduxMod.Instance
+                        .LogError($"Suspending manager job because it errored on tick: \n{err}");
                     job.IsSuspended = true;
                 }
 #pragma warning restore CA1031 // Do not catch general exception types
@@ -185,18 +186,21 @@ public class Manager : MapComponent, ILoadReferenceable
     {
         if (Scribe.mode == LoadSaveMode.LoadingVars && !_wasLoaded)
         {
-            Log.Warning("Getting next unique manager job ID during LoadingVars before Manager was loaded. Assigning a random value.");
+            ColonyManagerReduxMod.Instance
+                .LogWarning("Getting next unique manager job ID during LoadingVars before Manager was loaded. Assigning a random value.");
             return Rand.Int;
         }
         if (Scribe.mode == LoadSaveMode.Saving)
         {
-            Log.Warning("Getting next unique manager job ID during saving. This may cause bugs.");
+            ColonyManagerReduxMod.Instance
+                .LogWarning("Getting next unique manager job ID during saving. This may cause bugs.");
         }
         int result = _nextManagerJobID;
         _nextManagerJobID++;
         if (_nextManagerJobID == int.MaxValue)
         {
-            Log.Warning("Next manager job ID is at max value. Resetting to 0. This may cause bugs.");
+            ColonyManagerReduxMod.Instance
+                .LogWarning("Next manager job ID is at max value. Resetting to 0. This may cause bugs.");
             _nextManagerJobID = 0;
         }
         return result;
