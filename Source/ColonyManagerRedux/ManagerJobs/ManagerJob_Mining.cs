@@ -15,7 +15,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.CurrentCount;
+                return managerJob.TriggerThreshold.CurrentCount;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
@@ -35,7 +35,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.TargetCount;
+                return managerJob.TriggerThreshold.TargetCount;
             }
             return 0;
         }
@@ -77,13 +77,12 @@ internal sealed class ManagerJob_Mining : ManagerJob
         }
     }
 
-    private Trigger_Threshold trigger;
-    public Trigger_Threshold Trigger { get => trigger; }
+    public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
     public ManagerJob_Mining(Manager manager) : base(manager)
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
-        trigger = new Trigger_Threshold(this);
+        Trigger = new Trigger_Threshold(this);
         ConfigureThresholdTriggerParentFilter();
     }
 
@@ -103,18 +102,18 @@ internal sealed class ManagerJob_Mining : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        trigger.job = this;
+        TriggerThreshold.job = this;
 
         AllowedMinerals.RemoveWhere(m => !AllMinerals.Contains(m));
         AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));
     }
 
-    public override bool IsCompleted => !trigger.State;
+    public override bool IsCompleted => !TriggerThreshold.State;
 
     public List<Designation> Designations => new(_designations);
 
 
-    public override bool IsValid => base.IsValid && trigger != null;
+    public override bool IsValid => base.IsValid && TriggerThreshold != null;
     public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
 
     public override IEnumerable<string> Targets => AllowedMinerals
@@ -253,7 +252,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public bool Counted(ThingDef thingDef)
     {
-        return trigger.ThresholdFilter.Allows(thingDef);
+        return TriggerThreshold.ThresholdFilter.Allows(thingDef);
     }
 
     public string DesignationLabel(Designation designation)
@@ -284,7 +283,6 @@ internal sealed class ManagerJob_Mining : ManagerJob
     {
         base.ExposeData();
 
-        Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def);
         Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
@@ -581,7 +579,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return target.def.building.IsDeconstructible
             && target.def.resourcesFractionWhenDeconstructed > 0
             && target.def.CostListAdjusted(target.Stuff)
-                .Any(tc => trigger.ThresholdFilter.Allows(tc.thingDef));
+                .Any(tc => TriggerThreshold.ThresholdFilter.Allows(tc.thingDef));
     }
 
     public bool IsRelevantMiningTarget(Mineable target)
@@ -668,7 +666,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
         foreach (var building in AllDeconstructibleBuildings)
         {
-            if (GetMaterialsInBuilding(building).Any(trigger.ThresholdFilter.Allows))
+            if (GetMaterialsInBuilding(building).Any(TriggerThreshold.ThresholdFilter.Allows))
             {
                 AllowedBuildings.Add(building);
             }
@@ -680,7 +678,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
         foreach (var mineral in AllMinerals)
         {
-            if (GetMaterialsInMineral(mineral).Any(trigger.ThresholdFilter.Allows))
+            if (GetMaterialsInMineral(mineral).Any(TriggerThreshold.ThresholdFilter.Allows))
             {
                 AllowedMinerals.Add(mineral);
             }
@@ -716,9 +714,9 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
             foreach (var material in GetMaterialsInBuilding(building))
             {
-                if (trigger.ParentFilter.Allows(material))
+                if (TriggerThreshold.ParentFilter.Allows(material))
                 {
-                    trigger.ThresholdFilter.SetAllow(material, allow);
+                    TriggerThreshold.ThresholdFilter.SetAllow(material, allow);
                 }
             }
         }
@@ -740,9 +738,9 @@ internal sealed class ManagerJob_Mining : ManagerJob
             Sync = Utilities.SyncDirection.AllowedToFilter;
             foreach (var material in GetMaterialsInMineral(mineral))
             {
-                if (trigger.ParentFilter.Allows(material))
+                if (TriggerThreshold.ParentFilter.Allows(material))
                 {
-                    trigger.ThresholdFilter.SetAllow(material, allow);
+                    TriggerThreshold.ThresholdFilter.SetAllow(material, allow);
                 }
             }
         }
@@ -755,12 +753,12 @@ internal sealed class ManagerJob_Mining : ManagerJob
         RemoveObsoleteDesignations();
         AddRelevantGameDesignations();
 
-        var count = trigger.CurrentCount + GetCountInChunks() + GetCountInDesignations();
+        var count = TriggerThreshold.CurrentCount + GetCountInChunks() + GetCountInDesignations();
 
         if (DeconstructBuildings)
         {
             var buildings = GetDeconstructibleBuildingsSorted();
-            for (var i = 0; i < buildings.Count && count < trigger.TargetCount; i++)
+            for (var i = 0; i < buildings.Count && count < TriggerThreshold.TargetCount; i++)
             {
                 AddDesignation(buildings[i], DesignationDefOf.Deconstruct);
                 count += GetCountInBuilding(buildings[i]);
@@ -768,7 +766,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         }
 
         var minerals = GetMinableMineralsSorted();
-        for (var i = 0; i < minerals.Count && count < trigger.TargetCount; i++)
+        for (var i = 0; i < minerals.Count && count < TriggerThreshold.TargetCount; i++)
         {
             if (!IsARoofSupport_Advanced(minerals[i]))
             {
@@ -824,9 +822,9 @@ internal sealed class ManagerJob_Mining : ManagerJob
     private void ConfigureThresholdTriggerParentFilter()
     {
         // TODO: More precise thingdefs/categorydefs
-        trigger.ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, true);
-        trigger.ParentFilter.SetAllow(ThingCategoryDefOf.PlantMatter, false);
-        trigger.ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
-        trigger.ParentFilter.SetAllow(ThingCategoryDefOf.ResourcesRaw, true);
+        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, true);
+        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.PlantMatter, false);
+        TriggerThreshold.ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
+        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.ResourcesRaw, true);
     }
 }

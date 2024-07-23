@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using static ColonyManagerRedux.Constants;
+
 namespace ColonyManagerRedux;
 
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerTab
@@ -12,15 +14,15 @@ public abstract class ManagerTab(Manager manager)
     public const float DefaultLeftRowSize = 300f;
 
 
-    public const float SuspendStampWidth = Constants.MediumIconSize,
-                        LastUpdateRectWidth = 50f,
-                        ProgressRectWidth = 10f,
-                        StatusRectWidth = SuspendStampWidth + LastUpdateRectWidth + ProgressRectWidth;
+    public const float
+        StampWidth = MediumIconSize,
+        LastUpdateRectWidth = 50f,
+        ProgressRectWidth = 60f,
+        StatusRectWidth = StampWidth + LastUpdateRectWidth + ProgressRectWidth + 2 * Margin;
 
     public ManagerDef def;
 
     public Manager manager = manager;
-    private ManagerJob? selected;
 
     public virtual string DisabledReason => "";
 
@@ -30,13 +32,14 @@ public abstract class ManagerTab(Manager manager)
 
     public virtual string Label => GetType().ToString();
 
+    private ManagerJob? _selected;
     public ManagerJob? Selected
     {
-        get => selected;
+        get => _selected;
         set
         {
             PreSelect();
-            selected = value;
+            _selected = value;
             PostSelect();
         }
     }
@@ -51,9 +54,52 @@ public abstract class ManagerTab(Manager manager)
     }
 
 #pragma warning disable CA1062 // Validate arguments of public methods
-    // TODO: A lot of the DrawListEntry methods are very similar, consider abstracting
     public virtual void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
     {
+        // set up rects
+        var labelRect = new Rect(
+            Margin,
+            Margin,
+            rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
+            rect.height - 2 * Margin);
+        var statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
+
+        // create label string
+        var subtext = GetSubLabel(job);
+        var text = GetMainLabel(job, labelRect, subtext);
+
+        // do the drawing
+        GUI.BeginGroup(rect);
+
+        // draw label
+        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft);
+
+        // if the bill has a manager job, give some more info.
+        if (active && job.Trigger != null)
+        {
+            job.DrawStatusForListEntry(statusRect, job.Trigger, mode == ListEntryDrawMode.Export);
+        }
+
+        GUI.EndGroup();
+    }
+
+    public virtual string GetMainLabel(ManagerJob job, Rect labelRect, string subLabel)
+    {
+        var text = Label + "\n";
+        if (subLabel.Fits(labelRect))
+        {
+            text += subLabel.Italic();
+        }
+        else
+        {
+            text += "ColonyManagerRedux.Multiple".Translate().Resolve().Italic();
+        }
+        return text;
+    }
+
+    public virtual string GetSubLabel(ManagerJob job)
+    {
+        return string.Join(", ", job.Targets);
     }
 
     public virtual bool DrawOverviewDetails(ManagerJob job, Rect rect)
@@ -121,9 +167,7 @@ public abstract class ManagerTab(Manager manager)
     {
     }
 
-#pragma warning disable CA1002 // Do not expose generic lists
     protected static void DrawShortcutToggle<T>(List<T> options, HashSet<T> selected, Action<T, bool> setAllowed, Rect rect, string labelKey, string? toolTipKey)
-#pragma warning restore CA1002 // Do not expose generic lists
     {
         if (options == null)
         {

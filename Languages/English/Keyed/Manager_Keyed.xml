@@ -72,9 +72,11 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Enabled</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Priority</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Click to jump to {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobCompletedTooltip>Job threshold has been reached.\n\nClick to suspend this job.</ColonyManagerRedux.Overview.JobCompletedTooltip>
-    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Job has been suspended.\n\nClick to unsuspend.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
-    <ColonyManagerRedux.Overview.SuspendJobTooltip>Click to suspend this job.</ColonyManagerRedux.Overview.SuspendJobTooltip>
+    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Job threshold has been reached.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Job has been suspended.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Overview.ClickToChangeJob>Click to {0} this job.</ColonyManagerRedux.Overview.ClickToChangeJob>
+    <ColonyManagerRedux.Overview.Suspend>suspend</ColonyManagerRedux.Overview.Suspend>
+    <ColonyManagerRedux.Overview.Unsuspend>unsuspend</ColonyManagerRedux.Overview.Unsuspend>
     <ColonyManagerRedux.Overview.Overview.NoJobSelected>No job selected</ColonyManagerRedux.Overview.Overview.NoJobSelected>
     <ColonyManagerRedux.Overview.Overview.NoJobDetails>No job details</ColonyManagerRedux.Overview.Overview.NoJobDetails>
 
@@ -192,8 +194,9 @@
     <ColonyManagerRedux.Livestock.TameMore.Tip>Should the manager designate wild animals to be tamed?</ColonyManagerRedux.Livestock.TameMore.Tip>
     <ColonyManagerRedux.Livestock.TameArea>Allow taming in:</ColonyManagerRedux.Livestock.TameArea>
     <ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>{0}/{1} {2}</ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>
-    <ColonyManagerRedux.Livestock.ListEntryTooltip>{PAWNKIND_labelPlural}:\n{1}\n{2}\n{3}\n{4}</ColonyManagerRedux.Livestock.ListEntryTooltip>
-    <ColonyManagerRedux.Livestock.TameWildCount>{0} tamed, {1} in the wild.</ColonyManagerRedux.Livestock.TameWildCount>
+    <ColonyManagerRedux.Livestock.ListEntryTooltip>{PAWNKIND_labelPlural}:\n{1}\n{2}\n{3}\n{4}\n{5}</ColonyManagerRedux.Livestock.ListEntryTooltip>
+    <ColonyManagerRedux.Livestock.TameCount>{0} tamed</ColonyManagerRedux.Livestock.TameCount>
+    <ColonyManagerRedux.Livestock.WildCount>{0} in the wild</ColonyManagerRedux.Livestock.WildCount>
     <ColonyManagerRedux.Livestock.NoAnimals>no {0} {1}</ColonyManagerRedux.Livestock.NoAnimals>
     <ColonyManagerRedux.Livestock.GenderHeader>Gender</ColonyManagerRedux.Livestock.GenderHeader>
     <ColonyManagerRedux.Livestock.AgeHeader>Age (Lifestage)</ColonyManagerRedux.Livestock.AgeHeader>

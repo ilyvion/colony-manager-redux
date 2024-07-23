@@ -73,49 +73,16 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
+    public override string GetSubLabel(ManagerJob job)
     {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-        //var shownTargets = overview ? 4 : 3; // there's more space on the overview
-
-        var miningJob = (ManagerJob_Mining)job;
-
-        // set up rects
-        Rect labelRect = new(Margin, Margin, rect.width -
-                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-                                   rect.height - 2 * Margin),
-             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var text = Label + "\n";
-        var subtext = string.Join(", ", miningJob.Targets);
+        var subLabel = base.GetSubLabel(job);
+        ManagerJob_Mining miningJob = (ManagerJob_Mining)job;
         if (miningJob.DeconstructBuildings)
         {
-            subtext += "\n\n" + string.Join(", ", miningJob.AllowedBuildings
+            subLabel += "\n\n" + string.Join(", ", miningJob.AllowedBuildings
                 .Select(pk => pk.LabelCap.Resolve()));
         }
-        if (subtext.Fits(labelRect))
-        {
-            text += subtext.Italic();
-        }
-        else
-        {
-            text += "ColonyManagerRedux.Multiple".Translate().Italic();
-        }
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext.NullOrEmpty() ? "<none>" : subtext, TextAnchor.MiddleLeft);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            miningJob.DrawStatusForListEntry(statusRect, miningJob.Trigger, mode == ListEntryDrawMode.Export);
-        }
-
-        GUI.EndGroup();
+        return subLabel;
     }
 
     public float DrawAllowedBuildings(Vector2 pos, float width)
@@ -268,12 +235,12 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     {
         var start = pos;
 
-        var currentCount = SelectedMiningJob.Trigger.CurrentCount;
+        var currentCount = SelectedMiningJob.TriggerThreshold.CurrentCount;
         var chunkCount = SelectedMiningJob.GetCountInChunks();
         var designatedCount = SelectedMiningJob.GetCountInDesignations();
-        var targetCount = SelectedMiningJob.Trigger.TargetCount;
+        var targetCount = SelectedMiningJob.TriggerThreshold.TargetCount;
 
-        SelectedMiningJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedMiningJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
                                              "ColonyManagerRedux.ManagerMining.TargetCount".Translate(
                                                  currentCount, chunkCount, designatedCount, targetCount),
                                              "ColonyManagerRedux.ManagerMining.TargetCount.Tip".Translate(

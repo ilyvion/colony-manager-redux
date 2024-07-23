@@ -108,33 +108,16 @@ public class Trigger_Threshold : Trigger
 
     public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount);
 
-    public override void DrawProgressBar(Rect progressRect, bool active)
+    public override void DrawProgressBars(Rect progressRect, bool active)
     {
-        // bar always goes a little beyond the actual target
-        var max = Math.Max((int)(TargetCount * 1.2f), CurrentCount);
-
-        // draw a box for the bar
-        GUI.color = Color.gray;
-        Widgets.DrawBox(progressRect.ContractedBy(1f));
-        GUI.color = Color.white;
-
-        // get the bar rect
-        var barRect = progressRect.ContractedBy(2f);
-        var unit = barRect.height / max;
-        var markHeight = barRect.yMin + (max - TargetCount) * unit;
-        barRect.yMin += (max - CurrentCount) * unit;
-
-        // draw the bar
-        // if the job is active and pending, make the bar blueish green - otherwise white.
-        var barTex = active
-            ? Resources.BarBackgroundActiveTexture
-            : Resources.BarBackgroundInactiveTexture;
-        GUI.DrawTexture(barRect, barTex);
-
-        // draw a mark at the treshold
-        Widgets.DrawLineHorizontal(progressRect.xMin, markHeight, progressRect.width);
-
-        TooltipHandler.TipRegion(progressRect, () => StatusTooltip, GetHashCode());
+        progressRect.xMin += progressRect.width - 10;
+        DrawProgressBar(
+            progressRect,
+            CurrentCount,
+            TargetCount,
+            StatusTooltip,
+            active,
+            Resources.BarBackgroundActiveTexture);
     }
 
     public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string? label = null,

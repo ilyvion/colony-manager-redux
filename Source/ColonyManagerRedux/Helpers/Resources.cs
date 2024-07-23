@@ -24,11 +24,18 @@ public static class Resources
         StampSuspended = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Suspended"),
         StampStart = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Start"),
 
+        // progress bar textures
+        BarBackgroundActiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f)),
+        BarBackgroundInactiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0.7f, 0.7f)),
+        // NOTE: These colors should be synchronized with the ones in HistoryChapters.xml
+        AdultFemaleTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0f, 0f)),
+        AdultMaleTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0f, 0.7f, 0f)),
+        JuvenileFemaleTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0f, 0.7f, 0.7f)),
+        JuvenileMaleTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0.7f, 0f)),
+
         // misc
         SlightlyDarkBackground = SolidColorMaterials.NewSolidColorTexture(SlightlyDarkBackgroundColour),
         Cog = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Cog"),
-        BarBackgroundActiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f)),
-        BarBackgroundInactiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0.7f, 0.7f)),
         Search = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Search"),
         BarShader = ContentFinder<Texture2D>.Get("UI/Misc/CMR_BarShader"),
         Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh"),

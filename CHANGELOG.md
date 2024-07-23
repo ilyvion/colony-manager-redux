@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   The inline legend in history graphs are now interactive and can be clicked to show/hide that chapter or be right-clicked to hide every chapter but the right-clicked one.
 -   Added trainability icons and aggression icons to the available livestock animal list.
 -   When a job is selected in the overview tab, show the workers for that job in the work panel.
+-   Show progress bars on livestock tab.
 
 ### Changed
 
@@ -24,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Added comp support to ManagerDefs using the ManagerJobComp as the base comp class.
 -   Job history chapters are now defined using ManagerJobHistoryChapterDefs; this was done so that the ManagerDefs could have a CompManagerJobHistory be responsible for recording history.
 -   Use a proper PawnTable for rendering pawn details in the overview tab rather than a custom table.
+-   Suspended job stamp now has priority over job completed/not completed stamps.
+-   Show progress bars even when a job is suspended/completed.
 
 ### Fixed
 

@@ -61,10 +61,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Вкл</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Работа</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Перейти к {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.Overview.JobCompletedTooltip>
-    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
-    <ColonyManagerRedux.Overview.SuspendJobTooltip>Нажмите, чтобы приостановить это задание.</ColonyManagerRedux.Overview.SuspendJobTooltip>
-    <ColonyManagerRedux.ManagerPluralSuffix></ColonyManagerRedux.ManagerPluralSuffix>
+    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>Импорт и Экспорт</ColonyManagerRedux.ManagerImportExport>

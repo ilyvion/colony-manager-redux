@@ -38,7 +38,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         if (Selected != null)
         {
             _newCounts =
-                SelectedCurrentLivestockJob!.Trigger.CountTargets.Select(v => v.ToString()).ToArray();
+                SelectedCurrentLivestockJob!.TriggerPawnKind.CountTargets.Select(v => v.ToString()).ToArray();
         }
     }
 
@@ -54,33 +54,14 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         DoContent(contentCanvas);
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
+    public override string GetMainLabel(ManagerJob job, Rect labelRect, string subLabel)
     {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
+        return ((ManagerJob_Livestock)job).FullLabel;
+    }
 
-        var livestockJob = (ManagerJob_Livestock)job;
-
-        // set up rects
-        Rect labelRect = new(
-            Margin, Margin, rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-            rect.height - 2 * Margin),
-        statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth,
-            rect.height - 2 * Margin);
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets.Label(labelRect, livestockJob.FullLabel);
-        TooltipHandler.TipRegion(labelRect, () => livestockJob.Trigger.StatusTooltip, GetHashCode());
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            livestockJob.DrawStatusForListEntry(statusRect, livestockJob.Trigger, mode == ListEntryDrawMode.Export);
-        }
-
-        GUI.EndGroup();
+    public override string GetSubLabel(ManagerJob job)
+    {
+        return ((ManagerJob_Livestock)job).TriggerPawnKind.StatusTooltip;
     }
 
     public static void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
@@ -93,7 +74,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         for (var i = 0; i < job.Training.Count; i++)
         {
             var cell = new Rect(i % cellCount * (cellWidth + Margin), i / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
-            var report = ManagerJob_Livestock.CanBeTrained(job.Trigger.pawnKind, keys[i], out bool visible);
+            var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
             if (visible && report.Accepted)
             {
                 var checkOn = job.Training[keys[i]];
@@ -112,7 +93,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
 
     public static string GetMasterLabel(ManagerJob_Livestock job)
     {
-        var report = ManagerJob_Livestock.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (!report.Accepted)
         {
             return "ColonyManagerRedux.ManagerLivestock.MasterUnavailable".Translate();
@@ -192,13 +173,13 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
             "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Tame".Translate(),
-                SelectedCurrentLivestockJob.Trigger.pawnKind.GetLabelPlural())
+                SelectedCurrentLivestockJob.TriggerPawnKind.pawnKind.GetLabelPlural())
             .CapitalizeFirst());
         Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawWildAnimalSection,
             "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Wild".Translate(),
-                SelectedCurrentLivestockJob.Trigger.pawnKind.GetLabelPlural())
+                SelectedCurrentLivestockJob.TriggerPawnKind.pawnKind.GetLabelPlural())
             .CapitalizeFirst());
 
         Widgets_Section.EndSectionColumn("Livestock.Animals", position);
@@ -241,7 +222,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         }
         else
         {
-            job.Trigger.CountTargets[ageSexIndex] = int.Parse(_newCounts[ageSexIndex]);
+            job.TriggerPawnKind.CountTargets[ageSexIndex] = int.Parse(_newCounts[ageSexIndex]);
         }
 
         _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);
@@ -511,13 +492,13 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         var start = pos;
 
         // skip for animals that can't be restricted
-        if (job.Trigger.pawnKind.RaceProps.Roamer)
+        if (job.TriggerPawnKind.pawnKind.RaceProps.Roamer)
         {
             var unavailableLabelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             unavailableLabelRect.xMin += Margin;
             Label(unavailableLabelRect,
-                "ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimal".Translate(job.Trigger.pawnKind.GetLabelPlural()),
-                "ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimalTip".Translate(job.Trigger.pawnKind.GetLabelPlural()),
+                "ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimal".Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
+                "ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimalTip".Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
                 TextAnchor.MiddleLeft,
                 color: Color.grey);
             return ListEntryHeight;
@@ -608,7 +589,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
                 color: Color.grey);
         }
 
-        if (job.Trigger.pawnKind.Milkable())
+        if (job.TriggerPawnKind.pawnKind.Milkable())
         {
             var sendToMilkingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             pos.y += ListEntryHeight;
@@ -626,7 +607,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
             }
         }
 
-        if (job.Trigger.pawnKind.Shearable())
+        if (job.TriggerPawnKind.pawnKind.Shearable())
         {
             var sendToShearingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             pos.y += ListEntryHeight;
@@ -753,9 +734,10 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
 
             // draw label
             var label = animalDef.LabelCap + "\n<i>" +
-                "ColonyManagerRedux.Livestock.TameWildCount".Translate(
-                    animalDef.GetTame(manager).Count(),
-                    animalDef.GetWild(manager).Count()) + "</i>";
+                "ColonyManagerRedux.Livestock.TameCount".Translate(
+                    animalDef.GetTame(manager).Count()) + ", " +
+                "ColonyManagerRedux.Livestock.WildCount".Translate(
+                    animalDef.GetWild(manager).Count()) + ".</i>";
             Label(row, label, TextAnchor.MiddleLeft, margin: Margin * 2);
 
             // button
@@ -867,7 +849,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
                 .CenteredOnYIn(rowRect);
 
         // master selection
-        var report = ManagerJob_Livestock.CanBeTrained(job.Trigger.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (report.Accepted)
         {
             Label(rowRect,
@@ -894,7 +876,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
             }
 
             // specific pawns
-            foreach (var pawn in job.Trigger.pawnKind.GetMasterOptions(manager, MasterMode.All))
+            foreach (var pawn in job.TriggerPawnKind.pawnKind.GetMasterOptions(manager, MasterMode.All))
             {
                 options.Add(new FloatMenuOption(
                     "ColonyManagerRedux.ManagerLivestock.Master".Translate(pawn.LabelShort,
@@ -1007,7 +989,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
                 }
 
                 // specific pawns
-                foreach (var pawn in job.Trigger.pawnKind.GetTrainers(manager, MasterMode.Trainers))
+                foreach (var pawn in job.TriggerPawnKind.pawnKind.GetTrainers(manager, MasterMode.Trainers))
                 {
                     options.Add(new FloatMenuOption(
                         "ColonyManagerRedux.ManagerLivestock.Master".Translate(pawn.LabelShort,
@@ -1029,7 +1011,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
 
     private float DrawTamedAnimalSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
-        var pawnKind = job.Trigger.pawnKind;
+        var pawnKind = job.TriggerPawnKind.pawnKind;
         var animals = pawnKind.GetTame(manager) ?? [];
         return DrawAnimalSection(ref pos, width, "ColonyManagerRedux.Livestock.Tame".Translate(), pawnKind, animals);
     }
@@ -1126,7 +1108,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
 
     private float DrawWildAnimalSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
-        var pawnKind = job.Trigger.pawnKind;
+        var pawnKind = job.TriggerPawnKind.pawnKind;
         var animals = pawnKind.GetWild(manager) ?? [];
         return DrawAnimalSection(ref pos, width, "ColonyManagerRedux.Livestock.Wild".Translate(), pawnKind, animals);
     }
@@ -1148,7 +1130,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
             .Distinct()
 
             // remove already managed pawnkinds
-            .Where(pk => !currentJobs.Select(job => job.Trigger.pawnKind).Contains(pk))
+            .Where(pk => !currentJobs.Select(job => job.TriggerPawnKind.pawnKind).Contains(pk))
 
             // order by label
             .OrderBy(def => def.LabelCap.RawText)

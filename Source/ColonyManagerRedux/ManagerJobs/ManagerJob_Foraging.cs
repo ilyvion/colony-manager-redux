@@ -13,7 +13,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.CurrentCount;
+                return managerJob.TriggerThreshold.CurrentCount;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
@@ -29,7 +29,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.TargetCount;
+                return managerJob.TriggerThreshold.TargetCount;
             }
             return 0;
         }
@@ -55,13 +55,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         }
     }
 
-    private Trigger_Threshold trigger;
-    public Trigger_Threshold Trigger { get => trigger; }
+    public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
     public ManagerJob_Foraging(Manager manager) : base(manager)
     {
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
-        trigger = new Trigger_Threshold(this);
+        Trigger = new Trigger_Threshold(this);
         ConfigureThresholdTrigger();
     }
 
@@ -78,12 +77,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        trigger.job = this;
+        TriggerThreshold.job = this;
 
         AllowedPlants.RemoveWhere(p => !AllPlants.Contains(p));
     }
 
-    public override bool IsCompleted => !trigger.State;
+    public override bool IsCompleted => !TriggerThreshold.State;
 
     public int CurrentDesignatedCount
     {
@@ -120,7 +119,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public List<Designation> Designations => new(_designations);
 
-    public override bool IsValid => base.IsValid && trigger != null;
+    public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
     public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
 
@@ -183,7 +182,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         base.ExposeData();
 
         // settings, references first!
-        Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
@@ -217,7 +215,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
         foreach (var plant in AllPlants)
         {
-            if (GetMaterialsInPlant(plant).Any(trigger.ThresholdFilter.Allows))
+            if (GetMaterialsInPlant(plant).Any(TriggerThreshold.ThresholdFilter.Allows))
             {
                 AllowedPlants.Add(plant);
             }
@@ -263,9 +261,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
             foreach (var material in GetMaterialsInPlant(plant))
             {
-                if (trigger.ParentFilter.Allows(material))
+                if (TriggerThreshold.ParentFilter.Allows(material))
                 {
-                    trigger.ThresholdFilter.SetAllow(material, allow);
+                    TriggerThreshold.ThresholdFilter.SetAllow(material, allow);
                 }
             }
         }
@@ -286,12 +284,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         AddRelevantGameDesignations();
 
         // designate plants until trigger is met.
-        var count = trigger.CurrentCount + CurrentDesignatedCount;
-        if (count < trigger.TargetCount)
+        var count = TriggerThreshold.CurrentCount + CurrentDesignatedCount;
+        if (count < TriggerThreshold.TargetCount)
         {
             var targets = GetValidForagingTargetsSorted();
 
-            for (var i = 0; i < targets.Count && count < trigger.TargetCount; i++)
+            for (var i = 0; i < targets.Count && count < TriggerThreshold.TargetCount; i++)
             {
                 var des = new Designation(targets[i], DesignationDefOf.HarvestPlant);
                 count += targets[i].YieldNow();
@@ -377,8 +375,8 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     private void ConfigureThresholdTrigger()
     {
-        trigger.ThresholdFilter = new ThingFilter(Notify_ThresholdFilterChanged);
-        trigger.ThresholdFilter.SetDisallowAll();
+        TriggerThreshold.ThresholdFilter = new ThingFilter(Notify_ThresholdFilterChanged);
+        TriggerThreshold.ThresholdFilter.SetDisallowAll();
         if (Scribe.mode == LoadSaveMode.Inactive)
         {
             ConfigureThresholdTriggerParentFilter();
@@ -387,7 +385,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        ThingFilter parentFilter = trigger.ParentFilter;
+        ThingFilter parentFilter = TriggerThreshold.ParentFilter;
         foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
         {
             parentFilter.SetAllow(harvestedThingDef, true);

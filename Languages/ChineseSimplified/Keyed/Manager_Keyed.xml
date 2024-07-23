@@ -47,9 +47,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>工作</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>工作</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>点击跳转至{0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobCompletedTooltip>工作以达到阈值。</ColonyManagerRedux.Overview.JobCompletedTooltip>
+    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>工作以达到阈值。</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
     <ColonyManagerRedux.ManagerJobSuspendedTooltip>工作已暂停。\n\n点击解除暂停状态。</ColonyManagerRedux.ManagerJobSuspendedTooltip>
-    <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>导入与导出</ColonyManagerRedux.ManagerImportExport>

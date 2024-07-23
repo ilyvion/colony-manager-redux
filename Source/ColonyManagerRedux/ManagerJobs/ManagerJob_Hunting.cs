@@ -12,7 +12,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.CurrentCount;
+                return managerJob.TriggerThreshold.CurrentCount;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
@@ -32,7 +32,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.TargetCount;
+                return managerJob.TriggerThreshold.TargetCount;
             }
             return 0;
         }
@@ -60,14 +60,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    private Trigger_Threshold trigger;
-    public Trigger_Threshold Trigger { get => trigger; }
+    public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
     public ManagerJob_Hunting(Manager manager) : base(manager)
     {
         // populate the trigger field, set the root category to meats and allow all but human & insect meat.
-        trigger = new Trigger_Threshold(this);
-        trigger.ThresholdFilter.SetAllow(ThingCategoryDefOf.MeatRaw, true);
+        Trigger = new Trigger_Threshold(this);
+        TriggerThreshold.ThresholdFilter.SetAllow(ThingCategoryDefOf.MeatRaw, true);
 
         ConfigureThresholdTriggerParentFilter();
     }
@@ -85,13 +84,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob
             {
                 foreach (var def in HumanLikeMeatDefs)
                 {
-                    trigger.ThresholdFilter.SetAllow(def, false);
+                    TriggerThreshold.ThresholdFilter.SetAllow(def, false);
                 }
             }
 
             if (!_allowInsectMeat)
             {
-                trigger.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, false);
+                TriggerThreshold.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, false);
             }
         }
     }
@@ -99,7 +98,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        trigger.job = this;
+        TriggerThreshold.job = this;
 
         AllowedAnimals.RemoveWhere(a => !AllAnimals.Contains(a));
     }
@@ -119,7 +118,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
             _allowHumanLikeMeat = value;
             foreach (var def in HumanLikeMeatDefs)
             {
-                trigger.ThresholdFilter.SetAllow(def, value);
+                TriggerThreshold.ThresholdFilter.SetAllow(def, value);
             }
         }
     }
@@ -137,11 +136,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
             // update value and filter
             _allowInsectMeat = value;
-            trigger.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, value);
+            TriggerThreshold.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, value);
         }
     }
 
-    public override bool IsCompleted => !trigger.State;
+    public override bool IsCompleted => !TriggerThreshold.State;
 
     public List<Corpse> Corpses
     {
@@ -176,7 +175,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    public override bool IsValid => base.IsValid && trigger != null;
+    public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
     public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
 
@@ -226,9 +225,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob
     {
         // scribe base things
         base.ExposeData();
-
-        // must be after references, because reasons.
-        Scribe_Deep.Look(ref trigger, "trigger", this);
 
         // settings
         Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def);
@@ -355,8 +351,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         AddRelevantGameDesignations();
 
         // get the total count of meat in storage, expected meat in corpses and expected meat in designations.
-        var totalCount = trigger.CurrentCount + GetMeatInCorpses() + GetMeatInDesignations();
-        if (totalCount >= trigger.TargetCount)
+        var totalCount = TriggerThreshold.CurrentCount + GetMeatInCorpses() + GetMeatInDesignations();
+        if (totalCount >= TriggerThreshold.TargetCount)
         {
             return false;
         }
@@ -368,7 +364,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         // while totalCount < count AND we have animals that can be designated, designate animal.
         foreach (var huntableAnimal in huntableAnimals)
         {
-            if (totalCount >= trigger.TargetCount)
+            if (totalCount >= TriggerThreshold.TargetCount)
             {
                 break;
             }
@@ -495,6 +491,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        trigger.ParentFilter.SetAllow(ManagerThingCategoryDefOf.FoodRaw, true);
+        TriggerThreshold.ParentFilter.SetAllow(ManagerThingCategoryDefOf.FoodRaw, true);
     }
 }

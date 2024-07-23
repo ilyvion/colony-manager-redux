@@ -16,19 +16,19 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {
-                return managerJob.Trigger.GetCountFor(AgeAndSex.AdultFemale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultFemale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
             {
-                return managerJob.Trigger.GetCountFor(AgeAndSex.AdultMale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultMale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
             {
-                return managerJob.Trigger.GetCountFor(AgeAndSex.JuvenileFemale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileFemale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
-                return managerJob.Trigger.GetCountFor(AgeAndSex.JuvenileMale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileMale);
             }
             else
             {
@@ -40,19 +40,19 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {
-                return managerJob.Trigger.GetTargetFor(AgeAndSex.AdultFemale);
+                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.AdultFemale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
             {
-                return managerJob.Trigger.GetTargetFor(AgeAndSex.AdultMale);
+                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.AdultMale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
             {
-                return managerJob.Trigger.GetTargetFor(AgeAndSex.JuvenileFemale);
+                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileFemale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
-                return managerJob.Trigger.GetTargetFor(AgeAndSex.JuvenileMale);
+                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileMale);
             }
             return 0;
         }
@@ -85,18 +85,12 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     public MasterMode Trainers;
     public TrainingTracker Training;
     public Area? TrainingArea;
-    public Trigger_PawnKind Trigger;
     public bool TryTameMore;
 
     private CachedValue<string>? _cachedLabel;
     private List<Designation> _designations;
 
-    // static ManagerJob_Livestock()
-    // {
-    //     SetWanted_MI = typeof(Pawn_TrainingTracker)
-    //         .GetMethod("SetWanted", BindingFlags.NonPublic | BindingFlags.Instance) ??
-    //         throw new NullReferenceException("Could not find Pawn_TrainingTracker.SetWanted()");
-    // }
+    public Trigger_PawnKind TriggerPawnKind => (Trigger_PawnKind)Trigger!;
 
     public ManagerJob_Livestock(Manager manager) : base(manager)
     {
@@ -158,7 +152,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             for (int i = 0; i < livestockSettings.DefaultCountTargets.Length; i++)
             {
-                Trigger.CountTargets[i] = livestockSettings.DefaultCountTargets[i];
+                TriggerPawnKind.CountTargets[i] = livestockSettings.DefaultCountTargets[i];
             }
             TryTameMore = livestockSettings.DefaultTryTameMore;
             ButcherExcess = livestockSettings.DefaultButcherExcess;
@@ -168,7 +162,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
             foreach (var def in TrainingTracker.TrainableDefs)
             {
-                var report = CanBeTrained(Trigger.pawnKind, def, out bool visible);
+                var report = CanBeTrained(TriggerPawnKind.pawnKind, def, out bool visible);
                 if (report.Accepted && visible && livestockSettings.EnabledTrainingTargets.Contains(def))
                 {
                     Training[def] = true;
@@ -190,20 +184,20 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        Trigger.job = this;
+        TriggerPawnKind.job = this;
     }
 
     public ManagerJob_Livestock(Manager manager, PawnKindDef pawnKindDef) : this(manager) // set defaults
     {
         // set pawnkind and get list of current colonist pawns of that def.
-        Trigger.pawnKind = pawnKindDef;
+        TriggerPawnKind.pawnKind = pawnKindDef;
     }
 
-    public override bool IsCompleted => Trigger.State;
+    public override bool IsCompleted => TriggerPawnKind.State;
 
     public List<Designation> Designations => new(_designations);
 
-    public string? FullLabel
+    public string FullLabel
     {
         get
         {
@@ -217,12 +211,12 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 var text = Label + "\n<i>";
                 foreach (var ageSex in Utilities_Livestock.AgeSexArray)
                 {
-                    text += Trigger.pawnKind.GetTame(Manager, ageSex).Count() + "/" +
-                        Trigger.CountTargets[(int)ageSex] +
+                    text += TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count() + "/" +
+                        TriggerPawnKind.CountTargets[(int)ageSex] +
                         ", ";
                 }
 
-                text += Trigger.pawnKind.GetWild(Manager).Count() + "</i>";
+                text += TriggerPawnKind.pawnKind.GetWild(Manager).Count() + "</i>";
                 return text;
             }
             _cachedLabel = new CachedValue<string>(labelGetter(), 250, labelGetter);
@@ -232,7 +226,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     public override bool IsValid => base.IsValid && Training != null && Trigger != null;
 
-    public override string Label => Trigger.pawnKind.LabelCap;
+    public override string Label => TriggerPawnKind.pawnKind.GetLabelPlural().CapitalizeFirst();
 
     public override IEnumerable<string> Targets
     {
@@ -240,8 +234,8 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             return Utilities_Livestock.AgeSexArray
                 .Select(ageSex => $"ColonyManagerRedux.Thresholds.{ageSex}Count".Translate(
-                    Trigger.pawnKind.GetTame(Manager, ageSex).Count(),
-                    Trigger.CountTargets[(int)ageSex])
+                    TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count(),
+                    TriggerPawnKind.CountTargets[(int)ageSex])
                 .Resolve());
         }
     }
@@ -336,7 +330,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     public void DoFollowSettings(ref bool actionTaken)
     {
-        foreach (var animal in Trigger.pawnKind.GetTame(Manager).ToList())
+        foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager).ToList())
         {
             // training
             Logger.Follow(animal.LabelShort);
@@ -372,7 +366,6 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     {
         base.ExposeData();
 
-        Scribe_Deep.Look(ref Trigger, "trigger", this);
         Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);
         Scribe_Values.Look(ref ButcherTrained, "butcherTrained");
         Scribe_Values.Look(ref ButcherPregnant, "butcherPregnant");
@@ -418,10 +411,10 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 // populate with all designations.
                 _designations.AddRange(
                     Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
-                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
+                        .Where(des => ((Pawn)des.target.Thing).kindDef == TriggerPawnKind.pawnKind));
                 _designations.AddRange(
                     Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
-                        .Where(des => ((Pawn)des.target.Thing).kindDef == Trigger.pawnKind));
+                        .Where(des => ((Pawn)des.target.Thing).kindDef == TriggerPawnKind.pawnKind));
             }
         }
     }
@@ -562,7 +555,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 continue;
             }
 
-            foreach (var animal in Trigger.pawnKind.GetTame(Manager, ageSex))
+            foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager, ageSex))
             {
                 foreach (var def in TrainingTracker.TrainableDefs)
                 {
@@ -588,14 +581,14 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     private void DoAreaRestrictions(ref bool actionTaken)
     {
         // skip for roamers
-        if (Trigger.pawnKind.RaceProps.Roamer)
+        if (TriggerPawnKind.pawnKind.RaceProps.Roamer)
         {
             return;
         }
 
         for (var i = 0; i < Utilities_Livestock.AgeSexArray.Length; i++)
         {
-            foreach (var p in Trigger.pawnKind.GetTame(Manager, Utilities_Livestock.AgeSexArray[i]))
+            foreach (var p in TriggerPawnKind.pawnKind.GetTame(Manager, Utilities_Livestock.AgeSexArray[i]))
             {
                 // slaughter
                 if (SendToSlaughterArea &&
@@ -663,9 +656,9 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
-            var surplus = Trigger.pawnKind.GetTame(Manager, ageSex).Count()
+            var surplus = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count()
                 - DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count
-                - Trigger.CountTargets[(int)ageSex];
+                - TriggerPawnKind.CountTargets[(int)ageSex];
 
 #if DEBUG_LIFESTOCK
             Log.Message( "Butchering " + ageSex + ", surplus" + surplus );
@@ -678,7 +671,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                     ageSex == AgeAndSex.AdultMale;
 
                 // get list of animals in correct sort order.
-                var animals = Trigger.pawnKind.GetTame(Manager, ageSex)
+                var animals = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex)
                     .Where(
                         p => Manager.map.designationManager.DesignationOn(
                             p, DesignationDefOf.Slaughter) == null
@@ -732,8 +725,8 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // not enough animals?
-            var deficit = Trigger.CountTargets[(int)ageSex]
-                - Trigger.pawnKind.GetTame(Manager, ageSex).Count()
+            var deficit = TriggerPawnKind.CountTargets[(int)ageSex]
+                - TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count()
                 - DesignationsOfOn(DesignationDefOf.Tame, ageSex).Count;
 
 #if DEBUG_LIFESTOCK
@@ -746,7 +739,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 var position = Manager.map.GetBaseCenter();
 
                 // get list of animals in sorted by youngest weighted to distance.
-                var animals = Trigger.pawnKind.GetWild(Manager, ageSex)
+                var animals = TriggerPawnKind.pawnKind.GetWild(Manager, ageSex)
                     .Where(p => p != null &&
                         p.Spawned &&
                         Manager.map.designationManager.DesignationOn(p) == null &&
@@ -797,7 +790,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     private bool RoughlyEquallyDistributed(List<Pawn> masters)
     {
-        var followerCounts = masters.Select(p => p.GetFollowers(Trigger.pawnKind).Count).ToArray();
+        var followerCounts = masters.Select(p => p.GetFollowers(TriggerPawnKind.pawnKind).Count).ToArray();
         return followerCounts.Max() - followerCounts.Min() <= 1;
     }
 

@@ -144,11 +144,11 @@ public static class Utilities
             expensive: true);
     }
 
-    public static void DrawStatusForListEntry<T>(
-        this T job,
+    public static void DrawStatusForListEntry(
+        this ManagerJob job,
         Rect rect,
         Trigger trigger,
-        bool exporting) where T : ManagerJob
+        bool exporting)
     {
         if (job == null)
         {
@@ -161,10 +161,10 @@ public static class Utilities
 
         // set up rects
         var stampRect = new Rect(
-            rect.xMax - ManagerTab.SuspendStampWidth - Margin,
+            rect.xMax - ManagerTab.StampWidth,
             rect.yMin,
-            ManagerTab.SuspendStampWidth,
-            ManagerTab.SuspendStampWidth).CenteredOnYIn(rect);
+            ManagerTab.StampWidth,
+            ManagerTab.StampWidth).CenteredOnYIn(rect);
         var lastUpdateRect = new Rect(
             stampRect.xMin - Margin - ManagerTab.LastUpdateRectWidth,
             rect.yMin,
@@ -189,26 +189,35 @@ public static class Utilities
 
             if (job.IsSuspended)
             {
-                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.Overview.UnsuspendJobTooltip".Translate());
-                return;
+                TooltipHandler.TipRegion(stampRect,
+                    "ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip".Translate() + "\n\n" +
+                    "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Overview.Unsuspend".Translate()));
             }
-
-            if (job.IsCompleted)
+            else if (job.IsCompleted)
             {
-                TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.Overview.JobCompletedTooltip".Translate());
-                return;
+                TooltipHandler.TipRegion(stampRect,
+                    "ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip".Translate() + "\n\n" +
+                    "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Overview.Suspend".Translate()));
             }
-
-            TooltipHandler.TipRegion(stampRect, "ColonyManagerRedux.Overview.SuspendJobTooltip".Translate());
+            else
+            {
+                TooltipHandler.TipRegion(stampRect,
+                    "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Overview.Suspend".Translate()));
+            }
 
             // draw progress bar
-            trigger.DrawProgressBar(progressRect, true);
-            TooltipHandler.TipRegion(progressRect, () => trigger.StatusTooltip, trigger.GetHashCode());
+            trigger.DrawProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
         }
 
-        // draw update interval
-        var timeSinceLastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
-        UpdateInterval.Draw(lastUpdateRect, job, exporting);
+        if (!job.IsSuspended && !job.IsCompleted)
+        {
+            // draw update interval
+            var timeSinceLastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
+            UpdateInterval.Draw(lastUpdateRect, job, exporting);
+        }
     }
 
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, ref bool checkOn,

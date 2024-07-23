@@ -94,46 +94,6 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
-    {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-        //var shownTargets = overview ? 4 : 3; // there's more space on the overview
-
-        var huntingJob = (ManagerJob_Hunting)job;
-
-        // set up rects
-        Rect labelRect = new(Margin, Margin, rect.width -
-                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-                                   rect.height - 2 * Margin),
-             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var text = Label + "\n";
-        var subtext = string.Join(", ", huntingJob.Targets);
-        if (subtext.Fits(labelRect))
-        {
-            text += subtext.Italic();
-        }
-        else
-        {
-            text += "ColonyManagerRedux.Multiple".Translate().Italic();
-        }
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            huntingJob.DrawStatusForListEntry(statusRect, huntingJob.Trigger, mode == ListEntryDrawMode.Export);
-        }
-
-        GUI.EndGroup();
-    }
-
     public void DoJobList(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
@@ -443,12 +403,12 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // target count (1)
-        var currentCount = SelectedHuntingJob.Trigger.CurrentCount;
+        var currentCount = SelectedHuntingJob.TriggerThreshold.CurrentCount;
         var corpseCount = SelectedHuntingJob.GetMeatInCorpses();
         var designatedCount = SelectedHuntingJob.GetMeatInDesignations();
-        var targetCount = SelectedHuntingJob.Trigger.TargetCount;
+        var targetCount = SelectedHuntingJob.TriggerThreshold.TargetCount;
 
-        SelectedHuntingJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedHuntingJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Hunting.TargetCount".Translate(
                 currentCount, corpseCount, designatedCount, targetCount),
             "ColonyManagerRedux.Hunting.TargetCountTooltip".Translate(
@@ -461,12 +421,12 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.ShouldCheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
-            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(ThingDefOf.Meat_Human),
+            SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ThingDefOf.Meat_Human),
             () => SelectedHuntingJob.AllowHumanLikeMeat = true,
             () => SelectedHuntingJob.AllowHumanLikeMeat = false);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
-            SelectedHuntingJob.Trigger.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Megaspider),
+            SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Megaspider),
             () => SelectedHuntingJob.AllowInsectMeat = true,
             () => SelectedHuntingJob.AllowInsectMeat = false);
 

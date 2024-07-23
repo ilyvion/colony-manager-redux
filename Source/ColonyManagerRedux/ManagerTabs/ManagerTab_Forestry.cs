@@ -193,65 +193,13 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
+    public override string GetSubLabel(ManagerJob job)
     {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-        //var shownTargets = overview ? 4 : 3; // there's more space on the overview
-
-        var forestryJob = (ManagerJob_Forestry)job;
-
-        // set up rects
-        Rect labelRect = new(Margin, Margin, rect.width -
-                                                   (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-                                   rect.height - 2 * Margin),
-             statusRect = new(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var subtext = SubLabel(forestryJob, labelRect);
-        var text = Label + "\n" + subtext;
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
+        return ((ManagerJob_Forestry)job).Type switch
         {
-            forestryJob.DrawStatusForListEntry(statusRect, forestryJob.Trigger, mode == ListEntryDrawMode.Export);
-        }
-
-        GUI.EndGroup();
-    }
-
-    public static string SubLabel(ManagerJob_Forestry job, Rect rect)
-    {
-        string sublabel;
-        switch (job.Type)
-        {
-            case ForestryJobType.Logging:
-                sublabel = string.Join(", ", job.Targets);
-                if (sublabel.Fits(rect))
-                {
-                    return sublabel.Italic();
-                }
-                else
-                {
-                    return "ColonyManagerRedux.Multiple".Translate().Italic();
-                }
-
-            default:
-                sublabel = "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", job.Targets));
-                if (sublabel.Fits(rect))
-                {
-                    return sublabel.Italic();
-                }
-                else
-                {
-                    return "ColonyManagerRedux.Forestry.Clear".Translate("ColonyManagerRedux.Multiple".Translate()).Italic();
-                }
-        }
+            ForestryJobType.Logging => base.GetSubLabel(job),
+            _ => "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", job.Targets)).Resolve(),
+        };
     }
 
     public float DrawAllowSaplings(Vector2 pos, float width)
@@ -341,11 +289,11 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
     public float DrawThreshold(Vector2 pos, float width)
     {
         var start = pos;
-        var currentCount = SelectedForestryJob.Trigger.CurrentCount;
+        var currentCount = SelectedForestryJob.TriggerThreshold.CurrentCount;
         var designatedCount = SelectedForestryJob.GetWoodInDesignations();
-        var targetCount = SelectedForestryJob.Trigger.TargetCount;
+        var targetCount = SelectedForestryJob.TriggerThreshold.TargetCount;
 
-        SelectedForestryJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedForestryJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Forestry.TargetCount".Translate(
                 currentCount, designatedCount, targetCount),
             "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(

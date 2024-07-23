@@ -13,7 +13,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.CurrentCount;
+                return managerJob.TriggerThreshold.CurrentCount;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
@@ -29,7 +29,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.trigger.TargetCount;
+                return managerJob.TriggerThreshold.TargetCount;
             }
             return 0;
         }
@@ -63,14 +63,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     private ForestryJobType _type = ForestryJobType.Logging;
 
-    private Trigger_Threshold trigger;
-    public Trigger_Threshold Trigger { get => trigger; }
+    public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
     public ManagerJob_Forestry(Manager manager) : base(manager)
     {
         // populate the trigger field, set the root category to wood.
-        trigger = new Trigger_Threshold(this);
-        trigger.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
+        Trigger = new Trigger_Threshold(this);
+        TriggerThreshold.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
         ConfigureThresholdTriggerParentFilter();
     }
 
@@ -87,7 +86,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        trigger.job = this;
+        TriggerThreshold.job = this;
 
         AllowedTrees.RemoveWhere(t => !AllPlants.Contains(t));
     }
@@ -98,7 +97,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         {
             return Type switch
             {
-                ForestryJobType.Logging => !trigger.State,
+                ForestryJobType.Logging => !TriggerThreshold.State,
                 _ => false,
             };
         }
@@ -106,7 +105,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public List<Designation> Designations => new(_designations);
 
-    public override bool IsValid => base.IsValid && trigger != null;
+    public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
@@ -238,7 +237,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         base.ExposeData();
 
         // settings, references first!
-        Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
@@ -414,13 +412,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         AddRelevantGameDesignations();
 
         // get current lumber count
-        var count = trigger.CurrentCount + GetWoodInDesignations();
+        var count = TriggerThreshold.CurrentCount + GetWoodInDesignations();
 
         // get sorted list of loggable trees
         var trees = GetLoggableTreesSorted();
 
         // designate untill we're either out of trees or we have enough designated.
-        for (var i = 0; i < trees.Count && count < trigger.TargetCount; i++)
+        for (var i = 0; i < trees.Count && count < TriggerThreshold.TargetCount; i++)
         {
             workDone = true;
             AddDesignation(trees[i], DesignationDefOf.HarvestPlant);
@@ -494,6 +492,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        trigger.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
+        TriggerThreshold.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
     }
 }

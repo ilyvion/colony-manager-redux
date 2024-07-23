@@ -31,6 +31,16 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     private int _loadID = -1;
     private bool isManaged;
 
+    private Trigger? trigger;
+    public Trigger? Trigger
+    {
+        get => trigger;
+        set
+        {
+            trigger = value;
+        }
+    }
+
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerJob
     protected ManagerJob(Manager manager)
 #pragma warning restore CS8618
@@ -155,6 +165,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             return;
         }
 
+        Scribe_Deep.Look(ref trigger, "trigger", this);
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
         Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");

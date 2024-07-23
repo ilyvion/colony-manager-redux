@@ -186,47 +186,6 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public override void DrawListEntry(ManagerJob job, Rect rect, ListEntryDrawMode mode, bool active = true)
-    {
-        // (detailButton) | name | (bar | last update)/(stamp) -> handled in Utilities.DrawStatusForListEntry
-
-        var foragingJob = (ManagerJob_Foraging)job;
-
-        // set up rects
-        var labelRect = new Rect(
-            Margin,
-            Margin,
-            rect.width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin),
-            rect.height - 2 * Margin);
-        var statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth, rect.height - 2 * Margin);
-
-        // create label string
-        var text = Label + "\n";
-        var subtext = string.Join(", ", foragingJob.Targets);
-        if (subtext.Fits(labelRect))
-        {
-            text += subtext.Italic();
-        }
-        else
-        {
-            text += "ColonyManagerRedux.Multiple".Translate().Resolve().Italic();
-        }
-
-        // do the drawing
-        GUI.BeginGroup(rect);
-
-        // draw label
-        Widgets_Labels.Label(labelRect, text, subtext, TextAnchor.MiddleLeft);
-
-        // if the bill has a manager job, give some more info.
-        if (active)
-        {
-            foragingJob.DrawStatusForListEntry(statusRect, foragingJob.Trigger, mode == ListEntryDrawMode.Export);
-        }
-
-        GUI.EndGroup();
-    }
-
     public float DrawAreaRestriction(Vector2 pos, float width)
     {
         var start = pos;
@@ -317,12 +276,12 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab(manager)
 
     public float DrawThreshold(Vector2 pos, float width)
     {
-        var currentCount = SelectedForagingJob.Trigger.CurrentCount;
+        var currentCount = SelectedForagingJob.TriggerThreshold.CurrentCount;
         var designatedCount = SelectedForagingJob.CurrentDesignatedCount;
-        var targetCount = SelectedForagingJob.Trigger.TargetCount;
+        var targetCount = SelectedForagingJob.TriggerThreshold.TargetCount;
         var start = pos;
 
-        SelectedForagingJob.Trigger.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedForagingJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Foraging.TargetCount".Translate(
                 currentCount, designatedCount, targetCount),
             "ColonyManagerRedux.Foraging.TargetCountTooltip".Translate(

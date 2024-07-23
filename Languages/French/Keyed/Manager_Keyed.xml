@@ -61,10 +61,9 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Travail</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Travail</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Cliquer pour se rendre sur {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobCompletedTooltip>Le seuil de travail a été atteint.</ColonyManagerRedux.Overview.JobCompletedTooltip>
-    <ColonyManagerRedux.Overview.UnsuspendJobTooltip>Le travail a été suspendu.\n\nCliquer pour rétablir.</ColonyManagerRedux.Overview.UnsuspendJobTooltip>
+    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Le seuil de travail a été atteint.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Le travail a été suspendu.\n\nCliquer pour rétablir.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
     <ColonyManagerRedux.ManagerJobSuspendedTooltip>Cliquer ici pour suspendre le travail</ColonyManagerRedux.ManagerJobSuspendedTooltip>
-    <ColonyManagerRedux.ManagerPluralSuffix>s</ColonyManagerRedux.ManagerPluralSuffix>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>Importer &amp; Exporter</ColonyManagerRedux.ManagerImportExport>
