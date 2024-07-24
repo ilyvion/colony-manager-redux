@@ -105,6 +105,11 @@ partial class ManagerTab_Livestock
 
         public override bool VisibleCurrently => !IsCurrentTableWildTable &&
             instance.SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind.Milkable();
+
+        public override int GetMinWidth(PawnTable table)
+        {
+            return Math.Max(base.GetMinWidth(table), (int)Text.CalcSize(100.ToString("0%")).x);
+        }
     }
 
     [HotSwappable]
@@ -135,6 +140,11 @@ partial class ManagerTab_Livestock
 
         public override bool VisibleCurrently => !IsCurrentTableWildTable &&
             instance.SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind.Shearable();
+
+        public override int GetMinWidth(PawnTable table)
+        {
+            return Math.Max(base.GetMinWidth(table), (int)Text.CalcSize(100.ToString("0%")).x);
+        }
     }
 
     private PawnTable? animalsTameTable;
