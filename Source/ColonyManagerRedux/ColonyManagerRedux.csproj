@@ -24,6 +24,9 @@
 
             CA1305: Specify IFormatProvider
                 RimWorld always runs in the US culture for the sake of formatting.
+
+            CA1310: Specify StringComparison for correctness
+                RimWorld always runs in the US culture for the sake of string comparison.
             
             CA1707: Identifiers should not contain underscores
                 RimWorld's naming convention uses underscores.
@@ -32,7 +35,7 @@
                 This is a game mod, not a library; nobody's going to be catching these exceptions
                 except the game logger. They don't need to be fancy.
         -->
-        <NoWarn>CA1002;CA1031;CA1305;CA1707;CA2201</NoWarn>
+        <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201</NoWarn>
 
         <!-- TODO: Deal properly with these later -->
         <NoWarn>$(NoWarn);CA1051</NoWarn>

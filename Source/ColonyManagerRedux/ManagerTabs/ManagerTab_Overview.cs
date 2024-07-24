@@ -182,7 +182,6 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         }
     }
 
-
     public void DrawPawnOverview(Rect rect)
     {
         if (pawnOverviewTable == null)

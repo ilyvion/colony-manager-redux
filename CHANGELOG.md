@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Show progress bars even when a job is suspended/completed.
 -   AI manager gives off a bit of heat.
 -   AI manager now costs 750 W when doing work, but only 250 W when idle.
+-   Use a proper PawnTable for rendering animal details in the livestock tab rather than a custom table.
 
 ### Fixed
 

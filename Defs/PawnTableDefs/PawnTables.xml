@@ -11,4 +11,22 @@
             <li>RemainingSpace</li>
         </columns>
     </PawnTableDef>
+
+    <PawnTableDef>
+        <defName>CM_ManagerLivestockAnimalTable</defName>
+        <workerClass>PawnTable_Wildlife</workerClass>
+        <columns>
+            <li>LabelShortWithIcon</li>
+            <li>Gender</li>
+            <li>GapTiny</li>
+            <li>CM_LifeStage</li>
+            <li>GapTiny</li>
+            <li>CM_ExpectedMeatYield</li>
+            <li>GapTiny</li>
+            <li>CM_MilkProgress</li>
+            <li>GapTiny</li>
+            <li>CM_ShearProgress</li>
+            <li>RemainingSpace</li>
+        </columns>
+    </PawnTableDef>
 </Defs>

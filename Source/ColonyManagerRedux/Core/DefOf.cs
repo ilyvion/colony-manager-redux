@@ -85,6 +85,7 @@ public static class ManagerThingCategoryDefOf
 public static class ManagerPawnTableDefOf
 {
     public static PawnTableDef CM_ManagerJobWorkTable;
+    public static PawnTableDef CM_ManagerLivestockAnimalTable;
 
     static ManagerPawnTableDefOf()
     {

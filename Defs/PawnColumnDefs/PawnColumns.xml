@@ -21,4 +21,32 @@
         <defName>CM_LabelShortWithIcon</defName>
         <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_Label</workerClass>
     </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_LifeStage</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_LifeStage</workerClass>
+        <sortable>true</sortable>
+        <headerIcon>UI/Icons/Gender/Genders</headerIcon>
+    </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_ExpectedMeatYield</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_ExpectedMeatYield</workerClass>
+        <sortable>true</sortable>
+        <headerIcon>UI/Icons/CMR_meat</headerIcon>
+    </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_MilkProgress</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_MilkProgress</workerClass>
+        <sortable>true</sortable>
+        <headerIcon>UI/Icons/CMR_milk</headerIcon>
+    </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_ShearProgress</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_ShearProgress</workerClass>
+        <sortable>true</sortable>
+        <headerIcon>UI/Icons/CMR_wool</headerIcon>
+    </PawnColumnDef>
 </Defs>

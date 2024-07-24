@@ -1,4 +1,5 @@
 // ManagerTab_Overview_PawnOverviewTable.cs
+// Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
@@ -19,7 +20,7 @@ partial class ManagerTab_Overview
         public ManagerTab_Overview instance;
 #pragma warning restore CS8618
 
-        public static void DrawHeader(Rect rect, string _, PawnTable __, PawnColumnWorker_Label @this)
+        public static void DrawHeader(Rect rect, PawnColumnWorker_Label @this)
         {
             Widgets.Label(rect, @this.instance.WorkTypeDef.gerundLabel.CapitalizeFirst().Truncate(rect.width));
         }
@@ -27,7 +28,8 @@ partial class ManagerTab_Overview
 
         public override void DoHeader(Rect rect, PawnTable table)
         {
-            RimWorld_PawnColumnWorker_DoHeader.CustomLabelDoHeader(this, rect, table, (a, b, c, d) => DrawHeader(a, b, c, (PawnColumnWorker_Label)d));
+            RimWorld_PawnColumnWorker_DoHeader.CustomLabelDoHeader(this, rect, table,
+                (a, _, _, d) => DrawHeader(a, (PawnColumnWorker_Label)d));
         }
 
         protected override string GetHeaderTip(PawnTable table)
@@ -188,7 +190,7 @@ partial class ManagerTab_Overview
             {
                 // PawnTables aren't very customizable, so we'll hijack this function to inject our
                 // instance into the columns, since we need it there
-                foreach (var item in pawnOverviewTable!.Columns
+                foreach (var item in Traverse.Create(pawnOverviewTable!).Field<PawnTableDef>("def").Value.columns
                     .Where(c => c.workerClass.IsSubclassOf(
                         typeof(PawnColumnWorker_Overview))))
                 {

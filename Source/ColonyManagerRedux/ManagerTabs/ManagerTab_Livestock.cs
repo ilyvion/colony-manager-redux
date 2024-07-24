@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using Verse.Noise;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Utilities;
 using static ColonyManagerRedux.Widgets_Labels;
@@ -10,7 +9,7 @@ using static ColonyManagerRedux.Widgets_Labels;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
+internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
 {
     internal const int TrainingJobsPerRow = 3;
 
@@ -31,6 +30,12 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         get => (ManagerJob_Livestock?)Selected;
     }
 
+    public override void PostOpen()
+    {
+        animalsTameTable?.SetDirty();
+        animalsWildTable?.SetDirty();
+    }
+
     protected override void PostSelect()
     {
         _onCurrentTab = Selected != null;
@@ -40,8 +45,18 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
             _newCounts =
                 SelectedCurrentLivestockJob!.TriggerPawnKind.CountTargets.Select(v => v.ToString()).ToArray();
         }
+        animalsTameTable?.SetDirty();
+        animalsWildTable?.SetDirty();
     }
 
+    internal override void Notify_PawnsChanged()
+    {
+        if (Selected != null)
+        {
+            animalsTameTable?.SetDirty();
+            animalsWildTable?.SetDirty();
+        }
+    }
 
 
     public override void DoWindowContents(Rect canvas)
@@ -165,24 +180,7 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
 
         Widgets_Section.EndSectionColumn("Livestock.Options", position);
 
-        // Start animals list
-        // get our pawnkind
-        Widgets_Section.BeginSectionColumn(animalsColumnRect, "Livestock.Animals", out position, out width);
-
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawTamedAnimalSection,
-            "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
-            .Translate(
-                "ColonyManagerRedux.Livestock.Tame".Translate(),
-                SelectedCurrentLivestockJob.TriggerPawnKind.pawnKind.GetLabelPlural())
-            .CapitalizeFirst());
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawWildAnimalSection,
-            "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
-            .Translate(
-                "ColonyManagerRedux.Livestock.Wild".Translate(),
-                SelectedCurrentLivestockJob.TriggerPawnKind.pawnKind.GetLabelPlural())
-            .CapitalizeFirst());
-
-        Widgets_Section.EndSectionColumn("Livestock.Animals", position);
+        DrawAnimalTables(animalsColumnRect);
 
         // add / remove to the stack
         if (SelectedCurrentLivestockJob.IsManaged)
@@ -262,224 +260,6 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         {
             DrawAvailableJobList(outRect, viewRect);
         }
-    }
-
-    private static void DrawAnimalListheader(ref Vector2 pos, Vector2 size, PawnKindDef pawnKind)
-    {
-        var start = pos;
-
-        // use a third of available screenspace for labels
-        pos.x += size.x / 3f;
-
-        // gender, lifestage, current meat (and if applicable, milking + shearing)
-        var cols = 3;
-
-        // extra columns?
-        var milk = pawnKind.Milkable();
-        var wool = pawnKind.Shearable();
-        if (milk)
-        {
-            cols++;
-        }
-
-        if (wool)
-        {
-            cols++;
-        }
-
-        var colwidth = size.x * 2 / 3 / cols;
-
-        // gender header
-        var genderRect = new Rect(pos.x, pos.y, colwidth, size.y);
-        var genderMale =
-            new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(genderRect, -SmallIconSize / 2);
-        var genderFemale =
-            new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(genderRect, SmallIconSize / 2);
-        GUI.DrawTexture(genderMale, Resources.MaleIcon);
-        GUI.DrawTexture(genderFemale, Resources.FemaleIcon);
-        TooltipHandler.TipRegion(genderRect, "ColonyManagerRedux.Livestock.GenderHeader".Translate());
-        pos.x += colwidth;
-
-        // lifestage header
-        var ageRect = new Rect(pos.x, pos.y, colwidth, size.y);
-        var ageRectC = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect, SmallIconSize / 2);
-        var ageRectB = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect);
-        var ageRectA = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect, -SmallIconSize / 2);
-        GUI.DrawTexture(ageRectC, Resources.GetLifeStageIcon(2));
-        GUI.DrawTexture(ageRectB, Resources.GetLifeStageIcon(1));
-        GUI.DrawTexture(ageRectA, Resources.GetLifeStageIcon(0));
-        TooltipHandler.TipRegion(ageRect, "ColonyManagerRedux.Livestock.AgeHeader".Translate());
-        pos.x += colwidth;
-
-        // meat header
-        var meatRect = new Rect(pos.x, pos.y, colwidth, size.y);
-        var meatIconRect =
-            new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(meatRect);
-        GUI.DrawTexture(meatIconRect, Resources.MeatIcon);
-        TooltipHandler.TipRegion(meatRect, "ColonyManagerRedux.Livestock.MeatHeader".Translate());
-        pos.x += colwidth;
-
-        // milk header
-        if (milk)
-        {
-            var milkRect = new Rect(pos.x, pos.y, colwidth, size.y);
-            var milkIconRect =
-                new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(milkRect);
-            GUI.DrawTexture(milkIconRect, Resources.MilkIcon);
-            TooltipHandler.TipRegion(milkRect, "ColonyManagerRedux.Livestock.MilkHeader".Translate());
-            pos.x += colwidth;
-        }
-
-        // wool header
-        if (wool)
-        {
-            var woolRect = new Rect(pos.x, pos.y, colwidth, size.y);
-            var woolIconRect =
-                new Rect(0f, 0f, MediumIconSize, MediumIconSize).CenteredIn(woolRect);
-            GUI.DrawTexture(woolIconRect, Resources.WoolIcon);
-            TooltipHandler.TipRegion(woolRect, "ColonyManagerRedux.Livestock.WoolHeader".Translate());
-            pos.x += colwidth;
-        }
-
-        // start next row
-        pos.x = start.x;
-        pos.y += size.y;
-    }
-
-    private static void DrawAnimalRow(ref Vector2 pos, Vector2 size, Pawn p)
-    {
-        var start = pos;
-
-        // highlights and interactivity.
-        var row = new Rect(pos.x, pos.y, size.x, size.y);
-        Widgets.DrawHighlightIfMouseover(row);
-        if (Widgets.ButtonInvisible(row))
-        {
-            // move camera and select
-            Find.MainTabsRoot.EscapeCurrentTab();
-            CameraJumper.TryJumpAndSelect(p);
-        }
-
-        // use a third of available screenspace for labels
-        var nameRect = new Rect(pos.x, pos.y, size.x / 3f, size.y);
-        Label(nameRect, p.LabelCap, TextAnchor.MiddleCenter, GameFont.Tiny);
-        pos.x += size.x / 3f;
-
-        // gender, lifestage, current meat (and if applicable, milking + shearing)
-        var cols = 3;
-
-        // extra columns?
-        if (p.kindDef.Milkable())
-        {
-            cols++;
-        }
-
-        if (p.kindDef.Shearable())
-        {
-            cols++;
-        }
-
-        var colwidth = size.x * 2 / 3 / cols;
-
-        // gender column
-        var genderRect = new Rect(pos.x, pos.y, colwidth, size.y);
-        var genderIconRect =
-            new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(genderRect);
-        switch (p.gender)
-        {
-            case Gender.Female:
-                GUI.DrawTexture(genderIconRect, Resources.FemaleIcon);
-                break;
-
-            case Gender.Male:
-                GUI.DrawTexture(genderIconRect, Resources.MaleIcon);
-                break;
-
-            case Gender.None:
-                GUI.DrawTexture(genderIconRect, Resources.UnkownIcon);
-                break;
-        }
-
-        TooltipHandler.TipRegion(genderRect, p.gender.GetLabel());
-        pos.x += colwidth;
-
-        // lifestage column
-        var ageRect = new Rect(pos.x, pos.y, colwidth, size.y);
-        var ageIconRect = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(ageRect);
-        GUI.DrawTexture(ageIconRect, Resources.GetLifeStageIcon(p.ageTracker.CurLifeStageIndex));
-        TooltipHandler.TipRegion(ageRect, p.ageTracker.AgeTooltipString);
-        pos.x += colwidth;
-
-        // meat column
-        var meatRect = new Rect(pos.x, pos.y, colwidth, size.y);
-        // NOTE: When splitting tabs into separate mods; estimated meat count is defined in the Hunting helper.
-        Label(meatRect, p.EstimatedMeatCount().ToString(),
-            "ColonyManagerRedux.Livestock.Yields".Translate(p.RaceProps.meatDef.LabelCap, p.EstimatedMeatCount()),
-            TextAnchor.MiddleCenter, GameFont.Tiny);
-        pos.x += colwidth;
-
-        // milk column
-        if (p.Milkable())
-        {
-            var milkRect = new Rect(pos.x, pos.y, colwidth, size.y);
-            var comp = p.TryGetComp<CompMilkable>();
-            Label(milkRect, comp.Fullness.ToString("0%"),
-                "ColonyManagerRedux.Livestock.Yields".Translate(comp.Props.milkDef.LabelCap, comp.Props.milkAmount),
-                TextAnchor.MiddleCenter, GameFont.Tiny);
-        }
-
-        if (p.kindDef.Milkable())
-        {
-            pos.x += colwidth;
-        }
-
-        // wool column
-        if (p.Shearable())
-        {
-            var woolRect = new Rect(pos.x, pos.y, colwidth, size.y);
-            var comp = p.TryGetComp<CompShearable>();
-            Label(woolRect, comp.Fullness.ToString("0%"),
-                "ColonyManagerRedux.Livestock.Yields".Translate(comp.Props.woolDef.LabelCap, comp.Props.woolAmount),
-                TextAnchor.MiddleCenter, GameFont.Tiny);
-        }
-
-        if (p.kindDef.Milkable())
-        {
-            pos.x += colwidth;
-        }
-
-        // do the carriage return on ref pos
-        pos.x = start.x;
-        pos.y += size.y;
-    }
-
-    private static float DrawAnimalSection(ref Vector2 pos, float width, string type, PawnKindDef pawnKind,
-                                     IEnumerable<Pawn> animals)
-    {
-        if (animals == null)
-        {
-            return 0;
-        }
-
-        var start = pos;
-        DrawAnimalListheader(ref pos, new Vector2(width, ListEntryHeight / 3 * 2), pawnKind);
-
-        bool anyAnimals = false;
-        foreach (var animal in animals)
-        {
-            DrawAnimalRow(ref pos, new Vector2(width, ListEntryHeight), animal);
-            anyAnimals = true;
-        }
-
-        if (!anyAnimals)
-        {
-            Label(new Rect(pos.x, pos.y, width, ListEntryHeight),
-                "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
-                TextAnchor.MiddleCenter, color: Color.grey);
-            pos.y += ListEntryHeight;
-        }
-
-        return pos.y - start.y;
     }
 
     private float DrawAreaRestrictionsSection(ManagerJob_Livestock job, Vector2 pos, float width)
@@ -1004,13 +784,6 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         return rowRect.yMax - start.y;
     }
 
-    private float DrawTamedAnimalSection(ManagerJob_Livestock job, Vector2 pos, float width)
-    {
-        var pawnKind = job.TriggerPawnKind.pawnKind;
-        var animals = pawnKind.GetTame(manager) ?? [];
-        return DrawAnimalSection(ref pos, width, "ColonyManagerRedux.Livestock.Tame".Translate(), pawnKind, animals);
-    }
-
     private float DrawTamingSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
         var start = pos;
@@ -1101,11 +874,72 @@ internal sealed class ManagerTab_Livestock(Manager manager) : ManagerTab(manager
         return height;
     }
 
-    private float DrawWildAnimalSection(ManagerJob_Livestock job, Vector2 pos, float width)
+    private void DrawAnimalTables(Rect animalsColumnRect)
     {
-        var pawnKind = job.TriggerPawnKind.pawnKind;
-        var animals = pawnKind.GetWild(manager) ?? [];
-        return DrawAnimalSection(ref pos, width, "ColonyManagerRedux.Livestock.Wild".Translate(), pawnKind, animals);
+        animalsColumnRect.height /= 2;
+        var animalsColumnRect2 = new Rect(animalsColumnRect)
+        {
+            y = animalsColumnRect.height
+        };
+        animalsColumnRect.yMin += Margin;
+        var headerRect = new Rect(animalsColumnRect.x, animalsColumnRect.y,
+            animalsColumnRect.width, SectionHeaderHeight).RoundToInt();
+        Widgets_Labels.Label(headerRect, "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
+            .Translate(
+                "ColonyManagerRedux.Livestock.Tame".Translate(),
+                SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind.GetLabelPlural())
+            .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
+        animalsColumnRect.yMin += SectionHeaderHeight;
+        animalsColumnRect.yMax -= Margin;
+        GUI.DrawTexture(animalsColumnRect, Resources.SlightlyDarkBackground);
+        GUI.BeginGroup(animalsColumnRect);
+        DrawTamedAnimalTable(animalsColumnRect.AtZero());
+        GUI.EndGroup();
+
+        headerRect = new Rect(animalsColumnRect2.x, animalsColumnRect2.y,
+            animalsColumnRect2.width, SectionHeaderHeight).RoundToInt();
+        Widgets_Labels.Label(headerRect, "ColonyManagerRedux.ManagerLivestock.AnimalsHeader"
+            .Translate(
+                "ColonyManagerRedux.Livestock.Wild".Translate(),
+                SelectedCurrentLivestockJob.TriggerPawnKind.pawnKind.GetLabelPlural())
+            .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
+        animalsColumnRect2.yMin += SectionHeaderHeight;
+        GUI.DrawTexture(animalsColumnRect2, Resources.SlightlyDarkBackground);
+        GUI.BeginGroup(animalsColumnRect2);
+        DrawWildAnimalTable(animalsColumnRect2.AtZero());
+        GUI.EndGroup();
+    }
+
+    private void DrawTamedAnimalTable(Rect rect)
+    {
+        DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(manager), false);
+    }
+
+    private void DrawWildAnimalTable(Rect rect)
+    {
+        DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(manager), true);
+    }
+
+    private void DrawAnimalTable(Rect rect, ref PawnTable? pawnTable, string type, Func<PawnKindDef, IEnumerable<Pawn>?> animalGetter, bool isWildTable)
+    {
+        if (pawnTable == null)
+        {
+            pawnTable = CreateAnimalsTable(() =>
+            {
+                var pawnKind = SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind;
+                return animalGetter(pawnKind) ?? [];
+            }, isWildTable);
+            pawnTable.SetFixedSize(new(rect.width, rect.height));
+        }
+
+        pawnTable.PawnTableOnGUI(Vector2.zero);
+        if (pawnTable.PawnsListForReading.Count == 0)
+        {
+            var pawnKind = SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind;
+            Label(rect,
+                "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
+                TextAnchor.MiddleCenter, color: Color.grey);
+        }
     }
 
     private void Refresh()
