@@ -34,8 +34,12 @@
             CA2201: Do not raise reserved exception types
                 This is a game mod, not a library; nobody's going to be catching these exceptions
                 except the game logger. They don't need to be fancy.
+
+            IDE0305: Use collection expression for fluent
+                I prefer the old LINQ method chaining over using a collection expression to turn
+                an enumerable into a collection.
         -->
-        <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201</NoWarn>
+        <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201;IDE0305</NoWarn>
 
         <!-- TODO: Deal properly with these later -->
         <NoWarn>$(NoWarn);CA1051</NoWarn>

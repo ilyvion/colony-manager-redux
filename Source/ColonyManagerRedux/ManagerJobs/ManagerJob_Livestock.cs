@@ -150,34 +150,36 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         var livestockSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(def);
         if (livestockSettings != null)
         {
-            for (int i = 0; i < livestockSettings.DefaultCountTargets.Length; i++)
+            PawnKindDef pawnKind = TriggerPawnKind.pawnKind;
+            PawnKindSettings pawnKindSettings = livestockSettings.GetSettingsFor(pawnKind);
+            for (int i = 0; i < pawnKindSettings.DefaultCountTargets.Length; i++)
             {
-                TriggerPawnKind.CountTargets[i] = livestockSettings.DefaultCountTargets[i];
+                TriggerPawnKind.CountTargets[i] = pawnKindSettings.DefaultCountTargets[i];
             }
-            TryTameMore = livestockSettings.DefaultTryTameMore;
-            ButcherExcess = livestockSettings.DefaultButcherExcess;
-            ButcherTrained = livestockSettings.DefaultButcherTrained;
-            ButcherPregnant = livestockSettings.DefaultButcherPregnant;
-            ButcherBonded = livestockSettings.DefaultButcherBonded;
+            TryTameMore = pawnKindSettings.DefaultTryTameMore;
+            ButcherExcess = pawnKindSettings.DefaultButcherExcess;
+            ButcherTrained = pawnKindSettings.DefaultButcherTrained;
+            ButcherPregnant = pawnKindSettings.DefaultButcherPregnant;
+            ButcherBonded = pawnKindSettings.DefaultButcherBonded;
 
             foreach (var def in TrainingTracker.TrainableDefs)
             {
-                var report = CanBeTrained(TriggerPawnKind.pawnKind, def, out bool visible);
-                if (report.Accepted && visible && livestockSettings.EnabledTrainingTargets.Contains(def))
+                var report = CanBeTrained(pawnKind, def, out bool visible);
+                if (report.Accepted && visible && pawnKindSettings.EnabledTrainingTargets.Contains(def))
                 {
                     Training[def] = true;
                 }
             }
-            Training.UnassignTraining = livestockSettings.DefaultUnassignTraining;
-            Training.TrainYoung = livestockSettings.DefaultTrainYoung;
+            Training.UnassignTraining = pawnKindSettings.DefaultUnassignTraining;
+            Training.TrainYoung = pawnKindSettings.DefaultTrainYoung;
 
-            Masters = livestockSettings.DefaultMasterMode;
-            RespectBonds = livestockSettings.DefaultRespectBonds;
-            SetFollow = livestockSettings.DefaultSetFollow;
-            FollowDrafted = livestockSettings.DefaultFollowDrafted;
-            FollowFieldwork = livestockSettings.DefaultFollowFieldwork;
-            FollowTraining = livestockSettings.DefaultFollowTraining;
-            Trainers = livestockSettings.DefaultTrainerMode;
+            Masters = pawnKindSettings.DefaultMasterMode;
+            RespectBonds = pawnKindSettings.DefaultRespectBonds;
+            SetFollow = pawnKindSettings.DefaultSetFollow;
+            FollowDrafted = pawnKindSettings.DefaultFollowDrafted;
+            FollowFieldwork = pawnKindSettings.DefaultFollowFieldwork;
+            FollowTraining = pawnKindSettings.DefaultFollowTraining;
+            Trainers = pawnKindSettings.DefaultTrainerMode;
         }
     }
 

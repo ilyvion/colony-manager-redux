@@ -94,12 +94,12 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var checkOn = job.Training[keys[i]];
                 DrawToggle(cell, keys[i].LabelCap, keys[i].description, ref checkOn, size: SmallIconSize,
-                            font: GameFont.Tiny, wrap: false);
+                            wrap: false);
                 job.Training[keys[i]] = checkOn;
             }
             else if (visible)
             {
-                Label(cell, keys[i].LabelCap, report.Reason, TextAnchor.MiddleLeft, GameFont.Tiny, Color.grey, Margin);
+                Label(cell, keys[i].LabelCap, report.Reason, TextAnchor.MiddleLeft, color: Color.grey, margin: Margin);
             }
         }
 

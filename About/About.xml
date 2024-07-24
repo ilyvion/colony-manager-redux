@@ -19,6 +19,7 @@
         <li>
             <packageId>ilyvion.Laboratory</packageId>
             <displayName>ilyvion's Laboratory</displayName>
+            <!-- TODO: Fix these ID values before release! -->
             <downloadUrl>https://steamcommunity.com/workshop/filedetails/?id=0</downloadUrl>
             <steamWorkshopUrl>steam://url/CommunityFilePage/0</steamWorkshopUrl>
         </li>
