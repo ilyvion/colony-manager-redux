@@ -22,7 +22,11 @@ partial class ManagerTab_Overview
 
         public static void DrawHeader(Rect rect, PawnColumnWorker_Label @this)
         {
-            Widgets.Label(rect, @this.instance.WorkTypeDef.gerundLabel.CapitalizeFirst().Truncate(rect.width));
+            rect.xMin = 0f;
+            Widgets_Labels.Label(
+                rect,
+                @this.instance.WorkTypeDef.gerundLabel.CapitalizeFirst().Truncate(rect.width),
+                TextAnchor.MiddleCenter);
         }
 
 
@@ -87,6 +91,7 @@ partial class ManagerTab_Overview
 
             bool incapable = Utilities.IsIncapableOfWholeWorkType(pawn, instance.WorkTypeDef);
             var priority = pawn.workSettings.GetPriority(instance.WorkTypeDef);
+            Text.Font = GameFont.Medium;
             WidgetsWork.DrawWorkBoxFor(workBoxRect.xMin, workBoxRect.yMin, pawn, instance.WorkTypeDef, incapable);
             var priorityAfter = pawn.workSettings.GetPriority(instance.WorkTypeDef);
             if (priority != priorityAfter)
@@ -135,7 +140,7 @@ partial class ManagerTab_Overview
 
         public override int GetMinWidth(PawnTable table)
         {
-            return Math.Min(24, (int)Text.CalcSize(GetHeaderTip(table)).x);
+            return Math.Min((int)(24 + 2 * Constants.Margin), (int)Text.CalcSize(GetHeaderTip(table)).x);
         }
 
         public override int GetMaxWidth(PawnTable table)

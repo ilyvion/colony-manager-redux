@@ -14,12 +14,13 @@
         <defName>CM_WorkPriorities</defName>
         <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_WorkPriorities</workerClass>
         <sortable>true</sortable>
-        <widthPriority>100</widthPriority>
+        <widthPriority>50</widthPriority>
     </PawnColumnDef>
 
     <PawnColumnDef ParentName="LabelShortWithIcon">
         <defName>CM_LabelShortWithIcon</defName>
         <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_Label</workerClass>
+        <widthPriority>50</widthPriority>
     </PawnColumnDef>
 
     <PawnColumnDef>
