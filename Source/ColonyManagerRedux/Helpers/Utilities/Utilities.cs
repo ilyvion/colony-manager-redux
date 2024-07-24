@@ -500,6 +500,28 @@ public static class Utilities
         return -value;
     }
 
+    internal static void Scribe_IntArray(ref CircularBuffer<int> values, string label)
+    {
+        int capacity = 0;
+        string? text = null;
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            capacity = values.Capacity;
+            text = values.Join(i => i.ToString(), ":");
+        }
+
+        Scribe_Values.Look(ref capacity, $"{label}Capacity", History.EntriesPerInterval);
+        Scribe_Values.Look(ref text, label);
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            values = new CircularBuffer<int>(
+                capacity,
+                text?.Split(':')
+                    .Select(int.Parse)
+                    .ToArray() ?? []);
+        }
+    }
+
     internal static void Scribe_IntTupleArray(ref CircularBuffer<(int, int)> values, string label)
     {
         int capacity = 0;
