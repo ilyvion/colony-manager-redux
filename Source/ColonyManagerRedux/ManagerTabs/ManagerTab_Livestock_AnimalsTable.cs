@@ -19,7 +19,7 @@ partial class ManagerTab_Livestock
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_LifeStage : RimWorld.PawnColumnWorker_LifeStage
+    public sealed class PawnColumnWorker_LifeStage : RimWorld.PawnColumnWorker_LifeStage
     {
         public override void DoHeader(Rect rect, PawnTable table)
         {
@@ -51,7 +51,7 @@ partial class ManagerTab_Livestock
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_ExpectedMeatYield : PawnColumnWorker
+    public sealed class PawnColumnWorker_ExpectedMeatYield : PawnColumnWorker
     {
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
@@ -78,7 +78,7 @@ partial class ManagerTab_Livestock
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_MilkProgress : PawnColumnWorker_Livestock
+    public sealed class PawnColumnWorker_MilkProgress : PawnColumnWorker_Livestock
     {
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
@@ -108,7 +108,7 @@ partial class ManagerTab_Livestock
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_ShearProgress : PawnColumnWorker_Livestock
+    public sealed class PawnColumnWorker_ShearProgress : PawnColumnWorker_Livestock
     {
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {

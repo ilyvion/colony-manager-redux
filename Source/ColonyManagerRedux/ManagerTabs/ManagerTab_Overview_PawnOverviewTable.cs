@@ -14,7 +14,7 @@ partial class ManagerTab_Overview
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_Label : RimWorld.PawnColumnWorker_Label
+    public sealed class PawnColumnWorker_Label : RimWorld.PawnColumnWorker_Label
     {
 #pragma warning disable CS8618
         public ManagerTab_Overview instance;
@@ -49,7 +49,7 @@ partial class ManagerTab_Overview
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_CurrentActivity : PawnColumnWorker_Overview
+    public sealed class PawnColumnWorker_CurrentActivity : PawnColumnWorker_Overview
     {
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
@@ -83,7 +83,7 @@ partial class ManagerTab_Overview
     }
 
     [HotSwappable]
-    public class PawnColumnWorker_WorkPriorities : PawnColumnWorker_Overview
+    public sealed class PawnColumnWorker_WorkPriorities : PawnColumnWorker_Overview
     {
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
