@@ -1,0 +1,84 @@
+name: Release
+
+on:
+    push:
+        tags:
+            # This will only run the release workflow when it's tagged with a version
+            # tag.
+            - "v*"
+
+jobs:
+    build:
+        uses: ./.github/workflows/build.yml
+        with:
+            artifact-suffix: Release
+
+    package:
+        name: Release
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Set Environment Variables
+              run: |
+                  echo "MOD_PATH=./Source/ColonyManagerRedux" >> $GITHUB_ENV
+                  echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+                  echo "NO_PREFIX_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+            - name: Create Mod Folder
+              run: mkdir -p ${{ env.MOD_PATH }}
+
+            - name: Download Mod Artifacts from Build Step
+              uses: actions/download-artifact@v4
+              with:
+                  name: ColonyManagerRedux-Release
+                  path: ${{ env.MOD_PATH }}
+
+            - name: Zip Mod
+              run: zip -r ${{ env.MOD_PATH }}.zip ${{ env.MOD_PATH }}/*
+
+            - name: Get Changelog Entry
+              id: changelog_reader
+              uses: mindsers/changelog-reader-action@v2
+              with:
+                  version: ${{ env.NO_PREFIX_VERSION }}
+                  path: ${{ env.MOD_PATH }}/CHANGELOG.md
+
+            - name: Create Release
+              id: create_release
+              uses: actions/create-release@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  tag_name: ${{ env.VERSION }}
+                  release_name: Release ${{ env.VERSION }}
+                  body: ${{ steps.changelog_reader.outputs.changes }}
+                  draft: false
+                  prerelease: false
+
+            - name: Upload Release Asset
+              uses: actions/upload-release-asset@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  upload_url: ${{ steps.create_release.outputs.upload_url }}
+                  asset_path: ${{ env.MOD_PATH }}.zip
+                  asset_name: ColonyManagerRedux-${{ env.VERSION }}.zip
+                  asset_content_type: application/zip
+
+            # - name: Converts Markdown to Steam markup
+            #   id: markdown_steam
+            #   uses: ilyvion/steamdown@main
+            #   with:
+            #       markdown: ${{ steps.changelog_reader.outputs.changes }}
+
+            # - name: Upload to Steam Workshop
+            #   uses: ZehMatt/steam-workshop-upload@569de82c2fdf3042af8491379fb698829ba63a9d
+            #   with:
+            #       appid: 294100
+            #       itemid: 0
+            #       path: ${{ env.MOD_PATH }}
+            #       changenote: ${{ steps.markdown_steam.outputs.steam-markup }}
+            #   env:
+            #       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+            #       STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+            #       STEAM_TFASEED: ${{ secrets.STEAM_TFASEED }}

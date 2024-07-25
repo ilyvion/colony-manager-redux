@@ -49,6 +49,8 @@
         <VersionPrefix>0.1.0</VersionPrefix>
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <ProjectDependenciesBasePath Condition="'$(ProjectDependenciesBasePath)'==''">..\..\..</ProjectDependenciesBasePath>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -86,7 +88,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\ilyvion.Laboratory\ilvyion.Laboratory\ilvyion.Laboratory.csproj">
+        <ProjectReference Include="$(ProjectDependenciesBasePath)\ilyvion.Laboratory\ilvyion.Laboratory\ilvyion.Laboratory.csproj">
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>

@@ -1,0 +1,53 @@
+name: Build
+
+on:
+    workflow_call:
+        inputs:
+            artifact-suffix:
+                required: true
+                type: string
+
+jobs:
+    build:
+        name: Build
+        runs-on: windows-latest
+        env:
+            ProjectDependenciesBasePath: ..\..
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Checkout ilyvion.Laboratory Repository
+              uses: actions/checkout@v4
+              with:
+                repository: 'ilyvion/ilyvion-laboratory'
+                path: 'ilyvion.Laboratory'
+
+            - name: Setup Dotnet
+              uses: actions/setup-dotnet@v4
+              with:
+                  dotnet-version: 6.0.x
+
+            - name: Build Mod for 1.5
+              env:
+                  RimWorldVersion: 1.5
+              run: dotnet build --configuration Release ColonyManagerRedux.sln
+
+            - name: Upload Mod Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: ColonyManagerRedux-${{ inputs.artifact-suffix }}
+                  path: |
+                      About/
+                      1.5/
+                      Defs/
+                      Languages/
+                      Patches/
+                      Textures/
+                      LICENSE
+                      README.md
+                      CHANGELOG.md
+                      !**/.*
+                      !About/*.pdn
+                      !About/*.svg
+                      !About/*.ttf
