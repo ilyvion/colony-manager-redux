@@ -479,12 +479,15 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     estimatedMeatCount));
 
             // draw leather yield icon
-            upperIconRect.x -= Margin + SmallIconSize;
-            var estimatedLeatherCount = animalDef.EstimatedLeatherCount();
-            Widgets.DefIcon(upperIconRect, animalDef.RaceProps.leatherDef);
-            TooltipHandler.TipRegion(upperIconRect,
-                "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.leatherDef.LabelCap,
-                    estimatedLeatherCount));
+            if (animalDef.RaceProps.leatherDef != null)
+            {
+                upperIconRect.x -= Margin + SmallIconSize;
+                var estimatedLeatherCount = animalDef.EstimatedLeatherCount();
+                Widgets.DefIcon(upperIconRect, animalDef.RaceProps.leatherDef);
+                TooltipHandler.TipRegion(upperIconRect,
+                    "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.leatherDef.LabelCap,
+                        estimatedLeatherCount));
+            }
 
             // draw milk yield icon
             var milkableProperties = animalDef.race.GetCompProperties<CompProperties_Milkable>();
