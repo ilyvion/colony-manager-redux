@@ -40,18 +40,18 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         StockpileGUI.DoStockpileSelectors(zoneRect, ref Trigger.stockpile, Trigger.job.Manager);
 
         // draw operator button
-        if (Widgets.ButtonText(buttonRect, Trigger.OpString))
-        {
-            var list = new List<FloatMenuOption>
-            {
-                new( "Lower than",
-                                     delegate { Trigger.Op = Trigger_Threshold.Ops.LowerThan; } ),
-                new( "Equal to", delegate { Trigger.Op = Trigger_Threshold.Ops.Equals; } ),
-                new( "Greater than",
-                                     delegate { Trigger.Op = Trigger_Threshold.Ops.HigherThan; } )
-            };
-            Find.WindowStack.Add(new FloatMenu(list));
-        }
+        // if (Widgets.ButtonText(buttonRect, Trigger.OpString))
+        // {
+        //     var list = new List<FloatMenuOption>
+        //     {
+        //         new( "Lower than",
+        //                              delegate { Trigger.Op = Trigger_Threshold.Ops.LowerThan; } ),
+        //         new( "Equal to", delegate { Trigger.Op = Trigger_Threshold.Ops.Equals; } ),
+        //         new( "Greater than",
+        //                              delegate { Trigger.Op = Trigger_Threshold.Ops.HigherThan; } )
+        //     };
+        //     Find.WindowStack.Add(new FloatMenu(list));
+        // }
 
         // move operator button canvas for count input
         buttonRect.x = buttonRect.xMax + Margin;
