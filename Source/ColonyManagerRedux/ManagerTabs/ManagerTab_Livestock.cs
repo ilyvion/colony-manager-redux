@@ -150,12 +150,12 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var optionsColumnRect = new Rect(
             rect.xMin,
             rect.yMin,
-            rect.width * 3 / 5f,
+            rect.width * 4 / 7f,
             rect.height - Margin - ButtonSize.y);
         var animalsColumnRect = new Rect(
             optionsColumnRect.xMax,
             rect.yMin,
-            rect.width * 2 / 5f,
+            rect.width * 3 / 7f - 1,
             rect.height - Margin - ButtonSize.y);
         var buttonRect = new Rect(
             rect.xMax - ButtonSize.x,
@@ -177,6 +177,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             "ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader".Translate());
         Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawFollowSection,
             "ColonyManagerRedux.ManagerLivestock.FollowHeader".Translate());
+
+        position.y -= Margin;
 
         Widgets_Section.EndSectionColumn("Livestock.Options", position);
 
@@ -461,35 +463,81 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 Widgets.DrawHighlightSelected(row);
             }
 
-            // draw trainability icon
-            var iconRect = new Rect(row)
+            var upperIconRect = new Rect(row)
             {
+                x = viewRect.width - Margin - SmallIconSize,
                 width = SmallIconSize,
-                height = SmallIconSize
+                height = SmallIconSize,
             };
-            iconRect.y += LargeListEntryHeight / 2 - SmallIconSize / 2;
-            iconRect.x = viewRect.width - Margin - SmallIconSize;
+            upperIconRect.y += Margin;
+
+            // draw meat yield icon
+            var estimatedMeatCount = animalDef.EstimatedMeatCount();
+            Widgets.DefIcon(upperIconRect, animalDef.RaceProps.meatDef);
+            TooltipHandler.TipRegion(upperIconRect,
+                "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.meatDef.LabelCap,
+                    estimatedMeatCount));
+
+            // draw leather yield icon
+            upperIconRect.x -= Margin + SmallIconSize;
+            var estimatedLeatherCount = animalDef.EstimatedLeatherCount();
+            Widgets.DefIcon(upperIconRect, animalDef.RaceProps.leatherDef);
+            TooltipHandler.TipRegion(upperIconRect,
+                "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.leatherDef.LabelCap,
+                    estimatedLeatherCount));
+
+            // draw milk yield icon
+            var milkableProperties = animalDef.race.GetCompProperties<CompProperties_Milkable>();
+            if (milkableProperties != null)
+            {
+                upperIconRect.x -= Margin + SmallIconSize;
+                Widgets.DefIcon(upperIconRect, milkableProperties.milkDef);
+                TooltipHandler.TipRegion(upperIconRect,
+                    "ColonyManagerRedux.Livestock.YieldsInterval".Translate(milkableProperties.milkDef.LabelCap,
+                        milkableProperties.milkAmount, milkableProperties.milkIntervalDays));
+            }
+
+            // draw milk yield icon
+            var shearableProperties = animalDef.race.GetCompProperties<CompProperties_Shearable>();
+            if (shearableProperties != null)
+            {
+                upperIconRect.x -= Margin + SmallIconSize;
+                Widgets.DefIcon(upperIconRect, shearableProperties.woolDef);
+                TooltipHandler.TipRegion(upperIconRect,
+                    "ColonyManagerRedux.Livestock.YieldsInterval".Translate(shearableProperties.woolDef.LabelCap,
+                        shearableProperties.woolAmount, shearableProperties.shearIntervalDays));
+            }
+
+            var lowerIconRect = new Rect(row)
+            {
+                x = viewRect.width - Margin - SmallIconSize,
+                width = SmallIconSize,
+                height = SmallIconSize,
+            };
+            lowerIconRect.y += row.height - SmallIconSize - Margin;
+
+            // draw trainability icon
             if (animalDef.RaceProps.trainability == TrainabilityDefOf.Advanced)
             {
-                GUI.DrawTexture(iconRect, Resources.TrainableAdvancedIcon);
+                GUI.DrawTexture(lowerIconRect, Resources.TrainableAdvancedIcon);
             }
             else if (animalDef.RaceProps.trainability == TrainabilityDefOf.Intermediate)
             {
-                GUI.DrawTexture(iconRect, Resources.TrainableIntermediateIcon);
+                GUI.DrawTexture(lowerIconRect, Resources.TrainableIntermediateIcon);
             }
             else if (animalDef.RaceProps.trainability == TrainabilityDefOf.None)
             {
-                GUI.DrawTexture(iconRect, Resources.TrainableNoneIcon);
+                GUI.DrawTexture(lowerIconRect, Resources.TrainableNoneIcon);
             }
             else
             {
-                GUI.DrawTexture(iconRect, Resources.UnkownIcon);
+                GUI.DrawTexture(lowerIconRect, Resources.UnkownIcon);
             }
-            TooltipHandler.TipRegion(iconRect,
+            TooltipHandler.TipRegion(lowerIconRect,
                 "Trainability".Translate() + ": " + animalDef.RaceProps.trainability.LabelCap);
 
             // if aggressive, draw warning icon
-            iconRect.x -= Margin + SmallIconSize;
+            lowerIconRect.x -= Margin + SmallIconSize;
             if (animalDef.RaceProps.manhunterOnTameFailChance >= 0.1)
             {
                 var color = GUI.color;
@@ -502,9 +550,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     GUI.color = Resources.Orange;
                 }
 
-                GUI.DrawTexture(iconRect, Resources.ClawIcon);
+                GUI.DrawTexture(lowerIconRect, Resources.ClawIcon);
                 GUI.color = color;
-                TooltipHandler.TipRegion(iconRect, I18n.Aggressiveness(animalDef.RaceProps.manhunterOnTameFailChance));
+                TooltipHandler.TipRegion(lowerIconRect, I18n.Aggressiveness(animalDef.RaceProps.manhunterOnTameFailChance));
             }
 
             // draw label
@@ -881,6 +929,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             y = animalsColumnRect.height
         };
+        animalsColumnRect2.yMax -= Margin;
         animalsColumnRect.yMin += Margin;
         var headerRect = new Rect(animalsColumnRect.x, animalsColumnRect.y,
             animalsColumnRect.width, SectionHeaderHeight).RoundToInt();

@@ -21,6 +21,11 @@ internal static class Utilities_Hunting
         return EstimatedMeatCount(c.InnerPawn);
     }
 
+    public static int EstimatedLeatherCount(this PawnKindDef kind)
+    {
+        return (int)kind.race.GetStatValueAbstract(StatDefOf.LeatherAmount);
+    }
+
     internal static IEnumerable<PawnKindDef> GetAnimals(Map map)
     {
         return map.Biome.AllWildAnimals

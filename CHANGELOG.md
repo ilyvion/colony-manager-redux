@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Show progress bars on livestock tab.
 -   Show an alert when an AI manager has been constructed and there are still manager's desks constructed.
 -   Made it so that you can have overrides of default values per animal type for the Livestock jobs.
+-   Added expected resource icons to the available livestock animal list.
 
 ### Changed
 

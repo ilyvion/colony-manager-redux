@@ -51,6 +51,7 @@ public static class Resources
         FemaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_female"),
         MaleIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_male"),
         MeatIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_meat"),
+        LeatherIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_leather"),
         UnkownIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_unknown"),
         TrainableNoneIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_none"),
         TrainableIntermediateIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_intermediate"),
