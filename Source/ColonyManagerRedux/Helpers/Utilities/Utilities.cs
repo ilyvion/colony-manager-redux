@@ -59,12 +59,7 @@ public static class Utilities
             throw new ArgumentNullException(nameof(filter));
         }
 
-        var key = new MapStockpileFilter(filter, stockpile, countAllOnMap);
-        if (TryGetCached(map, key, out var count))
-        {
-            return count;
-        }
-
+        var count = 0;
         foreach (var td in filter.AllowedThingDefs)
         {
             // if it counts as a resource and we're not limited to a single stockpile, use the ingame counter (e.g. only steel in stockpiles.)
@@ -115,18 +110,6 @@ public static class Utilities
 
                     count += t.stackCount;
                 }
-            }
-
-            // update cache if exists.
-            var countCache = Manager.For(map).CountCache;
-            if (countCache.TryGetValue(key, out FilterCountCache? value))
-            {
-                value.Cache = count;
-                value.TimeSet = Find.TickManager.TicksGame;
-            }
-            else
-            {
-                countCache.Add(key, new FilterCountCache(count));
             }
         }
 
@@ -625,28 +608,4 @@ public static class Utilities
         }
         return true;
     }
-
-    private static bool TryGetCached(Map map, MapStockpileFilter mapStockpileFilter, out int count)
-    {
-        var countCache = Manager.For(map).CountCache;
-        if (countCache.TryGetValue(mapStockpileFilter, out FilterCountCache filterCountCache))
-        {
-            if (Find.TickManager.TicksGame - filterCountCache.TimeSet < 250)
-            {
-                count = filterCountCache.Cache;
-                return true;
-            }
-
-        }
-#if DEBUG_COUNTS
-        Log.Message("not cached");
-#endif
-        count = 0;
-        return false;
-    }
-
-    internal sealed record MapStockpileFilter(
-        ThingFilter Filter,
-        Zone_Stockpile? Stockpile,
-        bool CountAllOnMap = false);
 }

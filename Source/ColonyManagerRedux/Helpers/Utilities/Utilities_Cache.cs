@@ -128,6 +128,11 @@ public class CachedValue<T>
             Update(_updater());
         }
     }
+
+    internal void Invalidate()
+    {
+        _timeSet = null;
+    }
 }
 
 // count cache for multiple products

@@ -29,6 +29,7 @@ public class Trigger_Threshold : Trigger
     public int TargetCount;
 
     public ThingFilter ThresholdFilter;
+    private CachedValue<int> _cachedCurrentCount = new(0);
 
     private string? _stockpile_scribe;
 
@@ -45,7 +46,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter = new ThingFilter();
         ParentFilter.SetDisallowAll();
 
-        ThresholdFilter = new ThingFilter();
+        ThresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
         ThresholdFilter.SetDisallowAll();
 
         Op = Ops.LowerThan;
@@ -53,7 +54,24 @@ public class Trigger_Threshold : Trigger
         TargetCount = settings.DefaultTargetCount;
     }
 
-    public int CurrentCount => job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
+    private void ThresholdFilter_SettingsChanged()
+    {
+        _cachedCurrentCount.Invalidate();
+    }
+    public int CurrentCount
+    {
+        get
+        {
+            if (_cachedCurrentCount.TryGetValue(out var value))
+            {
+                return value;
+            }
+
+            int count = job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
+            _cachedCurrentCount.Update(count);
+            return count;
+        }
+    }
 
     public WindowTriggerThresholdDetails DetailsWindow
     {

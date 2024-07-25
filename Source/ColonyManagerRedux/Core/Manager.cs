@@ -30,8 +30,6 @@ public class Manager : MapComponent, ILoadReferenceable
 
     internal DebugComponent debugComponent;
 
-    internal Dictionary<Utilities.MapStockpileFilter, FilterCountCache> CountCache = [];
-
     public Manager(Map map) : base(map)
     {
         if (map == null)
