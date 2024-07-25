@@ -171,7 +171,12 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return true;
     }
 
-    public void AddDesignation(Designation designation)
+    private void AddDesignation(Thing target, DesignationDef designationDef)
+    {
+        AddDesignation(new Designation(target, designationDef));
+    }
+
+    private void AddDesignation(Designation designation)
     {
         DesignationManager designationManager = Manager.map.designationManager;
         if (designation.def.targetType == TargetType.Thing && !designationManager.HasMapDesignationOn(designation.target.Thing))
@@ -776,21 +781,6 @@ internal sealed class ManagerJob_Mining : ManagerJob
         }
 
         return workDone;
-    }
-
-
-    private void AddDesignation(Thing target, DesignationDef designationDef)
-    {
-        if (designationDef == DesignationDefOf.Deconstruct)
-        {
-            var building = target as Building;
-            if (building?.ClaimableBy(Faction.OfPlayer) ?? false)
-            {
-                building.SetFaction(Faction.OfPlayer);
-            }
-        }
-
-        AddDesignation(new Designation(target, designationDef));
     }
 
     private static bool RegionsAreClose(Region start, Region end, int depth = 0)
