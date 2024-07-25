@@ -79,7 +79,11 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         ManagerJob_Mining miningJob = (ManagerJob_Mining)job;
         if (miningJob.DeconstructBuildings)
         {
-            subLabel += "\n\n" + string.Join(", ", miningJob.AllowedBuildings
+            if (!string.IsNullOrEmpty(subLabel))
+            {
+                subLabel += "\n\n";
+            }
+            subLabel += string.Join(", ", miningJob.AllowedBuildings
                 .Select(pk => pk.LabelCap.Resolve()));
         }
         return subLabel;
@@ -329,11 +333,14 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         }
 
         Widgets_Section.Section(ref position, width, DrawAllowedMineralsShortcuts,
-                                 "ColonyManagerRedux.ManagerMining.AllowedMinerals".Translate());
+            "ColonyManagerRedux.ManagerMining.AllowedMinerals".Translate());
         Widgets_Section.Section(ref position, width, DrawAllowedMinerals);
-        Widgets_Section.Section(ref position, width, DrawAllowedBuildingsShortcuts,
-                                 "ColonyManagerRedux.ManagerMining.AllowedBuildings".Translate());
-        Widgets_Section.Section(ref position, width, DrawAllowedBuildings);
+        if (SelectedMiningJob.DeconstructBuildings)
+        {
+            Widgets_Section.Section(ref position, width, DrawAllowedBuildingsShortcuts,
+                "ColonyManagerRedux.ManagerMining.AllowedBuildings".Translate());
+            Widgets_Section.Section(ref position, width, DrawAllowedBuildings);
+        }
         Widgets_Section.EndSectionColumn("Mining.Minerals", position);
 
         if (Prefs.DevMode && Widgets.ButtonText(debugButtonRect, "DEV: Debug Options"))
