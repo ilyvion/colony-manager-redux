@@ -7,6 +7,7 @@ using Verse.Sound;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public static class StockpileGUI
 {
     private static List<Texture2D>? textures;
@@ -92,7 +93,7 @@ public static class StockpileGUI
         {
             if (zone != null)
             {
-                if (zone.AllSlotCellsList() != null && zone.AllSlotCellsList().Count > 0)
+                if (zone.AllSlotCellsList() != null && zone.AllSlotCellsList().Count > 0 && Input.GetMouseButton(0))
                 {
                     CameraJumper.TryJump(zone.Cells.First(), zone.Map);
                 }
