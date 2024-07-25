@@ -78,13 +78,16 @@ internal static class Utilities_Livestock
         }
 
         // if not, set up a cache
-        IEnumerable<Pawn> getter() => map.mapPawns.AllPawns
-            .Where(p => p.RaceProps.Animal    // is animal
-                    && !p.Dead               // is alive
-                    && p.kindDef == pawnKind // is our managed pawnkind
+        IEnumerable<Pawn> getter() => map.mapPawns.AllPawnsSpawned
+            .Where(p => p.RaceProps.Animal          // is animal
+                    && !p.Dead                      // is alive
+                    && p.kindDef == pawnKind        // is our managed pawnkind
                     && !(p.Faction == Faction.OfPlayer &&
-                            p.HasExtraHomeFaction()
-                            )); // was not borrowed to us
+                            p.HasExtraHomeFaction() // was not borrowed to us
+                        )
+                    && !p.IsHiddenFromPlayer()      // is not hidden from us
+                    && !p.Position.Fogged(map)      // is somewhere we can see
+                );
 
         AllCache.Add(key, getter);
         return getter();
