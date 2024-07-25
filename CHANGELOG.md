@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   AI manager gives off a bit of heat.
 -   AI manager now costs 750 W when doing work, but only 250 W when idle.
 -   Use a proper PawnTable for rendering animal details in the livestock tab rather than a custom table.
+-   Manager job is now a higher priority job (placed between Warden and Handle). Managing is essential for running the colony well, so it being behind research in default priority makes it rather unlikely to happen in a busy colony. A player can always manually make it a lower priority job if they so desire.
 
 ### Fixed
 

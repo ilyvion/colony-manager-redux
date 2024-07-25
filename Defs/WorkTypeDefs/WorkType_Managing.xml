@@ -8,7 +8,7 @@
         <gerundLabel>managing</gerundLabel>
         <description>Managers assign jobs and orders to your colony.</description>
         <verb>Manage at</verb>
-        <naturalPriority>95</naturalPriority>
+        <naturalPriority>1075</naturalPriority>
         <relevantSkills>
             <li>Social</li>
             <li>Intellectual</li>
