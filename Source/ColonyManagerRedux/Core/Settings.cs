@@ -313,6 +313,7 @@ public class Settings : ModSettings
         };
     }
 
+    // TODO: Refactor ManagerJob to call this in the base class(?)
     public T? ManagerJobSettingsFor<T>(ManagerDef def) where T : ManagerJobSettings
     {
         return _jobSettings.Find(s => s.def == def) as T;

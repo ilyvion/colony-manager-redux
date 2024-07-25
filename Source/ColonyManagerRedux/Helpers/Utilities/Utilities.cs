@@ -198,7 +198,6 @@ public static class Utilities
         if (!job.IsSuspended && !job.IsCompleted)
         {
             // draw update interval
-            var timeSinceLastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
             UpdateInterval.Draw(lastUpdateRect, job, exporting);
         }
     }

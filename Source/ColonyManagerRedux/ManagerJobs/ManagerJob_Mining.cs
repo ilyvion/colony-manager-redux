@@ -88,7 +88,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public override void PostMake()
     {
-        var miningSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Mining>(def);
+        var miningSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Mining>(Def);
         if (miningSettings != null)
         {
             SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;

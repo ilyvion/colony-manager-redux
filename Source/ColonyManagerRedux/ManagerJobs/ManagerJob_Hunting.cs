@@ -73,7 +73,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
     public override void PostMake()
     {
-        var huntingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Hunting>(def);
+        var huntingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Hunting>(Def);
         if (huntingSettings != null)
         {
             UnforbidCorpses = huntingSettings.DefaultUnforbidCorpses;

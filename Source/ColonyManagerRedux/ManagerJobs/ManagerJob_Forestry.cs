@@ -75,7 +75,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public override void PostMake()
     {
-        var forestrySettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Forestry>(def);
+        var forestrySettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Forestry>(Def);
         if (forestrySettings != null)
         {
             _type = forestrySettings.DefaultForestryJobType;

@@ -10,18 +10,23 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
-    public ManagerDef def;
+    internal ManagerDef _def;
+    public ManagerDef Def => _def;
 
     private List<ManagerJobComp>? _comps;
 
     public bool ShouldCheckReachable;
 
-    public int LastActionTick = -1;
+    private int _lastActionTick = -1;
+    public int TimeSinceLastUpdate => Find.TickManager.TicksGame - _lastActionTick;
+    public bool HasBeenUpdated => _lastActionTick != -1;
 
-    public Manager Manager;
+    internal Manager _manager;
+    public Manager Manager => _manager;
+
     public bool UsePathBasedDistance;
 
-    public int Priority;
+    internal int Priority;
 
     private bool _isSuspended;
 
@@ -31,13 +36,13 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     private int _loadID = -1;
     private bool isManaged;
 
-    private Trigger? trigger;
+    private Trigger? _trigger;
     public Trigger? Trigger
     {
-        get => trigger;
-        set
+        get => _trigger;
+        protected set
         {
-            trigger = value;
+            _trigger = value;
         }
     }
 
@@ -54,7 +59,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             Touch();
         }
 
-        Manager = manager;
+        _manager = manager;
     }
 
     public abstract bool IsCompleted { get; }
@@ -76,7 +81,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public virtual bool ShouldDoNow => IsManaged && !IsSuspended && !IsCompleted && ShouldUpdate;
 
-    private bool ShouldUpdate => LastActionTick < 0 || ((LastActionTick + UpdateInterval.ticks) < Find.TickManager.TicksGame);
+    private bool ShouldUpdate => _lastActionTick < 0 || ((_lastActionTick + UpdateInterval.ticks) < Find.TickManager.TicksGame);
 
     public virtual bool IsSuspended
     {
@@ -84,7 +89,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         set => _isSuspended = value;
     }
 
-    public ManagerTab Tab => Manager.Tabs.First(tab => tab.GetType() == def.managerTabClass);
+    public ManagerTab Tab => Manager.Tabs.First(tab => tab.GetType() == _def.managerTabClass);
     public abstract IEnumerable<string> Targets { get; }
 
     public virtual UpdateInterval UpdateInterval
@@ -99,10 +104,10 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     internal void Initialize()
     {
-        if (def.comps.Any())
+        if (_def.comps.Any())
         {
             _comps = [];
-            foreach (var compProperties in def.comps)
+            foreach (var compProperties in _def.comps)
             {
                 ManagerJobComp? managerJobComp = null;
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -160,13 +165,13 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             _updateIntervalScribe = UpdateInterval.ticks;
         }
 
-        Scribe_Defs.Look(ref def, "def");
-        if (def == null)
+        Scribe_Defs.Look(ref _def, "def");
+        if (_def == null)
         {
             return;
         }
 
-        Scribe_Deep.Look(ref trigger, "trigger", this);
+        Scribe_Deep.Look(ref _trigger, "trigger", this);
         Scribe_Values.Look(ref _updateIntervalScribe, "updateInterval");
         Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
@@ -174,8 +179,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         if (Manager.Mode == Manager.ScribingMode.Normal)
         {
             Scribe_Values.Look(ref _loadID, "loadID", 0);
-            Scribe_References.Look(ref Manager, "manager");
-            Scribe_Values.Look(ref LastActionTick, "lastActionTick");
+            Scribe_References.Look(ref _manager, "manager");
+            Scribe_Values.Look(ref _lastActionTick, "lastActionTick");
             Scribe_Values.Look(ref Priority, "priority");
             Scribe_Values.Look(ref _isSuspended, "isSuspended");
 
@@ -272,7 +277,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         var s = new StringBuilder();
         s.AppendLine("Priority: " + Priority);
         s.AppendLine("Active: " + IsSuspended);
-        s.AppendLine("LastAction: " + LastActionTick);
+        s.AppendLine("LastAction: " + _lastActionTick);
         s.AppendLine("Interval: " + UpdateInterval);
         s.AppendLine("GameTick: " + Find.TickManager.TicksGame);
         return s.ToString();
@@ -280,7 +285,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public void Touch()
     {
-        LastActionTick = Find.TickManager.TicksGame;
+        _lastActionTick = Find.TickManager.TicksGame;
     }
 
     public string GetUniqueLoadID()

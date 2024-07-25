@@ -66,7 +66,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public override void PostMake()
     {
-        var foragingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Foraging>(def);
+        var foragingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Foraging>(Def);
         if (foragingSettings != null)
         {
             SyncFilterAndAllowed = foragingSettings.DefaultSyncFilterAndAllowed;

@@ -147,7 +147,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     public override void PostMake()
     {
-        var livestockSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(def);
+        var livestockSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(Def);
         if (livestockSettings != null)
         {
             PawnKindDef pawnKind = TriggerPawnKind.pawnKind;

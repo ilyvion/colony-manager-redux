@@ -43,10 +43,10 @@ public class UpdateInterval(int ticks, string label)
 
             lastUpdateTooltip = "";
         }
-        else if (job.LastActionTick != -1)
+        else if (job.HasBeenUpdated)
         {
             // how many hours have passed since the last update?
-            var lastUpdate = Find.TickManager.TicksGame - job.LastActionTick;
+            var lastUpdate = job.TimeSinceLastUpdate;
             var progress = (float)lastUpdate / GenDate.TicksPerHour;
 
             // how far over time are we? Draw redder if further over time.
