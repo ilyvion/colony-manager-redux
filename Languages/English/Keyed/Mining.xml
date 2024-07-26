@@ -5,8 +5,11 @@
     <ColonyManagerRedux.ManagerMining.HealthAndSafety>Health and Safety</ColonyManagerRedux.ManagerMining.HealthAndSafety>
     <ColonyManagerRedux.ManagerMining.AllowedMinerals>Minerals</ColonyManagerRedux.ManagerMining.AllowedMinerals>
     <ColonyManagerRedux.ManagerMining.AllowedBuildings>Buildings</ColonyManagerRedux.ManagerMining.AllowedBuildings>
-    <ColonyManagerRedux.ManagerMining.HaulChunks>Designate chunks for hauling</ColonyManagerRedux.ManagerMining.HaulChunks>
-    <ColonyManagerRedux.ManagerMining.HaulChunks.Tip>Should mining jobs that result in chunks (e.g. mining for stone) automatically mark the resulting chunks for hauling? This setting will only apply to mining jobs that the colony manager is tracking (though note that an originally manually designated mining job can be "taken over" by a manager) and where the threshold is configured to allow that type of chunk.</ColonyManagerRedux.ManagerMining.HaulChunks.Tip>
+    <ColonyManagerRedux.ManagerMining.Chunks>Chunks</ColonyManagerRedux.ManagerMining.Chunks>
+    <ColonyManagerRedux.ManagerMining.HaulMapChunks>Designate chunks on the map for hauling</ColonyManagerRedux.ManagerMining.HaulMapChunks>
+    <ColonyManagerRedux.ManagerMining.HaulMapChunks.Tip>If there are any relevant chunks present on the map that are not already in storage, mark them for hauling to satisfy a threshold.</ColonyManagerRedux.ManagerMining.HaulMapChunks.Tip>
+    <ColonyManagerRedux.ManagerMining.HaulMinedChunks>Designate mined chunks for hauling</ColonyManagerRedux.ManagerMining.HaulMinedChunks>
+    <ColonyManagerRedux.ManagerMining.HaulMinedChunks.Tip>Should mining jobs that result in chunks (e.g. mining for stone) automatically mark the resulting chunks for hauling? This setting will only apply to mining jobs that the colony manager is tracking (though note that an originally manually designated mining job can be "taken over" by a manager) and where the threshold is configured to allow that type of chunk.</ColonyManagerRedux.ManagerMining.HaulMinedChunks.Tip>
     <ColonyManagerRedux.ManagerMining.DeconstructBuildings>Deconstruct buildings</ColonyManagerRedux.ManagerMining.DeconstructBuildings>
     <ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>Should unclaimed buildings be deconstructed for salvage?</ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>
     <ColonyManagerRedux.ManagerMining.CheckRoofSupport>Leave roof supports</ColonyManagerRedux.ManagerMining.CheckRoofSupport>

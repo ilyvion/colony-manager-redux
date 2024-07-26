@@ -90,6 +90,11 @@ public static class Utilities
                         continue;
                     }
 
+                    if (!countAllOnMap && !t.IsInAnyStorage())
+                    {
+                        continue;
+                    }
+
                     if (t.TryGetQuality(out QualityCategory quality))
                     {
                         if (!filter.AllowedQualityLevels.Includes(quality))

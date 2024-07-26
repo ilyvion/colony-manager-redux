@@ -194,6 +194,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
+            TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             ConfigureThresholdTriggerParentFilter();
         }
     }
@@ -375,7 +376,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     private void ConfigureThresholdTrigger()
     {
-        TriggerThreshold.ThresholdFilter = new ThingFilter(Notify_ThresholdFilterChanged);
+        TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
         TriggerThreshold.ThresholdFilter.SetDisallowAll();
         if (Scribe.mode == LoadSaveMode.Inactive)
         {

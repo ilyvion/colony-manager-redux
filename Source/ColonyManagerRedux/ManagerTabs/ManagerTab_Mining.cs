@@ -184,14 +184,23 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         return rowRect.yMax - start.y;
     }
 
-    public float DrawHaulChunks(Vector2 pos, float width)
+    public float DrawChunks(Vector2 pos, float width)
     {
+        var start = pos;
+
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
-                              "ColonyManagerRedux.ManagerMining.HaulChunks".Translate(),
-                              "ColonyManagerRedux.ManagerMining.HaulChunks.Tip".Translate(),
-                              ref SelectedMiningJob.HaulChunks);
-        return ListEntryHeight;
+            "ColonyManagerRedux.ManagerMining.HaulMapChunks".Translate(),
+            "ColonyManagerRedux.ManagerMining.HaulMapChunks.Tip".Translate(),
+            ref SelectedMiningJob.HaulMapChunks);
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(rowRect,
+            "ColonyManagerRedux.ManagerMining.HaulMinedChunks".Translate(),
+            "ColonyManagerRedux.ManagerMining.HaulMinedChunks.Tip".Translate(),
+            ref SelectedMiningJob.HaulMinedChunks);
+
+        return rowRect.yMax - pos.y;
     }
 
     public float DrawDeconstructBuildings(Vector2 pos, float width)
@@ -255,13 +264,13 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         var targetCount = SelectedMiningJob.TriggerThreshold.TargetCount;
 
         SelectedMiningJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
-                                             "ColonyManagerRedux.ManagerMining.TargetCount".Translate(
-                                                 currentCount, chunkCount, designatedCount, targetCount),
-                                             "ColonyManagerRedux.ManagerMining.TargetCount.Tip".Translate(
-                                                 currentCount, chunkCount, designatedCount, targetCount),
-                                             SelectedMiningJob.Designations,
-                                             delegate { SelectedMiningJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
-                                             SelectedMiningJob.DesignationLabel);
+            "ColonyManagerRedux.ManagerMining.TargetCount".Translate(
+                currentCount, chunkCount, designatedCount, targetCount),
+            "ColonyManagerRedux.ManagerMining.TargetCount.Tip".Translate(
+                currentCount, chunkCount, designatedCount, targetCount),
+            SelectedMiningJob.Designations,
+            delegate { SelectedMiningJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
+            SelectedMiningJob.DesignationLabel);
 
         Utilities.DrawToggle(ref pos, width,
                               "ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed".Translate(),
@@ -325,7 +334,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         // options
         Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.ManagerThreshold".Translate());
-        Widgets_Section.Section(ref position, width, DrawHaulChunks);
+        Widgets_Section.Section(ref position, width, DrawChunks, "ColonyManagerRedux.ManagerMining.Chunks".Translate());
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
         Widgets_Section.Section(ref position, width, DrawMiningArea, "ColonyManagerRedux.ManagerMining.MiningArea".Translate());
         Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.ManagerMining.HealthAndSafety".Translate());

@@ -21,5 +21,6 @@
     <ColonyManagerRedux.LivestockJobSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.LivestockJobSettings.AddOverride>
     <ColonyManagerRedux.LivestockJobSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.LivestockJobSettings.DeleteOverrideFor>
 
+    <ColonyManagerRedux.ManagerMining.DefaultChunks>Default chunks</ColonyManagerRedux.ManagerMining.DefaultChunks>
     <ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>
 </LanguageData>

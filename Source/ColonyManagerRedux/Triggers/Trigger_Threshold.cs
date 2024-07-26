@@ -28,10 +28,13 @@ public class Trigger_Threshold : Trigger
 
     public int TargetCount;
 
-    public ThingFilter ThresholdFilter;
+    private ThingFilter thresholdFilter;
+    public ThingFilter ThresholdFilter { get => thresholdFilter; }
     private CachedValue<int> _cachedCurrentCount = new(0);
 
     private string? _stockpile_scribe;
+
+    public Action? SettingsChanged;
 
     public Trigger_Threshold(ManagerJob job) : base(job)
     {
@@ -46,7 +49,7 @@ public class Trigger_Threshold : Trigger
         ParentFilter = new ThingFilter();
         ParentFilter.SetDisallowAll();
 
-        ThresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
+        thresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
         ThresholdFilter.SetDisallowAll();
 
         Op = Ops.LowerThan;
@@ -57,7 +60,9 @@ public class Trigger_Threshold : Trigger
     private void ThresholdFilter_SettingsChanged()
     {
         _cachedCurrentCount.Invalidate();
+        SettingsChanged?.Invoke();
     }
+
     public int CurrentCount
     {
         get
@@ -68,6 +73,7 @@ public class Trigger_Threshold : Trigger
             }
 
             int count = job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
+            Logger.Debug("New count: " + count);
             _cachedCurrentCount.Update(count);
             return count;
         }
@@ -224,7 +230,13 @@ public class Trigger_Threshold : Trigger
                         var thing = designation.target.Thing;
                         option = designationLabelGetter?.Invoke(designation) ?? thing.LabelCap;
                         onClick += () => CameraJumper.TryJumpAndSelect(thing);
-                        onHover += (c) => CameraJumper.TryJump(thing);
+                        onHover += (c) =>
+                        {
+                            if (!Find.CameraDriver.IsPanning())
+                            {
+                                CameraJumper.TryJump(thing);
+                            }
+                        };
                     }
                     else
                     {
@@ -261,7 +273,7 @@ public class Trigger_Threshold : Trigger
         Scribe_Values.Look(ref TargetCount, "count");
         Scribe_Values.Look(ref MaxUpperThreshold, "maxUpperThreshold");
         Scribe_Values.Look(ref Op, "operator");
-        Scribe_Deep.Look(ref ThresholdFilter, "thresholdFilter", (object)ThresholdFilter_SettingsChanged);
+        Scribe_Deep.Look(ref thresholdFilter, "thresholdFilter", (object)ThresholdFilter_SettingsChanged);
         Scribe_Values.Look(ref CountAllOnMap, "countAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
