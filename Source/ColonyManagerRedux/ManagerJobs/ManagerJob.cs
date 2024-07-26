@@ -288,6 +288,11 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         _lastActionTick = Find.TickManager.TicksGame;
     }
 
+    public void Untouch()
+    {
+        _lastActionTick = -1;
+    }
+
     public string GetUniqueLoadID()
     {
         return $"ColonyManagerRedux_ManagerJob_{Manager.id}_{_loadID}";

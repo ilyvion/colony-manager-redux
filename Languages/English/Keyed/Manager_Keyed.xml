@@ -21,7 +21,8 @@
     <ColonyManagerRedux.ManagerNeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.ManagerNeverUpdatedTooltip>
     <ColonyManagerRedux.ManagerLastUpdateTooltip>This job was last updated {0} ago.</ColonyManagerRedux.ManagerLastUpdateTooltip>
     <ColonyManagerRedux.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.ScheduledToBeUpdatedTooltip>
-    <ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>Click to change update interval.</ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>
+    <ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>
+    <ColonyManagerRedux.ForceUpdate>Force update now</ColonyManagerRedux.ForceUpdate>
     <ColonyManagerRedux.ManagerOrderUp>Increase job priority</ColonyManagerRedux.ManagerOrderUp>
     <ColonyManagerRedux.ManagerOrderDown>Decrease job priority</ColonyManagerRedux.ManagerOrderDown>
     <ColonyManagerRedux.ManagerOrderTop>Maximum priority</ColonyManagerRedux.ManagerOrderTop>
