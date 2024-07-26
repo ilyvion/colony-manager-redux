@@ -48,20 +48,20 @@
     <ColonyManagerRedux.ManagerYearly>Yearly</ColonyManagerRedux.ManagerYearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistoryPeriod>Period</ColonyManagerRedux.ManagerHistoryPeriod>
-    <ColonyManagerRedux.ManagerHistoryShowHideLegend>Show/Hide legend</ColonyManagerRedux.ManagerHistoryShowHideLegend>
-    <ColonyManagerRedux.ManagerHistoryShow>show</ColonyManagerRedux.ManagerHistoryShow>
-    <ColonyManagerRedux.ManagerHistoryHide>hide</ColonyManagerRedux.ManagerHistoryHide>
-    <ColonyManagerRedux.ManagerHistoryClickToEnable>Click to {0} {1} in plot.\nRight click to show only {1}.</ColonyManagerRedux.ManagerHistoryClickToEnable>
-    <ColonyManagerRedux.ManagerHistoryNoChapters>Nothing to show!</ColonyManagerRedux.ManagerHistoryNoChapters>
-    <ColonyManagerRedux.ManagerHistoryValueTooltip>{0}: {1}</ColonyManagerRedux.ManagerHistoryValueTooltip>
-    <ColonyManagerRedux.ManagerHistoryTargetTooltip>{0} target: {1}</ColonyManagerRedux.ManagerHistoryTargetTooltip>
+    <ColonyManagerRedux.ManagerHistory.Period>Period</ColonyManagerRedux.ManagerHistory.Period>
+    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>Show/Hide legend</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
+    <ColonyManagerRedux.ManagerHistory.Show>show</ColonyManagerRedux.ManagerHistory.Show>
+    <ColonyManagerRedux.ManagerHistory.Hide>hide</ColonyManagerRedux.ManagerHistory.Hide>
+    <ColonyManagerRedux.ManagerHistory.ClickToEnable>Click to {0} {1} in plot.\nRight click to show only {1}.</ColonyManagerRedux.ManagerHistory.ClickToEnable>
+    <ColonyManagerRedux.ManagerHistory.NoChapters>Nothing to show!</ColonyManagerRedux.ManagerHistory.NoChapters>
+    <ColonyManagerRedux.ManagerHistory.ValueTooltip>{0}: {1}</ColonyManagerRedux.ManagerHistory.ValueTooltip>
+    <ColonyManagerRedux.ManagerHistory.TargetTooltip>{0} target: {1}</ColonyManagerRedux.ManagerHistory.TargetTooltip>
+    <ColonyManagerRedux.ManagerHistory.PeriodShown.Day>day</ColonyManagerRedux.ManagerHistory.PeriodShown.Day>
+    <ColonyManagerRedux.ManagerHistory.PeriodShown.Month>month</ColonyManagerRedux.ManagerHistory.PeriodShown.Month>
+    <ColonyManagerRedux.ManagerHistory.PeriodShown.Year>year</ColonyManagerRedux.ManagerHistory.PeriodShown.Year>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>Period</ColonyManagerRedux.Energy.PeriodShown>
-    <ColonyManagerRedux.Energy.PeriodShown.Day>day</ColonyManagerRedux.Energy.PeriodShown.Day>
-    <ColonyManagerRedux.Energy.PeriodShown.Month>month</ColonyManagerRedux.Energy.PeriodShown.Month>
-    <ColonyManagerRedux.Energy.PeriodShown.Year>year</ColonyManagerRedux.Energy.PeriodShown.Year>
     <ColonyManagerRedux.Energy.PeriodShownTooltip>Currently showing power production and consumption for the last {0}.\n\nClick to change the period.</ColonyManagerRedux.Energy.PeriodShownTooltip>
     <ColonyManagerRedux.Energy.Power>Power</ColonyManagerRedux.Energy.Power>
     <ColonyManagerRedux.Energy.NotResearched>Power management has not been researched</ColonyManagerRedux.Energy.NotResearched>

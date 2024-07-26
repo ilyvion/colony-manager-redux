@@ -42,10 +42,10 @@
     <ColonyManagerRedux.ManagerYearly>Ежегодно</ColonyManagerRedux.ManagerYearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistoryPeriod>Период</ColonyManagerRedux.ManagerHistoryPeriod>
-    <ColonyManagerRedux.ManagerHistoryShowHideLegend>Показать/скрыть легенду</ColonyManagerRedux.ManagerHistoryShowHideLegend>
-    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\nНажмите {0} {1} в графике.\nПравый клик - показать только {1}.</ColonyManagerRedux.ManagerHistoryClickToEnable>
-    <ColonyManagerRedux.ManagerHistoryNoChapters>Нечего отображать.</ColonyManagerRedux.ManagerHistoryNoChapters>
+    <ColonyManagerRedux.ManagerHistory.Period>Период</ColonyManagerRedux.ManagerHistory.Period>
+    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>Показать/скрыть легенду</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
+    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\nНажмите {0} {1} в графике.\nПравый клик - показать только {1}.</ColonyManagerRedux.ManagerHistory.ClickToEnable>
+    <ColonyManagerRedux.ManagerHistory.NoChapters>Нечего отображать.</ColonyManagerRedux.ManagerHistory.NoChapters>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>Период: {0}</ColonyManagerRedux.Energy.PeriodShown>

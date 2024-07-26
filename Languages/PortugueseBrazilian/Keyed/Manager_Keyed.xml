@@ -42,10 +42,10 @@
     <ColonyManagerRedux.ManagerYearly>Anualmente</ColonyManagerRedux.ManagerYearly>
 
     <!-- Gráficos da história -->
-    <ColonyManagerRedux.ManagerHistoryPeriod>Período</ColonyManagerRedux.ManagerHistoryPeriod>
-    <ColonyManagerRedux.ManagerHistoryShowHideLegend>Mostrar/ocultar legenda</ColonyManagerRedux.ManagerHistoryShowHideLegend>
-    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\nClique {0} {1} no gráfico\nO botão direito -. Mostrar só o {1}</ColonyManagerRedux.ManagerHistoryClickToEnable>
-    <ColonyManagerRedux.ManagerHistoryNoChapters>Nada a mostrar.</ColonyManagerRedux.ManagerHistoryNoChapters>
+    <ColonyManagerRedux.ManagerHistory.Period>Período</ColonyManagerRedux.ManagerHistory.Period>
+    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>Mostrar/ocultar legenda</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
+    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\nClique {0} {1} no gráfico\nO botão direito -. Mostrar só o {1}</ColonyManagerRedux.ManagerHistory.ClickToEnable>
+    <ColonyManagerRedux.ManagerHistory.NoChapters>Nada a mostrar.</ColonyManagerRedux.ManagerHistory.NoChapters>
 
     <!-- Guia de energia (E para energia) -->
     <ColonyManagerRedux.Energy.PeriodShown>Período: {0}</ColonyManagerRedux.Energy.PeriodShown>

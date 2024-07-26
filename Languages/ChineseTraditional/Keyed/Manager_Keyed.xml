@@ -30,10 +30,10 @@
     <ColonyManagerRedux.ManagerYearly>每年</ColonyManagerRedux.ManagerYearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistoryPeriod>時間段</ColonyManagerRedux.ManagerHistoryPeriod>
-    <ColonyManagerRedux.ManagerHistoryShowHideLegend>顯示/隱藏圖例</ColonyManagerRedux.ManagerHistoryShowHideLegend>
-    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\n點擊以在面板{0}{1}。\n右鍵點擊以只顯示{1}。</ColonyManagerRedux.ManagerHistoryClickToEnable>
-    <ColonyManagerRedux.ManagerHistoryNoChapters>沒有可顯示的信息！</ColonyManagerRedux.ManagerHistoryNoChapters>
+    <ColonyManagerRedux.ManagerHistory.Period>時間段</ColonyManagerRedux.ManagerHistory.Period>
+    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>顯示/隱藏圖例</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
+    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\n點擊以在面板{0}{1}。\n右鍵點擊以只顯示{1}。</ColonyManagerRedux.ManagerHistory.ClickToEnable>
+    <ColonyManagerRedux.ManagerHistory.NoChapters>沒有可顯示的信息！</ColonyManagerRedux.ManagerHistory.NoChapters>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>時間段：{0}</ColonyManagerRedux.Energy.PeriodShown>

@@ -42,10 +42,10 @@
     <ColonyManagerRedux.ManagerYearly>매년</ColonyManagerRedux.ManagerYearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistoryPeriod>주기</ColonyManagerRedux.ManagerHistoryPeriod>
-    <ColonyManagerRedux.ManagerHistoryShowHideLegend>범례 보기/숨기기</ColonyManagerRedux.ManagerHistoryShowHideLegend>
-    <ColonyManagerRedux.ManagerHistoryClickToEnable>\n\클릭해서 {0} {1} 그래프 그리기.\n오른쪽 클릭으로 {1}만 보기.</ColonyManagerRedux.ManagerHistoryClickToEnable>
-    <ColonyManagerRedux.ManagerHistoryNoChapters>보여줄 것이 없습니다!</ColonyManagerRedux.ManagerHistoryNoChapters>
+    <ColonyManagerRedux.ManagerHistory.Period>주기</ColonyManagerRedux.ManagerHistory.Period>
+    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>범례 보기/숨기기</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
+    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\클릭해서 {0} {1} 그래프 그리기.\n오른쪽 클릭으로 {1}만 보기.</ColonyManagerRedux.ManagerHistory.ClickToEnable>
+    <ColonyManagerRedux.ManagerHistory.NoChapters>보여줄 것이 없습니다!</ColonyManagerRedux.ManagerHistory.NoChapters>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>주기: {0}</ColonyManagerRedux.Energy.PeriodShown>
