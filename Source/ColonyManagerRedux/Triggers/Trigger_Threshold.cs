@@ -234,7 +234,13 @@ public class Trigger_Threshold : Trigger
                         // so I suppose it doesn't matter -- ColonyManagerRedux.
                         option = designationLabelGetter?.Invoke(designation) ?? cell.GetTerrain(map).LabelCap;
                         onClick += () => CameraJumper.TryJump(cell, map);
-                        onHover += (c) => CameraJumper.TryJump(cell, map);
+                        onHover += (c) =>
+                        {
+                            if (!Find.CameraDriver.IsPanning())
+                            {
+                                CameraJumper.TryJump(cell, map);
+                            }
+                        };
                     }
 
                     options.Add(new FloatMenuOption(option, onClick, MenuOptionPriority.Default, onHover));

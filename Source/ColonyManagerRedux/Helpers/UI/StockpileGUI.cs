@@ -31,6 +31,8 @@ public static class StockpileGUI
             CreateTextures(allStockpiles);
         }
 
+        mouseOverZone = null;
+
         var widthPerCell = rect.width / areaCount;
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
@@ -47,6 +49,18 @@ public static class StockpileGUI
 
         Text.WordWrap = true;
         Text.Font = GameFont.Small;
+    }
+
+
+    private static bool addedPostDrawSelectionOverlaysAction;
+    private static Zone? mouseOverZone;
+
+    private static void PostDrawSelectionOverlays()
+    {
+        if (mouseOverZone != null && !Find.Selector.IsSelected(mouseOverZone))
+        {
+            GenDraw.DrawFieldEdges(mouseOverZone.Cells, Color.gray);
+        }
     }
 
     [MemberNotNull(nameof(textures))]
@@ -76,6 +90,12 @@ public static class StockpileGUI
     private static void DoZoneSelector(Rect rect, ref Zone_Stockpile? zoneAllowed, Zone_Stockpile? zone,
                                         Texture2D tex)
     {
+        if (!addedPostDrawSelectionOverlaysAction)
+        {
+            RimWorld_SelectionDrawer_DrawSelectionOverlays.PostDrawSelectionOverlaysActions.Add(PostDrawSelectionOverlays);
+            addedPostDrawSelectionOverlaysAction = true;
+        }
+
         rect = rect.ContractedBy(1f);
         GUI.DrawTexture(rect, tex);
         Text.Anchor = TextAnchor.MiddleLeft;
@@ -93,9 +113,13 @@ public static class StockpileGUI
         {
             if (zone != null)
             {
-                if (zone.AllSlotCellsList() != null && zone.AllSlotCellsList().Count > 0 && Input.GetMouseButton(0))
+                mouseOverZone = zone;
+                if (zone.AllSlotCellsList() != null && zone.AllSlotCellsList().Count > 0)
                 {
-                    CameraJumper.TryJump(zone.Cells.First(), zone.Map);
+                    if (!Find.CameraDriver.IsPanning())
+                    {
+                        CameraJumper.TryJump(zone.Cells.First(), zone.Map);
+                    }
                 }
             }
 
