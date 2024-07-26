@@ -3,6 +3,7 @@
 
     <WorkGiverDef>
         <defName>ManagerManage</defName>
+        <label>assign jobs and orders to your colony</label>
         <giverClass>ColonyManagerRedux.WorkGiver_Manage</giverClass>
         <workType>Managing</workType>
         <priorityInType>100</priorityInType>

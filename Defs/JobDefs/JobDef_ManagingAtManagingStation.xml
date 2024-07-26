@@ -4,7 +4,7 @@
     <JobDef>
         <defName>ManagingAtManagingStation</defName>
         <driverClass>ColonyManagerRedux.JobDriver_ManagingAtManagingStation</driverClass>
-        <reportString>Doing essential colony management at TargetA.</reportString>
+        <reportString>Updating colony management jobs at TargetA.</reportString>
         <alwaysShowWeapon>false</alwaysShowWeapon>
     </JobDef>
 
