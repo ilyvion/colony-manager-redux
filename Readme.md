@@ -1,4 +1,4 @@
-[![RimWorld 1.5](https://img.shields.io/badge/RimWorld-1.5-brightgreen.svg)](http://rimworldgame.com/) [![Build](https://github.com/ilyvion/colony-manager-redux/actions/workflows/build.yml/badge.svg)](https://github.com/ilyvion/colony-manager-redux/actions/workflows/build.yml)
+[![RimWorld 1.5](https://img.shields.io/badge/RimWorld-1.5-brightgreen.svg)](http://rimworldgame.com/) [![Build](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml)
 
 New and Improved version of Fluffy's Colony Manager. Work-in-progress.
 
