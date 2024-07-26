@@ -19,13 +19,18 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
     private static FieldInfo _viewHeightField = AccessTools.Field(typeof(ThingFilterUI), "viewHeight");
     public override void DoWindowContents(Rect inRect)
     {
+        var zoneRectRows = Math.Min((int)Math.Ceiling(
+            (double)(Trigger.job.Manager.map.zoneManager.AllZones.OfType<Zone_Stockpile>().Count() + 1) /
+            StockpileGUI.StockPilesPerRow), 3);
+        var zoneRectHeight = zoneRectRows * Constants.ListEntryHeight;
+
         // set up rects
         var filterRect = new Rect(inRect.ContractedBy(6f));
-        filterRect.height -= 2 * (Constants.ListEntryHeight + Margin);
+        filterRect.height -= 2 * Margin + zoneRectHeight + Constants.ListEntryHeight;
         var zoneRect = new Rect(filterRect.xMin, filterRect.yMax + Margin, filterRect.width,
-                                 Constants.ListEntryHeight);
+            zoneRectHeight);
         var buttonRect = new Rect(filterRect.xMin, zoneRect.yMax + Margin,
-                                   (filterRect.width - Margin) / 2f, Constants.ListEntryHeight);
+            filterRect.width, Constants.ListEntryHeight);
 
         // draw thingfilter
         ThingFilterUI.DoThingFilterConfigWindow(filterRect, _uIState, Trigger.ThresholdFilter, Trigger.ParentFilter);
@@ -37,7 +42,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw zone selector
-        StockpileGUI.DoStockpileSelectors(zoneRect, ref Trigger.stockpile, Trigger.job.Manager);
+        StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref Trigger.stockpile, Trigger.job.Manager);
 
         // draw operator button
         // if (Widgets.ButtonText(buttonRect, Trigger.OpString))
@@ -54,7 +59,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         // }
 
         // move operator button canvas for count input
-        buttonRect.x = buttonRect.xMax + Margin;
+        //buttonRect.x = buttonRect.xMax + Margin;
 
         // if current input is invalid color the element red
         var oldColor = GUI.color;
