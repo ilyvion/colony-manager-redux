@@ -833,7 +833,7 @@ public class History : IExposable
 
         public bool HasTarget(Period period)
         {
-            return !targets[(int)period].IsEmpty;
+            return !targets[(int)period].IsEmpty && targets[(int)period].Any(t => t.target != 0);
         }
 
         public void ExposeData()
