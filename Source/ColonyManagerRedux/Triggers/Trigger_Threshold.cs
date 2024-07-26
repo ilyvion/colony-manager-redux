@@ -255,7 +255,7 @@ public class Trigger_Threshold : Trigger
         Scribe_Values.Look(ref TargetCount, "count");
         Scribe_Values.Look(ref MaxUpperThreshold, "maxUpperThreshold");
         Scribe_Values.Look(ref Op, "operator");
-        Scribe_Deep.Look(ref ThresholdFilter, "thresholdFilter");
+        Scribe_Deep.Look(ref ThresholdFilter, "thresholdFilter", (object)ThresholdFilter_SettingsChanged);
         Scribe_Values.Look(ref CountAllOnMap, "countAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
