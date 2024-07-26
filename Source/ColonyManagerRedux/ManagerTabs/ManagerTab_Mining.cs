@@ -184,6 +184,16 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         return rowRect.yMax - start.y;
     }
 
+    public float DrawHaulChunks(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(rowRect,
+                              "ColonyManagerRedux.ManagerMining.HaulChunks".Translate(),
+                              "ColonyManagerRedux.ManagerMining.HaulChunks.Tip".Translate(),
+                              ref SelectedMiningJob.HaulChunks);
+        return ListEntryHeight;
+    }
+
     public float DrawDeconstructBuildings(Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
@@ -315,6 +325,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         // options
         Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.ManagerThreshold".Translate());
+        Widgets_Section.Section(ref position, width, DrawHaulChunks);
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
         Widgets_Section.Section(ref position, width, DrawMiningArea, "ColonyManagerRedux.ManagerMining.MiningArea".Translate());
         Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.ManagerMining.HealthAndSafety".Translate());

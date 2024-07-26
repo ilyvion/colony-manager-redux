@@ -50,6 +50,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
     public bool CheckRoofSupport = true;
     public bool CheckRoofSupportAdvanced;
     public bool CheckRoomDivision = true;
+    public bool HaulChunks = true;
     public bool DeconstructBuildings;
     public Area? MiningArea;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
@@ -92,6 +93,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         if (miningSettings != null)
         {
             SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;
+            HaulChunks = miningSettings.DefaultHaulChunks;
             DeconstructBuildings = miningSettings.DefaultDeconstructBuildings;
             CheckRoofSupport = miningSettings.DefaultCheckRoofSupport;
             CheckRoofSupportAdvanced = miningSettings.DefaultCheckRoofSupportAdvanced;
@@ -291,6 +293,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def);
         Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
+        Scribe_Values.Look(ref HaulChunks, "haulChunks", true);
         Scribe_Values.Look(ref DeconstructBuildings, "deconstructBuildings");
         Scribe_Values.Look(ref CheckRoofSupport, "checkRoofSupport", true);
         Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
@@ -816,5 +819,23 @@ internal sealed class ManagerJob_Mining : ManagerJob
         TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.PlantMatter, false);
         TriggerThreshold.ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
         TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.ResourcesRaw, true);
+    }
+
+    internal void Notify_StoneChunkMined(Pawn pawn, Thing thing)
+    {
+        if (!HaulChunks)
+        {
+            return;
+        }
+
+        if (thing.def.designateHaulable && TriggerThreshold.ThresholdFilter.Allows(thing) &&
+            _designations.Any(d => d.target.Cell == thing.Position))
+        {
+            DesignationManager designationManager = Manager.map.designationManager;
+            if (!designationManager.HasMapDesignationOn(thing))
+            {
+                designationManager.AddDesignation(new Designation(thing, DesignationDefOf.Haul));
+            }
+        }
     }
 }

@@ -11,6 +11,7 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     public bool DefaultSyncFilterAndAllowed = true;
 
     public bool DefaultDeconstructBuildings;
+    public bool DefaultHaulChunks = true;
 
     public bool DefaultCheckRoofSupport = true;
     public bool DefaultCheckRoofSupportAdvanced;
@@ -28,6 +29,7 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
 
         Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.Section(ref position, width, DrawHaulChunks);
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
         Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety".Translate());
         Widgets_Section.EndSectionColumn("Mining.Settings", position);
@@ -47,6 +49,16 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
             "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 
+        return ListEntryHeight;
+    }
+
+    public float DrawHaulChunks(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(rowRect,
+                              "ColonyManagerRedux.ManagerMining.HaulChunks".Translate(),
+                              "ColonyManagerRedux.ManagerMining.HaulChunks.Tip".Translate(),
+                              ref DefaultHaulChunks);
         return ListEntryHeight;
     }
 

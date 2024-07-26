@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Show an alert when an AI manager has been constructed and there are still manager's desks constructed.
 -   Made it so that you can have overrides of default values per animal type for the Livestock jobs.
 -   Added expected resource icons to the available livestock animal list.
+-   Mining jobs can now designate resulting chunks for hauling automatically. Whether to do this is controllable through a setting in the mining job.
 
 ### Changed
 
