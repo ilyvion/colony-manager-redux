@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <ColonyManagerRedux.ManagerMining>Горное дело</ColonyManagerRedux.ManagerMining>
-    <ColonyManagerRedux.ManagerMining.MiningArea>Территория для выработки</ColonyManagerRedux.ManagerMining.MiningArea>
-    <ColonyManagerRedux.ManagerMining.HealthAndSafety>Здоровье и безопасность</ColonyManagerRedux.ManagerMining.HealthAndSafety>
-    <ColonyManagerRedux.ManagerMining.AllowedMinerals>Минералы</ColonyManagerRedux.ManagerMining.AllowedMinerals>
-    <ColonyManagerRedux.ManagerMining.AllowedBuildings>Строения</ColonyManagerRedux.ManagerMining.AllowedBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings>Разбирать строения</ColonyManagerRedux.ManagerMining.DeconstructBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>Нужно ли разбирать заброшенные строения для своих нужд?</ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport>Оставлять опоры для крыши</ColonyManagerRedux.ManagerMining.CheckRoofSupport>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>Шахтёры будут оставлять опорные колоны через определённые промежутки.\n\nПРИМЕЧАНИЕ: Положение колонн предварительно рассчитано, но обвалы и обрушение крыши все еще могут произойти!</ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>Проверять опоры для крыши</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>Опоры для крыши будут расчитываться перед тем как назначать задачи по выработке и демонтажу. Значительно снижает риск обвалов и обрушения кровли.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>Отключено, так как проверка опор для крыши отключена.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision>Проверять границы комнат</ColonyManagerRedux.ManagerMining.CheckRoomDivision>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>Попытается предотвратить пролом межкомнатных стен или создание короткого пути.</ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>Синхронизировать лимит</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>При включении будет пытаться синхронизировать подсчитанные материалы в фильтре лимита с камнями и зданиями, разрешенными для добычи или разборки, и наоборот.</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>
+    <ColonyManagerRedux.Mining>Горное дело</ColonyManagerRedux.Mining>
+    <ColonyManagerRedux.Mining.MiningArea>Территория для выработки</ColonyManagerRedux.Mining.MiningArea>
+    <ColonyManagerRedux.Mining.HealthAndSafety>Здоровье и безопасность</ColonyManagerRedux.Mining.HealthAndSafety>
+    <ColonyManagerRedux.Mining.AllowedMinerals>Минералы</ColonyManagerRedux.Mining.AllowedMinerals>
+    <ColonyManagerRedux.Mining.AllowedBuildings>Строения</ColonyManagerRedux.Mining.AllowedBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings>Разбирать строения</ColonyManagerRedux.Mining.DeconstructBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings.Tip>Нужно ли разбирать заброшенные строения для своих нужд?</ColonyManagerRedux.Mining.DeconstructBuildings.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupport>Оставлять опоры для крыши</ColonyManagerRedux.Mining.CheckRoofSupport>
+    <ColonyManagerRedux.Mining.CheckRoofSupport.Tip>Шахтёры будут оставлять опорные колоны через определённые промежутки.\n\nПРИМЕЧАНИЕ: Положение колонн предварительно рассчитано, но обвалы и обрушение крыши все еще могут произойти!</ColonyManagerRedux.Mining.CheckRoofSupport.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>Проверять опоры для крыши</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>Опоры для крыши будут расчитываться перед тем как назначать задачи по выработке и демонтажу. Значительно снижает риск обвалов и обрушения кровли.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>Отключено, так как проверка опор для крыши отключена.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>
+    <ColonyManagerRedux.Mining.CheckRoomDivision>Проверять границы комнат</ColonyManagerRedux.Mining.CheckRoomDivision>
+    <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Попытается предотвратить пролом межкомнатных стен или создание короткого пути.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Синхронизировать лимит</ColonyManagerRedux.Mining.SyncFilterAndAllowed>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>При включении будет пытаться синхронизировать подсчитанные материалы в фильтре лимита с камнями и зданиями, разрешенными для добычи или разборки, и наоборот.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, chunks, designated, target -->
-    <ColonyManagerRedux.ManagerMining.TargetCount>Целевое значение: {0}+{1}+{2}/{3}</ColonyManagerRedux.ManagerMining.TargetCount>
-    <ColonyManagerRedux.ManagerMining.TargetCount.Tip>Цель: {3}\n{0} на складе\n{1} ожидается от обработки\n{2} ожидается с указанных.</ColonyManagerRedux.ManagerMining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount>Целевое значение: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>Цель: {3}\n{0} на складе\n{1} ожидается от обработки\n{2} ожидается с указанных.</ColonyManagerRedux.Mining.TargetCount.Tip>
 
     <!-- Jobs -->
-    <ColonyManagerRedux.ManagerMining.NewJob>Новое задание</ColonyManagerRedux.ManagerMining.NewJob>
-    <ColonyManagerRedux.ManagerMining.NewJob.Tip>Создать новое задание для шахтёров.</ColonyManagerRedux.ManagerMining.NewJob.Tip>
+    <ColonyManagerRedux.Mining.NewJob.Tip>Создать новое задание для шахтёров.</ColonyManagerRedux.Mining.NewJob.Tip>
 
     <!-- shortcuts -->
-    <ColonyManagerRedux.ManagerMining.Stone>Камень</ColonyManagerRedux.ManagerMining.Stone>
-    <ColonyManagerRedux.ManagerMining.Stone.Tip>Выбрать все минералы дающие обломки</ColonyManagerRedux.ManagerMining.Stone.Tip>
-    <ColonyManagerRedux.ManagerMining.Metal>Метал</ColonyManagerRedux.ManagerMining.Metal>
-    <ColonyManagerRedux.ManagerMining.Metal.Tip>Выбрать все минералы дающие метал</ColonyManagerRedux.ManagerMining.Metal.Tip>
-    <ColonyManagerRedux.ManagerMining.Precious>Драгоценности</ColonyManagerRedux.ManagerMining.Precious>
-    <ColonyManagerRedux.ManagerMining.Precious.Tip>Выбрать все минералы дающие драгоценности</ColonyManagerRedux.ManagerMining.Precious.Tip>
+    <ColonyManagerRedux.Mining.Stone>Камень</ColonyManagerRedux.Mining.Stone>
+    <ColonyManagerRedux.Mining.Stone.Tip>Выбрать все минералы дающие обломки</ColonyManagerRedux.Mining.Stone.Tip>
+    <ColonyManagerRedux.Mining.Metal>Метал</ColonyManagerRedux.Mining.Metal>
+    <ColonyManagerRedux.Mining.Metal.Tip>Выбрать все минералы дающие метал</ColonyManagerRedux.Mining.Metal.Tip>
+    <ColonyManagerRedux.Mining.Precious>Драгоценности</ColonyManagerRedux.Mining.Precious>
+    <ColonyManagerRedux.Mining.Precious.Tip>Выбрать все минералы дающие драгоценности</ColonyManagerRedux.Mining.Precious.Tip>
 </LanguageData>

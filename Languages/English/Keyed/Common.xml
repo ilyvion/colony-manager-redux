@@ -2,86 +2,87 @@
 
 <LanguageData>
     <!-- Main Manager Tab -->
-    <ColonyManagerRedux.ManagerManager>Manager</ColonyManagerRedux.ManagerManager>
-    <ColonyManagerRedux.ManagerDetails>Details</ColonyManagerRedux.ManagerDetails>
-    <ColonyManagerRedux.ManagerManage>Manage!</ColonyManagerRedux.ManagerManage>
-    <ColonyManagerRedux.ManagerDelete>Delete</ColonyManagerRedux.ManagerDelete>
-    <ColonyManagerRedux.ManagerAll>All</ColonyManagerRedux.ManagerAll>
-    <ColonyManagerRedux.ManagerTabDisabledBecause>(disabled: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
+    <ColonyManagerRedux.Common.TabDisabledBecause>(disabled: {0})</ColonyManagerRedux.Common.TabDisabledBecause>
 
-    <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerAlertNoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.ManagerAlertNoTableLabel>
-    <ColonyManagerRedux.ManagerAlertNoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed</ColonyManagerRedux.ManagerAlertNoTable>
-    <ColonyManagerRedux.ManagerAlertNoManagerLabel>Need manager</ColonyManagerRedux.ManagerAlertNoManagerLabel>
-    <ColonyManagerRedux.ManagerAlertNoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.ManagerAlertNoManager>
-    <ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel>
-    <ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager>
+    <!-- Alert messages -->
+    <ColonyManagerRedux.Alerts.NoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.Alerts.NoTableLabel>
+    <ColonyManagerRedux.Alerts.NoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoManagerLabel>Need manager</ColonyManagerRedux.Alerts.NoManagerLabel>
+    <ColonyManagerRedux.Alerts.NoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.Alerts.NoManager>
+    <ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>
+    <ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>
 
     <!-- Common -->
-    <ColonyManagerRedux.ManagerNeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.ManagerNeverUpdatedTooltip>
-    <ColonyManagerRedux.ManagerLastUpdateTooltip>This job was last updated {0} ago.</ColonyManagerRedux.ManagerLastUpdateTooltip>
-    <ColonyManagerRedux.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.ScheduledToBeUpdatedTooltip>
-    <ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>
-    <ColonyManagerRedux.Update>Update {0}</ColonyManagerRedux.Update>
-    <ColonyManagerRedux.ForceUpdate>Force update now</ColonyManagerRedux.ForceUpdate>
-    <ColonyManagerRedux.ManagerOrderUp>Increase job priority</ColonyManagerRedux.ManagerOrderUp>
-    <ColonyManagerRedux.ManagerOrderDown>Decrease job priority</ColonyManagerRedux.ManagerOrderDown>
-    <ColonyManagerRedux.ManagerOrderTop>Maximum priority</ColonyManagerRedux.ManagerOrderTop>
-    <ColonyManagerRedux.ManagerOrderBottom>Minimum priority</ColonyManagerRedux.ManagerOrderBottom>
-    <ColonyManagerRedux.Multiple>[multiple]</ColonyManagerRedux.Multiple>
-    <ColonyManagerRedux.ManagerThreshold>Threshold</ColonyManagerRedux.ManagerThreshold>
-    <ColonyManagerRedux.ManagerCheckReachability>Check if targets are reachable</ColonyManagerRedux.ManagerCheckReachability>
-    <ColonyManagerRedux.ManagerCheckReachability.Tip>Calculate if a path to the target exists (for any pawn) before creating a designation.</ColonyManagerRedux.ManagerCheckReachability.Tip>
-    <ColonyManagerRedux.ManagerExpensive.Tip>Enabling this setting may decrease performance, particularly on large maps, mountainous maps, jobs with many potential targets, and colonies with high numbers of colonists.</ColonyManagerRedux.ManagerExpensive.Tip>
-    <ColonyManagerRedux.ManagerPathBasedDistance>Calculate distance based on actual path</ColonyManagerRedux.ManagerPathBasedDistance>
-    <ColonyManagerRedux.ManagerPathBasedDistance.Tip>If enabled, distances will be calculated based on real paths. If disabled, distances will be calculated 'as the crow flies'. \n\nNOTE: Enabling this option on jobs with a large amount of possible targets may lead to significant lag spikes.</ColonyManagerRedux.ManagerPathBasedDistance.Tip>
-    <ColonyManagerRedux.ManagerCountAllOnMap>Count all on map</ColonyManagerRedux.ManagerCountAllOnMap>
-    <ColonyManagerRedux.ManagerCountAllOnMap.Tip>If enabled, counts all items allowed by the threshold filter on the map. If disabled, counts only those in stockpiles and storage buildings.</ColonyManagerRedux.ManagerCountAllOnMap.Tip>
-    <ColonyManagerRedux.ManagerNone>None</ColonyManagerRedux.ManagerNone>
-    <ColonyManagerRedux.ManagerNoCurJob>no current job</ColonyManagerRedux.ManagerNoCurJob>
-    <!-- 0: target (thing), 1: distance (int), 2: yield amount (int), 3: yield type (def) -->
-    <ColonyManagerRedux.Manager.DesignationLabel>{0}\n distance: {1}\n yield: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
+    <ColonyManagerRedux.Common.Manage>Manage!</ColonyManagerRedux.Common.Manage>
+    <ColonyManagerRedux.Common.Delete>Delete</ColonyManagerRedux.Common.Delete>
+    <ColonyManagerRedux.Common.None>None</ColonyManagerRedux.Common.None>
+    <ColonyManagerRedux.Common.Expensive.Tip>Enabling this setting may decrease performance, particularly on large maps, mountainous maps, jobs with many potential targets, and colonies with high numbers of colonists.</ColonyManagerRedux.Common.Expensive.Tip>
 
+    <!-- Jobs -->
+    <ColonyManagerRedux.Job.New>New job</ColonyManagerRedux.Job.New>
+    <ColonyManagerRedux.Job.NeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.Job.NeverUpdatedTooltip>
+    <ColonyManagerRedux.Job.LastUpdatedTooltip>This job was last updated {0} ago.</ColonyManagerRedux.Job.LastUpdatedTooltip>
+    <ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>
+    <ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>
+    <ColonyManagerRedux.Job.Update>Update {0}</ColonyManagerRedux.Job.Update>
+    <ColonyManagerRedux.Job.ForceUpdate>Force update now</ColonyManagerRedux.Job.ForceUpdate>
+    <ColonyManagerRedux.Job.IncreasePriority>Increase job priority</ColonyManagerRedux.Job.IncreasePriority>
+    <ColonyManagerRedux.Job.DecreasePriorityn>Decrease job priority</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.TopPriority>Maximum priority</ColonyManagerRedux.Job.TopPriority>
+    <ColonyManagerRedux.Job.BottomPriority>Minimum priority</ColonyManagerRedux.Job.BottomPriority>
+    <ColonyManagerRedux.Job.DesignationLabel>{0}\n distance: {1}\n yield: {2}x {3}</ColonyManagerRedux.Job.DesignationLabel>
+
+    <ColonyManagerRedux.Threshold>Threshold</ColonyManagerRedux.Threshold>
+    <ColonyManagerRedux.Threshold.CheckReachability>Check if targets are reachable</ColonyManagerRedux.Threshold.CheckReachability>
+    <ColonyManagerRedux.Threshold.CheckReachability.Tip>Calculate if a path to the target exists (for any pawn) before creating a designation.</ColonyManagerRedux.Threshold.CheckReachability.Tip>
+    <ColonyManagerRedux.Threshold.PathBasedDistance>Calculate distance based on actual path</ColonyManagerRedux.Threshold.PathBasedDistance>
+    <ColonyManagerRedux.Threshold.PathBasedDistance.Tip>If enabled, distances will be calculated based on real paths. If disabled, distances will be calculated 'as the crow flies'. \n\nNOTE: Enabling this option on jobs with a large amount of possible targets may lead to significant lag spikes.</ColonyManagerRedux.Threshold.PathBasedDistance.Tip>
+    <ColonyManagerRedux.Threshold.CountAllOnMap>Count all on map</ColonyManagerRedux.Threshold.CountAllOnMap>
+    <ColonyManagerRedux.Threshold.CountAllOnMap.Tip>If enabled, counts all items allowed by the threshold filter on the map. If disabled, counts only those in stockpiles and storage buildings.</ColonyManagerRedux.Threshold.CountAllOnMap.Tip>
+    
     <!-- time periods for update interval -->
-    <ColonyManagerRedux.ManagerHourly>Every hour</ColonyManagerRedux.ManagerHourly>
-    <ColonyManagerRedux.ManagerMultiHourly>Every {0} hours</ColonyManagerRedux.ManagerMultiHourly>
-    <ColonyManagerRedux.ManagerDaily>Daily</ColonyManagerRedux.ManagerDaily>
-    <ColonyManagerRedux.ManagerMonthly>Monthly</ColonyManagerRedux.ManagerMonthly>
-    <ColonyManagerRedux.ManagerYearly>Yearly</ColonyManagerRedux.ManagerYearly>
+    <ColonyManagerRedux.UpdateInterval.Hourly>Every hour</ColonyManagerRedux.UpdateInterval.Hourly>
+    <ColonyManagerRedux.UpdateInterval.MultipleHourly>Every {0} hours</ColonyManagerRedux.UpdateInterval.MultipleHourly>
+    <ColonyManagerRedux.UpdateInterval.Daily>Daily</ColonyManagerRedux.UpdateInterval.Daily>
+    <ColonyManagerRedux.UpdateInterval.Monthly>Monthly</ColonyManagerRedux.UpdateInterval.Monthly>
+    <ColonyManagerRedux.UpdateInterval.Yearly>Yearly</ColonyManagerRedux.UpdateInterval.Yearly>
 
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Threshold: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Click to open threshold details.\n\nTarget: {1}\nIn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    <ColonyManagerRedux.Thresholds.ThresholdDetails>Theshold details</ColonyManagerRedux.Thresholds.ThresholdDetails>
-
+    
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Current</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Available</ColonyManagerRedux.Thresholds.Available>
 
     <!-- Right click job fail reasons -->
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoPower>desk has no power</ColonyManagerRedux.ColonyManager.CannotManage.NoPower>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>no jobs have been set</ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>no jobs require updates right now</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
-    <ColonyManagerRedux.ColonyManager.CannotManage.AIManager>managers won't do manual managing work when an AI manager is active</ColonyManagerRedux.ColonyManager.CannotManage.AIManager>
+    <ColonyManagerRedux.CannotManage.NoPower>desk has no power</ColonyManagerRedux.CannotManage.NoPower>
+    <ColonyManagerRedux.CannotManage.NoJobs>no jobs have been set</ColonyManagerRedux.CannotManage.NoJobs>
+    <ColonyManagerRedux.CannotManage.NoActiveJobs>no jobs require updates right now</ColonyManagerRedux.CannotManage.NoActiveJobs>
+    <ColonyManagerRedux.CannotManage.AIManager>managers won't do manual managing work when an AI manager is active</ColonyManagerRedux.CannotManage.AIManager>
 
     <!-- History chapter labels -->
-    <ColonyManagerRedux.ColonyManager.HistoryStock>stock</ColonyManagerRedux.ColonyManager.HistoryStock>
-    <ColonyManagerRedux.ColonyManager.HistoryDesignated>designated</ColonyManagerRedux.ColonyManager.HistoryDesignated>
-    <ColonyManagerRedux.ColonyManager.HistoryCorpses>corpses</ColonyManagerRedux.ColonyManager.HistoryCorpses>
-    <ColonyManagerRedux.ColonyManager.HistoryChunks>chunks</ColonyManagerRedux.ColonyManager.HistoryChunks>
-    <ColonyManagerRedux.ColonyManager.HistoryProduction>production</ColonyManagerRedux.ColonyManager.HistoryProduction>
-    <ColonyManagerRedux.ColonyManager.HistoryConsumption>consumption</ColonyManagerRedux.ColonyManager.HistoryConsumption>
-    <ColonyManagerRedux.ColonyManager.HistoryBatteries>batteries</ColonyManagerRedux.ColonyManager.HistoryBatteries>
+    <ColonyManagerRedux.History.Stock>stock</ColonyManagerRedux.History.Stock>
+    <ColonyManagerRedux.History.Designated>designated</ColonyManagerRedux.History.Designated>
+    <ColonyManagerRedux.History.Corpses>corpses</ColonyManagerRedux.History.Corpses>
+    <ColonyManagerRedux.History.Chunks>chunks</ColonyManagerRedux.History.Chunks>
+    <ColonyManagerRedux.History.Production>production</ColonyManagerRedux.History.Production>
+    <ColonyManagerRedux.History.Consumption>consumption</ColonyManagerRedux.History.Consumption>
+    <ColonyManagerRedux.History.Batteries>batteries</ColonyManagerRedux.History.Batteries>
 
+    <!-- Livestock age and sex classifications -->
     <ColonyManagerRedux.AgeAndSex.AdultFemale>adult females</ColonyManagerRedux.AgeAndSex.AdultFemale>
     <ColonyManagerRedux.AgeAndSex.AdultMale>adult males</ColonyManagerRedux.AgeAndSex.AdultMale>
     <ColonyManagerRedux.AgeAndSex.JuvenileFemale>juvenile females</ColonyManagerRedux.AgeAndSex.JuvenileFemale>
     <ColonyManagerRedux.AgeAndSex.JuvenileMale>juvenile males</ColonyManagerRedux.AgeAndSex.JuvenileMale>
 
-    <!-- manager tab target list extra info labels -->
-    <ColonyManagerRedux.ColonyManager.Yield>Expected yield:</ColonyManagerRedux.ColonyManager.Yield>
-    <ColonyManagerRedux.ColonyManager.Aggressiveness>Aggressiveness: {0}</ColonyManagerRedux.ColonyManager.Aggressiveness>
-    <ColonyManagerRedux.ColonyManager.Gender.Male>male</ColonyManagerRedux.ColonyManager.Gender.Male>
-    <ColonyManagerRedux.ColonyManager.Gender.Female>female</ColonyManagerRedux.ColonyManager.Gender.Female>
-    <ColonyManagerRedux.ColonyManager.ChanceToDrop>chance to drop: {0}</ColonyManagerRedux.ColonyManager.ChanceToDrop>
+    <!-- Extra info labels -->
+    <ColonyManagerRedux.Info.Yield>Expected yield:</ColonyManagerRedux.Info.Yield>
+    <ColonyManagerRedux.Info.Aggressiveness>Aggressiveness: {0}</ColonyManagerRedux.Info.Aggressiveness>
+    <ColonyManagerRedux.Info.Gender.Male>male</ColonyManagerRedux.Info.Gender.Male>
+    <ColonyManagerRedux.Info.Gender.Female>female</ColonyManagerRedux.Info.Gender.Female>
+    <ColonyManagerRedux.Info.ChanceToDrop>chance to drop: {0}</ColonyManagerRedux.Info.ChanceToDrop>
+
+    <!-- Shortcuts -->
+    <ColonyManagerRedux.Shortcuts.All>All</ColonyManagerRedux.Shortcuts.All>
 </LanguageData>

@@ -168,8 +168,8 @@ public class Settings : ModSettings
         Utilities.DrawToggle(
             ref pos,
             width,
-            "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
+            "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
+            "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(),
             ref _defaultUsePathBasedDistance,
             true);
 
@@ -205,8 +205,8 @@ public class Settings : ModSettings
         //Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
         Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
 
-        Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.ManagerCountAllOnMap".Translate(),
-                              "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref _defaultCountAllOnMap, true);
+        Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
+                              "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref _defaultCountAllOnMap, true);
         DefaultTargetCount = (int)GUI.HorizontalSlider(thresholdRect, DefaultTargetCount, 0, DefaultMaxUpperThreshold);
     }
 

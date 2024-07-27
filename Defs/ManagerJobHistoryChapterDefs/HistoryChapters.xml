@@ -4,7 +4,7 @@
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryStock</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
-            <translationKey>ColonyManagerRedux.ColonyManager.HistoryStock</translationKey>
+            <translationKey>ColonyManagerRedux.History.Stock</translationKey>
         </historyLabel>
         <color>(1, 1, 1)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
@@ -12,7 +12,7 @@
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryDesignated</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
-            <translationKey>ColonyManagerRedux.ColonyManager.HistoryDesignated</translationKey>
+            <translationKey>ColonyManagerRedux.History.Designated</translationKey>
         </historyLabel>
         <color>(.5, .5, .5)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
@@ -20,7 +20,7 @@
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryCorpses</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
-            <translationKey>ColonyManagerRedux.ColonyManager.HistoryCorpses</translationKey>
+            <translationKey>ColonyManagerRedux.History.Corpses</translationKey>
         </historyLabel>
         <color>(.7, .7, .7)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
@@ -28,7 +28,7 @@
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryChunks</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
-            <translationKey>ColonyManagerRedux.ColonyManager.HistoryChunks</translationKey>
+            <translationKey>ColonyManagerRedux.History.Chunks</translationKey>
         </historyLabel>
         <color>(.7, .7, .7)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>

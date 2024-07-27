@@ -295,7 +295,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             visible = true;
             return new AcceptanceReport(
-                "ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall".Translate(
+                "ColonyManagerRedux.Livestock.CannotTrainTooSmall".Translate(
                     pawnKind.GetLabelPlural().CapitalizeFirst()));
         }
 

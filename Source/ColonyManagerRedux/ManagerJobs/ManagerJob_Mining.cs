@@ -119,7 +119,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
-    public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
+    public override string Label => "ColonyManagerRedux.Mining".Translate();
 
     public override IEnumerable<string> Targets => AllowedMinerals
         .Select(pk => pk.LabelCap.Resolve());
@@ -278,7 +278,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         if (designation.def == DesignationDefOf.Deconstruct)
         {
             var building = designation.target.Thing;
-            return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
+            return "ColonyManagerRedux.Job.DesignationLabel".Translate(
                 building.LabelCap,
                 Distance(building, Manager.map.GetBaseCenter()).ToString("F0"),
                 "?", "?");
@@ -287,7 +287,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         if (designation.def == DesignationDefOf.Mine)
         {
             var mineable = designation.target.Cell.GetFirstMineable(Manager.map);
-            return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
+            return "ColonyManagerRedux.Job.DesignationLabel".Translate(
                 mineable.LabelCap,
                 Distance(mineable, Manager.map.GetBaseCenter()).ToString("F0"),
                 GetCountInMineral(mineable),
@@ -297,7 +297,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         if (designation.def == DesignationDefOf.Haul && designation.target.HasThing)
         {
             var thing = designation.target.Thing;
-            return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
+            return "ColonyManagerRedux.Job.DesignationLabel".Translate(
                 thing.LabelCap,
                 Distance(thing, Manager.map.GetBaseCenter()).ToString("F0"),
                 GetCountInChunk(thing),

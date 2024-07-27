@@ -4,7 +4,6 @@
     <ColonyManagerRedux.Forestry.Forestry>Forestry</ColonyManagerRedux.Forestry.Forestry>
     <ColonyManagerRedux.Forestry.NewForestryJob>New job</ColonyManagerRedux.Forestry.NewForestryJob>
     <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Create a new forestry job</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
-    <ColonyManagerRedux.Forestry.Options>Options</ColonyManagerRedux.Forestry.Options>
     <ColonyManagerRedux.Forestry.ClearWindCells>Clear wind turbine cells</ColonyManagerRedux.Forestry.ClearWindCells>
     <ColonyManagerRedux.Forestry.ClearWindCells.Tip>Clear all cells that are in wind turbines' catchment area</ColonyManagerRedux.Forestry.ClearWindCells.Tip>
     <ColonyManagerRedux.Forestry.AllowSaplings>Only fully matured trees</ColonyManagerRedux.Forestry.AllowSaplings>
@@ -29,4 +28,6 @@
     <ColonyManagerRedux.Forestry.Ugly.Tip>Select all ugly plants</ColonyManagerRedux.Forestry.Ugly.Tip>
     <ColonyManagerRedux.Forestry.ProvidesCover>Cover</ColonyManagerRedux.Forestry.ProvidesCover>
     <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Select all plants that provide cover</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
+
+    <ColonyManagerRedux.Forestry.JobSettings.DefaultJobType>Default job type</ColonyManagerRedux.Forestry.JobSettings.DefaultJobType>
 </LanguageData>

@@ -12,7 +12,7 @@ internal sealed class ManagerJobSettings_Hunting : ManagerJobSettings
     public bool DefaultAllowInsectMeat;
     public bool DefaultUnforbidCorpses = true;
 
-    public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
+    public override string Label => "ColonyManagerRedux.Hunting".Translate();
 
     public override void DoPanelContents(Rect rect)
     {

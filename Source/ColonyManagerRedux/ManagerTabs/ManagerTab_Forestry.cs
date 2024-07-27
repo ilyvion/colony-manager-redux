@@ -57,7 +57,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
 
         if (SelectedForestryJob.Type == ForestryJobType.Logging)
         {
-            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerThreshold".Translate());
+            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.Threshold".Translate());
             Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Forestry.LoggingArea".Translate());
             Widgets_Section.Section(ref position, width, DrawAllowSaplings);
         }
@@ -72,7 +72,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         // do the button
         if (!SelectedForestryJob.IsManaged)
         {
-            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
+            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Manage".Translate()))
             {
                 // activate job, add it to the stack
                 SelectedForestryJob.IsManaged = true;
@@ -84,7 +84,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         }
         else
         {
-            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
+            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
                 // inactivate job, remove from the stack.
                 manager.JobTracker.Delete(SelectedForestryJob);
@@ -159,7 +159,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         }
 
         Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Forestry.NewForestryJob".Translate().Resolve() + ">");
+        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Job.New".Translate().Resolve() + ">");
         Text.Anchor = TextAnchor.UpperLeft;
 
         if (Widgets.ButtonInvisible(newRect))
@@ -304,8 +304,8 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         Utilities.DrawToggle(
             ref pos,
             width,
-            "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(),
+            "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
+            "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(),
             ref SelectedForestryJob.UsePathBasedDistance,
             true);
 
@@ -358,7 +358,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         var allowedTrees = SelectedForestryJob.AllowedTrees;
         var allPlants = SelectedForestryJob.AllPlants;
 
-        DrawShortcutToggle(allPlants, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect, "ManagerAll", null);
+        DrawShortcutToggle(allPlants, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect, "ColonyManagerRedux.Shortcuts.All", null);
 
         if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {

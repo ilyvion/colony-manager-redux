@@ -120,7 +120,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
                 case ForestryJobType.ClearArea:
                     if (ClearAreas.Count == 0)
                     {
-                        return ["ColonyManagerRedux.ManagerNone".Translate().RawText];
+                        return ["ColonyManagerRedux.Common.None".Translate().RawText];
                     }
 
                     return ClearAreas.Select(ca => ca.Label);
@@ -184,7 +184,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
     {
         // label, dist, yield.
         var plant = (Plant)designation.target.Thing;
-        return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
+        return "ColonyManagerRedux.Job.DesignationLabel".Translate(
             plant.LabelCap,
             Distance(plant, Manager.map.GetBaseCenter()).ToString("F0"),
             plant.YieldNow(),

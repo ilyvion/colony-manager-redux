@@ -68,11 +68,11 @@ internal sealed class PawnKindSettings : IExposable
     {
 
         Widgets_Section.BeginSectionColumn(panelRect, "Livestock.Settings", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawTargetCounts, "ColonyManagerRedux.LivestockJobSettings.DefaultTargetCountsHeader".Translate());
-        Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader".Translate());
-        Widgets_Section.Section(ref position, width, DrawButcherSection, "ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader".Translate());
-        Widgets_Section.Section(ref position, width, DrawTrainingSection, "ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader".Translate());
-        Widgets_Section.Section(ref position, width, DrawFollowSection, "ColonyManagerRedux.LivestockJobSettings.DefaultFollowHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawTargetCounts, "ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawButcherSection, "ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawTrainingSection, "ColonyManagerRedux.Livestock.JobSettings.DefaultTrainingHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawFollowSection, "ColonyManagerRedux.Livestock.JobSettings.DefaultFollowHeader".Translate());
         if (_def != null)
         {
             Widgets_Section.Section(ref position, width, DrawDeleteSection);
@@ -83,7 +83,7 @@ internal sealed class PawnKindSettings : IExposable
     private float DrawDeleteSection(Vector2 pos, float width)
     {
         var buttonRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.LivestockJobSettings.DeleteOverrideFor".Translate(_def!.GetLabelPlural())))
+        if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor".Translate(_def!.GetLabelPlural())))
         {
             settings.RemoveOverride(_def);
         }
@@ -277,22 +277,22 @@ internal sealed class PawnKindSettings : IExposable
         {
             Widgets_Labels.Label(
                 rowRect,
-                "ColonyManagerRedux.ManagerLivestock.MasterDefault".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip".Translate(),
+                "ColonyManagerRedux.Livestock.MasterDefault".Translate(),
+                "ColonyManagerRedux.Livestock.MasterDefault.Tip".Translate(),
                 TextAnchor.MiddleLeft, margin: Margin);
         }
         else
         {
             Widgets_Labels.Label(
                 rowRect,
-                "ColonyManagerRedux.ManagerLivestock.MasterDefault".Translate(),
+                "ColonyManagerRedux.Livestock.MasterDefault".Translate(),
                 report.Reason,
                 TextAnchor.MiddleLeft, margin: Margin, color: Color.gray);
         }
 
         TaggedString label = report.Accepted
-            ? $"ColonyManagerRedux.ManagerLivestock.MasterMode.{DefaultMasterMode}".Translate()
-            : "ColonyManagerRedux.ManagerLivestock.MasterUnavailable".Translate();
+            ? $"ColonyManagerRedux.Livestock.MasterMode.{DefaultMasterMode}".Translate()
+            : "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
         if (Widgets_Buttons.DisableableButtonText(
             buttonRect,
             label,
@@ -303,7 +303,7 @@ internal sealed class PawnKindSettings : IExposable
             // modes
             foreach (var mode in Utilities_Livestock.MasterModeArray.Where(mm => (mm & MasterMode.All) == mm))
             {
-                options.Add(new FloatMenuOption($"ColonyManagerRedux.ManagerLivestock.MasterMode.{mode}".Translate(),
+                options.Add(new FloatMenuOption($"ColonyManagerRedux.Livestock.MasterMode.{mode}".Translate(),
                     () => DefaultMasterMode = mode));
             }
 
@@ -316,15 +316,15 @@ internal sealed class PawnKindSettings : IExposable
         {
             DefaultRespectBonds = false;
             Widgets_Labels.Label(rowRect,
-                "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
+                "ColonyManagerRedux.Livestock.RespectBonds".Translate(),
                 report.Reason,
                 color: Color.grey, margin: Margin);
         }
         else
         {
             Utilities.DrawToggle(rowRect,
-                "ColonyManagerRedux.ManagerLivestock.RespectBonds".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip".Translate(),
+                "ColonyManagerRedux.Livestock.RespectBonds".Translate(),
+                "ColonyManagerRedux.Livestock.RespectBonds.Tip".Translate(),
                 ref DefaultRespectBonds);
         }
 
@@ -333,15 +333,15 @@ internal sealed class PawnKindSettings : IExposable
         if (report.Accepted)
         {
             Utilities.DrawToggle(rowRect,
-                "ColonyManagerRedux.ManagerLivestock.Follow".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.Follow.Tip".Translate(),
+                "ColonyManagerRedux.Livestock.Follow".Translate(),
+                "ColonyManagerRedux.Livestock.Follow.Tip".Translate(),
                 ref DefaultSetFollow);
         }
         else
         {
             DefaultSetFollow = false;
             Widgets_Labels.Label(rowRect,
-                "ColonyManagerRedux.ManagerLivestock.Follow".Translate(),
+                "ColonyManagerRedux.Livestock.Follow".Translate(),
                 report.Reason,
                 color: Color.grey, margin: Margin);
         }
@@ -352,14 +352,14 @@ internal sealed class PawnKindSettings : IExposable
             var followRect = rowRect;
             followRect.width /= 2f;
             Utilities.DrawToggle(followRect,
-                "ColonyManagerRedux.ManagerLivestock.FollowDrafted".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip".Translate(),
+                "ColonyManagerRedux.Livestock.FollowDrafted".Translate(),
+                "ColonyManagerRedux.Livestock.FollowDrafted.Tip".Translate(),
                 ref DefaultFollowDrafted,
                 font: GameFont.Tiny);
             followRect.x += followRect.width;
             Utilities.DrawToggle(followRect,
-                "ColonyManagerRedux.ManagerLivestock.FollowFieldwork".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip".Translate(),
+                "ColonyManagerRedux.Livestock.FollowFieldwork".Translate(),
+                "ColonyManagerRedux.Livestock.FollowFieldwork.Tip".Translate(),
                 ref DefaultFollowFieldwork,
                 font: GameFont.Tiny);
         }
@@ -373,17 +373,17 @@ internal sealed class PawnKindSettings : IExposable
         rowRect.y += ListEntryHeight;
         if (report.Accepted)
         {
-            TooltipHandler.TipRegion(rowRect, "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate());
+            TooltipHandler.TipRegion(rowRect, "ColonyManagerRedux.Livestock.FollowTraining.Tip".Translate());
             Utilities.DrawToggle(rowRect,
-                "ColonyManagerRedux.ManagerLivestock.FollowTraining".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip".Translate(),
+                "ColonyManagerRedux.Livestock.FollowTraining".Translate(),
+                "ColonyManagerRedux.Livestock.FollowTraining.Tip".Translate(),
                 ref DefaultFollowTraining);
         }
         else
         {
             DefaultFollowTraining = false;
             Widgets_Labels.Label(rowRect,
-                "ColonyManagerRedux.ManagerLivestock.FollowTraining".Translate(),
+                "ColonyManagerRedux.Livestock.FollowTraining".Translate(),
                 report.Reason,
                 color: Color.grey, margin: Margin);
         }
@@ -392,20 +392,20 @@ internal sealed class PawnKindSettings : IExposable
         rowRect.y += ListEntryHeight;
         if (report.Accepted)
         {
-            Widgets_Labels.Label(rowRect, "ColonyManagerRedux.ManagerLivestock.MasterTraining".Translate(),
-                "ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip".Translate(),
+            Widgets_Labels.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
+                "ColonyManagerRedux.Livestock.MasterTraining.Tip".Translate(),
                 TextAnchor.MiddleLeft, margin: Margin);
         }
         else
         {
-            Widgets_Labels.Label(rowRect, "ColonyManagerRedux.ManagerLivestock.MasterTraining".Translate(),
+            Widgets_Labels.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
                 report.Reason,
                 TextAnchor.MiddleLeft, color: Color.gray, margin: Margin);
         }
 
         label = report.Accepted
-            ? $"ColonyManagerRedux.ManagerLivestock.MasterMode.{DefaultTrainerMode}".Translate()
-            : "ColonyManagerRedux.ManagerLivestock.MasterUnavailable".Translate();
+            ? $"ColonyManagerRedux.Livestock.MasterMode.{DefaultTrainerMode}".Translate()
+            : "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
         buttonRect = buttonRect.CenteredOnYIn(rowRect);
         if (Widgets_Buttons.DisableableButtonText(buttonRect, label, enabled: report.Accepted))
         {
@@ -414,7 +414,7 @@ internal sealed class PawnKindSettings : IExposable
             // modes
             foreach (var mode in Utilities_Livestock.MasterModeArray.Where(mm => (mm & MasterMode.Trainers) == mm))
             {
-                options.Add(new FloatMenuOption($"ColonyManagerRedux.ManagerLivestock.MasterMode.{mode}".Translate(),
+                options.Add(new FloatMenuOption($"ColonyManagerRedux.Livestock.MasterMode.{mode}".Translate(),
                     () => DefaultTrainerMode = mode));
             }
 
@@ -470,7 +470,7 @@ internal sealed class ManagerJobSettings_Livestock : ManagerJobSettings
     private PawnKindSettings defaults = new();
     private Dictionary<PawnKindDef, PawnKindSettings> overrides = [];
 
-    public override string Label => "ColonyManagerRedux.Livestock.Livestock".Translate();
+    public override string Label => "ColonyManagerRedux.Livestock".Translate();
 
     private List<PawnKindDef>? pawnKindDefs;
     private List<PawnKindDef> PawnKindDefs
@@ -491,7 +491,7 @@ internal sealed class ManagerJobSettings_Livestock : ManagerJobSettings
     {
         var tabs = (new[]
         {
-            new TabRecord("ColonyManagerRedux.LivestockJobSettings.Default".Translate(), () =>
+            new TabRecord("ColonyManagerRedux.Livestock.JobSettings.Default".Translate(), () =>
             {
                 _currentLivestockSettingsTab = -1;
                 currentOverrideTab = null;
@@ -501,7 +501,7 @@ internal sealed class ManagerJobSettings_Livestock : ManagerJobSettings
                 _currentLivestockSettingsTab = 0;
                 currentOverrideTab = s.Value;
             }, _currentLivestockSettingsTab == 0 && currentOverrideTab == s.Value)))
-        .Append(new TabRecordWithTip("+", "ColonyManagerRedux.LivestockJobSettings.AddOverride".Translate(), () =>
+        .Append(new TabRecordWithTip("+", "ColonyManagerRedux.Livestock.JobSettings.AddOverride".Translate(), () =>
             {
                 var options = new List<FloatMenuOption>();
                 foreach (var pawnKindDef in PawnKindDefs)

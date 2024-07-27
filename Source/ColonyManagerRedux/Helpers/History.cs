@@ -210,7 +210,7 @@ public class History : IExposable
         if (chaptersOrdered.Count == 0)
         {
             GUI.DrawTexture(canvas.ContractedBy(Margin), Resources.SlightlyDarkBackground);
-            Widgets_Labels.Label(canvas, "ColonyManagerRedux.ManagerHistory.NoChapters".Translate(), TextAnchor.MiddleCenter,
+            Widgets_Labels.Label(canvas, "ColonyManagerRedux.History.NoChapters".Translate(), TextAnchor.MiddleCenter,
                 color: Color.grey);
             return;
         }
@@ -329,10 +329,10 @@ public class History : IExposable
             // tooltip on entire row
             var tooltip = $"{chaptersOrdered[i].label}: " +
                 FormatCount(Mathf.Abs(chaptersOrdered[i].Last(PeriodShown).count)) + "\n\n" +
-                "ColonyManagerRedux.ManagerHistory.ClickToEnable"
+                "ColonyManagerRedux.History.ClickToEnable"
                     .Translate(shown
-                        ? "ColonyManagerRedux.ManagerHistory.Hide".Translate()
-                        : "ColonyManagerRedux.ManagerHistory.Show".Translate(),
+                        ? "ColonyManagerRedux.History.Hide".Translate()
+                        : "ColonyManagerRedux.History.Show".Translate(),
                         chaptersOrdered[i].label.Label.UncapitalizeFirst());
             TooltipHandler.TipRegion(row, tooltip);
 
@@ -384,7 +384,7 @@ public class History : IExposable
         if (_chapters.Count == 0)
         {
             GUI.DrawTexture(rect.ContractedBy(Margin), Resources.SlightlyDarkBackground);
-            Widgets_Labels.Label(rect, "ColonyManagerRedux.ManagerHistory.NoChapters".Translate(), TextAnchor.MiddleCenter,
+            Widgets_Labels.Label(rect, "ColonyManagerRedux.History.NoChapters".Translate(), TextAnchor.MiddleCenter,
                 color: Color.grey);
             return;
         }
@@ -406,13 +406,13 @@ public class History : IExposable
             if (Widgets.ButtonImage(switchRect, Resources.Cog))
             {
                 var options = Periods.Select(p =>
-                    new FloatMenuOption("ColonyManagerRedux.ManagerHistory.Period".Translate() +
-                        ": " + $"ColonyManagerRedux.ManagerHistory.PeriodShown.{p}"
+                    new FloatMenuOption("ColonyManagerRedux.History.Period".Translate() +
+                        ": " + $"ColonyManagerRedux.History.PeriodShown.{p}"
                             .Translate().CapitalizeFirst(),
                         delegate { PeriodShown = p; })).ToList();
                 if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.ManagerHistory.ShowHideLegend".Translate(),
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.History.ShowHideLegend".Translate(),
                         delegate { DrawInlineLegend = !DrawInlineLegend; }));
                 }
 
@@ -421,8 +421,8 @@ public class History : IExposable
 
             Text.Font = GameFont.Tiny;
             var periodShown =
-                "ColonyManagerRedux.ManagerHistory.Period".Translate() + ": " +
-                $"ColonyManagerRedux.ManagerHistory.PeriodShown.{PeriodShown}".Translate();
+                "ColonyManagerRedux.History.Period".Translate() + ": " +
+                $"ColonyManagerRedux.History.PeriodShown.{PeriodShown}".Translate();
             var labelWidth = Text.CalcSize(periodShown);
 
             var labelRect = switchRect;
@@ -462,10 +462,10 @@ public class History : IExposable
                 legendPos.x = 0f;
                 legendPos.y -= 1f;
 
-                var tooltip = "ColonyManagerRedux.ManagerHistory.ClickToEnable"
+                var tooltip = "ColonyManagerRedux.History.ClickToEnable"
                     .Translate(isShown
-                        ? "ColonyManagerRedux.ManagerHistory.Hide".Translate()
-                        : "ColonyManagerRedux.ManagerHistory.Show".Translate(),
+                        ? "ColonyManagerRedux.History.Hide".Translate()
+                        : "ColonyManagerRedux.History.Show".Translate(),
                         chapter.label.Label.UncapitalizeFirst());
                 TooltipHandler.TipRegion(butRect, tooltip);
                 Widgets.DrawHighlightIfMouseover(butRect);
@@ -574,10 +574,10 @@ public class History : IExposable
             // get orientation of tooltip
             var tippos = realpos + new Vector2(Margin, Margin);
             var tip = useValue
-                ? "ColonyManagerRedux.ManagerHistory.ValueTooltip".Translate(
+                ? "ColonyManagerRedux.History.ValueTooltip".Translate(
                     closest.label.Label,
                     FormatCount(closest.ValueAt(PeriodShown, (int)upos.x, sign)))
-                : "ColonyManagerRedux.ManagerHistory.TargetTooltip".Translate(
+                : "ColonyManagerRedux.History.TargetTooltip".Translate(
                     closest.label.Label,
                     FormatCount(closest.TargetAt(PeriodShown, (int)upos.x, sign)));
             var tipsize = Text.CalcSize(tip);

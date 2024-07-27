@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <ColonyManagerRedux.ManagerMining>Minage</ColonyManagerRedux.ManagerMining>
-    <ColonyManagerRedux.ManagerMining.MiningArea>Zone de minage</ColonyManagerRedux.ManagerMining.MiningArea>
-    <ColonyManagerRedux.ManagerMining.HealthAndSafety>Santé et sécurité</ColonyManagerRedux.ManagerMining.HealthAndSafety>
-    <ColonyManagerRedux.ManagerMining.AllowedMinerals>Minéraux</ColonyManagerRedux.ManagerMining.AllowedMinerals>
-    <ColonyManagerRedux.ManagerMining.AllowedBuildings>Batiments</ColonyManagerRedux.ManagerMining.AllowedBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings>Détruire batiments</ColonyManagerRedux.ManagerMining.DeconstructBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>Les bâtiments non revendiqués devraient-ils être déconstruction pour être recyclés?</ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport>Laisser les supports de toit</ColonyManagerRedux.ManagerMining.CheckRoofSupport>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>Les gestionnaires laisseront des colonnes de support à intervalles réguliers.\n\nNOTE: La position des colonnes est pré-calculée, les effondrements peuvent encore se produire</ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>Vérifier les supports de toit</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>Les gestionnaires calculeront des supports de toit avant de désigner les tâches de minages et de déconstruction, réduisant drastiquement le risque d'effondrement.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>Désactivé car la verification des supports de toit est désactivée.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision>Vérifiez les limites de la pièce</ColonyManagerRedux.ManagerMining.CheckRoomDivision>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>Les gestionnaires tenteront d’empêcher toute faille dans les murs qui divisent les pièces ou qui créeraient des raccourcis.</ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>Synchroniser le seuil</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>Activez cette option pour essayer de synchroniser la quantité matériaux dans le filtre à seuil avec les roches et bâtiments autorisés à l'extraction / déconstruction, et inversement.</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>
+    <ColonyManagerRedux.Mining>Minage</ColonyManagerRedux.Mining>
+    <ColonyManagerRedux.Mining.MiningArea>Zone de minage</ColonyManagerRedux.Mining.MiningArea>
+    <ColonyManagerRedux.Mining.HealthAndSafety>Santé et sécurité</ColonyManagerRedux.Mining.HealthAndSafety>
+    <ColonyManagerRedux.Mining.AllowedMinerals>Minéraux</ColonyManagerRedux.Mining.AllowedMinerals>
+    <ColonyManagerRedux.Mining.AllowedBuildings>Batiments</ColonyManagerRedux.Mining.AllowedBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings>Détruire batiments</ColonyManagerRedux.Mining.DeconstructBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings.Tip>Les bâtiments non revendiqués devraient-ils être déconstruction pour être recyclés?</ColonyManagerRedux.Mining.DeconstructBuildings.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupport>Laisser les supports de toit</ColonyManagerRedux.Mining.CheckRoofSupport>
+    <ColonyManagerRedux.Mining.CheckRoofSupport.Tip>Les gestionnaires laisseront des colonnes de support à intervalles réguliers.\n\nNOTE: La position des colonnes est pré-calculée, les effondrements peuvent encore se produire</ColonyManagerRedux.Mining.CheckRoofSupport.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>Vérifier les supports de toit</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>Les gestionnaires calculeront des supports de toit avant de désigner les tâches de minages et de déconstruction, réduisant drastiquement le risque d'effondrement.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>Désactivé car la verification des supports de toit est désactivée.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>
+    <ColonyManagerRedux.Mining.CheckRoomDivision>Vérifiez les limites de la pièce</ColonyManagerRedux.Mining.CheckRoomDivision>
+    <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Les gestionnaires tenteront d’empêcher toute faille dans les murs qui divisent les pièces ou qui créeraient des raccourcis.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Synchroniser le seuil</ColonyManagerRedux.Mining.SyncFilterAndAllowed>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>Activez cette option pour essayer de synchroniser la quantité matériaux dans le filtre à seuil avec les roches et bâtiments autorisés à l'extraction / déconstruction, et inversement.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, chunks, designated, target -->
-    <ColonyManagerRedux.ManagerMining.TargetCount>Quantité ciblée: {0}+{1}+{2}/{3}</ColonyManagerRedux.ManagerMining.TargetCount>
-    <ColonyManagerRedux.ManagerMining.TargetCount.Tip>Objectif: {3}\n{0} en stock\n{1} attendue de la taille de pierre\n{2} attendu des réglages actuels.</ColonyManagerRedux.ManagerMining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount>Quantité ciblée: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>Objectif: {3}\n{0} en stock\n{1} attendue de la taille de pierre\n{2} attendu des réglages actuels.</ColonyManagerRedux.Mining.TargetCount.Tip>
 
     <!-- Jobs -->
-    <ColonyManagerRedux.ManagerMining.NewJob>Nouvelle tâche</ColonyManagerRedux.ManagerMining.NewJob>
-    <ColonyManagerRedux.ManagerMining.NewJob.Tip>Créer une nouvelle tâche de minage</ColonyManagerRedux.ManagerMining.NewJob.Tip>
+    <ColonyManagerRedux.Mining.NewJob.Tip>Créer une nouvelle tâche de minage</ColonyManagerRedux.Mining.NewJob.Tip>
 
     <!-- shortcuts -->
-    <ColonyManagerRedux.ManagerMining.Stone>Pierre</ColonyManagerRedux.ManagerMining.Stone>
-    <ColonyManagerRedux.ManagerMining.Stone.Tip>Autoriser tous les objets minables qui produisent des morceaux de pierre</ColonyManagerRedux.ManagerMining.Stone.Tip>
-    <ColonyManagerRedux.ManagerMining.Metal>Métal</ColonyManagerRedux.ManagerMining.Metal>
-    <ColonyManagerRedux.ManagerMining.Metal.Tip>Autoriser tous les objets minables qui produisent des métaux</ColonyManagerRedux.ManagerMining.Metal.Tip>
-    <ColonyManagerRedux.ManagerMining.Precious>Precieux</ColonyManagerRedux.ManagerMining.Precious>
-    <ColonyManagerRedux.ManagerMining.Precious.Tip>Autoriser tous les objets minables qui produisent des matériaux précieux</ColonyManagerRedux.ManagerMining.Precious.Tip>
+    <ColonyManagerRedux.Mining.Stone>Pierre</ColonyManagerRedux.Mining.Stone>
+    <ColonyManagerRedux.Mining.Stone.Tip>Autoriser tous les objets minables qui produisent des morceaux de pierre</ColonyManagerRedux.Mining.Stone.Tip>
+    <ColonyManagerRedux.Mining.Metal>Métal</ColonyManagerRedux.Mining.Metal>
+    <ColonyManagerRedux.Mining.Metal.Tip>Autoriser tous les objets minables qui produisent des métaux</ColonyManagerRedux.Mining.Metal.Tip>
+    <ColonyManagerRedux.Mining.Precious>Precieux</ColonyManagerRedux.Mining.Precious>
+    <ColonyManagerRedux.Mining.Precious.Tip>Autoriser tous les objets minables qui produisent des matériaux précieux</ColonyManagerRedux.Mining.Precious.Tip>
 </LanguageData>

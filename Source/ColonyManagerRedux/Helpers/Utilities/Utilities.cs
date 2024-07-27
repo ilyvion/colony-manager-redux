@@ -29,13 +29,13 @@ public static class Utilities
             {
                 _updateIntervalOptions =
                 [
-                    new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.ManagerHourly".Translate()),
-                    new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.ManagerMultiHourly".Translate(2)),
-                    new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.ManagerMultiHourly".Translate(4)),
-                    new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.ManagerMultiHourly".Translate(8)),
+                    new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.UpdateInterval.Hourly".Translate()),
+                    new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(2)),
+                    new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(4)),
+                    new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(8)),
                     UpdateInterval.Daily,
-                    new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.ManagerMonthly".Translate()),
-                    new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.ManagerYearly".Translate()),
+                    new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.UpdateInterval.Monthly".Translate()),
+                    new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.UpdateInterval.Yearly".Translate()),
                 ];
             }
 
@@ -126,8 +126,8 @@ public static class Utilities
         DrawToggle(
             ref pos,
             width,
-            "ColonyManagerRedux.ManagerCheckReachability".Translate(),
-            "ColonyManagerRedux.ManagerCheckReachability.Tip".Translate(),
+            "ColonyManagerRedux.Threshold.CheckReachability".Translate(),
+            "ColonyManagerRedux.Threshold.CheckReachability.Tip".Translate(),
             ref reachability,
             expensive: true);
     }
@@ -250,7 +250,7 @@ public static class Utilities
         if (expensive)
         {
             iconRect.x -= size + margin;
-            TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.ManagerExpensive.Tip".Translate());
+            TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.Common.Expensive.Tip".Translate());
             GUI.color = checkOn ? Resources.Orange : Color.grey;
             GUI.DrawTexture(iconRect, Resources.Stopwatch);
             GUI.color = Color.white;
@@ -350,7 +350,7 @@ public static class Utilities
         if (expensive)
         {
             iconRect.x -= size + margin;
-            TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.ManagerExpensive.Tip".Translate());
+            TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.Common.Expensive.Tip".Translate());
             GUI.color = allOn ? Resources.Orange : Color.grey;
             GUI.DrawTexture(iconRect, Resources.Stopwatch);
             GUI.color = Color.white;

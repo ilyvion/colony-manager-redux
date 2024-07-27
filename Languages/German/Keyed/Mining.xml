@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <ColonyManagerRedux.ManagerMining>Bergbau</ColonyManagerRedux.ManagerMining>
-    <ColonyManagerRedux.ManagerMining.MiningArea>Bergbaugebiet</ColonyManagerRedux.ManagerMining.MiningArea>
-    <ColonyManagerRedux.ManagerMining.HealthAndSafety>Gesundheit und Sicherheit</ColonyManagerRedux.ManagerMining.HealthAndSafety>
-    <ColonyManagerRedux.ManagerMining.AllowedMinerals>Mineralien</ColonyManagerRedux.ManagerMining.AllowedMinerals>
-    <ColonyManagerRedux.ManagerMining.AllowedBuildings>Gebäude</ColonyManagerRedux.ManagerMining.AllowedBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings>Gebäude abreißen</ColonyManagerRedux.ManagerMining.DeconstructBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>Sollten nicht beanspruchte Gebäude für den Bergbau abgerissen werden?</ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport>Dachstützen erhalten</ColonyManagerRedux.ManagerMining.CheckRoofSupport>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>Die Manager lassen die Stützsäulen in regelmäßigen Abständen stehen.\n\nHINWEIS: Die Position der Säulen ist vorberechnet, Einstürze und Dachzusammenbruch können immer noch vorkommen!</ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>Überprüfe die Dachstützen</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>Die Manager berechnen die Unterstützung für das Dach, bevor sie Bergbau- und Dekonstruktionsaufgaben festlegen, wodurch das Risiko von Einstürzen und Dachkollapsen drastisch reduziert wird.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>Deaktiviert, da die Dachunterstützung nicht aktiviert ist.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision>Überprüfe die Raumgrenzen</ColonyManagerRedux.ManagerMining.CheckRoomDivision>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>Manager versuchen zu verhindern, dass Wände durchbrochen werden, durch die Räume getrennt werden, oder dass Verknüpfungen entstehen.</ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>Schwellenwert synchronisieren</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>Wenn Sie diese Option aktivieren, wird versucht, die gezählten Materialien im Schwellenwertfilter mit den für Bergbau/Dekonstruktion zugelassenen Gesteinen und Gebäuden zu synchronisieren und umgekehrt.</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>
+    <ColonyManagerRedux.Mining>Bergbau</ColonyManagerRedux.Mining>
+    <ColonyManagerRedux.Mining.MiningArea>Bergbaugebiet</ColonyManagerRedux.Mining.MiningArea>
+    <ColonyManagerRedux.Mining.HealthAndSafety>Gesundheit und Sicherheit</ColonyManagerRedux.Mining.HealthAndSafety>
+    <ColonyManagerRedux.Mining.AllowedMinerals>Mineralien</ColonyManagerRedux.Mining.AllowedMinerals>
+    <ColonyManagerRedux.Mining.AllowedBuildings>Gebäude</ColonyManagerRedux.Mining.AllowedBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings>Gebäude abreißen</ColonyManagerRedux.Mining.DeconstructBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings.Tip>Sollten nicht beanspruchte Gebäude für den Bergbau abgerissen werden?</ColonyManagerRedux.Mining.DeconstructBuildings.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupport>Dachstützen erhalten</ColonyManagerRedux.Mining.CheckRoofSupport>
+    <ColonyManagerRedux.Mining.CheckRoofSupport.Tip>Die Manager lassen die Stützsäulen in regelmäßigen Abständen stehen.\n\nHINWEIS: Die Position der Säulen ist vorberechnet, Einstürze und Dachzusammenbruch können immer noch vorkommen!</ColonyManagerRedux.Mining.CheckRoofSupport.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>Überprüfe die Dachstützen</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>Die Manager berechnen die Unterstützung für das Dach, bevor sie Bergbau- und Dekonstruktionsaufgaben festlegen, wodurch das Risiko von Einstürzen und Dachkollapsen drastisch reduziert wird.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>Deaktiviert, da die Dachunterstützung nicht aktiviert ist.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>
+    <ColonyManagerRedux.Mining.CheckRoomDivision>Überprüfe die Raumgrenzen</ColonyManagerRedux.Mining.CheckRoomDivision>
+    <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Manager versuchen zu verhindern, dass Wände durchbrochen werden, durch die Räume getrennt werden, oder dass Verknüpfungen entstehen.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Schwellenwert synchronisieren</ColonyManagerRedux.Mining.SyncFilterAndAllowed>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>Wenn Sie diese Option aktivieren, wird versucht, die gezählten Materialien im Schwellenwertfilter mit den für Bergbau/Dekonstruktion zugelassenen Gesteinen und Gebäuden zu synchronisieren und umgekehrt.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, chunks, designated, target -->
-    <ColonyManagerRedux.ManagerMining.TargetCount>Zielanzahl: {0}+{1}+{2}/{3}</ColonyManagerRedux.ManagerMining.TargetCount>
-    <ColonyManagerRedux.ManagerMining.TargetCount.Tip>Ziel: {3}\n{0} im Lager\n{1} erwartet vom Steinschleifen\n{2} mit Ausnahme von momentanen Festlegungen.</ColonyManagerRedux.ManagerMining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount>Zielanzahl: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>Ziel: {3}\n{0} im Lager\n{1} erwartet vom Steinschleifen\n{2} mit Ausnahme von momentanen Festlegungen.</ColonyManagerRedux.Mining.TargetCount.Tip>
 
     <!-- Jobs -->
-    <ColonyManagerRedux.ManagerMining.NewJob>Neuer Job</ColonyManagerRedux.ManagerMining.NewJob>
-    <ColonyManagerRedux.ManagerMining.NewJob.Tip>Erstelle einen neuen Bergbau-Job</ColonyManagerRedux.ManagerMining.NewJob.Tip>
+    <ColonyManagerRedux.Mining.NewJob.Tip>Erstelle einen neuen Bergbau-Job</ColonyManagerRedux.Mining.NewJob.Tip>
 
     <!-- shortcuts -->
-    <ColonyManagerRedux.ManagerMining.Stone>Stein</ColonyManagerRedux.ManagerMining.Stone>
-    <ColonyManagerRedux.ManagerMining.Stone.Tip>Toggelt alle um, die Steinbrocken ergeben</ColonyManagerRedux.ManagerMining.Stone.Tip>
-    <ColonyManagerRedux.ManagerMining.Metal>Metall</ColonyManagerRedux.ManagerMining.Metal>
-    <ColonyManagerRedux.ManagerMining.Metal.Tip>Toggelt alle um, die Metall ergeben</ColonyManagerRedux.ManagerMining.Metal.Tip>
-    <ColonyManagerRedux.ManagerMining.Precious>Kostbar</ColonyManagerRedux.ManagerMining.Precious>
-    <ColonyManagerRedux.ManagerMining.Precious.Tip>Toggelt alle um, die Kostbares ergeben</ColonyManagerRedux.ManagerMining.Precious.Tip>
+    <ColonyManagerRedux.Mining.Stone>Stein</ColonyManagerRedux.Mining.Stone>
+    <ColonyManagerRedux.Mining.Stone.Tip>Toggelt alle um, die Steinbrocken ergeben</ColonyManagerRedux.Mining.Stone.Tip>
+    <ColonyManagerRedux.Mining.Metal>Metall</ColonyManagerRedux.Mining.Metal>
+    <ColonyManagerRedux.Mining.Metal.Tip>Toggelt alle um, die Metall ergeben</ColonyManagerRedux.Mining.Metal.Tip>
+    <ColonyManagerRedux.Mining.Precious>Kostbar</ColonyManagerRedux.Mining.Precious>
+    <ColonyManagerRedux.Mining.Precious.Tip>Toggelt alle um, die Kostbares ergeben</ColonyManagerRedux.Mining.Precious.Tip>
 </LanguageData>

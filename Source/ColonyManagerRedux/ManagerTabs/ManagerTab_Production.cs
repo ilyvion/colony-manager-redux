@@ -113,7 +113,7 @@
 //                // add / remove to the stack
 //                if ( Source == SourceOptions.Current )
 //                {
-//                    if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.ManagerDelete".Translate() ) )
+//                    if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.Common.Delete".Translate() ) )
 //                    {
 //                        _selected.Delete();
 //                        _selected = null;
@@ -131,7 +131,7 @@
 //                                                 ref _selected._createIngredientBills,
 //                                                 !_selected._hasMeaningfulIngredientChoices );
 
-//                        if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.ManagerManage".Translate() ) )
+//                        if ( Widgets.ButtonText( buttonRect, "ColonyManagerRedux.Common.Manage".Translate() ) )
 //                        {
 //                            _selected.Managed = true;
 //                            manager.JobStack.Add( _selected );

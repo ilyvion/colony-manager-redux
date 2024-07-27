@@ -119,7 +119,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
+    public override string Label => "ColonyManagerRedux.Foraging".Translate();
 
     public override IEnumerable<string> Targets => AllowedPlants
         .Select(plant => plant.LabelCap.Resolve());
@@ -167,7 +167,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
     {
         // label, dist, yield.
         var plant = (Plant)designation.target.Thing;
-        return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
+        return "ColonyManagerRedux.Job.DesignationLabel".Translate(
             plant.LabelCap,
             Distance(plant, Manager.map.GetBaseCenter()).ToString("F0"),
             plant.YieldNow(),

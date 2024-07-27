@@ -226,23 +226,23 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         var labelTextSize = Text.CalcSize("ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
         Widgets.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
 
-        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.ManagerHistory.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst());
+        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.History.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst());
         periodRect.xMin += Margin + labelTextSize.x;
         periodRect.yMin += (periodRect.height - 30f) / 2;
         periodRect.width = buttonTextSize.x + LargeIconSize;
         periodRect.height = 30f;
 
         var tooltip = "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(
-            $"ColonyManagerRedux.ManagerHistory.PeriodShown.{tradingHistory.PeriodShown}".Translate());
+            $"ColonyManagerRedux.History.PeriodShown.{tradingHistory.PeriodShown}".Translate());
         TooltipHandler.TipRegion(periodRect, tooltip);
-        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.ManagerHistory.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst()))
+        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.History.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst()))
         {
             var periodOptions = new List<FloatMenuOption>();
             for (var i = 0; i < History.Periods.Length; i++)
             {
                 var period = History.Periods[i];
                 periodOptions.Add(new FloatMenuOption(
-                    $"ColonyManagerRedux.ManagerHistory.PeriodShown.{period}".Translate().CapitalizeFirst(),
+                    $"ColonyManagerRedux.History.PeriodShown.{period}".Translate().CapitalizeFirst(),
                     delegate
                     {
                         tradingHistory.PeriodShown = period;

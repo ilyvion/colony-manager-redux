@@ -92,7 +92,7 @@ public abstract class ManagerTab(Manager manager)
         }
         else
         {
-            text += "ColonyManagerRedux.Multiple".Translate().Resolve().Italic();
+            text += subLabel.Truncate(labelRect.width).Italic();
         }
         return text;
     }
@@ -183,8 +183,8 @@ public abstract class ManagerTab(Manager manager)
 
         Utilities.DrawToggle(
             rect,
-            $"ColonyManagerRedux.{labelKey}".Translate().Italic(),
-            toolTipKey != null ? $"ColonyManagerRedux.{toolTipKey}".Translate() : string.Empty,
+            labelKey.Translate().Italic(),
+            toolTipKey != null ? toolTipKey.Translate() : string.Empty,
             allSelected,
             noneSelected,
             () => options.ForEach(p => setAllowed(p, true)),
@@ -260,13 +260,13 @@ public abstract class ManagerTab(Manager manager)
     {
         if (up)
         {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderUp".Translate());
-            TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderTop".Translate());
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.IncreasePriority".Translate());
+            TooltipHandler.TipRegion(max, "ColonyManagerRedux.Job.TopPriority".Translate());
         }
         else
         {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.ManagerOrderDown".Translate());
-            TooltipHandler.TipRegion(max, "ColonyManagerRedux.ManagerOrderBottom".Translate());
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.DecreasePriorityn".Translate());
+            TooltipHandler.TipRegion(max, "ColonyManagerRedux.Job.BottomPriority".Translate());
         }
     }
 

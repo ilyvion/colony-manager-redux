@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <ColonyManagerRedux.ManagerMining>Mining</ColonyManagerRedux.ManagerMining>
-    <ColonyManagerRedux.ManagerMining.MiningArea>Mining area</ColonyManagerRedux.ManagerMining.MiningArea>
-    <ColonyManagerRedux.ManagerMining.HealthAndSafety>Health and Safety</ColonyManagerRedux.ManagerMining.HealthAndSafety>
-    <ColonyManagerRedux.ManagerMining.AllowedMinerals>Minerals</ColonyManagerRedux.ManagerMining.AllowedMinerals>
-    <ColonyManagerRedux.ManagerMining.AllowedBuildings>Buildings</ColonyManagerRedux.ManagerMining.AllowedBuildings>
-    <ColonyManagerRedux.ManagerMining.Chunks>Chunks</ColonyManagerRedux.ManagerMining.Chunks>
-    <ColonyManagerRedux.ManagerMining.HaulMapChunks>Designate chunks on the map for hauling</ColonyManagerRedux.ManagerMining.HaulMapChunks>
-    <ColonyManagerRedux.ManagerMining.HaulMapChunks.Tip>If there are any relevant chunks present on the map that are not already in storage, mark them for hauling to satisfy a threshold.</ColonyManagerRedux.ManagerMining.HaulMapChunks.Tip>
-    <ColonyManagerRedux.ManagerMining.HaulMinedChunks>Designate mined chunks for hauling</ColonyManagerRedux.ManagerMining.HaulMinedChunks>
-    <ColonyManagerRedux.ManagerMining.HaulMinedChunks.Tip>Should mining jobs that result in chunks (e.g. mining for stone) automatically mark the resulting chunks for hauling? This setting will only apply to mining jobs that the colony manager is tracking (though note that an originally manually designated mining job can be "taken over" by a manager) and where the threshold is configured to allow that type of chunk.</ColonyManagerRedux.ManagerMining.HaulMinedChunks.Tip>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings>Deconstruct buildings</ColonyManagerRedux.ManagerMining.DeconstructBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>Should unclaimed buildings be deconstructed for salvage?</ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport>Leave roof supports</ColonyManagerRedux.ManagerMining.CheckRoofSupport>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>Managers will leave support columns up at regular intervals.\n\nNOTE: The position of columns is pre-calculated, cave-ins and roof collapse can still occur!</ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>Check for roof supports</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>Managers will calculate roof support before designating mining and deconstruction tasks, drastically reducing the risk of cave-ins and roof collapse.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>Disabled because checking for roof support is disabled.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision>Check room boundaries</ColonyManagerRedux.ManagerMining.CheckRoomDivision>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>Managers will try to prevent breaching walls that divide rooms, or that would create shortcuts.</ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the rocks and buildings allowed for mining/deconstruction, and vice versa.</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>
+    <ColonyManagerRedux.Mining>Mining</ColonyManagerRedux.Mining>
+    <ColonyManagerRedux.Mining.MiningArea>Mining area</ColonyManagerRedux.Mining.MiningArea>
+    <ColonyManagerRedux.Mining.HealthAndSafety>Health and Safety</ColonyManagerRedux.Mining.HealthAndSafety>
+    <ColonyManagerRedux.Mining.AllowedMinerals>Minerals</ColonyManagerRedux.Mining.AllowedMinerals>
+    <ColonyManagerRedux.Mining.AllowedBuildings>Buildings</ColonyManagerRedux.Mining.AllowedBuildings>
+    <ColonyManagerRedux.Mining.Chunks>Chunks</ColonyManagerRedux.Mining.Chunks>
+    <ColonyManagerRedux.Mining.HaulMapChunks>Designate chunks on the map for hauling</ColonyManagerRedux.Mining.HaulMapChunks>
+    <ColonyManagerRedux.Mining.HaulMapChunks.Tip>If there are any relevant chunks present on the map that are not already in storage, mark them for hauling to satisfy a threshold.</ColonyManagerRedux.Mining.HaulMapChunks.Tip>
+    <ColonyManagerRedux.Mining.HaulMinedChunks>Designate mined chunks for hauling</ColonyManagerRedux.Mining.HaulMinedChunks>
+    <ColonyManagerRedux.Mining.HaulMinedChunks.Tip>Should mining jobs that result in chunks (e.g. mining for stone) automatically mark the resulting chunks for hauling? This setting will only apply to mining jobs that the colony manager is tracking (though note that an originally manually designated mining job can be "taken over" by a manager) and where the threshold is configured to allow that type of chunk.</ColonyManagerRedux.Mining.HaulMinedChunks.Tip>
+    <ColonyManagerRedux.Mining.DeconstructBuildings>Deconstruct buildings</ColonyManagerRedux.Mining.DeconstructBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings.Tip>Should unclaimed buildings be deconstructed for salvage?</ColonyManagerRedux.Mining.DeconstructBuildings.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupport>Leave roof supports</ColonyManagerRedux.Mining.CheckRoofSupport>
+    <ColonyManagerRedux.Mining.CheckRoofSupport.Tip>Managers will leave support columns up at regular intervals.\n\nNOTE: The position of columns is pre-calculated, cave-ins and roof collapse can still occur!</ColonyManagerRedux.Mining.CheckRoofSupport.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>Check for roof supports</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>Managers will calculate roof support before designating mining and deconstruction tasks, drastically reducing the risk of cave-ins and roof collapse.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>Disabled because checking for roof support is disabled.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>
+    <ColonyManagerRedux.Mining.CheckRoomDivision>Check room boundaries</ColonyManagerRedux.Mining.CheckRoomDivision>
+    <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Managers will try to prevent breaching walls that divide rooms, or that would create shortcuts.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.Mining.SyncFilterAndAllowed>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the rocks and buildings allowed for mining/deconstruction, and vice versa.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, chunks, designated, target -->
-    <ColonyManagerRedux.ManagerMining.TargetCount>Target count: {0}+{1}+{2}/{3}</ColonyManagerRedux.ManagerMining.TargetCount>
-    <ColonyManagerRedux.ManagerMining.TargetCount.Tip>Target: {3}\n{0} in storage\n{1} expected from stonecutting\n{2} expected from current designations.</ColonyManagerRedux.ManagerMining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount>Target count: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>Target: {3}\n{0} in storage\n{1} expected from stonecutting\n{2} expected from current designations.</ColonyManagerRedux.Mining.TargetCount.Tip>
 
     <!-- Jobs -->
-    <ColonyManagerRedux.ManagerMining.NewJob>New job</ColonyManagerRedux.ManagerMining.NewJob>
-    <ColonyManagerRedux.ManagerMining.NewJob.Tip>Create a new mining job</ColonyManagerRedux.ManagerMining.NewJob.Tip>
+    <ColonyManagerRedux.Mining.NewJob.Tip>Create a new mining job</ColonyManagerRedux.Mining.NewJob.Tip>
 
     <!-- shortcuts -->
-    <ColonyManagerRedux.ManagerMining.Stone>Stone</ColonyManagerRedux.ManagerMining.Stone>
-    <ColonyManagerRedux.ManagerMining.Stone.Tip>Toggle all mineables that yield stone chunks</ColonyManagerRedux.ManagerMining.Stone.Tip>
-    <ColonyManagerRedux.ManagerMining.Metal>Metal</ColonyManagerRedux.ManagerMining.Metal>
-    <ColonyManagerRedux.ManagerMining.Metal.Tip>Toggle all mineables that yield metal</ColonyManagerRedux.ManagerMining.Metal.Tip>
-    <ColonyManagerRedux.ManagerMining.Precious>Precious</ColonyManagerRedux.ManagerMining.Precious>
-    <ColonyManagerRedux.ManagerMining.Precious.Tip>Toggle all mineables that yield precious materials</ColonyManagerRedux.ManagerMining.Precious.Tip>
+    <ColonyManagerRedux.Mining.Stone>Stone</ColonyManagerRedux.Mining.Stone>
+    <ColonyManagerRedux.Mining.Stone.Tip>Toggle all mineables that yield stone chunks</ColonyManagerRedux.Mining.Stone.Tip>
+    <ColonyManagerRedux.Mining.Metal>Metal</ColonyManagerRedux.Mining.Metal>
+    <ColonyManagerRedux.Mining.Metal.Tip>Toggle all mineables that yield metal</ColonyManagerRedux.Mining.Metal.Tip>
+    <ColonyManagerRedux.Mining.Precious>Precious</ColonyManagerRedux.Mining.Precious>
+    <ColonyManagerRedux.Mining.Precious.Tip>Toggle all mineables that yield precious materials</ColonyManagerRedux.Mining.Precious.Tip>
+
+    <ColonyManagerRedux.Mining.JobSettings.DefaultChunks>Default chunks</ColonyManagerRedux.Mining.JobSettings.DefaultChunks>
+    <ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety>
 </LanguageData>

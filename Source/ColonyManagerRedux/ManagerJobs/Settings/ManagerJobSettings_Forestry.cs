@@ -22,7 +22,7 @@ internal sealed class ManagerJobSettings_Forestry : ManagerJobSettings
             rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(panelRect, "Forestry.Settings", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.ForestryJobSettings.DefaultJobType".Translate());
+        Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobSettings.DefaultJobType".Translate());
         Widgets_Section.Section(ref position, width, DrawAllowSaplings);
         Widgets_Section.EndSectionColumn("Forestry.Settings", position);
     }

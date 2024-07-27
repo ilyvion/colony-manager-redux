@@ -1,51 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
     <!-- Main Manager Tab -->
-    <ColonyManagerRedux.ManagerManager>Gestion</ColonyManagerRedux.ManagerManager>
-    <ColonyManagerRedux.ManagerDetails>Détails</ColonyManagerRedux.ManagerDetails>
-    <ColonyManagerRedux.ManagerManage>Gérer!</ColonyManagerRedux.ManagerManage>
-    <ColonyManagerRedux.ManagerDelete>Supprimer</ColonyManagerRedux.ManagerDelete>
-    <ColonyManagerRedux.ManagerAll>Tout</ColonyManagerRedux.ManagerAll>
-    <ColonyManagerRedux.ManagerTabDisabledBecause>(désactivé: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
+    <ColonyManagerRedux.Shortcuts.All>Tout</ColonyManagerRedux.Shortcuts.All>
+    <ColonyManagerRedux.Common.Manage>Gérer!</ColonyManagerRedux.Common.Manage>
+    <ColonyManagerRedux.Common.Delete>Supprimer</ColonyManagerRedux.Common.Delete>
+    <ColonyManagerRedux.Common.TabDisabledBecause>(désactivé: {0})</ColonyManagerRedux.Common.TabDisabledBecause>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerAlertNoTableLabel>Nécessite le bureau de gestionnaire</ColonyManagerRedux.ManagerAlertNoTableLabel>
-    <ColonyManagerRedux.ManagerAlertNoTable>Les cibles de tâches sont établies, mais il n'y a pas de bureau de gestionnaire disponible</ColonyManagerRedux.ManagerAlertNoTable>
-    <ColonyManagerRedux.ManagerAlertNoManagerLabel>Nécessite un colon gestionnaire</ColonyManagerRedux.ManagerAlertNoManagerLabel>
-    <ColonyManagerRedux.ManagerAlertNoManager>Les cibles de gestion sont établies, mais il n'y a aucun colon ayant le travail de gestionnaire.</ColonyManagerRedux.ManagerAlertNoManager>
+    <ColonyManagerRedux.Alerts.NoTableLabel>Nécessite le bureau de gestionnaire</ColonyManagerRedux.Alerts.NoTableLabel>
+    <ColonyManagerRedux.Alerts.NoTable>Les cibles de tâches sont établies, mais il n'y a pas de bureau de gestionnaire disponible</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoManagerLabel>Nécessite un colon gestionnaire</ColonyManagerRedux.Alerts.NoManagerLabel>
+    <ColonyManagerRedux.Alerts.NoManager>Les cibles de gestion sont établies, mais il n'y a aucun colon ayant le travail de gestionnaire.</ColonyManagerRedux.Alerts.NoManager>
 
     <!-- Common -->
-    <ColonyManagerRedux.ManagerLastUpdateTooltip>Ce travail a été mis a jour il y a {0}.</ColonyManagerRedux.ManagerLastUpdateTooltip>
-    <ColonyManagerRedux.ManagerOrderUp>Augmenter la priorité de travail</ColonyManagerRedux.ManagerOrderUp>
-    <ColonyManagerRedux.ManagerOrderDown>Diminuer la priorité de travail</ColonyManagerRedux.ManagerOrderDown>
-    <ColonyManagerRedux.ManagerOrderTop>Priorité maximale</ColonyManagerRedux.ManagerOrderTop>
-    <ColonyManagerRedux.ManagerOrderBottom>Priorité minimale</ColonyManagerRedux.ManagerOrderBottom>
-    <ColonyManagerRedux.Multiple>[multiple]</ColonyManagerRedux.Multiple>
-    <ColonyManagerRedux.ManagerThreshold>Seuil</ColonyManagerRedux.ManagerThreshold>
-    <ColonyManagerRedux.ManagerCheckReachability>Vérifie si la cible est atteignable</ColonyManagerRedux.ManagerCheckReachability>
-    <ColonyManagerRedux.ManagerCheckReachability.Tip>Calcule si un trajet vers la cible esty possible (pour n'importe quel colon) avant de créer une désignation.</ColonyManagerRedux.ManagerCheckReachability.Tip>
-    <ColonyManagerRedux.ManagerExpensive.Tip>Activer cette option peu faire chuter les performances, particulierement sur les grandes cartes, les zones montagneuses, les tâches avec beaucoup de cibles potentielles et les colonies avec un grand nombre de colons.</ColonyManagerRedux.ManagerExpensive.Tip>
-    <ColonyManagerRedux.ManagerPathBasedDistance>Calcul la distance à partir du trajet actuel</ColonyManagerRedux.ManagerPathBasedDistance>
-    <ColonyManagerRedux.ManagerPathBasedDistance.Tip>Si activé, les distances seront calculées avec le vrai trajet. Si désactivé, les distances sont calculées à "vol d'oiseau". \n\nNOTE: Activer cette option sur des tâches avec un grand nombre de cibles possible peut générer des pics de ralentissement significatifs</ColonyManagerRedux.ManagerPathBasedDistance.Tip>
-    <ColonyManagerRedux.ManagerCountAllOnMap>Compter sur toute la carte</ColonyManagerRedux.ManagerCountAllOnMap>
-    <ColonyManagerRedux.ManagerCountAllOnMap.Tip>Si activé, compte tous les éléments autorisés par le filtre à seuil sur la carte. Si désactivé, ne compte que les stocks et les bâtiments de stockage.</ColonyManagerRedux.ManagerCountAllOnMap.Tip>
-    <ColonyManagerRedux.ManagerNone>Aucun</ColonyManagerRedux.ManagerNone>
+    <ColonyManagerRedux.Job.LastUpdatedTooltip>Ce travail a été mis a jour il y a {0}.</ColonyManagerRedux.Job.LastUpdatedTooltip>
+    <ColonyManagerRedux.Job.IncreasePriority>Augmenter la priorité de travail</ColonyManagerRedux.Job.IncreasePriority>
+    <ColonyManagerRedux.Job.DecreasePriorityn>Diminuer la priorité de travail</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.TopPriority>Priorité maximale</ColonyManagerRedux.Job.TopPriority>
+    <ColonyManagerRedux.Job.BottomPriority>Priorité minimale</ColonyManagerRedux.Job.BottomPriority>
+    <ColonyManagerRedux.Threshold>Seuil</ColonyManagerRedux.Threshold>
+    <ColonyManagerRedux.Threshold.CheckReachability>Vérifie si la cible est atteignable</ColonyManagerRedux.Threshold.CheckReachability>
+    <ColonyManagerRedux.Threshold.CheckReachability.Tip>Calcule si un trajet vers la cible esty possible (pour n'importe quel colon) avant de créer une désignation.</ColonyManagerRedux.Threshold.CheckReachability.Tip>
+    <ColonyManagerRedux.Common.Expensive.Tip>Activer cette option peu faire chuter les performances, particulierement sur les grandes cartes, les zones montagneuses, les tâches avec beaucoup de cibles potentielles et les colonies avec un grand nombre de colons.</ColonyManagerRedux.Common.Expensive.Tip>
+    <ColonyManagerRedux.Threshold.PathBasedDistance>Calcul la distance à partir du trajet actuel</ColonyManagerRedux.Threshold.PathBasedDistance>
+    <ColonyManagerRedux.Threshold.PathBasedDistance.Tip>Si activé, les distances seront calculées avec le vrai trajet. Si désactivé, les distances sont calculées à "vol d'oiseau". \n\nNOTE: Activer cette option sur des tâches avec un grand nombre de cibles possible peut générer des pics de ralentissement significatifs</ColonyManagerRedux.Threshold.PathBasedDistance.Tip>
+    <ColonyManagerRedux.Threshold.CountAllOnMap>Compter sur toute la carte</ColonyManagerRedux.Threshold.CountAllOnMap>
+    <ColonyManagerRedux.Threshold.CountAllOnMap.Tip>Si activé, compte tous les éléments autorisés par le filtre à seuil sur la carte. Si désactivé, ne compte que les stocks et les bâtiments de stockage.</ColonyManagerRedux.Threshold.CountAllOnMap.Tip>
+    <ColonyManagerRedux.Common.None>Aucun</ColonyManagerRedux.Common.None>
     <!-- 0: target (thing), 1: distance (int), 2: yield amount (int), 3: yield type (def) -->
-    <ColonyManagerRedux.Manager.DesignationLabel>{0}\n distance: {1}\n production: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
+    <ColonyManagerRedux.Job.DesignationLabel>{0}\n distance: {1}\n production: {2}x {3}</ColonyManagerRedux.Job.DesignationLabel>
 
     <!-- time periods for update interval -->
     <ColonyManagerRedux.ManagerDefaultUpdateInterval>Intervalle de mise à jour par défaut</ColonyManagerRedux.ManagerDefaultUpdateInterval>
-    <ColonyManagerRedux.ManagerHourly>Chaque heure</ColonyManagerRedux.ManagerHourly>
-    <ColonyManagerRedux.ManagerMultiHourly>Toute les {0} heures</ColonyManagerRedux.ManagerMultiHourly>
-    <ColonyManagerRedux.ManagerDaily>Quotidien</ColonyManagerRedux.ManagerDaily>
-    <ColonyManagerRedux.ManagerMonthly>Mensuel</ColonyManagerRedux.ManagerMonthly>
-    <ColonyManagerRedux.ManagerYearly>Annuel</ColonyManagerRedux.ManagerYearly>
+    <ColonyManagerRedux.UpdateInterval.Hourly>Chaque heure</ColonyManagerRedux.UpdateInterval.Hourly>
+    <ColonyManagerRedux.UpdateInterval.MultipleHourly>Toute les {0} heures</ColonyManagerRedux.UpdateInterval.MultipleHourly>
+    <ColonyManagerRedux.UpdateInterval.Daily>Quotidien</ColonyManagerRedux.UpdateInterval.Daily>
+    <ColonyManagerRedux.UpdateInterval.Monthly>Mensuel</ColonyManagerRedux.UpdateInterval.Monthly>
+    <ColonyManagerRedux.UpdateInterval.Yearly>Annuel</ColonyManagerRedux.UpdateInterval.Yearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistory.Period>Période</ColonyManagerRedux.ManagerHistory.Period>
-    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>Montrer/Cacher la légende</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
-    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\nCliquer pour {0} {1} en action.\nCliquer droit pour montrer seulement {1}.</ColonyManagerRedux.ManagerHistory.ClickToEnable>
-    <ColonyManagerRedux.ManagerHistory.NoChapters>Rien à montrer!</ColonyManagerRedux.ManagerHistory.NoChapters>
+    <ColonyManagerRedux.History.Period>Période</ColonyManagerRedux.History.Period>
+    <ColonyManagerRedux.History.ShowHideLegend>Montrer/Cacher la légende</ColonyManagerRedux.History.ShowHideLegend>
+    <ColonyManagerRedux.History.ClickToEnable>\n\nCliquer pour {0} {1} en action.\nCliquer droit pour montrer seulement {1}.</ColonyManagerRedux.History.ClickToEnable>
+    <ColonyManagerRedux.History.NoChapters>Rien à montrer!</ColonyManagerRedux.History.NoChapters>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>Période: {0}</ColonyManagerRedux.Energy.PeriodShown>
@@ -55,7 +52,7 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>Aucun poste de gestionnaire n'est alimenté</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.Overview.Overview>Aperçu</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview>Aperçu</ColonyManagerRedux.Overview>
     <ColonyManagerRedux.Overview.NoJobs>Pas de travail établi.</ColonyManagerRedux.Overview.NoJobs>
     <ColonyManagerRedux.Overview.Activity>Activité actuelle</ColonyManagerRedux.Overview.Activity>
     <ColonyManagerRedux.Overview.WorkEnabled>Travail</ColonyManagerRedux.Overview.WorkEnabled>
@@ -77,7 +74,7 @@
     <ColonyManagerRedux.ManagerNoSaves>Pas d'exportations trouvées.</ColonyManagerRedux.ManagerNoSaves>
 
     <!-- Hunting Tab -->
-    <ColonyManagerRedux.Hunting.Hunting>Chasse</ColonyManagerRedux.Hunting.Hunting>
+    <ColonyManagerRedux.Hunting>Chasse</ColonyManagerRedux.Hunting>
     <ColonyManagerRedux.Hunting.NewHuntingJob>Nouvelle tâche</ColonyManagerRedux.Hunting.NewHuntingJob>
     <ColonyManagerRedux.Hunting.NewHuntingJobTooltip>Créer un nouveau travail de chasse</ColonyManagerRedux.Hunting.NewHuntingJobTooltip>
     <ColonyManagerRedux.Hunting.AllowHumanMeat>Compter la viande humaine</ColonyManagerRedux.Hunting.AllowHumanMeat>
@@ -89,19 +86,18 @@
     <ColonyManagerRedux.Hunting.Animals>Animaux autorisés</ColonyManagerRedux.Hunting.Animals>
     <ColonyManagerRedux.Hunting.TargetCount>Quantité cible: {0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
     <ColonyManagerRedux.Hunting.TargetCountTooltip>Objectif: {3}\n{0} in storage\n{1} expected from butchery\n{2} expected from current designations.</ColonyManagerRedux.Hunting.TargetCountTooltip>
-    <ColonyManagerRedux.ManagerHunting.Predators>Prédateurs</ColonyManagerRedux.ManagerHunting.Predators>
-    <ColonyManagerRedux.ManagerHunting.Predators.Tip>Autoriser tous les prédateurs</ColonyManagerRedux.ManagerHunting.Predators.Tip>
-    <ColonyManagerRedux.ManagerHunting.HerdAnimals>Animaux grégaires</ColonyManagerRedux.ManagerHunting.HerdAnimals>
-    <ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>Autoriser tous les animaux de troupeau</ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>
-    <ColonyManagerRedux.ManagerHunting.Exploding>Explosifs</ColonyManagerRedux.ManagerHunting.Exploding>
-    <ColonyManagerRedux.ManagerHunting.Exploding.Tip>Autoriser les animaux explosifs</ColonyManagerRedux.ManagerHunting.Exploding.Tip>
-    <ColonyManagerRedux.ManagerHunting.AreaRestriction>Restreindre la chasse dans</ColonyManagerRedux.ManagerHunting.AreaRestriction>
+    <ColonyManagerRedux.Hunting.Predators>Prédateurs</ColonyManagerRedux.Hunting.Predators>
+    <ColonyManagerRedux.Hunting.Predators.Tip>Autoriser tous les prédateurs</ColonyManagerRedux.Hunting.Predators.Tip>
+    <ColonyManagerRedux.Hunting.HerdAnimals>Animaux grégaires</ColonyManagerRedux.Hunting.HerdAnimals>
+    <ColonyManagerRedux.Hunting.HerdAnimals.Tip>Autoriser tous les animaux de troupeau</ColonyManagerRedux.Hunting.HerdAnimals.Tip>
+    <ColonyManagerRedux.Hunting.Exploding>Explosifs</ColonyManagerRedux.Hunting.Exploding>
+    <ColonyManagerRedux.Hunting.Exploding.Tip>Autoriser les animaux explosifs</ColonyManagerRedux.Hunting.Exploding.Tip>
+    <ColonyManagerRedux.Hunting.AreaRestriction>Restreindre la chasse dans</ColonyManagerRedux.Hunting.AreaRestriction>
 
     <!-- Forestry Tab -->
     <ColonyManagerRedux.Forestry.Forestry>Foresterie</ColonyManagerRedux.Forestry.Forestry>
     <ColonyManagerRedux.Forestry.NewForestryJob>Nouvelle tâche</ColonyManagerRedux.Forestry.NewForestryJob>
     <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Créer un nouveau travail de foresterie</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
-    <ColonyManagerRedux.Forestry.Options>Options</ColonyManagerRedux.Forestry.Options>
     <ColonyManagerRedux.Forestry.ClearWindCells>Déblayer l'espace des éoliennes</ColonyManagerRedux.Forestry.ClearWindCells>
     <ColonyManagerRedux.Forestry.ClearWindCells.Tip>Déblaie les zones de blocage des éoliennes</ColonyManagerRedux.Forestry.ClearWindCells.Tip>
     <ColonyManagerRedux.Forestry.AllowSaplings>Seulement les arbres entièrement matures.</ColonyManagerRedux.Forestry.AllowSaplings>
@@ -132,32 +128,30 @@
 
 
     <!-- Foraging (Gathering) tab -->
-    <ColonyManagerRedux.Foraging.Foraging>Cueillette</ColonyManagerRedux.Foraging.Foraging>
+    <ColonyManagerRedux.Foraging>Cueillette</ColonyManagerRedux.Foraging>
     <ColonyManagerRedux.Foraging.NewForagingJob>Nouvelle tâche</ColonyManagerRedux.Foraging.NewForagingJob>
     <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Créer un nouveau travail de cueillette</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
-    <ColonyManagerRedux.Foraging.Options>Options</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>Quantité ciblée: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>Objectif: {2}\n{0} dans la zone de stockage\n{1} attendu par les désignations actuelles.</ColonyManagerRedux.Foraging.TargetCountTooltip>
     <ColonyManagerRedux.Foraging.ForceFullyMature>Seulement les plantes totalement mûres</ColonyManagerRedux.Foraging.ForceFullyMature>
     <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>La cueillette doit-elle être limitée aux plantes matûres seulement?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Autoriser la cueillette dans:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>Plantes autorisées</ColonyManagerRedux.Foraging.Plants>
-    <ColonyManagerRedux.ManagerForaging.Edible>Plantes comestibles</ColonyManagerRedux.ManagerForaging.Edible>
-    <ColonyManagerRedux.ManagerForaging.Edible.Tip>Selectionner toutes les plantes comestibles</ColonyManagerRedux.ManagerForaging.Edible.Tip>
-    <ColonyManagerRedux.ManagerForaging.Mushrooms>Champignons</ColonyManagerRedux.ManagerForaging.Mushrooms>
-    <ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>Selectionner tous les champignons</ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>
+    <ColonyManagerRedux.Foraging.Edible>Plantes comestibles</ColonyManagerRedux.Foraging.Edible>
+    <ColonyManagerRedux.Foraging.Edible.Tip>Selectionner toutes les plantes comestibles</ColonyManagerRedux.Foraging.Edible.Tip>
+    <ColonyManagerRedux.Foraging.Mushrooms>Champignons</ColonyManagerRedux.Foraging.Mushrooms>
+    <ColonyManagerRedux.Foraging.Mushrooms.Tip>Selectionner tous les champignons</ColonyManagerRedux.Foraging.Mushrooms.Tip>
 
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Seuil: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Cliquer pour ouvrir les détails du seuil.\n\nCible: {1}\nEn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    <ColonyManagerRedux.Thresholds.ThresholdDetails>Détails du seuil</ColonyManagerRedux.Thresholds.ThresholdDetails>
-
+    
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Actuel</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Possible</ColonyManagerRedux.Thresholds.Available>
 
     <!-- Livestock tab -->
-    <ColonyManagerRedux.Livestock.Livestock>Bétail</ColonyManagerRedux.Livestock.Livestock>
+    <ColonyManagerRedux.Livestock>Bétail</ColonyManagerRedux.Livestock>
     <ColonyManagerRedux.Livestock.TargetCounts>Quantité ciblée</ColonyManagerRedux.Livestock.TargetCounts>
     <ColonyManagerRedux.Livestock.Adult>Adulte</ColonyManagerRedux.Livestock.Adult>
     <ColonyManagerRedux.Livestock.Juvenile>Juvenile</ColonyManagerRedux.Livestock.Juvenile>
@@ -187,53 +181,53 @@
     <ColonyManagerRedux.Livestock.TrainYoung>Dresser les jeunes animaux</ColonyManagerRedux.Livestock.TrainYoung>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea>Restreindre les animaux marqués pour l'abattage</ColonyManagerRedux.Livestock.SendToSlaughterArea>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>Restreindre les animaux marqués pour l'abattage à une zone spécifique</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
-    <ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>Quantité ciblée</ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>
-    <ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>Restrictions de zone</ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>
-    <ColonyManagerRedux.ManagerLivestock.TrainingHeader>Dressage</ColonyManagerRedux.ManagerLivestock.TrainingHeader>
-    <ColonyManagerRedux.ManagerLivestock.ButcherHeader>Abattage</ColonyManagerRedux.ManagerLivestock.ButcherHeader>
-    <ColonyManagerRedux.ManagerLivestock.TamingHeader>Apprivoisement</ColonyManagerRedux.ManagerLivestock.TamingHeader>
+    <ColonyManagerRedux.Livestock.TargetCountsHeader>Quantité ciblée</ColonyManagerRedux.Livestock.TargetCountsHeader>
+    <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>Restrictions de zone</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
+    <ColonyManagerRedux.Livestock.TrainingHeader>Dressage</ColonyManagerRedux.Livestock.TrainingHeader>
+    <ColonyManagerRedux.Livestock.ButcherHeader>Abattage</ColonyManagerRedux.Livestock.ButcherHeader>
+    <ColonyManagerRedux.Livestock.TamingHeader>Apprivoisement</ColonyManagerRedux.Livestock.TamingHeader>
     <ColonyManagerRedux.Livestock.Tame>apprivoisé</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>sauvage</ColonyManagerRedux.Livestock.Wild>
-    <ColonyManagerRedux.ManagerLivestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.ManagerLivestock.AnimalsHeader>
-    <ColonyManagerRedux.ManagerLivestock.SelectPawnKind>Pas de tâche selectionnée</ColonyManagerRedux.ManagerLivestock.SelectPawnKind>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>Désactivé car le bétail en surplus n'est pas abattu.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>
+    <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
+    <ColonyManagerRedux.Livestock.SelectPawnKind>Pas de tâche selectionnée</ColonyManagerRedux.Livestock.SelectPawnKind>
+    <ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>Désactivé car le bétail en surplus n'est pas abattu.</ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>
     <ColonyManagerRedux.Livestock.SendToTrainingArea>Restreindre les animaux marqués pour le dressage</ColonyManagerRedux.Livestock.SendToTrainingArea>
     <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restreindre les animaux marqués pour le dressage à une zone spécifique.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>Désactivé car aucune cible à dresser n'est sélectionnée.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>
-    <ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>{0} sont trop jeunes pour ce dressage.</ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>
+    <ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>Désactivé car aucune cible à dresser n'est sélectionnée.</ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>
+    <ColonyManagerRedux.Livestock.CannotTrainTooSmall>{0} sont trop jeunes pour ce dressage.</ColonyManagerRedux.Livestock.CannotTrainTooSmall>
 
     <!-- following -->
-    <ColonyManagerRedux.ManagerLivestock.FollowHeader>Suivi</ColonyManagerRedux.ManagerLivestock.FollowHeader>
-    <ColonyManagerRedux.ManagerLivestock.MasterDefault>Assigner maitre(s)</ColonyManagerRedux.ManagerLivestock.MasterDefault>
-    <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>Assigner un animal à un maitre spécifique ou à un groupe de colons. Peut écraser les réglages de l'utilisateur quand activé.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
-    <ColonyManagerRedux.ManagerLivestock.RespectBonds>Respecter lien</ColonyManagerRedux.ManagerLivestock.RespectBonds>
-    <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>Si activé, un animal ayant un lien avec un colon sera toujours assigné à ce colon. Si désactivé, les liens sont ignorés.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
-    <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Disabled because master is set to a specific pawn, or set manually.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
-    <ColonyManagerRedux.ManagerLivestock.Follow>Configurer maître suivi</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Configurer le maître à suite, écrasera les réglages utilisateur si activé. Si désactivé, les règles de suivi peuvent être assignées manuellement.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Mobilisé</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
-    <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Les animaux doivent-ils suivre leur maître s'il est mobilisé?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Travaux</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
-    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>Les animaux doivent-ils suivre leur maître quand il fait des travaux ? (exemple : chasse)</ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowTraining>Suivre dresseur</ColonyManagerRedux.ManagerLivestock.FollowTraining>
-    <ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>Les animaux marqués pour le dressages essaieront de suivre leur dresseur.</ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>
-    <ColonyManagerRedux.ManagerLivestock.MasterTraining>Assigner dresseur(s)</ColonyManagerRedux.ManagerLivestock.MasterTraining>
-    <ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>Assigne les animaux marqué pour le dressage à un maître spécifique (dresseur), ou à tous les dresseurs. Peut écraser les réglages utilisateur quand activé.</ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>
-    <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
+    <ColonyManagerRedux.Livestock.FollowHeader>Suivi</ColonyManagerRedux.Livestock.FollowHeader>
+    <ColonyManagerRedux.Livestock.MasterDefault>Assigner maitre(s)</ColonyManagerRedux.Livestock.MasterDefault>
+    <ColonyManagerRedux.Livestock.MasterDefault.Tip>Assigner un animal à un maitre spécifique ou à un groupe de colons. Peut écraser les réglages de l'utilisateur quand activé.</ColonyManagerRedux.Livestock.MasterDefault.Tip>
+    <ColonyManagerRedux.Livestock.RespectBonds>Respecter lien</ColonyManagerRedux.Livestock.RespectBonds>
+    <ColonyManagerRedux.Livestock.RespectBonds.Tip>Si activé, un animal ayant un lien avec un colon sera toujours assigné à ce colon. Si désactivé, les liens sont ignorés.</ColonyManagerRedux.Livestock.RespectBonds.Tip>
+    <ColonyManagerRedux.Livestock.RespectBonds.DisabledBecauseMastersNotSet>Disabled because master is set to a specific pawn, or set manually.</ColonyManagerRedux.Livestock.RespectBonds.DisabledBecauseMastersNotSet>
+    <ColonyManagerRedux.Livestock.Follow>Configurer maître suivi</ColonyManagerRedux.Livestock.Follow>
+    <ColonyManagerRedux.Livestock.Follow.Tip>Configurer le maître à suite, écrasera les réglages utilisateur si activé. Si désactivé, les règles de suivi peuvent être assignées manuellement.</ColonyManagerRedux.Livestock.Follow.Tip>
+    <ColonyManagerRedux.Livestock.FollowDrafted>Mobilisé</ColonyManagerRedux.Livestock.FollowDrafted>
+    <ColonyManagerRedux.Livestock.FollowDrafted.Tip>Les animaux doivent-ils suivre leur maître s'il est mobilisé?</ColonyManagerRedux.Livestock.FollowDrafted.Tip>
+    <ColonyManagerRedux.Livestock.FollowFieldwork>Travaux</ColonyManagerRedux.Livestock.FollowFieldwork>
+    <ColonyManagerRedux.Livestock.FollowFieldwork.Tip>Les animaux doivent-ils suivre leur maître quand il fait des travaux ? (exemple : chasse)</ColonyManagerRedux.Livestock.FollowFieldwork.Tip>
+    <ColonyManagerRedux.Livestock.FollowTraining>Suivre dresseur</ColonyManagerRedux.Livestock.FollowTraining>
+    <ColonyManagerRedux.Livestock.FollowTraining.Tip>Les animaux marqués pour le dressages essaieront de suivre leur dresseur.</ColonyManagerRedux.Livestock.FollowTraining.Tip>
+    <ColonyManagerRedux.Livestock.MasterTraining>Assigner dresseur(s)</ColonyManagerRedux.Livestock.MasterTraining>
+    <ColonyManagerRedux.Livestock.MasterTraining.Tip>Assigne les animaux marqué pour le dressage à un maître spécifique (dresseur), ou à tous les dresseurs. Peut écraser les réglages utilisateur quand activé.</ColonyManagerRedux.Livestock.MasterTraining.Tip>
+    <ColonyManagerRedux.Livestock.Master>{0} ({1})</ColonyManagerRedux.Livestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>Manuel</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Chasseur</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Dresseur</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Melée</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>Distance</ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>Violent</ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>Non-violent</ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.All>All</ColonyManagerRedux.ManagerLivestock.MasterMode.All>
+    <ColonyManagerRedux.Livestock.MasterMode.Manual>Manuel</ColonyManagerRedux.Livestock.MasterMode.Manual>
+    <ColonyManagerRedux.Livestock.MasterMode.Hunters>Chasseur</ColonyManagerRedux.Livestock.MasterMode.Hunters>
+    <ColonyManagerRedux.Livestock.MasterMode.Trainers>Dresseur</ColonyManagerRedux.Livestock.MasterMode.Trainers>
+    <ColonyManagerRedux.Livestock.MasterMode.Melee>Melée</ColonyManagerRedux.Livestock.MasterMode.Melee>
+    <ColonyManagerRedux.Livestock.MasterMode.Ranged>Distance</ColonyManagerRedux.Livestock.MasterMode.Ranged>
+    <ColonyManagerRedux.Livestock.MasterMode.Violent>Violent</ColonyManagerRedux.Livestock.MasterMode.Violent>
+    <ColonyManagerRedux.Livestock.MasterMode.NonViolent>Non-violent</ColonyManagerRedux.Livestock.MasterMode.NonViolent>
+    <ColonyManagerRedux.Livestock.MasterMode.All>All</ColonyManagerRedux.Livestock.MasterMode.All>
 
     <!-- Right click job fail reasons -->
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoPower>non alimenté</ColonyManagerRedux.ColonyManager.CannotManage.NoPower>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>pas de tâche définie</ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>toutes les tâches sont accomplies</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
+    <ColonyManagerRedux.CannotManage.NoPower>non alimenté</ColonyManagerRedux.CannotManage.NoPower>
+    <ColonyManagerRedux.CannotManage.NoJobs>pas de tâche définie</ColonyManagerRedux.CannotManage.NoJobs>
+    <ColonyManagerRedux.CannotManage.NoActiveJobs>toutes les tâches sont accomplies</ColonyManagerRedux.CannotManage.NoActiveJobs>
 
 </LanguageData>

@@ -177,7 +177,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
+    public override string Label => "ColonyManagerRedux.Hunting".Translate();
 
     public override IEnumerable<string> Targets => AllowedAnimals
         .Select(pk => pk.LabelCap.Resolve());
@@ -214,7 +214,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
     {
         // label, dist, yield.
         var thing = designation.target.Thing;
-        return "ColonyManagerRedux.Manager.DesignationLabel".Translate(
+        return "ColonyManagerRedux.Job.DesignationLabel".Translate(
             thing.LabelCap,
             Distance(thing, Manager.map.GetBaseCenter()).ToString("F0"),
             thing.GetStatValue(StatDefOf.MeatAmount).ToString("F0"),

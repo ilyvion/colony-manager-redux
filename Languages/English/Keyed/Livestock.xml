@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
-    <ColonyManagerRedux.Livestock.Livestock>Livestock</ColonyManagerRedux.Livestock.Livestock>
+    <ColonyManagerRedux.Livestock>Livestock</ColonyManagerRedux.Livestock>
     <ColonyManagerRedux.Livestock.TargetCounts>Target counts</ColonyManagerRedux.Livestock.TargetCounts>
     <ColonyManagerRedux.Livestock.Adult>Adult</ColonyManagerRedux.Livestock.Adult>
     <ColonyManagerRedux.Livestock.Juvenile>Juvenile</ColonyManagerRedux.Livestock.Juvenile>
@@ -41,51 +41,60 @@
     <ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>Restrict animals with milk fullness above 94% to a specific area.</ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToShearingArea>Restrict animals ready to be sheared</ColonyManagerRedux.Livestock.SendToShearingArea>
     <ColonyManagerRedux.Livestock.SendToShearingArea.Tip>Restrict animals with shearing fullness above 94% to a specific area</ColonyManagerRedux.Livestock.SendToShearingArea.Tip>
-    <ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>Target counts</ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>
-    <ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>Area restrictions</ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>
-    <ColonyManagerRedux.ManagerLivestock.TrainingHeader>Training</ColonyManagerRedux.ManagerLivestock.TrainingHeader>
-    <ColonyManagerRedux.ManagerLivestock.ButcherHeader>Butchering</ColonyManagerRedux.ManagerLivestock.ButcherHeader>
-    <ColonyManagerRedux.ManagerLivestock.TamingHeader>Taming</ColonyManagerRedux.ManagerLivestock.TamingHeader>
+    <ColonyManagerRedux.Livestock.TargetCountsHeader>Target counts</ColonyManagerRedux.Livestock.TargetCountsHeader>
+    <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>Area restrictions</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
+    <ColonyManagerRedux.Livestock.TrainingHeader>Training</ColonyManagerRedux.Livestock.TrainingHeader>
+    <ColonyManagerRedux.Livestock.ButcherHeader>Butchering</ColonyManagerRedux.Livestock.ButcherHeader>
+    <ColonyManagerRedux.Livestock.TamingHeader>Taming</ColonyManagerRedux.Livestock.TamingHeader>
     <ColonyManagerRedux.Livestock.Tame>tame</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>wild</ColonyManagerRedux.Livestock.Wild>
-    <ColonyManagerRedux.ManagerLivestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.ManagerLivestock.AnimalsHeader>
-    <ColonyManagerRedux.ManagerLivestock.SelectPawnKind>No job selected</ColonyManagerRedux.ManagerLivestock.SelectPawnKind>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>Disabled because excess livestock is not being butchered.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>
+    <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
+    <ColonyManagerRedux.Livestock.SelectPawnKind>No job selected</ColonyManagerRedux.Livestock.SelectPawnKind>
+    <ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>Disabled because excess livestock is not being butchered.</ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>
     <ColonyManagerRedux.Livestock.SendToTrainingArea>Restrict animals marked for training</ColonyManagerRedux.Livestock.SendToTrainingArea>
     <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restrict animals designated for training to a specific area.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>Disabled because no training target is set.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>
-    <ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>{0} are too small to train this.</ColonyManagerRedux.ManagerLivestock.CannotTrainTooSmall>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimal>{0} cannot be restricted</ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimal>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimalTip>{0} cannot be restricted to an area because they are a roaming animal. Try penning them in an enclosure instead.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseRoamingAnimalTip>
+    <ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>Disabled because no training target is set.</ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>
+    <ColonyManagerRedux.Livestock.CannotTrainTooSmall>{0} are too small to train this.</ColonyManagerRedux.Livestock.CannotTrainTooSmall>
+    <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>{0} cannot be restricted</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>
+    <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip>{0} cannot be restricted to an area because they are a roaming animal. Try penning them in an enclosure instead.</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip>
 
     <!-- following -->
-    <ColonyManagerRedux.ManagerLivestock.FollowHeader>Following</ColonyManagerRedux.ManagerLivestock.FollowHeader>
-    <ColonyManagerRedux.ManagerLivestock.MasterDefault>Assign master(s)</ColonyManagerRedux.ManagerLivestock.MasterDefault>
-    <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>Assign animals to a specific master, or to groups of colonists. May overwrite user settings when enabled.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
-    <ColonyManagerRedux.ManagerLivestock.RespectBonds>Respect bonds</ColonyManagerRedux.ManagerLivestock.RespectBonds>
-    <ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>If enabled, always assigns animals that have bonded with a colonist to that colonist. If disabled, bonds are ignored.</ColonyManagerRedux.ManagerLivestock.RespectBonds.Tip>
-    <ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>Disabled because master is set to a specific pawn, or set manually.</ColonyManagerRedux.ManagerLivestock.RespectBonds.DisabledBecauseMastersNotSet>
-    <ColonyManagerRedux.ManagerLivestock.Follow>Set master following</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>Set master follow settings, will overwrite user settings when enabled. If disabled, follow settings can be assigned manually.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowDrafted>Drafted</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
-    <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>Should animals follow their assigned masters when the master is drafted?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>Fieldwork</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
-    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>Should animals follow their assigned masters when the master is doing field work (e.g., hunting)?</ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowTraining>Follow trainer</ColonyManagerRedux.ManagerLivestock.FollowTraining>
-    <ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>Make animals marked for training try to follow their trainer.</ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>
-    <ColonyManagerRedux.ManagerLivestock.MasterTraining>Assign trainer(s)</ColonyManagerRedux.ManagerLivestock.MasterTraining>
-    <ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>Assign animals marked for training to a specific master (trainer), or to all trainers. May overwrite user settings when enabled.</ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>
-    <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master>
-    <ColonyManagerRedux.ManagerLivestock.MasterUnavailable>Unavailable</ColonyManagerRedux.ManagerLivestock.MasterUnavailable>
+    <ColonyManagerRedux.Livestock.FollowHeader>Following</ColonyManagerRedux.Livestock.FollowHeader>
+    <ColonyManagerRedux.Livestock.MasterDefault>Assign master(s)</ColonyManagerRedux.Livestock.MasterDefault>
+    <ColonyManagerRedux.Livestock.MasterDefault.Tip>Assign animals to a specific master, or to groups of colonists. May overwrite user settings when enabled.</ColonyManagerRedux.Livestock.MasterDefault.Tip>
+    <ColonyManagerRedux.Livestock.RespectBonds>Respect bonds</ColonyManagerRedux.Livestock.RespectBonds>
+    <ColonyManagerRedux.Livestock.RespectBonds.Tip>If enabled, always assigns animals that have bonded with a colonist to that colonist. If disabled, bonds are ignored.</ColonyManagerRedux.Livestock.RespectBonds.Tip>
+    <ColonyManagerRedux.Livestock.RespectBonds.DisabledBecauseMastersNotSet>Disabled because master is set to a specific pawn, or set manually.</ColonyManagerRedux.Livestock.RespectBonds.DisabledBecauseMastersNotSet>
+    <ColonyManagerRedux.Livestock.Follow>Set master following</ColonyManagerRedux.Livestock.Follow>
+    <ColonyManagerRedux.Livestock.Follow.Tip>Set master follow settings, will overwrite user settings when enabled. If disabled, follow settings can be assigned manually.</ColonyManagerRedux.Livestock.Follow.Tip>
+    <ColonyManagerRedux.Livestock.FollowDrafted>Drafted</ColonyManagerRedux.Livestock.FollowDrafted>
+    <ColonyManagerRedux.Livestock.FollowDrafted.Tip>Should animals follow their assigned masters when the master is drafted?</ColonyManagerRedux.Livestock.FollowDrafted.Tip>
+    <ColonyManagerRedux.Livestock.FollowFieldwork>Fieldwork</ColonyManagerRedux.Livestock.FollowFieldwork>
+    <ColonyManagerRedux.Livestock.FollowFieldwork.Tip>Should animals follow their assigned masters when the master is doing field work (e.g., hunting)?</ColonyManagerRedux.Livestock.FollowFieldwork.Tip>
+    <ColonyManagerRedux.Livestock.FollowTraining>Follow trainer</ColonyManagerRedux.Livestock.FollowTraining>
+    <ColonyManagerRedux.Livestock.FollowTraining.Tip>Make animals marked for training try to follow their trainer.</ColonyManagerRedux.Livestock.FollowTraining.Tip>
+    <ColonyManagerRedux.Livestock.MasterTraining>Assign trainer(s)</ColonyManagerRedux.Livestock.MasterTraining>
+    <ColonyManagerRedux.Livestock.MasterTraining.Tip>Assign animals marked for training to a specific master (trainer), or to all trainers. May overwrite user settings when enabled.</ColonyManagerRedux.Livestock.MasterTraining.Tip>
+    <ColonyManagerRedux.Livestock.Master>{0} ({1})</ColonyManagerRedux.Livestock.Master>
+    <ColonyManagerRedux.Livestock.MasterUnavailable>Unavailable</ColonyManagerRedux.Livestock.MasterUnavailable>
     <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>Manual</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>Hunters</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>Trainers</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>Melee</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>Ranged</ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>Violent</ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>Non-violent</ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.All>All</ColonyManagerRedux.ManagerLivestock.MasterMode.All>
+    <ColonyManagerRedux.Livestock.MasterMode.Manual>Manual</ColonyManagerRedux.Livestock.MasterMode.Manual>
+    <ColonyManagerRedux.Livestock.MasterMode.Hunters>Hunters</ColonyManagerRedux.Livestock.MasterMode.Hunters>
+    <ColonyManagerRedux.Livestock.MasterMode.Trainers>Trainers</ColonyManagerRedux.Livestock.MasterMode.Trainers>
+    <ColonyManagerRedux.Livestock.MasterMode.Melee>Melee</ColonyManagerRedux.Livestock.MasterMode.Melee>
+    <ColonyManagerRedux.Livestock.MasterMode.Ranged>Ranged</ColonyManagerRedux.Livestock.MasterMode.Ranged>
+    <ColonyManagerRedux.Livestock.MasterMode.Violent>Violent</ColonyManagerRedux.Livestock.MasterMode.Violent>
+    <ColonyManagerRedux.Livestock.MasterMode.NonViolent>Non-violent</ColonyManagerRedux.Livestock.MasterMode.NonViolent>
+    <ColonyManagerRedux.Livestock.MasterMode.All>All</ColonyManagerRedux.Livestock.MasterMode.All>
+
+    <ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>
+    <ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>
+    <ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader>
+    <ColonyManagerRedux.Livestock.JobSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.Livestock.JobSettings.DefaultTrainingHeader>
+    <ColonyManagerRedux.Livestock.JobSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.Livestock.JobSettings.DefaultFollowHeader>
+    <ColonyManagerRedux.Livestock.JobSettings.Default>Defaults</ColonyManagerRedux.Livestock.JobSettings.Default>
+    <ColonyManagerRedux.Livestock.JobSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.Livestock.JobSettings.AddOverride>
+    <ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor>
 </LanguageData>

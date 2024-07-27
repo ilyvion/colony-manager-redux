@@ -1,51 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
     <!-- Main Manager Tab -->
-    <ColonyManagerRedux.ManagerManager>관리자</ColonyManagerRedux.ManagerManager>
-    <ColonyManagerRedux.ManagerDetails>세부</ColonyManagerRedux.ManagerDetails>
-    <ColonyManagerRedux.ManagerManage>관리!</ColonyManagerRedux.ManagerManage>
-    <ColonyManagerRedux.ManagerDelete>삭제</ColonyManagerRedux.ManagerDelete>
-    <ColonyManagerRedux.ManagerAll>모두</ColonyManagerRedux.ManagerAll>
-    <ColonyManagerRedux.ManagerTabDisabledBecause>(비활성됨: {0})</ColonyManagerRedux.ManagerTabDisabledBecause>
+    <ColonyManagerRedux.Shortcuts.All>모두</ColonyManagerRedux.Shortcuts.All>
+    <ColonyManagerRedux.Common.Manage>관리!</ColonyManagerRedux.Common.Manage>
+    <ColonyManagerRedux.Common.Delete>삭제</ColonyManagerRedux.Common.Delete>
+    <ColonyManagerRedux.Common.TabDisabledBecause>(비활성됨: {0})</ColonyManagerRedux.Common.TabDisabledBecause>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerAlertNoTableLabel>관리자의 책상 필요</ColonyManagerRedux.ManagerAlertNoTableLabel>
-    <ColonyManagerRedux.ManagerAlertNoTable>관리 목표가 설정되었으나, 사용가능한 관리자 책상이 없습니다.</ColonyManagerRedux.ManagerAlertNoTable>
-    <ColonyManagerRedux.ManagerAlertNoManagerLabel>관리자 필요</ColonyManagerRedux.ManagerAlertNoManagerLabel>
-    <ColonyManagerRedux.ManagerAlertNoManager>관리 목표가 설정되었으나, 관리 작업에 할당된 림이 없습니다.</ColonyManagerRedux.ManagerAlertNoManager>
+    <ColonyManagerRedux.Alerts.NoTableLabel>관리자의 책상 필요</ColonyManagerRedux.Alerts.NoTableLabel>
+    <ColonyManagerRedux.Alerts.NoTable>관리 목표가 설정되었으나, 사용가능한 관리자 책상이 없습니다.</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoManagerLabel>관리자 필요</ColonyManagerRedux.Alerts.NoManagerLabel>
+    <ColonyManagerRedux.Alerts.NoManager>관리 목표가 설정되었으나, 관리 작업에 할당된 림이 없습니다.</ColonyManagerRedux.Alerts.NoManager>
 
     <!-- Common -->
-    <ColonyManagerRedux.ManagerLastUpdateTooltip>이 작업은 {0} 전에 마지막으로 업데이트 되었습니다, 그리고 매 {1} 마다 업데이트 됩니다.\n\n클릭해서 업데이트 간격을 변경하세요.</ColonyManagerRedux.ManagerLastUpdateTooltip>
-    <ColonyManagerRedux.ManagerOrderUp>작업 우선순위 증가</ColonyManagerRedux.ManagerOrderUp>
-    <ColonyManagerRedux.ManagerOrderDown>작업 우선순위 감소</ColonyManagerRedux.ManagerOrderDown>
-    <ColonyManagerRedux.ManagerOrderTop>최대 우선순위</ColonyManagerRedux.ManagerOrderTop>
-    <ColonyManagerRedux.ManagerOrderBottom>최소 우선순위</ColonyManagerRedux.ManagerOrderBottom>
-    <ColonyManagerRedux.Multiple>[다중]</ColonyManagerRedux.Multiple>
-    <ColonyManagerRedux.ManagerThreshold>임계값</ColonyManagerRedux.ManagerThreshold>
-    <ColonyManagerRedux.ManagerCheckReachability>목표에 도달할 수 있는지 확인</ColonyManagerRedux.ManagerCheckReachability>
-    <ColonyManagerRedux.ManagerCheckReachability.Tip>목표를 지정하기 전에 목표에 도달할 수 있는 경로가 존재하는지 (아무 림에 대해) 계산합니다.</ColonyManagerRedux.ManagerCheckReachability.Tip>
-    <ColonyManagerRedux.ManagerExpensive.Tip>별히 큰 맵이나 산지 맵, 많은 목표들이 있는 작업 또는 많은 수의 정착민이 있는 정착지에서 이 설정을 활성화 하면 성능이 떨어질 수 있습니다.</ColonyManagerRedux.ManagerExpensive.Tip>
-    <ColonyManagerRedux.ManagerPathBasedDistance>실제 경로를 기반으로 거리 계산</ColonyManagerRedux.ManagerPathBasedDistance>
-    <ColonyManagerRedux.ManagerPathBasedDistance.Tip>활성화 되면 거리가 실제 경로를 기반으로 계산됩니다. 비활성화 되면 거리가 '일직선'으로 계산됩니다.\n\n노트: 이 옵션을 켜면 많은 수의 목표가 있는 작업에서 심각한 렉을 유발할 수 있습니다.</ColonyManagerRedux.ManagerPathBasedDistance.Tip>
-    <ColonyManagerRedux.ManagerCountAllOnMap>지도 전체 계수</ColonyManagerRedux.ManagerCountAllOnMap>
-    <ColonyManagerRedux.ManagerCountAllOnMap.Tip>활성화 되면 맵 전체에 있는 아이템을 계수해서 임계 필터를 적용합니다. 비활성화 되면 창고에 있는 아이템만 계수됩니다.</ColonyManagerRedux.ManagerCountAllOnMap.Tip>
-    <ColonyManagerRedux.ManagerNone>None</ColonyManagerRedux.ManagerNone>
+    <ColonyManagerRedux.Job.LastUpdatedTooltip>이 작업은 {0} 전에 마지막으로 업데이트 되었습니다, 그리고 매 {1} 마다 업데이트 됩니다.\n\n클릭해서 업데이트 간격을 변경하세요.</ColonyManagerRedux.Job.LastUpdatedTooltip>
+    <ColonyManagerRedux.Job.IncreasePriority>작업 우선순위 증가</ColonyManagerRedux.Job.IncreasePriority>
+    <ColonyManagerRedux.Job.DecreasePriorityn>작업 우선순위 감소</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.TopPriority>최대 우선순위</ColonyManagerRedux.Job.TopPriority>
+    <ColonyManagerRedux.Job.BottomPriority>최소 우선순위</ColonyManagerRedux.Job.BottomPriority>
+    <ColonyManagerRedux.Threshold>임계값</ColonyManagerRedux.Threshold>
+    <ColonyManagerRedux.Threshold.CheckReachability>목표에 도달할 수 있는지 확인</ColonyManagerRedux.Threshold.CheckReachability>
+    <ColonyManagerRedux.Threshold.CheckReachability.Tip>목표를 지정하기 전에 목표에 도달할 수 있는 경로가 존재하는지 (아무 림에 대해) 계산합니다.</ColonyManagerRedux.Threshold.CheckReachability.Tip>
+    <ColonyManagerRedux.Common.Expensive.Tip>별히 큰 맵이나 산지 맵, 많은 목표들이 있는 작업 또는 많은 수의 정착민이 있는 정착지에서 이 설정을 활성화 하면 성능이 떨어질 수 있습니다.</ColonyManagerRedux.Common.Expensive.Tip>
+    <ColonyManagerRedux.Threshold.PathBasedDistance>실제 경로를 기반으로 거리 계산</ColonyManagerRedux.Threshold.PathBasedDistance>
+    <ColonyManagerRedux.Threshold.PathBasedDistance.Tip>활성화 되면 거리가 실제 경로를 기반으로 계산됩니다. 비활성화 되면 거리가 '일직선'으로 계산됩니다.\n\n노트: 이 옵션을 켜면 많은 수의 목표가 있는 작업에서 심각한 렉을 유발할 수 있습니다.</ColonyManagerRedux.Threshold.PathBasedDistance.Tip>
+    <ColonyManagerRedux.Threshold.CountAllOnMap>지도 전체 계수</ColonyManagerRedux.Threshold.CountAllOnMap>
+    <ColonyManagerRedux.Threshold.CountAllOnMap.Tip>활성화 되면 맵 전체에 있는 아이템을 계수해서 임계 필터를 적용합니다. 비활성화 되면 창고에 있는 아이템만 계수됩니다.</ColonyManagerRedux.Threshold.CountAllOnMap.Tip>
+    <ColonyManagerRedux.Common.None>None</ColonyManagerRedux.Common.None>
     <!-- 0: target (thing), 1: distance (int), 2: yield amount (int), 3: yield type (def) -->
-    <ColonyManagerRedux.Manager.DesignationLabel>{0}\n 거리: {1}\n 산출량: {2}x {3}</ColonyManagerRedux.Manager.DesignationLabel>
+    <ColonyManagerRedux.Job.DesignationLabel>{0}\n 거리: {1}\n 산출량: {2}x {3}</ColonyManagerRedux.Job.DesignationLabel>
 
     <!-- time periods for update interval -->
     <ColonyManagerRedux.ManagerDefaultUpdateInterval>기본 업데이트 간격</ColonyManagerRedux.ManagerDefaultUpdateInterval>
-    <ColonyManagerRedux.ManagerHourly>매 시간</ColonyManagerRedux.ManagerHourly>
-    <ColonyManagerRedux.ManagerMultiHourly>매 {0} 시간</ColonyManagerRedux.ManagerMultiHourly>
-    <ColonyManagerRedux.ManagerDaily>매일</ColonyManagerRedux.ManagerDaily>
-    <ColonyManagerRedux.ManagerMonthly>매월</ColonyManagerRedux.ManagerMonthly>
-    <ColonyManagerRedux.ManagerYearly>매년</ColonyManagerRedux.ManagerYearly>
+    <ColonyManagerRedux.UpdateInterval.Hourly>매 시간</ColonyManagerRedux.UpdateInterval.Hourly>
+    <ColonyManagerRedux.UpdateInterval.MultipleHourly>매 {0} 시간</ColonyManagerRedux.UpdateInterval.MultipleHourly>
+    <ColonyManagerRedux.UpdateInterval.Daily>매일</ColonyManagerRedux.UpdateInterval.Daily>
+    <ColonyManagerRedux.UpdateInterval.Monthly>매월</ColonyManagerRedux.UpdateInterval.Monthly>
+    <ColonyManagerRedux.UpdateInterval.Yearly>매년</ColonyManagerRedux.UpdateInterval.Yearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistory.Period>주기</ColonyManagerRedux.ManagerHistory.Period>
-    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>범례 보기/숨기기</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
-    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\클릭해서 {0} {1} 그래프 그리기.\n오른쪽 클릭으로 {1}만 보기.</ColonyManagerRedux.ManagerHistory.ClickToEnable>
-    <ColonyManagerRedux.ManagerHistory.NoChapters>보여줄 것이 없습니다!</ColonyManagerRedux.ManagerHistory.NoChapters>
+    <ColonyManagerRedux.History.Period>주기</ColonyManagerRedux.History.Period>
+    <ColonyManagerRedux.History.ShowHideLegend>범례 보기/숨기기</ColonyManagerRedux.History.ShowHideLegend>
+    <ColonyManagerRedux.History.ClickToEnable>\n\클릭해서 {0} {1} 그래프 그리기.\n오른쪽 클릭으로 {1}만 보기.</ColonyManagerRedux.History.ClickToEnable>
+    <ColonyManagerRedux.History.NoChapters>보여줄 것이 없습니다!</ColonyManagerRedux.History.NoChapters>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>주기: {0}</ColonyManagerRedux.Energy.PeriodShown>
@@ -55,7 +52,7 @@
     <ColonyManagerRedux.Energy.NoPoweredStation>관리 스테이션에 전력이 없습니다.</ColonyManagerRedux.Energy.NoPoweredStation>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.Overview.Overview>요약</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview>요약</ColonyManagerRedux.Overview>
     <ColonyManagerRedux.Overview.NoJobs>작업이 설정되지 않음.</ColonyManagerRedux.Overview.NoJobs>
     <ColonyManagerRedux.Overview.Activity>현재 활동</ColonyManagerRedux.Overview.Activity>
     <ColonyManagerRedux.Overview.WorkEnabled>작업</ColonyManagerRedux.Overview.WorkEnabled>
@@ -76,7 +73,7 @@
     <ColonyManagerRedux.ManagerNoSaves>내보낸 파일 찾을 수 없음.</ColonyManagerRedux.ManagerNoSaves>
 
     <!-- Hunting Tab -->
-    <ColonyManagerRedux.Hunting.Hunting>사냥</ColonyManagerRedux.Hunting.Hunting>
+    <ColonyManagerRedux.Hunting>사냥</ColonyManagerRedux.Hunting>
     <ColonyManagerRedux.Hunting.NewHuntingJob>새 작업</ColonyManagerRedux.Hunting.NewHuntingJob>
     <ColonyManagerRedux.Hunting.NewHuntingJobTooltip>새 사냥 작업을 추가합니다.</ColonyManagerRedux.Hunting.NewHuntingJobTooltip>
     <ColonyManagerRedux.Hunting.AllowHumanMeat>인육 포함</ColonyManagerRedux.Hunting.AllowHumanMeat>
@@ -88,19 +85,18 @@
     <ColonyManagerRedux.Hunting.Animals>허가된 동물</ColonyManagerRedux.Hunting.Animals>
     <ColonyManagerRedux.Hunting.TargetCount>목표 재고: {0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
     <ColonyManagerRedux.Hunting.TargetCountTooltip>재고: {3}\n{0} 창고\n{1} 예상 도축\n{2} 현재 지정된 사냥감 예상</ColonyManagerRedux.Hunting.TargetCountTooltip>
-    <ColonyManagerRedux.ManagerHunting.Predators>포식자</ColonyManagerRedux.ManagerHunting.Predators>
-    <ColonyManagerRedux.ManagerHunting.Predators.Tip>모든 포식자를 토글합니다</ColonyManagerRedux.ManagerHunting.Predators.Tip>
-    <ColonyManagerRedux.ManagerHunting.HerdAnimals>동물 무리</ColonyManagerRedux.ManagerHunting.HerdAnimals>
-    <ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>모든 동물 무리를 토글합니다</ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>
-    <ColonyManagerRedux.ManagerHunting.Exploding>폭발</ColonyManagerRedux.ManagerHunting.Exploding>
-    <ColonyManagerRedux.ManagerHunting.Exploding.Tip>모든 폭발하는 동물을 토글합니다</ColonyManagerRedux.ManagerHunting.Exploding.Tip>
-    <ColonyManagerRedux.ManagerHunting.AreaRestriction>사냥 구역 제한</ColonyManagerRedux.ManagerHunting.AreaRestriction>
+    <ColonyManagerRedux.Hunting.Predators>포식자</ColonyManagerRedux.Hunting.Predators>
+    <ColonyManagerRedux.Hunting.Predators.Tip>모든 포식자를 토글합니다</ColonyManagerRedux.Hunting.Predators.Tip>
+    <ColonyManagerRedux.Hunting.HerdAnimals>동물 무리</ColonyManagerRedux.Hunting.HerdAnimals>
+    <ColonyManagerRedux.Hunting.HerdAnimals.Tip>모든 동물 무리를 토글합니다</ColonyManagerRedux.Hunting.HerdAnimals.Tip>
+    <ColonyManagerRedux.Hunting.Exploding>폭발</ColonyManagerRedux.Hunting.Exploding>
+    <ColonyManagerRedux.Hunting.Exploding.Tip>모든 폭발하는 동물을 토글합니다</ColonyManagerRedux.Hunting.Exploding.Tip>
+    <ColonyManagerRedux.Hunting.AreaRestriction>사냥 구역 제한</ColonyManagerRedux.Hunting.AreaRestriction>
 
     <!-- Forestry Tab -->
     <ColonyManagerRedux.Forestry.Forestry>벌목</ColonyManagerRedux.Forestry.Forestry>
     <ColonyManagerRedux.Forestry.NewForestryJob>새 작업</ColonyManagerRedux.Forestry.NewForestryJob>
     <ColonyManagerRedux.Forestry.NewForestryJobTooltip>새 벌목 작업을 추가합니다.</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
-    <ColonyManagerRedux.Forestry.Options>설정</ColonyManagerRedux.Forestry.Options>
     <ColonyManagerRedux.Forestry.ClearWindCells>풍력 터빈 구역 청소</ColonyManagerRedux.Forestry.ClearWindCells>
     <ColonyManagerRedux.Forestry.ClearWindCells.Tip>풍력 터빈이 필요로 하는 모든 공간을 비웁니다.</ColonyManagerRedux.Forestry.ClearWindCells.Tip>
     <ColonyManagerRedux.Forestry.AllowSaplings>완전히 성장한 나무만 허용</ColonyManagerRedux.Forestry.AllowSaplings>
@@ -131,32 +127,30 @@
 
 
     <!-- Foraging (Gathering) tab -->
-    <ColonyManagerRedux.Foraging.Foraging>수확</ColonyManagerRedux.Foraging.Foraging>
+    <ColonyManagerRedux.Foraging>수확</ColonyManagerRedux.Foraging>
     <ColonyManagerRedux.Foraging.NewForagingJob>새 작업</ColonyManagerRedux.Foraging.NewForagingJob>
     <ColonyManagerRedux.Foraging.NewForagingJobTooltip>새 수확 작업을 추가합니다.</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
-    <ColonyManagerRedux.Foraging.Options>설정</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>목표 재고: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>재고: {2}\n{0} 창고\n{1} 현재 지정된 수확 예상</ColonyManagerRedux.Foraging.TargetCountTooltip>
     <ColonyManagerRedux.Foraging.ForceFullyMature>완전히 성장한 작물만 허용</ColonyManagerRedux.Foraging.ForceFullyMature>
     <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>완전히 성장한 작물만 수확을 허용토록 할까요?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>수확이 허용된 구역:</ColonyManagerRedux.Foraging.ForagingArea>
     <ColonyManagerRedux.Foraging.Plants>허용된 작물</ColonyManagerRedux.Foraging.Plants>
-    <ColonyManagerRedux.ManagerForaging.Edible>먹을 수 있는 작물</ColonyManagerRedux.ManagerForaging.Edible>
-    <ColonyManagerRedux.ManagerForaging.Edible.Tip>모든 먹을 수 있는 작물류를 선택합니다.</ColonyManagerRedux.ManagerForaging.Edible.Tip>
-    <ColonyManagerRedux.ManagerForaging.Mushrooms>버섯</ColonyManagerRedux.ManagerForaging.Mushrooms>
-    <ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>모든 버섯류를 선택합니다.</ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>
+    <ColonyManagerRedux.Foraging.Edible>먹을 수 있는 작물</ColonyManagerRedux.Foraging.Edible>
+    <ColonyManagerRedux.Foraging.Edible.Tip>모든 먹을 수 있는 작물류를 선택합니다.</ColonyManagerRedux.Foraging.Edible.Tip>
+    <ColonyManagerRedux.Foraging.Mushrooms>버섯</ColonyManagerRedux.Foraging.Mushrooms>
+    <ColonyManagerRedux.Foraging.Mushrooms.Tip>모든 버섯류를 선택합니다.</ColonyManagerRedux.Foraging.Mushrooms.Tip>
 
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>임계값: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>클릭해서 임계값 세부 정보창을 봅니다.\n\n재고: {1}\n생산중: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    <ColonyManagerRedux.Thresholds.ThresholdDetails>임계값 세부 정보</ColonyManagerRedux.Thresholds.ThresholdDetails>
-
+    
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>현재</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>사용 가능</ColonyManagerRedux.Thresholds.Available>
 
     <!-- Livestock tab -->
-    <ColonyManagerRedux.Livestock.Livestock>생물 재고</ColonyManagerRedux.Livestock.Livestock>
+    <ColonyManagerRedux.Livestock>생물 재고</ColonyManagerRedux.Livestock>
     <ColonyManagerRedux.Livestock.TargetCounts>목표 재고</ColonyManagerRedux.Livestock.TargetCounts>
     <ColonyManagerRedux.Livestock.Adult>성체</ColonyManagerRedux.Livestock.Adult>
     <ColonyManagerRedux.Livestock.Juvenile>어린</ColonyManagerRedux.Livestock.Juvenile>
@@ -186,44 +180,44 @@
     <ColonyManagerRedux.Livestock.TrainYoung>어린 동물 훈련</ColonyManagerRedux.Livestock.TrainYoung>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea>도축 표시된 동물의 구역을 제한합니다.</ColonyManagerRedux.Livestock.SendToSlaughterArea>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>도축 표시된 동물을 특정 구역으로 제한합니다.</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
-    <ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>목표 재고</ColonyManagerRedux.ManagerLivestock.TargetCountsHeader>
-    <ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>구역 제한</ColonyManagerRedux.ManagerLivestock.AreaRestrictionsHeader>
-    <ColonyManagerRedux.ManagerLivestock.TrainingHeader>훈련 목표</ColonyManagerRedux.ManagerLivestock.TrainingHeader>
-    <ColonyManagerRedux.ManagerLivestock.ButcherHeader>도축</ColonyManagerRedux.ManagerLivestock.ButcherHeader>
-    <ColonyManagerRedux.ManagerLivestock.TamingHeader>길들임</ColonyManagerRedux.ManagerLivestock.TamingHeader>
+    <ColonyManagerRedux.Livestock.TargetCountsHeader>목표 재고</ColonyManagerRedux.Livestock.TargetCountsHeader>
+    <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>구역 제한</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
+    <ColonyManagerRedux.Livestock.TrainingHeader>훈련 목표</ColonyManagerRedux.Livestock.TrainingHeader>
+    <ColonyManagerRedux.Livestock.ButcherHeader>도축</ColonyManagerRedux.Livestock.ButcherHeader>
+    <ColonyManagerRedux.Livestock.TamingHeader>길들임</ColonyManagerRedux.Livestock.TamingHeader>
     <ColonyManagerRedux.Livestock.Tame>길들여진</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>야생</ColonyManagerRedux.Livestock.Wild>
-    <ColonyManagerRedux.ManagerLivestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.ManagerLivestock.AnimalsHeader>
-    <ColonyManagerRedux.ManagerLivestock.SelectPawnKind>선택된 작업 없음</ColonyManagerRedux.ManagerLivestock.SelectPawnKind>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>생물 재고가 초과되었지만 도축되지 않으므로 비활성되었습니다.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseSlaughterExcessDisabled>
+    <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
+    <ColonyManagerRedux.Livestock.SelectPawnKind>선택된 작업 없음</ColonyManagerRedux.Livestock.SelectPawnKind>
+    <ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>생물 재고가 초과되었지만 도축되지 않으므로 비활성되었습니다.</ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>
     <ColonyManagerRedux.Livestock.SendToTrainingArea>훈련 표시된 동물의 구역을 제한합니다.</ColonyManagerRedux.Livestock.SendToTrainingArea>
     <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>훈련 표시된 동물을 특정 구역으로 제한합니다.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
-    <ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>훈련 목표가 설정되지 않았으므로 비활성되었습니다.</ColonyManagerRedux.ManagerLivestock.DisabledBecauseNoTrainingSet>
+    <ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>훈련 목표가 설정되지 않았으므로 비활성되었습니다.</ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>
 
     <!-- following -->
-    <ColonyManagerRedux.ManagerLivestock.FollowHeader>따라가기</ColonyManagerRedux.ManagerLivestock.FollowHeader>
-    <ColonyManagerRedux.ManagerLivestock.MasterDefault>주인 할당</ColonyManagerRedux.ManagerLivestock.MasterDefault>
-    <ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>동물을 특정 림 혹은 그룹으로 할당합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다.</ColonyManagerRedux.ManagerLivestock.MasterDefault.Tip>
-    <ColonyManagerRedux.ManagerLivestock.Follow>주인 따라가기</ColonyManagerRedux.ManagerLivestock.Follow>
-    <ColonyManagerRedux.ManagerLivestock.Follow.Tip>주인을 따라가도록 설정합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다. 비활성화 되어있는 경우 수동으로 활성화 가능합니다.</ColonyManagerRedux.ManagerLivestock.Follow.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowDrafted>소집</ColonyManagerRedux.ManagerLivestock.FollowDrafted>
-    <ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>주인이 소집되면 동물을 따라다니게 할까요?</ColonyManagerRedux.ManagerLivestock.FollowDrafted.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork>외부 작업</ColonyManagerRedux.ManagerLivestock.FollowFieldwork>
-    <ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>주인이 외부 작업을 하게 되면 동물이 따라다니게 할까요? (예., 사냥)?</ColonyManagerRedux.ManagerLivestock.FollowFieldwork.Tip>
-    <ColonyManagerRedux.ManagerLivestock.FollowTraining>조련사 따라가기</ColonyManagerRedux.ManagerLivestock.FollowTraining>
-    <ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>조련을 하도록 표시된 동물이 조련사를 따라다닙니다.</ColonyManagerRedux.ManagerLivestock.FollowTraining.Tip>
-    <ColonyManagerRedux.ManagerLivestock.MasterTraining>조련사 할당</ColonyManagerRedux.ManagerLivestock.MasterTraining>
-    <ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>특정한 주인(조련사) 를 할당합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다.</ColonyManagerRedux.ManagerLivestock.MasterTraining.Tip>
-    <ColonyManagerRedux.ManagerLivestock.Master>{0} ({1})</ColonyManagerRedux.ManagerLivestock.Master> <!-- 0; pawn name, 1; skill level -->
+    <ColonyManagerRedux.Livestock.FollowHeader>따라가기</ColonyManagerRedux.Livestock.FollowHeader>
+    <ColonyManagerRedux.Livestock.MasterDefault>주인 할당</ColonyManagerRedux.Livestock.MasterDefault>
+    <ColonyManagerRedux.Livestock.MasterDefault.Tip>동물을 특정 림 혹은 그룹으로 할당합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다.</ColonyManagerRedux.Livestock.MasterDefault.Tip>
+    <ColonyManagerRedux.Livestock.Follow>주인 따라가기</ColonyManagerRedux.Livestock.Follow>
+    <ColonyManagerRedux.Livestock.Follow.Tip>주인을 따라가도록 설정합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다. 비활성화 되어있는 경우 수동으로 활성화 가능합니다.</ColonyManagerRedux.Livestock.Follow.Tip>
+    <ColonyManagerRedux.Livestock.FollowDrafted>소집</ColonyManagerRedux.Livestock.FollowDrafted>
+    <ColonyManagerRedux.Livestock.FollowDrafted.Tip>주인이 소집되면 동물을 따라다니게 할까요?</ColonyManagerRedux.Livestock.FollowDrafted.Tip>
+    <ColonyManagerRedux.Livestock.FollowFieldwork>외부 작업</ColonyManagerRedux.Livestock.FollowFieldwork>
+    <ColonyManagerRedux.Livestock.FollowFieldwork.Tip>주인이 외부 작업을 하게 되면 동물이 따라다니게 할까요? (예., 사냥)?</ColonyManagerRedux.Livestock.FollowFieldwork.Tip>
+    <ColonyManagerRedux.Livestock.FollowTraining>조련사 따라가기</ColonyManagerRedux.Livestock.FollowTraining>
+    <ColonyManagerRedux.Livestock.FollowTraining.Tip>조련을 하도록 표시된 동물이 조련사를 따라다닙니다.</ColonyManagerRedux.Livestock.FollowTraining.Tip>
+    <ColonyManagerRedux.Livestock.MasterTraining>조련사 할당</ColonyManagerRedux.Livestock.MasterTraining>
+    <ColonyManagerRedux.Livestock.MasterTraining.Tip>특정한 주인(조련사) 를 할당합니다. 활성화 되면 사용자 설정을 덮어쓸 수도 있습니다.</ColonyManagerRedux.Livestock.MasterTraining.Tip>
+    <ColonyManagerRedux.Livestock.Master>{0} ({1})</ColonyManagerRedux.Livestock.Master> <!-- 0; pawn name, 1; skill level -->
 
     <!-- MasterMode enum -->
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>수동</ColonyManagerRedux.ManagerLivestock.MasterMode.Manual>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>사냥꾼</ColonyManagerRedux.ManagerLivestock.MasterMode.Hunters>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>조련사</ColonyManagerRedux.ManagerLivestock.MasterMode.Trainers>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>근접</ColonyManagerRedux.ManagerLivestock.MasterMode.Melee>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>원거리</ColonyManagerRedux.ManagerLivestock.MasterMode.Ranged>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>폭력적</ColonyManagerRedux.ManagerLivestock.MasterMode.Violent>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>비폭력적</ColonyManagerRedux.ManagerLivestock.MasterMode.NonViolent>
-    <ColonyManagerRedux.ManagerLivestock.MasterMode.All>모두</ColonyManagerRedux.ManagerLivestock.MasterMode.All>
+    <ColonyManagerRedux.Livestock.MasterMode.Manual>수동</ColonyManagerRedux.Livestock.MasterMode.Manual>
+    <ColonyManagerRedux.Livestock.MasterMode.Hunters>사냥꾼</ColonyManagerRedux.Livestock.MasterMode.Hunters>
+    <ColonyManagerRedux.Livestock.MasterMode.Trainers>조련사</ColonyManagerRedux.Livestock.MasterMode.Trainers>
+    <ColonyManagerRedux.Livestock.MasterMode.Melee>근접</ColonyManagerRedux.Livestock.MasterMode.Melee>
+    <ColonyManagerRedux.Livestock.MasterMode.Ranged>원거리</ColonyManagerRedux.Livestock.MasterMode.Ranged>
+    <ColonyManagerRedux.Livestock.MasterMode.Violent>폭력적</ColonyManagerRedux.Livestock.MasterMode.Violent>
+    <ColonyManagerRedux.Livestock.MasterMode.NonViolent>비폭력적</ColonyManagerRedux.Livestock.MasterMode.NonViolent>
+    <ColonyManagerRedux.Livestock.MasterMode.All>모두</ColonyManagerRedux.Livestock.MasterMode.All>
 
 </LanguageData>

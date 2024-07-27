@@ -137,7 +137,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
             GUI.DrawTexture(rect, tab.def.icon);
             GUI.color = Color.white;
             TooltipHandler.TipRegion(rect, tab.Label +
-                "ColonyManagerRedux.ManagerTabDisabledBecause".Translate(tab.DisabledReason));
+                "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
         }
     }
 

@@ -6,51 +6,31 @@ namespace ColonyManagerRedux;
 
 internal static class I18n
 {
-    public static readonly TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.ColonyManager.HistoryProduction";
-    public static readonly TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.ColonyManager.HistoryConsumption";
-    public static readonly TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.ColonyManager.HistoryBatteries";
+    public static readonly TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.History.Production";
+    public static readonly TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.History.Consumption";
+    public static readonly TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.History.Batteries";
 
 
     public static string Aggressiveness(float aggression)
     {
-        return Translate("ColonyManager.Aggressiveness",
-                          aggression >= .1f
-                              ? aggression.ToStringPercent().Colorize(Color.red)
-                              : aggression.ToStringPercent());
-    }
-
-    public static string Key(string key)
-    {
-        return $"ColonyManagerRedux.{key}";
-    }
-
-    public static string Translate(string key, params NamedArgument[] args)
-    {
-        return Key(key).Translate(args);
+        return "ColonyManagerRedux.Info.Aggressiveness".Translate(
+            aggression >= .1f
+                ? aggression.ToStringPercent().Colorize(Color.red)
+                : aggression.ToStringPercent());
     }
 
     public static string YieldOne(string label)
     {
-        return $"{Translate("ColonyManager.Yield")} {label}";
+        return $"{"ColonyManagerRedux.Info.Yield".Translate()} {label}";
     }
 
     public static string YieldMany(IEnumerable<string> labels)
     {
-        return $"{Translate("ColonyManager.Yield")}\n - {labels.ToLineList(" - ")}";
+        return $"{"ColonyManagerRedux.Info.Yield".Translate()}\n - {labels.ToLineList(" - ")}";
     }
 
     public static string YieldOne(float yield, ThingDef def)
     {
         return YieldOne($"{def.LabelCap} x{yield:F0} ");
-    }
-
-    public static string Gender(Gender gender)
-    {
-        return Translate($"ColonyManager.Gender.{gender}");
-    }
-
-    public static string ChanceToDrop(float chance)
-    {
-        return Translate("ColonyManager.ChanceToDrop", chance.ToStringPercent());
     }
 }

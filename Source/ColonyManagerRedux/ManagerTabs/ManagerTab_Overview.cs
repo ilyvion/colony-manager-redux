@@ -15,7 +15,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
     private Vector2 _overviewScrollPosition = Vector2.zero;
     private List<Pawn> Workers = [];
 
-    public override string Label { get; } = "ColonyManagerRedux.Overview.Overview".Translate();
+    public override string Label { get; } = "ColonyManagerRedux.Overview".Translate();
 
     private SkillDef? SkillDef { get; set; }
 
@@ -79,7 +79,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = Color.gray;
-                Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.Overview.NoJobDetails".Translate());
+                Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.NoJobDetails".Translate());
                 GUI.color = Color.white;
                 Text.Anchor = TextAnchor.LowerLeft;
             }
@@ -88,7 +88,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         {
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = Color.gray;
-            Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.Overview.NoJobSelected".Translate());
+            Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.NoJobSelected".Translate());
             GUI.color = Color.white;
             Text.Anchor = TextAnchor.LowerLeft;
         }

@@ -19,7 +19,7 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
 
-    public override string Label => "ColonyManagerRedux.ManagerMining".Translate();
+    public override string Label => "ColonyManagerRedux.Mining".Translate();
 
     public override void DoPanelContents(Rect rect)
     {
@@ -31,9 +31,9 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
 
         Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
-        Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.ManagerMining.DefaultChunks".Translate());
+        Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.Mining.JobSettings.DefaultChunks".Translate());
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
-        Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety".Translate());
+        Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety".Translate());
         Widgets_Section.EndSectionColumn("Mining.Settings", position);
     }
 
@@ -47,8 +47,8 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
 
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed".Translate(),
-            "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
+            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 
         return ListEntryHeight;
@@ -58,14 +58,14 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerMining.HaulMapChunks".Translate(),
-            "ColonyManagerRedux.ManagerMining.HaulMapChunks.Tip".Translate(),
+            "ColonyManagerRedux.Mining.HaulMapChunks".Translate(),
+            "ColonyManagerRedux.Mining.HaulMapChunks.Tip".Translate(),
             ref DefaultHaulMapChunks);
 
         rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerMining.HaulMinedChunks".Translate(),
-            "ColonyManagerRedux.ManagerMining.HaulMinedChunks.Tip".Translate(),
+            "ColonyManagerRedux.Mining.HaulMinedChunks".Translate(),
+            "ColonyManagerRedux.Mining.HaulMinedChunks.Tip".Translate(),
             ref DefaultHaulMinedChunks);
 
         return rowRect.yMax - pos.y;
@@ -75,9 +75,9 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
-                              "ColonyManagerRedux.ManagerMining.DeconstructBuildings".Translate(),
-                              "ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip".Translate(),
-                              ref DefaultDeconstructBuildings);
+            "ColonyManagerRedux.Mining.DeconstructBuildings".Translate(),
+            "ColonyManagerRedux.Mining.DeconstructBuildings.Tip".Translate(),
+            ref DefaultDeconstructBuildings);
         return ListEntryHeight;
     }
 
@@ -85,23 +85,23 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerMining.CheckRoofSupport".Translate(),
-            "ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoofSupport".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoofSupport.Tip".Translate(),
             ref DefaultCheckRoofSupport);
 
         rowRect.y += ListEntryHeight;
 
 
         Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced".Translate(),
-            "ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip".Translate(),
             ref DefaultCheckRoofSupportAdvanced, true);
 
 
         rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.ManagerMining.CheckRoomDivision".Translate(),
-            "ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoomDivision".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoomDivision.Tip".Translate(),
             ref DefaultCheckRoomDivision, true);
 
         return rowRect.yMax - pos.y;

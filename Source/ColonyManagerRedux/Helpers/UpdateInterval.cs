@@ -15,7 +15,7 @@ public class UpdateInterval(int ticks, string label)
     {
         get
         {
-            _daily ??= new UpdateInterval(GenDate.TicksPerDay, "ColonyManagerRedux.ManagerDaily".Translate());
+            _daily ??= new UpdateInterval(GenDate.TicksPerDay, "ColonyManagerRedux.UpdateInterval.Daily".Translate());
 
             return _daily;
         }
@@ -68,7 +68,7 @@ public class UpdateInterval(int ticks, string label)
                 Calendar.Draw(canvas.ContractedBy(2f), progressMarker, nextUpdateMarker);
             }
 
-            lastUpdateTooltip = "ColonyManagerRedux.ManagerLastUpdateTooltip".Translate(
+            lastUpdateTooltip = "ColonyManagerRedux.Job.LastUpdatedTooltip".Translate(
                 lastUpdate.TimeString()) + " ";
         }
         else
@@ -81,15 +81,15 @@ public class UpdateInterval(int ticks, string label)
             Text.Font = GameFont.Small;
             Text.Anchor = TextAnchor.LowerLeft;
 
-            lastUpdateTooltip = "ColonyManagerRedux.ManagerNeverUpdatedTooltip".Translate() + " ";
+            lastUpdateTooltip = "ColonyManagerRedux.Job.NeverUpdatedTooltip".Translate() + " ";
         }
 
-        lastUpdateTooltip += "ColonyManagerRedux.ScheduledToBeUpdatedTooltip".Translate(
+        lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip".Translate(
             job.UpdateInterval.ticks.TimeString());
 
         if (!exporting)
         {
-            lastUpdateTooltip += "\n\n" + "ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip".Translate();
+            lastUpdateTooltip += "\n\n" + "ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip".Translate();
         }
         TooltipHandler.TipRegion(canvas, lastUpdateTooltip);
 
@@ -101,11 +101,11 @@ public class UpdateInterval(int ticks, string label)
                 var options = new List<FloatMenuOption>();
                 if (!job.IsSuspended && !job.IsCompleted)
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.ForceUpdate".Translate(), job.Untouch));
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate(), job.Untouch));
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.Update".Translate(interval.label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.Update".Translate(interval.label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));

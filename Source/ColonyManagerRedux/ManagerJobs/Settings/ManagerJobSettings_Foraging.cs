@@ -11,7 +11,7 @@ internal sealed class ManagerJobSettings_Foraging : ManagerJobSettings
     public bool DefaultSyncFilterAndAllowed = true;
     public bool DefaultForceFullyMature;
 
-    public override string Label => "ColonyManagerRedux.Foraging.Foraging".Translate();
+    public override string Label => "ColonyManagerRedux.Foraging".Translate();
 
     public override void DoPanelContents(Rect rect)
     {
@@ -37,8 +37,8 @@ internal sealed class ManagerJobSettings_Foraging : ManagerJobSettings
 
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed".Translate(),
-            "ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip".Translate(),
+            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 
         return ListEntryHeight;

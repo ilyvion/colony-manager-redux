@@ -13,7 +13,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
     private float _leftRowHeight = 9999f;
     private Vector2 _scrollPosition = Vector2.zero;
 
-    public override string Label => "ColonyManagerRedux.Hunting.Hunting".Translate();
+    public override string Label => "ColonyManagerRedux.Hunting".Translate();
 
     public ManagerJob_Hunting SelectedHuntingJob => (ManagerJob_Hunting)Selected!;
 
@@ -43,10 +43,10 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
 
         // options
         Widgets_Section.BeginSectionColumn(optionsColumnRect, "Hunting.Options", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.ManagerThreshold".Translate());
+        Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.Threshold".Translate());
         Widgets_Section.Section(ref position, width, DrawUnforbidCorpses);
         Widgets_Section.Section(ref position, width, DrawHuntingGrounds,
-            "ColonyManagerRedux.ManagerHunting.AreaRestriction".Translate());
+            "ColonyManagerRedux.Hunting.AreaRestriction".Translate());
         Widgets_Section.EndSectionColumn("Hunting.Options", position);
 
         // animals
@@ -68,7 +68,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         // do the button
         if (!SelectedHuntingJob.IsManaged)
         {
-            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerManage".Translate()))
+            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Manage".Translate()))
             {
                 // activate job, add it to the stack
                 SelectedHuntingJob.IsManaged = true;
@@ -80,7 +80,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         }
         else
         {
-            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerDelete".Translate()))
+            if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
                 // inactivate job, remove from the stack.
                 manager.JobTracker.Delete(SelectedHuntingJob);
@@ -155,7 +155,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         }
 
         Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Hunting.NewHuntingJob".Translate().Resolve() + ">");
+        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Job.New".Translate().Resolve() + ">");
         Text.Anchor = TextAnchor.UpperLeft;
 
         if (Widgets.ButtonInvisible(newRect))
@@ -306,14 +306,14 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
                     {
                         label += ", ";
                         label += kind.labelFemale.NullOrEmpty()
-                            ? I18n.Gender(Gender.Female)
+                            ? $"ColonyManagerRedux.Info.Gender.{Gender.Female}".Translate()
                             : kind.labelFemale;
                     }
                     else if (part.allowMale && !part.allowFemale)
                     {
                         label += ", ";
                         label += kind.labelMale.NullOrEmpty()
-                            ? I18n.Gender(Gender.Male)
+                            ? $"ColonyManagerRedux.Info.Gender.{Gender.Male}".Translate()
                             : kind.labelFemale;
                     }
 
@@ -355,25 +355,25 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         // toggle all
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         DrawShortcutToggle(allAnimals, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
-            "ManagerAll", null);
+            "ColonyManagerRedux.Shortcuts.All", null);
 
         // toggle predators
         rowRect.y += ListEntryHeight;
         var predators = allAnimals.Where(a => a.RaceProps.predator).ToList();
         DrawShortcutToggle(predators, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
-            "ManagerHunting.Predators", "ManagerHunting.Predators.Tip");
+            "ColonyManagerRedux.Hunting.Predators", "ColonyManagerRedux.Hunting.Predators.Tip");
 
         // aggressive animals
         rowRect.y += ListEntryHeight;
         var aggressive = allAnimals.Where(a => a.RaceProps.manhunterOnDamageChance >= 0.05).ToList();
         DrawShortcutToggle(aggressive, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
-            "ManagerHunting.Aggressive", "ManagerHunting.Aggressive.Tip");
+            "ColonyManagerRedux.Hunting.Aggressive", "ColonyManagerRedux.Hunting.Aggressive.Tip");
 
         // toggle herd animals
         rowRect.y += ListEntryHeight;
         var herders = allAnimals.Where(a => a.RaceProps.herdAnimal).ToList();
         DrawShortcutToggle(herders, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
-            "ManagerHunting.HerdAnimals", "ManagerHunting.HerdAnimals.Tip");
+            "ColonyManagerRedux.Hunting.HerdAnimals", "ColonyManagerRedux.Hunting.HerdAnimals.Tip");
 
         // exploding animals
         var exploding = allAnimals
@@ -385,7 +385,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         {
             rowRect.y += ListEntryHeight;
             DrawShortcutToggle(exploding, allowedAnimals, SelectedHuntingJob.SetAnimalAllowed, rowRect,
-                "ManagerHunting.Exploding", "ManagerHunting.Exploding.Tip");
+                "ColonyManagerRedux.Hunting.Exploding", "ColonyManagerRedux.Hunting.Exploding.Tip");
         }
 
         return rowRect.yMax - start.y;
@@ -416,8 +416,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
             SelectedHuntingJob.Designations, null, SelectedHuntingJob.DesignationLabel);
 
         // allow human & insect meat (2)
-        Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.ManagerPathBasedDistance".Translate(),
-            "ColonyManagerRedux.ManagerPathBasedDistance.Tip".Translate(), ref SelectedHuntingJob.UsePathBasedDistance, true);
+        Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
+            "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(), ref SelectedHuntingJob.UsePathBasedDistance, true);
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.ShouldCheckReachable);
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
             "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),

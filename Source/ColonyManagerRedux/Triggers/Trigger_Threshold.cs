@@ -256,8 +256,8 @@ public class Trigger_Threshold : Trigger
             }
         }
 
-        Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.ManagerCountAllOnMap".Translate(),
-            "ColonyManagerRedux.ManagerCountAllOnMap.Tip".Translate(), ref CountAllOnMap, true);
+        Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
+            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref CountAllOnMap, true);
         TargetCount = (int)GUI.HorizontalSlider(thresholdRect, TargetCount, 0, MaxUpperThreshold);
     }
 

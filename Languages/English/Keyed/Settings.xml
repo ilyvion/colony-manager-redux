@@ -9,18 +9,4 @@
 
     <ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings>
     <ColonyManagerRedux.ManagerJobSettings.TargetCount>Target count: {0}</ColonyManagerRedux.ManagerJobSettings.TargetCount>
-
-    <ColonyManagerRedux.ForestryJobSettings.DefaultJobType>Default job type</ColonyManagerRedux.ForestryJobSettings.DefaultJobType>
-
-    <ColonyManagerRedux.LivestockJobSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.LivestockJobSettings.DefaultTargetCountsHeader>
-    <ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.LivestockJobSettings.DefaultTamingHeader>
-    <ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.LivestockJobSettings.DefaultButcherHeader>
-    <ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.LivestockJobSettings.DefaultTrainingHeader>
-    <ColonyManagerRedux.LivestockJobSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.LivestockJobSettings.DefaultFollowHeader>
-    <ColonyManagerRedux.LivestockJobSettings.Default>Defaults</ColonyManagerRedux.LivestockJobSettings.Default>
-    <ColonyManagerRedux.LivestockJobSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.LivestockJobSettings.AddOverride>
-    <ColonyManagerRedux.LivestockJobSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.LivestockJobSettings.DeleteOverrideFor>
-
-    <ColonyManagerRedux.ManagerMining.DefaultChunks>Default chunks</ColonyManagerRedux.ManagerMining.DefaultChunks>
-    <ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.MiningJobSettings.DefaultHealthAndSafety>
 </LanguageData>

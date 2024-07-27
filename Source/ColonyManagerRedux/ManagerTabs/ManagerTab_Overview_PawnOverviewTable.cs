@@ -60,7 +60,7 @@ partial class ManagerTab_Overview
 
         private static string GetPawnActivityString(Pawn pawn)
         {
-            return pawn.jobs.curDriver?.GetReport() ?? "ColonyManagerRedux.ManagerNoCurJob".Translate();
+            return pawn.jobs.curDriver?.GetReport() ?? "ColonyManagerRedux.Overview.NoCurrentJob".Translate();
         }
 
         public override int GetOptimalWidth(PawnTable table)

@@ -12,8 +12,8 @@ internal sealed class Alert_NoManager : Alert
 {
     public Alert_NoManager()
     {
-        defaultLabel = "ColonyManagerRedux.ManagerAlertNoManagerLabel".Translate();
-        defaultExplanation = "ColonyManagerRedux.ManagerAlertNoManager".Translate();
+        defaultLabel = "ColonyManagerRedux.Alerts.NoManagerLabel".Translate();
+        defaultExplanation = "ColonyManagerRedux.Alerts.NoManager".Translate();
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
@@ -43,8 +43,8 @@ internal sealed class Alert_NoTable : Alert
 {
     public Alert_NoTable()
     {
-        defaultLabel = "ColonyManagerRedux.ManagerAlertNoTableLabel".Translate();
-        defaultExplanation = "ColonyManagerRedux.ManagerAlertNoTable".Translate();
+        defaultLabel = "ColonyManagerRedux.Alerts.NoTableLabel".Translate();
+        defaultExplanation = "ColonyManagerRedux.Alerts.NoTable".Translate();
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
@@ -70,8 +70,8 @@ internal sealed class Alert_TableAndAI : Alert
 {
     public Alert_TableAndAI()
     {
-        defaultLabel = "ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel".Translate();
-        defaultExplanation = "ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager".Translate();
+        defaultLabel = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel".Translate();
+        defaultExplanation = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManager".Translate();
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;

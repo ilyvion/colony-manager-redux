@@ -42,7 +42,7 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         // Don't issue manager work when there's an active AI manager.
         if (Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>().Any(b => b.Powered))
         {
-            JobFailReason.Is("ColonyManagerRedux.ColonyManager.CannotManage.AIManager".Translate());
+            JobFailReason.Is("ColonyManagerRedux.CannotManage.AIManager".Translate());
             return false;
         }
 
@@ -62,19 +62,19 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         var power = t.TryGetComp<CompPowerTrader>();
         if (power != null && !power.PowerOn)
         {
-            JobFailReason.Is("ColonyManagerRedux.ColonyManager.CannotManage.NoPower".Translate());
+            JobFailReason.Is("ColonyManagerRedux.CannotManage.NoPower".Translate());
             return false;
         }
 
         if (!Manager.For(pawn.Map).JobTracker.JobsOfType<ManagerJob>().Any())
         {
-            JobFailReason.Is("ColonyManagerRedux.ColonyManager.CannotManage.NoJobs".Translate());
+            JobFailReason.Is("ColonyManagerRedux.CannotManage.NoJobs".Translate());
             return false;
         }
 
         if (Manager.For(pawn.Map).JobTracker.NextJob == null)
         {
-            JobFailReason.Is("ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs".Translate());
+            JobFailReason.Is("ColonyManagerRedux.CannotManage.NoActiveJobs".Translate());
             return false;
         }
 

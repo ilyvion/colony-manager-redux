@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <ColonyManagerRedux.ManagerMining>Mineração</ColonyManagerRedux.ManagerMining>
-    <ColonyManagerRedux.ManagerMining.MiningArea>Área de mineração</ColonyManagerRedux.ManagerMining.MiningArea>
-    <ColonyManagerRedux.ManagerMining.HealthAndSafety>Saúde e segurança</ColonyManagerRedux.ManagerMining.HealthAndSafety>
-    <ColonyManagerRedux.ManagerMining.AllowedMinerals>Minerais</ColonyManagerRedux.ManagerMining.AllowedMinerals>
-    <ColonyManagerRedux.ManagerMining.AllowedBuildings>Construções</ColonyManagerRedux.ManagerMining.AllowedBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings>Desconstruir construções</ColonyManagerRedux.ManagerMining.DeconstructBuildings>
-    <ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>As construções não reclamadas devem ser desconstruídas para salvamento?</ColonyManagerRedux.ManagerMining.DeconstructBuildings.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport>Deixe suportes de telhado</ColonyManagerRedux.ManagerMining.CheckRoofSupport>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>Os gerentes deixarão as colunas de suporte em intervalos regulares.\n\nNOTA: A posição das colunas é pré-calculada, os desmoronamentos e os colapsos de telhado ainda podem ocorrer!</ColonyManagerRedux.ManagerMining.CheckRoofSupport.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>Verifique se há suportes de teto</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>Os gerentes calcularão o suporte do telhado antes de designar as tarefas de mineração e desconstrução, reduzindo drasticamente o risco de desmoronamento e colapsos de telhado.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.Tip>
-    <ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>Desativado porque a verificação do suporte do telhado está desativada.</ColonyManagerRedux.ManagerMining.CheckRoofSupportAdvanced.DisabledTip>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision>Verifique os limites da sala</ColonyManagerRedux.ManagerMining.CheckRoomDivision>
-    <ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>Os gerentes tentarão impedir a violação de paredes que dividem as salas ou que criariam atalhos.</ColonyManagerRedux.ManagerMining.CheckRoomDivision.Tip>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>Sincronizar Limite</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed>
-    <ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>Ativar isso tentará sincronizar os materiais contados no filtro de limite com as rochas e construções permitidas para mineração/desconstrução e vice-versa.</ColonyManagerRedux.ManagerMining.SyncFilterAndAllowed.Tip>
+    <ColonyManagerRedux.Mining>Mineração</ColonyManagerRedux.Mining>
+    <ColonyManagerRedux.Mining.MiningArea>Área de mineração</ColonyManagerRedux.Mining.MiningArea>
+    <ColonyManagerRedux.Mining.HealthAndSafety>Saúde e segurança</ColonyManagerRedux.Mining.HealthAndSafety>
+    <ColonyManagerRedux.Mining.AllowedMinerals>Minerais</ColonyManagerRedux.Mining.AllowedMinerals>
+    <ColonyManagerRedux.Mining.AllowedBuildings>Construções</ColonyManagerRedux.Mining.AllowedBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings>Desconstruir construções</ColonyManagerRedux.Mining.DeconstructBuildings>
+    <ColonyManagerRedux.Mining.DeconstructBuildings.Tip>As construções não reclamadas devem ser desconstruídas para salvamento?</ColonyManagerRedux.Mining.DeconstructBuildings.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupport>Deixe suportes de telhado</ColonyManagerRedux.Mining.CheckRoofSupport>
+    <ColonyManagerRedux.Mining.CheckRoofSupport.Tip>Os gerentes deixarão as colunas de suporte em intervalos regulares.\n\nNOTA: A posição das colunas é pré-calculada, os desmoronamentos e os colapsos de telhado ainda podem ocorrer!</ColonyManagerRedux.Mining.CheckRoofSupport.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>Verifique se há suportes de teto</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>Os gerentes calcularão o suporte do telhado antes de designar as tarefas de mineração e desconstrução, reduzindo drasticamente o risco de desmoronamento e colapsos de telhado.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>Desativado porque a verificação do suporte do telhado está desativada.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>
+    <ColonyManagerRedux.Mining.CheckRoomDivision>Verifique os limites da sala</ColonyManagerRedux.Mining.CheckRoomDivision>
+    <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Os gerentes tentarão impedir a violação de paredes que dividem as salas ou que criariam atalhos.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Sincronizar Limite</ColonyManagerRedux.Mining.SyncFilterAndAllowed>
+    <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>Ativar isso tentará sincronizar os materiais contados no filtro de limite com as rochas e construções permitidas para mineração/desconstrução e vice-versa.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, pedaços, designado, alvo -->
-    <ColonyManagerRedux.ManagerMining.TargetCount>Contagem de alvos: {0}+{1}+{2}/{3}</ColonyManagerRedux.ManagerMining.TargetCount>
-    <ColonyManagerRedux.ManagerMining.TargetCount.Tip>Alvo: {3}\n{0} em armazenamento\n{1} esperado da lapidação\n{2} esperado das designações atuais.</ColonyManagerRedux.ManagerMining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount>Contagem de alvos: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>Alvo: {3}\n{0} em armazenamento\n{1} esperado da lapidação\n{2} esperado das designações atuais.</ColonyManagerRedux.Mining.TargetCount.Tip>
 
     <!-- Empregos -->
-    <ColonyManagerRedux.ManagerMining.NewJob>Novo emprego</ColonyManagerRedux.ManagerMining.NewJob>
-    <ColonyManagerRedux.ManagerMining.NewJob.Tip>Crie um novo trabalho de mineração</ColonyManagerRedux.ManagerMining.NewJob.Tip>
+    <ColonyManagerRedux.Mining.NewJob.Tip>Crie um novo trabalho de mineração</ColonyManagerRedux.Mining.NewJob.Tip>
 
     <!-- atalhos -->
-    <ColonyManagerRedux.ManagerMining.Stone>Pedra</ColonyManagerRedux.ManagerMining.Stone>
-    <ColonyManagerRedux.ManagerMining.Stone.Tip>Alternar todos os mineráveis que produzem pedaços de pedra</ColonyManagerRedux.ManagerMining.Stone.Tip>
-    <ColonyManagerRedux.ManagerMining.Metal>Metal</ColonyManagerRedux.ManagerMining.Metal>
-    <ColonyManagerRedux.ManagerMining.Metal.Tip>Alternar todos os mineráveis que produzem metal</ColonyManagerRedux.ManagerMining.Metal.Tip>
-    <ColonyManagerRedux.ManagerMining.Precious>Precioso</ColonyManagerRedux.ManagerMining.Precious>
-    <ColonyManagerRedux.ManagerMining.Precious.Tip>Alternar todos os mineráveis que produzem materiais preciosos</ColonyManagerRedux.ManagerMining.Precious.Tip>
+    <ColonyManagerRedux.Mining.Stone>Pedra</ColonyManagerRedux.Mining.Stone>
+    <ColonyManagerRedux.Mining.Stone.Tip>Alternar todos os mineráveis que produzem pedaços de pedra</ColonyManagerRedux.Mining.Stone.Tip>
+    <ColonyManagerRedux.Mining.Metal>Metal</ColonyManagerRedux.Mining.Metal>
+    <ColonyManagerRedux.Mining.Metal.Tip>Alternar todos os mineráveis que produzem metal</ColonyManagerRedux.Mining.Metal.Tip>
+    <ColonyManagerRedux.Mining.Precious>Precioso</ColonyManagerRedux.Mining.Precious>
+    <ColonyManagerRedux.Mining.Precious.Tip>Alternar todos os mineráveis que produzem materiais preciosos</ColonyManagerRedux.Mining.Precious.Tip>
 </LanguageData>

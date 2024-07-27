@@ -1,39 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
     <!-- Main Manager Tab -->
-    <ColonyManagerRedux.ManagerManager>管理</ColonyManagerRedux.ManagerManager>
-    <ColonyManagerRedux.ManagerDetails>详细</ColonyManagerRedux.ManagerDetails>
-    <ColonyManagerRedux.ManagerManage>添加！</ColonyManagerRedux.ManagerManage>
-    <ColonyManagerRedux.ManagerDelete>删除</ColonyManagerRedux.ManagerDelete>
-    <ColonyManagerRedux.ManagerAll>全部</ColonyManagerRedux.ManagerAll>
+    <ColonyManagerRedux.Shortcuts.All>全部</ColonyManagerRedux.Shortcuts.All>
+    <ColonyManagerRedux.Common.Manage>添加！</ColonyManagerRedux.Common.Manage>
+    <ColonyManagerRedux.Common.Delete>删除</ColonyManagerRedux.Common.Delete>
 
     <!-- Help and alert messages for the lexically challenged. -->
-    <ColonyManagerRedux.ManagerAlertNoTableLabel>需要管理办公桌。</ColonyManagerRedux.ManagerAlertNoTableLabel>
-    <ColonyManagerRedux.ManagerAlertNoTable>管理目标已设定，但管理办公桌不可用。</ColonyManagerRedux.ManagerAlertNoTable>
-    <ColonyManagerRedux.ManagerAlertNoManagerLabel>需要管理者</ColonyManagerRedux.ManagerAlertNoManagerLabel>
-    <ColonyManagerRedux.ManagerAlertNoManager>管理目标已设定，但没有已指派「管理」工作的殖民者。</ColonyManagerRedux.ManagerAlertNoManager>
+    <ColonyManagerRedux.Alerts.NoTableLabel>需要管理办公桌。</ColonyManagerRedux.Alerts.NoTableLabel>
+    <ColonyManagerRedux.Alerts.NoTable>管理目标已设定，但管理办公桌不可用。</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoManagerLabel>需要管理者</ColonyManagerRedux.Alerts.NoManagerLabel>
+    <ColonyManagerRedux.Alerts.NoManager>管理目标已设定，但没有已指派「管理」工作的殖民者。</ColonyManagerRedux.Alerts.NoManager>
 
     <!-- Common -->
-    <ColonyManagerRedux.ManagerLastUpdateTooltip>此项工作更新于{0}之前。</ColonyManagerRedux.ManagerLastUpdateTooltip>
-    <ColonyManagerRedux.ManagerOrderUp>提升工作优先级</ColonyManagerRedux.ManagerOrderUp>
-    <ColonyManagerRedux.ManagerOrderDown>降低工作优先级</ColonyManagerRedux.ManagerOrderDown>
-    <ColonyManagerRedux.ManagerOrderTop>最高优先级</ColonyManagerRedux.ManagerOrderTop>
-    <ColonyManagerRedux.ManagerOrderBottom>最低优先级</ColonyManagerRedux.ManagerOrderBottom>
-    <ColonyManagerRedux.Multiple>[多种]</ColonyManagerRedux.Multiple>
+    <ColonyManagerRedux.Job.LastUpdatedTooltip>此项工作更新于{0}之前。</ColonyManagerRedux.Job.LastUpdatedTooltip>
+    <ColonyManagerRedux.Job.IncreasePriority>提升工作优先级</ColonyManagerRedux.Job.IncreasePriority>
+    <ColonyManagerRedux.Job.DecreasePriorityn>降低工作优先级</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.TopPriority>最高优先级</ColonyManagerRedux.Job.TopPriority>
+    <ColonyManagerRedux.Job.BottomPriority>最低优先级</ColonyManagerRedux.Job.BottomPriority>
 
     <!-- time periods for update interval -->
     <ColonyManagerRedux.ManagerDefaultUpdateInterval>默认更新时间间隔</ColonyManagerRedux.ManagerDefaultUpdateInterval>
-    <ColonyManagerRedux.ManagerHourly>每小时</ColonyManagerRedux.ManagerHourly>
-    <ColonyManagerRedux.ManagerMultiHourly>每{0}小时</ColonyManagerRedux.ManagerMultiHourly>
-    <ColonyManagerRedux.ManagerDaily>每天</ColonyManagerRedux.ManagerDaily>
-    <ColonyManagerRedux.ManagerMonthly>每象</ColonyManagerRedux.ManagerMonthly>
-    <ColonyManagerRedux.ManagerYearly>每年</ColonyManagerRedux.ManagerYearly>
+    <ColonyManagerRedux.UpdateInterval.Hourly>每小时</ColonyManagerRedux.UpdateInterval.Hourly>
+    <ColonyManagerRedux.UpdateInterval.MultipleHourly>每{0}小时</ColonyManagerRedux.UpdateInterval.MultipleHourly>
+    <ColonyManagerRedux.UpdateInterval.Daily>每天</ColonyManagerRedux.UpdateInterval.Daily>
+    <ColonyManagerRedux.UpdateInterval.Monthly>每象</ColonyManagerRedux.UpdateInterval.Monthly>
+    <ColonyManagerRedux.UpdateInterval.Yearly>每年</ColonyManagerRedux.UpdateInterval.Yearly>
 
     <!-- History graphs -->
-    <ColonyManagerRedux.ManagerHistory.Period>时间段</ColonyManagerRedux.ManagerHistory.Period>
-    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>显示/隐藏图例</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
-    <ColonyManagerRedux.ManagerHistory.ClickToEnable>\n\n点击以在面板{0}{1}。\n右键点击以只显示{1}。</ColonyManagerRedux.ManagerHistory.ClickToEnable>
-    <ColonyManagerRedux.ManagerHistory.NoChapters>没有可显示的信息！</ColonyManagerRedux.ManagerHistory.NoChapters>
+    <ColonyManagerRedux.History.Period>时间段</ColonyManagerRedux.History.Period>
+    <ColonyManagerRedux.History.ShowHideLegend>显示/隐藏图例</ColonyManagerRedux.History.ShowHideLegend>
+    <ColonyManagerRedux.History.ClickToEnable>\n\n点击以在面板{0}{1}。\n右键点击以只显示{1}。</ColonyManagerRedux.History.ClickToEnable>
+    <ColonyManagerRedux.History.NoChapters>没有可显示的信息！</ColonyManagerRedux.History.NoChapters>
 
     <!-- Power Tab (E for energy) -->
     <ColonyManagerRedux.Energy.PeriodShown>时间段：{0}</ColonyManagerRedux.Energy.PeriodShown>
@@ -41,7 +38,7 @@
     <ColonyManagerRedux.Energy.Power>电力</ColonyManagerRedux.Energy.Power>
 
     <!-- Overview Tab -->
-    <ColonyManagerRedux.Overview.Overview>概览</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview>概览</ColonyManagerRedux.Overview>
     <ColonyManagerRedux.Overview.NoJobs>未设定工作</ColonyManagerRedux.Overview.NoJobs>
     <ColonyManagerRedux.Overview.Activity>当前活动</ColonyManagerRedux.Overview.Activity>
     <ColonyManagerRedux.Overview.WorkEnabled>工作</ColonyManagerRedux.Overview.WorkEnabled>
@@ -62,14 +59,13 @@
     <ColonyManagerRedux.ManagerNoSaves>未发现导出工作。</ColonyManagerRedux.ManagerNoSaves>
 
     <!-- Hunting Tab -->
-    <ColonyManagerRedux.Hunting.Hunting>狩猎</ColonyManagerRedux.Hunting.Hunting>
+    <ColonyManagerRedux.Hunting>狩猎</ColonyManagerRedux.Hunting>
     <ColonyManagerRedux.Hunting.NewHuntingJob>新建工作</ColonyManagerRedux.Hunting.NewHuntingJob>
     <ColonyManagerRedux.Hunting.NewHuntingJobTooltip>新建狩猎工作。</ColonyManagerRedux.Hunting.NewHuntingJobTooltip>
     <ColonyManagerRedux.Hunting.AllowHumanMeat>人肉计算在内</ColonyManagerRedux.Hunting.AllowHumanMeat>
     <ColonyManagerRedux.Hunting.AllowInsectMeat>虫肉计算在内</ColonyManagerRedux.Hunting.AllowInsectMeat>
     <ColonyManagerRedux.Hunting.UnforbidCorpses>尸体解除禁止</ColonyManagerRedux.Hunting.UnforbidCorpses>
-    <ColonyManagerRedux.Hunting.HuntingGrounds>允许狩猎于：</ColonyManagerRedux.Hunting.HuntingGrounds>
-    <ColonyManagerRedux.Hunting.Options>选项</ColonyManagerRedux.Hunting.Options>
+    <ColonyManagerRedux.HuntingGrounds>允许狩猎于：</ColonyManagerRedux.HuntingGrounds>
     <ColonyManagerRedux.Hunting.Animals>允许的动物</ColonyManagerRedux.Hunting.Animals>
     <ColonyManagerRedux.Hunting.TargetCount>目标计数：{0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
     <ColonyManagerRedux.Hunting.TargetCountTooltip>目标：{3}\n储存{0}\n屠宰预期{1}\n当前命令预期{2}。</ColonyManagerRedux.Hunting.TargetCountTooltip>
@@ -78,7 +74,6 @@
     <ColonyManagerRedux.Forestry.Forestry>林业</ColonyManagerRedux.Forestry.Forestry>
     <ColonyManagerRedux.Forestry.NewForestryJob>新建工作</ColonyManagerRedux.Forestry.NewForestryJob>
     <ColonyManagerRedux.Forestry.NewForestryJobTooltip>新建林业工作。</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
-    <ColonyManagerRedux.Forestry.Options>选项</ColonyManagerRedux.Forestry.Options>
     <ColonyManagerRedux.Forestry.Trees>允许树木</ColonyManagerRedux.Forestry.Trees>
     <ColonyManagerRedux.Forestry.ClearWindCells>清理风力发电机区域</ColonyManagerRedux.Forestry.ClearWindCells>
     <ColonyManagerRedux.Forestry.AllowSaplings>允许砍伐未完全成熟的树木</ColonyManagerRedux.Forestry.AllowSaplings>
@@ -88,10 +83,9 @@
     <ColonyManagerRedux.Forestry.ClearAreas>清除区域内的所有植物：</ColonyManagerRedux.Forestry.ClearAreas>
 
     <!-- Foraging (Gathering) tab -->
-    <ColonyManagerRedux.Foraging.Foraging>采集</ColonyManagerRedux.Foraging.Foraging>
+    <ColonyManagerRedux.Foraging>采集</ColonyManagerRedux.Foraging>
     <ColonyManagerRedux.Foraging.NewForagingJob>新建工作</ColonyManagerRedux.Foraging.NewForagingJob>
     <ColonyManagerRedux.Foraging.NewForagingJobTooltip>新建采集工作。</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
-    <ColonyManagerRedux.Foraging.Options>选项</ColonyManagerRedux.Foraging.Options>
     <ColonyManagerRedux.Foraging.TargetCount>目标计数：{0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
     <ColonyManagerRedux.Foraging.TargetCountTooltip>目标：{2}\n储存{0}\n当前命令预期{1}。</ColonyManagerRedux.Foraging.TargetCountTooltip>
     <ColonyManagerRedux.Foraging.ForceFullyMature>只允许完全成熟的植物。</ColonyManagerRedux.Foraging.ForceFullyMature>
@@ -110,7 +104,6 @@
     <ColonyManagerRedux.Thresholds.NoThreshold>无阈值</ColonyManagerRedux.Thresholds.NoThreshold>
     <ColonyManagerRedux.Thresholds.NoThresholdTooltip>未设定阈值</ColonyManagerRedux.Thresholds.NoThresholdTooltip>
     <ColonyManagerRedux.Thresholds.SnapToHighestSkill>限定为技能等级最高的殖民者</ColonyManagerRedux.Thresholds.SnapToHighestSkill>
-    <ColonyManagerRedux.Thresholds.Options>选项</ColonyManagerRedux.Thresholds.Options>
     <ColonyManagerRedux.Thresholds.Bill>清单</ColonyManagerRedux.Thresholds.Bill>
     <ColonyManagerRedux.Thresholds.Recipe>配方</ColonyManagerRedux.Thresholds.Recipe>
     <ColonyManagerRedux.Thresholds.AllowedIngredients>允许原料：</ColonyManagerRedux.Thresholds.AllowedIngredients>
@@ -122,8 +115,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>阈值：{0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>点击以打开阈值详情。\n\n目标：{1}\n生产中：{0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    <ColonyManagerRedux.Thresholds.ThresholdDetails>阈值详情</ColonyManagerRedux.Thresholds.ThresholdDetails>
-
+    
     <!-- BillGivers -->
     <ColonyManagerRedux.Thresholds.BillGiversCount>工作台（{0}/{1}/{2}）</ColonyManagerRedux.Thresholds.BillGiversCount>
     <ColonyManagerRedux.Thresholds.BillGiversTooltip>点击切换不同的清单授予处。\n\n可用的：\n{0}\n\n已选择：\n{1}\n\n已指派：\n{2}</ColonyManagerRedux.Thresholds.BillGiversTooltip>
@@ -160,7 +152,7 @@
     <ColonyManagerRedux.Thresholds.CouldNotAddJob>新建工作{0}失败。</ColonyManagerRedux.Thresholds.CouldNotAddJob>
 
     <!-- Livestock tab -->
-    <ColonyManagerRedux.Livestock.Livestock>牲畜</ColonyManagerRedux.Livestock.Livestock>
+    <ColonyManagerRedux.Livestock>牲畜</ColonyManagerRedux.Livestock>
     <ColonyManagerRedux.Livestock.TargetCounts>目标计数</ColonyManagerRedux.Livestock.TargetCounts>
     <ColonyManagerRedux.Livestock.Adult>成年</ColonyManagerRedux.Livestock.Adult>
     <ColonyManagerRedux.Livestock.Juvenile>幼崽</ColonyManagerRedux.Livestock.Juvenile>
