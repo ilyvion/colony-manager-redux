@@ -11,9 +11,9 @@
 
     <!-- Help and alert messages for the lexically challenged. -->
     <ColonyManagerRedux.ManagerAlertNoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.ManagerAlertNoTableLabel>
-    <ColonyManagerRedux.ManagerAlertNoTable>Manager jobs exist, but no manager's desk or AI manager have been constructed</ColonyManagerRedux.ManagerAlertNoTable>
+    <ColonyManagerRedux.ManagerAlertNoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed</ColonyManagerRedux.ManagerAlertNoTable>
     <ColonyManagerRedux.ManagerAlertNoManagerLabel>Need manager</ColonyManagerRedux.ManagerAlertNoManagerLabel>
-    <ColonyManagerRedux.ManagerAlertNoManager>Manager targets are set, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.ManagerAlertNoManager>
+    <ColonyManagerRedux.ManagerAlertNoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.ManagerAlertNoManager>
     <ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.ManagerAlertManagerDeskAndAIManagerLabel>
     <ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.ManagerAlertManagerDeskAndAIManager>
 
@@ -22,6 +22,7 @@
     <ColonyManagerRedux.ManagerLastUpdateTooltip>This job was last updated {0} ago.</ColonyManagerRedux.ManagerLastUpdateTooltip>
     <ColonyManagerRedux.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.ScheduledToBeUpdatedTooltip>
     <ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.ClickToChangeUpdateIntervalTooltip>
+    <ColonyManagerRedux.Update>Update {0}</ColonyManagerRedux.Update>
     <ColonyManagerRedux.ForceUpdate>Force update now</ColonyManagerRedux.ForceUpdate>
     <ColonyManagerRedux.ManagerOrderUp>Increase job priority</ColonyManagerRedux.ManagerOrderUp>
     <ColonyManagerRedux.ManagerOrderDown>Decrease job priority</ColonyManagerRedux.ManagerOrderDown>
@@ -269,7 +270,7 @@
     <!-- Right click job fail reasons -->
     <ColonyManagerRedux.ColonyManager.CannotManage.NoPower>desk has no power</ColonyManagerRedux.ColonyManager.CannotManage.NoPower>
     <ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>no jobs have been set</ColonyManagerRedux.ColonyManager.CannotManage.NoJobs>
-    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>all jobs have reached their targets or are suspended</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
+    <ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>no jobs require updates right now</ColonyManagerRedux.ColonyManager.CannotManage.NoActiveJobs>
     <ColonyManagerRedux.ColonyManager.CannotManage.AIManager>managers won't do manual managing work when an AI manager is active</ColonyManagerRedux.ColonyManager.CannotManage.AIManager>
 
     <!-- History chapter labels -->

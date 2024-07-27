@@ -105,7 +105,7 @@ public class UpdateInterval(int ticks, string label)
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {
-                    options.Add(new FloatMenuOption(interval.label, () => job.UpdateInterval = interval));
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Update".Translate(interval.label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));
