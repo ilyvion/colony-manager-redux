@@ -548,6 +548,18 @@ public static class Utilities
             throw new ArgumentNullException(nameof(map));
         }
 
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            for (int i = designations.Count - 1; i >= 0; i--)
+            {
+                Designation item = designations[i];
+                if (!map.designationManager.AllDesignations.Contains(item))
+                {
+                    designations.RemoveAt(i);
+                }
+            }
+        }
+
         Scribe_Collections.Look(ref designations, "designations", LookMode.Deep);
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
