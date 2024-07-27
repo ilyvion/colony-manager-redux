@@ -461,12 +461,14 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public List<Thing> GetChunksSorted()
     {
-        var position = Manager.map.GetBaseCenter();
+        Map map = Manager.map;
+        var position = map.GetBaseCenter();
 
         return Manager.map.listerThings.AllThings
             .Where(t => t.def.IsChunk()
                 && !t.IsInAnyStorage()
-                && !t.IsForbidden(Faction.OfPlayer))
+                && !t.IsForbidden(Faction.OfPlayer)
+                && !map.reservationManager.IsReserved(t))
             .OrderByDescending(c => GetCountInChunk(c) / Distance(c, position))
             .ToList();
     }
