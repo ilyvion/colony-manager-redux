@@ -455,17 +455,18 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return 0;
     }
 
-    public List<Building> GetDeconstructibleBuildingsSorted()
+    public List<(Building building, int count, float distance)> GetDeconstructibleBuildingsSorted()
     {
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).OfType<Building>()
             .Where(IsValidDeconstructionTarget)
-            .OrderByDescending(b => GetCountInBuilding(b) / Distance(b, position))
+            .Select(b => (b, GetCountInBuilding(b), Distance(b, position)))
+            .OrderByDescending(b => b.Item2 / b.Item3)
             .ToList();
     }
 
-    public List<Thing> GetChunksSorted()
+    public List<(Thing chunk, int count, float distance)> GetChunksSorted()
     {
         Map map = Manager.map;
         var position = map.GetBaseCenter();
@@ -475,7 +476,8 @@ internal sealed class ManagerJob_Mining : ManagerJob
                 && !t.IsInAnyStorage()
                 && !t.IsForbidden(Faction.OfPlayer)
                 && !map.reservationManager.IsReserved(t))
-            .OrderByDescending(c => GetCountInChunk(c) / Distance(c, position))
+            .Select(c => (c, GetCountInChunk(c), Distance(c, position)))
+            .OrderByDescending(c => c.Item2 / c.Item3)
             .ToList();
     }
 
@@ -530,13 +532,14 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return list;
     }
 
-    public List<Mineable> GetMinableMineralsSorted()
+    public List<(Mineable mineable, int count, float distance)> GetMinableMineralsSorted()
     {
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.listerThings.AllThings.OfType<Mineable>()
             .Where(IsValidMiningTarget)
-            .OrderByDescending(r => GetCountInMineral(r) / Distance(r, position))
+            .Select(m => (m, GetCountInMineral(m), Distance(m, position)))
+            .OrderByDescending(m => m.Item2 / m.Item3)
             .ToList();
     }
 
@@ -816,9 +819,11 @@ internal sealed class ManagerJob_Mining : ManagerJob
             var chunks = GetChunksSorted();
             for (var i = 0; i < chunks.Count && count < TriggerThreshold.TargetCount; i++)
             {
+                var chunk = chunks[i];
+                AddDesignation(chunk.chunk, DesignationDefOf.Haul);
+                count += chunk.count;
+
                 workDone = true;
-                AddDesignation(chunks[i], DesignationDefOf.Haul);
-                count += GetCountInChunk(chunks[i]);
             }
         }
 
@@ -827,20 +832,23 @@ internal sealed class ManagerJob_Mining : ManagerJob
             var buildings = GetDeconstructibleBuildingsSorted();
             for (var i = 0; i < buildings.Count && count < TriggerThreshold.TargetCount; i++)
             {
+                var building = buildings[i];
+                AddDesignation(building.building, DesignationDefOf.Deconstruct);
+                count += building.count;
+
                 workDone = true;
-                AddDesignation(buildings[i], DesignationDefOf.Deconstruct);
-                count += GetCountInBuilding(buildings[i]);
             }
         }
 
         var minerals = GetMinableMineralsSorted();
         for (var i = 0; i < minerals.Count && count < TriggerThreshold.TargetCount; i++)
         {
-            if (!IsARoofSupport_Advanced(minerals[i]))
+            var mineral = minerals[i];
+            if (!IsARoofSupport_Advanced(mineral.mineable))
             {
                 workDone = true;
-                AddDesignation(minerals[i], DesignationDefOf.Mine);
-                count += GetCountInMineral(minerals[i]);
+                AddDesignation(mineral.mineable, DesignationDefOf.Mine);
+                count += mineral.count;
             }
         }
 
