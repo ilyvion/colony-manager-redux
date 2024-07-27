@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <ColonyManagerRedux.ManagerImportExport>Import &amp; Export</ColonyManagerRedux.ManagerImportExport>
+    <ColonyManagerRedux.SelectExportJobs>Select which jobs to export</ColonyManagerRedux.SelectExportJobs>
+    <ColonyManagerRedux.SelectImportJobs>Select which jobs to import</ColonyManagerRedux.SelectImportJobs>
+    <ColonyManagerRedux.ManagerExport>Export</ColonyManagerRedux.ManagerExport>
+    <ColonyManagerRedux.ManagerConfirmOverwrite>{0} exists.\n\nAre you sure you want to overwrite?</ColonyManagerRedux.ManagerConfirmOverwrite>
+    <ColonyManagerRedux.ManagerJobsExported>{0} jobs exported</ColonyManagerRedux.ManagerJobsExported>
+    <ColonyManagerRedux.ManagerJobsImported>{0} jobs imported</ColonyManagerRedux.ManagerJobsImported>
+    <ColonyManagerRedux.ManagerImport>Import</ColonyManagerRedux.ManagerImport>
+    <ColonyManagerRedux.ManagerNoSaves>No exports found.</ColonyManagerRedux.ManagerNoSaves>
+    <ColonyManagerRedux.DeleteThisManagerFile>Delete this export file.</ColonyManagerRedux.DeleteThisManagerFile>
+    <ColonyManagerRedux.InvalidJob>Cannot import job '{0}' because it is invalid.</ColonyManagerRedux.InvalidJob>
+</LanguageData>

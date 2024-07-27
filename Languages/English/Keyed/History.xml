@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <ColonyManagerRedux.ManagerHistory.Period>Period</ColonyManagerRedux.ManagerHistory.Period>
+    <ColonyManagerRedux.ManagerHistory.ShowHideLegend>Show/Hide legend</ColonyManagerRedux.ManagerHistory.ShowHideLegend>
+    <ColonyManagerRedux.ManagerHistory.Show>show</ColonyManagerRedux.ManagerHistory.Show>
+    <ColonyManagerRedux.ManagerHistory.Hide>hide</ColonyManagerRedux.ManagerHistory.Hide>
+    <ColonyManagerRedux.ManagerHistory.ClickToEnable>Click to {0} {1} in plot.\nRight click to show only {1}.</ColonyManagerRedux.ManagerHistory.ClickToEnable>
+    <ColonyManagerRedux.ManagerHistory.NoChapters>Nothing to show!</ColonyManagerRedux.ManagerHistory.NoChapters>
+    <ColonyManagerRedux.ManagerHistory.ValueTooltip>{0}: {1}</ColonyManagerRedux.ManagerHistory.ValueTooltip>
+    <ColonyManagerRedux.ManagerHistory.TargetTooltip>{0} target: {1}</ColonyManagerRedux.ManagerHistory.TargetTooltip>
+    <ColonyManagerRedux.ManagerHistory.PeriodShown.Day>day</ColonyManagerRedux.ManagerHistory.PeriodShown.Day>
+    <ColonyManagerRedux.ManagerHistory.PeriodShown.Month>month</ColonyManagerRedux.ManagerHistory.PeriodShown.Month>
+    <ColonyManagerRedux.ManagerHistory.PeriodShown.Year>year</ColonyManagerRedux.ManagerHistory.PeriodShown.Year>
+</LanguageData>

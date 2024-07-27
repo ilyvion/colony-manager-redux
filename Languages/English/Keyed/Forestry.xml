@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <ColonyManagerRedux.Forestry.Forestry>Forestry</ColonyManagerRedux.Forestry.Forestry>
+    <ColonyManagerRedux.Forestry.NewForestryJob>New job</ColonyManagerRedux.Forestry.NewForestryJob>
+    <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Create a new forestry job</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
+    <ColonyManagerRedux.Forestry.Options>Options</ColonyManagerRedux.Forestry.Options>
+    <ColonyManagerRedux.Forestry.ClearWindCells>Clear wind turbine cells</ColonyManagerRedux.Forestry.ClearWindCells>
+    <ColonyManagerRedux.Forestry.ClearWindCells.Tip>Clear all cells that are in wind turbines' catchment area</ColonyManagerRedux.Forestry.ClearWindCells.Tip>
+    <ColonyManagerRedux.Forestry.AllowSaplings>Only fully matured trees</ColonyManagerRedux.Forestry.AllowSaplings>
+    <ColonyManagerRedux.Forestry.AllowSaplings.Tip>Should forestry be limited to fully mature trees only?</ColonyManagerRedux.Forestry.AllowSaplings.Tip>
+    <ColonyManagerRedux.Forestry.LoggingArea>Allow logging in:</ColonyManagerRedux.Forestry.LoggingArea>
+    <ColonyManagerRedux.Forestry.TargetCount>Target count: {0}+{1}/{2}</ColonyManagerRedux.Forestry.TargetCount>
+    <ColonyManagerRedux.Forestry.TargetCountTooltip>Target: {2}\n{0} in storage\n{1} expected from current designations.</ColonyManagerRedux.Forestry.TargetCountTooltip>
+    <ColonyManagerRedux.Forestry.ClearAreas>Clear areas of all vegetation:</ColonyManagerRedux.Forestry.ClearAreas>
+    <ColonyManagerRedux.Forestry.JobType>Job type</ColonyManagerRedux.Forestry.JobType>
+    <ColonyManagerRedux.Forestry.JobType.ClearArea>Clear areas</ColonyManagerRedux.Forestry.JobType.ClearArea>
+    <ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>Clearing areas to keep wind turbines running smoothly, and deny enemies any possible cover in the killing fields</ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>
+    <ColonyManagerRedux.Forestry.JobType.Logging>Wood logging</ColonyManagerRedux.Forestry.JobType.Logging>
+    <ColonyManagerRedux.Forestry.JobType.Logging.Tip>Chop trees for wood</ColonyManagerRedux.Forestry.JobType.Logging.Tip>
+
+    <ColonyManagerRedux.Forestry.Clear>Clear {0}</ColonyManagerRedux.Forestry.Clear>
+
+    <ColonyManagerRedux.Forestry.Trees>Trees</ColonyManagerRedux.Forestry.Trees>
+    <ColonyManagerRedux.Forestry.Trees.Tip>Select all trees</ColonyManagerRedux.Forestry.Trees.Tip>
+    <ColonyManagerRedux.Forestry.Flammable>Flammable</ColonyManagerRedux.Forestry.Flammable>
+    <ColonyManagerRedux.Forestry.Flammable.Tip>Select all flammable plants</ColonyManagerRedux.Forestry.Flammable.Tip>
+    <ColonyManagerRedux.Forestry.Ugly>Ugly</ColonyManagerRedux.Forestry.Ugly>
+    <ColonyManagerRedux.Forestry.Ugly.Tip>Select all ugly plants</ColonyManagerRedux.Forestry.Ugly.Tip>
+    <ColonyManagerRedux.Forestry.ProvidesCover>Cover</ColonyManagerRedux.Forestry.ProvidesCover>
+    <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Select all plants that provide cover</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
+</LanguageData>

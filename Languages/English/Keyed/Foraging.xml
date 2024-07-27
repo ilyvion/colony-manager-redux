@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <ColonyManagerRedux.Foraging.Foraging>Foraging</ColonyManagerRedux.Foraging.Foraging>
+    <ColonyManagerRedux.Foraging.NewForagingJob>New job</ColonyManagerRedux.Foraging.NewForagingJob>
+    <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Create a new foraging job</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
+    <ColonyManagerRedux.Foraging.Options>Options</ColonyManagerRedux.Foraging.Options>
+    <ColonyManagerRedux.Foraging.TargetCount>Target count: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
+    <ColonyManagerRedux.Foraging.TargetCountTooltip>Target: {2}\n{0} in storage\n{1} expected from current designations.</ColonyManagerRedux.Foraging.TargetCountTooltip>
+    <ColonyManagerRedux.Foraging.ForceFullyMature>Only fully matured plants</ColonyManagerRedux.Foraging.ForceFullyMature>
+    <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>Should foraging be limited to fully mature plants only?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
+    <ColonyManagerRedux.Foraging.ForagingArea>Allow foraging in:</ColonyManagerRedux.Foraging.ForagingArea>
+    <ColonyManagerRedux.Foraging.Plants>Allowed plants</ColonyManagerRedux.Foraging.Plants>
+    <ColonyManagerRedux.ManagerForaging.Edible>Edible plants</ColonyManagerRedux.ManagerForaging.Edible>
+    <ColonyManagerRedux.ManagerForaging.Edible.Tip>Select all edible plants</ColonyManagerRedux.ManagerForaging.Edible.Tip>
+    <ColonyManagerRedux.ManagerForaging.Mushrooms>Mushrooms</ColonyManagerRedux.ManagerForaging.Mushrooms>
+    <ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>Select all mushrooms</ColonyManagerRedux.ManagerForaging.Mushrooms.Tip>
+    <ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed>
+    <ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the plants allowed for foraging, and vice versa.</ColonyManagerRedux.ManagerForaging.SyncFilterAndAllowed.Tip>
+</LanguageData>

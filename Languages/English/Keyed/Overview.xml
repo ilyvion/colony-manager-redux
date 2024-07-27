@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <ColonyManagerRedux.Overview.Overview>Overview</ColonyManagerRedux.Overview.Overview>
+    <ColonyManagerRedux.Overview.NoJobs>No jobs set.</ColonyManagerRedux.Overview.NoJobs>
+    <ColonyManagerRedux.Overview.Activity>Current activity</ColonyManagerRedux.Overview.Activity>
+    <ColonyManagerRedux.Overview.WorkEnabled>Enabled</ColonyManagerRedux.Overview.WorkEnabled>
+    <ColonyManagerRedux.Overview.WorkPriority>Priority</ColonyManagerRedux.Overview.WorkPriority>
+    <ColonyManagerRedux.Overview.ClickToJumpTo>Click to jump to {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
+    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Job threshold has been reached.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Job has been suspended.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Overview.ClickToChangeJob>Click to {0} this job.</ColonyManagerRedux.Overview.ClickToChangeJob>
+    <ColonyManagerRedux.Overview.Suspend>suspend</ColonyManagerRedux.Overview.Suspend>
+    <ColonyManagerRedux.Overview.Unsuspend>unsuspend</ColonyManagerRedux.Overview.Unsuspend>
+    <ColonyManagerRedux.Overview.Overview.NoJobSelected>No job selected</ColonyManagerRedux.Overview.Overview.NoJobSelected>
+    <ColonyManagerRedux.Overview.Overview.NoJobDetails>No job details</ColonyManagerRedux.Overview.Overview.NoJobDetails>
+</LanguageData>

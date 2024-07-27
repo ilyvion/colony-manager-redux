@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LanguageData>
+    <ColonyManagerRedux.Hunting.Hunting>Hunting</ColonyManagerRedux.Hunting.Hunting>
+    <ColonyManagerRedux.Hunting.NewHuntingJob>New job</ColonyManagerRedux.Hunting.NewHuntingJob>
+    <ColonyManagerRedux.Hunting.NewHuntingJobTooltip>Create a new hunting job</ColonyManagerRedux.Hunting.NewHuntingJobTooltip>
+    <ColonyManagerRedux.Hunting.AllowHumanMeat>Count human meat</ColonyManagerRedux.Hunting.AllowHumanMeat>
+    <ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>Should human meat be counted? \n\nNOTE: This is a shortcut for toggling humanoid meats in the threshold filter. You can set more options in the threshold details.</ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>
+    <ColonyManagerRedux.Hunting.AllowInsectMeat>Count insect meat</ColonyManagerRedux.Hunting.AllowInsectMeat>
+    <ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>Should insect meat be counted? \n\nNOTE: This is a shortcut for toggling insect meat in the threshold filter. You can set more options in the threshold details.</ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>
+    <ColonyManagerRedux.Hunting.UnforbidCorpses>Unforbid corpses</ColonyManagerRedux.Hunting.UnforbidCorpses>
+    <ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>Automatically unforbid (fresh) corpses of animal types set to be hunted.</ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>
+    <ColonyManagerRedux.Hunting.Animals>Allowed animals</ColonyManagerRedux.Hunting.Animals>
+    <ColonyManagerRedux.Hunting.TargetCount>Target count: {0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
+    <ColonyManagerRedux.Hunting.TargetCountTooltip>Target: {3}\n{0} in storage\n{1} expected from butchery\n{2} expected from current designations.</ColonyManagerRedux.Hunting.TargetCountTooltip>
+    <ColonyManagerRedux.ManagerHunting.Predators>Predators</ColonyManagerRedux.ManagerHunting.Predators>
+    <ColonyManagerRedux.ManagerHunting.Predators.Tip>Toggle all predators</ColonyManagerRedux.ManagerHunting.Predators.Tip>
+    <ColonyManagerRedux.ManagerHunting.HerdAnimals>Herd animals</ColonyManagerRedux.ManagerHunting.HerdAnimals>
+    <ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>Toggle all herd animals</ColonyManagerRedux.ManagerHunting.HerdAnimals.Tip>
+    <ColonyManagerRedux.ManagerHunting.Exploding>Exploding</ColonyManagerRedux.ManagerHunting.Exploding>
+    <ColonyManagerRedux.ManagerHunting.Exploding.Tip>Toggle all exploding animals</ColonyManagerRedux.ManagerHunting.Exploding.Tip>
+    <ColonyManagerRedux.ManagerHunting.AreaRestriction>Restrict hunting to</ColonyManagerRedux.ManagerHunting.AreaRestriction>
+    <ColonyManagerRedux.ManagerHunting.Aggressive>Aggressive</ColonyManagerRedux.ManagerHunting.Aggressive>
+    <ColonyManagerRedux.ManagerHunting.Aggressive.Tip>Toggle all aggressive animals</ColonyManagerRedux.ManagerHunting.Aggressive.Tip>
+</LanguageData>
