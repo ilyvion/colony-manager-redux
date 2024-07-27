@@ -237,7 +237,7 @@ internal static class Utilities_Livestock
         return getter();
     }
 
-    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
+    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex, bool cached = true)
     {
 #if DEBUG_LIFESTOCK_COUNTS
         List<Pawn> tame = GetAll( ageSex ).Where( p => p.Faction == Faction.OfPlayer ).ToList();
@@ -245,6 +245,10 @@ internal static class Utilities_Livestock
         return tame;
 #else
         var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
+        if (!cached)
+        {
+            TameSexedCache.Invalidate(key);
+        }
         if (TameSexedCache.TryGetValue(key, out var pawns) && pawns != null)
         {
             return pawns;

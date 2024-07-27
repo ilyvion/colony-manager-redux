@@ -60,6 +60,14 @@ public class CachedValues<TKey, TValue>(int updateInterval = 250)
             _cache.Add(key, new CachedValue<TValue>(value, updateInterval));
         }
     }
+
+    public void Invalidate(TKey key)
+    {
+        if (_cache.TryGetValue(key, out var cachedValue))
+        {
+            cachedValue.Invalidate();
+        }
+    }
 }
 
 public class CachedValue<T>
@@ -111,22 +119,18 @@ public class CachedValue<T>
         return false;
     }
 
-    public void Update(T value)
+    public T Update(T value)
     {
         _cached = value;
         _timeSet = Find.TickManager.TicksGame;
+        return _cached;
     }
 
-    public void Update()
+    public T Update()
     {
-        if (_updater == null)
-        {
-            ColonyManagerReduxMod.Instance.LogError("Calling Update() without updater");
-        }
-        else
-        {
-            Update(_updater());
-        }
+        return _updater != null
+            ? Update(_updater())
+            : throw new Exception("Calling Update() without updater");
     }
 
     internal void Invalidate()

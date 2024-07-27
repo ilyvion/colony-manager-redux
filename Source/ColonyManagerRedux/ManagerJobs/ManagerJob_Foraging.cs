@@ -13,11 +13,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.CurrentCount;
+                return managerJob.TriggerThreshold.GetCurrentCount(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.CurrentDesignatedCount;
+                return managerJob.GetCurrentDesignatedCount();
             }
             else
             {
@@ -84,18 +84,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public override bool IsCompleted => !TriggerThreshold.State;
 
-    public int CurrentDesignatedCount
+    private int CurrentDesignatedCountRaw
     {
         get
         {
-
-            // see if we have a cached count
-            if (_cachedCurrentDesignatedCount.TryGetValue(out int count))
-            {
-                return count;
-            }
-
-            // fetch count
+            var count = 0;
             foreach (var des in _designations)
             {
                 if (!des.target.HasThing)
@@ -111,10 +104,15 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
                 count += plant.YieldNow();
             }
-
-            _cachedCurrentDesignatedCount.Update(count);
             return count;
         }
+    }
+
+    public int GetCurrentDesignatedCount(bool cached = true)
+    {
+        return cached && _cachedCurrentDesignatedCount.TryGetValue(out int count)
+            ? count
+            : _cachedCurrentDesignatedCount.Update(CurrentDesignatedCountRaw);
     }
 
     public List<Designation> Designations => new(_designations);
@@ -285,7 +283,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         AddRelevantGameDesignations();
 
         // designate plants until trigger is met.
-        var count = TriggerThreshold.CurrentCount + CurrentDesignatedCount;
+        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
         if (count < TriggerThreshold.TargetCount)
         {
             var targets = GetValidForagingTargetsSorted();

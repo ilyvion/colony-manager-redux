@@ -32,9 +32,9 @@ internal sealed class Trigger_PawnKind : Trigger
         }
     }
 
-    public int GetCountFor(AgeAndSex ageAndSex)
+    public int GetCountFor(AgeAndSex ageAndSex, bool cached = true)
     {
-        return pawnKind.GetTame(job.Manager, ageAndSex).Count();
+        return pawnKind.GetTame(job.Manager, ageAndSex, cached).Count();
     }
 
     public int GetTargetFor(AgeAndSex ageAndSex)

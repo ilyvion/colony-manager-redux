@@ -16,19 +16,19 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultFemale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultFemale, cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultMale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultMale, cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileFemale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileFemale, cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileMale);
+                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileMale, cached: false);
             }
             else
             {

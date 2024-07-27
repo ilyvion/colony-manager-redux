@@ -63,20 +63,14 @@ public class Trigger_Threshold : Trigger
         SettingsChanged?.Invoke();
     }
 
-    public int CurrentCount
-    {
-        get
-        {
-            if (_cachedCurrentCount.TryGetValue(out var value))
-            {
-                return value;
-            }
+    private int CurrentCountRaw =>
+        job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
 
-            int count = job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
-            Logger.Debug("New count: " + count);
-            _cachedCurrentCount.Update(count);
-            return count;
-        }
+    public int GetCurrentCount(bool cached = true)
+    {
+        return cached && _cachedCurrentCount.TryGetValue(out var value)
+            ? value
+            : _cachedCurrentCount.Update(CurrentCountRaw);
     }
 
     public WindowTriggerThresholdDetails DetailsWindow
@@ -115,13 +109,13 @@ public class Trigger_Threshold : Trigger
             switch (Op)
             {
                 case Ops.LowerThan:
-                    return CurrentCount < TargetCount;
+                    return GetCurrentCount() < TargetCount;
 
                 case Ops.Equals:
-                    return CurrentCount == TargetCount;
+                    return GetCurrentCount() == TargetCount;
 
                 case Ops.HigherThan:
-                    return CurrentCount > TargetCount;
+                    return GetCurrentCount() > TargetCount;
 
                 default:
                     ColonyManagerReduxMod.Instance.LogWarning(
@@ -131,14 +125,14 @@ public class Trigger_Threshold : Trigger
         }
     }
 
-    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount);
+    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetCount);
 
     public override void DrawProgressBars(Rect progressRect, bool active)
     {
         progressRect.xMin += progressRect.width - 10;
         DrawProgressBar(
             progressRect,
-            CurrentCount,
+            GetCurrentCount(),
             TargetCount,
             StatusTooltip,
             active,
@@ -194,12 +188,12 @@ public class Trigger_Threshold : Trigger
         Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
         if (label.NullOrEmpty())
         {
-            label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(CurrentCount, TargetCount) + ":";
+            label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetCount) + ":";
         }
 
         if (tooltip.NullOrEmpty())
         {
-            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(CurrentCount, TargetCount);
+            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(GetCurrentCount(), TargetCount);
         }
 
         Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);

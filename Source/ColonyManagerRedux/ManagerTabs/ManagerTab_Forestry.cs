@@ -289,8 +289,8 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
     public float DrawThreshold(Vector2 pos, float width)
     {
         var start = pos;
-        var currentCount = SelectedForestryJob.TriggerThreshold.CurrentCount;
-        var designatedCount = SelectedForestryJob.GetWoodInDesignations();
+        var currentCount = SelectedForestryJob.TriggerThreshold.GetCurrentCount();
+        var designatedCount = SelectedForestryJob.GetCurrentDesignatedCount();
         var targetCount = SelectedForestryJob.TriggerThreshold.TargetCount;
 
         SelectedForestryJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,

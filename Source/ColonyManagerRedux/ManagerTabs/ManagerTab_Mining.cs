@@ -258,7 +258,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
     {
         var start = pos;
 
-        var currentCount = SelectedMiningJob.TriggerThreshold.CurrentCount;
+        var currentCount = SelectedMiningJob.TriggerThreshold.GetCurrentCount();
         var chunkCount = SelectedMiningJob.GetCountInChunks();
         var designatedCount = SelectedMiningJob.GetCountInDesignations();
         var targetCount = SelectedMiningJob.TriggerThreshold.TargetCount;

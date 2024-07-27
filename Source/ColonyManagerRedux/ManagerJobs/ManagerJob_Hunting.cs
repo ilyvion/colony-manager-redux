@@ -12,15 +12,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.CurrentCount;
+                return managerJob.TriggerThreshold.GetCurrentCount(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.GetMeatInDesignations();
+                return managerJob.GetMeatInDesignations(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
             {
-                return managerJob.GetMeatInCorpses();
+                return managerJob.GetMeatInCorpses(cached: false);
             }
             else
             {
@@ -247,18 +247,19 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    public int GetMeatInCorpses()
+    public int GetMeatInCorpses(bool cached = true)
     {
         // get current count + corpses in storage that is not a grave + designated count
         // current count in storage
 
         // try get cached value
-        if (_corpseCachedValue.TryGetValue(out int count))
+        if (cached && _corpseCachedValue.TryGetValue(out int cachedCount))
         {
-            return count;
+            return cachedCount;
         }
 
         // corpses not buried / forbidden
+        var count = 0;
         foreach (Thing current in Corpses)
         {
             // make sure it's a real corpse. (I dunno, poke it?)
@@ -294,16 +295,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         return count;
     }
 
-    public int GetMeatInDesignations()
+    public int GetMeatInDesignations(bool cached = false)
     {
-
-        // try get cache
-        if (_designatedCachedValue.TryGetValue(out int count))
+        if (cached && _designatedCachedValue.TryGetValue(out int cachedCount))
         {
-            return count;
+            return cachedCount;
         }
 
         // designated animals
+        var count = 0;
         foreach (var des in _designations)
         {
             if (des.target.Thing is Pawn target)
@@ -318,12 +318,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         return count;
     }
 
-    public void RefreshAllAnimals()
-    {
-        Logger.Debug("Refreshing all animals");
+    public void RefreshAllAnimals() => _allAnimals = null;
 
-        _allAnimals = null;
-    }
     public void SetAnimalAllowed(PawnKindDef animal, bool allow)
     {
         if (allow)
@@ -351,7 +347,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         AddRelevantGameDesignations();
 
         // get the total count of meat in storage, expected meat in corpses and expected meat in designations.
-        var totalCount = TriggerThreshold.CurrentCount + GetMeatInCorpses() + GetMeatInDesignations();
+        var totalCount = TriggerThreshold.GetCurrentCount() + GetMeatInCorpses() + GetMeatInDesignations();
         if (totalCount >= TriggerThreshold.TargetCount)
         {
             return false;

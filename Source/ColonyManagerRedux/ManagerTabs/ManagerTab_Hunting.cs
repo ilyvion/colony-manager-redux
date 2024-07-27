@@ -403,7 +403,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         var start = pos;
 
         // target count (1)
-        var currentCount = SelectedHuntingJob.TriggerThreshold.CurrentCount;
+        var currentCount = SelectedHuntingJob.TriggerThreshold.GetCurrentCount();
         var corpseCount = SelectedHuntingJob.GetMeatInCorpses();
         var designatedCount = SelectedHuntingJob.GetMeatInDesignations();
         var targetCount = SelectedHuntingJob.TriggerThreshold.TargetCount;

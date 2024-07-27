@@ -13,11 +13,11 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.CurrentCount;
+                return managerJob.TriggerThreshold.GetCurrentCount(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.CurrentDesignatedCount;
+                return managerJob.GetCurrentDesignatedCount(cached: false);
             }
             else
             {
@@ -266,29 +266,28 @@ internal sealed class ManagerJob_Forestry : ManagerJob
     }
 
 
-    public int CurrentDesignatedCount => GetWoodInDesignations();
-    public int GetWoodInDesignations()
+    private int CurrentDesignatedCountRaw
     {
-
-        // try get cache
-        if (_designatedWoodCachedValue.TryGetValue(out int count))
+        get
         {
+            var count = 0;
+            foreach (var des in _designations)
+            {
+                if (des.target.HasThing &&
+                     des.target.Thing is Plant plant)
+                {
+                    count += plant.YieldNow();
+                }
+            }
             return count;
         }
+    }
 
-        foreach (var des in _designations)
-        {
-            if (des.target.HasThing &&
-                 des.target.Thing is Plant plant)
-            {
-                count += plant.YieldNow();
-            }
-        }
-
-        // update cache
-        _designatedWoodCachedValue.Update(count);
-
-        return count;
+    public int GetCurrentDesignatedCount(bool cached = true)
+    {
+        return cached && _designatedWoodCachedValue.TryGetValue(out int count)
+            ? count
+            : _designatedWoodCachedValue.Update(CurrentDesignatedCountRaw);
     }
 
     public void RefreshAllTrees()
@@ -412,7 +411,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         AddRelevantGameDesignations();
 
         // get current lumber count
-        var count = TriggerThreshold.CurrentCount + GetWoodInDesignations();
+        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
 
         // get sorted list of loggable trees
         var trees = GetLoggableTreesSorted();

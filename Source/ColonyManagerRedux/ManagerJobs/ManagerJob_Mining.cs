@@ -15,15 +15,15 @@ internal sealed class ManagerJob_Mining : ManagerJob
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.CurrentCount;
+                return managerJob.TriggerThreshold.GetCurrentCount(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.GetCountInDesignations();
+                return managerJob.GetCountInDesignations(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryChunks)
             {
-                return managerJob.GetCountInChunks();
+                return managerJob.GetCountInChunks(cached: false);
             }
             else
             {
@@ -368,9 +368,9 @@ internal sealed class ManagerJob_Mining : ManagerJob
     }
 
     public int CurrentDesignatedCount => GetCountInChunks();
-    public int GetCountInChunks()
+    public int GetCountInChunks(bool cached = true)
     {
-        if (_chunksCachedValue.TryGetValue(out int count))
+        if (cached && _chunksCachedValue.TryGetValue(out int count))
         {
             return count;
         }
@@ -385,15 +385,21 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return count;
     }
 
-    public int GetCountInDesignations()
+    public int GetCountInDesignations(bool cached = true)
     {
-        if (_designatedCachedValue.TryGetValue(out int count))
+        if (cached && _designatedCachedValue.TryGetValue(out int cachedCount))
         {
-            return count;
+            return cachedCount;
+        }
+
+        if (!cached)
+        {
+            RemoveObsoleteDesignations();
+            AddRelevantGameDesignations();
         }
 
         // deconstruction jobs
-        count += _designations
+        var count = _designations
             .Where(d => d.def == DesignationDefOf.Deconstruct)
             .Sum(d => GetCountInBuilding(d.target.Thing as Building));
 
@@ -803,7 +809,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         RemoveObsoleteDesignations();
         AddRelevantGameDesignations();
 
-        var count = TriggerThreshold.CurrentCount + GetCountInChunks() + GetCountInDesignations();
+        var count = TriggerThreshold.GetCurrentCount() + GetCountInChunks() + GetCountInDesignations();
 
         if (HaulMapChunks)
         {
