@@ -47,8 +47,8 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
 
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed".Translate(),
-            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
+            "ColonyManagerRedux.Mining.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 
         return ListEntryHeight;

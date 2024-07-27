@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Manager job is now a higher priority job (placed between Warden and Handle). Managing is essential for running the colony well, so it being behind research in default priority makes it rather unlikely to happen in a busy colony. A player can always manually make it a lower priority job if they so desire.
 -   The list of stockpiles to pick from in the threshold trigger now splits them up into rows so you don't get an impossibly narrow selection box for each stockpile if you have more than a few.
 -   Mining jobs have been modified to handle chunks differently. They no longer directly allow using chunks as a resource to configure thresholds on, chunks are now instead considered a resource from which to gather stone, much like mining and building deconstruction already was. Among other changes, this means that mining jobs can now automatically mark chunks for hauling as the threshold requirements require.
+-   Mining has been renamed to Resource Gathering, which is a more broadly applying description of that job type.
 
 ### Fixed
 
