@@ -6,10 +6,11 @@ namespace ColonyManagerRedux;
 
 internal static class I18n
 {
+#pragma warning disable CS0618 // TODO: Remove these when adding manager job for power
     public static readonly TranslationHistoryLabel HistoryProduction = "ColonyManagerRedux.History.Production";
     public static readonly TranslationHistoryLabel HistoryConsumption = "ColonyManagerRedux.History.Consumption";
     public static readonly TranslationHistoryLabel HistoryBatteries = "ColonyManagerRedux.History.Batteries";
-
+#pragma warning restore CS0618
 
     public static string Aggressiveness(float aggression)
     {

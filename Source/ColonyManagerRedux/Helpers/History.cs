@@ -1098,6 +1098,30 @@ public class DefHistoryLabel<T> : HistoryLabel where T : Def, new()
     }
 }
 
+public class ManagerJobHistoryChapterDefLabel : HistoryLabel
+{
+    private ManagerJobHistoryChapterDef historyChapterDef;
+
+    public ManagerJobHistoryChapterDefLabel(ManagerJobHistoryChapterDef historyChapterDef)
+    {
+        this.historyChapterDef = historyChapterDef;
+    }
+
+#pragma warning disable CS8618 // Used by scribe
+    public ManagerJobHistoryChapterDefLabel()
+#pragma warning restore CS8618
+    {
+    }
+
+    public override string Label => historyChapterDef.historyLabel.Label;
+
+    public override void ExposeData()
+    {
+        Scribe_Defs.Look(ref historyChapterDef, "historyChapterDef");
+    }
+}
+
+[Obsolete("Use ManagerJobHistoryChapterDefs instead of this directly.")]
 public class TranslationHistoryLabel : HistoryLabel
 {
     private string translationKey;
