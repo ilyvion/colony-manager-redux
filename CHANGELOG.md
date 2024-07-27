@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Added expected resource icons to the available livestock animal list.
 -   Mining jobs can now designate resulting chunks for hauling automatically. Whether to do this is controllable through a setting in the mining job.
 -   Jobs can be forced to update immediately.
+-   Show an alert if a player configures both auto-slaughter (RimWorld feature) and 'butcher excess' (Colony Manager feature) for the same animal type.
 
 ### Changed
 

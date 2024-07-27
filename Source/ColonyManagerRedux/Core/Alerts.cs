@@ -10,17 +10,22 @@ namespace ColonyManagerRedux;
     Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_NoManager : Alert
 {
+    CachedValue<bool> _noManager;
     public Alert_NoManager()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.NoManagerLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.NoManager".Translate();
+
+        _noManager = new(false, updater: () =>
+            Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
+                && !AnyConsciousManagerPawn());
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
     public override AlertReport GetReport()
     {
-        return Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any() && !AnyConsciousManagerPawn();
+        return _noManager.Value;
     }
 
     private static bool AnyConsciousManagerPawn()
@@ -41,17 +46,23 @@ internal sealed class Alert_NoManager : Alert
     Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_NoTable : Alert
 {
+    CachedValue<bool> _noTable;
+
     public Alert_NoTable()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.NoTableLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.NoTable".Translate();
+
+        _noTable = new(false, updater: () =>
+            Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
+            && !AnyManagerTable());
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
     public override AlertReport GetReport()
     {
-        return Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerTable();
+        return _noTable.Value;
     }
 
     private static bool AnyManagerTable()
@@ -68,17 +79,28 @@ internal sealed class Alert_NoTable : Alert
     Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_TableAndAI : Alert
 {
+    CachedValue<bool> _hasAIManager;
+    CachedValue<List<Thing>> _managerStations;
+
     public Alert_TableAndAI()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManager".Translate();
+
+        _hasAIManager = new(false, updater: () =>
+            Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager));
+        _managerStations = new([], updater: () => ManagerStations);
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
     public override AlertReport GetReport()
     {
-        return AlertReport.CulpritsAre(ManagerStations);
+        if (!_hasAIManager.Value)
+        {
+            return false;
+        }
+        return AlertReport.CulpritsAre(_managerStations.Value);
     }
 
     private readonly List<Thing> managerStations = [];
@@ -94,6 +116,66 @@ internal sealed class Alert_TableAndAI : Alert
                 managerStations.AddRange(listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>());
             }
             return managerStations;
+        }
+    }
+}
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+[HotSwappable]
+internal sealed class Alert_AutoslaughterOverlap : Alert
+{
+    private CachedValue<List<ThingDef>> _overlappingAnimals;
+
+    public Alert_AutoslaughterOverlap()
+    {
+        defaultLabel = "ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel".Translate();
+        defaultExplanation = "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate();
+
+        _overlappingAnimals = new CachedValue<List<ThingDef>>([], updater: () =>
+        {
+            var autoSlaughterVanillaAnimals = AutoSlaughterVanillaAnimals().ToList();
+            var autoSlaugherLivestockAnimals = AutoSlaugherLivestockAnimals().ToList();
+
+            return autoSlaughterVanillaAnimals.Intersect(autoSlaugherLivestockAnimals).ToList();
+        });
+    }
+
+    public override AlertPriority Priority => AlertPriority.Medium;
+
+    public override AlertReport GetReport()
+    {
+        return _overlappingAnimals.Value.Count > 0;
+    }
+
+    public override TaggedString GetExplanation()
+    {
+        return "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate(
+            "ColonyManagerRedux.Livestock.ButcherExcess".Translate(),
+            "- " + _overlappingAnimals.Value.Join(a => a.race.AnyPawnKind.GetLabelPlural(), "\n- "));
+    }
+
+    private static IEnumerable<ThingDef> AutoSlaughterVanillaAnimals()
+    {
+        foreach (AutoSlaughterConfig config in Find.CurrentMap.autoSlaughterManager.configs)
+        {
+            if (config.maxTotal != -1 || config.maxFemales != -1 || config.maxFemalesYoung != -1 || config.maxMales != -1 || config.maxMalesYoung != -1)
+            {
+                yield return config.animal;
+            }
+        }
+    }
+
+    private static IEnumerable<ThingDef> AutoSlaugherLivestockAnimals()
+    {
+        foreach (var managerJobLivestock in Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob_Livestock>())
+        {
+            if (managerJobLivestock.ButcherExcess)
+            {
+                yield return managerJobLivestock.TriggerPawnKind.pawnKind.race;
+            }
         }
     }
 }

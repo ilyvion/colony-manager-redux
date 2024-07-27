@@ -11,6 +11,8 @@
     <ColonyManagerRedux.Alerts.NoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.Alerts.NoManager>
     <ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>
     <ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>
+    <ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>Auto-slaughter animal overlap</ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>
+    <ColonyManagerRedux.Alerts.AutoslaughterOverlap>You have configured both a Colony Manager livestock job and RimWorld's auto-slaughter to be responsible for maintaining animal count targets for one or more animals. These two systems will likely be in conflict, and you should either turn off the '{0}' setting for the manager job(s), or turn off auto-slaughter for the given animal(s). The animals that have an overlap are:\n\n{1}</ColonyManagerRedux.Alerts.AutoslaughterOverlap>
 
     <!-- Common -->
     <ColonyManagerRedux.Common.Manage>Manage!</ColonyManagerRedux.Common.Manage>
