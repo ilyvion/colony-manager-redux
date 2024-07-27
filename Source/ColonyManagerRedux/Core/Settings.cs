@@ -238,6 +238,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _defaultShouldCheckReachable, "defaultShouldCheckReachable", true);
         Scribe_Values.Look(ref _defaultUsePathBasedDistance, "defaultUsePathBasedDistance", false);
         Scribe_Values.Look(ref _defaultCountAllOnMap, "defaultCountAllOnMap", false);
+        Scribe_Values.Look(ref newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
 
         Scribe_Collections.Look(ref _jobSettings, "jobSettings", LookMode.Deep);
 
