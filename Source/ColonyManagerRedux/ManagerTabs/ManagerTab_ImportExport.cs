@@ -31,7 +31,6 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private string _saveNameBase = "ManagerJobs_";
 
-    private Vector2 _jobListScrollPosition;
     private float _jobListScrollViewHeight;
     private List<ManagerJob> _jobs = [];
     private List<MultiCheckboxState> _selectedJobs = [];
@@ -44,7 +43,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
     private List<ManagerJob> SelectedJobs =>
         _jobs.Where((_, i) => _selectedJobs[i] == MultiCheckboxState.On).ToList();
 
-    public override void DoWindowContents(Rect canvas)
+    protected override void DoTabContents(Rect canvas)
     {
         var loadRect = new Rect(0f, 0f, (canvas.width - Constants.Margin) * _loadAreaRatio, canvas.height);
         var saveRect = new Rect(loadRect.xMax + Constants.Margin, 0f, canvas.width - Constants.Margin - loadRect.width,
@@ -72,7 +71,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         _saveFiles.Clear();
     }
 
-    public void Refresh()
+    protected override void Refresh()
     {
         _jobs = manager.JobTracker.JobsOfType<ManagerJob>().ToList();
         _selectedJobs = _jobs.Select(_ => new MultiCheckboxState()).ToList();
@@ -260,7 +259,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         Widgets.Label(infoRect, "ColonyManagerRedux.SelectExportJobs".Translate());
         infoRect.yMin += Constants.ListEntryHeight;
 
-        DrawJobs(infoRect);
+        DoJobList(infoRect);
 
         GUI.SetNextControlName("ManagerJobsNameField");
         string name = Widgets.TextField(nameRect, _saveName);
@@ -279,31 +278,33 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         }
     }
 
-    private void DrawJobs(Rect jobsRect)
+    protected override void DoJobList(Rect jobsRect)
     {
         Rect jobsViewRect = new(0f, 0f, jobsRect.width - 16f, _jobListScrollViewHeight);
         Widgets.BeginScrollView(jobsRect, ref _jobListScrollPosition, jobsViewRect);
 
         Text.Anchor = TextAnchor.MiddleLeft;
-        float cumulativeHeight = 0f;
+        var cur = Vector2.zero;
 
         for (int i = 0; i < _jobs.Count; i++)
         {
             var job = _jobs[i];
             var state = _selectedJobs[i];
 
-            Rect jobRowRect = new(0f, cumulativeHeight, jobsViewRect.width, 50f);
-            Widgets.DrawHighlightIfMouseover(jobRowRect);
-            job.Tab.DrawListEntry(job, jobRowRect.TrimRight(24f), ListEntryDrawMode.Export);
+            var row = new Rect(0f, cur.y, jobsViewRect.width - 16f, 0f);
+            job.Tab.DrawListEntry(job, ref cur, jobsViewRect.width - 16f, ListEntryDrawMode.Export, showOrdering: false);
+            row.height = cur.y - row.y;
+
+            Widgets.DrawHighlightIfMouseover(row);
 
             if (i % 2 == 0)
             {
-                Widgets.DrawAltRect(jobRowRect);
+                Widgets.DrawAltRect(row);
             }
 
-            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(jobRowRect.width - 24f, cumulativeHeight + 15f, 20f, 20f), state, paintable: true);
+            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(row.width - 24f, row.y + 15f, 20f, 20f), state, paintable: true);
 
-            cumulativeHeight += jobRowRect.height;
+            //cumulativeHeight += jobRowRect.height + overflowHeight;
         }
 
         Text.Anchor = TextAnchor.UpperLeft;
@@ -312,7 +313,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
         if (Event.current.type == EventType.Layout)
         {
-            _jobListScrollViewHeight = cumulativeHeight;
+            _jobListScrollViewHeight = cur.y;
         }
     }
 

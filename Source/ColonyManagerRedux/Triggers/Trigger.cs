@@ -21,11 +21,11 @@ public abstract class Trigger(ManagerJob job) : IExposable
     }
 
     // TODO: Make this stuff comp/Def-based
-    public virtual void DrawProgressBars(Rect progressRect, bool active)
+    public virtual void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
     }
 
-    protected static void DrawProgressBar(
+    protected static void DrawVerticalProgressBar(
         Rect progressRect,
         float currentValue,
         float maxValue,
@@ -34,7 +34,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
         Texture2D progressBarTexture)
     {
         // bar always goes a little beyond the actual target
-        var max = Math.Max((int)(maxValue * 1.2f), currentValue);
+        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
 
         // draw a box for the bar
         GUI.color = Color.gray;
@@ -56,6 +56,45 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
         // draw a mark at the treshold
         Widgets.DrawLineHorizontal(progressRect.xMin, markHeight, progressRect.width);
+
+        TooltipHandler.TipRegion(progressRect, tooltip);
+    }
+
+    public virtual void DrawHorizontalProgressBars(Rect progressRect, bool active)
+    {
+    }
+
+    protected static void DrawHorizontalProgressBar(
+        Rect progressRect,
+        float currentValue,
+        float maxValue,
+        string tooltip,
+        bool active,
+        Texture2D progressBarTexture)
+    {
+        // bar always goes a little beyond the actual target
+        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
+
+        // draw a box for the bar
+        GUI.color = Color.gray;
+        Widgets.DrawBox(progressRect.ContractedBy(1f));
+        GUI.color = Color.white;
+
+        // get the bar rect
+        var barRect = progressRect.ContractedBy(2f);
+        var unit = barRect.width / max;
+        var markWidth = barRect.xMin + maxValue * unit;
+        barRect.width = currentValue * unit;
+
+        // draw the bar
+        // if the job is active and pending, make the bar blueish green - otherwise white.
+        var barTex = active
+            ? progressBarTexture
+            : Resources.BarBackgroundInactiveTexture;
+        GUI.DrawTexture(barRect, barTex);
+
+        // draw a mark at the treshold
+        Widgets.DrawLineVertical(markWidth, progressRect.yMin, progressRect.height);
 
         TooltipHandler.TipRegion(progressRect, tooltip);
     }

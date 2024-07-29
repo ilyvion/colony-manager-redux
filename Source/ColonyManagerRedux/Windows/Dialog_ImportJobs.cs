@@ -43,36 +43,34 @@ internal sealed class Dialog_ImportJobs : Window
         Widgets.BeginScrollView(jobsRect, ref _jobListScrollPosition, jobViewRect);
 
         Text.Anchor = TextAnchor.MiddleLeft;
-        float cumulativeHeight = 0f;
+        var cur = Vector2.zero;
         for (int i = 0; i < _jobs.Count; i++)
         {
             var job = _jobs[i];
             var state = _selectedJobs[i];
 
-            Rect jobRowRect = new(0f, cumulativeHeight, jobViewRect.width - 16f, 50f);
-            Widgets.DrawHighlightIfMouseover(jobRowRect);
-
-            if (job.IsValid)
+            if (!job.IsValid)
             {
-                job.Tab.DrawListEntry(job, jobRowRect, ManagerTab.ListEntryDrawMode.Export);
-
-                if (i % 2 == 0)
-                {
-                    Widgets.DrawAltRect(jobRowRect);
-                }
-                _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(jobViewRect.width - 20f - 16f - Constants.Margin, cumulativeHeight + 15f, 20f, 20f), state, paintable: true);
-            }
-            else
-            {
+                Rect jobRowRect = new(0f, cur.y, jobViewRect.width - 16f, Constants.LargeListEntryHeight);
                 GUI.color = Color.gray;
                 Text.Anchor = TextAnchor.MiddleCenter;
                 Widgets.DrawBox(jobRowRect.TrimRight(24f));
                 Widgets.Label(jobRowRect.TrimRight(24f), "ColonyManagerRedux.InvalidJob".Translate(job.Label));
                 GUI.color = Color.white;
                 Text.Anchor = TextAnchor.UpperLeft;
+                cur.y += Constants.LargeListEntryHeight;
+                continue;
             }
 
-            cumulativeHeight += jobRowRect.height;
+            var row = new Rect(0f, cur.y, jobViewRect.width - 16f, 0f);
+            job.Tab.DrawListEntry(job, ref cur, jobViewRect.width - 16f, ManagerTab.ListEntryDrawMode.Export);
+            row.height = cur.y - row.y;
+
+            if (i % 2 == 0)
+            {
+                Widgets.DrawAltRect(row);
+            }
+            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(jobViewRect.width - 20f - 16f - Constants.Margin, row.y + 15f, 20f, 20f), state, paintable: true);
         }
         Text.Anchor = TextAnchor.UpperLeft;
 
@@ -80,7 +78,7 @@ internal sealed class Dialog_ImportJobs : Window
 
         if (Event.current.type == EventType.Layout)
         {
-            _jobListScrollViewHeight = cumulativeHeight;
+            _jobListScrollViewHeight = cur.y;
         }
     }
 

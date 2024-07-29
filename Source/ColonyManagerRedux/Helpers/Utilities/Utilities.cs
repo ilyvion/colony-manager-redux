@@ -2,10 +2,9 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Collections.ObjectModel;
-using System.Reflection;
 using CircularBuffer;
 using static ColonyManagerRedux.Constants;
+using static ColonyManagerRedux.ManagerTab;
 using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
@@ -136,7 +135,7 @@ public static class Utilities
         this ManagerJob job,
         Rect rect,
         Trigger trigger,
-        bool exporting)
+        ListEntryDrawMode mode)
     {
         if (job == null)
         {
@@ -149,23 +148,23 @@ public static class Utilities
 
         // set up rects
         var stampRect = new Rect(
-            rect.xMax - ManagerTab.StampWidth,
+            rect.xMax - StampSize,
             rect.yMin,
-            ManagerTab.StampWidth,
-            ManagerTab.StampWidth).CenteredOnYIn(rect);
+            StampSize,
+            StampSize).CenteredOnYIn(rect);
         var lastUpdateRect = new Rect(
-            stampRect.xMin - Margin - ManagerTab.LastUpdateRectWidth,
+            stampRect.xMin - Margin - LastUpdateRectWidth,
             rect.yMin,
-            ManagerTab.LastUpdateRectWidth,
+            LastUpdateRectWidth,
             rect.height);
         var progressRect = new Rect(
-            lastUpdateRect.xMin - Margin - ManagerTab.ProgressRectWidth,
+            lastUpdateRect.xMin - Margin - ProgressRectWidth,
             rect.yMin,
-            ManagerTab.ProgressRectWidth,
+            ProgressRectWidth,
             rect.height);
 
         // draw stamp
-        if (!exporting)
+        if (mode != ListEntryDrawMode.Export)
         {
             if (Widgets.ButtonImage(
                 stampRect,
@@ -197,13 +196,13 @@ public static class Utilities
             }
 
             // draw progress bar
-            trigger.DrawProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
+            trigger.DrawVerticalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
         }
 
         if (!job.IsSuspended && !job.IsCompleted)
         {
             // draw update interval
-            UpdateInterval.Draw(lastUpdateRect, job, exporting);
+            UpdateInterval.Draw(lastUpdateRect, job, mode == ListEntryDrawMode.Export);
         }
     }
 

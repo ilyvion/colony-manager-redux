@@ -57,7 +57,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         pawnOverviewTable?.SetDirty();
     }
 
-    public override void DoWindowContents(Rect canvas)
+    protected override void DoTabContents(Rect canvas)
     {
         var overviewRect = new Rect(0f, 0f, OverviewWidthRatio * canvas.width, canvas.height).RoundToInt();
         var sideRectUpper = new Rect(overviewRect.xMax + Margin, 0f,
@@ -128,7 +128,9 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             var alternate = false;
             foreach (ManagerJob job in manager.JobTracker.JobsOfType<ManagerJob>())
             {
-                var row = new Rect(cur.x, cur.y, contentRect.width, 50f);
+                var row = new Rect(cur.x, cur.y, contentRect.width, 0f);
+                DrawListEntry(job, ref cur, contentRect.width, ListEntryDrawMode.Overview);
+                row.height = cur.y - row.y;
 
                 // highlights
                 if (alternate)
@@ -142,25 +144,8 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                     Widgets.DrawHighlightSelected(row);
                 }
 
-                // go to job icon
-                var iconRect = new Rect(Margin, row.yMin + (LargeListEntryHeight - LargeIconSize) / 2,
-                                         LargeIconSize, LargeIconSize);
-                var tab = job.Tab;
-                if (tab != null && Widgets.ButtonImage(iconRect, tab.def.icon))
-                {
-                    MainTabWindow_Manager.GoTo(tab, job);
-                }
-
-                // order buttons
-                DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager, job);
-
-                // job specific overview.
-                var jobRect = row;
-                jobRect.width -= LargeListEntryHeight + LargeIconSize + 2 * Margin; // - (a + b)?
-                jobRect.x += LargeIconSize + 2 * Margin;
-                job.Tab.DrawListEntry(job, jobRect, ListEntryDrawMode.Overview);
                 Widgets.DrawHighlightIfMouseover(row);
-                if (Widgets.ButtonInvisible(jobRect))
+                if (Widgets.ButtonInvisible(row))
                 {
                     if (Selected != job)
                     {
@@ -171,8 +156,6 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                         Selected = null;
                     }
                 }
-
-                cur.y += 50f;
             }
 
             Widgets.EndScrollView();

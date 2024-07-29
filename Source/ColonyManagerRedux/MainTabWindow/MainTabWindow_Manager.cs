@@ -44,22 +44,24 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
 
     public override void DoWindowContents(Rect canvas)
     {
+        Manager manager = Manager.For(Find.CurrentMap);
+
         // zooming in seems to cause Text.Font to start at Tiny, make sure it's set to Small for our panels.
         Text.Font = GameFont.Small;
 
         // three areas of icons for tabs, left middle and right.
         var leftIcons = new Rect(0f, 0f,
                                   Margin +
-                                  Manager.For(Find.CurrentMap).ManagerTabsLeft.Count * (LargeIconSize + Margin),
+                                  manager.ManagerTabsLeft.Count * (LargeIconSize + Margin),
                                   LargeIconSize);
         var middleIcons = new Rect(0f, 0f,
                                     Margin +
-                                    Manager.For(Find.CurrentMap).ManagerTabsMiddle.Count *
+                                    manager.ManagerTabsMiddle.Count *
                                     (LargeIconSize + Margin),
                                     LargeIconSize);
         var rightIcons = new Rect(0f, 0f,
                                    Margin +
-                                   Manager.For(Find.CurrentMap).ManagerTabsRight.Count *
+                                   manager.ManagerTabsRight.Count *
                                    (LargeIconSize + Margin),
                                    LargeIconSize);
 
@@ -70,7 +72,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         // left icons (probably only overview, but hey...)
         GUI.BeginGroup(leftIcons);
         var cur = new Vector2(Margin, 0f);
-        foreach (var tab in Manager.For(Find.CurrentMap).ManagerTabsLeft)
+        foreach (var tab in manager.ManagerTabsLeft)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
@@ -82,7 +84,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         // middle icons (the bulk of icons)
         GUI.BeginGroup(middleIcons);
         cur = new Vector2(Margin, 0f);
-        foreach (var tab in Manager.For(Find.CurrentMap).ManagerTabsMiddle)
+        foreach (var tab in manager.ManagerTabsMiddle)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
@@ -94,7 +96,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         // right icons (probably only import/export, possbile settings?)
         GUI.BeginGroup(rightIcons);
         cur = new Vector2(Margin, 0f);
-        foreach (var tab in Manager.For(Find.CurrentMap).ManagerTabsRight)
+        foreach (var tab in manager.ManagerTabsRight)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
@@ -107,7 +109,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         var contentCanvas = new Rect(0f, LargeIconSize + Margin, canvas.width,
                                       canvas.height - LargeIconSize - Margin);
         GUI.BeginGroup(contentCanvas);
-        CurrentTab.DoWindowContents(contentCanvas.AtZero());
+        CurrentTab.RenderTab(contentCanvas.AtZero());
         GUI.EndGroup();
 
         // for some stupid reason, we sometimes get left a bad anchor

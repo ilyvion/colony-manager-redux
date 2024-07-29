@@ -9,7 +9,7 @@ using static ColonyManagerRedux.Widgets_Labels;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab(manager)
+internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab<ManagerJob_Livestock>(manager)
 {
     internal const int TrainingJobsPerRow = 3;
 
@@ -25,11 +25,6 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     protected override bool CreateNewSelectedJobOnMake => false;
 
-    public ManagerJob_Livestock? SelectedCurrentLivestockJob
-    {
-        get => (ManagerJob_Livestock?)Selected;
-    }
-
     public override void PostOpen()
     {
         animalsTameTable?.SetDirty();
@@ -43,7 +38,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         if (Selected != null)
         {
             _newCounts =
-                SelectedCurrentLivestockJob!.TriggerPawnKind.CountTargets.Select(v => v.ToString()).ToArray();
+                SelectedJob!.TriggerPawnKind.CountTargets.Select(v => v.ToString()).ToArray();
         }
         animalsTameTable?.SetDirty();
         animalsWildTable?.SetDirty();
@@ -58,8 +53,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         }
     }
 
-
-    public override void DoWindowContents(Rect canvas)
+    protected override void DoTabContents(Rect canvas)
     {
         var leftRow = new Rect(0f, 31f, DefaultLeftRowSize, canvas.height - 31f);
         var contentCanvas = new Rect(leftRow.xMax + Margin, 0f,
@@ -69,12 +63,17 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         DoContent(contentCanvas);
     }
 
-    public override string GetMainLabel(ManagerJob job, Rect labelRect, string subLabel)
+    public override (string label, Vector2 labelSize) GetFullLabel(ManagerJob job, ListEntryDrawMode mode, float labelWidth, string? subLabel = null, bool drawSubLabel = true)
+    {
+        return base.GetFullLabel(job, mode, labelWidth, subLabel, false);
+    }
+
+    public override string GetMainLabel(ManagerJob job, ListEntryDrawMode mode)
     {
         return ((ManagerJob_Livestock)job).FullLabel;
     }
 
-    public override string GetSubLabel(ManagerJob job)
+    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
     {
         return ((ManagerJob_Livestock)job).TriggerPawnKind.StatusTooltip;
     }
@@ -140,7 +139,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Widgets.DrawMenuSection(rect);
 
         // cop out if nothing is selected.
-        if (SelectedCurrentLivestockJob == null)
+        if (SelectedJob == null)
         {
             Label(rect, "ColonyManagerRedux.Livestock.SelectPawnKind".Translate(), TextAnchor.MiddleCenter);
             return;
@@ -165,17 +164,17 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         Widgets_Section.BeginSectionColumn(optionsColumnRect, "Livestock.Options", out Vector2 position, out float width);
 
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawTargetCountsSection,
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawTargetCountsSection,
             "ColonyManagerRedux.Livestock.TargetCountsHeader".Translate());
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawTamingSection,
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawTamingSection,
             "ColonyManagerRedux.Livestock.TamingHeader".Translate());
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawButcherSection,
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawButcherSection,
             "ColonyManagerRedux.Livestock.ButcherHeader".Translate());
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawTrainingSection,
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawTrainingSection,
             "ColonyManagerRedux.Livestock.TrainingHeader".Translate());
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawAreaRestrictionsSection,
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawAreaRestrictionsSection,
             "ColonyManagerRedux.Livestock.AreaRestrictionsHeader".Translate());
-        Widgets_Section.Section(SelectedCurrentLivestockJob, ref position, width, DrawFollowSection,
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawFollowSection,
             "ColonyManagerRedux.Livestock.FollowHeader".Translate());
 
         position.y -= Margin;
@@ -185,11 +184,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         DrawAnimalTables(animalsColumnRect);
 
         // add / remove to the stack
-        if (SelectedCurrentLivestockJob.IsManaged)
+        if (SelectedJob.IsManaged)
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
-                SelectedCurrentLivestockJob.Delete();
+                SelectedJob.Delete();
                 Selected = null;
                 _onCurrentTab = false;
                 Refresh();
@@ -202,9 +201,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Manage".Translate()))
             {
-                SelectedCurrentLivestockJob.IsManaged = true;
+                SelectedJob.IsManaged = true;
                 _onCurrentTab = true;
-                manager.JobTracker.Add(SelectedCurrentLivestockJob);
+                manager.JobTracker.Add(SelectedJob);
                 Refresh();
             }
 
@@ -256,7 +255,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         if (_onCurrentTab)
         {
-            DrawCurrentJobList(outRect, viewRect);
+            DoJobList(outRect);
         }
         else
         {
@@ -618,47 +617,55 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         return pos.y - start.y;
     }
 
-    private void DrawCurrentJobList(Rect outRect, Rect viewRect)
+    protected override void DoJobList(Rect rect)
     {
-        var currentJobs = manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();
+        //Widgets.DrawRectFast(rect, ColorLibrary.Purple.ToTransparent(.5f));
 
-        // set sizes
-        viewRect.height = currentJobs.Count * LargeListEntryHeight;
-        if (viewRect.height > outRect.height)
+        // content
+        var height = _jobListHeight;
+        var scrollView = new Rect(0f, 0f, rect.width, height);
+        if (height > rect.height)
         {
-            viewRect.width -= ScrollbarWidth;
+            scrollView.width -= ScrollbarWidth;
         }
 
-        Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);
-        GUI.BeginGroup(viewRect);
+        Widgets.BeginScrollView(rect, ref _jobListScrollPosition, scrollView);
+        var scrollContent = scrollView;
 
-        for (var i = 0; i < currentJobs.Count; i++)
+        GUI.BeginGroup(scrollContent);
+        var cur = Vector2.zero;
+        var i = 0;
+
+        foreach (var job in ManagerJobs)
         {
-            // set up rect
-            var row = new Rect(0f, LargeListEntryHeight * i, viewRect.width, LargeListEntryHeight);
+            var row = new Rect(0f, cur.y, scrollContent.width, 0f);
+            DrawListEntry(
+                job,
+                ref cur,
+                scrollContent.width,
+                ListEntryDrawMode.Local,
+                showOrdering: false,
+                statusHeight: 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2);
+            row.height = cur.y - row.y;
 
-            // highlights
             Widgets.DrawHighlightIfMouseover(row);
-            if (i % 2 == 0)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-            if (currentJobs[i] == SelectedCurrentLivestockJob)
+            if (Selected == job)
             {
                 Widgets.DrawHighlightSelected(row);
             }
 
-            // draw label
-            DrawListEntry(currentJobs[i], row, ListEntryDrawMode.Local);
+            if (i++ % 2 == 1)
+            {
+                Widgets.DrawAltRect(row);
+            }
 
-            // button
             if (Widgets.ButtonInvisible(row))
             {
-                Selected = currentJobs[i];
+                Selected = job;
             }
         }
 
+        _jobListHeight = cur.y;
         GUI.EndGroup();
         Widgets.EndScrollView();
     }
@@ -939,7 +946,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Widgets_Labels.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Tame".Translate(),
-                SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind.GetLabelPlural())
+                SelectedJob!.TriggerPawnKind.pawnKind.GetLabelPlural())
             .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
         animalsColumnRect.yMin += SectionHeaderHeight;
         animalsColumnRect.yMax -= Margin;
@@ -953,7 +960,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Widgets_Labels.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Wild".Translate(),
-                SelectedCurrentLivestockJob.TriggerPawnKind.pawnKind.GetLabelPlural())
+                SelectedJob.TriggerPawnKind.pawnKind.GetLabelPlural())
             .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
         animalsColumnRect2.yMin += SectionHeaderHeight;
         GUI.DrawTexture(animalsColumnRect2, Resources.SlightlyDarkBackground);
@@ -978,7 +985,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             pawnTable = CreateAnimalsTable(() =>
             {
-                var pawnKind = SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind;
+                var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
                 return animalGetter(pawnKind) ?? [];
             }, isWildTable);
             pawnTable.SetFixedSize(new(rect.width, rect.height));
@@ -987,14 +994,14 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         pawnTable.PawnTableOnGUI(Vector2.zero);
         if (pawnTable.PawnsListForReading.Count == 0)
         {
-            var pawnKind = SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind;
+            var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
             Label(rect,
                 "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
                 TextAnchor.MiddleCenter, color: Color.grey);
         }
     }
 
-    private void Refresh()
+    protected override void Refresh()
     {
         // currently managed
         var currentJobs = manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();

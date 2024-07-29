@@ -88,7 +88,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="$(ProjectDependenciesBasePath)\ilyvion.Laboratory\ilvyion.Laboratory\ilvyion.Laboratory.csproj">
+        <ProjectReference Include="$(ProjectDependenciesBasePath)\ilyvion.Laboratory\ilyvion.Laboratory\ilyvion.Laboratory.csproj">
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>

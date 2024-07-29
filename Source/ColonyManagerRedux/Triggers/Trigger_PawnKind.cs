@@ -82,14 +82,14 @@ internal sealed class Trigger_PawnKind : Trigger
 
     public override string StatusTooltip => _cachedTooltip.Value;
 
-    public override void DrawProgressBars(Rect progressRect, bool active)
+    public override void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
         progressRect.xMin += progressRect.width - 10;
         foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
         {
             int c = GetCountFor(ageAndSex);
             int t = GetTargetFor(ageAndSex);
-            DrawProgressBar(
+            DrawVerticalProgressBar(
                 progressRect,
                 c,
                 t,
@@ -99,6 +99,28 @@ internal sealed class Trigger_PawnKind : Trigger
                 GetProgressBarTextureFor(ageAndSex));
 
             progressRect.x -= Constants.Margin + 10;
+        }
+    }
+
+    public const float PawnKindProgressBarHeight = 10f;
+    public override void DrawHorizontalProgressBars(Rect progressRect, bool active)
+    {
+        //var eachHeight = progressRect.height / Utilities_Livestock.AgeSexArray.Length;
+        var eachRect = new Rect(progressRect) { height = PawnKindProgressBarHeight };
+        foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
+        {
+            int c = GetCountFor(ageAndSex);
+            int t = GetTargetFor(ageAndSex);
+            DrawHorizontalProgressBar(
+                eachRect,
+                c,
+                t,
+                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
+                    $"ColonyManagerRedux.AgeAndSex.{ageAndSex}".Translate()),
+                active,
+                GetProgressBarTextureFor(ageAndSex));
+
+            eachRect.y += PawnKindProgressBarHeight + Constants.Margin / 2;
         }
     }
 

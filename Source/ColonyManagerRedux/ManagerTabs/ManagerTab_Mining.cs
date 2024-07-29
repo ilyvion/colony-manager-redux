@@ -8,18 +8,12 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob_Mining>(manager)
 {
     public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
         .Where(td => td.IsStuff && td.stuffProps.categories.Contains(StuffCategoryDefOf.Metallic)));
 
-    private float _jobListHeight;
-    private Vector2 _jobListScrollPosition = Vector2.zero;
-
-    public ManagerJob_Mining SelectedMiningJob
-    {
-        get => (ManagerJob_Mining)Selected!;
-    }
+    public ManagerJob_Mining SelectedMiningJob => SelectedJob!;
 
     public override string Label => "ColonyManagerRedux.Mining".Translate();
 
@@ -53,35 +47,19 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         return sb.ToString();
     }
 
-    public override void DoWindowContents(Rect canvas)
+    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
     {
-        var jobListRect = new Rect(
-            0,
-            0,
-            DefaultLeftRowSize,
-            canvas.height);
-        var jobDetailsRect = new Rect(
-            jobListRect.xMax + Margin,
-            0,
-            canvas.width - jobListRect.width - Margin,
-            canvas.height);
-
-        DoJobList(jobListRect);
-        if (Selected != null)
-        {
-            DoJobDetails(jobDetailsRect);
-        }
-    }
-
-    public override string GetSubLabel(ManagerJob job)
-    {
-        var subLabel = base.GetSubLabel(job);
         ManagerJob_Mining miningJob = (ManagerJob_Mining)job;
-        if (miningJob.DeconstructBuildings)
+        var subLabel = base.GetSubLabel(job, mode);
+        if (miningJob.DeconstructBuildings && miningJob.AllowedBuildings.Count > 0)
         {
-            if (!string.IsNullOrEmpty(subLabel))
+            if (subLabel == "ColonyManagerRedux.Common.None".Translate())
             {
-                subLabel += "\n\n";
+                subLabel = "";
+            }
+            else if (!string.IsNullOrEmpty(subLabel))
+            {
+                subLabel += " | ";
             }
             subLabel += string.Join(", ", miningJob.AllowedBuildings
                 .Select(pk => pk.LabelCap.Resolve()));
@@ -296,7 +274,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         Refresh();
     }
 
-    public void Refresh()
+    protected override void Refresh()
     {
         // update pawnkind options
         foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Mining>())
@@ -307,7 +285,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
         SelectedMiningJob?.RefreshAllBuildingsAndMinerals();
     }
 
-    private void DoJobDetails(Rect rect)
+    protected override void DoMainContent(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
 
@@ -394,83 +372,5 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab(manager)
                 Refresh();
             }
         }
-    }
-
-    private void DoJobList(Rect rect)
-    {
-        Widgets.DrawMenuSection(rect);
-
-        // content
-        var height = _jobListHeight;
-        var scrollView = new Rect(0f, 0f, rect.width, height);
-        if (height > rect.height)
-        {
-            scrollView.width -= ScrollbarWidth;
-        }
-
-        Widgets.BeginScrollView(rect, ref _jobListScrollPosition, scrollView);
-        var scrollContent = scrollView;
-
-        GUI.BeginGroup(scrollContent);
-        var cur = Vector2.zero;
-        var i = 0;
-
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Mining>())
-        {
-            var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-            Widgets.DrawHighlightIfMouseover(row);
-            if (SelectedMiningJob == job)
-            {
-                Widgets.DrawHighlightSelected(row);
-            }
-
-            if (i++ % 2 == 1)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-            var jobRect = row;
-
-            if (DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager, job))
-            {
-                Refresh();
-            }
-
-            jobRect.width -= 50f;
-
-            DrawListEntry(job, jobRect, ListEntryDrawMode.Local);
-            if (Widgets.ButtonInvisible(jobRect))
-            {
-                Selected = job;
-            }
-
-            cur.y += LargeListEntryHeight;
-        }
-
-        // row for new job.
-        var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-        Widgets.DrawHighlightIfMouseover(newRect);
-
-        if (i++ % 2 == 1)
-        {
-            Widgets.DrawAltRect(newRect);
-        }
-
-        Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Job.New".Translate() + ">");
-        Text.Anchor = TextAnchor.UpperLeft;
-
-        if (Widgets.ButtonInvisible(newRect))
-        {
-            Selected = MakeNewJob();
-        }
-
-        TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Mining.NewJob.Tip".Translate());
-
-        cur.y += LargeListEntryHeight;
-
-        _jobListHeight = cur.y;
-        GUI.EndGroup();
-        Widgets.EndScrollView();
     }
 }

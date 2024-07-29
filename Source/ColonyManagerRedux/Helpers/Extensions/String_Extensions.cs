@@ -1,11 +1,15 @@
 ﻿// String_Extensions.cs
 // Copyright Karel Kroeze, 2020-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
+
+using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public static class String_Extensions
 {
-    private static readonly Dictionary<Pair<string, Rect>, bool> _fitsCache =
+    private static readonly Dictionary<Pair<string, float>, (bool fits, Vector2 textSize)> _fitsCache =
         [];
 
     public static string Bold(this TaggedString text)
@@ -18,22 +22,28 @@ public static class String_Extensions
         return $"<b>{text}</b>";
     }
 
-    public static bool Fits(this string text, Rect rect)
+    public static bool Fits(this string text, float width, out Vector2 textSize)
     {
-        var key = new Pair<string, Rect>(text, rect);
-        if (_fitsCache.TryGetValue(key, out bool result))
+        var key = new Pair<string, float>(text, width);
+        if (_fitsCache.TryGetValue(key, out var value))
         {
-            return result;
+            textSize = value.textSize;
+            return value.fits;
         }
 
-        // make sure WW is temporarily turned off.
-        var WW = Text.WordWrap;
-        Text.WordWrap = false;
-        result = Text.CalcSize(text).x < rect.width;
-        Text.WordWrap = WW;
+        if (_fitsCache.Count >= 100)
+        {
+            _fitsCache.Clear();
+        }
 
-        _fitsCache.Add(key, result);
-        return result;
+        using (GUIScope.WordWrap(false))
+        {
+            textSize = Text.CalcSize(text);
+            value = (textSize.x < width, textSize);
+        }
+
+        _fitsCache.Add(key, value);
+        return value.fits;
     }
 
     public static string Italic(this TaggedString text)

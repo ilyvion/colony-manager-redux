@@ -9,21 +9,18 @@ using static ColonyManagerRedux.Widgets_Labels;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJob_Forestry>(manager)
 {
-    private float _leftRowHeight = 9999f;
-    private Vector2 _scrollPosition = Vector2.zero;
-
     public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
 
-    public ManagerJob_Forestry SelectedForestryJob => (ManagerJob_Forestry)Selected!;
+    public ManagerJob_Forestry SelectedForestryJob => SelectedJob!;
 
     public static string GetTreeTooltip(ThingDef tree)
     {
         return ManagerTab_Foraging.GetPlantTooltip(tree);
     }
 
-    public void DoContent(Rect rect)
+    protected override void DoMainContent(Rect rect)
     {
         // layout: settings | trees
         // draw background
@@ -98,106 +95,11 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         }
     }
 
-    public void DoLeftRow(Rect rect)
-    {
-        Widgets.DrawMenuSection(rect);
-
-        // content
-        var height = _leftRowHeight;
-        var scrollView = new Rect(0f, 0f, rect.width, height);
-        if (height > rect.height)
-        {
-            scrollView.width -= ScrollbarWidth;
-        }
-
-        Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
-        var scrollContent = scrollView;
-
-        GUI.BeginGroup(scrollContent);
-        var cur = Vector2.zero;
-        var i = 0;
-
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Forestry>())
-        {
-            var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-            Widgets.DrawHighlightIfMouseover(row);
-            if (SelectedForestryJob == job)
-            {
-                Widgets.DrawHighlightSelected(row);
-            }
-
-            if (i++ % 2 == 1)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-            var jobRect = row;
-
-            if (DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager, job))
-            {
-                Refresh();
-            }
-
-            jobRect.width -= 50f;
-
-            DrawListEntry(job, jobRect, ListEntryDrawMode.Local);
-            if (Widgets.ButtonInvisible(jobRect))
-            {
-                Selected = job;
-            }
-
-            cur.y += LargeListEntryHeight;
-        }
-
-        // row for new job.
-        var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-        Widgets.DrawHighlightIfMouseover(newRect);
-
-        if (i % 2 == 1)
-        {
-            Widgets.DrawAltRect(newRect);
-        }
-
-        Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Job.New".Translate().Resolve() + ">");
-        Text.Anchor = TextAnchor.UpperLeft;
-
-        if (Widgets.ButtonInvisible(newRect))
-        {
-            Selected = MakeNewJob();
-        }
-
-        TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Forestry.NewForestryJobTooltip".Translate());
-
-        cur.y += LargeListEntryHeight;
-
-        _leftRowHeight = cur.y;
-        GUI.EndGroup();
-        Widgets.EndScrollView();
-    }
-
-    public override void DoWindowContents(Rect canvas)
-    {
-        // set up rects
-        var leftRow = new Rect(0f, 0f, DefaultLeftRowSize, canvas.height);
-        var contentCanvas = new Rect(leftRow.xMax + Margin, 0f, canvas.width - leftRow.width - Margin,
-                                      canvas.height);
-
-        // draw overview row
-        DoLeftRow(leftRow);
-
-        // draw job interface if something is selected.
-        if (Selected != null)
-        {
-            DoContent(contentCanvas);
-        }
-    }
-
-    public override string GetSubLabel(ManagerJob job)
+    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
     {
         return ((ManagerJob_Forestry)job).Type switch
         {
-            ForestryJobType.Logging => base.GetSubLabel(job),
+            ForestryJobType.Logging => base.GetSubLabel(job, mode),
             _ => "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", job.Targets)).Resolve(),
         };
     }
@@ -413,7 +315,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab(manager)
         Refresh();
     }
 
-    public void Refresh()
+    protected override void Refresh()
     {
         // makes sure the list of possible areas is up-to-date with the area in the game.
         foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Forestry>())

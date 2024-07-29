@@ -104,7 +104,7 @@ partial class ManagerTab_Livestock
         }
 
         public override bool VisibleCurrently => !IsCurrentTableWildTable &&
-            instance.SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind.Milkable();
+            instance.SelectedJob!.TriggerPawnKind.pawnKind.Milkable();
 
         public override int GetMinWidth(PawnTable table)
         {
@@ -139,7 +139,7 @@ partial class ManagerTab_Livestock
         }
 
         public override bool VisibleCurrently => !IsCurrentTableWildTable &&
-            instance.SelectedCurrentLivestockJob!.TriggerPawnKind.pawnKind.Shearable();
+            instance.SelectedJob!.TriggerPawnKind.pawnKind.Shearable();
 
         public override int GetMinWidth(PawnTable table)
         {

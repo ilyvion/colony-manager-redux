@@ -8,16 +8,13 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
+internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJob_Hunting>(manager)
 {
-    private float _leftRowHeight = 9999f;
-    private Vector2 _scrollPosition = Vector2.zero;
-
     public override string Label => "ColonyManagerRedux.Hunting".Translate();
 
-    public ManagerJob_Hunting SelectedHuntingJob => (ManagerJob_Hunting)Selected!;
+    public ManagerJob_Hunting SelectedHuntingJob => SelectedJob!;
 
-    public void DoContent(Rect rect)
+    protected override void DoMainContent(Rect rect)
     {
         // layout: settings | animals
         // draw background
@@ -91,101 +88,6 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
                 // refresh source list
                 Refresh();
             }
-        }
-    }
-
-    public void DoJobList(Rect rect)
-    {
-        Widgets.DrawMenuSection(rect);
-
-        // content
-        var height = _leftRowHeight;
-        var scrollView = new Rect(0f, 0f, rect.width, height);
-        if (height > rect.height)
-        {
-            scrollView.width -= ScrollbarWidth;
-        }
-
-        Widgets.BeginScrollView(rect, ref _scrollPosition, scrollView);
-        var scrollContent = scrollView;
-
-        GUI.BeginGroup(scrollContent);
-        var cur = Vector2.zero;
-        var i = 0;
-
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Hunting>())
-        {
-            var row = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-            Widgets.DrawHighlightIfMouseover(row);
-            if (SelectedHuntingJob == job)
-            {
-                Widgets.DrawHighlightSelected(row);
-            }
-
-            if (i++ % 2 == 1)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-            var jobRect = row;
-
-            if (DrawOrderButtons(new Rect(row.xMax - 50f, row.yMin, 50f, 50f), manager, job))
-            {
-                Refresh();
-            }
-
-            jobRect.width -= 50f;
-
-            DrawListEntry(job, jobRect, ListEntryDrawMode.Local);
-            if (Widgets.ButtonInvisible(jobRect))
-            {
-                Selected = job;
-            }
-
-            cur.y += LargeListEntryHeight;
-        }
-
-        // row for new job.
-        var newRect = new Rect(0f, cur.y, scrollContent.width, LargeListEntryHeight);
-        Widgets.DrawHighlightIfMouseover(newRect);
-
-        if (i++ % 2 == 1)
-        {
-            Widgets.DrawAltRect(newRect);
-        }
-
-        Text.Anchor = TextAnchor.MiddleCenter;
-        Widgets.Label(newRect, "<" + "ColonyManagerRedux.Job.New".Translate().Resolve() + ">");
-        Text.Anchor = TextAnchor.UpperLeft;
-
-        if (Widgets.ButtonInvisible(newRect))
-        {
-            Selected = MakeNewJob();
-        }
-
-        TooltipHandler.TipRegion(newRect, "ColonyManagerRedux.Hunting.NewHuntingJobTooltip".Translate());
-
-        cur.y += LargeListEntryHeight;
-
-        _leftRowHeight = cur.y;
-        GUI.EndGroup();
-        Widgets.EndScrollView();
-    }
-
-    public override void DoWindowContents(Rect canvas)
-    {
-        // set up rects
-        var leftRow = new Rect(0f, 0f, DefaultLeftRowSize, canvas.height);
-        var contentCanvas = new Rect(leftRow.xMax + Margin, 0f, canvas.width - leftRow.width - Margin,
-            canvas.height);
-
-        // draw overview row
-        DoJobList(leftRow);
-
-        // draw job interface if something is selected.
-        if (Selected != null)
-        {
-            DoContent(contentCanvas);
         }
     }
 
@@ -446,7 +348,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab(manager)
         Refresh();
     }
 
-    public void Refresh()
+    protected override void Refresh()
     {
         // update pawnkind options
         foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Hunting>())

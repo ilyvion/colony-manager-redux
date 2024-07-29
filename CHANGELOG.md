@@ -40,6 +40,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   The list of stockpiles to pick from in the threshold trigger now splits them up into rows so you don't get an impossibly narrow selection box for each stockpile if you have more than a few.
 -   Mining jobs have been modified to handle chunks differently. They no longer directly allow using chunks as a resource to configure thresholds on, chunks are now instead considered a resource from which to gather stone, much like mining and building deconstruction already was. Among other changes, this means that mining jobs can now automatically mark chunks for hauling as the threshold requirements require.
 -   Mining has been renamed to Resource Gathering, which is a more broadly applying description of that job type.
+-   The UI layout of jobs has been reworked to be more flexible/less rigid.
 
 ### Fixed
 

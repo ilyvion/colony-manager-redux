@@ -119,7 +119,7 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         }
     }
 
-    public override void DoWindowContents(Rect canvas)
+    protected override void DoTabContents(Rect canvas)
     {
         // set up rects
         var overviewRect = new Rect(0f, 0f, canvas.width, 150f);

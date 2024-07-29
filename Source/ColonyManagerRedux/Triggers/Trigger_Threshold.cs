@@ -127,10 +127,22 @@ public class Trigger_Threshold : Trigger
 
     public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetCount);
 
-    public override void DrawProgressBars(Rect progressRect, bool active)
+    public override void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
         progressRect.xMin += progressRect.width - 10;
-        DrawProgressBar(
+        DrawVerticalProgressBar(
+            progressRect,
+            GetCurrentCount(),
+            TargetCount,
+            StatusTooltip,
+            active,
+            Resources.BarBackgroundActiveTexture);
+    }
+
+    public override void DrawHorizontalProgressBars(Rect progressRect, bool active)
+    {
+        progressRect.height = SmallIconSize;
+        DrawHorizontalProgressBar(
             progressRect,
             GetCurrentCount(),
             TargetCount,
