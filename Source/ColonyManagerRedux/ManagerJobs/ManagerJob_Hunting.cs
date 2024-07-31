@@ -210,8 +210,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         _designations.Clear();
     }
 
-    public string DesignationLabel(Designation designation)
+    public string? DesignationLabel(Designation designation)
     {
+        if (!designation.target.HasThing)
+        {
+            return null;
+        }
+
         // label, dist, yield.
         var thing = designation.target.Thing;
         return "ColonyManagerRedux.Job.DesignationLabel".Translate(

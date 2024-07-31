@@ -7,6 +7,6 @@ public class UnlockPowerTab : ResearchMod
 {
     public override void Apply()
     {
-        ManagerTab_Power.unlocked = true;
+        ManagerTab_Power.Unlocked = true;
     }
 }

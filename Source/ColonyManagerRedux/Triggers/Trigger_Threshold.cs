@@ -154,7 +154,7 @@ public class Trigger_Threshold : Trigger
     public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string? label = null,
         string? tooltip = null, List<Designation>? targets = null,
         Action? onOpenFilterDetails = null,
-        Func<Designation, string>? designationLabelGetter = null)
+        Func<Designation, string?>? designationLabelGetter = null)
     {
         if (targets == null)
         {
@@ -229,7 +229,7 @@ public class Trigger_Threshold : Trigger
                 foreach (var designation in targets!)
                 {
                     var option = string.Empty;
-                    Action onClick = () => Find.WindowStack.TryRemove(typeof(MainTabWindow_Manager), false);
+                    Action? onClick = () => Find.WindowStack.TryRemove(typeof(MainTabWindow_Manager), false);
                     Action<UnityEngine.Rect>? onHover = null;
                     if (designation.target.HasThing)
                     {
@@ -247,18 +247,26 @@ public class Trigger_Threshold : Trigger
                     else
                     {
                         var cell = designation.target.Cell;
-                        var map = Find.CurrentMap;
-                        // designation.map would be better, but that's private. We should only ever be looking at jobs on the current map anyway,
-                        // so I suppose it doesn't matter -- ColonyManagerRedux.
-                        option = designationLabelGetter?.Invoke(designation) ?? cell.GetTerrain(map).LabelCap;
-                        onClick += () => CameraJumper.TryJump(cell, map);
-                        onHover += (c) =>
+                        if (cell.IsValid)
                         {
-                            if (!Find.CameraDriver.IsPanning())
+                            var map = Find.CurrentMap;
+                            // designation.map would be better, but that's private. We should only ever be looking at jobs on the current map anyway,
+                            // so I suppose it doesn't matter -- ColonyManagerRedux.
+                            option = designationLabelGetter?.Invoke(designation) ?? cell.GetTerrain(map).LabelCap;
+                            onClick += () => CameraJumper.TryJump(cell, map);
+                            onHover += (c) =>
                             {
-                                CameraJumper.TryJump(cell, map);
-                            }
-                        };
+                                if (!Find.CameraDriver.IsPanning())
+                                {
+                                    CameraJumper.TryJump(cell, map);
+                                }
+                            };
+                        }
+                        else
+                        {
+                            option = "Invalid designation. This should never happen.";
+                            onClick = null;
+                        }
                     }
 
                     options.Add(new FloatMenuOption(option, onClick, MenuOptionPriority.Default, onHover));

@@ -65,4 +65,28 @@
         <color>(1, 1, 0)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
 
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryProduction</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.History.Production</translationKey>
+        </historyLabel>
+        <color>(0, 1, 0)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryConsumption</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.History.Consumption</translationKey>
+        </historyLabel>
+        <color>(1, 0, 0)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
+    <ColonyManagerRedux.ManagerJobHistoryChapterDef>
+        <defName>CM_HistoryBatteries</defName>
+        <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
+            <translationKey>ColonyManagerRedux.History.Batteries</translationKey>
+        </historyLabel>
+        <color>(1, 1, 0)</color>
+    </ColonyManagerRedux.ManagerJobHistoryChapterDef>
+
 </Defs>

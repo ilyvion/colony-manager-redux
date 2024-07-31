@@ -4,8 +4,20 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_PowerManager</defName>
         <order>800</order>
+        <managerJobClass>ColonyManagerRedux.ManagerJob_Power</managerJobClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Power</managerTabClass>
         <iconPath>UI/Icons/CMR_Power</iconPath>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
+                <workerClass>ColonyManagerRedux.ManagerJob_Power+HistoryWorker</workerClass>
+                <chapters>
+                    <li>CM_HistoryProduction</li>
+                    <li>CM_HistoryConsumption</li>
+                    <li>CM_HistoryBatteries</li>
+                </chapters>
+                <suffix>W</suffix>
+            </li>
+        </comps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

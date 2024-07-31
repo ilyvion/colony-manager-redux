@@ -17,7 +17,16 @@ public class CompManagerJobHistory : ManagerJobComp
         base.Initialize(props);
 
         // create History tracker
-        history = new History(Props.chapters);
+        history = new History(Props.chapters)
+        {
+            AllowTogglingLegend = Props.allowTogglingLegend,
+            DrawInlineLegend = Props.drawInlineLegend,
+            DrawOptions = Props.drawOptions,
+            DrawTargetLine = Props.drawTargetLine,
+
+            PeriodShown = Props.periodShown,
+            Suffix = Props.suffix,
+        };
     }
 
     public override void CompTick()
@@ -27,6 +36,16 @@ public class CompManagerJobHistory : ManagerJobComp
         if (!History.IsUpdateTick)
         {
             return;
+        }
+
+        HistoryWorker worker = Props.Worker;
+        worker.HistoryUpdateTick(parent);
+
+        if (worker.UpdatesMax)
+        {
+            History.UpdateMax(Props.chapters
+                .Select(c => Props.Worker.GetMaxForHistoryChapter(parent, c))
+                .ToArray());
         }
 
         History.Update(Props.chapters
@@ -50,6 +69,13 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
 {
     public Type workerClass = typeof(HistoryWorker);
     public List<ManagerJobHistoryChapterDef> chapters;
+
+    public bool allowTogglingLegend = true;
+    public bool drawInlineLegend = true;
+    public bool drawOptions = true;
+    public bool drawTargetLine = true;
+    public Period periodShown = Period.Day;
+    public string suffix = string.Empty;
 
     private HistoryWorker workerInt;
 
@@ -101,6 +127,13 @@ public abstract class HistoryWorker
 {
     public abstract int GetCountForHistoryChapter(ManagerJob managerJob, ManagerJobHistoryChapterDef chapterDef);
     public abstract int GetTargetForHistoryChapter(ManagerJob managerJob, ManagerJobHistoryChapterDef chapterDef);
+
+    public virtual bool UpdatesMax { get; }
+    public abstract int GetMaxForHistoryChapter(ManagerJob managerJob, ManagerJobHistoryChapterDef chapterDef);
+
+    public virtual void HistoryUpdateTick(ManagerJob managerJob)
+    {
+    }
 }
 
 public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
@@ -113,7 +146,22 @@ public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
     {
         return GetTargetForHistoryChapter((T)managerJob, chapterDef);
     }
+    public override sealed int GetMaxForHistoryChapter(ManagerJob managerJob, ManagerJobHistoryChapterDef chapterDef)
+    {
+        return GetMaxForHistoryChapter((T)managerJob, chapterDef);
+    }
+    public override sealed void HistoryUpdateTick(ManagerJob managerJob)
+    {
+        HistoryUpdateTick((T)managerJob);
+    }
 
     public abstract int GetCountForHistoryChapter(T managerJob, ManagerJobHistoryChapterDef chapterDef);
     public abstract int GetTargetForHistoryChapter(T managerJob, ManagerJobHistoryChapterDef chapterDef);
+    public virtual int GetMaxForHistoryChapter(T managerJob, ManagerJobHistoryChapterDef chapterDef)
+    {
+        return 0;
+    }
+    public virtual void HistoryUpdateTick(T managerJob)
+    {
+    }
 }

@@ -73,7 +73,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     protected override void Refresh()
     {
-        _jobs = manager.JobTracker.JobsOfType<ManagerJob>().ToList();
+        _jobs = manager.JobTracker.JobsOfType<ManagerJob>().Where(j => j.IsTransferable).ToList();
         _selectedJobs = _jobs.Select(_ => new MultiCheckboxState()).ToList();
 
         // fetch the list of saved jobs

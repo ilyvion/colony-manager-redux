@@ -46,6 +46,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
     }
 
+    public virtual bool IsTransferable => true;
+
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerJob
     protected ManagerJob(Manager manager)
 #pragma warning restore CS8618

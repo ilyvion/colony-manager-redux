@@ -7,14 +7,9 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-internal sealed class ManagerTab_Power : ManagerTab, IExposable
+internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_Power>(manager)
 {
-    public static bool unlocked;
-
-    private readonly List<ThingDef> _batteryDefs;
-
-    private readonly List<ThingDef> _traderDefs;
-    private List<List<CompPowerBattery>>? _batteries;
+    private static bool unlocked;
 
     private Vector2 _consumptionScrollPos = Vector2.zero;
 
@@ -22,66 +17,31 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
 
     private Vector2 _productionScrollPos = Vector2.zero;
 
-    private List<List<CompPowerTrader>>? _traders;
-
-    private History overallHistory;
-
-    private History tradingHistory;
-
-    public ManagerTab_Power(Manager manager) : base(manager)
+    private readonly DetailedLegendRenderer _detailedLegendRendererTrading = new()
     {
-        // get list of thingdefs set to use the power comps - this should be static throughout the game (barring added mods midgame)
-        _traderDefs = GetTraderDefs().ToList();
-        _batteryDefs = GetBatteryDefs().ToList();
+        DrawInfoInBar = true,
+        DrawMaxMarkers = true,
+    };
+    private readonly DetailedLegendRenderer _detailedLegendRendererOverall = new()
+    {
+        DrawIcons = false,
+        DrawInfoInBar = true,
+        DrawMaxMarkers = true,
+        MaxPerChapter = true,
+    };
 
-        // get a dictionary of powercomps actually existing on the map for each thingdef.
-        RefreshCompLists();
-
-        // set up the history trackers.
-        tradingHistory = new History(_traderDefs
-            .Select(
-                def => new ThingDefCount(
-                    def,
-                    manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count))
-            .ToArray())
-        {
-            DrawOptions = false,
-            DrawInlineLegend = false,
-            Suffix = "W",
-            DrawInfoInBar = true,
-            DrawMaxMarkers = true,
-            DrawTargetLine = false,
-        };
-
-        overallHistory = new History(new[]
-        {
-            I18n.HistoryProduction,
-            I18n.HistoryConsumption,
-            I18n.HistoryBatteries
-        }, [Color.red, Color.green, ColorLibrary.Teal])
-        {
-            DrawOptions = false,
-            DrawInlineLegend = false,
-            Suffix = "W",
-            DrawIcons = false,
-            DrawCounts = false,
-            DrawInfoInBar = true,
-            DrawMaxMarkers = true,
-            MaxPerChapter = true,
-        };
-    }
-
-    public bool AnyPoweredStationOnline
+    protected override IEnumerable<ManagerJob> ManagerJobs
     {
         get
         {
-            return manager.map.listerBuildings
-                .AllBuildingsColonistOfClass<Building_ManagerStation>()
-                .Select(t => t.TryGetComp<CompPowerTrader>())
-                .Concat(manager.map.listerBuildings
-                    .AllBuildingsColonistOfClass<Building_AIManager>()
-                    .Select(t => t.TryGetComp<CompPowerTrader>()))
-                .Any(c => c != null && c.PowerOn);
+            var job = manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault();
+            if (job == null)
+            {
+                job = (ManagerJob_Power)ManagerDefMaker.MakeManagerJob(def, manager)!;
+                manager.JobTracker.Add(job);
+                Selected = job;
+            }
+            yield return job;
         }
     }
 
@@ -89,12 +49,12 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
     {
         get
         {
-            if (!unlocked)
+            if (!Unlocked)
             {
                 return "ColonyManagerRedux.Energy.NotResearched".Translate();
             }
 
-            if (!AnyPoweredStationOnline)
+            if (!SelectedJob!.AnyPoweredStationOnline)
             {
                 return "ColonyManagerRedux.Energy.NoPoweredStation".Translate();
             }
@@ -103,19 +63,23 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         }
     }
 
-    public override bool Enabled => unlocked && AnyPoweredStationOnline;
+    public override bool Enabled => Unlocked && SelectedJob!.AnyPoweredStationOnline;
 
     public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
 
-    public void ExposeData()
+    protected override bool CreateNewSelectedJobOnMake => false;
+
+    public static bool Unlocked
     {
-
-        Scribe_Deep.Look(ref tradingHistory, "tradingHistory");
-        Scribe_Deep.Look(ref overallHistory, "overallHistory");
-
-        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        get => unlocked;
+        set
         {
-            RefreshCompLists();
+            unlocked = value;
+            foreach (var map in Find.Maps)
+            {
+                ManagerTab_Power tab = Manager.For(map).Tabs.OfType<ManagerTab_Power>().First();
+                tab.Selected ??= tab.ManagerJobs.First();
+            }
         }
     }
 
@@ -146,45 +110,22 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
     {
         base.PreOpen();
 
+        Selected ??= ManagerJobs.First();
+
         // close this tab if it was selected but no longer available
-        if (!AnyPoweredStationOnline && MainTabWindow_Manager.CurrentTab == this)
+        if (!SelectedJob!.AnyPoweredStationOnline && MainTabWindow_Manager.CurrentTab == this)
         {
-            MainTabWindow_Manager.CurrentTab = MainTabWindow_Manager.DefaultTab;
-            MainTabWindow_Manager.CurrentTab.PreOpen();
+            MainTabWindow_Manager.GoTo(MainTabWindow_Manager.DefaultTab);
+            return;
         }
     }
 
     public override void Tick()
     {
         base.Tick();
-
-        // once in a while, update the list of comps, and history thingcounts + theoretical maxes (where known).
-        if (Enabled && Find.TickManager.TicksGame % 2000 == 0)
+        if (!Enabled)
         {
-#if DEBUG_POWER
-            Log.Message( string.Join( ", ", _traderDefs.Select( d => d.LabelCap ).ToArray() ) );
-#endif
-
-
-            // TODO: this block is using excessive CPU time!!!
-
-            // get all existing comps for all building defs that have power related comps (in essence, get all powertraders)
-            RefreshCompLists();
-
-            // update these counts in the history tracker + reset maxes if count changed.
-            tradingHistory.UpdateThingCountAndMax(_traders.Select(list => list.Count).ToArray(),
-                                                   _traders.Select(list => 0).ToArray());
-
-            // update theoretical max for batteries, and reset observed max.
-            overallHistory.UpdateMax(0, 0,
-                (int)_batteries.Sum(list => list.Sum(battery => battery.Props.storedEnergyMax)));
-
-            // update the history tracker.
-            var trade = GetCurrentTrade();
-            tradingHistory.Update(trade);
-            overallHistory.Update((trade.Where(i => i.current > 0).Sum(i => i.current), 0),
-                (trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current)), 0),
-                GetCurrentBatteries().SumTuple());
+            MainTabWindow_Manager.GoTo(MainTabWindow_Manager.DefaultTab);
         }
     }
 
@@ -195,11 +136,13 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         var legendRect = new Rect(canvas.xMin, plotRect.yMax + Margin, canvas.width,
                                    (canvas.height - Margin) / 2f);
 
+        var tradingHistory = SelectedJob!.tradingHistory;
+
         // draw the plot
         tradingHistory.DrawPlot(plotRect, negativeOnly: true);
 
         // draw the detailed legend
-        tradingHistory.DrawDetailedLegend(legendRect, ref _consumptionScrollPos, null, false, true);
+        _detailedLegendRendererTrading.DrawDetailedLegend(tradingHistory, legendRect, ref _consumptionScrollPos, null, false, true);
     }
 
     private void DrawOverview(Rect canvas)
@@ -212,11 +155,17 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         var buttonsRect = new Rect(canvas.xMin, legendRect.yMax + Margin,
                                     (canvas.width - Margin) / 2f, ButtonSize.y);
 
+        var overallHistory = SelectedJob!.CompOfType<CompManagerJobHistory>()!.History;
+
         // draw the plot
+        overallHistory.DrawOptions = false;
+        overallHistory.DrawInlineLegend = false;
         overallHistory.DrawPlot(plotRect);
+        overallHistory.DrawOptions = true;
+        overallHistory.DrawInlineLegend = true;
 
         // draw the detailed legend
-        overallHistory.DrawDetailedLegend(legendRect, ref _overallScrollPos, null);
+        _detailedLegendRendererOverall.DrawDetailedLegend(overallHistory, legendRect, ref _overallScrollPos, null);
 
         var periodRect = buttonsRect;
         periodRect.xMin += Margin;
@@ -226,16 +175,16 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         var labelTextSize = Text.CalcSize("ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
         Widgets.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
 
-        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.History.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst());
+        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate().CapitalizeFirst());
         periodRect.xMin += Margin + labelTextSize.x;
         periodRect.yMin += (periodRect.height - 30f) / 2;
         periodRect.width = buttonTextSize.x + LargeIconSize;
         periodRect.height = 30f;
 
         var tooltip = "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(
-            $"ColonyManagerRedux.History.PeriodShown.{tradingHistory.PeriodShown}".Translate());
+            $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate());
         TooltipHandler.TipRegion(periodRect, tooltip);
-        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.History.PeriodShown.{tradingHistory.PeriodShown}".Translate().CapitalizeFirst()))
+        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate().CapitalizeFirst()))
         {
             var periodOptions = new List<FloatMenuOption>();
             for (var i = 0; i < History.Periods.Length; i++)
@@ -245,7 +194,7 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
                     $"ColonyManagerRedux.History.PeriodShown.{period}".Translate().CapitalizeFirst(),
                     delegate
                     {
-                        tradingHistory.PeriodShown = period;
+                        overallHistory.PeriodShown = period;
                         overallHistory.PeriodShown = period;
                     }));
             }
@@ -261,56 +210,22 @@ internal sealed class ManagerTab_Power : ManagerTab, IExposable
         var legendRect = new Rect(canvas.xMin, plotRect.yMax + Margin, canvas.width,
                                    (canvas.height - Margin) / 2f);
 
+        var tradingHistory = SelectedJob!.tradingHistory;
+
         // draw the plot
         tradingHistory.DrawPlot(plotRect, positiveOnly: true);
 
         // draw the detailed legend
-        tradingHistory.DrawDetailedLegend(legendRect, ref _productionScrollPos, null, true);
+        _detailedLegendRendererTrading.MaxPerChapter = false;
+        _detailedLegendRendererTrading.DrawDetailedLegend(tradingHistory, legendRect, ref _productionScrollPos, null, true);
     }
 
-    private static IEnumerable<ThingDef> GetBatteryDefs()
+    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
     {
-        return from td in DefDatabase<ThingDef>.AllDefsListForReading
-               where td.HasComp(typeof(CompPowerBattery))
-               select td;
-    }
-
-    private (int current, int)[] GetCurrentBatteries()
-    {
-        return _batteries
-            .Select(list => (
-                (int)list.Sum(battery => battery.StoredEnergy),
-                (int)list.Sum(battery => battery.Props.storedEnergyMax)))
-            .ToArray();
-    }
-
-    private (int current, int)[] GetCurrentTrade()
-    {
-        return _traders
-            .Select(list => ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0))
-            .ToArray();
-    }
-
-    private static IEnumerable<ThingDef> GetTraderDefs()
-    {
-        return from td in DefDatabase<ThingDef>.AllDefsListForReading
-               where td.HasCompOrChildCompOf(typeof(CompPowerTrader))
-               select td;
-    }
-
-    private void RefreshCompLists()
-    {
-        // get list of power trader comps per def for consumers and producers.
-        _traders = _traderDefs.Select(def => manager.map.listerBuildings.AllBuildingsColonistOfDef(def)
-                                                     .Select(t => t.GetComp<CompPowerTrader>())
-                                                     .ToList())
-                              .ToList();
-
-        // get list of lists of powertrader comps per thingdef.
-        _batteries = _batteryDefs
-                    .Select(v => manager.map.listerBuildings.AllBuildingsColonistOfDef(v)
-                                         .Select(t => t.GetComp<CompPowerBattery>())
-                                         .ToList())
-                    .ToList();
+        ManagerJob_Power powerJob = (ManagerJob_Power)job;
+        return string.Format("{0} producers, {1} consumers, {2} batteries",
+            powerJob.ProducerCount,
+            powerJob.ConsumerCount,
+            powerJob.BatteryCount);
     }
 }

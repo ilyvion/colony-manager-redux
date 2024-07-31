@@ -18,6 +18,10 @@ public static class ManagerJobHistoryChapterDefOf
     public static ManagerJobHistoryChapterDef CM_HistoryJuvenileFemale;
     public static ManagerJobHistoryChapterDef CM_HistoryJuvenileMale;
 
+    public static ManagerJobHistoryChapterDef CM_HistoryProduction;
+    public static ManagerJobHistoryChapterDef CM_HistoryConsumption;
+    public static ManagerJobHistoryChapterDef CM_HistoryBatteries;
+
     static ManagerJobHistoryChapterDefOf()
     {
         DefOfHelper.EnsureInitializedInCtor(typeof(ManagerJobHistoryChapterDefOf));
