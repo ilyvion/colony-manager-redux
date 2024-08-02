@@ -11,5 +11,5 @@
     <ColonyManagerRedux.ManagerImport>Import</ColonyManagerRedux.ManagerImport>
     <ColonyManagerRedux.ManagerNoSaves>No exports found.</ColonyManagerRedux.ManagerNoSaves>
     <ColonyManagerRedux.DeleteThisManagerFile>Delete this export file.</ColonyManagerRedux.DeleteThisManagerFile>
-    <ColonyManagerRedux.InvalidJob>Cannot import job '{0}' because it is invalid.</ColonyManagerRedux.InvalidJob>
+    <ColonyManagerRedux.InvalidJob>Cannot import job '{0}' because it has an error.</ColonyManagerRedux.InvalidJob>
 </LanguageData>

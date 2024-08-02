@@ -4,6 +4,8 @@
 
 using System.IO;
 using System.Reflection;
+using ilyvion.Laboratory;
+using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux;
 
@@ -31,7 +33,6 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private string _saveNameBase = "ManagerJobs_";
 
-    private float _jobListScrollViewHeight;
     private List<ManagerJob> _jobs = [];
     private List<MultiCheckboxState> _selectedJobs = [];
 
@@ -141,30 +142,34 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private void DoImport(SaveFileInfo file)
     {
-        Scribe.loader.InitLoading(_folder + "/" + file.FileInfo.Name);
-        Manager.Mode = Manager.ScribingMode.Transfer;
-        List<ManagerJob> exportedJobs = [];
-        try
+        string filePath = _folder + "/" + file.FileInfo.Name;
+        PreLoadUtility.CheckVersionAndLoad(filePath, ScribeMetaHeaderUtility.ScribeHeaderMode.None, () =>
         {
-            ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.None, logVersionConflictWarning: true);
-            Scribe_Collections.Look(ref exportedJobs, "jobs", LookMode.Deep, manager);
-            Scribe.loader.FinalizeLoading();
-        }
-        catch
-        {
-            Scribe.ForceStop();
-            return;
-        }
-        finally
-        {
-            Manager.Mode = Manager.ScribingMode.Normal;
-        }
+            Scribe.loader.InitLoading(filePath);
+            Manager.Mode = Manager.ScribingMode.Transfer;
+            List<ManagerJob> exportedJobs = [];
+            try
+            {
+                ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.None, logVersionConflictWarning: true);
+                Scribe_Collections.Look(ref exportedJobs, "jobs", LookMode.Deep, manager);
+                Scribe.loader.FinalizeLoading();
+            }
+            catch
+            {
+                Scribe.ForceStop();
+                return;
+            }
+            finally
+            {
+                Manager.Mode = Manager.ScribingMode.Normal;
+            }
 
-        Find.WindowStack.Add(new Dialog_ImportJobs(exportedJobs, (count) =>
-        {
-            Messages.Message("ColonyManagerRedux.ManagerJobsImported".Translate(count), MessageTypeDefOf.TaskCompletion);
-            Refresh();
-        }));
+            Find.WindowStack.Add(new Dialog_ImportJobs(exportedJobs, (count) =>
+            {
+                Messages.Message("ColonyManagerRedux.ManagerJobsImported".Translate(count), MessageTypeDefOf.TaskCompletion);
+                Refresh();
+            }));
+        });
     }
 
     private void DrawFileEntry(Rect rect, SaveFileInfo file)
@@ -207,7 +212,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
                 Refresh();
             }));
         }
-        TooltipHandler.TipRegionByKey(deleteRect, "ColonyManagerRedux.DeleteThisManagerFile".Translate());
+        TooltipHandler.TipRegionByKey(deleteRect, "ColonyManagerRedux.DeleteThisManagerFile");
 
         GUI.EndGroup();
     }
@@ -278,12 +283,12 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         }
     }
 
+    private ScrollViewStatus _scrollViewStatus = new();
     protected override void DoJobList(Rect jobsRect)
     {
-        Rect jobsViewRect = new(0f, 0f, jobsRect.width - 16f, _jobListScrollViewHeight);
-        Widgets.BeginScrollView(jobsRect, ref _jobListScrollPosition, jobsViewRect);
+        using var scrollView = GUIScope.ScrollView(jobsRect, _scrollViewStatus);
+        using var _ = GUIScope.TextAnchor(TextAnchor.MiddleLeft);
 
-        Text.Anchor = TextAnchor.MiddleLeft;
         var cur = Vector2.zero;
 
         for (int i = 0; i < _jobs.Count; i++)
@@ -291,8 +296,8 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
             var job = _jobs[i];
             var state = _selectedJobs[i];
 
-            var row = new Rect(0f, cur.y, jobsViewRect.width - 16f, 0f);
-            job.Tab.DrawListEntry(job, ref cur, jobsViewRect.width - 16f, ListEntryDrawMode.Export, showOrdering: false);
+            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
+            job.Tab.DrawListEntry(job, ref cur, scrollView.ViewRect.width, ListEntryDrawMode.Export, showOrdering: false);
             row.height = cur.y - row.y;
 
             Widgets.DrawHighlightIfMouseover(row);
@@ -303,17 +308,11 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
             }
 
             _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(row.width - 24f, row.y + 15f, 20f, 20f), state, paintable: true);
-
-            //cumulativeHeight += jobRowRect.height + overflowHeight;
         }
-
-        Text.Anchor = TextAnchor.UpperLeft;
-
-        Widgets.EndScrollView();
 
         if (Event.current.type == EventType.Layout)
         {
-            _jobListScrollViewHeight = cur.y;
+            scrollView.Height = cur.y;
         }
     }
 

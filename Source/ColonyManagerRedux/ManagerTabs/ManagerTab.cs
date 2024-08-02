@@ -112,9 +112,13 @@ public abstract class ManagerTab(Manager manager)
         {
             labelWidth = width - 3 * Margin - StampSize - LargeListEntryHeight;
         }
-        else
+        else if (mode == ListEntryDrawMode.Overview)
         {
             labelWidth = width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin) - 2 * Margin - LargeIconSize - LargeListEntryHeight;
+        }
+        else
+        {
+            labelWidth = width - LargeListEntryHeight - LastUpdateRectWidth - Margin;
         }
 
         // create label string
@@ -198,7 +202,7 @@ public abstract class ManagerTab(Manager manager)
                 iconRect.y,
                 labelWidth,
                     labelSize.y);
-            statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth + Margin, labelRect.height);
+            statusRect = new Rect(labelRect.xMax + Margin, Margin, LastUpdateRectWidth, labelRect.height);
 
             float v = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
             rowRect = new()

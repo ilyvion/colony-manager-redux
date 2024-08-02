@@ -1,6 +1,8 @@
 // Dialog_ImportJobs.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.UI;
+
 namespace ColonyManagerRedux;
 
 [HotSwappable]
@@ -9,9 +11,6 @@ internal sealed class Dialog_ImportJobs : Window
     private readonly Action<int>? _onImport;
     private readonly List<ManagerJob> _jobs;
     private List<MultiCheckboxState> _selectedJobs;
-
-    private Vector2 _jobListScrollPosition;
-    private float _jobListScrollViewHeight;
 
     public override Vector2 InitialSize => new(400f, 400f);
 
@@ -37,12 +36,12 @@ internal sealed class Dialog_ImportJobs : Window
         closeOnAccept = false;
     }
 
+    private ScrollViewStatus _scrollViewStatus = new();
     private void DoJobListGUI(Rect jobsRect)
     {
-        Rect jobViewRect = new(0f, 0f, jobsRect.width, _jobListScrollViewHeight);
-        Widgets.BeginScrollView(jobsRect, ref _jobListScrollPosition, jobViewRect);
+        using var scrollView = GUIScope.ScrollView(jobsRect, _scrollViewStatus);
+        using var _ = GUIScope.TextAnchor(TextAnchor.MiddleLeft);
 
-        Text.Anchor = TextAnchor.MiddleLeft;
         var cur = Vector2.zero;
         for (int i = 0; i < _jobs.Count; i++)
         {
@@ -51,34 +50,63 @@ internal sealed class Dialog_ImportJobs : Window
 
             if (!job.IsValid)
             {
-                Rect jobRowRect = new(0f, cur.y, jobViewRect.width - 16f, Constants.LargeListEntryHeight);
-                GUI.color = Color.gray;
-                Text.Anchor = TextAnchor.MiddleCenter;
-                Widgets.DrawBox(jobRowRect.TrimRight(24f));
-                Widgets.Label(jobRowRect.TrimRight(24f), "ColonyManagerRedux.InvalidJob".Translate(job.Label));
-                GUI.color = Color.white;
-                Text.Anchor = TextAnchor.UpperLeft;
-                cur.y += Constants.LargeListEntryHeight;
+                cur = DrawInvalidJob(scrollView, cur, job, "");
                 continue;
             }
 
-            var row = new Rect(0f, cur.y, jobViewRect.width - 16f, 0f);
-            job.Tab.DrawListEntry(job, ref cur, jobViewRect.width - 16f, ManagerTab.ListEntryDrawMode.Export);
-            row.height = cur.y - row.y;
+            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
+            try
+            {
+                job.Tab.DrawListEntry(job, ref cur, scrollView.ViewRect.width, ManagerTab.ListEntryDrawMode.Export, showOrdering: false);
+            }
+            catch (Exception e)
+            {
+                cur = DrawInvalidJob(scrollView, cur, job, e.Message);
+                _selectedJobs[i] = MultiCheckboxState.Off;
+                continue;
+            }
+            finally
+            {
+                row.height = cur.y - row.y;
+            }
 
             if (i % 2 == 0)
             {
                 Widgets.DrawAltRect(row);
             }
-            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(jobViewRect.width - 20f - 16f - Constants.Margin, row.y + 15f, 20f, 20f), state, paintable: true);
+            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(scrollView.ViewRect.width - 20f - Constants.Margin, row.y + 15f, 20f, 20f), state, paintable: true);
         }
-        Text.Anchor = TextAnchor.UpperLeft;
-
-        Widgets.EndScrollView();
 
         if (Event.current.type == EventType.Layout)
         {
-            _jobListScrollViewHeight = cur.y;
+            scrollView.Height = cur.y;
+        }
+
+        static Vector2 DrawInvalidJob(ScrollViewScope scrollView, Vector2 cur, ManagerJob job, string reason)
+        {
+            Rect jobRowRect = new(0f, cur.y, scrollView.ViewRect.width, Constants.LargeListEntryHeight);
+            GUI.color = Color.gray;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.DrawBox(jobRowRect);
+            string label;
+            try
+            {
+                label = job.Label;
+            }
+            catch
+            {
+                label = job.GetType().FullName;
+            }
+            Widgets.Label(jobRowRect, "ColonyManagerRedux.InvalidJob".Translate(label));
+            if (!string.IsNullOrEmpty(reason))
+            {
+                Widgets.DrawHighlightIfMouseover(jobRowRect);
+                TooltipHandler.TipRegion(jobRowRect, reason);
+            }
+            GUI.color = Color.white;
+            Text.Anchor = TextAnchor.UpperLeft;
+            cur.y += Constants.LargeListEntryHeight;
+            return cur;
         }
     }
 

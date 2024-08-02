@@ -153,7 +153,9 @@ public static class Utilities
             StampSize,
             StampSize).CenteredOnYIn(rect);
         var lastUpdateRect = new Rect(
-            stampRect.xMin - Margin - LastUpdateRectWidth,
+            mode != ListEntryDrawMode.Export
+                ? stampRect.xMin - Margin - LastUpdateRectWidth
+                : rect.xMin,
             rect.yMin,
             LastUpdateRectWidth,
             rect.height);
