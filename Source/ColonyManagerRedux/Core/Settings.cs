@@ -49,11 +49,18 @@ public class Settings : ModSettings
         internal set => _defaultUsePathBasedDistance = value;
     }
 
-    private bool newJobsAreImmediatelyOutdated = true;
+    private bool _newJobsAreImmediatelyOutdated = true;
     public bool NewJobsAreImmediatelyOutdated
     {
-        get => newJobsAreImmediatelyOutdated;
-        internal set => newJobsAreImmediatelyOutdated = value;
+        get => _newJobsAreImmediatelyOutdated;
+        internal set => _newJobsAreImmediatelyOutdated = value;
+    }
+
+    private bool _recordHistoricalData = true;
+    public bool RecordHistoricalData
+    {
+        get => _recordHistoricalData;
+        internal set => _recordHistoricalData = value;
     }
 
     public UpdateInterval DefaultUpdateInterval
@@ -151,7 +158,12 @@ public class Settings : ModSettings
         Utilities.DrawToggle(ref pos, width,
             "ColonyManagerRedux.NewJobsAreImmediatelyOutdated".Translate(),
             "ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip".Translate(),
-            ref newJobsAreImmediatelyOutdated);
+            ref _newJobsAreImmediatelyOutdated);
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.RecordHistoricalData".Translate(),
+            "ColonyManagerRedux.RecordHistoricalData.Tip".Translate(),
+            ref _recordHistoricalData, true);
 
         return pos.y - start.y;
     }
@@ -238,7 +250,8 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _defaultShouldCheckReachable, "defaultShouldCheckReachable", true);
         Scribe_Values.Look(ref _defaultUsePathBasedDistance, "defaultUsePathBasedDistance", false);
         Scribe_Values.Look(ref _defaultCountAllOnMap, "defaultCountAllOnMap", false);
-        Scribe_Values.Look(ref newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
+        Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
+        Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
 
         Scribe_Collections.Look(ref _jobSettings, "jobSettings", LookMode.Deep);
 

@@ -59,11 +59,16 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                 return "ColonyManagerRedux.Energy.NoPoweredStation".Translate();
             }
 
+            if (!ColonyManagerReduxMod.Settings.RecordHistoricalData)
+            {
+                return "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate();
+            }
+
             return "Not sure. It should be enabled? Send a bug report.";
         }
     }
 
-    public override bool Enabled => Unlocked && SelectedJob!.AnyPoweredStationOnline;
+    public override bool Enabled => Unlocked && SelectedJob!.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
 
     public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
 
@@ -85,6 +90,11 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
 
     protected override void DoTabContents(Rect canvas)
     {
+        if (!Enabled)
+        {
+            MainTabWindow_Manager.GoTo(MainTabWindow_Manager.DefaultTab);
+        }
+        
         // set up rects
         var overviewRect = new Rect(0f, 0f, canvas.width, 150f);
         var consumtionRect = new Rect(0f, overviewRect.height + Margin,
@@ -123,10 +133,6 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     public override void Tick()
     {
         base.Tick();
-        if (!Enabled)
-        {
-            MainTabWindow_Manager.GoTo(MainTabWindow_Manager.DefaultTab);
-        }
     }
 
     private void DrawConsumption(Rect canvas)

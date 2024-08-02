@@ -33,7 +33,7 @@ public class CompManagerJobHistory : ManagerJobComp
     {
         base.CompTick();
 
-        if (!History.IsUpdateTick)
+        if (!ColonyManagerReduxMod.Settings.RecordHistoricalData || !History.IsUpdateTick)
         {
             return;
         }

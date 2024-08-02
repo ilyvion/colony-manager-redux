@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -184,9 +185,10 @@ public partial class History : IExposable
     }
 
     float yAxisMaxWidth;
-    public void DrawPlot(Rect rect, bool positiveOnly = false, bool negativeOnly = false)
+    public void DrawPlot(in Rect rect, bool positiveOnly = false, bool negativeOnly = false)
     {
-        // set sign
+        bool recordHistoricalData = ColonyManagerReduxMod.Settings.RecordHistoricalData;
+
         var sign = negativeOnly ? -1 : 1;
 
         // subset chapters
@@ -217,21 +219,28 @@ public partial class History : IExposable
                 rect.yMin + Margin, SmallIconSize,
                 SmallIconSize);
 
-            Widgets.DrawHighlightIfMouseover(switchRect);
-            if (Widgets.ButtonImage(switchRect, Resources.Cog))
+            if (recordHistoricalData)
             {
-                var options = Periods.Select(p =>
-                    new FloatMenuOption("ColonyManagerRedux.History.Period".Translate() +
-                        ": " + $"ColonyManagerRedux.History.PeriodShown.{p}"
-                            .Translate().CapitalizeFirst(),
-                        delegate { PeriodShown = p; })).ToList();
-                if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
+                Widgets.DrawHighlightIfMouseover(switchRect);
+                if (Widgets.ButtonImage(switchRect, Resources.Cog))
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.History.ShowHideLegend".Translate(),
-                        delegate { DrawInlineLegend = !DrawInlineLegend; }));
-                }
+                    var options = Periods.Select(p =>
+                        new FloatMenuOption("ColonyManagerRedux.History.Period".Translate() +
+                            ": " + $"ColonyManagerRedux.History.PeriodShown.{p}"
+                                .Translate().CapitalizeFirst(),
+                            delegate { PeriodShown = p; })).ToList();
+                    if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
+                    {
+                        options.Add(new FloatMenuOption("ColonyManagerRedux.History.ShowHideLegend".Translate(),
+                            delegate { DrawInlineLegend = !DrawInlineLegend; }));
+                    }
 
-                Find.WindowStack.Add(new FloatMenu(options));
+                    Find.WindowStack.Add(new FloatMenu(options));
+                }
+            }
+            else
+            {
+                GUI.DrawTexture(switchRect, Resources.Cog);
             }
 
             Text.Font = GameFont.Tiny;
@@ -284,30 +293,33 @@ public partial class History : IExposable
                 legendPos.x = 0f;
                 legendPos.y -= 1f;
 
-                var tooltip = "ColonyManagerRedux.History.ClickToEnable"
-                    .Translate(isShown
-                        ? "ColonyManagerRedux.History.Hide".Translate()
-                        : "ColonyManagerRedux.History.Show".Translate(),
-                        chapter.label.Label.UncapitalizeFirst());
-                TooltipHandler.TipRegion(butRect, tooltip);
-                Widgets.DrawHighlightIfMouseover(butRect);
-                if (Widgets.ButtonInvisible(butRect))
+                if (recordHistoricalData)
                 {
-                    if (Event.current.button == 0)
+                    var tooltip = "ColonyManagerRedux.History.ClickToEnable"
+                        .Translate(isShown
+                            ? "ColonyManagerRedux.History.Hide".Translate()
+                            : "ColonyManagerRedux.History.Show".Translate(),
+                            chapter.label.Label.UncapitalizeFirst());
+                    TooltipHandler.TipRegion(butRect, tooltip);
+                    Widgets.DrawHighlightIfMouseover(butRect);
+                    if (Widgets.ButtonInvisible(butRect))
                     {
-                        if (isShown)
+                        if (Event.current.button == 0)
                         {
-                            _chaptersShown.Remove(chapter);
+                            if (isShown)
+                            {
+                                _chaptersShown.Remove(chapter);
+                            }
+                            else
+                            {
+                                _chaptersShown.Add(chapter);
+                            }
                         }
-                        else
+                        else if (Event.current.button == 1)
                         {
+                            _chaptersShown.Clear();
                             _chaptersShown.Add(chapter);
                         }
-                    }
-                    else if (Event.current.button == 1)
-                    {
-                        _chaptersShown.Clear();
-                        _chaptersShown.Add(chapter);
                     }
                 }
             }
@@ -349,7 +361,8 @@ public partial class History : IExposable
         }
 
         // handle mouseover events
-        if (Mouse.IsOver(plot))
+
+        if (recordHistoricalData && Mouse.IsOver(plot))
         {
             // very conveniently this is the position within the current group.
             var pos = Event.current.mousePosition;
@@ -450,7 +463,7 @@ public partial class History : IExposable
 
         // plot axis
         GUI.BeginGroup(rect);
-        rect = rect.AtZero();
+        //rect = rect.AtZero();
 
         Text.Anchor = TextAnchor.MiddleRight;
         Text.Font = GameFont.Tiny;
@@ -481,6 +494,32 @@ public partial class History : IExposable
         GUI.color = Color.white;
 
         GUI.EndGroup();
+
+        if (!recordHistoricalData)
+        {
+            Widgets.DrawRectFast(rect, Color.white.ToTransparent(.2f));
+            var bgRect = new Rect(rect);
+            bgRect.yMin += rect.height / 2 - 50f;
+            bgRect.yMax -= rect.height / 2 - 50f;
+            bgRect = bgRect.ContractedBy(10f);
+            Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
+            Widgets_Labels.Label(
+                new(rect) { height = rect.height - 15f },
+                "ColonyManagerRedux.History.HistoryRecordingDisabled".Translate(),
+                TextAnchor.MiddleCenter,
+                GameFont.Medium);
+            Widgets_Labels.Label(
+                new(rect) { y = rect.y + 20, height = rect.height - 15f },
+                "(" + "ColonyManagerRedux.History.ClickToEnableHistoryRecording".Translate() + ")",
+                TextAnchor.MiddleCenter,
+                GameFont.Small);
+
+            if (Widgets.ButtonInvisible(rect, false))
+            {
+                ColonyManagerReduxMod.Settings.RecordHistoricalData = true;
+                ColonyManagerReduxMod.Settings.Write();
+            }
+        }
     }
 
     public static string FormatCount(float x, string suffix, int unit = 1000, string[]? unitSuffixes = null)

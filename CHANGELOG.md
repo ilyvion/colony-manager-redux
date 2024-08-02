@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Show an alert if a player configures both auto-slaughter (RimWorld feature) and 'butcher excess' (Colony Manager feature) for the same animal type.
 -   Power management now adds its own job once it's been unlocked by research. This job is responsible for counting up the various buildings involved in power production/consumption/storage in the colony.
 -   Attempting to import an exported job list with a different mod list now produces the same kind of warning as other save/load features in the game.
+-   Recording historical data can now be disabled, which might help with performance.
 
 ### Changed
 

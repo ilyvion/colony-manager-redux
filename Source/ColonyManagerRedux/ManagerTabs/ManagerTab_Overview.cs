@@ -61,11 +61,11 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
     {
         var overviewRect = new Rect(0f, 0f, OverviewWidthRatio * canvas.width, canvas.height).RoundToInt();
         var sideRectUpper = new Rect(overviewRect.xMax + Margin, 0f,
-                                      (1 - OverviewWidthRatio) * canvas.width - Margin,
-                                      (canvas.height - Margin) / 2).RoundToInt();
+            (1 - OverviewWidthRatio) * canvas.width - Margin,
+            (canvas.height - Margin) / 2).RoundToInt();
         var sideRectLower = new Rect(overviewRect.xMax + Margin, sideRectUpper.yMax + Margin,
-                                      sideRectUpper.width,
-                                      sideRectUpper.height).RoundToInt();
+            sideRectUpper.width,
+            canvas.height - sideRectUpper.height - Margin).RoundToInt();
 
         // draw the listing of current jobs.
         Widgets.DrawMenuSection(overviewRect);

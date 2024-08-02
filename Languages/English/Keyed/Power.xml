@@ -6,4 +6,5 @@
     <ColonyManagerRedux.Energy.PeriodShownTooltip>Currently showing power production and consumption for the last {0}.\n\nClick to change the period.</ColonyManagerRedux.Energy.PeriodShownTooltip>
     <ColonyManagerRedux.Energy.NotResearched>Power management has not been researched</ColonyManagerRedux.Energy.NotResearched>
     <ColonyManagerRedux.Energy.NoPoweredStation>No managing station has power</ColonyManagerRedux.Energy.NoPoweredStation>
+    <ColonyManagerRedux.Energy.RecordHistoricalDataDisabled>this job relies on recording historical data to track power usage, and recording historical data has been disabled</ColonyManagerRedux.Energy.RecordHistoricalDataDisabled>
 </LanguageData>
