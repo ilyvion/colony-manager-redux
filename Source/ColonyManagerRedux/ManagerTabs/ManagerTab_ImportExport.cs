@@ -19,19 +19,18 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private string _folder = "";
 
-    private float _iconSize = 32f;
+    private const float IconSize = 32f;
 
-    private float _loadAreaRatio = .6f;
+    private const float LoadAreaRatio = .6f;
 
-    private float _rowHeight = 30f + Constants.Margin;
+    private const float RowHeight = 40f;
 
-    private string _saveExtension = ".cmr";
+    private const string SaveNameBase = "ManagerJobs_";
+    private const string SaveExtension = ".cmr";
 
     private List<SaveFileInfo> _saveFiles = [];
 
     private string _saveName = "";
-
-    private string _saveNameBase = "ManagerJobs_";
 
     private List<ManagerJob> _jobs = [];
     private List<MultiCheckboxState> _selectedJobs = [];
@@ -46,7 +45,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     protected override void DoTabContents(Rect canvas)
     {
-        var loadRect = new Rect(0f, 0f, (canvas.width - Constants.Margin) * _loadAreaRatio, canvas.height);
+        var loadRect = new Rect(0f, 0f, (canvas.width - Constants.Margin) * LoadAreaRatio, canvas.height);
         var saveRect = new Rect(loadRect.xMax + Constants.Margin, 0f, canvas.width - Constants.Margin - loadRect.width,
                                  canvas.height);
         Widgets.DrawMenuSection(loadRect);
@@ -88,11 +87,11 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
     {
         // keep adding 1 until we have a new name.
         var i = 1;
-        string name = _saveNameBase + i;
+        string name = SaveNameBase + i;
         while (SaveExists(name))
         {
             i++;
-            name = _saveNameBase + i;
+            name = SaveNameBase + i;
         }
 
         return name;
@@ -178,11 +177,18 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
         // set up rects
         Rect nameRect = rect.AtZero();
-        nameRect.width -= 200f + _iconSize + 4 * Constants.Margin;
+        nameRect.width -= (Prefs.DisableTinyText ? 250f : 200f) + IconSize + 4 * Constants.Margin;
         nameRect.xMin += 2 * Constants.Margin;
-        var timeRect = new Rect(nameRect.xMax + Constants.Margin, 0f, 100f, rect.height);
+        var timeRect = new Rect(nameRect.xMax + Constants.Margin, 0f, Prefs.DisableTinyText ? 150f : 100f, rect.height);
         var buttonRect = new Rect(timeRect.xMax + Constants.Margin, 1f, 100f, rect.height - 2f);
-        var deleteRect = new Rect(buttonRect.xMax + Constants.Margin, (rect.height - _iconSize) / 2, _iconSize, _iconSize);
+        var deleteRect = new Rect(buttonRect.xMax + Constants.Margin, (rect.height - IconSize) / 2, IconSize, IconSize);
+
+        if (IlyvionDebugViewSettings.DrawUIHelpers) {
+            Widgets.DrawRectFast(nameRect, ColorLibrary.Aqua.ToTransparent(.5f));
+            Widgets.DrawRectFast(timeRect, ColorLibrary.Beige.ToTransparent(.5f));
+            Widgets.DrawRectFast(buttonRect, ColorLibrary.BrickRed.ToTransparent(.5f));
+            Widgets.DrawRectFast(deleteRect, ColorLibrary.BrightPink.ToTransparent(.5f));
+        }
 
         // name
         Text.Anchor = TextAnchor.MiddleLeft;
@@ -237,13 +243,13 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
                 var i = 1;
                 foreach (SaveFileInfo file in _saveFiles)
                 {
-                    var row = new Rect(0f, cur.y, rect.width, _rowHeight);
+                    var row = new Rect(0f, cur.y, rect.width, RowHeight);
                     if (i++ % 2 == 0)
                     {
                         Widgets.DrawAltRect(row);
                     }
                     DrawFileEntry(row, file);
-                    cur.y += _rowHeight;
+                    cur.y += RowHeight;
                 }
             }
             finally
@@ -318,7 +324,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private string FilePath(string name)
     {
-        return _folder + "/" + name + _saveExtension;
+        return _folder + "/" + name + SaveExtension;
     }
 
     private List<SaveFileInfo> GetSavedFilesList()
@@ -327,7 +333,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
         // raw files
         IOrderedEnumerable<FileInfo> files = from f in directoryInfo.GetFiles()
-                                             where f.Extension == _saveExtension
+                                             where f.Extension == SaveExtension
                                              orderby f.LastWriteTime descending
                                              select f;
 
@@ -359,7 +365,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private bool SaveExists(string name)
     {
-        return _saveFiles.Any(save => save.FileInfo.Name == name + _saveExtension);
+        return _saveFiles.Any(save => save.FileInfo.Name == name + SaveExtension);
     }
 
     private void TryExport(string name)

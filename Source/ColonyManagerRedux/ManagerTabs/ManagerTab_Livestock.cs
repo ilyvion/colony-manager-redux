@@ -971,15 +971,15 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     private void DrawTamedAnimalTable(Rect rect)
     {
-        DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(manager), false);
+        DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(manager));
     }
 
     private void DrawWildAnimalTable(Rect rect)
     {
-        DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(manager), true);
+        DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(manager));
     }
 
-    private void DrawAnimalTable(Rect rect, ref PawnTable? pawnTable, string type, Func<PawnKindDef, IEnumerable<Pawn>?> animalGetter, bool isWildTable)
+    private void DrawAnimalTable(Rect rect, ref PawnTable? pawnTable, string type, Func<PawnKindDef, IEnumerable<Pawn>?> animalGetter)
     {
         if (pawnTable == null)
         {
@@ -987,7 +987,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
                 return animalGetter(pawnKind) ?? [];
-            }, isWildTable);
+            });
             pawnTable.SetFixedSize(new(rect.width, rect.height));
         }
 

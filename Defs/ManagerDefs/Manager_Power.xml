@@ -15,7 +15,7 @@
                     <li>CM_HistoryConsumption</li>
                     <li>CM_HistoryBatteries</li>
                 </chapters>
-                <suffix>W</suffix>
+                <yAxisSuffix>W</yAxisSuffix>
             </li>
         </comps>
     </ColonyManagerRedux.ManagerDef>

@@ -166,7 +166,7 @@ internal sealed class ManagerJob_Power : ManagerJob
             {
                 DrawOptions = false,
                 DrawInlineLegend = false,
-                Suffix = "W",
+                YAxisSuffix = "W",
                 DrawTargetLine = false,
             };
         }
@@ -280,7 +280,7 @@ internal sealed class ManagerJob_Power : ManagerJob
             {
                 DrawOptions = false,
                 DrawInlineLegend = false,
-                Suffix = "W",
+                YAxisSuffix = "W",
                 DrawTargetLine = false,
             };
             tradingHistory.UpdateThingDefs(TraderDefs);

@@ -25,7 +25,7 @@ public class CompManagerJobHistory : ManagerJobComp
             DrawTargetLine = Props.drawTargetLine,
 
             PeriodShown = Props.periodShown,
-            Suffix = Props.suffix,
+            YAxisSuffix = Props.yAxisSuffix,
         };
     }
 
@@ -75,7 +75,7 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
     public bool drawOptions = true;
     public bool drawTargetLine = true;
     public Period periodShown = Period.Day;
-    public string suffix = string.Empty;
+    public string yAxisSuffix = string.Empty;
 
     private HistoryWorker workerInt;
 

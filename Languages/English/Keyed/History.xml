@@ -2,6 +2,7 @@
 
 <LanguageData>
     <ColonyManagerRedux.History.Period>Period</ColonyManagerRedux.History.Period>
+    <ColonyManagerRedux.History.Legend>Legend</ColonyManagerRedux.History.Legend>
     <ColonyManagerRedux.History.ShowHideLegend>Show/Hide legend</ColonyManagerRedux.History.ShowHideLegend>
     <ColonyManagerRedux.History.Show>show</ColonyManagerRedux.History.Show>
     <ColonyManagerRedux.History.Hide>hide</ColonyManagerRedux.History.Hide>

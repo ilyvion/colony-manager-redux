@@ -71,6 +71,7 @@
             <translationKey>ColonyManagerRedux.History.Production</translationKey>
         </historyLabel>
         <color>(0, 1, 0)</color>
+        <suffix>W</suffix>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
 
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
@@ -79,6 +80,7 @@
             <translationKey>ColonyManagerRedux.History.Consumption</translationKey>
         </historyLabel>
         <color>(1, 0, 0)</color>
+        <suffix>W</suffix>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
 
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
@@ -87,6 +89,7 @@
             <translationKey>ColonyManagerRedux.History.Batteries</translationKey>
         </historyLabel>
         <color>(1, 1, 0)</color>
+        <suffix>Wd</suffix>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
 
 </Defs>

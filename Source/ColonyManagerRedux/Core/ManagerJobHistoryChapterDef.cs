@@ -9,6 +9,7 @@ public class ManagerJobHistoryChapterDef : Def
     public HistoryLabel historyLabel;
 #pragma warning restore CS8618
     public Color color;
+    public string? suffix;
 
     public override IEnumerable<string> ConfigErrors()
     {

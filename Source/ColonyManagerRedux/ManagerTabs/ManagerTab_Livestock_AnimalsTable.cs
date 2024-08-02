@@ -75,6 +75,11 @@ partial class ManagerTab_Livestock
 
             return estimatedMeatCountA - estimatedMeatCountB;
         }
+
+        public override int GetMinWidth(PawnTable table)
+        {
+            return (int)Text.CalcSize("MMM").x;
+        }
     }
 
     [HotSwappable]
@@ -149,7 +154,7 @@ partial class ManagerTab_Livestock
 
     private PawnTable? animalsTameTable;
     private PawnTable? animalsWildTable;
-    private PawnTable CreateAnimalsTable(Func<IEnumerable<Pawn>> animalGetter, bool isWildTable)
+    private PawnTable CreateAnimalsTable(Func<IEnumerable<Pawn>> animalGetter)
     {
         PawnTable table = null!;
         table = (PawnTable)Activator.CreateInstance(

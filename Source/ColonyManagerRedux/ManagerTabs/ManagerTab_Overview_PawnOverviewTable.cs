@@ -51,8 +51,11 @@ partial class ManagerTab_Overview
     [HotSwappable]
     public sealed class PawnColumnWorker_CurrentActivity : PawnColumnWorker_Overview
     {
+        private Rect cellRect;
+
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
+            cellRect = rect;
             string activityString = GetPawnActivityString(pawn);
             Widgets_Labels.Label(rect, activityString, activityString,
                 TextAnchor.MiddleCenter, margin: Constants.Margin, font: GameFont.Tiny);
@@ -79,6 +82,11 @@ partial class ManagerTab_Overview
         public override int GetMaxWidth(PawnTable table)
         {
             return (int)table.Size.x;
+        }
+
+        public override int GetMinCellHeight(Pawn pawn)
+        {
+            return (int)(2 * Text.LineHeight);
         }
     }
 
