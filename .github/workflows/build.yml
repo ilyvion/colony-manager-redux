@@ -20,8 +20,8 @@ jobs:
             - name: Checkout ilyvion.Laboratory Repository
               uses: actions/checkout@v4
               with:
-                repository: 'ilyvion/ilyvion-laboratory'
-                path: 'ilyvion.Laboratory'
+                  repository: "ilyvion/ilyvion-laboratory"
+                  path: "ilyvion.Laboratory"
 
             - name: Setup Dotnet
               uses: actions/setup-dotnet@v4

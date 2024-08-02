@@ -20,7 +20,7 @@ jobs:
         steps:
             - name: Set Environment Variables
               run: |
-                  echo "MOD_PATH=./Source/ColonyManagerRedux" >> $GITHUB_ENV
+                  echo "MOD_PATH=./ColonyManagerRedux" >> $GITHUB_ENV
                   echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
                   echo "NO_PREFIX_VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
