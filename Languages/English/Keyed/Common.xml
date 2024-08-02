@@ -28,6 +28,7 @@
     <ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>
     <ColonyManagerRedux.Job.Update>Update {0}</ColonyManagerRedux.Job.Update>
     <ColonyManagerRedux.Job.ForceUpdate>Force update now</ColonyManagerRedux.Job.ForceUpdate>
+    <ColonyManagerRedux.Job.AlreadyUpdating>already due for an update</ColonyManagerRedux.Job.AlreadyUpdating>
     <ColonyManagerRedux.Job.IncreasePriority>Increase job priority</ColonyManagerRedux.Job.IncreasePriority>
     <ColonyManagerRedux.Job.DecreasePriorityn>Decrease job priority</ColonyManagerRedux.Job.DecreasePriorityn>
     <ColonyManagerRedux.Job.TopPriority>Maximum priority</ColonyManagerRedux.Job.TopPriority>

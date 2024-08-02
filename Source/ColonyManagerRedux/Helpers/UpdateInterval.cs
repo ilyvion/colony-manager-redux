@@ -99,9 +99,13 @@ public class UpdateInterval(int ticks, string label)
             if (Widgets.ButtonInvisible(canvas))
             {
                 var options = new List<FloatMenuOption>();
-                if (!job.IsSuspended && !job.IsCompleted)
+                if (!job.IsSuspended && !job.IsCompleted && !job.ShouldDoNow)
                 {
                     options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate(), job.Untouch));
+                }
+                else
+                {
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate() + " (" + "ColonyManagerRedux.Job.AlreadyUpdating".Translate() + ")", null));
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {
