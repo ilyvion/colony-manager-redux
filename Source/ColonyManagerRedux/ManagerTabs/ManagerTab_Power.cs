@@ -94,7 +94,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         {
             MainTabWindow_Manager.GoTo(MainTabWindow_Manager.DefaultTab);
         }
-        
+
         // set up rects
         var overviewRect = new Rect(0f, 0f, canvas.width, 150f);
         var consumtionRect = new Rect(0f, overviewRect.height + Margin,
@@ -162,6 +162,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                                     (canvas.width - Margin) / 2f, ButtonSize.y);
 
         var overallHistory = SelectedJob!.CompOfType<CompManagerJobHistory>()!.History;
+        var tradingHistory = SelectedJob!.tradingHistory;
 
         // draw the plot
         overallHistory.DrawOptions = false;
@@ -201,7 +202,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                     delegate
                     {
                         overallHistory.PeriodShown = period;
-                        overallHistory.PeriodShown = period;
+                        tradingHistory.PeriodShown = period;
                     }));
             }
 
