@@ -193,9 +193,6 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             {
                 // must be true if it was saved.
                 IsManaged = true;
-
-                _updateInterval = Utilities.UpdateIntervalOptions.FirstOrDefault(ui => ui.ticks == _updateIntervalScribe) ??
-                    ColonyManagerReduxMod.Settings.DefaultUpdateInterval;
             }
         }
         else if (Manager.Mode == Manager.ScribingMode.Transfer)
@@ -206,10 +203,17 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             }
         }
 
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            _updateInterval = Utilities.UpdateIntervalOptions.FirstOrDefault(ui => ui.ticks == _updateIntervalScribe) ??
+                ColonyManagerReduxMod.Settings.DefaultUpdateInterval;
+        }
+
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             Initialize();
         }
+
         if (_comps != null)
         {
             foreach (ManagerJobComp comp in _comps)
