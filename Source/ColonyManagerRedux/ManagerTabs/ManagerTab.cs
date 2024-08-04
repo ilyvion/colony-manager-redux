@@ -305,11 +305,7 @@ public abstract class ManagerTab(Manager manager)
 
             job.Trigger!.DrawHorizontalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
 
-            if (!job.IsSuspended && !job.IsCompleted)
-            {
-                // draw update interval
-                UpdateInterval.Draw(lastUpdateRect, job, false);
-            }
+            UpdateInterval.Draw(lastUpdateRect, job, false, job.IsSuspended || job.IsCompleted);
         }
 
         if (showOrdering && DrawOrderButtons(

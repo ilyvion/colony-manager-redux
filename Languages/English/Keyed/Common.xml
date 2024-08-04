@@ -25,10 +25,11 @@
     <ColonyManagerRedux.Job.NeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.Job.NeverUpdatedTooltip>
     <ColonyManagerRedux.Job.LastUpdatedTooltip>This job was last updated {0} ago.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>
+    <ColonyManagerRedux.Job.ScheduledToBeUpdatedPausedTooltip>As the job is either suspended or completed, it won't currently be updated, but if it weren't suspended or completed, it would be scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedPausedTooltip>
     <ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>
     <ColonyManagerRedux.Job.Update>Update {0}</ColonyManagerRedux.Job.Update>
     <ColonyManagerRedux.Job.ForceUpdate>Force update now</ColonyManagerRedux.Job.ForceUpdate>
-    <ColonyManagerRedux.Job.AlreadyUpdating>already due for an update</ColonyManagerRedux.Job.AlreadyUpdating>
+    <ColonyManagerRedux.Job.AlreadyUpdatingOrPaused>job is already due for an update, suspended or completed</ColonyManagerRedux.Job.AlreadyUpdatingOrPaused>
     <ColonyManagerRedux.Job.IncreasePriority>Increase job priority</ColonyManagerRedux.Job.IncreasePriority>
     <ColonyManagerRedux.Job.DecreasePriorityn>Decrease job priority</ColonyManagerRedux.Job.DecreasePriorityn>
     <ColonyManagerRedux.Job.TopPriority>Maximum priority</ColonyManagerRedux.Job.TopPriority>
@@ -42,7 +43,7 @@
     <ColonyManagerRedux.Threshold.PathBasedDistance.Tip>If enabled, distances will be calculated based on real paths. If disabled, distances will be calculated 'as the crow flies'. \n\nNOTE: Enabling this option on jobs with a large amount of possible targets may lead to significant lag spikes.</ColonyManagerRedux.Threshold.PathBasedDistance.Tip>
     <ColonyManagerRedux.Threshold.CountAllOnMap>Count all on map</ColonyManagerRedux.Threshold.CountAllOnMap>
     <ColonyManagerRedux.Threshold.CountAllOnMap.Tip>If enabled, counts all items allowed by the threshold filter on the map. If disabled, counts only those in stockpiles and storage buildings.</ColonyManagerRedux.Threshold.CountAllOnMap.Tip>
-    
+
     <!-- time periods for update interval -->
     <ColonyManagerRedux.UpdateInterval.Hourly>Every hour</ColonyManagerRedux.UpdateInterval.Hourly>
     <ColonyManagerRedux.UpdateInterval.MultipleHourly>Every {0} hours</ColonyManagerRedux.UpdateInterval.MultipleHourly>
@@ -53,7 +54,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Threshold: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Click to open threshold details.\n\nTarget: {1}\nIn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Current</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Available</ColonyManagerRedux.Thresholds.Available>

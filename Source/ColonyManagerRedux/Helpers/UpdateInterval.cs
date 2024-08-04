@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2019-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Extensions;
+
 namespace ColonyManagerRedux;
 
 [HotSwappable]
@@ -21,22 +23,24 @@ public class UpdateInterval(int ticks, string label)
         }
     }
 
-    internal static void Draw(Rect canvas, ManagerJob job, bool exporting)
+    internal static void Draw(Rect canvas, ManagerJob job, bool exporting, bool paused)
     {
+        Color nextUpdateColor = paused ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
+
         string lastUpdateTooltip;
         var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;
         if (exporting)
         {
             if (nextUpdate < 12)
             {
-                var nextUpdateHandle = new ClockHandle(nextUpdate, GenUI.MouseoverColor);
+                var nextUpdateHandle = new ClockHandle(nextUpdate, nextUpdateColor);
                 var progressHandle = new ClockHandle(0f, Color.white);
                 Clock.Draw(canvas.ContractedBy(4f), nextUpdateHandle, progressHandle);
             }
             else
             {
                 var nextUpdateMarker =
-                    new CalendarMarker(nextUpdate / GenDate.HoursPerDay, GenUI.MouseoverColor, false);
+                    new CalendarMarker(nextUpdate / GenDate.HoursPerDay, nextUpdateColor, false);
                 var progressMarker = new CalendarMarker(0f, Color.white, true);
                 Calendar.Draw(canvas.ContractedBy(2f), progressMarker, nextUpdateMarker);
             }
@@ -50,20 +54,22 @@ public class UpdateInterval(int ticks, string label)
             var progress = (float)lastUpdate / GenDate.TicksPerHour;
 
             // how far over time are we? Draw redder if further over time.
-            var progressColour = progress < nextUpdate
-                ? Color.white
-                : Color.Lerp(Color.white, Color.red, (progress - nextUpdate) / nextUpdate * 2f);
+            var progressColour = paused
+                ? Color.gray
+                : (progress < nextUpdate
+                    ? Color.white
+                    : Color.Lerp(Color.white, Color.red, (progress - nextUpdate) / nextUpdate * 2f));
 
             if (nextUpdate < 12 && progress < 12)
             {
-                var nextUpdateHandle = new ClockHandle(nextUpdate, GenUI.MouseoverColor);
+                var nextUpdateHandle = new ClockHandle(nextUpdate, nextUpdateColor);
                 var progressHandle = new ClockHandle(progress, progressColour);
                 Clock.Draw(canvas.ContractedBy(4f), nextUpdateHandle, progressHandle);
             }
             else
             {
                 var nextUpdateMarker =
-                    new CalendarMarker(nextUpdate / GenDate.HoursPerDay, GenUI.MouseoverColor, false);
+                    new CalendarMarker(nextUpdate / GenDate.HoursPerDay, nextUpdateColor, false);
                 var progressMarker = new CalendarMarker(progress / GenDate.HoursPerDay, progressColour, true);
                 Calendar.Draw(canvas.ContractedBy(2f), progressMarker, nextUpdateMarker);
             }
@@ -73,7 +79,7 @@ public class UpdateInterval(int ticks, string label)
         }
         else
         {
-            GUI.color = GenUI.MouseoverColor;
+            GUI.color = nextUpdateColor;
             Text.Font = GameFont.Medium;
             Text.Anchor = TextAnchor.MiddleCenter;
             Widgets.Label(canvas, "---");
@@ -84,8 +90,16 @@ public class UpdateInterval(int ticks, string label)
             lastUpdateTooltip = "ColonyManagerRedux.Job.NeverUpdatedTooltip".Translate() + " ";
         }
 
-        lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip".Translate(
-            job.UpdateInterval.ticks.TimeString());
+        if (paused)
+        {
+            lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedPausedTooltip".Translate(
+                job.UpdateInterval.ticks.TimeString());
+        }
+        else
+        {
+            lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip".Translate(
+                job.UpdateInterval.ticks.TimeString());
+        }
 
         if (!exporting)
         {
@@ -105,7 +119,8 @@ public class UpdateInterval(int ticks, string label)
                 }
                 else
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate() + " (" + "ColonyManagerRedux.Job.AlreadyUpdating".Translate() + ")", null));
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate()
+                        + " (" + "ColonyManagerRedux.Job.AlreadyUpdatingOrPaused".Translate() + ")", null));
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {

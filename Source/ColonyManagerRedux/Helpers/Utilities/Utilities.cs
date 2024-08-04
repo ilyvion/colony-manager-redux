@@ -201,11 +201,13 @@ public static class Utilities
             trigger.DrawVerticalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
         }
 
-        if (mode == ListEntryDrawMode.Export || (!job.IsSuspended && !job.IsCompleted))
-        {
-            // draw update interval
-            UpdateInterval.Draw(lastUpdateRect, job, mode == ListEntryDrawMode.Export);
-        }
+
+        // draw update interval
+        UpdateInterval.Draw(
+            lastUpdateRect,
+            job,
+            mode == ListEntryDrawMode.Export,
+            mode != ListEntryDrawMode.Export && (job.IsSuspended || job.IsCompleted));
     }
 
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, ref bool checkOn,
