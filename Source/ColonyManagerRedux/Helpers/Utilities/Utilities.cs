@@ -201,7 +201,7 @@ public static class Utilities
             trigger.DrawVerticalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
         }
 
-        if (!job.IsSuspended && !job.IsCompleted)
+        if (mode == ListEntryDrawMode.Export || (!job.IsSuspended && !job.IsCompleted))
         {
             // draw update interval
             UpdateInterval.Draw(lastUpdateRect, job, mode == ListEntryDrawMode.Export);
