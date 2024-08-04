@@ -9,8 +9,6 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_Power>(manager)
 {
-    private static bool unlocked;
-
     private Vector2 _consumptionScrollPos = Vector2.zero;
 
     private Vector2 _overallScrollPos = Vector2.zero;
@@ -49,7 +47,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     {
         get
         {
-            if (!Unlocked)
+            if (!ResearchedFinished)
             {
                 return "ColonyManagerRedux.Energy.NotResearched".Translate();
             }
@@ -68,23 +66,23 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         }
     }
 
-    public override bool Enabled => Unlocked && SelectedJob!.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
+    public override bool Enabled => ResearchedFinished && SelectedJob!.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
 
     public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
 
     protected override bool CreateNewSelectedJobOnMake => false;
 
-    public static bool Unlocked
+    public static bool ResearchedFinished
     {
-        get => unlocked;
-        set
+        get => ManagerResearchProjectDefOf.PowerManagement.IsFinished;
+    }
+
+    public static void OnPowerResearchedFinished()
+    {
+        foreach (var map in Find.Maps)
         {
-            unlocked = value;
-            foreach (var map in Find.Maps)
-            {
-                ManagerTab_Power tab = Manager.For(map).Tabs.OfType<ManagerTab_Power>().First();
-                tab.Selected ??= tab.ManagerJobs.First();
-            }
+            ManagerTab_Power tab = Manager.For(map).Tabs.OfType<ManagerTab_Power>().First();
+            tab.Selected ??= tab.ManagerJobs.First();
         }
     }
 

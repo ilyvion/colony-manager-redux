@@ -55,5 +55,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Render the training job selectors over multiple lines (3 jobs per line) so they're not so crowded, which is especially relevant if mods add additional TrainableDefs or uses a UI language more verbose than English.
 -   It is no longer possible to attempt to assign a master to animals that cannot be trained in guarding/obedience.
 -   Make all rendering work properly even if the "Disable tiny font" setting is enabled.
+-   Don't rely on a static field to know whether power has been researched. It causes issues if you start a new game without restarting the game first.
 
 [Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...HEAD

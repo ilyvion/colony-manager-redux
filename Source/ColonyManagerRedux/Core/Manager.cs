@@ -44,10 +44,7 @@ public class Manager : MapComponent, ILoadReferenceable
             .ToList();
 
         // if not created in SavingLoading, give yourself the ID of the map you were constructed on.
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            id = map.uniqueID;
-        }
+        id = map.uniqueID;
     }
 
     private JobTracker _jobTracker;

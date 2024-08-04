@@ -84,7 +84,6 @@ public static class ManagerThingCategoryDefOf
     }
 }
 
-
 [DefOf]
 public static class ManagerPawnTableDefOf
 {
@@ -94,5 +93,16 @@ public static class ManagerPawnTableDefOf
     static ManagerPawnTableDefOf()
     {
         DefOfHelper.EnsureInitializedInCtor(typeof(ManagerPawnTableDefOf));
+    }
+}
+
+[DefOf]
+public static class ManagerResearchProjectDefOf
+{
+    public static ResearchProjectDef PowerManagement;
+
+    static ManagerResearchProjectDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(ManagerResearchProjectDefOf));
     }
 }
