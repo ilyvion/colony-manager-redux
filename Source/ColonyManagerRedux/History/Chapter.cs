@@ -2,7 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using CircularBuffer;
+using ilyvion.Laboratory.Collections;
 using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux;
