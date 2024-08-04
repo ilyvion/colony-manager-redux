@@ -63,17 +63,17 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 
         // if current input is invalid color the element red
         var oldColor = GUI.color;
-        if (!Input.IsInt())
+        if (int.TryParse(Input, out var value))
         {
-            GUI.color = new Color(1f, 0f, 0f);
-        }
-        else
-        {
-            Trigger.TargetCount = int.Parse(Input);
+            Trigger.TargetCount = value;
             if (Trigger.TargetCount > Trigger.MaxUpperThreshold)
             {
                 Trigger.MaxUpperThreshold = Trigger.TargetCount;
             }
+        }
+        else
+        {
+            GUI.color = new Color(1f, 0f, 0f);
         }
 
         // draw the input field

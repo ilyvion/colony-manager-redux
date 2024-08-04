@@ -138,13 +138,13 @@ internal sealed class PawnKindSettings : IExposable
     {
         int ageSexIndex = (int)ageSex;
 
-        if (!_newCounts[ageSexIndex].IsInt())
+        if (int.TryParse(_newCounts[ageSexIndex], out var value))
         {
-            GUI.color = Color.red;
+            DefaultCountTargets[ageSexIndex] = value;
         }
         else
         {
-            DefaultCountTargets[ageSexIndex] = int.Parse(_newCounts[ageSexIndex]);
+            GUI.color = Color.red;
         }
 
         _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);

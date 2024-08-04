@@ -399,7 +399,7 @@ public partial class History : IExposable
         }
         if (traderDefs.Count > 0)
         {
-            Logger.Debug("New defs: " + traderDefs.Join(t => t.defName));
+            ColonyManagerReduxMod.Instance.LogDebug("New defs: " + traderDefs.Join(t => t.defName));
 
             // create a chapter for each new def
             var currentChapterCount = _chapters.Count;

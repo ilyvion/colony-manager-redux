@@ -217,13 +217,13 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
     {
         int ageSexIndex = (int)ageSex;
 
-        if (!_newCounts[ageSexIndex].IsInt())
+        if (int.TryParse(_newCounts[ageSexIndex], out var value))
         {
-            GUI.color = Color.red;
+            job.TriggerPawnKind.CountTargets[ageSexIndex] = value;
         }
         else
         {
-            job.TriggerPawnKind.CountTargets[ageSexIndex] = int.Parse(_newCounts[ageSexIndex]);
+            GUI.color = Color.red;
         }
 
         _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);

@@ -433,7 +433,7 @@ internal static class Utilities_Livestock
 
         growthRatePerTick *= PawnUtility.BodyResourceGrowthSpeed((Pawn)comp.parent);
 
-        // Logger.Debug( $"rate: {growthRatePerTick}, interval: {interval}");
+        // ColonyManagerReduxMod.Instance.LogDebug( $"rate: {growthRatePerTick}, interval: {interval}");
 
         return Mathf.CeilToInt((1 - comp.Fullness) / growthRatePerTick);
     }

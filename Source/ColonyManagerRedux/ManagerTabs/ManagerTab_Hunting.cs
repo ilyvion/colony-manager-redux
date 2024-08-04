@@ -224,7 +224,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             }
 
             // foreach (var @yield in yields)
-            //     Logger.Debug(yield);
+            //     ColonyManagerReduxMod.Instance.LogDebug(yield);
 
             if (yields.Count == 1)
             {

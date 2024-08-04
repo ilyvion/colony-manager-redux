@@ -76,7 +76,7 @@ public static class Clock
         var vector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
         var from = radius * start * vector + canvas.center;
         var to = radius * end * vector + canvas.center;
-        //            Logger.Debug( $"{canvas}, {from}, {to}" );
+        //            ColonyManagerReduxMod.Instance.LogDebug( $"{canvas}, {from}, {to}" );
         Widgets.DrawLine(from, to, color, thickness);
     }
 

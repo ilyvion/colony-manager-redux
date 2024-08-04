@@ -426,33 +426,6 @@ public static class Utilities
         }
     }
 
-    public static bool HasCompOrChildCompOf(this ThingDef def, Type compType)
-    {
-        if (def == null)
-        {
-            throw new ArgumentNullException(nameof(def));
-        }
-        if (compType == null)
-        {
-            throw new ArgumentNullException(nameof(compType));
-        }
-
-        for (var index = 0; index < def.comps.Count; ++index)
-        {
-            if (compType.IsAssignableFrom(def.comps[index].compClass))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public static bool IsInt(this string text)
-    {
-        return int.TryParse(text, out var _);
-    }
-
     public static void LabelOutline(Rect icon, string label, string? tooltip, TextAnchor anchor, float margin,
                                      GameFont font, Color textColour, Color outlineColour)
     {

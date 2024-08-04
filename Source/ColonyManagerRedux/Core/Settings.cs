@@ -72,10 +72,10 @@ public class Settings : ModSettings
 
     public Settings()
     {
-        Logger.Debug("Initializing new settings value!");
+        ColonyManagerReduxMod.Instance.LogDebug("Initializing new settings value!");
         LongEventHandler.ExecuteWhenFinished(() =>
         {
-            Logger.Debug("Loading manager job defs");
+            ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
             _jobSettings.AddRange(MakeManagerJobSettings());
             _jobDefSettingsAreLoaded = true;
             ReloadSettings();

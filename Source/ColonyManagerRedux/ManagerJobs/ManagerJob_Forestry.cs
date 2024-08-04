@@ -297,7 +297,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public void RefreshAllTrees()
     {
-        Logger.Debug("Refreshing all trees");
+        ColonyManagerReduxMod.Instance.LogDebug("Refreshing all trees");
 
         // all plants
         _allPlants = null;

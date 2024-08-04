@@ -8,12 +8,6 @@ namespace ColonyManagerRedux;
 
 internal static class Logger
 {
-    [Conditional("DEBUG")]
-    public static void Debug(string message)
-    {
-        ColonyManagerReduxMod.Instance.LogDevMessage(message);
-    }
-
     [Conditional("DEBUG_FOLLOW")]
     public static void Follow(string message)
     {

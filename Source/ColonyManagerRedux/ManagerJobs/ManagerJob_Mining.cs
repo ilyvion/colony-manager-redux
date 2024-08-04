@@ -149,7 +149,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
         for (var i = 0; i < RoofCollapseUtility.RoofSupportRadialCellsCount; i++)
         {
-            Logger.Debug(i.ToString());
+            ColonyManagerReduxMod.Instance.LogDebug(i.ToString());
             var candidate = position + GenRadial.RadialPattern[i];
             if (candidate != support && candidate.InBounds(map))
             {
@@ -613,7 +613,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
                 var cost = path.TotalCost;
                 path.ReleaseToPool();
 
-                //Logger.Debug($"from {adjacent[i]} to {adjacent[j]}: {cost}");
+                //ColonyManagerReduxMod.Instance.LogDebug($"from {adjacent[i]} to {adjacent[j]}: {cost}");
                 if (cost > MaxPathCost)
                 {
                     return true;
@@ -714,7 +714,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public void Notify_ThresholdFilterChanged()
     {
-        Logger.Debug("Threshold changed.");
+        ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
 
         _chunksCachedValue.Invalidate();
 
@@ -750,7 +750,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public void RefreshAllBuildingsAndMinerals()
     {
-        Logger.Debug("Refreshing all buildings and minerals");
+        ColonyManagerReduxMod.Instance.LogDebug("Refreshing all buildings and minerals");
 
         _allDeconstructibleBuildings = null;
         _allMinerals = null;

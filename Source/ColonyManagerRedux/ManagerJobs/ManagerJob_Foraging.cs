@@ -210,7 +210,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public void Notify_ThresholdFilterChanged()
     {
-        Logger.Debug("Threshold changed.");
+        ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
         if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
         {
             return;
@@ -232,7 +232,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public void RefreshAllPlants()
     {
-        Logger.Debug("Refreshing all plants");
+        ColonyManagerReduxMod.Instance.LogDebug("Refreshing all plants");
 
         // all plants that yield something, and it isn't wood.
         _allPlants = null;
