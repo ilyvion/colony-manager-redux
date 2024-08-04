@@ -178,7 +178,8 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
     }
 
-    public override bool IsCompleted => false;
+    public override bool IsCompleted => !ColonyManagerReduxMod.Settings.RecordHistoricalData;
+    public override string IsCompletedTooltip => "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate().CapitalizeFirst();
 
     public override string Label => "ColonyManagerRedux.Power".Translate();
 

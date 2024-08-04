@@ -65,6 +65,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     }
 
     public abstract bool IsCompleted { get; }
+    public virtual string IsCompletedTooltip => "ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip".Translate();
+
     public virtual bool IsValid => Manager != null;
     public abstract string Label { get; }
     public virtual bool IsManaged
@@ -90,6 +92,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         get => _isSuspended;
         set => _isSuspended = value;
     }
+    public virtual string IsSuspendedTooltip => "ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip".Translate();
 
     public ManagerTab Tab => Manager.Tabs.First(tab => tab.GetType() == _def.managerTabClass);
     public abstract IEnumerable<string> Targets { get; }

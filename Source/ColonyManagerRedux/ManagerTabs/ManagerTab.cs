@@ -274,14 +274,14 @@ public abstract class ManagerTab(Manager manager)
             if (job.IsSuspended)
             {
                 TooltipHandler.TipRegion(stampRect,
-                    "ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip".Translate() + "\n\n" +
+                    job.IsSuspendedTooltip + "\n\n" +
                     "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
                         "ColonyManagerRedux.Overview.Unsuspend".Translate()));
             }
             else if (job.IsCompleted)
             {
                 TooltipHandler.TipRegion(stampRect,
-                    "ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip".Translate() + "\n\n" +
+                    job.IsCompletedTooltip + "\n\n" +
                     "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
                         "ColonyManagerRedux.Overview.Suspend".Translate()));
             }
