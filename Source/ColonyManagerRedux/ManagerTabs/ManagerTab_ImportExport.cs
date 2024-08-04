@@ -280,7 +280,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         }
 
         bool anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
-        if (Widgets_Buttons.DisableableButtonText(
+        if (IlyvionWidgets.DisableableButtonText(
             buttonRect,
             "ColonyManagerRedux.ManagerExport".Translate(),
             enabled: anySelected))

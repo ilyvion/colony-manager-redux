@@ -9,9 +9,9 @@ namespace ColonyManagerRedux;
 public static class AreaAllowedGUI
 {
     public static Area? DoAllowedAreaSelectors(Rect rect,
-                                               Area? areaIn,
-                                               Map map,
-                                               float lrMargin = 0)
+        Area? areaIn,
+        Map map,
+        float lrMargin = 0)
     {
         var areaIO = areaIn;
         DoAllowedAreaSelectors(rect, ref areaIO, map, lrMargin);

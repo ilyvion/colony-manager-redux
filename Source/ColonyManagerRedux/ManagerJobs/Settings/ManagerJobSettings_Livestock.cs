@@ -1,6 +1,7 @@
 // ManagerJobSettings_Livestock.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -293,7 +294,7 @@ internal sealed class PawnKindSettings : IExposable
         TaggedString label = report.Accepted
             ? $"ColonyManagerRedux.Livestock.MasterMode.{DefaultMasterMode}".Translate()
             : "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
-        if (Widgets_Buttons.DisableableButtonText(
+        if (IlyvionWidgets.DisableableButtonText(
             buttonRect,
             label,
             enabled: report.Accepted))
@@ -407,7 +408,7 @@ internal sealed class PawnKindSettings : IExposable
             ? $"ColonyManagerRedux.Livestock.MasterMode.{DefaultTrainerMode}".Translate()
             : "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
         buttonRect = buttonRect.CenteredOnYIn(rowRect);
-        if (Widgets_Buttons.DisableableButtonText(buttonRect, label, enabled: report.Accepted))
+        if (IlyvionWidgets.DisableableButtonText(buttonRect, label, enabled: report.Accepted))
         {
             var options = new List<FloatMenuOption>();
 

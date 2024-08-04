@@ -139,7 +139,7 @@ internal sealed class Dialog_ImportJobs : Window
         }
 
         bool anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
-        if (Widgets_Buttons.DisableableButtonText(
+        if (IlyvionWidgets.DisableableButtonText(
             new Rect(inRect.width - ButtonSize.x, inRect.height - ButtonSize.y, ButtonSize.x, ButtonSize.y),
             "ColonyManagerRedux.ManagerImport".Translate(),
             enabled: anySelected))

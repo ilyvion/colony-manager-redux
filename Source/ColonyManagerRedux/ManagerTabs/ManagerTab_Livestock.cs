@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Utilities;
 using static ColonyManagerRedux.Widgets_Labels;
@@ -698,7 +699,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 report.Reason,
                 TextAnchor.MiddleLeft, margin: Margin, color: Color.gray);
         }
-        if (Widgets_Buttons.DisableableButtonText(buttonRect, GetMasterLabel(job), enabled: report.Accepted))
+        if (IlyvionWidgets.DisableableButtonText(buttonRect, GetMasterLabel(job), enabled: report.Accepted))
         {
             var options = new List<FloatMenuOption>();
 
