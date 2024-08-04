@@ -111,7 +111,7 @@ public abstract class ManagerTab(Manager manager)
         float labelWidth;
         if (mode == ListEntryDrawMode.Local)
         {
-            labelWidth = width - 3 * Margin - StampSize - LargeListEntryHeight;
+            labelWidth = width - 4 * Margin - StampSize - LargeListEntryHeight - LastUpdateRectWidth;
         }
         else if (mode == ListEntryDrawMode.Overview)
         {
@@ -133,10 +133,12 @@ public abstract class ManagerTab(Manager manager)
         Rect progressRect;
         Rect rowRect;
         Rect orderRect;
+        Rect lastUpdateRect;
         if (mode == ListEntryDrawMode.Local)
         {
             iconRect = new();
             labelRect = new Rect(Margin, Margin, labelWidth, labelSize.y);
+
             statusRect = new Rect(0, labelRect.yMax + Margin, width - (showOrdering ? LargeListEntryHeight : Margin), statusHeight);
 
             rowRect = new()
@@ -147,7 +149,13 @@ public abstract class ManagerTab(Manager manager)
                 height = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin
             };
 
-            stampRegionRect = new Rect(labelRect.xMax + Margin, labelRect.y, StampSize, labelRect.height);
+            lastUpdateRect = new(
+                labelRect.xMax + Margin,
+                labelRect.y,
+                LastUpdateRectWidth,
+                labelRect.height);
+
+            stampRegionRect = new Rect(lastUpdateRect.xMax + Margin, labelRect.y, StampSize, labelRect.height);
             progressRect = new()
             {
                 x = Margin,
@@ -192,6 +200,8 @@ public abstract class ManagerTab(Manager manager)
                 statusRect.y,
                 LargeListEntryHeight,
                 LargeListEntryHeight);
+
+            lastUpdateRect = new();
         }
         else
         {
@@ -217,6 +227,7 @@ public abstract class ManagerTab(Manager manager)
             stampRegionRect = new();
             progressRect = new();
             orderRect = new();
+            lastUpdateRect = new();
         }
 
         // do the drawing
@@ -293,6 +304,12 @@ public abstract class ManagerTab(Manager manager)
             }
 
             job.Trigger!.DrawHorizontalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
+
+            if (!job.IsSuspended && !job.IsCompleted)
+            {
+                // draw update interval
+                UpdateInterval.Draw(lastUpdateRect, job, false);
+            }
         }
 
         if (showOrdering && DrawOrderButtons(
