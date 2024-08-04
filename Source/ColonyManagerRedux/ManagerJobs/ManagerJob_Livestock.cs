@@ -12,7 +12,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 {
     public sealed class History : HistoryWorker<ManagerJob_Livestock>
     {
-        public override int GetCountForHistoryChapter(ManagerJob_Livestock managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetCountForHistoryChapter(ManagerJob_Livestock managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {
@@ -36,7 +36,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
             }
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Livestock managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetTargetForHistoryChapter(ManagerJob_Livestock managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {

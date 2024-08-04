@@ -14,7 +14,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         public override bool UpdatesMax => true;
 
         private readonly CachedValue<(int current, int)[]> cachedTrade = new([]);
-        public override int GetCountForHistoryChapter(ManagerJob_Power managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetCountForHistoryChapter(ManagerJob_Power managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             var trade = cachedTrade.Value;
 
@@ -36,21 +36,21 @@ internal sealed class ManagerJob_Power : ManagerJob
             }
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Power managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetTargetForHistoryChapter(ManagerJob_Power managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             return 0;
         }
 
-        public override int GetMaxForHistoryChapter(ManagerJob_Power managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetMaxForHistoryChapter(ManagerJob_Power managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries)
             {
                 return (int)managerJob._batteries.Sum(list => list.Sum(battery => battery.Props.storedEnergyMax));
             }
-            return base.GetMaxForHistoryChapter(managerJob, chapterDef);
+            return base.GetMaxForHistoryChapter(managerJob, tick, chapterDef);
         }
 
-        public override void HistoryUpdateTick(ManagerJob_Power managerJob)
+        public override void HistoryUpdateTick(ManagerJob_Power managerJob, int tick)
         {
             if (!cachedTrade.TryGetValue(out var trade))
             {
@@ -62,7 +62,7 @@ internal sealed class ManagerJob_Power : ManagerJob
                 managerJob._traders.Select(list => list.Count).ToArray(),
                 managerJob._traders.Select(list => 0).ToArray());
 
-            managerJob.tradingHistory.Update(trade);
+            managerJob.tradingHistory.Update(tick, trade);
         }
     }
 

@@ -124,12 +124,11 @@ public partial class History
             }
         }
 
-        public void Add(int newCount, int newTarget)
+        public void Add(int newCount, int newTarget, int tick)
         {
-            var curTick = Find.TickManager.TicksGame;
             foreach (var period in Periods)
             {
-                if (curTick % PeriodTickInterval(period) == 0)
+                if (tick % PeriodTickInterval(period) == 0)
                 {
                     var page = counts[(int)period];
                     var pageTarget = targets[(int)period];
@@ -198,13 +197,13 @@ public partial class History
             var output = new int[page.Size];
 
             var currentPage = 0;
-            var (position, target) = pageTarget[currentPage];
+            var (_, target) = pageTarget[currentPage];
             for (int i = 0; i < output.Length; i++)
             {
-                if (position < i && currentPage < pageTarget.Size - 1)
+                if (currentPage < pageTarget.Size - 1 && pageTarget[currentPage + 1].position <= i)
                 {
                     currentPage++;
-                    (position, target) = pageTarget[currentPage];
+                    (_, target) = pageTarget[currentPage];
                 }
                 output[i] = target * sign;
             }

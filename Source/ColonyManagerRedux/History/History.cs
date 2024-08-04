@@ -290,7 +290,7 @@ public partial class History : IExposable
         }
     }
 
-    public void Update(params (int count, int target)[] counts)
+    public void Update(int tick, params (int count, int target)[] counts)
     {
         if (counts == null)
         {
@@ -304,7 +304,7 @@ public partial class History : IExposable
 
         for (var i = 0; i < counts.Length; i++)
         {
-            _chapters[i].Add(counts[i].count, counts[i].target);
+            _chapters[i].Add(counts[i].count, counts[i].target, tick);
         }
     }
 

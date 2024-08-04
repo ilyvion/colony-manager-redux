@@ -9,7 +9,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 {
     public sealed class History : HistoryWorker<ManagerJob_Foraging>
     {
-        public override int GetCountForHistoryChapter(ManagerJob_Foraging managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetCountForHistoryChapter(ManagerJob_Foraging managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
@@ -25,7 +25,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
             }
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Foraging managerJob, ManagerJobHistoryChapterDef chapterDef)
+        public override int GetTargetForHistoryChapter(ManagerJob_Foraging managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
