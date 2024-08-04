@@ -115,7 +115,6 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             foreach (var compProperties in _def.comps)
             {
                 ManagerJobComp? managerJobComp = null;
-#pragma warning disable CA1031 // Do not catch general exception types
                 try
                 {
                     managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
@@ -132,7 +131,6 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                         _comps.Remove(managerJobComp);
                     }
                 }
-#pragma warning restore CA1031 // Do not catch general exception types
             }
         }
     }

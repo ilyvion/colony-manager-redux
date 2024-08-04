@@ -19,6 +19,10 @@ public class ManagerJobCompProperties
         {
             yield return "compClass is null";
         }
+        if (!typeof(ManagerJobComp).IsAssignableFrom(compClass))
+        {
+            yield return $"{nameof(compClass)} is not a subclass of {nameof(ManagerJobComp)}";
+        }
         for (int i = 0; i < parentDef.comps.Count; i++)
         {
             if (parentDef.comps[i] != this && parentDef.comps[i].compClass == compClass)
