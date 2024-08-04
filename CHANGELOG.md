@@ -45,6 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Mining has been renamed to Resource Gathering, which is a more broadly applying description of that job type.
 -   The UI layout of jobs has been reworked to be more flexible/less rigid.
 -   The rule for which suffix to use in graphs now differs between the y axis and the chapter values; this lets you do things like have both power producers/consumers (using W) and batteries (using Wd) in the same graph having the right units.
+-   New graphics for the basic manager desk.
 
 ### Fixed
 
