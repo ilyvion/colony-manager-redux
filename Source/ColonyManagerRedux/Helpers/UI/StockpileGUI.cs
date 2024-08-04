@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
+using ilyvion.Laboratory.Extensions;
 using Verse.Sound;
 
 namespace ColonyManagerRedux;

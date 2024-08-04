@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Extensions;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
