@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using CircularBuffer;
+using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux;
 
@@ -37,36 +38,16 @@ public partial class History
         public Color LineColor
         {
             get => _lineColor;
-            set
-            {
-                _lineColor = value;
-                _targetColor = null;
-            }
-        }
-
-        private Color? _targetColor;
-        public Color TargetColor
-        {
-            get
-            {
-                if (!_targetColor.HasValue)
-                {
-                    Color.RGBToHSV(LineColor, out var H, out var S, out var V);
-                    S /= 2;
-                    V /= 2;
-                    _targetColor = Color.HSVToRGB(H, S, V);
-                }
-                return _targetColor.Value;
-            }
+            set => _lineColor = value;
         }
 
         public Chapter()
         {
             counts = Periods
-                .Select(_ => new CircularBuffer<int>(EntriesPerInterval, [0]))
+                .Select(_ => new CircularBuffer<int>(entriesPerInterval, [0]))
                 .ToArray();
             targets = Periods
-                .Select(_ => new CircularBuffer<(int, int)>(EntriesPerInterval, [(0, 0)]))
+                .Select(_ => new CircularBuffer<(int, int)>(entriesPerInterval, [(0, 0)]))
                 .ToArray();
         }
 
@@ -108,7 +89,9 @@ public partial class History
             }
         }
 
-        public bool HasTarget(Period period)
+        internal GraphSeries? GraphSeries { get; set; }
+
+        public bool HasTargets(Period period)
         {
             return !targets[(int)period].IsEmpty && targets[(int)period].Any(t => t.target != 0);
         }
@@ -197,88 +180,35 @@ public partial class History
                 : Math.Abs(page.Min());
         }
 
-        public void PlotCount(Period period, Rect canvas, float wu, float hu, int sign = 1)
+        public int[] ValuesFor(Period period, int sign = 1)
         {
             var page = counts[(int)period];
-            if (page.Size > 1)
-            {
-                Vector2? lastEnd = null;
-                for (var i = 0; i < page.Size - 1; i++) // line segments, so up till n-1
-                {
-                    var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * page[i] * sign);
-                    var end = new Vector2(Mathf.Round(wu * (i + 1)), Mathf.Round(canvas.height - hu * page[i + 1] * sign));
-                    Widgets.DrawLine(start, end, LineColor, 1f);
-
-                    lastEnd = end;
-                }
-            }
+            return page.Select(v => v * sign).ToArray();
         }
 
-        public void PlotTarget(Period period, Rect canvas, float wu, float hu, int sign = 1)
+        public int[]? TargetsFor(Period period, int sign = 1)
         {
+            if (!HasTargets(period))
+            {
+                return null;
+            }
+
             var page = counts[(int)period];
             var pageTarget = targets[(int)period];
-            if (page.Size > 1)
+            var output = new int[page.Size];
+
+            var currentPage = 0;
+            var (position, target) = pageTarget[currentPage];
+            for (int i = 0; i < output.Length; i++)
             {
-                Color targetColor = TargetColor;
-                Vector2? lastEnd = null;
-                for (var i = 0; i < page.Size - 1; i++) // line segments, so up till n-1
+                if (position < i && currentPage < pageTarget.Size - 1)
                 {
-                    int targetAtI = TargetAt(pageTarget, page.Size, i, sign);
-                    int targetAtI1 = TargetAt(pageTarget, page.Size, i + 1, sign);
-                    var start = lastEnd ?? new Vector2(wu * i, canvas.height - hu * targetAtI);
-                    var end = new Vector2(wu * (i + 1) - 1, canvas.height - hu * targetAtI1);
-
-                    // When a target value changes, make the line non-continuous
-                    if (start.y != end.y)
-                    {
-                        lastEnd = null;
-                        continue;
-                    }
-
-                    Widgets.DrawLine(start, end, targetColor, 1.5f);
-
-                    lastEnd = end;
+                    currentPage++;
+                    (position, target) = pageTarget[currentPage];
                 }
+                output[i] = target * sign;
             }
-        }
-
-        public int ValueAt(Period period, int x, int sign = 1)
-        {
-            var page = counts[(int)period];
-            if (x < 0 || x >= page.Size)
-            {
-                return -1;
-            }
-
-            return page[x] * sign;
-        }
-
-        private static int TargetAt(CircularBuffer<(int position, int target)> pageTarget, int pageSize, int x, int sign)
-        {
-            if (x < 0 || x >= pageSize)
-            {
-                return -1;
-            }
-
-            var lastValue = -1;
-            foreach (var (position, target) in pageTarget)
-            {
-                if (position > x)
-                {
-                    break;
-                }
-                lastValue = target;
-            }
-
-            return lastValue * sign;
-        }
-
-        public int TargetAt(Period period, int x, int sign = 1)
-        {
-            var page = counts[(int)period];
-            var pageTarget = targets[(int)period];
-            return TargetAt(pageTarget, page.Size, x, sign);
+            return output;
         }
     }
 }

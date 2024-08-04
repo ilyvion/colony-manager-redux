@@ -8,8 +8,6 @@
     <ColonyManagerRedux.History.Hide>hide</ColonyManagerRedux.History.Hide>
     <ColonyManagerRedux.History.ClickToEnable>Click to {0} {1} in plot.\nRight click to show only {1}.</ColonyManagerRedux.History.ClickToEnable>
     <ColonyManagerRedux.History.NoChapters>Nothing to show!</ColonyManagerRedux.History.NoChapters>
-    <ColonyManagerRedux.History.ValueTooltip>{0}: {1}</ColonyManagerRedux.History.ValueTooltip>
-    <ColonyManagerRedux.History.TargetTooltip>{0} target: {1}</ColonyManagerRedux.History.TargetTooltip>
     <ColonyManagerRedux.History.PeriodShown.Day>day</ColonyManagerRedux.History.PeriodShown.Day>
     <ColonyManagerRedux.History.PeriodShown.Month>month</ColonyManagerRedux.History.PeriodShown.Month>
     <ColonyManagerRedux.History.PeriodShown.Year>year</ColonyManagerRedux.History.PeriodShown.Year>

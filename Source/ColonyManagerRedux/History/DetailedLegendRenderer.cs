@@ -145,11 +145,11 @@ public class DetailedLegendRenderer : IExposable
             if (DrawInfoInBar)
             {
                 var info = chapter.label + ": " +
-                    History.FormatCount(chapter.Last(history.PeriodShown).count * sign, chapter.ChapterSuffix ?? history.YAxisSuffix);
+                    Utils.FormatCount(chapter.Last(history.PeriodShown).count * sign, chapter.ChapterSuffix ?? history.YAxisSuffix);
 
                 if (DrawMaxMarkers)
                 {
-                    info += " / " + History.FormatCount(chapter.TrueMax, chapter.ChapterSuffix ?? history.YAxisSuffix);
+                    info += " / " + Utils.FormatCount(chapter.TrueMax, chapter.ChapterSuffix ?? history.YAxisSuffix);
                 }
 
                 // offset label a bit downwards and to the right
@@ -169,7 +169,7 @@ public class DetailedLegendRenderer : IExposable
 
             // tooltip on entire row
             var tooltip = $"{chapter.label}: " +
-                History.FormatCount(
+                Utils.FormatCount(
                     Mathf.Abs(chapter.Last(history.PeriodShown).count),
                     chapter.ChapterSuffix ?? history.YAxisSuffix) + "\n\n" +
                 "ColonyManagerRedux.History.ClickToEnable"
@@ -211,7 +211,6 @@ public class DetailedLegendRenderer : IExposable
 
         Widgets.EndScrollView();
     }
-
 
     public void ExposeData()
     {
