@@ -17,6 +17,24 @@ partial class ManagerTab_Livestock
 #pragma warning restore CS8618
 
         protected bool IsCurrentTableWildTable => RimWorld_PawnTable_Columns.CurrentPawnTable == instance.animalsWildTable;
+
+        public override void DoHeader(Rect rect, PawnTable table)
+        {
+            base.DoHeader(rect, table);
+            if (!def.HeaderInteractable)
+            {
+                Rect interactableHeaderRect = GetInteractableHeaderRect(rect, table);
+                if (Mouse.IsOver(interactableHeaderRect))
+                {
+                    Widgets.DrawHighlight(interactableHeaderRect);
+                    string headerTip = GetHeaderTip(table);
+                    if (!headerTip.NullOrEmpty())
+                    {
+                        TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
+                    }
+                }
+            }
+        }
     }
 
     [HotSwappable]
@@ -150,6 +168,50 @@ partial class ManagerTab_Livestock
         public override int GetMinWidth(PawnTable table)
         {
             return Math.Max(base.GetMinWidth(table), (int)Text.CalcSize(100.ToString("0%")).x);
+        }
+    }
+
+    [HotSwappable]
+    public sealed class PawnColumnWorker_Tame : PawnColumnWorker_Livestock
+    {
+        public override bool VisibleCurrently => IsCurrentTableWildTable;
+
+        protected override string GetHeaderTip(PawnTable table)
+        {
+            return "ColonyManagerRedux.Livestock.TamingHeader".Translate();
+        }
+
+        public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
+        {
+            if (pawn.Map.designationManager.DesignationOn(pawn, DesignationDefOf.Tame) != null)
+            {
+                GUI.DrawTexture(rect, Resources.Tame);
+                TooltipHandler.TipRegion(rect, "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
+                    "ColonyManagerRedux.Livestock.TamingHeader".Translate().ToString().UncapitalizeFirst()
+                ));
+            }
+        }
+    }
+
+    [HotSwappable]
+    public sealed class PawnColumnWorker_Butcher : PawnColumnWorker_Livestock
+    {
+        public override bool VisibleCurrently => !IsCurrentTableWildTable;
+
+        protected override string GetHeaderTip(PawnTable table)
+        {
+            return "ColonyManagerRedux.Livestock.ButcherHeader".Translate();
+        }
+
+        public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
+        {
+            if (pawn.Map.designationManager.DesignationOn(pawn, DesignationDefOf.Slaughter) != null)
+            {
+                GUI.DrawTexture(rect, Resources.Slaughter);
+                TooltipHandler.TipRegion(rect, "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
+                    "ColonyManagerRedux.Livestock.ButcherHeader".Translate().ToString().UncapitalizeFirst()
+                ));
+            }
         }
     }
 

@@ -48,6 +48,7 @@
     <ColonyManagerRedux.Livestock.TrainingHeader>Training</ColonyManagerRedux.Livestock.TrainingHeader>
     <ColonyManagerRedux.Livestock.ButcherHeader>Butchering</ColonyManagerRedux.Livestock.ButcherHeader>
     <ColonyManagerRedux.Livestock.TamingHeader>Taming</ColonyManagerRedux.Livestock.TamingHeader>
+    <ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>Animal is designated for {0}</ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>
     <ColonyManagerRedux.Livestock.Tame>tame</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>wild</ColonyManagerRedux.Livestock.Wild>
     <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>

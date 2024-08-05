@@ -50,4 +50,18 @@
         <sortable>true</sortable>
         <headerIcon>UI/Icons/CMR_wool</headerIcon>
     </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_Tame</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_Tame</workerClass>
+        <sortable>false</sortable>
+        <headerIcon>UI/Icons/Animal/Tame</headerIcon>
+    </PawnColumnDef>
+
+    <PawnColumnDef>
+        <defName>CM_Butcher</defName>
+        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_Butcher</workerClass>
+        <sortable>false</sortable>
+        <headerIcon>UI/Icons/Animal/Slaughter</headerIcon>
+    </PawnColumnDef>
 </Defs>

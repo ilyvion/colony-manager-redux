@@ -57,7 +57,9 @@ public static class Resources
         UnkownIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_unknown"),
         TrainableNoneIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_none"),
         TrainableIntermediateIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_intermediate"),
-        TrainableAdvancedIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_advanced");
+        TrainableAdvancedIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_advanced"),
+        Tame = ContentFinder<Texture2D>.Get("UI/Icons/Animal/Tame"),
+        Slaughter = ContentFinder<Texture2D>.Get("UI/Icons/Animal/Slaughter");
 
     public static Texture2D GetLifeStageIcon(int lifeStageIndex)
     {

@@ -6,7 +6,9 @@
         <workerClass>PawnTable_PlayerPawns</workerClass>
         <columns>
             <li>CM_LabelShortWithIcon</li>
+            <li>GapTiny</li>
             <li>CM_CurrentActivity</li>
+            <li>GapTiny</li>
             <li>CM_WorkPriorities</li>
             <li>RemainingSpace</li>
         </columns>
@@ -17,7 +19,11 @@
         <workerClass>PawnTable_Wildlife</workerClass>
         <columns>
             <li>LabelShortWithIcon</li>
+            <li>GapTiny</li>
             <li>Gender</li>
+            <li>GapTiny</li>
+            <li>CM_Tame</li>
+            <li>CM_Butcher</li>
             <li>GapTiny</li>
             <li>CM_LifeStage</li>
             <li>GapTiny</li>
