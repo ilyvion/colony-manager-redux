@@ -17,6 +17,7 @@ internal sealed class PawnKindSettings : IExposable
                 .ToArray();
 
     public bool DefaultTryTameMore;
+    public bool DefaultTamePastTargets;
 
     public bool DefaultButcherExcess = true;
     public bool DefaultButcherTrained;
@@ -48,6 +49,7 @@ internal sealed class PawnKindSettings : IExposable
         _def = pawnKindDef;
         Array.Copy(copyFrom.DefaultCountTargets, DefaultCountTargets, DefaultCountTargets.Length);
         DefaultTryTameMore = copyFrom.DefaultTryTameMore;
+        DefaultTamePastTargets = copyFrom.DefaultTamePastTargets;
         DefaultButcherExcess = copyFrom.DefaultButcherExcess;
         DefaultButcherTrained = copyFrom.DefaultButcherTrained;
         DefaultButcherPregnant = copyFrom.DefaultButcherPregnant;
@@ -158,6 +160,10 @@ internal sealed class PawnKindSettings : IExposable
             "ColonyManagerRedux.Livestock.TameMore".Translate(),
             "ColonyManagerRedux.Livestock.TameMore.Tip".Translate(),
             ref DefaultTryTameMore);
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.Livestock.TamePastTargets".Translate(),
+            "ColonyManagerRedux.Livestock.TamePastTargets.Tip".Translate(),
+            ref DefaultTamePastTargets);
 
         return pos.y - start.y;
     }
@@ -438,6 +444,7 @@ internal sealed class PawnKindSettings : IExposable
         }
 
         Scribe_Values.Look(ref DefaultTryTameMore, "defaultTryTameMore", false);
+        Scribe_Values.Look(ref DefaultTamePastTargets, "defaultTamePastTargets", false);
 
         Scribe_Values.Look(ref DefaultButcherExcess, "defaultButcherExcess", true);
         Scribe_Values.Look(ref DefaultButcherTrained, "defaultButcherTrained", false);

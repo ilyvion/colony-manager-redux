@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Power management now adds its own job once it's been unlocked by research. This job is responsible for counting up the various buildings involved in power production/consumption/storage in the colony.
 -   Attempting to import an exported job list with a different mod list now produces the same kind of warning as other save/load features in the game.
 -   Recording historical data can now be disabled, which might help with performance.
+-   Setting for continuing to tame animals past targets.
 
 ### Changed
 
@@ -57,5 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   It is no longer possible to attempt to assign a master to animals that cannot be trained in guarding/obedience.
 -   Make all rendering work properly even if the "Disable tiny font" setting is enabled.
 -   Don't rely on a static field to know whether power has been researched. It causes issues if you start a new game without restarting the game first.
+-   Logic for detecting whether training had been assigned was backwards.
 
 [Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...HEAD

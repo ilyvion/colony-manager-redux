@@ -69,9 +69,10 @@ internal sealed class Trigger_PawnKind : Trigger
         {
             if (!_cachedState.TryGetValue(out bool state))
             {
+
                 state = Utilities_Livestock.AgeSexArray.All(
-                            ageSex => CountTargets[(int)ageSex] ==
-                                      pawnKind.GetTame(job.Manager, ageSex).Count())
+                    ageSex => CountTargets[(int)ageSex] ==
+                        pawnKind.GetTame(job.Manager, ageSex).Count())
                      && AllTrainingWantedSet();
                 _cachedState.Update(state);
             }
@@ -165,6 +166,6 @@ internal sealed class Trigger_PawnKind : Trigger
         // this is rediculously expensive, and should never be called on tick.
         var actionTaken = false;
         Job.DoTrainingJobs(ref actionTaken, false);
-        return actionTaken;
+        return !actionTaken;
     }
 }

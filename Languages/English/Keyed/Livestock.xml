@@ -18,6 +18,8 @@
     <ColonyManagerRedux.Livestock.ButcherBonded.Tip>Are bonded animals allowed to be butchered?</ColonyManagerRedux.Livestock.ButcherBonded.Tip>
     <ColonyManagerRedux.Livestock.TameMore>Auto-designate animals to be tamed</ColonyManagerRedux.Livestock.TameMore>
     <ColonyManagerRedux.Livestock.TameMore.Tip>Should the manager designate wild animals to be tamed?</ColonyManagerRedux.Livestock.TameMore.Tip>
+    <ColonyManagerRedux.Livestock.TamePastTargets>Tame animals even when targets are met</ColonyManagerRedux.Livestock.TamePastTargets>
+    <ColonyManagerRedux.Livestock.TamePastTargets.Tip>Should the manager keep designating wild animals to be tamed, even when targets are met?</ColonyManagerRedux.Livestock.TamePastTargets.Tip>
     <ColonyManagerRedux.Livestock.TameArea>Allow taming in:</ColonyManagerRedux.Livestock.TameArea>
     <ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>{0}/{1} {2}</ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>
     <ColonyManagerRedux.Livestock.ListEntryTooltip>{PAWNKIND_labelPlural}:\n{1}\n{2}\n{3}\n{4}\n{5}</ColonyManagerRedux.Livestock.ListEntryTooltip>

@@ -804,9 +804,13 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             "ColonyManagerRedux.Livestock.TameMore.Tip".Translate(),
             ref job.TryTameMore);
 
-        // area to tame from (if taming more);
         if (job.TryTameMore)
         {
+            DrawToggle(ref pos, width,
+                "ColonyManagerRedux.Livestock.TamePastTargets".Translate(),
+                "ColonyManagerRedux.Livestock.TamePastTargets.Tip".Translate(),
+                ref job.TamePastTargets);
+
             AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, manager);
             DrawReachabilityToggle(ref pos, width, ref job.ShouldCheckReachable);
             DrawToggle(ref pos, width,

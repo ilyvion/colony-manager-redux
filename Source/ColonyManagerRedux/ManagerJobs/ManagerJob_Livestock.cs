@@ -58,8 +58,10 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    private static readonly MethodInfo SetWanted_MI
-        = AccessTools.Method(typeof(Pawn_TrainingTracker), "SetWanted");
+    private static readonly Action<Pawn_TrainingTracker, TrainableDef, bool> Pawn_TrainingTracker_SetWanted
+        = AccessTools.MethodDelegate<Action<Pawn_TrainingTracker, TrainableDef, bool>>(
+            AccessTools.Method(typeof(Pawn_TrainingTracker), "SetWanted"));
+
     public bool ButcherBonded;
     public bool ButcherExcess;
     public bool ButcherPregnant;
@@ -86,6 +88,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     public TrainingTracker Training;
     public Area? TrainingArea;
     public bool TryTameMore;
+    public bool TamePastTargets;
 
     private CachedValue<string>? _cachedLabel;
     private List<Designation> _designations;
@@ -126,6 +129,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
         // taming
         TryTameMore = false;
+        TamePastTargets = false;
         TameArea = null;
 
         // set defaults for butchering
@@ -157,6 +161,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 TriggerPawnKind.CountTargets[i] = pawnKindSettings.DefaultCountTargets[i];
             }
             TryTameMore = pawnKindSettings.DefaultTryTameMore;
+            TamePastTargets = pawnKindSettings.DefaultTamePastTargets;
             ButcherExcess = pawnKindSettings.DefaultButcherExcess;
             ButcherTrained = pawnKindSettings.DefaultButcherTrained;
             ButcherPregnant = pawnKindSettings.DefaultButcherPregnant;
@@ -195,7 +200,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         TriggerPawnKind.pawnKind = pawnKindDef;
     }
 
-    public override bool IsCompleted => TriggerPawnKind.State;
+    public override bool IsCompleted => !(TamePastTargets && TriggerPawnKind.pawnKind.GetWild(Manager).Any()) && TriggerPawnKind.State;
 
     public List<Designation> Designations => new(_designations);
 
@@ -378,6 +383,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         Scribe_Values.Look(ref SendToShearingArea, "sendToShearingArea");
         Scribe_Values.Look(ref SendToTrainingArea, "sendToTrainingArea");
         Scribe_Values.Look(ref TryTameMore, "tryTameMore");
+        Scribe_Values.Look(ref TamePastTargets, "tamePastTargets");
         Scribe_Values.Look(ref SetFollow, "setFollow", true);
         Scribe_Values.Look(ref FollowDrafted, "followDrafted", true);
         Scribe_Values.Look(ref FollowFieldwork, "followFieldwork", true);
@@ -526,7 +532,6 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         // intersect filters our list down to designations that exist both in our list and in the game state.
         // This should handle manual cancellations and natural completions.
         // it deliberately won't add new designations made manually.
-        // Note that this also has the unfortunate side-effect of not re-adding designations after loading a game.
         _designations = _designations.Intersect(Manager.map.designationManager.AllDesignations).ToList();
 
         // handle butchery
@@ -538,11 +543,11 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         // area restrictions
         DoAreaRestrictions(ref actionTaken);
 
-        // handle taming
-        DoTamingJobs(ref actionTaken);
-
         // follow settings
         DoFollowSettings(ref actionTaken);
+
+        // handle taming
+        DoTamingJobs(ref actionTaken);
 
         return actionTaken;
     }
@@ -572,7 +577,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                     {
                         if (assign)
                         {
-                            SetWanted_MI.Invoke(animal.training, [def, Training[def]]);
+                            Pawn_TrainingTracker_SetWanted(animal.training, def, Training[def]);
                         }
 
                         actionTaken = true;
@@ -737,7 +742,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
             Log.Message( "Taming " + ageSex + ", deficit: " + deficit );
 #endif
 
-            if (deficit > 0)
+            if (deficit > 0 || TamePastTargets)
             {
                 // get the 'home' position
                 var position = Manager.map.GetBaseCenter();
@@ -764,7 +769,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 Log.Message( "Wild: " + animals.Count );
 #endif
 
-                for (var i = 0; i < deficit && i < animals.Count; i++)
+                for (var i = 0; (TamePastTargets || i < deficit) && i < animals.Count; i++)
                 {
 #if DEBUG_LIFESTOCK
                     Log.Message( "Adding taming designation: " + animals[i].GetUniqueLoadID() );
@@ -774,7 +779,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
             }
 
             // remove extra designations
-            while (deficit < 0)
+            while (deficit < 0 && !TamePastTargets)
             {
                 if (TryRemoveDesignation(ageSex, DesignationDefOf.Tame))
                 {
