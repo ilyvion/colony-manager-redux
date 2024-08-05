@@ -47,6 +47,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
     public HashSet<ThingDef> AllowedBuildings = [];
 
     public HashSet<ThingDef> AllowedMinerals = [];
+    public bool MineThickRoofs = true;
     public bool CheckRoofSupport = true;
     public bool CheckRoofSupportAdvanced;
     public bool CheckRoomDivision = true;
@@ -101,6 +102,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
             CheckRoofSupport = miningSettings.DefaultCheckRoofSupport;
             CheckRoofSupportAdvanced = miningSettings.DefaultCheckRoofSupportAdvanced;
             CheckRoomDivision = miningSettings.DefaultCheckRoomDivision;
+            MineThickRoofs = miningSettings.DefaultMineThickRoofs;
         }
     }
 
@@ -320,6 +322,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
         Scribe_Values.Look(ref CheckRoofSupport, "checkRoofSupport", true);
         Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
+        Scribe_Values.Look(ref MineThickRoofs, "mineThickRoofs", true);
 
         // don't store history in import/export mode.
         if (Manager.Mode == Manager.ScribingMode.Normal)
@@ -624,6 +627,15 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return false;
     }
 
+    public bool IsAllowedToMineRoofAt(Thing target)
+    {
+        if (MineThickRoofs)
+        {
+            return true;
+        }
+
+        return !target.Map.roofGrid.RoofAt(target.Position).isThickRoof;
+    }
 
     public bool IsInAllowedArea(Thing target)
     {
@@ -707,6 +719,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
             && !IsARoomDivider(target)
             // note, returns true if advanced checking is enabled - checks will then be done before designating
             && !IsARoofSupport_Basic(target)
+            && IsAllowedToMineRoofAt(target)
 
             // can be reached
             && IsReachable(target);

@@ -12,11 +12,13 @@
     <ColonyManagerRedux.Mining.HaulMinedChunks.Tip>Should mining jobs that result in chunks (e.g. mining for stone) automatically mark the resulting chunks for hauling? This setting will only apply to mining jobs that the colony manager is tracking (though note that an originally manually designated mining job can be "taken over" by a manager if it can help satisfy a configured threshold) where the threshold is configured to make use of that type of chunk.</ColonyManagerRedux.Mining.HaulMinedChunks.Tip>
     <ColonyManagerRedux.Mining.DeconstructBuildings>Deconstruct buildings</ColonyManagerRedux.Mining.DeconstructBuildings>
     <ColonyManagerRedux.Mining.DeconstructBuildings.Tip>Should unclaimed buildings be deconstructed for salvage?</ColonyManagerRedux.Mining.DeconstructBuildings.Tip>
+    <ColonyManagerRedux.Mining.MineThickRoofs>Mine thick roofs</ColonyManagerRedux.Mining.MineThickRoofs>
+    <ColonyManagerRedux.Mining.MineThickRoofs.Tip>Managers will designate mining in locations that have thick roofs</ColonyManagerRedux.Mining.MineThickRoofs.Tip>
     <ColonyManagerRedux.Mining.CheckRoofSupport>Leave regular roof supports</ColonyManagerRedux.Mining.CheckRoofSupport>
     <ColonyManagerRedux.Mining.CheckRoofSupport.Tip>Managers will leave support columns up at regular intervals.\n\nNOTE: The position of columns is pre-calculated, cave-ins and roof collapse can still occur!</ColonyManagerRedux.Mining.CheckRoofSupport.Tip>
     <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>Check explicitly for safe roof supports</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced>
     <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>Instead of relying on a pre-calculated grid of roof supports, managers will calculate where roof support should go before designating mining and deconstruction tasks, which drastically reduces the risk of cave-ins and roof collapse.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip>
-    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>Disabled because checking for roof support is disabled.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.DisabledTip>
+    <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Disabled.Tip>Disabled because checking for roof support is disabled.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Disabled.Tip>
     <ColonyManagerRedux.Mining.CheckRoomDivision>Check room boundaries</ColonyManagerRedux.Mining.CheckRoomDivision>
     <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Managers will try to prevent breaching walls that divide rooms, or that would create shortcuts.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
     <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.Mining.SyncFilterAndAllowed>

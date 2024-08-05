@@ -15,6 +15,7 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     public bool DefaultHaulMapChunks = true;
     public bool DefaultHaulMinedChunks = true;
 
+    public bool DefaultMineThickRoofs = true;
     public bool DefaultCheckRoofSupport = true;
     public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
@@ -85,18 +86,21 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
+            "ColonyManagerRedux.Mining.MineThickRoofs".Translate(),
+            "ColonyManagerRedux.Mining.MineThickRoofs.Tip".Translate(),
+            ref DefaultMineThickRoofs);
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(rowRect,
             "ColonyManagerRedux.Mining.CheckRoofSupport".Translate(),
             "ColonyManagerRedux.Mining.CheckRoofSupport.Tip".Translate(),
             ref DefaultCheckRoofSupport);
 
         rowRect.y += ListEntryHeight;
-
-
         Utilities.DrawToggle(rowRect,
             "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced".Translate(),
             "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip".Translate(),
             ref DefaultCheckRoofSupportAdvanced, true);
-
 
         rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(rowRect,
@@ -118,6 +122,7 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
         Scribe_Values.Look(ref DefaultHaulMapChunks, "defaultHaulMapChunks", true);
         Scribe_Values.Look(ref DefaultHaulMinedChunks, "defaultHaulMinedChunks", true);
 
+        Scribe_Values.Look(ref DefaultMineThickRoofs, "defaultMineThickRoofs", true);
         Scribe_Values.Look(ref DefaultCheckRoofSupport, "defaultCheckRoofSupport", true);
         Scribe_Values.Look(ref DefaultCheckRoofSupportAdvanced, "defaultCheckRoofSupportAdvanced", false);
         Scribe_Values.Look(ref DefaultCheckRoomDivision, "defaultCheckRoomDivision", true);

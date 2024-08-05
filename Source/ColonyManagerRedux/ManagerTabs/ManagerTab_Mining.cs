@@ -202,6 +202,12 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
+            "ColonyManagerRedux.Mining.MineThickRoofs".Translate(),
+            "ColonyManagerRedux.Mining.MineThickRoofs.Tip".Translate(),
+            ref SelectedMiningJob.MineThickRoofs);
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(rowRect,
             "ColonyManagerRedux.Mining.CheckRoofSupport".Translate(),
             "ColonyManagerRedux.Mining.CheckRoofSupport.Tip".Translate(),
             ref SelectedMiningJob.CheckRoofSupport);

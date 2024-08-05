@@ -26,7 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Power management now adds its own job once it's been unlocked by research. This job is responsible for counting up the various buildings involved in power production/consumption/storage in the colony.
 -   Attempting to import an exported job list with a different mod list now produces the same kind of warning as other save/load features in the game.
 -   Recording historical data can now be disabled, which might help with performance.
--   Setting for continuing to tame animals past targets.
+-   Setting for continuing to tame animals past targets for the Livestock jobs.
+-   Setting for mining thick roofs for Resource Gathering jobs.
 
 ### Changed
 
