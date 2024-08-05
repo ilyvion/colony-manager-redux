@@ -898,7 +898,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
             return;
         }
 
-        if (thing.def.designateHaulable && TriggerThreshold.ThresholdFilter.Allows(thing) &&
+        if (thing.def.designateHaulable && thing.def.butcherProducts.Any(p => TriggerThreshold.ThresholdFilter.Allows(p.thingDef)) &&
             _designations.Any(d => d.target.Cell == thing.Position))
         {
             AddDesignation(thing, DesignationDefOf.Haul);
