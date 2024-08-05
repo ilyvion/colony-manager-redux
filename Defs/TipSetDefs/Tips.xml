@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <TipSetDef>
+        <defName>CM_GameplayTips</defName>
+        <tips>
+            <li TKey="CM_UpdateFrequency">You can change the update frequency of Colony Manager jobs; more frequent means more accurate stockkeeping, less frequent means less managerial work.</li>
+            <li TKey="CM_JobPriority">Colony Manager jobs are handled in order. Set your more important jobs to have higher priority.</li>
+            <li TKey="CM_StoneManagingJobs">Setting up Colony Manager jobs for gathering stone makes little sense until you have stonecutting production ready to go.</li>
+            <li TKey="CM_AutoslaughterConflict">If you make use of the auto-slaughter system in Rimworld, you shouldn't set up overlapping livestock jobs in the Colony Manager at the same time.</li>
+            <li TKey="CM_HistoryPerformance">Colony Manager record tracking is relatively expensive, especially if you have many jobs. You can disable it in the settings to reduce the impact.</li>
+            <li TKey="CM_Settings">Colony Manager is highly configurable. Make sure you check out its mod options sometime.</li>
+            <li TKey="CM_Transfer">Colony Manager supports exporting and importing jobs. This lets you easily re-use jobs between different colonies.</li>
+            <li TKey="CM_Power">If you unlock the power management research from Colony Manager and build a powered managing desk or AI manager, you can track your colony's power usage and battery status over time.</li>
+        </tips>
+    </TipSetDef>
+</Defs>
