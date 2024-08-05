@@ -65,7 +65,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     }
 
     public abstract bool IsCompleted { get; }
-    public virtual string IsCompletedTooltip => "ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip".Translate();
+    public virtual string IsCompletedTooltip => "ColonyManagerRedux.Job.JobHasbeenCompletedTooltip".Translate();
 
     public virtual bool IsValid => Manager != null;
     public abstract string Label { get; }
@@ -87,12 +87,18 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     private bool ShouldUpdate => _lastActionTick < 0 || ((_lastActionTick + UpdateInterval.ticks) < Find.TickManager.TicksGame);
 
-    public virtual bool IsSuspended
+    public bool IsSuspended
     {
         get => _isSuspended;
-        set => _isSuspended = value;
+        set
+        {
+            _isSuspended = value;
+            CausedException = null;
+        }
+
     }
-    public virtual string IsSuspendedTooltip => "ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip".Translate();
+    public virtual string IsSuspendedTooltip => "ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip".Translate();
+    public virtual string IsSuspendedDueToExceptionTooltip => "ColonyManagerRedux.Job.JobHasBeenSuspendedDueToExceptionTooltip".Translate();
 
     public ManagerTab Tab => Manager.Tabs.First(tab => tab.GetType() == _def.managerTabClass);
     public abstract IEnumerable<string> Targets { get; }
@@ -106,6 +112,37 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public abstract WorkTypeDef? WorkTypeDef { get; }
 
     public virtual int MaxUpperThreshold { get; } = Constants.DefaultMaxUpperThreshold;
+
+    private Exception? _causedException;
+    public Exception? CausedException
+    {
+        get => _causedException;
+        internal set
+        {
+            _causedException = value;
+            _causedExceptionToStringCache = null;
+        }
+
+    }
+    private string? _causedExceptionToStringCache;
+    public string? CausedExceptionText
+    {
+        get
+        {
+            if (_causedExceptionToStringCache == null && _causedException != null)
+            {
+                ref bool noStacktraceCaching = ref AccessTools.StaticFieldRefAccess<bool>(
+                    "HarmonyMod.HarmonyMain:noStacktraceCaching");
+
+                var originalValue = noStacktraceCaching;
+                noStacktraceCaching = true;
+                _causedExceptionToStringCache = _causedException.ToString();
+                noStacktraceCaching = originalValue;
+
+            }
+            return _causedExceptionToStringCache;
+        }
+    }
 
     internal void Initialize()
     {

@@ -146,6 +146,15 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                 }
 
                 Widgets.DrawHighlightIfMouseover(row);
+
+                if (job.CausedException is Exception ex)
+                {
+                    Widgets.DrawBox(row, 2, Resources.Error);
+
+                    TooltipHandler.TipRegion(row, new TipSignal(
+                        "ColonyManagerRedux.Job.CausedException".Translate(job.CausedExceptionText)));
+                }
+
                 if (Widgets.ButtonInvisible(row))
                 {
                     if (Selected != job)

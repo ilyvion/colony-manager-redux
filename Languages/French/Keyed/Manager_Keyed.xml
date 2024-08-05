@@ -58,8 +58,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Travail</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Travail</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Cliquer pour se rendre sur {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Le seuil de travail a été atteint.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
-    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Le travail a été suspendu.\n\nCliquer pour rétablir.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>Le seuil de travail a été atteint.</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>Le travail a été suspendu.\n\nCliquer pour rétablir.</ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>
     <ColonyManagerRedux.ManagerJobSuspendedTooltip>Cliquer ici pour suspendre le travail</ColonyManagerRedux.ManagerJobSuspendedTooltip>
 
     <!--Import/Export Tab-->
@@ -145,7 +145,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Seuil: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Cliquer pour ouvrir les détails du seuil.\n\nCible: {1}\nEn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Actuel</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Possible</ColonyManagerRedux.Thresholds.Available>

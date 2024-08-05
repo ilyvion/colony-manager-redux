@@ -58,8 +58,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>On</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Trabalhar</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Ir para {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>O limite de execução foi atingido.\n\nClique para suspender este trabalho.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
-    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>O trabalho foi suspenso.\n\nClique para cancelar a suspensão.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>O limite de execução foi atingido.\n\nClique para suspender este trabalho.</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>O trabalho foi suspenso.\n\nClique para cancelar a suspensão.</ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>
 
     <!-- Guia Importar/Exportar -->
     <ColonyManagerRedux.ManagerImportExport>Importar &amp; Exportar</ColonyManagerRedux.ManagerImportExport>
@@ -144,7 +144,7 @@
     <!-- Limites -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Limite: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Clique para abrir os detalhes do limite. \n\nTarget: {1}\nEm produção: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- Cabeçalhos de abas -->
     <ColonyManagerRedux.Thresholds.Current>Atual</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Acessível</ColonyManagerRedux.Thresholds.Available>

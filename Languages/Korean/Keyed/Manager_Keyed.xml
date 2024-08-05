@@ -58,8 +58,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>작업</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>작업</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>클릭하여 이동 {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>작업이 임계값에 도달했습니다.\n\n클릭해서 이 작업을 일시정지 합니다.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
-    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>작업이 일시정지 되었습니다.\n\n클릭해서 재개합니다.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>작업이 임계값에 도달했습니다.\n\n클릭해서 이 작업을 일시정지 합니다.</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>작업이 일시정지 되었습니다.\n\n클릭해서 재개합니다.</ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>가져오기 &amp; 내보내기</ColonyManagerRedux.ManagerImportExport>
@@ -144,7 +144,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>임계값: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>클릭해서 임계값 세부 정보창을 봅니다.\n\n재고: {1}\n생산중: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>현재</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>사용 가능</ColonyManagerRedux.Thresholds.Available>

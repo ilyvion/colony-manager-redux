@@ -142,7 +142,6 @@ public class Manager : MapComponent, ILoadReferenceable
         {
             if (!job.IsSuspended)
             {
-#pragma warning disable CA1031 // Do not catch general exception types
                 try
                 {
                     job.Tick();
@@ -152,8 +151,8 @@ public class Manager : MapComponent, ILoadReferenceable
                     ColonyManagerReduxMod.Instance
                         .LogError($"Suspending manager job because it errored on tick: \n{err}");
                     job.IsSuspended = true;
+                    job.CausedException = err;
                 }
-#pragma warning restore CA1031 // Do not catch general exception types
             }
         }
 

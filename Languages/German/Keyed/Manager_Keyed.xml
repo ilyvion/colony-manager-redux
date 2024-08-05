@@ -58,8 +58,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Arbeit</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Arbeit</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Klick umzu {0} zu springen</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Auftragslimit erreicht.\n\nKlick um diesen Job aussetzen.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
-    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Auftrag wurde gesperrt.\n\nKlick um zu entsperren.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>Auftragslimit erreicht.\n\nKlick um diesen Job aussetzen.</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>Auftrag wurde gesperrt.\n\nKlick um zu entsperren.</ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>Importieren &amp; Exportieren</ColonyManagerRedux.ManagerImportExport>
@@ -144,7 +144,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Schwellwert: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Klicke um Schwellwertdetails zu öffnen.\n\nTarget: {1}\nIn Produktion: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Aktuell</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Verfügbar</ColonyManagerRedux.Thresholds.Available>

@@ -44,7 +44,7 @@
     <ColonyManagerRedux.Overview.WorkEnabled>工作</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>工作</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>点击跳转至{0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>工作以达到阈值。</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>工作以达到阈值。</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
     <ColonyManagerRedux.ManagerJobSuspendedTooltip>工作已暂停。\n\n点击解除暂停状态。</ColonyManagerRedux.ManagerJobSuspendedTooltip>
 
     <!--Import/Export Tab-->
@@ -115,7 +115,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>阈值：{0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>点击以打开阈值详情。\n\n目标：{1}\n生产中：{0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- BillGivers -->
     <ColonyManagerRedux.Thresholds.BillGiversCount>工作台（{0}/{1}/{2}）</ColonyManagerRedux.Thresholds.BillGiversCount>
     <ColonyManagerRedux.Thresholds.BillGiversTooltip>点击切换不同的清单授予处。\n\n可用的：\n{0}\n\n已选择：\n{1}\n\n已指派：\n{2}</ColonyManagerRedux.Thresholds.BillGiversTooltip>

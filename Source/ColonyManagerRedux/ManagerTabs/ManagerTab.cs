@@ -58,19 +58,24 @@ public abstract class ManagerTab(Manager manager)
         DoTabContents(rect);
     }
 
+    protected virtual bool ShouldHaveNewJobButton => true;
     protected virtual void DoTabContents(Rect canvas)
     {
         // set up rects
-        var leftRow = new Rect(0f, ButtonSize.y + Margin, DefaultLeftRowSize, canvas.height - ButtonSize.y - Margin);
-        var newJobButtonRect = new Rect(leftRow)
-        {
-            y = 0f,
-            height = ButtonSize.y
-        };
+        var leftRow = new Rect(0f, 0f, DefaultLeftRowSize, canvas.height);
         var contentCanvas = new Rect(leftRow.xMax + Margin, 0f, canvas.width - leftRow.width - Margin,
                                       canvas.height);
 
-        DrawNewJobButton(newJobButtonRect);
+        if (ShouldHaveNewJobButton)
+        {
+            leftRow.yMin += ButtonSize.y + Margin;
+            var newJobButtonRect = new Rect(leftRow)
+            {
+                y = 0f,
+                height = ButtonSize.y
+            };
+            DrawNewJobButton(newJobButtonRect);
+        }
 
         // draw overview row
         DoJobList(leftRow);
@@ -78,7 +83,24 @@ public abstract class ManagerTab(Manager manager)
         // draw job interface if something is selected.
         if (Selected != null)
         {
-            DoMainContent(contentCanvas);
+            if (Selected.CausedException != null)
+            {
+                var exceptionText = Selected.CausedExceptionText!;
+                var height = Text.CalcHeight(exceptionText, contentCanvas.width - 2 * Margin);
+
+                var exceptionRect = new Rect(contentCanvas.x, contentCanvas.y, contentCanvas.width, height + 2 * Margin);
+
+                Widgets.DrawMenuSection(exceptionRect);
+                Widgets.DrawBox(exceptionRect, lineTexture: Resources.Error);
+                Widgets_Labels.Label(
+                    exceptionRect.TrimLeft(Margin).TrimRight(Margin),
+                    exceptionText,
+                    TextAnchor.MiddleCenter,
+                    color: ColorLibrary.LogError);
+                contentCanvas.yMin += exceptionRect.height + Margin;
+            }
+            using var _g = GUIScope.WidgetGroup(contentCanvas);
+            DoMainContent(contentCanvas.AtZero());
         }
     }
 
@@ -155,7 +177,12 @@ public abstract class ManagerTab(Manager manager)
                 LastUpdateRectWidth,
                 labelRect.height);
 
-            stampRegionRect = new Rect(lastUpdateRect.xMax + Margin, labelRect.y, StampSize, labelRect.height);
+            stampRegionRect = new Rect(
+                lastUpdateRect.xMax + Margin,
+                labelRect.y,
+                StampSize,
+                labelRect.height);
+
             progressRect = new()
             {
                 x = Margin,
@@ -181,27 +208,44 @@ public abstract class ManagerTab(Manager manager)
                 iconRect.y,
                 labelWidth,
                 labelSize.y);
-            statusRect = new Rect(labelRect.xMax + Margin, Margin, StatusRectWidth + Margin, statusHeight);
+            statusRect = new Rect(
+                labelRect.xMax + Margin,
+                Margin,
+                StatusRectWidth + Margin,
+                statusHeight);
 
             float rowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
-            rowRect = new()
-            {
-                x = position.x,
-                y = position.y,
-                width = width,
-                height = rowHeight
-            };
+            rowRect = new(
+                position.x,
+                position.y,
+                width,
+                rowHeight
+            );
 
-            stampRegionRect = new();
-            progressRect = new();
+            stampRegionRect = new(
+                statusRect.xMax - StampSize,
+                statusRect.y,
+                StampSize,
+                statusRect.height
+            );
+
+            lastUpdateRect = new(
+                stampRegionRect.xMin - Margin - LastUpdateRectWidth,
+                statusRect.y,
+                LastUpdateRectWidth,
+                statusRect.height);
+
+            progressRect = new Rect(
+                lastUpdateRect.xMin - Margin - ProgressRectWidth,
+                statusRect.yMin,
+                ProgressRectWidth,
+                statusRect.height);
 
             orderRect = new(
                 statusRect.xMax + Margin,
                 statusRect.y,
                 LargeListEntryHeight,
                 LargeListEntryHeight);
-
-            lastUpdateRect = new();
         }
         else
         {
@@ -227,7 +271,12 @@ public abstract class ManagerTab(Manager manager)
             stampRegionRect = new();
             progressRect = new();
             orderRect = new();
-            lastUpdateRect = new();
+
+            lastUpdateRect = new(
+                statusRect.xMin,
+                statusRect.y,
+                LastUpdateRectWidth,
+                statusRect.height);
         }
 
         // do the drawing
@@ -238,6 +287,7 @@ public abstract class ManagerTab(Manager manager)
             Widgets.DrawRectFast(iconRect, ColorLibrary.HotPink.ToTransparent(.5f));
             Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
             Widgets.DrawRectFast(statusRect, Color.yellow.ToTransparent(.2f));
+            Widgets.DrawRectFast(lastUpdateRect, ColorLibrary.Orange.ToTransparent(.2f));
             Widgets.DrawRectFast(stampRegionRect, Color.red.ToTransparent(.2f));
             Widgets.DrawRectFast(progressRect, Color.green.ToTransparent(.2f));
             Widgets.DrawRectFast(orderRect, ColorLibrary.Aqua.ToTransparent(.5f));
@@ -264,48 +314,79 @@ public abstract class ManagerTab(Manager manager)
                     "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
             }
         }
-        if (mode != ListEntryDrawMode.Local)
+
+        // if we're not doing export, render stamp
+        if (mode != ListEntryDrawMode.Export)
         {
-            if (active && job.Trigger != null)
-            {
-                job.DrawStatusForListEntry(statusRect, job.Trigger, mode);
-            }
-        }
-        else
-        {
-            var stampRect = new Rect(0, 0, StampSize, StampSize).CenteredIn(stampRegionRect);
-            if (Widgets.ButtonImage(
-                stampRect,
-                job.IsSuspended ? Resources.StampStart :
-                job.IsCompleted ? Resources.StampCompleted : Resources.StampSuspended))
+            var stampRect = new Rect(0, 0, StampSize, StampSize)
+                .CenteredIn(stampRegionRect);
+            if (Utilities.DrawStampButton(stampRect, job))
             {
                 job.IsSuspended = !job.IsSuspended;
             }
 
             if (job.IsSuspended)
             {
-                TooltipHandler.TipRegion(stampRect,
-                    job.IsSuspendedTooltip + "\n\n" +
-                    "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Overview.Unsuspend".Translate()));
+                if (job.CausedException != null)
+                {
+                    TooltipHandler.TipRegion(stampRect, new TipSignal(
+                        job.IsSuspendedDueToExceptionTooltip + "\n\n" +
+                        "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                            "ColonyManagerRedux.Job.Unsuspend".Translate()))
+                    {
+                        // We do this so the exception is shown after
+                        priority = TooltipPriority.Pawn
+                    });
+                }
+                else
+                {
+                    TooltipHandler.TipRegion(stampRect,
+                        job.IsSuspendedTooltip + "\n\n" +
+                        "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                            "ColonyManagerRedux.Job.Unsuspend".Translate()));
+                }
             }
             else if (job.IsCompleted)
             {
                 TooltipHandler.TipRegion(stampRect,
                     job.IsCompletedTooltip + "\n\n" +
-                    "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Overview.Suspend".Translate()));
+                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Suspend".Translate()));
             }
             else
             {
                 TooltipHandler.TipRegion(stampRect,
-                    "ColonyManagerRedux.Overview.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Overview.Suspend".Translate()));
+                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Suspend".Translate()));
             }
-
+        }
+        if (mode == ListEntryDrawMode.Local)
+        {
             job.Trigger!.DrawHorizontalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
 
-            UpdateInterval.Draw(lastUpdateRect, job, false, job.IsSuspended || job.IsCompleted);
+            UpdateInterval.Draw(
+                lastUpdateRect,
+                job,
+                false,
+                job.IsSuspended || job.IsCompleted);
+        }
+        else
+        {
+            if (active && job.Trigger != null)
+            {
+                if (mode != ListEntryDrawMode.Export)
+                {
+                    // draw progress bar
+                    job.Trigger.DrawVerticalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
+                }
+
+                // draw update interval
+                UpdateInterval.Draw(
+                    lastUpdateRect,
+                    job,
+                    mode == ListEntryDrawMode.Export,
+                    mode != ListEntryDrawMode.Export && (job.IsSuspended || job.IsCompleted));
+            }
         }
 
         if (showOrdering && DrawOrderButtons(
@@ -452,32 +533,21 @@ public abstract class ManagerTab(Manager manager)
             () => options.ForEach(p => setAllowed(p, false)));
     }
 
-    protected float _jobListHeight;
-    protected Vector2 _jobListScrollPosition = Vector2.zero;
-
+    protected ScrollViewStatus _jobListScrollViewStatus = new();
     protected virtual void DoJobList(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
 
-        // content
-        var height = _jobListHeight;
-        var scrollView = new Rect(0f, 0f, rect.width, height);
-        if (height > rect.height)
-        {
-            scrollView.width -= ScrollbarWidth;
-        }
+        using var scrollView = GUIScope.ScrollView(rect, _jobListScrollViewStatus);
+        using var _g = GUIScope.WidgetGroup(scrollView.ViewRect);
 
-        Widgets.BeginScrollView(rect, ref _jobListScrollPosition, scrollView);
-        var scrollContent = scrollView;
-
-        GUI.BeginGroup(scrollContent);
         var cur = Vector2.zero;
         var i = 0;
 
         foreach (var job in ManagerJobs)
         {
-            var row = new Rect(0f, cur.y, scrollContent.width, 0f);
-            DrawListEntry(job, ref cur, scrollContent.width, ListEntryDrawMode.Local, statusHeight: SmallIconSize);
+            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
+            DrawListEntry(job, ref cur, scrollView.ViewRect.width, ListEntryDrawMode.Local, statusHeight: SmallIconSize);
             row.height = cur.y - row.y;
 
             Widgets.DrawHighlightIfMouseover(row);
@@ -491,15 +561,21 @@ public abstract class ManagerTab(Manager manager)
                 Widgets.DrawAltRect(row);
             }
 
+            if (job.CausedException is Exception ex)
+            {
+                Widgets.DrawBox(row, 2, Resources.Error);
+
+                TooltipHandler.TipRegion(row, new TipSignal(
+                    "ColonyManagerRedux.Job.CausedException".Translate(job.CausedExceptionText)));
+            }
+
             if (Widgets.ButtonInvisible(row))
             {
                 Selected = job;
             }
         }
 
-        _jobListHeight = cur.y;
-        GUI.EndGroup();
-        Widgets.EndScrollView();
+        scrollView.Height = cur.y;
     }
 
     protected virtual void DrawNewJobButton(Rect rect)

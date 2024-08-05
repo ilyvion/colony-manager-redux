@@ -7,11 +7,6 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Enabled</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Priority</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Click to jump to {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Job threshold has been reached.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
-    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Job has been suspended.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
-    <ColonyManagerRedux.Overview.ClickToChangeJob>Click to {0} this job.</ColonyManagerRedux.Overview.ClickToChangeJob>
-    <ColonyManagerRedux.Overview.Suspend>suspend</ColonyManagerRedux.Overview.Suspend>
-    <ColonyManagerRedux.Overview.Unsuspend>unsuspend</ColonyManagerRedux.Overview.Unsuspend>
     <ColonyManagerRedux.Overview.NoJobSelected>No job selected</ColonyManagerRedux.Overview.NoJobSelected>
     <ColonyManagerRedux.Overview.NoJobDetails>No job details</ColonyManagerRedux.Overview.NoJobDetails>
     <ColonyManagerRedux.Overview.NoCurrentJob>no current job</ColonyManagerRedux.Overview.NoCurrentJob>

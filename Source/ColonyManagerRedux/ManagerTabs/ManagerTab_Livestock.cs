@@ -55,15 +55,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         }
     }
 
-    protected override void DoTabContents(Rect canvas)
-    {
-        var leftRow = new Rect(0f, 31f, DefaultLeftRowSize, canvas.height - 31f);
-        var contentCanvas = new Rect(leftRow.xMax + Margin, 0f,
-            canvas.width - leftRow.width - Margin, canvas.height);
-
-        DoLeftRow(leftRow);
-        DoContent(contentCanvas);
-    }
+    protected override bool ShouldHaveNewJobButton => false;
 
     public override (string label, Vector2 labelSize) GetFullLabel(ManagerJob job, ListEntryDrawMode mode, float labelWidth, string? subLabel = null, bool drawSubLabel = true)
     {
@@ -135,7 +127,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Refresh();
     }
 
-    private void DoContent(Rect rect)
+    protected override void DoMainContent(Rect rect)
     {
         // background
         Widgets.DrawMenuSection(rect);
@@ -230,8 +222,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         GUI.color = Color.white;
     }
 
-    private void DoLeftRow(Rect rect)
+    protected override void DoJobList(Rect rect)
     {
+        rect.yMin += 31f;
+
         // background (minus top line so we can draw tabs.)
         Widgets.DrawMenuSection(rect);
 
@@ -257,7 +251,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         if (_onCurrentTab)
         {
-            DoJobList(outRect);
+            base.DoJobList(outRect);
         }
         else
         {
@@ -619,57 +613,15 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         return pos.y - start.y;
     }
 
-    protected override void DoJobList(Rect rect)
+    public override void DrawListEntry(ManagerJob job, ref Vector2 position, float width, ListEntryDrawMode mode, bool active = true, bool showOrdering = true, float statusHeight = 50)
     {
-        //Widgets.DrawRectFast(rect, ColorLibrary.Purple.ToTransparent(.5f));
-
-        // content
-        var height = _jobListHeight;
-        var scrollView = new Rect(0f, 0f, rect.width, height);
-        if (height > rect.height)
-        {
-            scrollView.width -= ScrollbarWidth;
-        }
-
-        Widgets.BeginScrollView(rect, ref _jobListScrollPosition, scrollView);
-        var scrollContent = scrollView;
-
-        GUI.BeginGroup(scrollContent);
-        var cur = Vector2.zero;
-        var i = 0;
-
-        foreach (var job in ManagerJobs)
-        {
-            var row = new Rect(0f, cur.y, scrollContent.width, 0f);
-            DrawListEntry(
-                job,
-                ref cur,
-                scrollContent.width,
-                ListEntryDrawMode.Local,
-                showOrdering: false,
-                statusHeight: 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2);
-            row.height = cur.y - row.y;
-
-            Widgets.DrawHighlightIfMouseover(row);
-            if (Selected == job)
-            {
-                Widgets.DrawHighlightSelected(row);
-            }
-
-            if (i++ % 2 == 1)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-            if (Widgets.ButtonInvisible(row))
-            {
-                Selected = job;
-            }
-        }
-
-        _jobListHeight = cur.y;
-        GUI.EndGroup();
-        Widgets.EndScrollView();
+        base.DrawListEntry(
+            job,
+            ref position,
+            width,
+            mode,
+            active,
+            false, 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2);
     }
 
     private float DrawFollowSection(ManagerJob_Livestock job, Vector2 pos, float width)

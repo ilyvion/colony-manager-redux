@@ -149,12 +149,24 @@ public class JobTracker(Manager manager) : IExposable
             return false;
         }
 
-        // update lastAction
-        job.Touch();
-
-        // perform next job if no action was taken
-        if (!job.TryDoJob())
+        try
         {
+            // update lastAction
+            job.Touch();
+
+            // perform next job if no action was taken
+            if (!job.TryDoJob())
+            {
+                return TryDoNextJob();
+            }
+        }
+        catch (Exception err)
+        {
+            ColonyManagerReduxMod.Instance
+                .LogError($"Suspending manager job because it errored on TryDoJob: \n{err}");
+            job.IsSuspended = true;
+            job.CausedException = err;
+
             return TryDoNextJob();
         }
 

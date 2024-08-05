@@ -58,8 +58,8 @@
     <ColonyManagerRedux.Overview.WorkEnabled>Вкл</ColonyManagerRedux.Overview.WorkEnabled>
     <ColonyManagerRedux.Overview.WorkPriority>Работа</ColonyManagerRedux.Overview.WorkPriority>
     <ColonyManagerRedux.Overview.ClickToJumpTo>Перейти к {0}</ColonyManagerRedux.Overview.ClickToJumpTo>
-    <ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.Overview.JobHasbeenCompletedTooltip>
-    <ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.Overview.JobHasBeenSuspendedTooltip>
+    <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>Достигнут предел выполнения.\n\nНажмите, чтобы приостановить это задание.</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
+    <ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>Работа приостановлена.\n\nНажмите для возобновления.</ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>
 
     <!--Import/Export Tab-->
     <ColonyManagerRedux.ManagerImportExport>Импорт и Экспорт</ColonyManagerRedux.ManagerImportExport>
@@ -147,7 +147,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Лимит: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Щёлкни, чтобы открыть данные по лимиту.\n\nЦель: {1}\nВ производстве: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-    
+
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Текущее</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Доступно</ColonyManagerRedux.Thresholds.Available>

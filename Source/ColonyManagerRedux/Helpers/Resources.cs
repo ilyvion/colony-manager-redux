@@ -23,6 +23,7 @@ public static class Resources
         StampCompleted = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Completed"),
         StampSuspended = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Suspended"),
         StampStart = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Start"),
+        StampException = ContentFinder<Texture2D>.Get("UI/Stamps/CMR_Exception"),
 
         // progress bar textures
         BarBackgroundActiveTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.2f, 0.8f, 0.85f)),
@@ -35,6 +36,7 @@ public static class Resources
 
         // misc
         SlightlyDarkBackground = SolidColorMaterials.NewSolidColorTexture(SlightlyDarkBackgroundColour),
+        Error = SolidColorMaterials.NewSolidColorTexture(ColorLibrary.LogError),
         Cog = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Cog"),
         Search = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_Search"),
         BarShader = ContentFinder<Texture2D>.Get("UI/Misc/CMR_BarShader"),

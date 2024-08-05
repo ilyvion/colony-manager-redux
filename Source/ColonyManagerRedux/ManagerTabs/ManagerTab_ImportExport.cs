@@ -183,7 +183,8 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         var buttonRect = new Rect(timeRect.xMax + Constants.Margin, 1f, 100f, rect.height - 2f);
         var deleteRect = new Rect(buttonRect.xMax + Constants.Margin, (rect.height - IconSize) / 2, IconSize, IconSize);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers) {
+        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        {
             Widgets.DrawRectFast(nameRect, ColorLibrary.Aqua.ToTransparent(.5f));
             Widgets.DrawRectFast(timeRect, ColorLibrary.Beige.ToTransparent(.5f));
             Widgets.DrawRectFast(buttonRect, ColorLibrary.BrickRed.ToTransparent(.5f));
