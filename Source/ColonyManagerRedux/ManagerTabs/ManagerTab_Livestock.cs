@@ -832,9 +832,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
         // set up a 3x3 table of rects
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+#pragma warning disable CA1814
         var countRects = new Rect[rows, cols];
-#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
+#pragma warning restore CA1814
         for (var x = 0; x < cols; x++)
         {
             for (var y = 0; y < rows; y++)
