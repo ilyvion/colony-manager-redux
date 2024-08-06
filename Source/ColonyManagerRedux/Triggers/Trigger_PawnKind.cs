@@ -27,14 +27,14 @@ internal sealed class Trigger_PawnKind : Trigger
         get
         {
             return Utilities_Livestock.AgeSexArray
-                .Select(ageSex => pawnKind.GetTame(job.Manager, ageSex).Count())
+                .Select(ageSex => pawnKind.GetTame(job.Manager, ageSex, includeGuests: false).Count())
                 .ToArray();
         }
     }
 
     public int GetCountFor(AgeAndSex ageAndSex, bool cached = true)
     {
-        return pawnKind.GetTame(job.Manager, ageAndSex, cached).Count();
+        return pawnKind.GetTame(job.Manager, ageAndSex, cached, false).Count();
     }
 
     public int GetTargetFor(AgeAndSex ageAndSex)

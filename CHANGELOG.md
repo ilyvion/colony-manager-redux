@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   The UI layout of jobs has been reworked to be more flexible/less rigid.
 -   The rule for which suffix to use in graphs now differs between the y axis and the chapter values; this lets you do things like have both power producers/consumers (using W) and batteries (using Wd) in the same graph having the right units.
 -   New graphics for the basic manager desk.
+-   Guest animals are not included in target counts for livestock, but are still managed by job settings for things like training and area restrictions.
 
 ### Fixed
 

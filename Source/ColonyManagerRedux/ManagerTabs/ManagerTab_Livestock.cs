@@ -556,7 +556,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             // draw label
             var label = animalDef.LabelCap + "\n<i>" +
                 "ColonyManagerRedux.Livestock.TameCount".Translate(
-                    animalDef.GetTame(manager).Count()) + ", " +
+                    animalDef.GetTame(manager, false).Count()) + ", " +
                 "ColonyManagerRedux.Livestock.WildCount".Translate(
                     animalDef.GetWild(manager).Count()) + ".</i>";
             Label(row, label, TextAnchor.MiddleLeft, margin: Margin * 2);

@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Extensions;
 using System.Reflection;
 
 namespace ColonyManagerRedux;
@@ -30,20 +31,21 @@ internal enum MasterMode
     Specific = 64
 }
 
+[HotSwappable]
 internal static class Utilities_Livestock
 {
     public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
     public static MasterMode[] MasterModeArray => (MasterMode[])Enum.GetValues(typeof(MasterMode));
 
-    private static readonly CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> AllCache = new(5);
+    private static readonly CachedValues<(PawnKindDef, int), List<Pawn>> AllCache = new(5);
 
-    private static readonly CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
+    private static readonly CachedValues<(PawnKindDef, int, AgeAndSex), List<Pawn>>
         AllSexedCache = new(5);
 
-    private static readonly Dictionary<Pawn, CachedValue<IEnumerable<Pawn>>> FollowerCache = [];
+    private static readonly Dictionary<Pawn, CachedValue<List<Pawn>>> FollowerCache = [];
 
     private static readonly
-        Dictionary<Triplet<PawnKindDef, Map, MasterMode>, CachedValue<IEnumerable<Pawn>>> MasterCache = [];
+        Dictionary<(PawnKindDef, Map, MasterMode), CachedValue<List<Pawn>>> MasterCache = [];
 
     private static readonly Dictionary<Pawn, CachedValue<bool>> MilkablePawn = [];
 
@@ -53,14 +55,14 @@ internal static class Utilities_Livestock
 
     private static readonly Dictionary<PawnKindDef, CachedValue<bool>> ShearablePawnkind = [];
 
-    private static readonly CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> TameCache = new(5);
+    private static readonly CachedValues<(PawnKindDef, int, bool), List<Pawn>> TameCache = new(5);
 
-    private static readonly CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
+    private static readonly CachedValues<(PawnKindDef, int, AgeAndSex, bool), List<Pawn>>
         TameSexedCache = new(5);
 
-    private static readonly CachedValues<Pair<PawnKindDef, Map>, IEnumerable<Pawn>> WildCache = new(5);
+    private static readonly CachedValues<(PawnKindDef, int), List<Pawn>> WildCache = new(5);
 
-    private static readonly CachedValues<Triplet<PawnKindDef, Map, AgeAndSex>, IEnumerable<Pawn>>
+    private static readonly CachedValues<(PawnKindDef, int, AgeAndSex), List<Pawn>>
         WildSexedCache = new(5);
 
     public static bool BondedWithColonist(this Pawn pawn)
@@ -68,26 +70,28 @@ internal static class Utilities_Livestock
         return pawn?.relations?.GetFirstDirectRelationPawn(PawnRelationDefOf.Bond, p => p.IsColonist) != null;
     }
 
+    public static bool IsGuest(this Pawn pawn)
+    {
+        return pawn?.Faction == Faction.OfPlayer && pawn.HasExtraHomeFaction();
+    }
+
     public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map)
     {
         // check if we have a cached version
-        var key = new Pair<PawnKindDef, Map>(pawnKind, map);
+        var key = (pawnKind, map.uniqueID);
         if (AllCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
         // if not, set up a cache
-        IEnumerable<Pawn> getter() => map.mapPawns.AllPawnsSpawned
+        List<Pawn> getter() => map.mapPawns.AllPawnsSpawned
             .Where(p => p.RaceProps.Animal          // is animal
                     && !p.Dead                      // is alive
                     && p.kindDef == pawnKind        // is our managed pawnkind
-                    && !(p.Faction == Faction.OfPlayer &&
-                            p.HasExtraHomeFaction() // was not borrowed to us
-                        )
                     && !p.IsHiddenFromPlayer()      // is not hidden from us
                     && !p.Position.Fogged(map)      // is somewhere we can see
-                );
+                ).ToList();
 
         AllCache.Add(key, getter);
         return getter();
@@ -96,14 +100,14 @@ internal static class Utilities_Livestock
 
     public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
     {
-        var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
+        var key = (pawnKind, map.uniqueID, ageSex);
         if (AllSexedCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
-        IEnumerable<Pawn> getter() =>
-                pawnKind.GetAll(map).Where(p => PawnIsOfAgeSex(p, ageSex)); // is of age and sex we want
+        List<Pawn> getter() =>
+                pawnKind.GetAll(map).Where(p => PawnIsOfAgeSex(p, ageSex)).ToList(); // is of age and sex we want
         AllSexedCache.Add(key, getter);
         return getter();
     }
@@ -116,17 +120,17 @@ internal static class Utilities_Livestock
         var cacheExists = FollowerCache.ContainsKey(pawn);
 
         // is it up to date?
-        if (cacheExists && FollowerCache[pawn].TryGetValue(out IEnumerable<Pawn>? cached) && cached != null)
+        if (cacheExists && FollowerCache[pawn].TryGetValue(out var cached) && cached != null)
         {
             return cached.ToList();
         }
 
         // if not, get a new list.
         cached = pawn.MapHeld.mapPawns.PawnsInFaction(pawn.Faction)
-                     .Where(p => !p.Dead &&
-                                  p.RaceProps.Animal &&
-                                  p.playerSettings.Master == pawn
-                      );
+            .Where(p => !p.Dead &&
+                p.RaceProps.Animal &&
+                p.playerSettings.Master == pawn
+            ).ToList();
 
         // update if key exists
         if (cacheExists)
@@ -138,7 +142,7 @@ internal static class Utilities_Livestock
         else
         {
             // severely limit cache to only apply for one cycle (one job)
-            FollowerCache.Add(pawn, new CachedValue<IEnumerable<Pawn>>(cached, 2));
+            FollowerCache.Add(pawn, new(cached, 2));
         }
 
         return cached.ToList();
@@ -190,23 +194,22 @@ internal static class Utilities_Livestock
         // check if we have a cached version
 
         // does it exist at all?
-        var key = new Triplet<PawnKindDef, Map, MasterMode>(pawnkind, map, mode);
+        var key = (pawnkind, map, mode);
         var cacheExists = MasterCache.ContainsKey(key);
 
         // is it up to date?
         if (cacheExists &&
-             MasterCache[key].TryGetValue(out IEnumerable<Pawn>? cached) && cached != null)
+             MasterCache[key].TryGetValue(out var cached) && cached != null)
         {
             return cached.ToList();
         }
 
         // if not, get a new list.
         cached = map.mapPawns.FreeColonistsSpawned
-                    .Where(p => !p.Dead &&
-
-                                 // matches mode
-                                 (p.GetMasterMode() & mode) != MasterMode.Manual
-                     );
+            .Where(p => !p.Dead &&
+                // matches mode
+                (p.GetMasterMode() & mode) != MasterMode.Manual
+            ).ToList();
 
         // update if key exists
         if (cacheExists)
@@ -218,33 +221,35 @@ internal static class Utilities_Livestock
         else
         {
             // severely limit cache to only apply for one cycle (one job)
-            MasterCache.Add(key, new CachedValue<IEnumerable<Pawn>>(cached, 2));
+            MasterCache.Add(key, new(cached, 2));
         }
 
         return cached.ToList();
     }
 
-    public static IEnumerable<Pawn>? GetTame(this PawnKindDef pawnKind, Map map)
+    public static IEnumerable<Pawn>? GetTame(this PawnKindDef pawnKind, Map map, bool includeGuests = true)
     {
-        var key = new Pair<PawnKindDef, Map>(pawnKind, map);
+        var key = (pawnKind, map.uniqueID, includeGuests);
         if (TameCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
-        IEnumerable<Pawn> getter() => pawnKind.GetAll(map).Where(p => p.Faction == Faction.OfPlayer);
+        List<Pawn> getter() => pawnKind.GetAll(map)
+            .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest()))
+            .ToList();
         TameCache.Add(key, getter);
         return getter();
     }
 
-    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex, bool cached = true)
+    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex, bool cached = true, bool includeGuests = true)
     {
 #if DEBUG_LIFESTOCK_COUNTS
         List<Pawn> tame = GetAll( ageSex ).Where( p => p.Faction == Faction.OfPlayer ).ToList();
         Log.Message( "Tamecount " + ageSex + ": " + tame.Count );
         return tame;
 #else
-        var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
+        var key = (pawnKind, map.uniqueID, ageSex, includeGuests);
         if (!cached)
         {
             TameSexedCache.Invalidate(key);
@@ -254,8 +259,8 @@ internal static class Utilities_Livestock
             return pawns;
         }
 
-        IEnumerable<Pawn> getter() =>
-            pawnKind.GetAll(map, ageSex).Where(p => p.Faction == Faction.OfPlayer);
+        List<Pawn> getter() => pawnKind.GetAll(map, ageSex)
+            .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest())).ToList();
         TameSexedCache.Add(key, getter);
         return getter();
 #endif
@@ -278,13 +283,13 @@ internal static class Utilities_Livestock
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
     {
-        var key = new Pair<PawnKindDef, Map>(pawnKind, map);
+        var key = (pawnKind, map.uniqueID);
         if (WildCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
-        IEnumerable<Pawn> getter() => pawnKind.GetAll(map).Where(p => p.Faction == null);
+        List<Pawn> getter() => pawnKind.GetAll(map).Where(p => p.Faction == null).ToList();
         WildCache.Add(key, getter);
         return getter();
     }
@@ -297,13 +302,13 @@ internal static class Utilities_Livestock
         Log.Message( "Wildcount " + ageSex + ": " + wild.Count );
         return wild;
 #else
-        var key = new Triplet<PawnKindDef, Map, AgeAndSex>(pawnKind, map, ageSex);
+        var key = (pawnKind, map.uniqueID, ageSex);
         if (WildSexedCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
-        IEnumerable<Pawn> getter() => pawnKind.GetAll(map, ageSex).Where(p => p.Faction == null);
+        List<Pawn> getter() => pawnKind.GetAll(map, ageSex).Where(p => p.Faction == null).ToList();
         WildSexedCache.Add(key, getter);
         return getter();
 #endif

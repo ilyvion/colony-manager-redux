@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Reflection;
 using Verse.Sound;
 
 namespace ColonyManagerRedux;
@@ -218,7 +217,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 var text = Label + "\n<i>";
                 foreach (var ageSex in Utilities_Livestock.AgeSexArray)
                 {
-                    text += TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count() + "/" +
+                    text += TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count() + "/" +
                         TriggerPawnKind.CountTargets[(int)ageSex] +
                         ", ";
                 }
@@ -241,7 +240,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             return Utilities_Livestock.AgeSexArray
                 .Select(ageSex => $"ColonyManagerRedux.Thresholds.{ageSex}Count".Translate(
-                    TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count(),
+                    TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count(),
                     TriggerPawnKind.CountTargets[(int)ageSex])
                 .Resolve());
         }
@@ -665,7 +664,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
-            var surplus = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count()
+            var surplus = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count()
                 - DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count
                 - TriggerPawnKind.CountTargets[(int)ageSex];
 
@@ -680,7 +679,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                     ageSex == AgeAndSex.AdultMale;
 
                 // get list of animals in correct sort order.
-                var animals = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex)
+                var animals = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false)
                     .Where(
                         p => Manager.map.designationManager.DesignationOn(
                             p, DesignationDefOf.Slaughter) == null
@@ -735,7 +734,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         {
             // not enough animals?
             var deficit = TriggerPawnKind.CountTargets[(int)ageSex]
-                - TriggerPawnKind.pawnKind.GetTame(Manager, ageSex).Count()
+                - TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count()
                 - DesignationsOfOn(DesignationDefOf.Tame, ageSex).Count;
 
 #if DEBUG_LIFESTOCK
