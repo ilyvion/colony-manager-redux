@@ -45,7 +45,7 @@ public class ManagerDef : Def
         {
             yield return $"{nameof(managerTabClass)} is null";
         }
-        if (!typeof(ManagerTab).IsAssignableFrom(managerTabClass))
+        else if (!typeof(ManagerTab).IsAssignableFrom(managerTabClass))
         {
             yield return $"{nameof(managerTabClass)} is not {nameof(ManagerTab)} or a subclass thereof";
         }
