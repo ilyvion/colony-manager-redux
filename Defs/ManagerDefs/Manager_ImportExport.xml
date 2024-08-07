@@ -7,6 +7,7 @@
         <managerTabClass>ColonyManagerRedux.ManagerTab_ImportExport</managerTabClass>
         <iconArea>Right</iconArea>
         <iconPath>UI/Icons/CMR_ImportExport</iconPath>
+        <label>Import &amp; Export</label>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

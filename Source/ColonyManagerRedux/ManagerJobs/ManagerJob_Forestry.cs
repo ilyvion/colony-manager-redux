@@ -107,8 +107,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
-
     public override IEnumerable<string> Targets
     {
         get

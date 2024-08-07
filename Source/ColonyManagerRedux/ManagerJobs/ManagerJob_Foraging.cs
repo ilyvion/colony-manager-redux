@@ -119,8 +119,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override string Label => "ColonyManagerRedux.Foraging".Translate();
-
     public override IEnumerable<string> Targets => AllowedPlants
         .Select(plant => plant.LabelCap.Resolve());
 

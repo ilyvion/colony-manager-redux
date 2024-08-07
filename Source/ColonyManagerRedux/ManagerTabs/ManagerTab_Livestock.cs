@@ -23,8 +23,6 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
     private Vector2 _scrollPosition = Vector2.zero;
     private PawnKindDef? _selectedAvailable;
 
-    public override string Label => "ColonyManagerRedux.Livestock".Translate();
-
     protected override bool CreateNewSelectedJobOnMake => false;
 
     public override void PostOpen()

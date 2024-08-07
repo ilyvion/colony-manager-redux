@@ -177,8 +177,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override string Label => "ColonyManagerRedux.Hunting".Translate();
-
     public override IEnumerable<string> Targets => AllowedAnimals
         .Select(pk => pk.LabelCap.Resolve());
 

@@ -8,6 +8,7 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Forestry</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Forestry</managerTabClass>
         <iconPath>UI/Icons/CMR_Tree</iconPath>
+        <label>Forestry</label>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
                 <workerClass>ColonyManagerRedux.ManagerJob_Forestry+History</workerClass>

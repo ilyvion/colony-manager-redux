@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
-    <ColonyManagerRedux.Energy.Power>Power</ColonyManagerRedux.Energy.Power>
     <ColonyManagerRedux.Energy.PeriodShown>Period</ColonyManagerRedux.Energy.PeriodShown>
     <ColonyManagerRedux.Energy.PeriodShownTooltip>Currently showing power production and consumption for the last {0}.\n\nClick to change the period.</ColonyManagerRedux.Energy.PeriodShownTooltip>
     <ColonyManagerRedux.Energy.NotResearched>Power management has not been researched</ColonyManagerRedux.Energy.NotResearched>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-    <ColonyManagerRedux.Mining>Resource Gathering</ColonyManagerRedux.Mining>
     <ColonyManagerRedux.Mining.MiningArea>Area of Operation</ColonyManagerRedux.Mining.MiningArea>
     <ColonyManagerRedux.Mining.HealthAndSafety>Health and Safety</ColonyManagerRedux.Mining.HealthAndSafety>
     <ColonyManagerRedux.Mining.AllowedMinerals>Minerals</ColonyManagerRedux.Mining.AllowedMinerals>

@@ -10,7 +10,7 @@ public abstract class ManagerJobSettings : IExposable
     public ManagerDef def;
 #pragma warning restore CS8618
 
-    public abstract string Label { get; }
+    public virtual string Label => def.label;
 
     public virtual void PostMake()
     {

@@ -15,8 +15,6 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
 
     public ManagerJob_Mining SelectedMiningJob => SelectedJob!;
 
-    public override string Label => "ColonyManagerRedux.Mining".Translate();
-
     public static string GetMineralTooltip(ThingDef mineral)
     {
         var sb = new StringBuilder();

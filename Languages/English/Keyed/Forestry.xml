@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
-    <ColonyManagerRedux.Forestry.Forestry>Forestry</ColonyManagerRedux.Forestry.Forestry>
     <ColonyManagerRedux.Forestry.NewForestryJob>New job</ColonyManagerRedux.Forestry.NewForestryJob>
     <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Create a new forestry job</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
     <ColonyManagerRedux.Forestry.ClearWindCells>Clear wind turbine cells</ColonyManagerRedux.Forestry.ClearWindCells>

@@ -11,8 +11,6 @@ internal sealed class ManagerJobSettings_Foraging : ManagerJobSettings
     public bool DefaultSyncFilterAndAllowed = true;
     public bool DefaultForceFullyMature;
 
-    public override string Label => "ColonyManagerRedux.Foraging".Translate();
-
     public override void DoPanelContents(Rect rect)
     {
         var panelRect = new Rect(

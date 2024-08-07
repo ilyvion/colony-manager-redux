@@ -20,8 +20,6 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
     public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
 
-    public override string Label => "ColonyManagerRedux.Mining".Translate();
-
     public override void DoPanelContents(Rect rect)
     {
         var panelRect = new Rect(

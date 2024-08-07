@@ -11,8 +11,6 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJob_Forestry>(manager)
 {
-    public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
-
     public ManagerJob_Forestry SelectedForestryJob => SelectedJob!;
 
     public static string GetTreeTooltip(ThingDef tree)

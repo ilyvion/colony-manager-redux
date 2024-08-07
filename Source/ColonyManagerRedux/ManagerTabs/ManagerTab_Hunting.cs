@@ -10,8 +10,6 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJob_Hunting>(manager)
 {
-    public override string Label => "ColonyManagerRedux.Hunting".Translate();
-
     public ManagerJob_Hunting SelectedHuntingJob => SelectedJob!;
 
     protected override void DoMainContent(Rect rect)

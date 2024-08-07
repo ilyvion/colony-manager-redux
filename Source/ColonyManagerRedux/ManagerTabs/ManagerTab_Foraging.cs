@@ -10,8 +10,6 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJob_Foraging>(manager)
 {
-    public override string Label => "ColonyManagerRedux.Foraging".Translate();
-
     public ManagerJob_Foraging SelectedForagingJob => SelectedJob!;
 
     protected override void DoMainContent(Rect rect)

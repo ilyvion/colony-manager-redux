@@ -68,8 +68,6 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
 
     public override bool Enabled => ResearchedFinished && SelectedJob!.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
 
-    public override string Label => "ColonyManagerRedux.Energy.Power".Translate();
-
     protected override bool CreateNewSelectedJobOnMake => false;
 
     public static bool ResearchedFinished

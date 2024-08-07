@@ -35,11 +35,6 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
     private List<ManagerJob> _jobs = [];
     private List<MultiCheckboxState> _selectedJobs = [];
 
-    public override string Label
-    {
-        get { return "ColonyManagerRedux.ManagerImportExport".Translate(); }
-    }
-
     private List<ManagerJob> SelectedJobs =>
         _jobs.Where((_, i) => _selectedJobs[i] == MultiCheckboxState.On).ToList();
 

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LanguageData>
-    <ColonyManagerRedux.Foraging>Foraging</ColonyManagerRedux.Foraging>
     <ColonyManagerRedux.Foraging.NewForagingJob>New job</ColonyManagerRedux.Foraging.NewForagingJob>
     <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Create a new foraging job</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
     <ColonyManagerRedux.Foraging.TargetCount>Target count: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>

@@ -11,8 +11,6 @@ internal sealed class ManagerJobSettings_Forestry : ManagerJobSettings
     public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType = ManagerJob_Forestry.ForestryJobType.Logging;
     public bool DefaultAllowSaplings;
 
-    public override string Label => "ColonyManagerRedux.Forestry.Forestry".Translate();
-
     public override void DoPanelContents(Rect rect)
     {
         var panelRect = new Rect(

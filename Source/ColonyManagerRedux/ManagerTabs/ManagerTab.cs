@@ -39,7 +39,7 @@ public abstract class ManagerTab(Manager manager)
 
     protected virtual bool CreateNewSelectedJobOnMake => true;
 
-    public virtual string Label => GetType().ToString();
+    public virtual string Label => def.label;
 
     private ManagerJob? _selected;
     public ManagerJob? Selected

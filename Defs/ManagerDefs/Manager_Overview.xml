@@ -7,6 +7,7 @@
         <managerTabClass>ColonyManagerRedux.ManagerTab_Overview</managerTabClass>
         <iconArea>Left</iconArea>
         <iconPath>UI/Icons/CMR_Overview</iconPath>
+        <label>Overview</label>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

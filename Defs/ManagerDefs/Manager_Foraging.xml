@@ -8,6 +8,7 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Foraging</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Foraging</managerTabClass>
         <iconPath>UI/Icons/CMR_Foraging</iconPath>
+        <label>Foraging</label>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
                 <workerClass>ColonyManagerRedux.ManagerJob_Foraging+History</workerClass>

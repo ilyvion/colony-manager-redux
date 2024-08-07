@@ -478,8 +478,6 @@ internal sealed class ManagerJobSettings_Livestock : ManagerJobSettings
     private PawnKindSettings defaults = new();
     private Dictionary<PawnKindDef, PawnKindSettings> overrides = [];
 
-    public override string Label => "ColonyManagerRedux.Livestock".Translate();
-
     private List<PawnKindDef>? pawnKindDefs;
     private List<PawnKindDef> PawnKindDefs
     {

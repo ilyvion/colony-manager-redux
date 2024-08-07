@@ -16,8 +16,6 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
     private Vector2 _overviewScrollPosition = Vector2.zero;
     private List<Pawn> Workers = [];
 
-    public override string Label { get; } = "ColonyManagerRedux.Overview".Translate();
-
     private SkillDef? SkillDef { get; set; }
 
     private WorkTypeDef? _workType;

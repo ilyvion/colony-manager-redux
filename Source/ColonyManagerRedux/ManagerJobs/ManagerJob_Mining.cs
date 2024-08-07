@@ -121,7 +121,6 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
-    public override string Label => "ColonyManagerRedux.Mining".Translate();
 
     public override IEnumerable<string> Targets => AllowedMinerals
         .Select(pk => pk.LabelCap.Resolve());

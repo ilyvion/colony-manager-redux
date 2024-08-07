@@ -8,6 +8,7 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Mining</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Mining</managerTabClass>
         <iconPath>UI/Icons/CMR_Mining</iconPath>
+        <label>Resource Gathering</label>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
                 <workerClass>ColonyManagerRedux.ManagerJob_Mining+History</workerClass>
