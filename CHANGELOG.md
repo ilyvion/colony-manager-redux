@@ -61,5 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Make all rendering work properly even if the "Disable tiny font" setting is enabled.
 -   Don't rely on a static field to know whether power has been researched. It causes issues if you start a new game without restarting the game first.
 -   Logic for detecting whether training had been assigned was backwards.
+-   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 
 [Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...HEAD

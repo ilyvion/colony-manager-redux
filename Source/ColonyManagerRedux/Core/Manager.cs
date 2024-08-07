@@ -5,7 +5,7 @@
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class Manager : MapComponent, ILoadReferenceable
+public partial class Manager : MapComponent, ILoadReferenceable
 {
     public enum ScribingMode
     {

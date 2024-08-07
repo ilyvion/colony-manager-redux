@@ -37,33 +37,9 @@ internal static class Utilities_Livestock
     public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
     public static MasterMode[] MasterModeArray => (MasterMode[])Enum.GetValues(typeof(MasterMode));
 
-    private static readonly CachedValues<(PawnKindDef, int), List<Pawn>> AllCache = new(5);
+    private static readonly Dictionary<PawnKindDef, CachedValue<bool>> MilkablePawnKindCache = [];
 
-    private static readonly CachedValues<(PawnKindDef, int, AgeAndSex), List<Pawn>>
-        AllSexedCache = new(5);
-
-    private static readonly Dictionary<Pawn, CachedValue<List<Pawn>>> FollowerCache = [];
-
-    private static readonly
-        Dictionary<(PawnKindDef, Map, MasterMode), CachedValue<List<Pawn>>> MasterCache = [];
-
-    private static readonly Dictionary<Pawn, CachedValue<bool>> MilkablePawn = [];
-
-    private static readonly Dictionary<PawnKindDef, CachedValue<bool>> MilkablePawnkind = [];
-
-    private static readonly Dictionary<Pawn, CachedValue<bool>> ShearablePawn = [];
-
-    private static readonly Dictionary<PawnKindDef, CachedValue<bool>> ShearablePawnkind = [];
-
-    private static readonly CachedValues<(PawnKindDef, int, bool), List<Pawn>> TameCache = new(5);
-
-    private static readonly CachedValues<(PawnKindDef, int, AgeAndSex, bool), List<Pawn>>
-        TameSexedCache = new(5);
-
-    private static readonly CachedValues<(PawnKindDef, int), List<Pawn>> WildCache = new(5);
-
-    private static readonly CachedValues<(PawnKindDef, int, AgeAndSex), List<Pawn>>
-        WildSexedCache = new(5);
+    private static readonly Dictionary<PawnKindDef, CachedValue<bool>> ShearablePawnKindCache = [];
 
     public static bool BondedWithColonist(this Pawn pawn)
     {
@@ -78,8 +54,9 @@ internal static class Utilities_Livestock
     public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map)
     {
         // check if we have a cached version
+        var allCache = Manager.For(map).AllCache;
         var key = (pawnKind, map.uniqueID);
-        if (AllCache.TryGetValue(key, out var pawns))
+        if (allCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
@@ -87,40 +64,42 @@ internal static class Utilities_Livestock
         // if not, set up a cache
         List<Pawn> getter() => map.mapPawns.AllPawnsSpawned
             .Where(p => p.RaceProps.Animal          // is animal
-                    && !p.Dead                      // is alive
-                    && p.kindDef == pawnKind        // is our managed pawnkind
-                    && !p.IsHiddenFromPlayer()      // is not hidden from us
-                    && !p.Position.Fogged(map)      // is somewhere we can see
-                ).ToList();
+                && !p.Dead                      // is alive
+                && p.kindDef == pawnKind        // is our managed pawnkind
+                && !p.IsHiddenFromPlayer()      // is not hidden from us
+                && !p.Position.Fogged(map)      // is somewhere we can see
+            ).ToList();
 
-        AllCache.Add(key, getter);
+        allCache.Add(key, getter);
         return getter();
     }
 
 
     public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
     {
+        var allSexedCache = Manager.For(map).AllSexedCache;
         var key = (pawnKind, map.uniqueID, ageSex);
-        if (AllSexedCache.TryGetValue(key, out var pawns))
+        if (allSexedCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
         List<Pawn> getter() =>
                 pawnKind.GetAll(map).Where(p => PawnIsOfAgeSex(p, ageSex)).ToList(); // is of age and sex we want
-        AllSexedCache.Add(key, getter);
+        allSexedCache.Add(key, getter);
         return getter();
     }
 
     public static List<Pawn> GetFollowers(this Pawn pawn)
     {
         // check if we have a cached version
+        var followerCache = Manager.For(pawn.Map).FollowerCache;
 
         // does it exist at all?
-        var cacheExists = FollowerCache.ContainsKey(pawn);
+        var cacheExists = followerCache.ContainsKey(pawn);
 
         // is it up to date?
-        if (cacheExists && FollowerCache[pawn].TryGetValue(out var cached) && cached != null)
+        if (cacheExists && followerCache[pawn].TryGetValue(out var cached) && cached != null)
         {
             return cached.ToList();
         }
@@ -135,14 +114,14 @@ internal static class Utilities_Livestock
         // update if key exists
         if (cacheExists)
         {
-            FollowerCache[pawn].Update(cached);
+            followerCache[pawn].Update(cached);
         }
 
         // else add it
         else
         {
             // severely limit cache to only apply for one cycle (one job)
-            FollowerCache.Add(pawn, new(cached, 2));
+            followerCache.Add(pawn, new(cached, 2));
         }
 
         return cached.ToList();
@@ -192,14 +171,15 @@ internal static class Utilities_Livestock
     public static List<Pawn> GetMasterOptions(this PawnKindDef pawnkind, Map map, MasterMode mode)
     {
         // check if we have a cached version
+        var masterCache = Manager.For(map).MasterCache;
 
         // does it exist at all?
         var key = (pawnkind, map, mode);
-        var cacheExists = MasterCache.ContainsKey(key);
+        var cacheExists = masterCache.ContainsKey(key);
 
         // is it up to date?
         if (cacheExists &&
-             MasterCache[key].TryGetValue(out var cached) && cached != null)
+            masterCache[key].TryGetValue(out var cached) && cached != null)
         {
             return cached.ToList();
         }
@@ -214,14 +194,14 @@ internal static class Utilities_Livestock
         // update if key exists
         if (cacheExists)
         {
-            MasterCache[key].Update(cached);
+            masterCache[key].Update(cached);
         }
 
         // else add it
         else
         {
             // severely limit cache to only apply for one cycle (one job)
-            MasterCache.Add(key, new(cached, 2));
+            masterCache.Add(key, new(cached, 2));
         }
 
         return cached.ToList();
@@ -229,8 +209,10 @@ internal static class Utilities_Livestock
 
     public static IEnumerable<Pawn>? GetTame(this PawnKindDef pawnKind, Map map, bool includeGuests = true)
     {
+        var tameCache = Manager.For(map).TameCache;
+
         var key = (pawnKind, map.uniqueID, includeGuests);
-        if (TameCache.TryGetValue(key, out var pawns))
+        if (tameCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
@@ -238,7 +220,7 @@ internal static class Utilities_Livestock
         List<Pawn> getter() => pawnKind.GetAll(map)
             .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest()))
             .ToList();
-        TameCache.Add(key, getter);
+        tameCache.Add(key, getter);
         return getter();
     }
 
@@ -249,19 +231,21 @@ internal static class Utilities_Livestock
         Log.Message( "Tamecount " + ageSex + ": " + tame.Count );
         return tame;
 #else
+        var tameSexedCache = Manager.For(map).TameSexedCache;
+
         var key = (pawnKind, map.uniqueID, ageSex, includeGuests);
         if (!cached)
         {
-            TameSexedCache.Invalidate(key);
+            tameSexedCache.Invalidate(key);
         }
-        if (TameSexedCache.TryGetValue(key, out var pawns) && pawns != null)
+        if (tameSexedCache.TryGetValue(key, out var pawns) && pawns != null)
         {
             return pawns;
         }
 
         List<Pawn> getter() => pawnKind.GetAll(map, ageSex)
             .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest())).ToList();
-        TameSexedCache.Add(key, getter);
+        tameSexedCache.Add(key, getter);
         return getter();
 #endif
     }
@@ -283,14 +267,16 @@ internal static class Utilities_Livestock
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
     {
+        var wildCache = Manager.For(map).WildCache;
+
         var key = (pawnKind, map.uniqueID);
-        if (WildCache.TryGetValue(key, out var pawns))
+        if (wildCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
         List<Pawn> getter() => pawnKind.GetAll(map).Where(p => p.Faction == null).ToList();
-        WildCache.Add(key, getter);
+        wildCache.Add(key, getter);
         return getter();
     }
 
@@ -302,14 +288,16 @@ internal static class Utilities_Livestock
         Log.Message( "Wildcount " + ageSex + ": " + wild.Count );
         return wild;
 #else
+        var wildSexedCache = Manager.For(map).WildSexedCache;
+
         var key = (pawnKind, map.uniqueID, ageSex);
-        if (WildSexedCache.TryGetValue(key, out var pawns))
+        if (wildSexedCache.TryGetValue(key, out var pawns))
         {
             return pawns;
         }
 
         List<Pawn> getter() => pawnKind.GetAll(map, ageSex).Where(p => p.Faction == null).ToList();
-        WildSexedCache.Add(key, getter);
+        wildSexedCache.Add(key, getter);
         return getter();
 #endif
     }
@@ -328,7 +316,7 @@ internal static class Utilities_Livestock
         }
 
         var ret = false;
-        if (MilkablePawnkind.TryGetValue(pawnKind, out CachedValue<bool>? cachedValue))
+        if (MilkablePawnKindCache.TryGetValue(pawnKind, out CachedValue<bool>? cachedValue))
         {
             if (cachedValue.TryGetValue(out ret))
             {
@@ -341,13 +329,15 @@ internal static class Utilities_Livestock
         }
 
         ret = pawnKind.race.comps.OfType<CompProperties_Milkable>().Any(cp => cp.milkDef != null);
-        MilkablePawnkind.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
+        MilkablePawnKindCache.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
         return ret;
     }
 
     public static bool Milkable(this Pawn pawn)
     {
-        if (MilkablePawn.TryGetValue(pawn, out var cachedValue))
+        var milkablePawnCache = Manager.For(pawn.Map).MilkablePawnCache;
+
+        if (milkablePawnCache.TryGetValue(pawn, out var cachedValue))
         {
             if (cachedValue.TryGetValue(out var value))
             {
@@ -355,12 +345,12 @@ internal static class Utilities_Livestock
             }
 
             value = pawn.IsPawnMilkable();
-            MilkablePawn[pawn].Update(value);
+            milkablePawnCache[pawn].Update(value);
             return value;
         }
 
         var ret = pawn.IsPawnMilkable();
-        MilkablePawn.Add(pawn, new CachedValue<bool>(ret, 5000));
+        milkablePawnCache.Add(pawn, new CachedValue<bool>(ret, 5000));
         return ret;
     }
 
@@ -390,7 +380,7 @@ internal static class Utilities_Livestock
         }
 
         var ret = false;
-        if (ShearablePawnkind.TryGetValue(pawnKind, out CachedValue<bool>? cachedValue))
+        if (ShearablePawnKindCache.TryGetValue(pawnKind, out CachedValue<bool>? cachedValue))
         {
             if (cachedValue.TryGetValue(out ret))
             {
@@ -403,13 +393,15 @@ internal static class Utilities_Livestock
         }
 
         ret = pawnKind.race.comps.OfType<CompProperties_Shearable>().Any(cp => cp.woolDef != null);
-        ShearablePawnkind.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
+        ShearablePawnKindCache.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
         return ret;
     }
 
     public static bool Shearable(this Pawn pawn)
     {
-        if (ShearablePawn.TryGetValue(pawn, out var cachedValue))
+        var shearablePawnCache = Manager.For(pawn.Map).ShearablePawnCache;
+
+        if (shearablePawnCache.TryGetValue(pawn, out var cachedValue))
         {
             if (cachedValue.TryGetValue(out var value))
             {
@@ -417,12 +409,12 @@ internal static class Utilities_Livestock
             }
 
             value = pawn.IsPawnShearable();
-            ShearablePawn[pawn].Update(value);
+            shearablePawnCache[pawn].Update(value);
             return value;
         }
 
         var ret = pawn.IsPawnShearable();
-        ShearablePawn.Add(pawn, new CachedValue<bool>(ret, 5000));
+        shearablePawnCache.Add(pawn, new CachedValue<bool>(ret, 5000));
         return ret;
     }
 
