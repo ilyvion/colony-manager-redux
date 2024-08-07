@@ -452,6 +452,32 @@ public abstract class ManagerTab(Manager manager)
         }
 
         historyComp.History.DrawPlot(rect);
+        if (job.IsSuspended)
+        {
+            Widgets.DrawRectFast(rect, Color.white.ToTransparent(.2f));
+            var bgRect = new Rect(rect);
+            bgRect.yMin += rect.height / 2 - 50f;
+            bgRect.yMax -= rect.height / 2 - 50f;
+            bgRect = bgRect.ContractedBy(10f);
+            Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
+            Widgets_Labels.Label(
+                new(rect) { height = rect.height - 15f },
+                "ColonyManagerRedux.History.JobSuspended".Translate(),
+                TextAnchor.MiddleCenter,
+                GameFont.Medium);
+            Widgets_Labels.Label(
+                new(rect) { y = rect.y + 20, height = rect.height - 15f },
+                "(" + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                    "ColonyManagerRedux.Job.Unsuspend".Translate()) + ")",
+                TextAnchor.MiddleCenter,
+                GameFont.Small);
+
+            if (Widgets.ButtonInvisible(rect, false))
+            {
+                job.IsSuspended = false;
+            }
+        }
+
         return true;
     }
 #pragma warning restore CA1062 // Validate arguments of public methods

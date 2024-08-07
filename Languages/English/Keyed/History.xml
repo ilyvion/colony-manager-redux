@@ -11,6 +11,7 @@
     <ColonyManagerRedux.History.PeriodShown.Day>day</ColonyManagerRedux.History.PeriodShown.Day>
     <ColonyManagerRedux.History.PeriodShown.Month>month</ColonyManagerRedux.History.PeriodShown.Month>
     <ColonyManagerRedux.History.PeriodShown.Year>year</ColonyManagerRedux.History.PeriodShown.Year>
+    <ColonyManagerRedux.History.JobSuspended>job is suspended</ColonyManagerRedux.History.JobSuspended>
     <ColonyManagerRedux.History.HistoryRecordingDisabled>history recording disabled</ColonyManagerRedux.History.HistoryRecordingDisabled>
     <ColonyManagerRedux.History.ClickToEnableHistoryRecording>click to enable</ColonyManagerRedux.History.ClickToEnableHistoryRecording>
 </LanguageData>
