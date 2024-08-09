@@ -269,7 +269,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
                     tree.plant.harvestedThingDef == ThingDefOf.WoodLog)
                 .ToList();
             DrawShortcutToggle(trees, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
-                "Forestry.Trees", "Forestry.Trees.Tip");
+                "ColonyManagerRedux.Forestry.Trees", "ColonyManagerRedux.Forestry.Trees.Tip");
 
             // flammable (probably all - might be modded stuff).
             rowRect.y += ListEntryHeight;
@@ -277,7 +277,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             if (flammable.Count != allPlants.Count)
             {
                 DrawShortcutToggle(flammable, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
-                    "Forestry.Flammable", "Forestry.Flammable.Tip");
+                    "ColonyManagerRedux.Forestry.Flammable", "ColonyManagerRedux.Forestry.Flammable.Tip");
                 rowRect.y += ListEntryHeight;
             }
 
@@ -287,7 +287,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             if (!ugly.NullOrEmpty())
             {
                 DrawShortcutToggle(ugly, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
-                    "Forestry.Ugly", "Forestry.Ugly.Tip");
+                    "ColonyManagerRedux.Forestry.Ugly", "ColonyManagerRedux.Forestry.Ugly.Tip");
                 rowRect.y += ListEntryHeight;
             }
 
@@ -297,7 +297,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
                     tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
                 .ToList();
             DrawShortcutToggle(cover, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
-                "Forestry.ProvidesCover", "Forestry.ProvidesCover.Tip");
+                "ColonyManagerRedux.Forestry.ProvidesCover", "ColonyManagerRedux.Forestry.ProvidesCover.Tip");
         }
 
         return rowRect.yMax - start.y;
