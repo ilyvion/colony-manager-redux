@@ -68,7 +68,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public virtual string IsCompletedTooltip => "ColonyManagerRedux.Job.JobHasbeenCompletedTooltip".Translate();
 
     public virtual bool IsValid => Manager != null;
-    public virtual string Label => _def.label;
+    public virtual string Label => _def.label.CapitalizeFirst();
     public virtual bool IsManaged
     {
         get => isManaged;

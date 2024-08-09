@@ -7,7 +7,7 @@
         <managerJobClass>ColonyManagerRedux.ManagerJob_Power</managerJobClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Power</managerTabClass>
         <iconPath>UI/Icons/CMR_Power</iconPath>
-        <label>Power</label>
+        <label>power</label>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
                 <workerClass>ColonyManagerRedux.ManagerJob_Power+HistoryWorker</workerClass>

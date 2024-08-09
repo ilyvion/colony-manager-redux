@@ -8,7 +8,7 @@
         <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Hunting</managerJobSettingsClass>
         <managerTabClass>ColonyManagerRedux.ManagerTab_Hunting</managerTabClass>
         <iconPath>UI/Icons/CMR_Hunting</iconPath>
-        <label>Hunting</label>
+        <label>hunting</label>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
                 <workerClass>ColonyManagerRedux.ManagerJob_Hunting+History</workerClass>
