@@ -479,6 +479,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
                 && !t.IsForbidden(Faction.OfPlayer)
                 && !map.reservationManager.IsReserved(t))
             .Select(c => (c, GetCountInChunk(c), Distance(c, position)))
+            .Where(c => c.Item2 > 0)
             .OrderByDescending(c => c.Item2 / c.Item3)
             .ToList();
     }
