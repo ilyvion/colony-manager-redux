@@ -28,4 +28,16 @@ internal static class I18n
     {
         return YieldOne($"{def.LabelCap} x{yield:F0} ");
     }
+
+    public static string ActionText(this DesignationDef designationDef)
+    {
+        // Of course these can't just all be named the same as their defName. 🙄
+        return ((string)(designationDef.defName switch
+        {
+            "CutPlant" => "DesignatorCutPlants".Translate(),
+            "HarvestPlant" => "DesignatorHarvest".Translate(),
+            "Haul" => "DesignatorHaulThings".Translate(),
+            _ => $"Designator{designationDef.defName}".Translate(),
+        })).UncapitalizeFirst();
+    }
 }

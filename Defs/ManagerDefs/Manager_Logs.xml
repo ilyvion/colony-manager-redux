@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+    <ColonyManagerRedux.ManagerDef>
+        <defName>CM_LogsManager</defName>
+        <order>5</order>
+        <managerTabClass>ColonyManagerRedux.ManagerTab_Logs</managerTabClass>
+        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Logs</managerJobSettingsClass>
+        <iconArea>Left</iconArea>
+        <iconPath>UI/Icons/CMR_Logs</iconPath>
+        <label>logs</label>
+    </ColonyManagerRedux.ManagerDef>
+
+</Defs>

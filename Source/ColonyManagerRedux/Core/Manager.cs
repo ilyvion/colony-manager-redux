@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Collections;
+
 namespace ColonyManagerRedux;
 
 [HotSwappable]
@@ -78,6 +80,11 @@ public partial class Manager : MapComponent, ILoadReferenceable
             return _managerTabsRight;
         }
     }
+
+    private ManagerTab_Logs? _managerTabLogs;
+    private ManagerTab_Logs? ManagerTabLogs =>
+        _managerTabLogs ??= _tabs.OfType<ManagerTab_Logs>().SingleOrDefault();
+    public CircularBuffer<ManagerLog>? Logs => ManagerTabLogs?.Logs;
 
     public string GetUniqueLoadID()
     {
@@ -197,23 +204,4 @@ public partial class Manager : MapComponent, ILoadReferenceable
         }
         return result;
     }
-
-    // internal void NewJobStack(JobStack jobstack)
-    // {
-    //     // clean up old jobs
-    //     foreach (var job in _stack.FullStack())
-    //     {
-    //         job.CleanUp();
-    //     }
-
-    //     // replace stack
-    //     _stack = jobstack;
-
-    //     // touch new jobs in inappropriate places (reset timing so they are properly performed)
-    //     foreach (var job in _stack.FullStack())
-    //     {
-    //         job.manager = this;
-    //         job.Touch();
-    //     }
-    // }
 }

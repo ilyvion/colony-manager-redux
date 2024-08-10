@@ -196,13 +196,18 @@ internal sealed class ManagerJob_Mining : ManagerJob
         _designations.Add(designation);
     }
 
-    public void AddRelevantGameDesignations()
+    public void AddRelevantGameDesignations(ManagerLog? jobLog = null)
     {
+        int addedMineCount = 0;
+        int addedDeconstructCount = 0;
+        int addedHaulCount = 0;
+
         foreach (var des in Manager.map.designationManager
             .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
             .Except(_designations)
             .Where(des => IsValidMiningTarget(des.target)))
         {
+            addedMineCount++;
             AddDesignation(des);
         }
 
@@ -211,6 +216,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
             .Except(_designations)
             .Where(des => IsValidDeconstructionTarget(des.target)))
         {
+            addedDeconstructCount++;
             AddDesignation(des);
         }
 
@@ -219,7 +225,13 @@ internal sealed class ManagerJob_Mining : ManagerJob
             .Except(_designations)
             .Where(des => des.target.HasThing && des.target.Thing.def.butcherProducts.Any(Counted)))
         {
+            addedHaulCount++;
             AddDesignation(des);
+        }
+        if (addedMineCount > 0 || addedDeconstructCount > 0 || addedHaulCount > 0)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations"
+                .Translate(addedMineCount, addedDeconstructCount, addedHaulCount));
         }
     }
 
@@ -255,7 +267,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public override void CleanUp()
     {
-        RemoveObsoleteDesignations();
+        CleanDeadDesignations();
         foreach (var designation in _designations)
         {
             designation.Delete();
@@ -396,7 +408,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
         if (!cached)
         {
-            RemoveObsoleteDesignations();
+            CleanDeadDesignations();
             AddRelevantGameDesignations();
         }
 
@@ -818,15 +830,31 @@ internal sealed class ManagerJob_Mining : ManagerJob
         }
     }
 
-    public override bool TryDoJob()
+    public override bool TryDoJob(ManagerLog jobLog)
     {
+        jobLog.LogLabel = Tab.GetMainLabel(this, ManagerTab.ListEntryDrawMode.Overview)
+            + " (" + Tab.GetSubLabel(this, ManagerTab.ListEntryDrawMode.Overview) + ")";
+
+        // keep track of work done
         var workDone = false;
 
-        RemoveObsoleteDesignations();
-        AddRelevantGameDesignations();
+        // clean up designations that were completed.
+        CleanDeadDesignations(jobLog);
 
-        var count = TriggerThreshold.GetCurrentCount() + GetCountInChunks() + GetCountInDesignations();
+        // add designations in the game that could have been handled by this job
+        AddRelevantGameDesignations(jobLog);
 
+        // designate work until trigger is met.
+        var count = TriggerThreshold.GetCurrentCount()
+            + GetCountInChunks()
+            + GetCountInDesignations();
+
+        if (count >= TriggerThreshold.TargetCount)
+        {
+            return workDone;
+        }
+
+        // Prioritize chunks; it's the lowest hanging "fruit" in terms of effort
         if (HaulMapChunks)
         {
             var chunks = GetChunksSorted();
@@ -835,6 +863,16 @@ internal sealed class ManagerJob_Mining : ManagerJob
                 var chunk = chunks[i];
                 AddDesignation(chunk.chunk, DesignationDefOf.Haul);
                 count += chunk.count;
+
+                jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
+                    .Translate(
+                        DesignationDefOf.Haul.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
+                        chunk.chunk.Label,
+                        chunk.count,
+                        count,
+                        TriggerThreshold.TargetCount),
+                    chunk.chunk);
 
                 workDone = true;
             }
@@ -849,6 +887,16 @@ internal sealed class ManagerJob_Mining : ManagerJob
                 AddDesignation(building.building, DesignationDefOf.Deconstruct);
                 count += building.count;
 
+                jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
+                    .Translate(
+                        DesignationDefOf.Deconstruct.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Building".Translate(),
+                        building.building.Label,
+                        building.count,
+                        count,
+                        TriggerThreshold.TargetCount),
+                    building.building);
+
                 workDone = true;
             }
         }
@@ -862,6 +910,16 @@ internal sealed class ManagerJob_Mining : ManagerJob
                 workDone = true;
                 AddDesignation(mineral.mineable, DesignationDefOf.Mine);
                 count += mineral.count;
+
+                jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
+                    .Translate(
+                        DesignationDefOf.Mine.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Rock".Translate(),
+                        mineral.mineable.Label,
+                        mineral.count,
+                        count,
+                        TriggerThreshold.TargetCount),
+                    mineral.mineable);
             }
         }
 
@@ -884,8 +942,9 @@ internal sealed class ManagerJob_Mining : ManagerJob
         return neighbours.Any(n => RegionsAreClose(n, end, depth + 1));
     }
 
-    private void RemoveObsoleteDesignations()
+    private void CleanDeadDesignations(ManagerLog? jobLog = null)
     {
+        var originalCount = _designations.Count;
         // get the intersection of bills in the game and bills in our list.
         var designations = Manager.map.designationManager.AllDesignations
             .Where(d =>
@@ -894,6 +953,13 @@ internal sealed class ManagerJob_Mining : ManagerJob
                     d.def == DesignationDefOf.Haul) &&
                 (!d.target.HasThing || d.target.Thing.Map == Manager.map)); // equates to SpawnedDesignationsOfDef, with two defs.
         _designations = _designations.Intersect(designations).ToList();
+        var newCount = _designations.Count;
+
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
     }
 
     private void ConfigureThresholdTriggerParentFilter()

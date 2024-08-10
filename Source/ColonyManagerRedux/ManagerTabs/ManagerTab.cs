@@ -53,6 +53,9 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
+    protected virtual bool AllowJobDeselect => false;
+    protected virtual bool DoMainContentWhenNothingSelected => false;
+
     internal void RenderTab(Rect rect)
     {
         DoTabContents(rect);
@@ -102,6 +105,11 @@ public abstract class ManagerTab(Manager manager)
             using var _g = GUIScope.WidgetGroup(contentCanvas);
             DoMainContent(contentCanvas.AtZero());
         }
+        else if (DoMainContentWhenNothingSelected)
+        {
+            using var _g = GUIScope.WidgetGroup(contentCanvas);
+            DoMainContent(contentCanvas.AtZero());
+        }
     }
 
     protected virtual IEnumerable<ManagerJob> ManagerJobs => manager.JobTracker.JobsOfType<ManagerJob>();
@@ -119,6 +127,7 @@ public abstract class ManagerTab(Manager manager)
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
+    // TODO: Make this less ListEntryDrawMode specific
     public virtual void DrawListEntry(
         ManagerJob job,
         ref Vector2 position,
@@ -305,6 +314,8 @@ public abstract class ManagerTab(Manager manager)
                 {
                     MainTabWindow_Manager.GoTo(tab, job);
                 }
+                TooltipHandler.TipRegion(iconRect,
+                    "ColonyManagerRedux.Common.GoToJob".Translate(job.Label.UncapitalizeFirst()));
             }
             else
             {
@@ -597,7 +608,14 @@ public abstract class ManagerTab(Manager manager)
 
             if (Widgets.ButtonInvisible(row))
             {
-                Selected = job;
+                if (Selected != job)
+                {
+                    Selected = job;
+                }
+                else if (AllowJobDeselect)
+                {
+                    Selected = null;
+                }
             }
         }
 

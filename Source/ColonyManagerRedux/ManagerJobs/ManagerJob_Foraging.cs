@@ -125,26 +125,44 @@ internal sealed class ManagerJob_Foraging : ManagerJob
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
 
 
-    public void AddRelevantGameDesignations()
+    public void AddRelevantGameDesignations(ManagerLog jobLog)
     {
         // get list of game designations not managed by this job that could have been assigned by this job.
+        int addedCount = 0;
+        List<LocalTargetInfo> newTargets = [];
         foreach (
-            var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
+            var des in Manager.map.designationManager
+                .SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
                 .Except(_designations)
                 .Where(des => IsValidForagingTarget(des.target)))
         {
-            AddDesignation(des);
+            addedCount++;
+            AddDesignation(des, false);
+            newTargets.Add(des.target);
+        }
+        if (addedCount > 0)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.AddRelevantGameDesignations"
+                .Translate(addedCount, Def.label), newTargets);
         }
     }
 
     /// <summary>
     ///     Remove designations in our managed list that are not in the game's designation manager.
     /// </summary>
-    public void CleanDeadDesignations()
+    public void CleanDeadDesignations(ManagerLog? jobLog = null)
     {
-        var _gameDesignations =
+        var originalCount = _designations.Count;
+        var gameDesignations =
             Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant);
-        _designations = _designations.Intersect(_gameDesignations).ToList();
+        _designations = _designations.Intersect(gameDesignations).ToList();
+        var newCount = _designations.Count;
+
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
     }
 
     /// <summary>
@@ -271,61 +289,103 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         }
     }
 
-    public override bool TryDoJob()
+    public override bool TryDoJob(ManagerLog jobLog)
     {
+        jobLog.LogLabel = Tab.GetMainLabel(this, ManagerTab.ListEntryDrawMode.Overview)
+            + " (" + Tab.GetSubLabel(this, ManagerTab.ListEntryDrawMode.Overview) + ")";
+
         // keep track of work done
         var workDone = false;
 
         // clean up designations that were completed.
-        CleanDeadDesignations();
+        CleanDeadDesignations(jobLog);
 
         // clean up designations that are (now) in the wrong area.
-        CleanAreaDesignations();
+        CleanAreaDesignations(jobLog);
 
         // add designations in the game that could have been handled by this job
-        AddRelevantGameDesignations();
+        AddRelevantGameDesignations(jobLog);
 
         // designate plants until trigger is met.
         var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
-        if (count < TriggerThreshold.TargetCount)
-        {
-            var targets = GetValidForagingTargetsSorted();
 
-            for (var i = 0; i < targets.Count && count < TriggerThreshold.TargetCount; i++)
-            {
-                var des = new Designation(targets[i], DesignationDefOf.HarvestPlant);
-                count += targets[i].YieldNow();
-                AddDesignation(des);
-                workDone = true;
-            }
+        if (count >= TriggerThreshold.TargetCount)
+        {
+            return workDone;
+        }
+
+        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count,
+            TriggerThreshold.TargetCount));
+        var targets = GetValidForagingTargetsSorted();
+
+        if (targets.Count == 0)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                Def.label
+            ));
+        }
+
+        for (var i = 0; i < targets.Count && count < TriggerThreshold.TargetCount; i++)
+        {
+            Plant target = targets[i];
+            int yield = target.YieldNow();
+            count += yield;
+            AddDesignation(new(target, DesignationDefOf.HarvestPlant));
+            jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
+                .Translate(
+                    DesignationDefOf.HarvestPlant.ActionText(),
+                    "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
+                    target.Label,
+                    yield,
+                    count,
+                    TriggerThreshold.TargetCount),
+                target);
+            workDone = true;
         }
 
         return workDone;
     }
 
-    private void AddDesignation(Designation des)
+    private void AddDesignation(Designation des, bool addToGame = true)
     {
         // add to game
-        Manager.map.designationManager.AddDesignation(des);
+        if (addToGame)
+        {
+            Manager.map.designationManager.AddDesignation(des);
+        }
 
         // add to internal list
         _designations.Add(des);
     }
 
-    private void CleanAreaDesignations()
+    private void CleanAreaDesignations(ManagerLog jobLog)
     {
+        int missingThingCount = 0;
+        int incorrectAreaCount = 0;
         foreach (var des in _designations)
         {
             if (!des.target.HasThing)
             {
+                missingThingCount++;
                 des.Delete();
             }
 
             // if area is not null and does not contain designate location, remove designation.
             else if (!ForagingArea?.ActiveCells.Contains(des.target.Thing.Position) ?? false)
             {
+                incorrectAreaCount++;
                 des.Delete();
             }
+        }
+        if (missingThingCount != 0 || incorrectAreaCount != 0)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CleanAreaDesignations"
+                .Translate(
+                    missingThingCount + incorrectAreaCount,
+                    missingThingCount,
+                    incorrectAreaCount,
+                    Def.label));
         }
     }
 

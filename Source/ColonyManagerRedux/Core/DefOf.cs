@@ -106,3 +106,17 @@ public static class ManagerResearchProjectDefOf
         DefOfHelper.EnsureInitializedInCtor(typeof(ManagerResearchProjectDefOf));
     }
 }
+
+[DefOf]
+public static class ManagerWorkGiverDefOf
+{
+    public static WorkGiverDef Milk;
+    public static WorkGiverDef Shear;
+    public static WorkGiverDef Train;
+    public static WorkGiverDef Slaughter;
+
+    static ManagerWorkGiverDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(ManagerWorkGiverDefOf));
+    }
+}

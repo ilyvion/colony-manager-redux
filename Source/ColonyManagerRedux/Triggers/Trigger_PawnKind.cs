@@ -95,7 +95,7 @@ internal sealed class Trigger_PawnKind : Trigger
                 c,
                 t,
                 "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
-                    $"ColonyManagerRedux.AgeAndSex.{ageAndSex}".Translate()),
+                    ageAndSex.GetLabel()),
                 active,
                 GetProgressBarTextureFor(ageAndSex));
 
@@ -117,7 +117,7 @@ internal sealed class Trigger_PawnKind : Trigger
                 c,
                 t,
                 "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
-                    $"ColonyManagerRedux.AgeAndSex.{ageAndSex}".Translate()),
+                    ageAndSex.GetLabel()),
                 active,
                 GetProgressBarTextureFor(ageAndSex));
 
@@ -152,7 +152,7 @@ internal sealed class Trigger_PawnKind : Trigger
             Counts.Zip(CountTargets, (c, t) => (c, t))
             .Zip(Utilities_Livestock.AgeSexArray, (v, l) => new NamedArgument(
                 "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(v.c, v.t,
-                    $"ColonyManagerRedux.AgeAndSex.{l}".Translate()), null)));
+                    l.GetLabel()), null)));
         tooltipArgs.Add(
             "ColonyManagerRedux.Livestock.WildCount".Translate(
                 pawnKind.GetWild(job.Manager).Count())
@@ -165,7 +165,7 @@ internal sealed class Trigger_PawnKind : Trigger
         // do a dry run of the training assignment (no assignments are set).
         // this is rediculously expensive, and should never be called on tick.
         var actionTaken = false;
-        Job.DoTrainingJobs(ref actionTaken, false);
+        Job.DoTrainingJobs(ref actionTaken, assign: false);
         return !actionTaken;
     }
 }

@@ -17,6 +17,20 @@ public enum AgeAndSex
     JuvenileMale = 3
 }
 
+public static class AgeAndSexExtensions
+{
+    public static string GetLabel(this AgeAndSex ageAndSex)
+    {
+        return $"ColonyManagerRedux.AgeAndSex.{ageAndSex}".Translate();
+    }
+
+    public static bool IsAdult(this AgeAndSex ageAndSex)
+    {
+        return ageAndSex == AgeAndSex.AdultFemale ||
+            ageAndSex == AgeAndSex.AdultMale;
+    }
+}
+
 [Flags]
 internal enum MasterMode
 {

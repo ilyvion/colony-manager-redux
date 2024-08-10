@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Recording historical data can now be disabled, which might help with performance.
 -   Setting for continuing to tame animals past targets for the Livestock jobs.
 -   Setting for mining thick roofs for Resource Gathering jobs.
+-   Jobs now log what they've done, which can be reviewed at a later time. Adds a new tab next to the overview tab for this purpose.
 
 ### Changed
 
@@ -49,6 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   The rule for which suffix to use in graphs now differs between the y axis and the chapter values; this lets you do things like have both power producers/consumers (using W) and batteries (using Wd) in the same graph having the right units.
 -   New graphics for the basic manager desk.
 -   Guest animals are not included in target counts for livestock, but are still managed by job settings for things like training and area restrictions.
+-   Unforbid corpses before designating hunting; already dead animals are easier/faster/safer source of food and the unforbidding was previously gated behind the check for huntable animals, meaning that if there were no animals to hunt, no corpses would be unforbidden either.
 
 ### Fixed
 

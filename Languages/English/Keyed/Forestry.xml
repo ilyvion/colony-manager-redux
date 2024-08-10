@@ -29,4 +29,10 @@
     <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Select all plants that provide cover</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
 
     <ColonyManagerRedux.Forestry.JobSettings.DefaultJobType>Default job type</ColonyManagerRedux.Forestry.JobSettings.DefaultJobType>
+
+    <!-- Logging -->
+    <ColonyManagerRedux.Forestry.Logs.Tree>tree</ColonyManagerRedux.Forestry.Logs.Tree>
+    <ColonyManagerRedux.Forestry.Logs.Trees>trees</ColonyManagerRedux.Forestry.Logs.Trees>
+
+    <ColonyManagerRedux.Forestry.Logs.AddClearingDesignation>Added new {0} designation for {1} {2} for clearing area {3}</ColonyManagerRedux.Forestry.Logs.AddClearingDesignation>
 </LanguageData>

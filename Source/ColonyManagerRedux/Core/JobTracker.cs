@@ -105,6 +105,8 @@ public class JobTracker(Manager manager) : IExposable
         return jobs.OrderBy(job => job.Priority).OfType<T>();
     }
 
+    public bool HasJob(ManagerJob job) => jobs.Contains(job);
+
     internal void IncreasePriority<T>(T job) where T : ManagerJob
     {
         ManagerJob jobB =
@@ -155,7 +157,11 @@ public class JobTracker(Manager manager) : IExposable
             job.Touch();
 
             // perform next job if no action was taken
-            if (!job.TryDoJob())
+            ManagerLog log = new(job);
+            bool workDone = job.TryDoJob(log);
+            log._workDone = workDone;
+            _manager.Logs?.PushBack(log);
+            if (!workDone)
             {
                 return TryDoNextJob();
             }

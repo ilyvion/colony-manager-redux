@@ -141,26 +141,42 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.PlantCutting;
 
-    public void AddRelevantGameDesignations()
+    public void AddRelevantGameDesignations(ManagerLog jobLog)
     {
         // get list of game designations not managed by this job that could have been assigned by this job.
+        int addedCount = 0;
+        List<LocalTargetInfo> newTargets = [];
         foreach (var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.CutPlant)
-                                    .Except(_designations)
-                                    .Where(des => IsValidForestryTarget(des.target)))
+            .Except(_designations)
+            .Where(des => IsValidForestryTarget(des.target)))
         {
-            AddDesignation(des);
+            addedCount++;
+            AddDesignation(des, false);
+            newTargets.Add(des.target);
+        }
+        if (addedCount > 0)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.AddRelevantGameDesignations"
+                .Translate(addedCount, Def.label), newTargets);
         }
     }
 
     /// <summary>
     ///     Remove obsolete designations from the list.
     /// </summary>
-    public void CleanDesignations()
+    public void CleanDesignations(ManagerLog? jobLog = null)
     {
-        // get the intersection of bills in the game and bills in our list.
-        var gameDesignations = Manager.map.designationManager
-                                      .SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant).ToList();
+        var originalCount = _designations.Count;
+        var gameDesignations =
+            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant);
         _designations = _designations.Intersect(gameDesignations).ToList();
+        var newCount = _designations.Count;
+
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
     }
 
     public override void CleanUp()
@@ -194,12 +210,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob
             plant.def.plant.harvestedThingDef.LabelCap);
     }
 
-    public void DoClearAreaDesignations(IEnumerable<IntVec3> cells, ref bool workDone)
+    public void DoClearAreaDesignations(ManagerLog jobLog, Area area, ref bool workDone)
     {
         var map = Manager.map;
         var designationManager = map.designationManager;
 
-        foreach (var cell in cells)
+        bool designationsAdded = false;
+        foreach (var cell in area.ActiveCells)
         {
             // confirm there is a plant here that it is a tree and that it has no current designation
             var plant = cell.GetPlant(map);
@@ -230,7 +247,23 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
             // there's no reason not to cut it down, so cut it down.
             designationManager.AddDesignation(new Designation(plant, DesignationDefOf.CutPlant));
+            jobLog.AddDetail("ColonyManagerRedux.Forestry.Logs.AddClearingDesignation"
+                .Translate(
+                    DesignationDefOf.CutPlant.ActionText(),
+                    "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
+                    plant.Label,
+                    area.Label),
+                plant);
             workDone = true;
+            designationsAdded = true;
+        }
+
+        if (!designationsAdded)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                Def.label
+            ));
         }
     }
 
@@ -323,23 +356,26 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         }
     }
 
-    public override bool TryDoJob()
+    public override bool TryDoJob(ManagerLog jobLog)
     {
+        jobLog.LogLabel = Tab.GetMainLabel(this, ManagerTab.ListEntryDrawMode.Overview)
+            + " (" + Tab.GetSubLabel(this, ManagerTab.ListEntryDrawMode.Overview) + ")";
+
         // keep track if any actual work was done.
         var workDone = false;
 
         // clean dead designations
-        CleanDesignations();
+        CleanDesignations(jobLog);
 
         switch (Type)
         {
             case ForestryJobType.Logging:
-                DoLoggingJob(ref workDone);
+                DoLoggingJob(jobLog, ref workDone);
                 break;
             case ForestryJobType.ClearArea:
                 if (ClearAreas.Any())
                 {
-                    DoClearAreas(ref workDone);
+                    DoClearAreas(jobLog, ref workDone);
                 }
 
                 break;
@@ -361,70 +397,101 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         }
     }
 
-    private void AddDesignation(Designation des)
+    private void AddDesignation(Designation des, bool addToGame = true)
     {
         // add to game
-        Manager.map.designationManager.AddDesignation(des);
+        if (addToGame)
+        {
+            Manager.map.designationManager.AddDesignation(des);
+        }
 
         // add to internal list
         _designations.Add(des);
     }
 
-    private void AddDesignation(Plant p, DesignationDef? def = null)
+    private void CleanAreaDesignations(ManagerLog jobLog)
     {
-        // create designation
-        var des = new Designation(p, def);
-
-        // pass to adder
-        AddDesignation(des);
-    }
-
-    private void CleanAreaDesignations()
-    {
+        int missingThingCount = 0;
+        int incorrectAreaCount = 0;
         foreach (var des in _designations)
         {
             if (!des.target.HasThing)
             {
+                missingThingCount++;
                 des.Delete();
             }
             else if ((!LoggingArea?.ActiveCells.Contains(des.target.Thing.Position)) ?? false)
             {
+                incorrectAreaCount++;
                 des.Delete();
             }
         }
-    }
-
-    private void DoClearAreas(ref bool workDone)
-    {
-        foreach (var area in ClearAreas)
+        if (missingThingCount != 0 || incorrectAreaCount != 0)
         {
-            DoClearAreaDesignations(area.ActiveCells, ref workDone);
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CleanAreaDesignations"
+                .Translate(
+                    missingThingCount + incorrectAreaCount,
+                    missingThingCount,
+                    incorrectAreaCount,
+                    Def.label));
         }
     }
 
-    private void DoLoggingJob(ref bool workDone)
+    private void DoClearAreas(ManagerLog jobLog, ref bool workDone)
+    {
+        foreach (var area in ClearAreas)
+        {
+            DoClearAreaDesignations(jobLog, area, ref workDone);
+        }
+    }
+
+    private void DoLoggingJob(ManagerLog jobLog, ref bool workDone)
     {
         // remove designations not in zone.
         if (LoggingArea != null)
         {
-            CleanAreaDesignations();
+            CleanAreaDesignations(jobLog);
         }
 
         // add external designations
-        AddRelevantGameDesignations();
+        AddRelevantGameDesignations(jobLog);
 
         // get current lumber count
         var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
 
-        // get sorted list of loggable trees
+        // designate until we're either out of trees or we have enough designated.
+        if (count >= TriggerThreshold.TargetCount)
+        {
+            return;
+        }
+
+        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount));
         var trees = GetLoggableTreesSorted();
 
-        // designate untill we're either out of trees or we have enough designated.
+        if (trees.Count == 0)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                "ColonyManagerRedux.Forestry.Logs.Trees".Translate(),
+                Def.label
+            ));
+        }
+
         for (var i = 0; i < trees.Count && count < TriggerThreshold.TargetCount; i++)
         {
+            Plant tree = trees[i];
+            int yield = tree.YieldNow();
+            count += yield;
+            AddDesignation(new(tree, DesignationDefOf.HarvestPlant));
+            jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
+                .Translate(
+                    DesignationDefOf.HarvestPlant.ActionText(),
+                    string.Empty,
+                    tree.Label,
+                    yield,
+                    count,
+                    TriggerThreshold.TargetCount),
+                tree);
             workDone = true;
-            AddDesignation(trees[i], DesignationDefOf.HarvestPlant);
-            count += trees[i].YieldNow();
         }
     }
 
@@ -471,8 +538,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     private bool IsValidForestryTarget(Thing t)
     {
-        return t is Plant
-            && IsValidForestryTarget((Plant)t);
+        return t is Plant plant
+            && IsValidForestryTarget(plant);
     }
 
     private bool IsValidForestryTarget(Plant target)

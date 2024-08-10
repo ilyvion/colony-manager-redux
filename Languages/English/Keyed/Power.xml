@@ -6,4 +6,8 @@
     <ColonyManagerRedux.Energy.NotResearched>Power management has not been researched</ColonyManagerRedux.Energy.NotResearched>
     <ColonyManagerRedux.Energy.NoPoweredStation>No managing station has power</ColonyManagerRedux.Energy.NoPoweredStation>
     <ColonyManagerRedux.Energy.RecordHistoricalDataDisabled>this job relies on recording historical data to track power usage, and recording historical data has been disabled</ColonyManagerRedux.Energy.RecordHistoricalDataDisabled>
+
+    <!-- Logging -->
+    <ColonyManagerRedux.Energy.Logs.InventoriedBuildings>Inventoried buildings involved in the power grid. Was tracking {0} consumers/producers and {1} batteries before, now tracking {2} and {3}, respectively.</ColonyManagerRedux.Energy.Logs.InventoriedBuildings>
+    <ColonyManagerRedux.Energy.Logs.InventoriedBuildingPerType>Inventoried consumers/producers and batteries per type.\n\nConsumers/producers:\n{0}\n\nBatteries:\n{1}</ColonyManagerRedux.Energy.Logs.InventoriedBuildingPerType>
 </LanguageData>

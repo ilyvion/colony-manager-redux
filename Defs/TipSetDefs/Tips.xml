@@ -11,6 +11,7 @@
             <li TKey="CM_Settings">Colony Manager is highly configurable. Make sure you check out its mod options sometime.</li>
             <li TKey="CM_Transfer">Colony Manager supports exporting and importing jobs. This lets you easily re-use jobs between different colonies.</li>
             <li TKey="CM_Power">If you unlock the power management research from Colony Manager and build a powered managing desk or AI manager, you can track your colony's power usage and battery status over time.</li>
+            <li TKey="CM_Overlap">Don't make multiple Colony Manager jobs that handle the same resource; at best it'll cause your colonists having to do extra managing work for no reason.</li>
         </tips>
     </TipSetDef>
 </Defs>

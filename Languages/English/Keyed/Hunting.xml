@@ -22,4 +22,10 @@
     <ColonyManagerRedux.Hunting.AreaRestriction>Restrict hunting to</ColonyManagerRedux.Hunting.AreaRestriction>
     <ColonyManagerRedux.Hunting.Aggressive>Aggressive</ColonyManagerRedux.Hunting.Aggressive>
     <ColonyManagerRedux.Hunting.Aggressive.Tip>Toggle all aggressive animals</ColonyManagerRedux.Hunting.Aggressive.Tip>
+
+    <!-- Logging -->
+    <ColonyManagerRedux.Hunting.Logs.Animal>animal</ColonyManagerRedux.Hunting.Logs.Animal>
+    <ColonyManagerRedux.Hunting.Logs.Animals>animals</ColonyManagerRedux.Hunting.Logs.Animals>
+
+    <ColonyManagerRedux.Hunting.Logs.UnforbidCorpse>Unforbid corpse {0} with expected yield {1}, bringing expected count / target to {2} / {3}</ColonyManagerRedux.Hunting.Logs.UnforbidCorpse>
 </LanguageData>

@@ -39,9 +39,9 @@
     <ColonyManagerRedux.Livestock.SendToSlaughterArea>Restrict animals marked for slaughter</ColonyManagerRedux.Livestock.SendToSlaughterArea>
     <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>Restrict animals designated for slaughtering to a specific area</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
     <ColonyManagerRedux.Livestock.SendToMilkingArea>Restrict animals ready to be milked</ColonyManagerRedux.Livestock.SendToMilkingArea>
-    <ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>Restrict animals with milk fullness above 94% to a specific area.</ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>Restrict animals with milk fullness close to 100% to a specific area.</ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToShearingArea>Restrict animals ready to be sheared</ColonyManagerRedux.Livestock.SendToShearingArea>
-    <ColonyManagerRedux.Livestock.SendToShearingArea.Tip>Restrict animals with shearing fullness above 94% to a specific area</ColonyManagerRedux.Livestock.SendToShearingArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToShearingArea.Tip>Restrict animals with shearing fullness close to 100% to a specific area</ColonyManagerRedux.Livestock.SendToShearingArea.Tip>
     <ColonyManagerRedux.Livestock.TargetCountsHeader>Target counts</ColonyManagerRedux.Livestock.TargetCountsHeader>
     <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>Area restrictions</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
     <ColonyManagerRedux.Livestock.TrainingHeader>Training</ColonyManagerRedux.Livestock.TrainingHeader>
@@ -91,6 +91,12 @@
     <ColonyManagerRedux.Livestock.MasterMode.NonViolent>Non-violent</ColonyManagerRedux.Livestock.MasterMode.NonViolent>
     <ColonyManagerRedux.Livestock.MasterMode.All>All</ColonyManagerRedux.Livestock.MasterMode.All>
 
+    <!-- Age and sex classifications -->
+    <ColonyManagerRedux.AgeAndSex.AdultFemale>adult females</ColonyManagerRedux.AgeAndSex.AdultFemale>
+    <ColonyManagerRedux.AgeAndSex.AdultMale>adult males</ColonyManagerRedux.AgeAndSex.AdultMale>
+    <ColonyManagerRedux.AgeAndSex.JuvenileFemale>juvenile females</ColonyManagerRedux.AgeAndSex.JuvenileFemale>
+    <ColonyManagerRedux.AgeAndSex.JuvenileMale>juvenile males</ColonyManagerRedux.AgeAndSex.JuvenileMale>
+
     <ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>
     <ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>
     <ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader>
@@ -99,4 +105,24 @@
     <ColonyManagerRedux.Livestock.JobSettings.Default>Defaults</ColonyManagerRedux.Livestock.JobSettings.Default>
     <ColonyManagerRedux.Livestock.JobSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.Livestock.JobSettings.AddOverride>
     <ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor>
+
+    <!-- Logging -->
+    <ColonyManagerRedux.Livestock.Logs.TooMany>{0} too many</ColonyManagerRedux.Livestock.Logs.TooMany>
+    <ColonyManagerRedux.Livestock.Logs.TooFew>{0} too few</ColonyManagerRedux.Livestock.Logs.TooFew>
+    <ColonyManagerRedux.Livestock.Logs.Nobody>nobody</ColonyManagerRedux.Livestock.Logs.Nobody>
+    <ColonyManagerRedux.Livestock.Logs.Not>not</ColonyManagerRedux.Livestock.Logs.Not>
+    <ColonyManagerRedux.Livestock.Logs.Drafted>drafted</ColonyManagerRedux.Livestock.Logs.Drafted>
+    <ColonyManagerRedux.Livestock.Logs.FieldWork>field work</ColonyManagerRedux.Livestock.Logs.FieldWork>
+
+    <ColonyManagerRedux.Livestock.Logs.CurrentCountButcher>Checking if we should butcher any {0} {1}: count / target is {2} / {3} with {4} already being marked for slaughter, leaving us with {5}</ColonyManagerRedux.Livestock.Logs.CurrentCountButcher>
+    <ColonyManagerRedux.Livestock.Logs.AddDesignation>Added new {0} designation for {1}, bringing expected count / target to {2} / {3}</ColonyManagerRedux.Livestock.Logs.AddDesignation>
+    <ColonyManagerRedux.Livestock.Logs.RemoveDesignation>Removed excess {0} designation for {1}, bringing expected count / target to {2} / {3}</ColonyManagerRedux.Livestock.Logs.RemoveDesignation>
+    <ColonyManagerRedux.Livestock.Logs.AddTraining>Set {1} to train {0}</ColonyManagerRedux.Livestock.Logs.AddTraining>
+    <ColonyManagerRedux.Livestock.Logs.RemoveTraining>Set {1} to no longer train {0}</ColonyManagerRedux.Livestock.Logs.RemoveTraining>
+    <ColonyManagerRedux.Livestock.Logs.AssigningToArea>Assigning {0} to area {1}</ColonyManagerRedux.Livestock.Logs.AssigningToArea>
+    <ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor>Assigning {0} to area {1} for {2}</ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor>
+    <ColonyManagerRedux.Livestock.Logs.AssigningMasterOf>Assigning {0} as master of {1}</ColonyManagerRedux.Livestock.Logs.AssigningMasterOf>
+    <ColonyManagerRedux.Livestock.Logs.SetFollow>Set {0} to {1} follow their master when {2}</ColonyManagerRedux.Livestock.Logs.SetFollow>
+    <ColonyManagerRedux.Livestock.Logs.CurrentCountTame>Checking if we should tame any {0} {1}: count / target is {2} / {3} with {4} already being marked for taming, leaving us with {5}</ColonyManagerRedux.Livestock.Logs.CurrentCountTame>
+    <ColonyManagerRedux.Livestock.Logs.TamePastTargets>Setting {0} is enabled, so we're going to mark as many animals as possible for taming, even if it puts us over the target</ColonyManagerRedux.Livestock.Logs.TamePastTargets>
 </LanguageData>

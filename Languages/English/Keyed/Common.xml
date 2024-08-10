@@ -19,6 +19,7 @@
     <ColonyManagerRedux.Common.Delete>Delete</ColonyManagerRedux.Common.Delete>
     <ColonyManagerRedux.Common.None>None</ColonyManagerRedux.Common.None>
     <ColonyManagerRedux.Common.Expensive.Tip>Enabling this setting may decrease performance, particularly on large maps, mountainous maps, jobs with many potential targets, and colonies with high numbers of colonists.</ColonyManagerRedux.Common.Expensive.Tip>
+    <ColonyManagerRedux.Common.GoToJob>Go to {0} job</ColonyManagerRedux.Common.GoToJob>
 
     <!-- Jobs -->
     <ColonyManagerRedux.Job.New>New job</ColonyManagerRedux.Job.New>
@@ -81,12 +82,6 @@
     <ColonyManagerRedux.History.Consumption>consumption</ColonyManagerRedux.History.Consumption>
     <ColonyManagerRedux.History.Batteries>batteries</ColonyManagerRedux.History.Batteries>
 
-    <!-- Livestock age and sex classifications -->
-    <ColonyManagerRedux.AgeAndSex.AdultFemale>adult females</ColonyManagerRedux.AgeAndSex.AdultFemale>
-    <ColonyManagerRedux.AgeAndSex.AdultMale>adult males</ColonyManagerRedux.AgeAndSex.AdultMale>
-    <ColonyManagerRedux.AgeAndSex.JuvenileFemale>juvenile females</ColonyManagerRedux.AgeAndSex.JuvenileFemale>
-    <ColonyManagerRedux.AgeAndSex.JuvenileMale>juvenile males</ColonyManagerRedux.AgeAndSex.JuvenileMale>
-
     <!-- Extra info labels -->
     <ColonyManagerRedux.Info.Yield>Expected yield:</ColonyManagerRedux.Info.Yield>
     <ColonyManagerRedux.Info.Aggressiveness>Aggressiveness: {0}</ColonyManagerRedux.Info.Aggressiveness>
@@ -96,4 +91,25 @@
 
     <!-- Shortcuts -->
     <ColonyManagerRedux.Shortcuts.All>All</ColonyManagerRedux.Shortcuts.All>
+
+    <!-- Designations -->
+    <ColonyManagerRedux.Designations.CutPlant>cut</ColonyManagerRedux.Designations.CutPlant>
+    <ColonyManagerRedux.Designations.HarvestPlant>harvest</ColonyManagerRedux.Designations.HarvestPlant>
+    <ColonyManagerRedux.Designations.Hunt>hunt</ColonyManagerRedux.Designations.Hunt>
+    <ColonyManagerRedux.Designations.Slaughter>slaughter</ColonyManagerRedux.Designations.Slaughter>
+    <ColonyManagerRedux.Designations.Tame>tame</ColonyManagerRedux.Designations.Tame>
+    <ColonyManagerRedux.Designations.Haul>haul</ColonyManagerRedux.Designations.Haul>
+    <ColonyManagerRedux.Designations.Deconstruct>deconstruct</ColonyManagerRedux.Designations.Deconstruct>
+    <ColonyManagerRedux.Designations.Mine>mine</ColonyManagerRedux.Designations.Mine>
+
+    <!-- Logs -->
+    <ColonyManagerRedux.Logs.NoWorkDone>No work could be done for this job at this time</ColonyManagerRedux.Logs.NoWorkDone>
+    <ColonyManagerRedux.Logs.CleanDeadDesignations>Removed {0} outdated designations ({1} before / {2} after)</ColonyManagerRedux.Logs.CleanDeadDesignations>
+    <ColonyManagerRedux.Logs.CleanAreaDesignations>Removed {0} invalid designations ({1} missing target / {2} outside configured {3} area)</ColonyManagerRedux.Logs.CleanAreaDesignations>
+    <ColonyManagerRedux.Logs.AddRelevantGameDesignations>Found and added {0} {1} designations that weren't already being tracked</ColonyManagerRedux.Logs.AddRelevantGameDesignations>
+    <ColonyManagerRedux.Logs.CurrentCount>Current count / target before adding new designations: {0} / {1}</ColonyManagerRedux.Logs.CurrentCount>
+    <ColonyManagerRedux.Logs.TargetsAlreadySatisfied>Job targets are already expected to be satisfied with its current designations; making no changes</ColonyManagerRedux.Logs.TargetsAlreadySatisfied>
+    <ColonyManagerRedux.Logs.NoValidTargets>No currently undesignated {0} to designate for {1}</ColonyManagerRedux.Logs.NoValidTargets>
+    <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.AddDesignation>
+
 </LanguageData>
