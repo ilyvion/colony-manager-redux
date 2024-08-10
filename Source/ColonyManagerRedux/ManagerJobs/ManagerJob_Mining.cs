@@ -118,8 +118,6 @@ internal sealed class ManagerJob_Mining : ManagerJob
         AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));
     }
 
-    public override bool IsCompleted => !TriggerThreshold.State;
-
     public List<Designation> Designations => new(_designations);
 
 
@@ -844,6 +842,20 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
         // keep track of work done
         var workDone = false;
+
+        if (!TriggerThreshold.State)
+        {
+            if (JobState != ManagerJobState.Completed)
+            {
+                JobState = ManagerJobState.Completed;
+                CleanUp();
+            }
+            return workDone;
+        }
+        else
+        {
+            JobState = ManagerJobState.Active;
+        }
 
         // clean up designations that were completed.
         CleanDeadDesignations(jobLog);

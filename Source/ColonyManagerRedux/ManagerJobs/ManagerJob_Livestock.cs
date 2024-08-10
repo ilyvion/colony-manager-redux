@@ -200,8 +200,6 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         TriggerPawnKind.pawnKind = pawnKindDef;
     }
 
-    public override bool IsCompleted => !(TamePastTargets && TriggerPawnKind.pawnKind.GetWild(Manager).Any()) && TriggerPawnKind.State;
-
     public List<Designation> Designations => new(_designations);
 
     public string FullLabel
@@ -321,6 +319,8 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     public override void CleanUp()
     {
+        CleanDesignations();
+
         foreach (var des in _designations)
         {
             des.Delete();
@@ -531,6 +531,20 @@ internal sealed class ManagerJob_Livestock : ManagerJob
             ManagerTab.ListEntryDrawMode.Overview).Replace("\n", " (") + ")";
 
         var workDone = false;
+
+        if (!(TamePastTargets && TriggerPawnKind.pawnKind.GetWild(Manager).Any()) && TriggerPawnKind.State)
+        {
+            if (JobState != ManagerJobState.Completed)
+            {
+                JobState = ManagerJobState.Completed;
+                CleanUp();
+            }
+            return workDone;
+        }
+        else
+        {
+            JobState = ManagerJobState.Active;
+        }
 
         // clean up designations that were completed.
         CleanDesignations(jobLog);
@@ -845,8 +859,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
             }
             else
             {
-                jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.CurrentCountTame".Translate(
-                    "ColonyManagerRedux.Livestock.TamePastTargets".Translate()));
+                jobLog.AddDetail("ColonyManagerRedux.Livestock.TamePastTargets".Translate());
             }
 
             if (targetDifference > 0 || TamePastTargets)

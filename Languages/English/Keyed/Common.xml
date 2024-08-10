@@ -26,11 +26,11 @@
     <ColonyManagerRedux.Job.NeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.Job.NeverUpdatedTooltip>
     <ColonyManagerRedux.Job.LastUpdatedTooltip>This job was last updated {0} ago.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>
-    <ColonyManagerRedux.Job.ScheduledToBeUpdatedPausedTooltip>As the job is either suspended or completed, it won't currently be updated, but if it weren't suspended or completed, it would be scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedPausedTooltip>
+    <ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip>As the job is suspended, it won't currently be updated, but if it weren't suspended it would be scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip>
     <ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>Click to force an update now or to change the update interval.</ColonyManagerRedux.Job.ClickToChangeUpdateIntervalTooltip>
     <ColonyManagerRedux.Job.Update>Update {0}</ColonyManagerRedux.Job.Update>
     <ColonyManagerRedux.Job.ForceUpdate>Force update now</ColonyManagerRedux.Job.ForceUpdate>
-    <ColonyManagerRedux.Job.AlreadyUpdatingOrPaused>job is already due for an update, suspended or completed</ColonyManagerRedux.Job.AlreadyUpdatingOrPaused>
+    <ColonyManagerRedux.Job.AlreadyUpdatingOrSuspended>job is already due for an update or suspended</ColonyManagerRedux.Job.AlreadyUpdatingOrSuspended>
     <ColonyManagerRedux.Job.IncreasePriority>Increase job priority</ColonyManagerRedux.Job.IncreasePriority>
     <ColonyManagerRedux.Job.DecreasePriorityn>Decrease job priority</ColonyManagerRedux.Job.DecreasePriorityn>
     <ColonyManagerRedux.Job.TopPriority>Maximum priority</ColonyManagerRedux.Job.TopPriority>

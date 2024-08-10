@@ -140,8 +140,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob
         }
     }
 
-    public override bool IsCompleted => !TriggerThreshold.State;
-
     public List<Corpse> Corpses
     {
         get
@@ -349,6 +347,20 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
         // did we do any work?
         var workDone = false;
+
+        if (!TriggerThreshold.State)
+        {
+            if (JobState != ManagerJobState.Completed)
+            {
+                JobState = ManagerJobState.Completed;
+                CleanUp();
+            }
+            return workDone;
+        }
+        else
+        {
+            JobState = ManagerJobState.Active;
+        }
 
         // clean dead designations
         CleanDesignations(jobLog);

@@ -9,10 +9,8 @@ public class JobTracker(Manager manager) : IExposable
     private readonly Manager _manager = manager;
 
     private List<ManagerJob> jobs = [];
-    private IEnumerable<ManagerJob> JobsInOrderOfPriority
-    {
-        get { return jobs.Where(mj => mj.ShouldDoNow).OrderBy(mj => mj.Priority); }
-    }
+    private IEnumerable<ManagerJob> JobsInOrderOfPriority =>
+        jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
 
     public bool HasNoJobs => jobs.Count == 0;
 

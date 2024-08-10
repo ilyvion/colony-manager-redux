@@ -379,7 +379,7 @@ public abstract class ManagerTab(Manager manager)
                 lastUpdateRect,
                 job,
                 false,
-                job.IsSuspended || job.IsCompleted);
+                job.IsSuspended);
         }
         else
         {
@@ -396,7 +396,7 @@ public abstract class ManagerTab(Manager manager)
                     lastUpdateRect,
                     job,
                     mode == ListEntryDrawMode.Export,
-                    mode != ListEntryDrawMode.Export && (job.IsSuspended || job.IsCompleted));
+                    mode != ListEntryDrawMode.Export && (job.IsSuspended));
             }
         }
 

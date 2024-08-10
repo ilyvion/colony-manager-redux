@@ -64,7 +64,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         _manager = manager;
     }
 
-    public abstract bool IsCompleted { get; }
+    private ManagerJobState _jobState;
+    public ManagerJobState JobState { get => _jobState; protected set => _jobState = value; }
+    public bool IsCompleted => JobState == ManagerJobState.Completed;
     public virtual string IsCompletedTooltip => "ColonyManagerRedux.Job.JobHasbeenCompletedTooltip".Translate();
 
     public virtual bool IsValid => Manager != null;
@@ -83,7 +85,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     }
 
 
-    public virtual bool ShouldDoNow => IsManaged && !IsSuspended && !IsCompleted && ShouldUpdate;
+    public bool ShouldDoNow => IsManaged && ShouldUpdate;
 
     private bool ShouldUpdate => _lastActionTick < 0 || ((_lastActionTick + UpdateInterval.ticks) < Find.TickManager.TicksGame);
 
@@ -223,6 +225,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             Scribe_Values.Look(ref _lastActionTick, "lastActionTick");
             Scribe_Values.Look(ref Priority, "priority");
             Scribe_Values.Look(ref _isSuspended, "isSuspended");
+            Scribe_Values.Look(ref _jobState, "jobState");
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {

@@ -82,8 +82,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob
         AllowedPlants.RemoveWhere(p => !AllPlants.Contains(p));
     }
 
-    public override bool IsCompleted => !TriggerThreshold.State;
-
     private int CurrentDesignatedCountRaw
     {
         get
@@ -296,6 +294,20 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
         // keep track of work done
         var workDone = false;
+
+        if (!TriggerThreshold.State)
+        {
+            if (JobState != ManagerJobState.Completed)
+            {
+                JobState = ManagerJobState.Completed;
+                CleanUp();
+            }
+            return workDone;
+        }
+        else
+        {
+            JobState = ManagerJobState.Active;
+        }
 
         // clean up designations that were completed.
         CleanDeadDesignations(jobLog);

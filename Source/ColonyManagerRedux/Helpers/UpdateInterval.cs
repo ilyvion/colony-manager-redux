@@ -23,9 +23,9 @@ public class UpdateInterval(int ticks, string label)
         }
     }
 
-    internal static void Draw(Rect canvas, ManagerJob job, bool exporting, bool paused)
+    internal static void Draw(Rect canvas, ManagerJob job, bool exporting, bool suspended)
     {
-        Color nextUpdateColor = paused ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
+        Color nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
 
         string lastUpdateTooltip;
         var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;
@@ -54,7 +54,7 @@ public class UpdateInterval(int ticks, string label)
             var progress = (float)lastUpdate / GenDate.TicksPerHour;
 
             // how far over time are we? Draw redder if further over time.
-            var progressColour = paused
+            var progressColour = suspended
                 ? Color.gray
                 : (progress < nextUpdate
                     ? Color.white
@@ -90,9 +90,9 @@ public class UpdateInterval(int ticks, string label)
             lastUpdateTooltip = "ColonyManagerRedux.Job.NeverUpdatedTooltip".Translate() + " ";
         }
 
-        if (paused)
+        if (suspended)
         {
-            lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedPausedTooltip".Translate(
+            lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip".Translate(
                 job.UpdateInterval.ticks.TimeString());
         }
         else
@@ -113,14 +113,14 @@ public class UpdateInterval(int ticks, string label)
             if (Widgets.ButtonInvisible(canvas))
             {
                 var options = new List<FloatMenuOption>();
-                if (!job.IsSuspended && !job.IsCompleted && !job.ShouldDoNow)
+                if (!job.IsSuspended && !job.ShouldDoNow)
                 {
                     options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate(), job.Untouch));
                 }
                 else
                 {
                     options.Add(new FloatMenuOption("ColonyManagerRedux.Job.ForceUpdate".Translate()
-                        + " (" + "ColonyManagerRedux.Job.AlreadyUpdatingOrPaused".Translate() + ")", null));
+                        + " (" + "ColonyManagerRedux.Job.AlreadyUpdatingOrSuspended".Translate() + ")", null));
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {

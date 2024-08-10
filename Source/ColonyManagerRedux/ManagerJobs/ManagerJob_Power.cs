@@ -183,7 +183,6 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
     }
 
-    public override bool IsCompleted => !ColonyManagerReduxMod.Settings.RecordHistoricalData;
     public override string IsCompletedTooltip => "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate().CapitalizeFirst();
 
     public override IEnumerable<string> Targets => [];
@@ -200,6 +199,19 @@ internal sealed class ManagerJob_Power : ManagerJob
         if (!AnyPoweredStationOnline)
         {
             return false;
+        }
+
+        if (!ColonyManagerReduxMod.Settings.RecordHistoricalData)
+        {
+            if (JobState != ManagerJobState.Completed)
+            {
+                JobState = ManagerJobState.Completed;
+            }
+            return false;
+        }
+        else
+        {
+            JobState = ManagerJobState.Active;
         }
 
         RefreshBuildingLists(jobLog);

@@ -91,18 +91,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob
         AllowedTrees.RemoveWhere(t => !AllPlants.Contains(t));
     }
 
-    public override bool IsCompleted
-    {
-        get
-        {
-            return Type switch
-            {
-                ForestryJobType.Logging => !TriggerThreshold.State,
-                _ => false,
-            };
-        }
-    }
-
     public List<Designation> Designations => new(_designations);
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
@@ -363,6 +351,20 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
         // keep track if any actual work was done.
         var workDone = false;
+
+        if (Type == ForestryJobType.Logging && !TriggerThreshold.State)
+        {
+            if (JobState != ManagerJobState.Completed)
+            {
+                JobState = ManagerJobState.Completed;
+                CleanUp();
+            }
+            return workDone;
+        }
+        else
+        {
+            JobState = ManagerJobState.Active;
+        }
 
         // clean dead designations
         CleanDesignations(jobLog);
