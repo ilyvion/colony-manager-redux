@@ -205,7 +205,7 @@ partial class ManagerTab_Overview
             {
                 // PawnTables aren't very customizable, so we'll hijack this function to inject our
                 // instance into the columns, since we need it there
-                foreach (var item in Traverse.Create(pawnOverviewTable!).Field<PawnTableDef>("def").Value.columns
+                foreach (var item in pawnOverviewTable!.def.columns
                     .Where(c => c.workerClass.IsSubclassOf(
                         typeof(PawnColumnWorker_Overview))))
                 {

@@ -2,9 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using ilyvion.Laboratory.Extensions;
-using System.Reflection;
-
 namespace ColonyManagerRedux;
 
 // NOTE: These enum names are used to name save game labels, do not change them without the proper
@@ -434,8 +431,7 @@ internal static class Utilities_Livestock
 
     public static int TicksTillHarvestable(this CompHasGatherableBodyResource comp)
     {
-        var interval = Traverse.Create(comp).Property("GatherResourcesIntervalDays").GetValue<int>();
-        var growthRatePerTick = 1f / (interval * GenDate.TicksPerDay);
+        var growthRatePerTick = 1f / (comp.GatherResourcesIntervalDays * GenDate.TicksPerDay);
 
         if (comp.parent is not Pawn)
         {
@@ -444,39 +440,15 @@ internal static class Utilities_Livestock
 
         growthRatePerTick *= PawnUtility.BodyResourceGrowthSpeed((Pawn)comp.parent);
 
-        // ColonyManagerReduxMod.Instance.LogDebug( $"rate: {growthRatePerTick}, interval: {interval}");
-
         return Mathf.CeilToInt((1 - comp.Fullness) / growthRatePerTick);
     }
 
-    public static bool VisiblyPregnant(this Pawn pawn)
-    {
-        return pawn?.health.hediffSet.GetFirstHediff<Hediff_Pregnant>()?.Visible ?? false;
-    }
+    public static bool VisiblyPregnant(this Pawn pawn) =>
+        pawn?.health.hediffSet.GetFirstHediff<Hediff_Pregnant>()?.Visible ?? false;
 
-    private static readonly MethodInfo CompMilkable_Active = AccessTools.PropertyGetter(typeof(CompMilkable), "Active");
-    private static bool IsPawnMilkable(this Pawn pawn)
-    {
-        var comp = pawn?.TryGetComp<CompMilkable>();
-        object active = false;
-        if (comp != null)
-        {
-            active = CompMilkable_Active.Invoke(comp, []);
-        }
+    private static bool IsPawnMilkable(this Pawn pawn) =>
+        pawn?.TryGetComp<CompMilkable>()?.Active ?? false;
 
-        return (bool)active;
-    }
-
-    private static readonly MethodInfo CompShearable_Active = AccessTools.PropertyGetter(typeof(CompShearable), "Active");
-    private static bool IsPawnShearable(this Pawn pawn)
-    {
-        var comp = pawn?.TryGetComp<CompShearable>();
-        object active = false;
-        if (comp != null)
-        {
-            active = CompShearable_Active.Invoke(comp, []);
-        }
-
-        return (bool)active;
-    }
+    private static bool IsPawnShearable(this Pawn pawn) =>
+        pawn?.TryGetComp<CompShearable>()?.Active ?? false;
 }

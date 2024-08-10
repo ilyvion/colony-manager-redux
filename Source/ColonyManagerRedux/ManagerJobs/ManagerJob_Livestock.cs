@@ -58,10 +58,6 @@ internal sealed class ManagerJob_Livestock : ManagerJob
         }
     }
 
-    private static readonly Action<Pawn_TrainingTracker, TrainableDef, bool> Pawn_TrainingTracker_SetWanted
-        = AccessTools.MethodDelegate<Action<Pawn_TrainingTracker, TrainableDef, bool>>(
-            AccessTools.Method(typeof(Pawn_TrainingTracker), "SetWanted"));
-
     public bool ButcherBonded;
     public bool ButcherExcess;
     public bool ButcherPregnant;
@@ -643,7 +639,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                     {
                         if (assign)
                         {
-                            Pawn_TrainingTracker_SetWanted(animal.training, def, trainingDef);
+                            animal.training.SetWanted(def, trainingDef);
                             jobLog?.AddDetail((trainingDef
                                 ? "ColonyManagerRedux.Livestock.Logs.AddTraining"
                                 : "ColonyManagerRedux.Livestock.Logs.RemoveTraining")

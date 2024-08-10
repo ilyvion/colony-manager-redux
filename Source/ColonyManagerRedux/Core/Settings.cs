@@ -294,8 +294,9 @@ public class Settings : ModSettings
 
     private void ReloadSettings()
     {
-        string settingsFilename = (string)AccessTools.Method(typeof(LoadedModManager), "GetSettingsFilename")
-            .Invoke(null, [Mod.Content.FolderName, Mod.GetType().Name]);
+        string settingsFilename = LoadedModManager.GetSettingsFilename(
+            Mod.Content.FolderName,
+            Mod.GetType().Name);
         try
         {
             if (File.Exists(settingsFilename))

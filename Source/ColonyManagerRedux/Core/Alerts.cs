@@ -86,13 +86,11 @@ internal sealed class Alert_NoTable : Alert
 
         var bestBuildingDef = BestBuildingResearchedThatCanBeBuilt;
 
-        var architectTabWindowTraverse = Traverse.Create(architectTabWindow);
-        var desPanels = architectTabWindowTraverse
-            .Field<List<ArchitectCategoryTab>>("desPanelsCached").Value;
+        var desPanels = architectTabWindow.desPanelsCached;
         architectTabWindow.selectedDesPanel = desPanels
             .Find(p => p.def == DesignationCategoryDefOf.Production);
-        architectTabWindowTraverse.Field<Designator>("forceActivatedCommand")
-            .Value = DesignationCategoryDefOf.Production.AllResolvedDesignators
+        architectTabWindow.forceActivatedCommand
+            = DesignationCategoryDefOf.Production.AllResolvedDesignators
                 .SingleOrDefault(d => d is Designator_Build build
                     && build.PlacingDef == bestBuildingDef);
     }

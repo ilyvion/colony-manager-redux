@@ -4,7 +4,6 @@
 
 using ilyvion.Laboratory.Collections;
 using static ColonyManagerRedux.Constants;
-using static ColonyManagerRedux.ManagerTab;
 using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;

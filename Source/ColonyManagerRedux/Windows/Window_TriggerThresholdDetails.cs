@@ -2,8 +2,6 @@
 // Copyright Karel Kroeze, 2017-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Reflection;
-
 namespace ColonyManagerRedux;
 
 [HotSwappable]
@@ -16,7 +14,6 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 
     public override Vector2 InitialSize => new(300f, 500);
 
-    private static FieldInfo _viewHeightField = AccessTools.Field(typeof(ThingFilterUI), "viewHeight");
     public override void DoWindowContents(Rect inRect)
     {
         var zoneRectRows = Math.Min((int)Math.Ceiling(
@@ -37,8 +34,9 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         if (Event.current.type == EventType.Layout)
         {
             // For whatever reason, Rimworld adds a 90 pixel margin to the bottom of the filter
-            // list. We don't want that, so remove it again.
-            _viewHeightField.SetValue(null, (float)_viewHeightField.GetValue(null) - 90f);
+            // list in ThingFilterUI.DoThingFilterConfigWindow.
+            // We don't want that, so let's remove it again.
+            ThingFilterUI.viewHeight -= 90f;
         }
 
         // draw zone selector

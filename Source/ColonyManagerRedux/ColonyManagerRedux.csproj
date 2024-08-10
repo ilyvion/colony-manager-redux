@@ -99,6 +99,17 @@
     <ItemGroup>
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.learned" />
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.steps" />
-    </ItemGroup>
+        <Publicize Include="Assembly-CSharp:Verse.ThingFilterUI.viewHeight" />
+        <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.desPanelsCached" />
+        <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.forceActivatedCommand" />
+        <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.def" />
 
+        <Publicize Include="Assembly-CSharp:Verse.LoadedModManager.GetSettingsFilename" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.SetWanted" />
+        <Publicize Include="Assembly-CSharp:Verse.GenFilePaths.FolderUnderSaveData" />
+
+        <Publicize Include="Assembly-CSharp:RimWorld.CompMilkable.Active" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompShearable.Active" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />
+    </ItemGroup>
 </Project>

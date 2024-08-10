@@ -228,7 +228,7 @@ partial class ManagerTab_Livestock
             {
                 // PawnTables aren't very customizable, so we'll hijack this function to inject our
                 // instance into the columns, since we need it there
-                foreach (var item in Traverse.Create(table).Field<PawnTableDef>("def").Value.columns
+                foreach (var item in table.def.columns
                     .Where(c => c.workerClass.IsSubclassOf(
                         typeof(PawnColumnWorker_Livestock))))
                 {

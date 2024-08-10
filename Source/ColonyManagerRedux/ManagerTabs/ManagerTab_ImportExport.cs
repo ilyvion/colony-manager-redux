@@ -3,7 +3,6 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.IO;
-using System.Reflection;
 using ilyvion.Laboratory;
 using ilyvion.Laboratory.UI;
 
@@ -13,9 +12,6 @@ namespace ColonyManagerRedux;
 internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(manager)
 {
     private static readonly Color DefaultFileTextColor = new(1f, 1f, 0.6f);
-
-    private static readonly MethodInfo FolderUnderSaveData_MI
-        = AccessTools.Method(typeof(GenFilePaths), "FolderUnderSaveData");
 
     private string _folder = "";
 
@@ -356,7 +352,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
 
     private static string GetSaveLocation()
     {
-        return (string)FolderUnderSaveData_MI.Invoke(null, ["ManagerJobs"]);
+        return GenFilePaths.FolderUnderSaveData("ManagerJobs");
     }
 
     private bool SaveExists(string name)
