@@ -74,6 +74,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
+        <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Lib.Harmony" Version="2.3.3">
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
@@ -92,4 +96,9 @@
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>
+    <ItemGroup>
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.learned" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.steps" />
+    </ItemGroup>
+
 </Project>

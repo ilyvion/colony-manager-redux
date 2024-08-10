@@ -620,8 +620,6 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     internal void DoTrainingJobs(ref bool workDone, ManagerLog? jobLog = null, bool assign = true)
     {
-        workDone = false;
-
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // skip juveniles if TrainYoung is not enabled.
@@ -783,7 +781,9 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                             !p.training.HasLearned(TrainableDefOf.Obedience))
                         && (ButcherPregnant || !p.VisiblyPregnant())
                         && (ButcherBonded || !p.BondedWithColonist()))
-                    .OrderBy(
+                    // slaughter least trained animals first
+                    .OrderBy(p => p.training.learned.Count(l => l.Value))
+                    .ThenBy(
                         p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks)
                     .ToList();
 
