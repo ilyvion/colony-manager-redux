@@ -186,7 +186,40 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
             "ColonyManagerRedux.Mining.DeconstructBuildings".Translate(),
             "ColonyManagerRedux.Mining.DeconstructBuildings.Tip".Translate(),
             ref SelectedMiningJob.DeconstructBuildings);
-        return ListEntryHeight;
+
+        if (SelectedMiningJob.DeconstructBuildings)
+        {
+            var hasAncientDangerRect = manager.AncientDangerRect.HasValue;
+            var label = "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate();
+            var labelHeight = Text.CalcHeight(label, width);
+            rowRect.y += ListEntryHeight;
+            rowRect.height = labelHeight;
+            Utilities.DrawToggle(rowRect,
+                "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate(),
+                "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged.Tip".Translate(),
+                ref SelectedMiningJob.DeconstructAncientDangerWhenFogged,
+                leaveRoomForAdditionalIcon: !hasAncientDangerRect);
+
+            if (!hasAncientDangerRect)
+            {
+                var iconRect = new Rect(
+                    rowRect.xMax - SmallIconSize - Margin,
+                    0f,
+                    SmallIconSize,
+                    SmallIconSize).CenteredOnYIn(rowRect);
+                iconRect.x -= SmallIconSize + Margin;
+                TooltipHandler.TipRegion(
+                    iconRect,
+                    "ColonyManagerRedux.Mining.CannotFindAncientDanger".Translate());
+                GUI.color = SelectedMiningJob.DeconstructAncientDangerWhenFogged
+                    ? Resources.Orange
+                    : Color.grey;
+                GUI.DrawTexture(iconRect, Resources.Warning);
+                GUI.color = Color.white;
+            }
+        }
+
+        return rowRect.yMax - pos.y;
     }
 
     public float DrawMiningArea(Vector2 pos, float width)

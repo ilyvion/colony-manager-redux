@@ -54,6 +54,7 @@ internal sealed class ManagerJob_Mining : ManagerJob
     public bool HaulMapChunks = true;
     public bool HaulMinedChunks = true;
     public bool DeconstructBuildings;
+    public bool DeconstructAncientDangerWhenFogged;
     public Area? MiningArea;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
 
@@ -99,6 +100,8 @@ internal sealed class ManagerJob_Mining : ManagerJob
             HaulMapChunks = miningSettings.DefaultHaulMapChunks;
             HaulMinedChunks = miningSettings.DefaultHaulMinedChunks;
             DeconstructBuildings = miningSettings.DefaultDeconstructBuildings;
+            DeconstructAncientDangerWhenFogged =
+                miningSettings.DefaultDeconstructAncientDangerWhenFogged;
             CheckRoofSupport = miningSettings.DefaultCheckRoofSupport;
             CheckRoofSupportAdvanced = miningSettings.DefaultCheckRoofSupportAdvanced;
             CheckRoomDivision = miningSettings.DefaultCheckRoomDivision;
@@ -329,7 +332,11 @@ internal sealed class ManagerJob_Mining : ManagerJob
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref HaulMapChunks, "haulMapChunks", true);
         Scribe_Values.Look(ref HaulMinedChunks, "haulMinedChunks", true);
-        Scribe_Values.Look(ref DeconstructBuildings, "deconstructBuildings");
+        Scribe_Values.Look(ref DeconstructBuildings, "deconstructBuildings", false);
+        Scribe_Values.Look(
+            ref DeconstructAncientDangerWhenFogged,
+            "deconstructAncientDangerWhenFogged",
+            false);
         Scribe_Values.Look(ref CheckRoofSupport, "checkRoofSupport", true);
         Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
@@ -881,9 +888,23 @@ internal sealed class ManagerJob_Mining : ManagerJob
         if (DeconstructBuildings)
         {
             var buildings = GetDeconstructibleBuildingsSorted();
+            var ancientDangerRect = Manager.AncientDangerRect;
+            List<LocalTargetInfo> skippedAncientDangerTargets = [];
             for (var i = 0; i < buildings.Count && count < TriggerThreshold.TargetCount; i++)
             {
                 var building = buildings[i];
+
+                if (!DeconstructAncientDangerWhenFogged)
+                {
+                    if (ancientDangerRect is CellRect rect
+                        && rect.CenterCell.Fogged(Manager)
+                        && rect.Contains(building.building.Position)
+                    )
+                    {
+                        skippedAncientDangerTargets.Add(building.building);
+                        continue;
+                    }
+                }
                 AddDesignation(building.building, DesignationDefOf.Deconstruct);
                 count += building.count;
 
@@ -898,6 +919,13 @@ internal sealed class ManagerJob_Mining : ManagerJob
                     building.building);
 
                 workDone = true;
+            }
+            if (skippedAncientDangerTargets.Count > 0)
+            {
+                jobLog.AddDetail("ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings"
+                    .Translate(
+                        skippedAncientDangerTargets.Count),
+                    skippedAncientDangerTargets);
             }
         }
 

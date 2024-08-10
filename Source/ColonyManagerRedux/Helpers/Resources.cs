@@ -42,6 +42,7 @@ public static class Resources
         BarShader = ContentFinder<Texture2D>.Get("UI/Misc/CMR_BarShader"),
         Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh"),
         Stopwatch = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stopwatch"),
+        Warning = ContentFinder<Texture2D>.Get("UI/Icons/CMR_warning"),
         ClawIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw"),
 
         // livestock header icons

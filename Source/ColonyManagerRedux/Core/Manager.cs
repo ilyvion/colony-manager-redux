@@ -28,6 +28,10 @@ public partial class Manager : MapComponent, ILoadReferenceable
     private bool _wasLoaded;
     private int _nextManagerJobID;
 
+    private bool _hasCheckedAncientDangerRect;
+    private CellRect? _ancientDangerRect;
+    public CellRect? AncientDangerRect => _ancientDangerRect;
+
     internal DebugComponent debugComponent;
 
     public Manager(Map map) : base(map)
@@ -118,6 +122,9 @@ public partial class Manager : MapComponent, ILoadReferenceable
 
         Scribe_Values.Look(ref _nextManagerJobID, "nextManagerJobID", 0);
 
+        Scribe_Values.Look(ref _hasCheckedAncientDangerRect, "hasCheckedAncientDangerRect", false);
+        Scribe_Values.Look(ref _ancientDangerRect, "ancientDangerRect", null);
+
         var exposableTabs = _tabs.OfType<IExposable>().ToList();
         Scribe_Collections.Look(ref exposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
@@ -143,6 +150,15 @@ public partial class Manager : MapComponent, ILoadReferenceable
     public override void MapComponentTick()
     {
         base.MapComponentTick();
+
+        if (!_hasCheckedAncientDangerRect)
+        {
+            _ancientDangerRect = map.listerThings.GetThingsOfType<RectTrigger>()
+                .Where(t => t.signalTag.StartsWith("ancientTempleApproached"))
+                .SingleOrDefault()?.Rect;
+
+            _hasCheckedAncientDangerRect = true;
+        }
 
         // tick jobs
         foreach (var job in JobTracker.JobsOfType<ManagerJob>())

@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Setting for continuing to tame animals past targets for the Livestock jobs.
 -   Setting for mining thick roofs for Resource Gathering jobs.
 -   Jobs now log what they've done, which can be reviewed at a later time. Adds a new tab next to the overview tab for this purpose.
+-   Resource Gathering jobs now avoid deconstructing the ancient danger by default. This can be overridden with a setting.
 
 ### Changed
 

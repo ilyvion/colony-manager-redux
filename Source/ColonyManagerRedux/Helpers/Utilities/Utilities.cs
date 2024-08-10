@@ -165,11 +165,11 @@ public static class Utilities
 
     public static void DrawToggle(Rect rect, string label, TipSignal tooltip, ref bool checkOn,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   GameFont font = GameFont.Small, bool wrap = true)
+                                   GameFont font = GameFont.Small, bool wrap = true, bool leaveRoomForAdditionalIcon = false)
     {
         // set up rects
         var labelRect = rect;
-        labelRect.xMax -= size + margin * 2;
+        labelRect.xMax -= size + margin * 2 + ((expensive || leaveRoomForAdditionalIcon) ? size + margin : 0f);
         var iconRect = new Rect(rect.xMax - size - margin, 0f, size, size).CenteredOnYIn(labelRect);
 
         // draw label
@@ -209,7 +209,7 @@ public static class Utilities
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
                                    Action on, Action off,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   GameFont font = GameFont.Small,
+                                   //GameFont font = GameFont.Small,
                                    bool wrap = true)
     {
         var toggleRect = new Rect(
@@ -224,7 +224,7 @@ public static class Utilities
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
                                    bool checkOff, Action on, Action off,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   GameFont font = GameFont.Small,
+                                   //GameFont font = GameFont.Small,
                                    bool wrap = true)
     {
         var toggleRect = new Rect(
