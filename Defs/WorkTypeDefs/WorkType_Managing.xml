@@ -3,7 +3,7 @@
 
     <WorkTypeDef>
         <defName>Managing</defName>
-        <labelShort>managing</labelShort>
+        <labelShort>manage</labelShort>
         <pawnLabel>Manager</pawnLabel>
         <gerundLabel>managing</gerundLabel>
         <description>Managers assign jobs and orders to your colony.</description>
