@@ -54,6 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Guest animals are not included in target counts for livestock, but are still managed by job settings for things like training and area restrictions.
 -   Unforbid corpses before designating hunting; already dead animals are easier/faster/safer source of food and the unforbidding was previously gated behind the check for huntable animals, meaning that if there were no animals to hunt, no corpses would be unforbidden either.
 -   Job state changes (active/completed) now happens as part of managerial work and not magically whenever the threshold changes. This also means that jobs that enter their completed state can do cleanup of their designations, to prevent already set designations from making the stock going way above targets post-completion.
+-   The alerts for missing managers and work tables now feature useful actions on click.
 
 ### Fixed
 

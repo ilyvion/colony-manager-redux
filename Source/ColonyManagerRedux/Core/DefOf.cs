@@ -32,6 +32,8 @@ public static class ManagerJobHistoryChapterDefOf
 public static class ManagerThingDefOf
 {
     public static ThingDef CM_AIManager;
+    public static ThingDef CM_BasicManagerStation;
+    public static ThingDef CM_ManagerStation;
     public static ThingDef Meat_Megaspider;
 
     static ManagerThingDefOf()
@@ -100,6 +102,8 @@ public static class ManagerPawnTableDefOf
 public static class ManagerResearchProjectDefOf
 {
     public static ResearchProjectDef PowerManagement;
+    public static ResearchProjectDef ManagingSoftware;
+    public static ResearchProjectDef AdvancedManagingSoftware;
 
     static ManagerResearchProjectDefOf()
     {
@@ -118,5 +122,16 @@ public static class ManagerWorkGiverDefOf
     static ManagerWorkGiverDefOf()
     {
         DefOfHelper.EnsureInitializedInCtor(typeof(ManagerWorkGiverDefOf));
+    }
+}
+
+[DefOf]
+public static class ManagerMainButtonDefOf
+{
+    public static MainButtonDef Work;
+
+    static ManagerMainButtonDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(ManagerMainButtonDefOf));
     }
 }

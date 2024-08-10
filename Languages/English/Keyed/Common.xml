@@ -6,9 +6,9 @@
 
     <!-- Alert messages -->
     <ColonyManagerRedux.Alerts.NoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.Alerts.NoTableLabel>
-    <ColonyManagerRedux.Alerts.NoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed.\n\n(Click to build {0})</ColonyManagerRedux.Alerts.NoTable>
     <ColonyManagerRedux.Alerts.NoManagerLabel>Need manager</ColonyManagerRedux.Alerts.NoManagerLabel>
-    <ColonyManagerRedux.Alerts.NoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed</ColonyManagerRedux.Alerts.NoManager>
+    <ColonyManagerRedux.Alerts.NoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed.\n\n(Click to open work window)</ColonyManagerRedux.Alerts.NoManager>
     <ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>
     <ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>
     <ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>Auto-slaughter animal overlap</ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>

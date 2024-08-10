@@ -10,7 +10,8 @@ namespace ColonyManagerRedux;
     Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_NoManager : Alert
 {
-    CachedValue<bool> _noManager;
+    readonly CachedValue<bool> _noManager;
+
     public Alert_NoManager()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.NoManagerLabel".Translate();
@@ -38,6 +39,11 @@ internal sealed class Alert_NoManager : Alert
                     Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
                         ManagerThingDefOf.CM_AIManager);
     }
+
+    protected override void OnClick()
+    {
+        Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
+    }
 }
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -46,12 +52,13 @@ internal sealed class Alert_NoManager : Alert
     Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_NoTable : Alert
 {
-    CachedValue<bool> _noTable;
+    readonly CachedValue<bool> _noTable;
 
     public Alert_NoTable()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.NoTableLabel".Translate();
-        defaultExplanation = "ColonyManagerRedux.Alerts.NoTable".Translate();
+        defaultExplanation = "ColonyManagerRedux.Alerts.NoTable".Translate(
+            BestBuildingResearchedThatCanBeBuilt.label);
 
         _noTable = new(false, updater: () =>
             Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
@@ -71,6 +78,43 @@ internal sealed class Alert_NoTable : Alert
         return listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any() ||
             listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
     }
+
+    protected override void OnClick()
+    {
+        Find.MainTabsRoot.SetCurrentTab(MainButtonDefOf.Architect);
+        var architectTabWindow = (MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow;
+
+        var bestBuildingDef = BestBuildingResearchedThatCanBeBuilt;
+
+        var architectTabWindowTraverse = Traverse.Create(architectTabWindow);
+        var desPanels = architectTabWindowTraverse
+            .Field<List<ArchitectCategoryTab>>("desPanelsCached").Value;
+        architectTabWindow.selectedDesPanel = desPanels
+            .Find(p => p.def == DesignationCategoryDefOf.Production);
+        architectTabWindowTraverse.Field<Designator>("forceActivatedCommand")
+            .Value = DesignationCategoryDefOf.Production.AllResolvedDesignators
+                .SingleOrDefault(d => d is Designator_Build build
+                    && build.PlacingDef == bestBuildingDef);
+    }
+
+    private static ThingDef BestBuildingResearchedThatCanBeBuilt
+    {
+        get
+        {
+            if (ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished)
+            {
+                return ManagerThingDefOf.CM_AIManager;
+            }
+            else if (ManagerResearchProjectDefOf.ManagingSoftware.IsFinished)
+            {
+                return ManagerThingDefOf.CM_ManagerStation;
+            }
+            else
+            {
+                return ManagerThingDefOf.CM_BasicManagerStation;
+            }
+        }
+    }
 }
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
@@ -79,8 +123,8 @@ internal sealed class Alert_NoTable : Alert
     Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_TableAndAI : Alert
 {
-    CachedValue<bool> _hasAIManager;
-    CachedValue<List<Thing>> _managerStations;
+    readonly CachedValue<bool> _hasAIManager;
+    readonly CachedValue<List<Thing>> _managerStations;
 
     public Alert_TableAndAI()
     {
@@ -127,7 +171,7 @@ internal sealed class Alert_TableAndAI : Alert
 [HotSwappable]
 internal sealed class Alert_AutoslaughterOverlap : Alert
 {
-    private CachedValue<List<ThingDef>> _overlappingAnimals;
+    private readonly CachedValue<List<ThingDef>> _overlappingAnimals;
 
     public Alert_AutoslaughterOverlap()
     {
