@@ -30,6 +30,7 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
     protected override IEnumerable<Toil> MakeNewToils()
     {
         this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
+        this.FailOn(() => Manager.For(pawn.Map).JobTracker.NextJob == null);
         yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
         var manage = Manage(TargetIndex.A);
         if (manage == null)
