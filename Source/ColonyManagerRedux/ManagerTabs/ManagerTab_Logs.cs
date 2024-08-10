@@ -187,12 +187,14 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
             LargeIconSize, LargeIconSize);
 
         var labelWidth = width - LargeIconSize - 3 * Margin;
-        var headerLabel = log._workDone
-            ? log.JobLabelCap
-            : $"<color=#7f7f7f>{log.JobLabelCap}</color>";
+        var headerLabel = log.JobLabelCap;
         if (!headerLabel.Fits(labelWidth, out var labelSize))
         {
             headerLabel = headerLabel.Truncate(labelWidth);
+        }
+        if (!log._workDone)
+        {
+            headerLabel = $"<color=#7f7f7f>{headerLabel}</color>";
         }
         var headerLabelRect = new Rect(
             iconRect.xMax + Margin,
