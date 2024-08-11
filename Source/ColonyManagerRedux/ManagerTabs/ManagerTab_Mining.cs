@@ -189,7 +189,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
 
         if (SelectedMiningJob.DeconstructBuildings)
         {
-            var hasAncientDangerRect = manager.AncientDangerRect.HasValue;
+            var hasAncientDangerRect = Manager.AncientDangerRect.HasValue;
             var label = "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate();
             var labelHeight = Text.CalcHeight(label, width);
             rowRect.y += ListEntryHeight;
@@ -225,7 +225,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
     public float DrawMiningArea(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedMiningJob.MiningArea, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedMiningJob.MiningArea, Manager);
         return pos.y - start.y;
     }
 
@@ -314,7 +314,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
     protected override void Refresh()
     {
         // update pawnkind options
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Mining>())
+        foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob_Mining>())
         {
             job.RefreshAllBuildingsAndMinerals();
         }
@@ -389,7 +389,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
             {
                 // activate job, add it to the stack
                 SelectedMiningJob.IsManaged = true;
-                manager.JobTracker.Add(SelectedMiningJob);
+                Manager.JobTracker.Add(SelectedMiningJob);
 
                 // refresh source list
                 Refresh();
@@ -400,7 +400,7 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobTracker.Delete(SelectedMiningJob);
+                Manager.JobTracker.Delete(SelectedMiningJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();

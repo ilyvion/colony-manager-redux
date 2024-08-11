@@ -77,7 +77,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        TriggerThreshold.job = this;
 
         AllowedPlants.RemoveWhere(p => !AllPlants.Contains(p));
     }

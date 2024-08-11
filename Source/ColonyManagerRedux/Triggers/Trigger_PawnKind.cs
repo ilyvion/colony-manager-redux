@@ -27,14 +27,14 @@ internal sealed class Trigger_PawnKind : Trigger
         get
         {
             return Utilities_Livestock.AgeSexArray
-                .Select(ageSex => pawnKind.GetTame(job.Manager, ageSex, includeGuests: false).Count())
+                .Select(ageSex => pawnKind.GetTame(Job.Manager, ageSex, includeGuests: false).Count())
                 .ToArray();
         }
     }
 
     public int GetCountFor(AgeAndSex ageAndSex, bool cached = true)
     {
-        return pawnKind.GetTame(job.Manager, ageAndSex, cached, false).Count();
+        return pawnKind.GetTame(Job.Manager, ageAndSex, cached, false).Count();
     }
 
     public int GetTargetFor(AgeAndSex ageAndSex)
@@ -54,13 +54,10 @@ internal sealed class Trigger_PawnKind : Trigger
         };
     }
 
-    public ManagerJob_Livestock Job
+    public new ManagerJob_Livestock Job
     {
-        get
-        {
-            return job.Manager.JobTracker.JobsOfType<ManagerJob_Livestock>()
-                .FirstOrDefault(job => job.Trigger == this);
-        }
+        get => (ManagerJob_Livestock)base.Job;
+        set => base.Job = value;
     }
 
     public override bool State
@@ -72,7 +69,7 @@ internal sealed class Trigger_PawnKind : Trigger
 
                 state = Utilities_Livestock.AgeSexArray.All(
                     ageSex => CountTargets[(int)ageSex] ==
-                        pawnKind.GetTame(job.Manager, ageSex).Count())
+                        pawnKind.GetTame(Job.Manager, ageSex).Count())
                      && AllTrainingWantedSet();
                 _cachedState.Update(state);
             }
@@ -155,7 +152,7 @@ internal sealed class Trigger_PawnKind : Trigger
                     l.GetLabel()), null)));
         tooltipArgs.Add(
             "ColonyManagerRedux.Livestock.WildCount".Translate(
-                pawnKind.GetWild(job.Manager).Count())
+                pawnKind.GetWild(Job.Manager).Count())
         );
         return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray()).Resolve().CapitalizeFirst();
     }

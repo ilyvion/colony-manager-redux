@@ -103,7 +103,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     public void DrawOverview(Rect rect)
     {
-        if (manager.JobTracker.HasNoJobs)
+        if (Manager.JobTracker.HasNoJobs)
         {
             Text.Anchor = TextAnchor.MiddleCenter;
             GUI.color = Color.grey;
@@ -127,7 +127,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             var cur = Vector2.zero;
 
             var alternate = false;
-            foreach (ManagerJob job in manager.JobTracker.JobsOfType<ManagerJob>())
+            foreach (ManagerJob job in Manager.JobTracker.JobsOfType<ManagerJob>())
             {
                 var row = new Rect(cur.x, cur.y, contentRect.width, 0f);
                 DrawOverviewListEntry(job, ref cur, contentRect.width);
@@ -282,7 +282,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         // if the bill has a manager job, give some more info.
         if (tab.Enabled)
         {
-            if (Widgets.ButtonImage(iconRect, tab.def.icon))
+            if (Widgets.ButtonImage(iconRect, tab.Def.icon))
             {
                 MainTabWindow_Manager.GoTo(tab, job);
             }
@@ -292,7 +292,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         else
         {
             using var color = GUIScope.Color(Color.gray);
-            GUI.DrawTexture(iconRect, tab.def.icon);
+            GUI.DrawTexture(iconRect, tab.Def.icon);
             TooltipHandler.TipRegion(iconRect, tab.Label +
                 "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
         }
@@ -341,7 +341,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         if (job.Trigger != null)
         {
-            if (parameters.showProgressbar)
+            if (parameters.ShowProgressbar)
             {
                 // draw progress bar
                 job.Trigger.DrawVerticalProgressBars(
@@ -357,7 +357,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                 job.IsSuspended);
         }
 
-        if (DrawOrderButtons(orderRect, job, ManagerJobs.ToList(), manager.JobTracker))
+        if (DrawOrderButtons(orderRect, job, ManagerJobs.ToList(), Manager.JobTracker))
         {
             Refresh();
         }
@@ -381,7 +381,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
     private void RefreshWorkers()
     {
         var temp =
-            manager.map.mapPawns.FreeColonistsSpawned.Where(
+            Manager.map.mapPawns.FreeColonistsSpawned.Where(
                 pawn => !pawn.WorkTypeIsDisabled(WorkTypeDef));
 
         // sort by either specific skill def or average over job - depending on which is known.
@@ -396,5 +396,5 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
 public class DrawOverviewListEntryParameters
 {
-    public bool showProgressbar = true;
+    public bool ShowProgressbar { get; set; } = true;
 }

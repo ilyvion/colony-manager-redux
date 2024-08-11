@@ -24,14 +24,20 @@ public partial class History : IExposable
     internal readonly List<Chapter> _chaptersShown = [];
 
     // Settings for plot
-    public bool AllowTogglingLegend = true;
-    public bool DrawInlineLegend = true;
-    public bool DrawOptions = true;
-    public bool DrawTargetLine = true;
+    private bool _allowTogglingLegend = true;
+    public bool AllowTogglingLegend { get => _allowTogglingLegend; set => _allowTogglingLegend = value; }
+    private bool _drawInlineLegend = true;
+    public bool DrawInlineLegend { get => _drawInlineLegend; set => _drawInlineLegend = value; }
+    private bool _drawOptions = true;
+    public bool DrawOptions { get => _drawOptions; set => _drawOptions = value; }
+    private bool _drawTargetLine = true;
+    public bool DrawTargetLine { get => _drawTargetLine; set => _drawTargetLine = value; }
 
     // Shared settings
-    public Period PeriodShown = Period.Day;
-    public string YAxisSuffix = string.Empty;
+    private Period _periodShown = Period.Day;
+    public Period PeriodShown { get => _periodShown; set => _periodShown = value; }
+    private string _yAxisSuffix = string.Empty;
+    public string YAxisSuffix { get => _yAxisSuffix; set => _yAxisSuffix = value; }
 
     // each chapter holds the history for all periods.
     internal List<Chapter> _chapters = [];
@@ -139,12 +145,12 @@ public partial class History : IExposable
     public void ExposeData()
     {
         // settings
-        Scribe_Values.Look(ref AllowTogglingLegend, "allowToggingLegend", true);
-        Scribe_Values.Look(ref DrawInlineLegend, "showLegend", true);
-        Scribe_Values.Look(ref DrawTargetLine, "drawTargetLine", true);
-        Scribe_Values.Look(ref DrawOptions, "drawOptions", true);
-        Scribe_Values.Look(ref PeriodShown, "periodShown", Period.Day);
-        Scribe_Values.Look(ref YAxisSuffix, "suffix", "");
+        Scribe_Values.Look(ref _allowTogglingLegend, "allowToggingLegend", true);
+        Scribe_Values.Look(ref _drawInlineLegend, "showLegend", true);
+        Scribe_Values.Look(ref _drawTargetLine, "drawTargetLine", true);
+        Scribe_Values.Look(ref _drawOptions, "drawOptions", true);
+        Scribe_Values.Look(ref _periodShown, "periodShown", Period.Day);
+        Scribe_Values.Look(ref _yAxisSuffix, "suffix", "");
 
         // history chapters
         Scribe_Collections.Look(ref _chapters, "chapters", LookMode.Deep);

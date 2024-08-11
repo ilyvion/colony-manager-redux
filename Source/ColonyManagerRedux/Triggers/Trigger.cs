@@ -2,12 +2,15 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using Verse.AI;
+
 namespace ColonyManagerRedux;
 
 [HotSwappable]
 public abstract class Trigger(ManagerJob job) : IExposable
 {
-    public ManagerJob job = job;
+    private ManagerJob _job = job;
+    public ManagerJob Job { get => _job; internal set => _job = value; }
 
     public abstract bool State { get; }
     public virtual string StatusTooltip { get; } = string.Empty;
@@ -16,7 +19,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
     {
         if (Manager.Mode == Manager.ScribingMode.Normal)
         {
-            Scribe_References.Look(ref job, "job");
+            Scribe_References.Look(ref _job, "job");
         }
     }
 

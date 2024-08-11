@@ -19,7 +19,6 @@
         <li>
             <packageId>ilyvion.Laboratory</packageId>
             <displayName>ilyvion's Laboratory</displayName>
-            <!-- TODO: Fix these ID values before release! -->
             <downloadUrl>https://github.com/ilyvion/ilyvion-laboratory/releases/latest</downloadUrl>
             <steamWorkshopUrl>steam://url/CommunityFilePage/3296362231</steamWorkshopUrl>
         </li>

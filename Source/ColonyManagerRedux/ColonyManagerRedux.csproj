@@ -41,9 +41,6 @@
         -->
         <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201;IDE0305</NoWarn>
 
-        <!-- TODO: Deal properly with these later -->
-        <NoWarn>$(NoWarn);CA1051</NoWarn>
-
         <RootNamespace>ColonyManagerRedux</RootNamespace>
         <AssemblyName>ColonyManagerRedux</AssemblyName>
         <VersionPrefix>0.1.0</VersionPrefix>

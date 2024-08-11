@@ -67,7 +67,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             {
                 // activate job, add it to the stack
                 SelectedHuntingJob.IsManaged = true;
-                manager.JobTracker.Add(SelectedHuntingJob);
+                Manager.JobTracker.Add(SelectedHuntingJob);
 
                 // refresh source list
                 Refresh();
@@ -78,7 +78,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobTracker.Delete(SelectedHuntingJob);
+                Manager.JobTracker.Delete(SelectedHuntingJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -294,7 +294,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     public float DrawHuntingGrounds(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedHuntingJob.HuntingGrounds, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedHuntingJob.HuntingGrounds, Manager);
         return pos.y - start.y;
     }
 
@@ -349,7 +349,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     protected override void Refresh()
     {
         // update pawnkind options
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Hunting>())
+        foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob_Hunting>())
         {
             job.RefreshAllAnimals();
         }

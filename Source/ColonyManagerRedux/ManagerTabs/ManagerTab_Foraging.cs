@@ -64,7 +64,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
             {
                 // activate job, add it to the stack
                 SelectedForagingJob.IsManaged = true;
-                manager.JobTracker.Add(SelectedForagingJob);
+                Manager.JobTracker.Add(SelectedForagingJob);
 
                 // refresh source list
                 Refresh();
@@ -75,7 +75,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobTracker.Delete(SelectedForagingJob);
+                Manager.JobTracker.Delete(SelectedForagingJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -89,7 +89,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
     public float DrawAreaRestriction(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForagingJob.ForagingArea, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForagingJob.ForagingArea, Manager);
         return pos.y - start.y;
     }
 
@@ -210,7 +210,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
     protected override void Refresh()
     {
         // update plant options
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Foraging>())
+        foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob_Foraging>())
         {
             job.RefreshAllPlants();
         }

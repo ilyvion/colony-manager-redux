@@ -17,7 +17,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             ManagerJob_Forestry job,
             ref DrawOverviewListEntryParameters parameters)
         {
-            parameters.showProgressbar = job.Type == ForestryJobType.Logging;
+            parameters.ShowProgressbar = job.Type == ForestryJobType.Logging;
         }
         public override void DrawOverviewListEntry(ManagerJob_Forestry job, ref Vector2 position, float width)
         {
@@ -84,7 +84,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             {
                 // activate job, add it to the stack
                 SelectedForestryJob.IsManaged = true;
-                manager.JobTracker.Add(SelectedForestryJob);
+                Manager.JobTracker.Add(SelectedForestryJob);
 
                 // refresh source list
                 Refresh();
@@ -95,7 +95,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Delete".Translate()))
             {
                 // inactivate job, remove from the stack.
-                manager.JobTracker.Delete(SelectedForestryJob);
+                Manager.JobTracker.Delete(SelectedForestryJob);
 
                 // remove content from UI
                 Selected = MakeNewJob();
@@ -114,7 +114,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
     {
         parameters = new()
         {
-            showProgressbar = ((ManagerJob_Forestry)job).Type == ForestryJobType.Logging
+            ShowProgressbar = ((ManagerJob_Forestry)job).Type == ForestryJobType.Logging
         };
 
         base.DrawLocalListEntry(job, ref position, width, parameters);
@@ -152,7 +152,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
     public float DrawAreaRestriction(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForestryJob.LoggingArea, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForestryJob.LoggingArea, Manager);
         return pos.y - start.y;
     }
 
@@ -164,7 +164,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             pos.y,
             width,
             ListEntryHeight);
-        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref SelectedForestryJob.ClearAreas, manager);
+        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref SelectedForestryJob.ClearAreas, Manager);
         pos.y += ListEntryHeight;
 
         return pos.y - start.y;
@@ -344,7 +344,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
     protected override void Refresh()
     {
         // makes sure the list of possible areas is up-to-date with the area in the game.
-        foreach (var job in manager.JobTracker.JobsOfType<ManagerJob_Forestry>())
+        foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob_Forestry>())
         {
             job.UpdateClearAreas();
             job.RefreshAllTrees();

@@ -154,10 +154,10 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
             if (tab == CurrentTab)
             {
                 GUI.color = GenUI.MouseoverColor;
-                Widgets.ButtonImage(rect, tab.def.icon, GenUI.MouseoverColor);
+                Widgets.ButtonImage(rect, tab.Def.icon, GenUI.MouseoverColor);
                 GUI.color = Color.white;
             }
-            else if (Widgets.ButtonImage(rect, tab.def.icon))
+            else if (Widgets.ButtonImage(rect, tab.Def.icon))
             {
                 GoTo(tab);
             }
@@ -167,7 +167,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         else
         {
             GUI.color = Color.grey;
-            GUI.DrawTexture(rect, tab.def.icon);
+            GUI.DrawTexture(rect, tab.Def.icon);
             GUI.color = Color.white;
             TooltipHandler.TipRegion(rect, tab.Label +
                 "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
@@ -197,7 +197,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         base.PreOpen();
 
         // make sure the currently open tab is for this map
-        if (CurrentTab.manager.map != Find.CurrentMap)
+        if (CurrentTab.Manager.map != Find.CurrentMap)
         {
             CurrentTab = DefaultTab;
         }

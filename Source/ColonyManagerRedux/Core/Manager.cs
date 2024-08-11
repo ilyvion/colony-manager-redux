@@ -60,7 +60,7 @@ public partial class Manager : MapComponent, ILoadReferenceable
     {
         get
         {
-            _managerTabsLeft ??= _tabs.Where(tab => tab.def.iconArea == IconArea.Left).ToList();
+            _managerTabsLeft ??= _tabs.Where(tab => tab.Def.iconArea == IconArea.Left).ToList();
             return _managerTabsLeft;
         }
     }
@@ -70,7 +70,7 @@ public partial class Manager : MapComponent, ILoadReferenceable
         get
         {
             _managerTabsMiddle ??=
-                _tabs.Where(tab => tab.def.iconArea == IconArea.Middle).ToList();
+                _tabs.Where(tab => tab.Def.iconArea == IconArea.Middle).ToList();
             return _managerTabsMiddle;
         }
     }
@@ -80,7 +80,7 @@ public partial class Manager : MapComponent, ILoadReferenceable
         get
         {
             _managerTabsRight ??=
-                _tabs.Where(tab => tab.def.iconArea == IconArea.Right).ToList();
+                _tabs.Where(tab => tab.Def.iconArea == IconArea.Right).ToList();
             return _managerTabsRight;
         }
     }
@@ -136,7 +136,7 @@ public partial class Manager : MapComponent, ILoadReferenceable
                 if (oldTab.t != null)
                 {
                     var newTab = (ManagerTab)exposableTab;
-                    newTab.def = oldTab.t.def;
+                    newTab.Def = oldTab.t.Def;
                     _tabs[oldTab.i] = newTab;
                 }
             }

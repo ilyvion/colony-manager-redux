@@ -7,8 +7,8 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 {
-    public string Input = "";
-    public Trigger_Threshold Trigger = trigger;
+    private string _input = "";
+    private readonly Trigger_Threshold _trigger = trigger;
 
     private ThingFilterUI.UIState _uIState = new();
 
@@ -17,7 +17,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
     public override void DoWindowContents(Rect inRect)
     {
         var zoneRectRows = Math.Min((int)Math.Ceiling(
-            (double)(Trigger.job.Manager.map.zoneManager.AllZones.OfType<Zone_Stockpile>().Count() + 1) /
+            (double)(_trigger.Job.Manager.map.zoneManager.AllZones.OfType<Zone_Stockpile>().Count() + 1) /
             StockpileGUI.StockPilesPerRow), 3);
         var zoneRectHeight = zoneRectRows * Constants.ListEntryHeight;
 
@@ -30,7 +30,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
             filterRect.width, Constants.ListEntryHeight);
 
         // draw thingfilter
-        ThingFilterUI.DoThingFilterConfigWindow(filterRect, _uIState, Trigger.ThresholdFilter, Trigger.ParentFilter);
+        ThingFilterUI.DoThingFilterConfigWindow(filterRect, _uIState, _trigger.ThresholdFilter, _trigger.ParentFilter);
         if (Event.current.type == EventType.Layout)
         {
             // For whatever reason, Rimworld adds a 90 pixel margin to the bottom of the filter
@@ -40,7 +40,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw zone selector
-        StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref Trigger.stockpile, Trigger.job.Manager);
+        StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref _trigger.StockpileRef, _trigger.Job.Manager);
 
         // draw operator button
         // if (Widgets.ButtonText(buttonRect, Trigger.OpString))
@@ -61,12 +61,12 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 
         // if current input is invalid color the element red
         var oldColor = GUI.color;
-        if (int.TryParse(Input, out var value))
+        if (int.TryParse(_input, out var value))
         {
-            Trigger.TargetCount = value;
-            if (Trigger.TargetCount > Trigger.MaxUpperThreshold)
+            _trigger.TargetCount = value;
+            if (_trigger.TargetCount > _trigger.MaxUpperThreshold)
             {
-                Trigger.MaxUpperThreshold = Trigger.TargetCount;
+                _trigger.MaxUpperThreshold = _trigger.TargetCount;
             }
         }
         else
@@ -75,7 +75,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw the input field
-        Input = Widgets.TextField(buttonRect, Input);
+        _input = Widgets.TextField(buttonRect, _input);
         GUI.color = oldColor;
 
         // close on enter
@@ -90,6 +90,6 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
     public override void PreOpen()
     {
         base.PreOpen();
-        Input = Trigger.TargetCount.ToString();
+        _input = _trigger.TargetCount.ToString();
     }
 }

@@ -12,5 +12,10 @@ csharp_style_namespace_declarations = file_scoped:warning
 # IDE0032: Use auto property
 dotnet_style_prefer_auto_properties = true
 
+# TODO: Remove this
 [{ManagerJob_,ManagerJobSettings_,ManagerTab_}*.cs]
 dotnet_diagnostic.CA1812.severity = none
+
+# CA1051: CompProperties and Defs need public fields
+[{ManagerJobCompProperties,CompProperties_*,*Def}.cs]
+dotnet_diagnostic.CA1051.severity = none

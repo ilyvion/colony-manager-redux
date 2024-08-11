@@ -112,7 +112,6 @@ internal sealed class ManagerJob_Mining : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        TriggerThreshold.job = this;
 
         AllowedMinerals.RemoveWhere(m => !AllMinerals.Contains(m));
         AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));

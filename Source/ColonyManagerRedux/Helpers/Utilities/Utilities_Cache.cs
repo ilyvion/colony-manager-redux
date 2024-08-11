@@ -4,6 +4,7 @@
 
 namespace ColonyManagerRedux;
 
+// TODO: Move to ilyvion.Laboratory
 public class CachedValues<TKey, TValue>(int updateInterval = 250)
 {
     private readonly Dictionary<TKey, CachedValue<TValue>> _cache = [];
@@ -137,11 +138,4 @@ public class CachedValue<T>
     {
         _timeSet = null;
     }
-}
-
-// count cache for multiple products
-public class FilterCountCache(int count)
-{
-    public int Cache = count;
-    public int TimeSet = Find.TickManager.TicksGame;
 }

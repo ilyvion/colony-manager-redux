@@ -199,7 +199,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 SelectedJob.IsManaged = true;
                 _onCurrentTab = true;
-                manager.JobTracker.Add(SelectedJob);
+                Manager.JobTracker.Add(SelectedJob);
                 Refresh();
             }
 
@@ -321,16 +321,16 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             // do the selectors
             job.RestrictArea[0] = AreaAllowedGUI.DoAllowedAreaSelectors(
                 areaRects[1, 1],
-                job.RestrictArea[0], manager, Margin);
+                job.RestrictArea[0], Manager, Margin);
             job.RestrictArea[1] = AreaAllowedGUI.DoAllowedAreaSelectors(
                 areaRects[2, 1],
-                job.RestrictArea[1], manager, Margin);
+                job.RestrictArea[1], Manager, Margin);
             job.RestrictArea[2] = AreaAllowedGUI.DoAllowedAreaSelectors(
                 areaRects[1, 2],
-                job.RestrictArea[2], manager, Margin);
+                job.RestrictArea[2], Manager, Margin);
             job.RestrictArea[3] = AreaAllowedGUI.DoAllowedAreaSelectors(
                 areaRects[2, 2],
-                job.RestrictArea[3], manager, Margin);
+                job.RestrictArea[3], Manager, Margin);
 
             Text.Anchor = TextAnchor.UpperLeft; // DoAllowedAreaMode leaves the anchor in an incorrect state.
             pos.y += 3 * ListEntryHeight;
@@ -349,7 +349,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var slaughterAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 AreaAllowedGUI.DoAllowedAreaSelectors(slaughterAreaRect, ref job.SlaughterArea,
-                    manager);
+                    Manager);
                 pos.y += ListEntryHeight;
             }
         }
@@ -376,7 +376,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var milkingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 AreaAllowedGUI.DoAllowedAreaSelectors(milkingAreaRect, ref job.MilkArea,
-                    manager);
+                    Manager);
                 pos.y += ListEntryHeight;
             }
         }
@@ -394,7 +394,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var shearingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 AreaAllowedGUI.DoAllowedAreaSelectors(shearingAreaRect, ref job.ShearArea,
-                    manager);
+                    Manager);
                 pos.y += ListEntryHeight;
             }
         }
@@ -412,7 +412,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var trainingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
                 AreaAllowedGUI.DoAllowedAreaSelectors(trainingAreaRect, ref job.TrainingArea,
-                    manager);
+                    Manager);
                 pos.y += ListEntryHeight;
             }
         }
@@ -558,9 +558,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             // draw label
             var label = animalDef.LabelCap + "\n<i>" +
                 "ColonyManagerRedux.Livestock.TameCount".Translate(
-                    animalDef.GetTame(manager, false).Count()) + ", " +
+                    animalDef.GetTame(Manager, false).Count()) + ", " +
                 "ColonyManagerRedux.Livestock.WildCount".Translate(
-                    animalDef.GetWild(manager).Count()) + ".</i>";
+                    animalDef.GetWild(Manager).Count()) + ".</i>";
             Label(row, label, TextAnchor.MiddleLeft, margin: Margin * 2);
 
             // button
@@ -623,8 +623,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
     {
         parameters = new()
         {
-            showOrdering = false,
-            statusHeight = 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2,
+            ShowOrdering = false,
+            StatusHeight = 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2,
         };
 
         base.DrawLocalListEntry(
@@ -673,7 +673,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             }
 
             // specific pawns
-            foreach (var pawn in job.TriggerPawnKind.pawnKind.GetMasterOptions(manager, MasterMode.All))
+            foreach (var pawn in job.TriggerPawnKind.pawnKind.GetMasterOptions(Manager, MasterMode.All))
             {
                 options.Add(new FloatMenuOption(
                     "ColonyManagerRedux.Livestock.Master".Translate(pawn.LabelShort,
@@ -786,7 +786,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 }
 
                 // specific pawns
-                foreach (var pawn in job.TriggerPawnKind.pawnKind.GetTrainers(manager, MasterMode.Trainers))
+                foreach (var pawn in job.TriggerPawnKind.pawnKind.GetTrainers(Manager, MasterMode.Trainers))
                 {
                     options.Add(new FloatMenuOption(
                         "ColonyManagerRedux.Livestock.Master".Translate(pawn.LabelShort,
@@ -821,7 +821,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 "ColonyManagerRedux.Livestock.TamePastTargets.Tip".Translate(),
                 ref job.TamePastTargets);
 
-            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, manager);
+            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, Manager);
             DrawReachabilityToggle(ref pos, width, ref job.ShouldCheckReachable);
             DrawToggle(ref pos, width,
                 "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
@@ -939,12 +939,12 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     private void DrawTamedAnimalTable(Rect rect)
     {
-        DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(manager));
+        DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(Manager));
     }
 
     private void DrawWildAnimalTable(Rect rect)
     {
-        DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(manager));
+        DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(Manager));
     }
 
     private void DrawAnimalTable(Rect rect, ref PawnTable? pawnTable, string type, Func<PawnKindDef, IEnumerable<Pawn>?> animalGetter)
@@ -972,12 +972,12 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
     protected override void Refresh()
     {
         // currently managed
-        var currentJobs = manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();
+        var currentJobs = Manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();
 
         // concatenate lists of animals on biome and animals in colony.
-        _availablePawnKinds = manager.map.Biome.AllWildAnimals.ToList();
+        _availablePawnKinds = Manager.map.Biome.AllWildAnimals.ToList();
         _availablePawnKinds.AddRange(
-            manager.map.mapPawns.AllPawns
+            Manager.map.mapPawns.AllPawns
                 .Where(p => p.RaceProps.Animal)
                 .Select(p => p.kindDef));
         _availablePawnKinds = _availablePawnKinds

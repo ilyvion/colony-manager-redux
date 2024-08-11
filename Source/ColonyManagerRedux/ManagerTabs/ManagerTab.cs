@@ -11,7 +11,7 @@ namespace ColonyManagerRedux;
 
 public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where T : ManagerJob
 {
-    protected override IEnumerable<ManagerJob> ManagerJobs => manager.JobTracker.JobsOfType<T>();
+    protected override IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<T>();
 
     public T? SelectedJob => (T?)Selected;
 }
@@ -29,9 +29,11 @@ public abstract class ManagerTab(Manager manager)
         ProgressRectWidth = 60f,
         StatusRectWidth = StampSize + LastUpdateRectWidth + ProgressRectWidth + 2 * Margin;
 
-    public ManagerDef def;
+    private ManagerDef _def;
+    public ManagerDef Def { get => _def; internal set => _def = value; }
 
-    public Manager manager = manager;
+    private Manager _manager = manager;
+    public Manager Manager { get => _manager; private set => _manager = value; }
 
     public virtual string DisabledReason => "";
 
@@ -39,7 +41,7 @@ public abstract class ManagerTab(Manager manager)
 
     protected virtual bool CreateNewSelectedJobOnMake => true;
 
-    public virtual string Label => def.label.CapitalizeFirst();
+    public virtual string Label => _def.label.CapitalizeFirst();
 
     private ManagerJob? _selected;
     public ManagerJob? Selected
@@ -112,7 +114,8 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
-    protected virtual IEnumerable<ManagerJob> ManagerJobs => manager.JobTracker.JobsOfType<ManagerJob>();
+    protected virtual IEnumerable<ManagerJob> ManagerJobs => _manager.JobTracker.JobsOfType<ManagerJob>();
+
 
     protected virtual void DoMainContent(Rect rect)
     {
@@ -142,8 +145,8 @@ public abstract class ManagerTab(Manager manager)
         Rect statusRect = new(
             0,
             labelRect.yMax + Margin,
-            width - (parameters.showOrdering ? LargeListEntryHeight : Margin),
-            parameters.statusHeight);
+            width - (parameters.ShowOrdering ? LargeListEntryHeight : Margin),
+            parameters.StatusHeight);
 
         Rect rowRect = new(
             position.x,
@@ -233,7 +236,7 @@ public abstract class ManagerTab(Manager manager)
                     "ColonyManagerRedux.Job.Suspend".Translate()));
         }
 
-        if (parameters.showProgressbar)
+        if (parameters.ShowProgressbar)
         {
             job.Trigger!.DrawHorizontalProgressBars(
                 progressRect,
@@ -246,11 +249,11 @@ public abstract class ManagerTab(Manager manager)
             false,
             job.IsSuspended);
 
-        if (parameters.showOrdering && DrawOrderButtons(
+        if (parameters.ShowOrdering && DrawOrderButtons(
             orderRect,
             job,
             ManagerJobs.ToList(),
-            manager.JobTracker))
+            _manager.JobTracker))
         {
             Refresh();
         }
@@ -360,7 +363,7 @@ public abstract class ManagerTab(Manager manager)
 
     public ManagerJob? MakeNewJob(params object[] args)
     {
-        return ManagerDefMaker.MakeManagerJob(def, manager, args);
+        return ManagerDefMaker.MakeManagerJob(_def, _manager, args);
     }
 
     public virtual void PostClose()
@@ -415,7 +418,7 @@ public abstract class ManagerTab(Manager manager)
             () => options.ForEach(p => setAllowed(p, false)));
     }
 
-    protected ScrollViewStatus _jobListScrollViewStatus = new();
+    private ScrollViewStatus _jobListScrollViewStatus = new();
     protected virtual void DoJobList(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
@@ -586,7 +589,7 @@ public abstract class ManagerTab(Manager manager)
 
 public class DrawLocalListEntryParameters
 {
-    public bool showOrdering = true;
-    public bool showProgressbar = true;
-    public float statusHeight = SmallIconSize;
+    public bool ShowOrdering { get; set; } = true;
+    public bool ShowProgressbar { get; set; } = true;
+    public float StatusHeight { get; set; } = SmallIconSize;
 }

@@ -8,7 +8,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public class Trigger_Threshold : Trigger
+public sealed class Trigger_Threshold : Trigger
 {
     public enum Ops
     {
@@ -17,17 +17,24 @@ public class Trigger_Threshold : Trigger
         HigherThan
     }
 
-    public bool CountAllOnMap;
+    private bool countAllOnMap;
+    public bool CountAllOnMap { get => countAllOnMap; set => countAllOnMap = value; }
 
-    public int MaxUpperThreshold;
+    private int maxUpperThreshold;
+    public int MaxUpperThreshold { get => maxUpperThreshold; set => maxUpperThreshold = value; }
 
-    public Ops Op;
+    private Ops op;
+    public Ops Op { get => op; set => op = value; }
 
-    public ThingFilter ParentFilter;
+    private ThingFilter parentFilter;
+    public ThingFilter ParentFilter { get => parentFilter; set => parentFilter = value; }
 
-    public Zone_Stockpile? stockpile;
+    private Zone_Stockpile? stockpile;
+    public Zone_Stockpile? Stockpile { get => stockpile; set => stockpile = value; }
+    public ref Zone_Stockpile? StockpileRef { get => ref stockpile; }
 
-    public int TargetCount;
+    private int targetCount;
+    public int TargetCount { get => targetCount; set => targetCount = value; }
 
     private ThingFilter thresholdFilter;
     public ThingFilter ThresholdFilter { get => thresholdFilter; }
@@ -35,7 +42,7 @@ public class Trigger_Threshold : Trigger
 
     private string? _stockpile_scribe;
 
-    public Action? SettingsChanged;
+    public Action? SettingsChanged { get; set; }
 
     public Trigger_Threshold(ManagerJob job) : base(job)
     {
@@ -45,17 +52,17 @@ public class Trigger_Threshold : Trigger
         }
 
         Settings settings = ColonyManagerReduxMod.Settings;
-        CountAllOnMap = settings.DefaultCountAllOnMap;
+        countAllOnMap = settings.DefaultCountAllOnMap;
 
-        ParentFilter = new ThingFilter();
-        ParentFilter.SetDisallowAll();
+        parentFilter = new ThingFilter();
+        parentFilter.SetDisallowAll();
 
         thresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
         ThresholdFilter.SetDisallowAll();
 
-        Op = Ops.LowerThan;
-        MaxUpperThreshold = job.MaxUpperThreshold;
-        TargetCount = settings.DefaultTargetCount;
+        op = Ops.LowerThan;
+        maxUpperThreshold = job.MaxUpperThreshold;
+        targetCount = settings.DefaultTargetCount;
     }
 
     private void ThresholdFilter_SettingsChanged()
@@ -65,7 +72,7 @@ public class Trigger_Threshold : Trigger
     }
 
     private int CurrentCountRaw =>
-        job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
+        Job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
 
     public int GetCurrentCount(bool cached = true)
     {
@@ -89,11 +96,11 @@ public class Trigger_Threshold : Trigger
 
     public bool IsValid => ThresholdFilter.AllowedDefCount > 0;
 
-    public virtual string OpString
+    public string OpString
     {
         get
         {
-            return Op switch
+            return op switch
             {
                 Ops.LowerThan => " < ",
                 Ops.Equals => " = ",
@@ -107,16 +114,16 @@ public class Trigger_Threshold : Trigger
     {
         get
         {
-            switch (Op)
+            switch (op)
             {
                 case Ops.LowerThan:
-                    return GetCurrentCount() < TargetCount;
+                    return GetCurrentCount() < targetCount;
 
                 case Ops.Equals:
-                    return GetCurrentCount() == TargetCount;
+                    return GetCurrentCount() == targetCount;
 
                 case Ops.HigherThan:
-                    return GetCurrentCount() > TargetCount;
+                    return GetCurrentCount() > targetCount;
 
                 default:
                     ColonyManagerReduxMod.Instance.LogWarning(
@@ -126,7 +133,7 @@ public class Trigger_Threshold : Trigger
         }
     }
 
-    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetCount);
+    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), targetCount);
 
     public override void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
@@ -134,7 +141,7 @@ public class Trigger_Threshold : Trigger
         DrawVerticalProgressBar(
             progressRect,
             GetCurrentCount(),
-            TargetCount,
+            targetCount,
             StatusTooltip,
             active,
             Resources.BarBackgroundActiveTexture);
@@ -146,7 +153,7 @@ public class Trigger_Threshold : Trigger
         DrawHorizontalProgressBar(
             progressRect,
             GetCurrentCount(),
-            TargetCount,
+            targetCount,
             StatusTooltip,
             active,
             Resources.BarBackgroundActiveTexture);
@@ -201,12 +208,12 @@ public class Trigger_Threshold : Trigger
         Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
         if (label.NullOrEmpty())
         {
-            label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetCount) + ":";
+            label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), targetCount) + ":";
         }
 
         if (tooltip.NullOrEmpty())
         {
-            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(GetCurrentCount(), TargetCount);
+            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(GetCurrentCount(), targetCount);
         }
 
         Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
@@ -278,18 +285,18 @@ public class Trigger_Threshold : Trigger
         }
 
         Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
-            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref CountAllOnMap, true);
-        TargetCount = (int)GUI.HorizontalSlider(thresholdRect, TargetCount, 0, MaxUpperThreshold);
+            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
+        targetCount = (int)GUI.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
     }
 
     public override void ExposeData()
     {
         base.ExposeData();
-        Scribe_Values.Look(ref TargetCount, "count");
-        Scribe_Values.Look(ref MaxUpperThreshold, "maxUpperThreshold");
-        Scribe_Values.Look(ref Op, "operator");
+        Scribe_Values.Look(ref targetCount, "count");
+        Scribe_Values.Look(ref maxUpperThreshold, "maxUpperThreshold");
+        Scribe_Values.Look(ref op, "operator");
         Scribe_Deep.Look(ref thresholdFilter, "thresholdFilter", (object)ThresholdFilter_SettingsChanged);
-        Scribe_Values.Look(ref CountAllOnMap, "countAllOnMap");
+        Scribe_Values.Look(ref countAllOnMap, "countAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
         if (Scribe.mode == LoadSaveMode.Saving)
@@ -301,7 +308,7 @@ public class Trigger_Threshold : Trigger
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             stockpile =
-                job.Manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
+                Job.Manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
                     z.label == _stockpile_scribe) as Zone_Stockpile;
         }
     }

@@ -7,12 +7,6 @@ public class CompDrawOverviewListEntry : ManagerRenderComp<CompProperties_DrawOv
 {
 }
 
-public class CompProperties_DrawOverviewListEntry
-    : ManagerRenderCompProperties<CompDrawOverviewListEntry, DrawOverviewListEntryWorker>
-{
-    public DrawOverviewListEntryParameters drawListEntryParameters = new();
-}
-
 public abstract class DrawOverviewListEntryWorker
 {
     public virtual void ChangeDrawListEntryParameters(

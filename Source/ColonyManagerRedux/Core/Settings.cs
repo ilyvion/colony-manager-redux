@@ -67,7 +67,7 @@ public class Settings : ModSettings
     public UpdateInterval DefaultUpdateInterval
     {
         get => TicksToInterval(DefaultUpdateIntervalTicks);
-        internal set => DefaultUpdateIntervalTicks = value.ticks;
+        internal set => DefaultUpdateIntervalTicks = value.Ticks;
     }
 
     public Settings()
@@ -140,7 +140,7 @@ public class Settings : ModSettings
         Text.Anchor = TextAnchor.MiddleLeft;
         Widgets.Label(rect.TrimLeft(Margin), "ColonyManagerRedux.ManagerDefaultUpdateInterval".Translate());
         Text.Anchor = TextAnchor.MiddleRight;
-        Widgets.Label(rect.TrimRight(Margin), DefaultUpdateInterval.label);
+        Widgets.Label(rect.TrimRight(Margin), DefaultUpdateInterval.Label);
         Text.Anchor = TextAnchor.UpperLeft;
 
         // interaction
@@ -150,7 +150,7 @@ public class Settings : ModSettings
             var options = new List<FloatMenuOption>();
             foreach (var interval in Utilities.UpdateIntervalOptions)
             {
-                options.Add(new FloatMenuOption(interval.label, () => DefaultUpdateInterval = interval));
+                options.Add(new FloatMenuOption(interval.Label, () => DefaultUpdateInterval = interval));
             }
 
             Find.WindowStack.Add(new FloatMenu(options));
@@ -227,7 +227,7 @@ public class Settings : ModSettings
     {
         foreach (var interval in Utilities.UpdateIntervalOptions)
         {
-            if (interval.ticks == ticks)
+            if (interval.Ticks == ticks)
             {
                 return interval;
             }
@@ -273,7 +273,7 @@ public class Settings : ModSettings
         for (int i = _jobSettings.Count - 1; i >= 0; i--)
         {
             ManagerJobSettings? item = _jobSettings[i];
-            if (!allManagerDefs.ContainsKey(item.def))
+            if (!allManagerDefs.ContainsKey(item.Def))
             {
                 _jobSettings.RemoveAt(i);
             }
@@ -282,14 +282,14 @@ public class Settings : ModSettings
         // add any settings that are missing
         foreach (var jobSettings in _jobSettings)
         {
-            allManagerDefs[jobSettings.def] = true;
+            allManagerDefs[jobSettings.Def] = true;
         }
         foreach (var missingDef in allManagerDefs.Where(kv => !kv.Value).Select(kv => kv.Key))
         {
             _jobSettings.Add(ManagerDefMaker.MakeManagerJobSettings(missingDef)!);
         }
 
-        _jobSettings.SortBy(j => j.def.order);
+        _jobSettings.SortBy(j => j.Def.order);
     }
 
     private void ReloadSettings()
@@ -332,6 +332,6 @@ public class Settings : ModSettings
     // TODO: Refactor ManagerJob to call this in the base class(?)
     public T? ManagerJobSettingsFor<T>(ManagerDef def) where T : ManagerJobSettings
     {
-        return _jobSettings.Find(s => s.def == def) as T;
+        return _jobSettings.Find(s => s.Def == def) as T;
     }
 }

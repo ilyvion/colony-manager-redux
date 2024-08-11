@@ -10,8 +10,12 @@ namespace ColonyManagerRedux;
 public class UpdateInterval(int ticks, string label)
 {
     private static UpdateInterval? _daily;
-    public string label = label;
-    public int ticks = ticks;
+
+    private string _label = label;
+    public string Label { get => _label; }
+
+    private int _ticks = ticks;
+    public int Ticks { get => _ticks; }
 
     public static UpdateInterval Daily
     {
@@ -23,12 +27,13 @@ public class UpdateInterval(int ticks, string label)
         }
     }
 
+
     internal static void Draw(Rect canvas, ManagerJob job, bool exporting, bool suspended)
     {
         Color nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
 
         string lastUpdateTooltip;
-        var nextUpdate = (float)job.UpdateInterval.ticks / GenDate.TicksPerHour;
+        var nextUpdate = (float)job.UpdateInterval._ticks / GenDate.TicksPerHour;
         if (exporting)
         {
             if (nextUpdate < 12)
@@ -93,12 +98,12 @@ public class UpdateInterval(int ticks, string label)
         if (suspended)
         {
             lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip".Translate(
-                job.UpdateInterval.ticks.TimeString());
+                job.UpdateInterval._ticks.TimeString());
         }
         else
         {
             lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip".Translate(
-                job.UpdateInterval.ticks.TimeString());
+                job.UpdateInterval._ticks.TimeString());
         }
 
         if (!exporting)
@@ -124,7 +129,7 @@ public class UpdateInterval(int ticks, string label)
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.Update".Translate(interval.label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.Update".Translate(interval._label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));

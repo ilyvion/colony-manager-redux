@@ -6,14 +6,16 @@ namespace ColonyManagerRedux;
 public abstract class ManagerRenderComp<TProps> : ManagerJobComp
     where TProps : ManagerJobCompProperties
 {
-    public TProps Props => (TProps)props;
+    public new TProps Props => (TProps)base.Props;
 }
 
 public abstract class ManagerRenderCompProperties<TComp, TWorker> : ManagerJobCompProperties
     where TComp : ManagerJobComp
 {
+#pragma warning disable CA1051 // CompProperties use public fields
     public Type workerClass = typeof(TWorker);
     public bool takeOverRendering;
+#pragma warning restore CA1051
 
     protected ManagerRenderCompProperties()
     {

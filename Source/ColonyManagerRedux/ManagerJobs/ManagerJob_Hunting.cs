@@ -98,7 +98,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        TriggerThreshold.job = this;
 
         AllowedAnimals.RemoveWhere(a => !AllAnimals.Contains(a));
     }

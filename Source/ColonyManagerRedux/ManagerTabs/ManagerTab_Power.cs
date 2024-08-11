@@ -32,11 +32,11 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     {
         get
         {
-            var job = manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault();
+            var job = Manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault();
             if (job == null)
             {
-                job = (ManagerJob_Power)ManagerDefMaker.MakeManagerJob(def, manager)!;
-                manager.JobTracker.Add(job);
+                job = (ManagerJob_Power)ManagerDefMaker.MakeManagerJob(Def, Manager)!;
+                Manager.JobTracker.Add(job);
                 Selected = job;
             }
             yield return job;

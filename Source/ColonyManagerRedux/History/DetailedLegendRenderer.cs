@@ -11,11 +11,20 @@ namespace ColonyManagerRedux;
 public class DetailedLegendRenderer : IExposable
 {
     // Settings for detailed legend
-    public bool DrawCounts = true;
-    public bool DrawIcons = true;
-    public bool DrawInfoInBar;
-    public bool DrawMaxMarkers;
-    public bool MaxPerChapter;
+    private bool _drawCounts = true;
+    public bool DrawCounts { get => _drawCounts; set => _drawCounts = value; }
+
+    private bool _drawIcons = true;
+    public bool DrawIcons { get => _drawIcons; set => _drawIcons = value; }
+
+    private bool _drawInfoInBar;
+    public bool DrawInfoInBar { get => _drawInfoInBar; set => _drawInfoInBar = value; }
+
+    private bool _drawMaxMarkers;
+    public bool DrawMaxMarkers { get => _drawMaxMarkers; set => _drawMaxMarkers = value; }
+
+    private bool _maxPerChapter;
+    public bool MaxPerChapter { get => _maxPerChapter; set => _maxPerChapter = value; }
 
     public void DrawDetailedLegend(History history, Rect canvas, ref Vector2 scrollPos, int? max, bool positiveOnly = false,
         bool negativeOnly = false)
@@ -214,10 +223,10 @@ public class DetailedLegendRenderer : IExposable
 
     public void ExposeData()
     {
-        Scribe_Values.Look(ref DrawIcons, "drawIcons", true);
-        Scribe_Values.Look(ref DrawCounts, "drawCounts", true);
-        Scribe_Values.Look(ref DrawInfoInBar, "drawInfoInBar");
-        Scribe_Values.Look(ref DrawMaxMarkers, "drawMaxMarkers", true);
-        Scribe_Values.Look(ref MaxPerChapter, "maxPerChapter");
+        Scribe_Values.Look(ref _drawIcons, "drawIcons", true);
+        Scribe_Values.Look(ref _drawCounts, "drawCounts", true);
+        Scribe_Values.Look(ref _drawInfoInBar, "drawInfoInBar");
+        Scribe_Values.Look(ref _drawMaxMarkers, "drawMaxMarkers", true);
+        Scribe_Values.Look(ref _maxPerChapter, "maxPerChapter");
     }
 }

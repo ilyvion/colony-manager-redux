@@ -7,7 +7,8 @@ namespace ColonyManagerRedux;
 public abstract class ManagerJobSettings : IExposable
 {
 #pragma warning disable CS8618 // Set by ManagerDefMaker
-    public ManagerDef def;
+    private ManagerDef def;
+    public ManagerDef Def { get => def; internal set => def = value; }
 #pragma warning restore CS8618
 
     public virtual string Label => def.label.CapitalizeFirst();

@@ -15,7 +15,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     private List<ManagerJobComp>? _comps;
 
-    public bool ShouldCheckReachable;
+    private bool _shouldCheckReachable;
+    public ref bool ShouldCheckReachable { get => ref _shouldCheckReachable; }
 
     private int _lastActionTick = -1;
     public int TimeSinceLastUpdate => Find.TickManager.TicksGame - _lastActionTick;
@@ -24,7 +25,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     internal Manager _manager;
     public Manager Manager => _manager;
 
-    public bool UsePathBasedDistance;
+    private bool _usePathBasedDistance;
+    public ref bool UsePathBasedDistance { get => ref _usePathBasedDistance; }
 
     internal int Priority;
 
@@ -87,7 +89,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public bool ShouldDoNow => IsManaged && ShouldUpdate;
 
-    private bool ShouldUpdate => _lastActionTick < 0 || ((_lastActionTick + UpdateInterval.ticks) < Find.TickManager.TicksGame);
+    private bool ShouldUpdate => _lastActionTick < 0 || ((_lastActionTick + UpdateInterval.Ticks) < Find.TickManager.TicksGame);
 
     public bool IsSuspended
     {
@@ -157,7 +159,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                 try
                 {
                     managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
-                    managerJobComp.parent = this;
+                    managerJobComp.Parent = this;
                     _comps.Add(managerJobComp);
                     managerJobComp.Initialize(compProperties);
                 }
@@ -193,6 +195,10 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public virtual void PostImport()
     {
         IsManaged = true;
+        if (Trigger is Trigger trigger)
+        {
+            trigger.Job = this;
+        }
         if (!ColonyManagerReduxMod.Settings.NewJobsAreImmediatelyOutdated)
         {
             // set last updated to current time
@@ -204,7 +210,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         if (Scribe.mode == LoadSaveMode.Saving)
         {
-            _updateIntervalScribe = UpdateInterval.ticks;
+            _updateIntervalScribe = UpdateInterval.Ticks;
         }
 
         Scribe_Defs.Look(ref _def, "def");
@@ -243,7 +249,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            _updateInterval = Utilities.UpdateIntervalOptions.FirstOrDefault(ui => ui.ticks == _updateIntervalScribe) ??
+            _updateInterval = Utilities.UpdateIntervalOptions.FirstOrDefault(ui => ui.Ticks == _updateIntervalScribe) ??
                 ColonyManagerReduxMod.Settings.DefaultUpdateInterval;
         }
 

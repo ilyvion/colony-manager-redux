@@ -86,7 +86,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        TriggerThreshold.job = this;
 
         AllowedTrees.RemoveWhere(t => !AllPlants.Contains(t));
     }

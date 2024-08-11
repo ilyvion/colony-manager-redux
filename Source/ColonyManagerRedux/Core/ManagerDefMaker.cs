@@ -22,7 +22,7 @@ internal static class ManagerDefMaker
     public static ManagerTab MakeManagerTab(ManagerDef def, Manager manager)
     {
         ManagerTab tab = (ManagerTab)Activator.CreateInstance(def.managerTabClass, manager);
-        tab.def = def;
+        tab.Def = def;
         tab.PostMake();
         return tab;
     }
@@ -35,7 +35,7 @@ internal static class ManagerDefMaker
         }
 
         ManagerJobSettings settings = (ManagerJobSettings)Activator.CreateInstance(def.managerJobSettingsClass);
-        settings.def = def;
+        settings.Def = def;
         settings.PostMake();
         return settings;
     }

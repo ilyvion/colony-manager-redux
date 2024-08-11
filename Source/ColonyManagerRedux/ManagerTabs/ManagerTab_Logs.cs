@@ -33,7 +33,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
         {
             cachedLookTargets.AddRange(selectedLog.Details
                 .Select((d) => d.Targets
-                    .Select(t => new LookTargets(t.ToTargetInfo(manager)))
+                    .Select(t => new LookTargets(t.ToTargetInfo(Manager)))
                     .ToArray()));
         }
     }
@@ -42,7 +42,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
     {
         base.PostMake();
         var logSettings = ColonyManagerReduxMod.Settings
-            .ManagerJobSettingsFor<ManagerJobSettings_Logs>(def)!;
+            .ManagerJobSettingsFor<ManagerJobSettings_Logs>(Def)!;
 
         Logs = new(logSettings.KeepLogCount);
     }
@@ -69,7 +69,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
         }
 
         var logSettings = ColonyManagerReduxMod.Settings
-            .ManagerJobSettingsFor<ManagerJobSettings_Logs>(def)!;
+            .ManagerJobSettingsFor<ManagerJobSettings_Logs>(Def)!;
         foreach (var log in logs.Reverse()
             .Where(l => logSettings.ShowLogsWithNoWorkDone || l._workDone))
         {
@@ -140,7 +140,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
                         {
                             CameraJumper.TryJumpAndSelect(
                                 details.Targets[details.NextTargetIndex]
-                                    .ToGlobalTargetInfo(manager));
+                                    .ToGlobalTargetInfo(Manager));
                             if (Event.current.button == 0)
                             {
                                 Find.MainTabsRoot.EscapeCurrentTab(playSound: false);
@@ -231,7 +231,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
             var tab = log.Tab!;
             if (tab.Enabled)
             {
-                if (Widgets.ButtonImage(iconRect, tab.def.icon))
+                if (Widgets.ButtonImage(iconRect, tab.Def.icon))
                 {
                     log.GoToJobTab();
                 }
@@ -241,7 +241,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
             else
             {
                 using var color = GUIScope.Color(Color.gray);
-                GUI.DrawTexture(iconRect, tab.def.icon);
+                GUI.DrawTexture(iconRect, tab.Def.icon);
                 TooltipHandler.TipRegion(iconRect, tab.Label +
                     "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
             }
@@ -331,7 +331,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
 
         if (tab.Enabled)
         {
-            if (Widgets.ButtonImage(iconRect, tab.def.icon))
+            if (Widgets.ButtonImage(iconRect, tab.Def.icon))
             {
                 MainTabWindow_Manager.GoTo(tab, job);
             }
@@ -339,7 +339,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
         else
         {
             using var color = GUIScope.Color(Color.gray);
-            GUI.DrawTexture(iconRect, tab.def.icon);
+            GUI.DrawTexture(iconRect, tab.Def.icon);
             TooltipHandler.TipRegion(iconRect, tab.Label +
                 "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
         }
@@ -353,7 +353,7 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             var logSettings = ColonyManagerReduxMod.Settings
-                .ManagerJobSettingsFor<ManagerJobSettings_Logs>(def)!;
+                .ManagerJobSettingsFor<ManagerJobSettings_Logs>(Def)!;
             if (Logs == null)
             {
                 Logs = new(logSettings.KeepLogCount);

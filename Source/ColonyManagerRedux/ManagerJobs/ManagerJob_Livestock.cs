@@ -187,7 +187,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
     public override void PostImport()
     {
         base.PostImport();
-        TriggerPawnKind.job = this;
+        TriggerPawnKind.Job = this;
     }
 
     public ManagerJob_Livestock(Manager manager, PawnKindDef pawnKindDef) : this(manager) // set defaults
@@ -684,7 +684,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 // milking
                 else if (SendToMilkingArea &&
                     animal.GetComp<CompMilkable>() != null &&
-                    animal.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.ticks)
+                    animal.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.Ticks)
                 {
                     if (currentArea != MilkArea)
                     {
@@ -699,7 +699,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
                 // shearing
                 else if (SendToShearingArea &&
                     animal.GetComp<CompShearable>() != null &&
-                    animal.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.ticks)
+                    animal.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.Ticks)
                 {
                     if (currentArea != ShearArea)
                     {
