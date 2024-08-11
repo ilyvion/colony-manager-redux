@@ -55,17 +55,21 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     protected override bool ShouldHaveNewJobButton => false;
 
-    public override (string label, Vector2 labelSize) GetFullLabel(ManagerJob job, ListEntryDrawMode mode, float labelWidth, string? subLabel = null, bool drawSubLabel = true)
+    public override (string label, Vector2 labelSize) GetFullLabel(
+        ManagerJob job,
+        float labelWidth,
+        string? subLabel = null,
+        bool drawSubLabel = true)
     {
-        return base.GetFullLabel(job, mode, labelWidth, subLabel, false);
+        return base.GetFullLabel(job, labelWidth, subLabel, false);
     }
 
-    public override string GetMainLabel(ManagerJob job, ListEntryDrawMode mode)
+    public override string GetMainLabel(ManagerJob job)
     {
         return ((ManagerJob_Livestock)job).FullLabel;
     }
 
-    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
+    public override string GetSubLabel(ManagerJob job)
     {
         return ((ManagerJob_Livestock)job).TriggerPawnKind.StatusTooltip;
     }
@@ -611,15 +615,23 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         return pos.y - start.y;
     }
 
-    public override void DrawListEntry(ManagerJob job, ref Vector2 position, float width, ListEntryDrawMode mode, bool active = true, bool showOrdering = true, float statusHeight = 50)
+    public override void DrawLocalListEntry(
+        ManagerJob job,
+        ref Vector2 position,
+        float width,
+        DrawLocalListEntryParameters? parameters)
     {
-        base.DrawListEntry(
+        parameters = new()
+        {
+            showOrdering = false,
+            statusHeight = 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2,
+        };
+
+        base.DrawLocalListEntry(
             job,
             ref position,
             width,
-            mode,
-            active,
-            false, 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2);
+            parameters);
     }
 
     private float DrawFollowSection(ManagerJob_Livestock job, Vector2 pos, float width)

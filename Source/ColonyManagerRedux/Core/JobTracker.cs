@@ -155,7 +155,10 @@ public class JobTracker(Manager manager) : IExposable
             job.Touch();
 
             // perform next job if no action was taken
-            ManagerLog log = new(job);
+            ManagerLog log = new(job)
+            {
+                LogLabel = job.Tab.GetMainLabel(job) + " (" + job.Tab.GetSubLabel(job) + ")"
+            };
             bool workDone = job.TryDoJob(log);
             log._workDone = workDone;
             _manager.Logs?.PushBack(log);

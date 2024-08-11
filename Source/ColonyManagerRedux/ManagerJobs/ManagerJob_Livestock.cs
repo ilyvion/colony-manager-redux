@@ -523,8 +523,7 @@ internal sealed class ManagerJob_Livestock : ManagerJob
 
     public override bool TryDoJob(ManagerLog jobLog)
     {
-        jobLog.LogLabel = Tab.GetMainLabel(this,
-            ManagerTab.ListEntryDrawMode.Overview).Replace("\n", " (") + ")";
+        jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
 
         var workDone = false;
 

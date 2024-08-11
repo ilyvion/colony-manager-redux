@@ -118,182 +118,68 @@ public abstract class ManagerTab(Manager manager)
     {
     }
 
-    public enum ListEntryDrawMode
-    {
-        Local,
-        Overview,
-        Export
-    }
-
 #pragma warning disable CA1062 // Validate arguments of public methods
 
-    // TODO: Make this less ListEntryDrawMode specific
-    public virtual void DrawListEntry(
+    public virtual void DrawLocalListEntry(
         ManagerJob job,
         ref Vector2 position,
         float width,
-        ListEntryDrawMode mode,
-        bool active = true,
-        bool showOrdering = true,
-        float statusHeight = LargeListEntryHeight)
+        DrawLocalListEntryParameters? parameters = null)
     {
+        parameters ??= new();
+
         var tab = job.Tab;
 
-        float labelWidth;
-        if (mode == ListEntryDrawMode.Local)
-        {
-            labelWidth = width - 4 * Margin - StampSize - LargeListEntryHeight - LastUpdateRectWidth;
-        }
-        else if (mode == ListEntryDrawMode.Overview)
-        {
-            labelWidth = width - (active ? StatusRectWidth + 4 * Margin : 2 * Margin) - 2 * Margin - LargeIconSize - LargeListEntryHeight;
-        }
-        else
-        {
-            labelWidth = width - LargeListEntryHeight - LastUpdateRectWidth - Margin;
-        }
+        float labelWidth = width - 4 * Margin - StampSize
+            - LargeListEntryHeight - LastUpdateRectWidth;
 
         // create label string
-        var subLabel = tab.GetSubLabel(job, mode);
-        var (label, labelSize) = tab.GetFullLabel(job, mode, labelWidth, subLabel);
+        var subLabel = tab.GetSubLabel(job);
+        var (label, labelSize) = tab.GetFullLabel(job, labelWidth, subLabel);
 
-        Rect iconRect;
-        Rect labelRect;
-        Rect statusRect;
-        Rect stampRegionRect;
-        Rect progressRect;
-        Rect rowRect;
-        Rect orderRect;
-        Rect lastUpdateRect;
-        if (mode == ListEntryDrawMode.Local)
-        {
-            iconRect = new();
-            labelRect = new Rect(Margin, Margin, labelWidth, labelSize.y);
+        Rect labelRect = new(Margin, Margin, labelWidth, labelSize.y);
 
-            statusRect = new Rect(0, labelRect.yMax + Margin, width - (showOrdering ? LargeListEntryHeight : Margin), statusHeight);
+        Rect statusRect = new(
+            0,
+            labelRect.yMax + Margin,
+            width - (parameters.showOrdering ? LargeListEntryHeight : Margin),
+            parameters.statusHeight);
 
-            rowRect = new()
-            {
-                x = position.x,
-                y = position.y,
-                width = width,
-                height = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin
-            };
+        Rect rowRect = new(
+            position.x,
+            position.y,
+            width,
+            Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin);
 
-            lastUpdateRect = new(
-                labelRect.xMax + Margin,
-                labelRect.y,
-                LastUpdateRectWidth,
-                labelRect.height);
+        Rect lastUpdateRect = new(
+            labelRect.xMax + Margin,
+            labelRect.y,
+            LastUpdateRectWidth,
+            labelRect.height);
 
-            stampRegionRect = new Rect(
-                lastUpdateRect.xMax + Margin,
-                labelRect.y,
-                StampSize,
-                labelRect.height);
+        Rect stampRegionRect = new(
+            lastUpdateRect.xMax + Margin,
+            labelRect.y,
+            StampSize,
+            labelRect.height);
 
-            progressRect = new()
-            {
-                x = Margin,
-                y = statusRect.y,
-                width = statusRect.width - Margin,
-                height = statusRect.height
-            };
+        Rect progressRect = new(
+            Margin,
+            statusRect.y,
+            statusRect.width - Margin,
+            statusRect.height);
 
-            orderRect = new(
-                stampRegionRect.xMax + Margin,
-                stampRegionRect.y,
-                LargeListEntryHeight,
-                progressRect.yMax - Margin);
-        }
-        else if (mode == ListEntryDrawMode.Overview)
-        {
-            // set up rects
-            iconRect = new Rect(Margin, Margin,
-                LargeIconSize, LargeIconSize);
-
-            labelRect = new Rect(
-                iconRect.xMax + Margin,
-                iconRect.y,
-                labelWidth,
-                labelSize.y);
-            statusRect = new Rect(
-                labelRect.xMax + Margin,
-                Margin,
-                StatusRectWidth + Margin,
-                statusHeight);
-
-            float rowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
-            rowRect = new(
-                position.x,
-                position.y,
-                width,
-                rowHeight
-            );
-
-            stampRegionRect = new(
-                statusRect.xMax - StampSize,
-                statusRect.y,
-                StampSize,
-                statusRect.height
-            );
-
-            lastUpdateRect = new(
-                stampRegionRect.xMin - Margin - LastUpdateRectWidth,
-                statusRect.y,
-                LastUpdateRectWidth,
-                statusRect.height);
-
-            progressRect = new Rect(
-                lastUpdateRect.xMin - Margin - ProgressRectWidth,
-                statusRect.yMin,
-                ProgressRectWidth,
-                statusRect.height);
-
-            orderRect = new(
-                statusRect.xMax + Margin,
-                statusRect.y,
-                LargeListEntryHeight,
-                LargeListEntryHeight);
-        }
-        else
-        {
-            // set up rects
-            iconRect = new();
-
-            labelRect = new Rect(
-                iconRect.xMax + Margin,
-                iconRect.y,
-                labelWidth,
-                    labelSize.y);
-            statusRect = new Rect(labelRect.xMax + Margin, Margin, LastUpdateRectWidth, labelRect.height);
-
-            float v = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
-            rowRect = new()
-            {
-                x = position.x,
-                y = position.y,
-                width = width,
-                height = v
-            };
-
-            stampRegionRect = new();
-            progressRect = new();
-            orderRect = new();
-
-            lastUpdateRect = new(
-                statusRect.xMin,
-                statusRect.y,
-                LastUpdateRectWidth,
-                statusRect.height);
-        }
+        Rect orderRect = new(
+            stampRegionRect.xMax + Margin,
+            stampRegionRect.y,
+            LargeListEntryHeight,
+            progressRect.yMax - Margin);
 
         // do the drawing
         GUI.BeginGroup(rowRect);
 
         if (IlyvionDebugViewSettings.DrawUIHelpers)
         {
-            Widgets.DrawRectFast(iconRect, ColorLibrary.HotPink.ToTransparent(.5f));
             Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
             Widgets.DrawRectFast(statusRect, Color.yellow.ToTransparent(.2f));
             Widgets.DrawRectFast(lastUpdateRect, ColorLibrary.Orange.ToTransparent(.2f));
@@ -303,104 +189,64 @@ public abstract class ManagerTab(Manager manager)
         }
 
         // draw label
-        Widgets_Labels.Label(labelRect, label, subLabel, mode == ListEntryDrawMode.Local ? TextAnchor.UpperLeft : TextAnchor.MiddleLeft);
-
-        // if the bill has a manager job, give some more info.
-        if (mode == ListEntryDrawMode.Overview)
-        {
-            if (tab.Enabled)
-            {
-                if (Widgets.ButtonImage(iconRect, tab.def.icon))
-                {
-                    MainTabWindow_Manager.GoTo(tab, job);
-                }
-                TooltipHandler.TipRegion(iconRect,
-                    "ColonyManagerRedux.Common.GoToJob".Translate(job.Label.UncapitalizeFirst()));
-            }
-            else
-            {
-                using var color = GUIScope.Color(Color.gray);
-                GUI.DrawTexture(iconRect, tab.def.icon);
-                TooltipHandler.TipRegion(iconRect, tab.Label +
-                    "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
-            }
-        }
+        Widgets_Labels.Label(labelRect, label, subLabel, TextAnchor.UpperLeft);
 
         // if we're not doing export, render stamp
-        if (mode != ListEntryDrawMode.Export)
+        var stampRect = new Rect(0, 0, StampSize, StampSize).CenteredIn(stampRegionRect);
+        if (Utilities.DrawStampButton(stampRect, job))
         {
-            var stampRect = new Rect(0, 0, StampSize, StampSize)
-                .CenteredIn(stampRegionRect);
-            if (Utilities.DrawStampButton(stampRect, job))
-            {
-                job.IsSuspended = !job.IsSuspended;
-            }
+            job.IsSuspended = !job.IsSuspended;
+        }
 
-            if (job.IsSuspended)
+        if (job.IsSuspended)
+        {
+            if (job.CausedException != null)
             {
-                if (job.CausedException != null)
-                {
-                    TooltipHandler.TipRegion(stampRect, new TipSignal(
-                        job.IsSuspendedDueToExceptionTooltip + "\n\n" +
-                        "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                            "ColonyManagerRedux.Job.Unsuspend".Translate()))
-                    {
-                        // We do this so the exception is shown after
-                        priority = TooltipPriority.Pawn
-                    });
-                }
-                else
-                {
-                    TooltipHandler.TipRegion(stampRect,
-                        job.IsSuspendedTooltip + "\n\n" +
-                        "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                            "ColonyManagerRedux.Job.Unsuspend".Translate()));
-                }
-            }
-            else if (job.IsCompleted)
-            {
-                TooltipHandler.TipRegion(stampRect,
-                    job.IsCompletedTooltip + "\n\n" +
+                TooltipHandler.TipRegion(stampRect, new TipSignal(
+                    job.IsSuspendedDueToExceptionTooltip + "\n\n" +
                     "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Job.Suspend".Translate()));
+                        "ColonyManagerRedux.Job.Unsuspend".Translate()))
+                {
+                    // We do this so the exception is shown after
+                    priority = TooltipPriority.Pawn
+                });
             }
             else
             {
                 TooltipHandler.TipRegion(stampRect,
+                    job.IsSuspendedTooltip + "\n\n" +
                     "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Job.Suspend".Translate()));
+                        "ColonyManagerRedux.Job.Unsuspend".Translate()));
             }
         }
-        if (mode == ListEntryDrawMode.Local)
+        else if (job.IsCompleted)
         {
-            job.Trigger!.DrawHorizontalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
-
-            UpdateInterval.Draw(
-                lastUpdateRect,
-                job,
-                false,
-                job.IsSuspended);
+            TooltipHandler.TipRegion(stampRect,
+                job.IsCompletedTooltip + "\n\n" +
+                "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                    "ColonyManagerRedux.Job.Suspend".Translate()));
         }
         else
         {
-            if (active && job.Trigger != null)
-            {
-                if (mode != ListEntryDrawMode.Export)
-                {
-                    // draw progress bar
-                    job.Trigger.DrawVerticalProgressBars(progressRect, !job.IsSuspended && !job.IsCompleted);
-                }
-
-                // draw update interval
-                UpdateInterval.Draw(
-                    lastUpdateRect,
-                    job,
-                    mode == ListEntryDrawMode.Export,
-                    mode != ListEntryDrawMode.Export && (job.IsSuspended));
-            }
+            TooltipHandler.TipRegion(stampRect,
+                "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                    "ColonyManagerRedux.Job.Suspend".Translate()));
         }
 
-        if (showOrdering && DrawOrderButtons(
+        if (parameters.showProgressbar)
+        {
+            job.Trigger!.DrawHorizontalProgressBars(
+                progressRect,
+                !job.IsSuspended && !job.IsCompleted);
+        }
+
+        UpdateInterval.Draw(
+            lastUpdateRect,
+            job,
+            false,
+            job.IsSuspended);
+
+        if (parameters.showOrdering && DrawOrderButtons(
             orderRect,
             job,
             ManagerJobs.ToList(),
@@ -415,20 +261,19 @@ public abstract class ManagerTab(Manager manager)
 
     public virtual (string label, Vector2 labelSize) GetFullLabel(
         ManagerJob job,
-        ListEntryDrawMode mode,
         float labelWidth,
         string? subLabel = null,
         bool drawSubLabel = true)
     {
         if (drawSubLabel)
         {
-            subLabel ??= GetSubLabel(job, mode);
+            subLabel ??= GetSubLabel(job);
             if (!subLabel.Fits(labelWidth, out var _))
             {
                 subLabel = subLabel.Truncate(labelWidth);
             }
         }
-        var mainLabel = GetMainLabel(job, mode);
+        var mainLabel = GetMainLabel(job);
         if (!mainLabel.Fits(labelWidth, out var _))
         {
             mainLabel = mainLabel.Truncate(labelWidth);
@@ -437,12 +282,12 @@ public abstract class ManagerTab(Manager manager)
         return (label, Text.CalcSize(label));
     }
 
-    public virtual string GetMainLabel(ManagerJob job, ListEntryDrawMode mode)
+    public virtual string GetMainLabel(ManagerJob job)
     {
         return Label;
     }
 
-    public virtual string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
+    public virtual string GetSubLabel(ManagerJob job)
     {
         var targets = job.Targets.ToList();
         if (targets.Count > 0)
@@ -584,7 +429,12 @@ public abstract class ManagerTab(Manager manager)
         foreach (var job in ManagerJobs)
         {
             var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
-            DrawListEntry(job, ref cur, scrollView.ViewRect.width, ListEntryDrawMode.Local, statusHeight: SmallIconSize);
+            DrawLocalListEntry(
+                job,
+                ref cur,
+                scrollView.ViewRect.width,
+                null);
+
             row.height = cur.y - row.y;
 
             Widgets.DrawHighlightIfMouseover(row);
@@ -732,4 +582,11 @@ public abstract class ManagerTab(Manager manager)
     internal virtual void Notify_PawnsChanged()
     {
     }
+}
+
+public class DrawLocalListEntryParameters
+{
+    public bool showOrdering = true;
+    public bool showProgressbar = true;
+    public float statusHeight = SmallIconSize;
 }

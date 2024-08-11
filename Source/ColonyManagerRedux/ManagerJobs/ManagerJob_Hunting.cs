@@ -342,9 +342,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
     public override bool TryDoJob(ManagerLog jobLog)
     {
-        jobLog.LogLabel = Tab.GetMainLabel(this, ManagerTab.ListEntryDrawMode.Overview)
-            + " (" + Tab.GetSubLabel(this, ManagerTab.ListEntryDrawMode.Overview) + ")";
-
         // did we do any work?
         var workDone = false;
 

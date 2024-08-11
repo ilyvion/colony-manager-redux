@@ -11,6 +11,20 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJob_Forestry>(manager)
 {
+    public sealed class DrawOverviewListEntryWorker : DrawOverviewListEntryWorker<ManagerJob_Forestry>
+    {
+        public override void ChangeDrawListEntryParameters(
+            ManagerJob_Forestry job,
+            ref DrawOverviewListEntryParameters parameters)
+        {
+            parameters.showProgressbar = job.Type == ForestryJobType.Logging;
+        }
+        public override void DrawOverviewListEntry(ManagerJob_Forestry job, ref Vector2 position, float width)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public ManagerJob_Forestry SelectedForestryJob => SelectedJob!;
 
     public static string GetTreeTooltip(ThingDef tree)
@@ -23,7 +37,6 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         // layout: settings | trees
         // draw background
         Widgets.DrawMenuSection(rect);
-
 
         // rects
         var optionsColumnRect = new Rect(
@@ -93,12 +106,27 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         }
     }
 
-    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
+    public override void DrawLocalListEntry(
+        ManagerJob job,
+        ref Vector2 position,
+        float width,
+        DrawLocalListEntryParameters? parameters)
+    {
+        parameters = new()
+        {
+            showProgressbar = ((ManagerJob_Forestry)job).Type == ForestryJobType.Logging
+        };
+
+        base.DrawLocalListEntry(job, ref position, width, parameters);
+    }
+
+    public override string GetSubLabel(ManagerJob job)
     {
         return ((ManagerJob_Forestry)job).Type switch
         {
-            ForestryJobType.Logging => base.GetSubLabel(job, mode),
-            _ => "ColonyManagerRedux.Forestry.Clear".Translate(string.Join(", ", job.Targets)).Resolve(),
+            ForestryJobType.Logging => base.GetSubLabel(job),
+            _ => "ColonyManagerRedux.Forestry.Clear"
+                .Translate(string.Join(", ", job.Targets)).Resolve(),
         };
     }
 

@@ -346,9 +346,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public override bool TryDoJob(ManagerLog jobLog)
     {
-        jobLog.LogLabel = Tab.GetMainLabel(this, ManagerTab.ListEntryDrawMode.Overview)
-            + " (" + Tab.GetSubLabel(this, ManagerTab.ListEntryDrawMode.Overview) + ")";
-
         // keep track if any actual work was done.
         var workDone = false;
 

@@ -45,10 +45,10 @@ internal sealed class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob
         return sb.ToString();
     }
 
-    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
+    public override string GetSubLabel(ManagerJob job)
     {
         ManagerJob_Mining miningJob = (ManagerJob_Mining)job;
-        var subLabel = base.GetSubLabel(job, mode);
+        var subLabel = base.GetSubLabel(job);
         if (miningJob.DeconstructBuildings && miningJob.AllowedBuildings.Count > 0)
         {
             if (subLabel == "ColonyManagerRedux.Common.None".Translate())

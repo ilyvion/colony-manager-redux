@@ -295,7 +295,7 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
             var state = _selectedJobs[i];
 
             var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
-            job.Tab.DrawListEntry(job, ref cur, scrollView.ViewRect.width, ListEntryDrawMode.Export, showOrdering: false);
+            DrawExportListEntry(job, ref cur, scrollView.ViewRect.width);
             row.height = cur.y - row.y;
 
             Widgets.DrawHighlightIfMouseover(row);
@@ -312,6 +312,86 @@ internal sealed class ManagerTab_ImportExport(Manager manager) : ManagerTab(mana
         {
             scrollView.Height = cur.y;
         }
+    }
+
+    internal static void DrawExportListEntry(
+        ManagerJob job,
+        ref Vector2 position,
+        float width)
+    {
+        if (job.CompOfType<CompDrawExportListEntry>() is
+            CompDrawExportListEntry drawExportListEntry)
+        {
+            var props = drawExportListEntry.Props;
+            if (props.takeOverRendering)
+            {
+                props.Worker.DrawExportListEntry(job, ref position, width);
+                return;
+            }
+        }
+
+        var tab = job.Tab;
+
+        float labelWidth = width - Constants.LargeListEntryHeight
+            - LastUpdateRectWidth;
+
+        // create label string
+        var subLabel = tab.GetSubLabel(job);
+        var (label, labelSize) = tab.GetFullLabel(job, labelWidth, subLabel);
+
+        // set up rects
+        Rect labelRect = new(
+            Constants.Margin,
+            0f,
+            labelWidth,
+            labelSize.y);
+
+        Rect statusRect = new(
+            labelRect.xMax + Constants.Margin,
+            Constants.Margin,
+            LastUpdateRectWidth,
+            labelRect.height);
+
+        float maxRowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Constants.Margin;
+        Rect rowRect = new(
+            position.x,
+            position.y,
+            width,
+            maxRowHeight);
+
+        Rect lastUpdateRect = new(
+            statusRect.xMin,
+            statusRect.y,
+            LastUpdateRectWidth,
+            statusRect.height);
+
+        // do the drawing
+        GUI.BeginGroup(rowRect);
+        rowRect = rowRect.AtZero();
+
+        labelRect = labelRect.CenteredOnYIn(rowRect);
+
+        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        {
+            Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
+            Widgets.DrawRectFast(statusRect, Color.yellow.ToTransparent(.2f));
+        }
+
+        // draw label
+        Widgets_Labels.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);
+
+        if (job.Trigger != null)
+        {
+            // draw update interval
+            UpdateInterval.Draw(
+                lastUpdateRect,
+                job,
+                true,
+                false);
+        }
+
+        GUI.EndGroup();
+        position.y += rowRect.height;
     }
 
     private string FilePath(string name)

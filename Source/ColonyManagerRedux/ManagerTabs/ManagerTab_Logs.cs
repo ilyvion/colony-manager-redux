@@ -290,22 +290,19 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
         position.y += labelHeight + 2 * Margin;
     }
 
-    public override void DrawListEntry(
+    public override void DrawLocalListEntry(
         ManagerJob job,
         ref Vector2 position,
         float width,
-        ListEntryDrawMode mode,
-        bool active = true,
-        bool showOrdering = true,
-        float statusHeight = 50)
+        DrawLocalListEntryParameters? parameters)
     {
         // set up rects
         var iconRect = new Rect(Margin, Margin,
             LargeIconSize, LargeIconSize);
 
-        var labelWidth = width - LargeIconSize - Margin;
+        var labelWidth = width - LargeIconSize - 3 * Margin;
         var tab = job.Tab;
-        var (label, labelSize) = tab.GetFullLabel(job, mode, labelWidth, null);
+        var (label, labelSize) = tab.GetFullLabel(job, labelWidth, null);
         var labelRect = new Rect(
             iconRect.xMax + Margin,
             iconRect.y,
@@ -329,7 +326,8 @@ internal sealed class ManagerTab_Logs(Manager manager) : ManagerTab(manager), IE
         }
 
         // draw label
-        Widgets_Labels.Label(labelRect, label, null, TextAnchor.UpperLeft);
+        var selectToFilter = "ColonyManagerRedux.Logs.SelectToFilterLogsByJob".Translate();
+        Widgets_Labels.Label(labelRect, label, selectToFilter, TextAnchor.UpperLeft);
 
         if (tab.Enabled)
         {

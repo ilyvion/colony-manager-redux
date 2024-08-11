@@ -2,7 +2,9 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory;
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -128,7 +130,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             foreach (ManagerJob job in manager.JobTracker.JobsOfType<ManagerJob>())
             {
                 var row = new Rect(cur.x, cur.y, contentRect.width, 0f);
-                DrawListEntry(job, ref cur, contentRect.width, ListEntryDrawMode.Overview);
+                DrawOverviewListEntry(job, ref cur, contentRect.width);
                 row.height = cur.y - row.y;
 
                 // highlights
@@ -173,6 +175,198 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         }
     }
 
+    private void DrawOverviewListEntry(
+        ManagerJob job,
+        ref Vector2 position,
+        float width)
+    {
+        DrawOverviewListEntryParameters? parameters = null;
+        if (job.CompOfType<CompDrawOverviewListEntry>() is
+            CompDrawOverviewListEntry drawExportListEntry)
+        {
+            var props = drawExportListEntry.Props;
+            var worker = props.Worker;
+            if (props.takeOverRendering)
+            {
+                worker.DrawOverviewListEntry(job, ref position, width);
+                return;
+            }
+            else
+            {
+                parameters = props.drawListEntryParameters;
+                worker.ChangeDrawListEntryParameters(job, ref parameters);
+            }
+        }
+        parameters ??= new();
+
+        var tab = job.Tab;
+
+        float labelWidth = width
+            - (StatusRectWidth + 4 * Margin)
+            - 2 * Margin - LargeIconSize - LargeListEntryHeight;
+
+        // create label string
+        var subLabel = tab.GetSubLabel(job);
+        var (label, labelSize) = tab.GetFullLabel(job, labelWidth, subLabel);
+
+        // set up rects
+        Rect iconRect = new(Margin, Margin,
+            LargeIconSize, LargeIconSize);
+
+        Rect labelRect = new(
+            iconRect.xMax + Margin,
+            iconRect.y,
+            labelWidth,
+            labelSize.y);
+        Rect statusRect = new(
+            labelRect.xMax + Margin,
+            Margin,
+            StatusRectWidth + Margin,
+            LargeListEntryHeight);
+
+        Rect stampRegionRect = new(
+            statusRect.xMax - StampSize,
+            statusRect.y,
+            StampSize,
+            statusRect.height);
+
+        Rect lastUpdateRect = new(
+            stampRegionRect.xMin - Margin - LastUpdateRectWidth,
+            statusRect.y,
+            LastUpdateRectWidth,
+            statusRect.height);
+
+        Rect progressRect = new(
+            lastUpdateRect.xMin - Margin - ProgressRectWidth,
+            statusRect.yMin,
+            ProgressRectWidth,
+            statusRect.height);
+
+        Rect orderRect = new(
+            statusRect.xMax + Margin,
+            statusRect.y,
+            LargeListEntryHeight,
+            LargeListEntryHeight);
+
+        // do the drawing
+        float rowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
+        Rect rowRect = new(
+            position.x,
+            position.y,
+            width,
+            rowHeight);
+        GUI.BeginGroup(rowRect);
+        rowRect = rowRect.AtZero();
+
+        labelRect = labelRect.CenteredOnYIn(rowRect);
+        iconRect = iconRect.CenteredOnYIn(rowRect);
+
+        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        {
+            Widgets.DrawRectFast(iconRect, ColorLibrary.HotPink.ToTransparent(.5f));
+            Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
+            Widgets.DrawRectFast(statusRect, Color.yellow.ToTransparent(.2f));
+            Widgets.DrawRectFast(lastUpdateRect, ColorLibrary.Orange.ToTransparent(.2f));
+            Widgets.DrawRectFast(stampRegionRect, Color.red.ToTransparent(.2f));
+            Widgets.DrawRectFast(progressRect, Color.green.ToTransparent(.2f));
+            Widgets.DrawRectFast(orderRect, ColorLibrary.Aqua.ToTransparent(.5f));
+        }
+
+        // draw label
+        Widgets_Labels.Label(
+            labelRect,
+            label,
+            subLabel,
+            TextAnchor.MiddleLeft);
+
+        // if the bill has a manager job, give some more info.
+        if (tab.Enabled)
+        {
+            if (Widgets.ButtonImage(iconRect, tab.def.icon))
+            {
+                MainTabWindow_Manager.GoTo(tab, job);
+            }
+            TooltipHandler.TipRegion(iconRect,
+                "ColonyManagerRedux.Common.GoToJob".Translate(job.Label.UncapitalizeFirst()));
+        }
+        else
+        {
+            using var color = GUIScope.Color(Color.gray);
+            GUI.DrawTexture(iconRect, tab.def.icon);
+            TooltipHandler.TipRegion(iconRect, tab.Label +
+                "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
+        }
+
+        var stampRect = new Rect(0, 0, StampSize, StampSize)
+            .CenteredIn(stampRegionRect);
+        if (Utilities.DrawStampButton(stampRect, job))
+        {
+            job.IsSuspended = !job.IsSuspended;
+        }
+
+        if (job.IsSuspended)
+        {
+            if (job.CausedException != null)
+            {
+                TooltipHandler.TipRegion(stampRect, new TipSignal(
+                    job.IsSuspendedDueToExceptionTooltip + "\n\n" +
+                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Unsuspend".Translate()))
+                {
+                    // We do this so the exception is shown after
+                    priority = TooltipPriority.Pawn
+                });
+            }
+            else
+            {
+                TooltipHandler.TipRegion(stampRect,
+                    job.IsSuspendedTooltip + "\n\n" +
+                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Unsuspend".Translate()));
+            }
+        }
+        else if (job.IsCompleted)
+        {
+            TooltipHandler.TipRegion(stampRect,
+                job.IsCompletedTooltip + "\n\n" +
+                "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                    "ColonyManagerRedux.Job.Suspend".Translate()));
+        }
+        else
+        {
+            TooltipHandler.TipRegion(stampRect,
+                "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                    "ColonyManagerRedux.Job.Suspend".Translate()));
+        }
+
+        if (job.Trigger != null)
+        {
+            if (parameters.showProgressbar)
+            {
+                // draw progress bar
+                job.Trigger.DrawVerticalProgressBars(
+                    progressRect,
+                    !job.IsSuspended && !job.IsCompleted);
+            }
+
+            // draw update interval
+            UpdateInterval.Draw(
+                lastUpdateRect,
+                job,
+                false,
+                job.IsSuspended);
+        }
+
+        if (DrawOrderButtons(orderRect, job, ManagerJobs.ToList(), manager.JobTracker))
+        {
+            Refresh();
+        }
+
+        GUI.EndGroup();
+        position.y += rowRect.height;
+
+    }
+
     public void DrawPawnOverview(Rect rect)
     {
         if (pawnOverviewTable == null)
@@ -197,4 +391,10 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         Workers = temp.ToList();
     }
+}
+
+
+public class DrawOverviewListEntryParameters
+{
+    public bool showProgressbar = true;
 }

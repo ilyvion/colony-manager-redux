@@ -6,6 +6,7 @@
     <ColonyManagerRedux.Logs.Expand>expand</ColonyManagerRedux.Logs.Expand>
     <ColonyManagerRedux.Logs.Collapse>collapse</ColonyManagerRedux.Logs.Collapse>
     <ColonyManagerRedux.Logs.JobDoesNotExist>Can't go to job because job no longer exists</ColonyManagerRedux.Logs.JobDoesNotExist>
+    <ColonyManagerRedux.Logs.SelectToFilterLogsByJob>Select this job to filter logs only for this job. Select the already selected job to unselect.</ColonyManagerRedux.Logs.SelectToFilterLogsByJob>
 
     <ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone>Show logs with no work done</ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone>
     <ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone.Tip>With this setting disabled, manager jobs that had no work to be done will have their logs hidden. These logs are often saying little more than "{0}" and may have low utility.</ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone.Tip>

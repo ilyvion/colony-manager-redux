@@ -837,9 +837,6 @@ internal sealed class ManagerJob_Mining : ManagerJob
 
     public override bool TryDoJob(ManagerLog jobLog)
     {
-        jobLog.LogLabel = Tab.GetMainLabel(this, ManagerTab.ListEntryDrawMode.Overview)
-            + " (" + Tab.GetSubLabel(this, ManagerTab.ListEntryDrawMode.Overview) + ")";
-
         // keep track of work done
         var workDone = false;
 

@@ -57,7 +57,10 @@ internal sealed class Dialog_ImportJobs : Window
             var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
             try
             {
-                job.Tab.DrawListEntry(job, ref cur, scrollView.ViewRect.width, ManagerTab.ListEntryDrawMode.Export, showOrdering: false);
+                ManagerTab_ImportExport.DrawExportListEntry(
+                    job,
+                    ref cur,
+                    scrollView.ViewRect.width);
             }
             catch (Exception e)
             {

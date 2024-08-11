@@ -95,7 +95,6 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
     public Period periodShown = Period.Day;
     public string yAxisSuffix = string.Empty;
 
-    private HistoryWorker workerInt;
 
 #pragma warning disable CS8618
     public CompProperties_ManagerJobHistory()
@@ -104,6 +103,7 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
         compClass = typeof(CompManagerJobHistory);
     }
 
+    private HistoryWorker? workerInt;
     public HistoryWorker Worker
     {
         get

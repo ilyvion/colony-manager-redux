@@ -17,6 +17,9 @@
                     <li>CM_HistoryDesignated</li>
                 </chapters>
             </li>
+            <li Class="ColonyManagerRedux.CompProperties_DrawOverviewListEntry">
+                <workerClass>ColonyManagerRedux.ManagerTab_Forestry+DrawOverviewListEntryWorker</workerClass>
+            </li>
         </comps>
     </ColonyManagerRedux.ManagerDef>
 

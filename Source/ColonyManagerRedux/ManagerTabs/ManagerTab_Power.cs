@@ -223,7 +223,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         _detailedLegendRendererTrading.DrawDetailedLegend(tradingHistory, legendRect, ref _productionScrollPos, null, true);
     }
 
-    public override string GetSubLabel(ManagerJob job, ListEntryDrawMode mode)
+    public override string GetSubLabel(ManagerJob job)
     {
         ManagerJob_Power powerJob = (ManagerJob_Power)job;
         return string.Format("{0} producers, {1} consumers, {2} batteries",
