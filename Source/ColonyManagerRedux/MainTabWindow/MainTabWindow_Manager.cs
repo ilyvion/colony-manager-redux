@@ -1,6 +1,8 @@
 ﻿// MainTabWindow_Manager.cs
 // Copyright Karel Kroeze, 2018-2020
 
+using ilyvion.Laboratory;
+using Verse.Noise;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -9,6 +11,7 @@ namespace ColonyManagerRedux;
     "Microsoft.Performance",
     "CA1812:AvoidUninstantiatedInternalClasses",
     Justification = "Class is instantiated via reflection")]
+[HotSwappable]
 internal sealed class MainTabWindow_Manager : MainTabWindow
 {
     private static ManagerTab? currentTab;
@@ -49,63 +52,91 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         // zooming in seems to cause Text.Font to start at Tiny, make sure it's set to Small for our panels.
         Text.Font = GameFont.Small;
 
+        //var margin = Margin;
+
         // three areas of icons for tabs, left middle and right.
         var leftIcons = new Rect(0f, 0f,
-                                  Margin +
-                                  manager.ManagerTabsLeft.Count * (LargeIconSize + Margin),
-                                  LargeIconSize);
-        var middleIcons = new Rect(0f, 0f,
-                                    Margin +
-                                    manager.ManagerTabsMiddle.Count *
-                                    (LargeIconSize + Margin),
-                                    LargeIconSize);
+            manager.ManagerTabsLeft.Count * LargeIconSize
+            + Mathf.Max(0, manager.ManagerTabsLeft.Count - 1) * Margin,
+            LargeIconSize);
         var rightIcons = new Rect(0f, 0f,
-                                   Margin +
-                                   manager.ManagerTabsRight.Count *
-                                   (LargeIconSize + Margin),
-                                   LargeIconSize);
+            manager.ManagerTabsRight.Count * LargeIconSize
+            + Mathf.Max(0, manager.ManagerTabsRight.Count - 1) * Margin,
+            LargeIconSize);
+
+        var widthRemaining = canvas.width - leftIcons.width - rightIcons.width - 2 * Margin;
+
+        var middleIcons = new Rect(0f, 0f,
+            Margin + manager.ManagerTabsMiddle.Count * (LargeIconSize + Margin),
+            LargeIconSize);
+
+        var middleMargin = Margin;
+        if (middleIcons.width > widthRemaining)
+        {
+            middleMargin -= (middleIcons.width - widthRemaining) / (manager.ManagerTabsMiddle.Count + 1);
+            middleIcons.width -= middleIcons.width - widthRemaining;
+            middleIcons.width = Mathf.Max(middleIcons.width, manager.ManagerTabsMiddle.Count * LargeIconSize);
+        }
+
+        var outerMargin = Margin;
+        if (middleMargin < 0)
+        {
+            outerMargin -= -middleMargin;
+            middleMargin = 0;
+        }
 
         // finetune rects
-        middleIcons = middleIcons.CenteredOnXIn(canvas);
+        var middleCanvas = new Rect(canvas);
+        middleCanvas.xMin += leftIcons.width;
+        middleCanvas.xMax -= rightIcons.width;
+        middleIcons = middleIcons.CenteredOnXIn(middleCanvas);
         rightIcons.x += canvas.width - rightIcons.width;
 
-        // left icons (probably only overview, but hey...)
+        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        {
+            Widgets.DrawRectFast(leftIcons, Color.red.ToTransparent(.5f));
+            Widgets.DrawRectFast(middleIcons, Color.green.ToTransparent(.5f));
+            Widgets.DrawRectFast(rightIcons, Color.blue.ToTransparent(.5f));
+            Widgets.DrawLineHorizontal(middleCanvas.x, LargeIconSize + 8f, middleCanvas.width);
+        }
+
+        // left icons (overview and logs from our end)
         GUI.BeginGroup(leftIcons);
-        var cur = new Vector2(Margin, 0f);
+        var cur = new Vector2(0f, 0f);
         foreach (var tab in manager.ManagerTabsLeft)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
-            cur.x += LargeIconSize + Margin;
+            cur.x += LargeIconSize + outerMargin;
+        }
+
+        GUI.EndGroup();
+
+        // right icons (import/export from our end)
+        GUI.BeginGroup(rightIcons);
+        cur = new Vector2(0f, 0f);
+        foreach (var tab in manager.ManagerTabsRight)
+        {
+            var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
+            DrawTabIcon(iconRect, tab);
+            cur.x += LargeIconSize + outerMargin;
         }
 
         GUI.EndGroup();
 
         // middle icons (the bulk of icons)
         GUI.BeginGroup(middleIcons);
-        cur = new Vector2(Margin, 0f);
+        cur = new Vector2(middleMargin, 0f);
         foreach (var tab in manager.ManagerTabsMiddle)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
-            cur.x += LargeIconSize + Margin;
+            cur.x += LargeIconSize + middleMargin;
         }
 
         GUI.EndGroup();
 
-        // right icons (probably only import/export, possbile settings?)
-        GUI.BeginGroup(rightIcons);
-        cur = new Vector2(Margin, 0f);
-        foreach (var tab in manager.ManagerTabsRight)
-        {
-            var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
-            DrawTabIcon(iconRect, tab);
-            cur.x += LargeIconSize + Margin;
-        }
-
-        GUI.EndGroup();
-
-        // delegate actual content to the specific manager.
+        // delegate actual content to the specific manager tab.
         var contentCanvas = new Rect(0f, LargeIconSize + Margin, canvas.width,
                                       canvas.height - LargeIconSize - Margin);
         GUI.BeginGroup(contentCanvas);
