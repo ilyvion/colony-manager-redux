@@ -211,6 +211,7 @@ public partial class History : IExposable
         var chapters =
             _chaptersShown.Where(chapter => !positiveOnly || chapter.counts[(int)PeriodShown].Any(i => i > 0))
                 .Where(chapter => !negativeOnly || chapter.counts[(int)PeriodShown].Any(i => i < 0))
+                .OrderBy(_chapters.IndexOf)
                 .ToList();
         foreach (var chapter in chapters)
         {
