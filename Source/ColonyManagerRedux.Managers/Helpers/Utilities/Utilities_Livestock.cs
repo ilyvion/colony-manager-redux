@@ -16,14 +16,35 @@ public enum AgeAndSex
 
 public static class AgeAndSexExtensions
 {
-    public static string GetLabel(this AgeAndSex ageAndSex)
+    public static string GetLabel(this AgeAndSex ageAndSex, bool plural = false)
     {
-        return $"ColonyManagerRedux.AgeAndSex.{ageAndSex}".Translate();
+        return $"ColonyManagerRedux.AgeAndSex.Order".Translate(
+            GetAgeLabel(ageAndSex), GetSexLabel(ageAndSex, plural));
+    }
+
+    public static string GetAgeLabel(this AgeAndSex ageAndSex)
+    {
+        return ageAndSex.IsAdult()
+            ? "ColonyManagerRedux.AgeAndSex.Adult".Translate()
+            : "ColonyManagerRedux.AgeAndSex.Juvenile".Translate();
+    }
+
+    public static string GetSexLabel(this AgeAndSex ageAndSex, bool plural = false)
+    {
+        return ageAndSex.IsMale()
+            ? $"ColonyManagerRedux.AgeAndSex.Male{(plural ? ".Plural" : "")}".Translate()
+            : $"ColonyManagerRedux.AgeAndSex.Female{(plural ? ".Plural" : "")}".Translate();
     }
 
     public static bool IsAdult(this AgeAndSex ageAndSex)
     {
         return ageAndSex == AgeAndSex.AdultFemale ||
+            ageAndSex == AgeAndSex.AdultMale;
+    }
+
+    public static bool IsMale(this AgeAndSex ageAndSex)
+    {
+        return ageAndSex == AgeAndSex.JuvenileMale ||
             ageAndSex == AgeAndSex.AdultMale;
     }
 }

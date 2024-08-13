@@ -92,7 +92,7 @@ internal sealed class Trigger_PawnKind : Trigger
                 c,
                 t,
                 "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
-                    ageAndSex.GetLabel()),
+                    ageAndSex.GetLabel(true)),
                 active,
                 GetProgressBarTextureFor(ageAndSex));
 
@@ -114,7 +114,7 @@ internal sealed class Trigger_PawnKind : Trigger
                 c,
                 t,
                 "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
-                    ageAndSex.GetLabel()),
+                    ageAndSex.GetLabel(true)),
                 active,
                 GetProgressBarTextureFor(ageAndSex));
 
@@ -147,9 +147,9 @@ internal sealed class Trigger_PawnKind : Trigger
         };
         tooltipArgs.AddRange(
             Counts.Zip(CountTargets, (c, t) => (c, t))
-            .Zip(Utilities_Livestock.AgeSexArray, (v, l) => new NamedArgument(
+            .Zip(Utilities_Livestock.AgeSexArray, (v, ageAndSex) => new NamedArgument(
                 "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(v.c, v.t,
-                    l.GetLabel()), null)));
+                    ageAndSex.GetLabel(true)), null)));
         tooltipArgs.Add(
             "ColonyManagerRedux.Livestock.WildCount".Translate(
                 pawnKind.GetWild(Job.Manager).Count())

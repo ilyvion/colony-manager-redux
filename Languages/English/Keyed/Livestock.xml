@@ -92,10 +92,13 @@
     <ColonyManagerRedux.Livestock.MasterMode.All>All</ColonyManagerRedux.Livestock.MasterMode.All>
 
     <!-- Age and sex classifications -->
-    <ColonyManagerRedux.AgeAndSex.AdultFemale>adult females</ColonyManagerRedux.AgeAndSex.AdultFemale>
-    <ColonyManagerRedux.AgeAndSex.AdultMale>adult males</ColonyManagerRedux.AgeAndSex.AdultMale>
-    <ColonyManagerRedux.AgeAndSex.JuvenileFemale>juvenile females</ColonyManagerRedux.AgeAndSex.JuvenileFemale>
-    <ColonyManagerRedux.AgeAndSex.JuvenileMale>juvenile males</ColonyManagerRedux.AgeAndSex.JuvenileMale>
+    <ColonyManagerRedux.AgeAndSex.Order>{0} {1}</ColonyManagerRedux.AgeAndSex.Order>
+    <ColonyManagerRedux.AgeAndSex.Adult>adult</ColonyManagerRedux.AgeAndSex.Adult>
+    <ColonyManagerRedux.AgeAndSex.Juvenile>juvenile</ColonyManagerRedux.AgeAndSex.Juvenile>
+    <ColonyManagerRedux.AgeAndSex.Female>female</ColonyManagerRedux.AgeAndSex.Female>
+    <ColonyManagerRedux.AgeAndSex.Female.Plural>females</ColonyManagerRedux.AgeAndSex.Female.Plural>
+    <ColonyManagerRedux.AgeAndSex.Male>male</ColonyManagerRedux.AgeAndSex.Male>
+    <ColonyManagerRedux.AgeAndSex.Male.Plural>males</ColonyManagerRedux.AgeAndSex.Male.Plural>
 
     <ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>
     <ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>
@@ -115,8 +118,8 @@
     <ColonyManagerRedux.Livestock.Logs.FieldWork>field work</ColonyManagerRedux.Livestock.Logs.FieldWork>
 
     <ColonyManagerRedux.Livestock.Logs.CurrentCountButcher>Checking if we should butcher any {0} {1}: count / target is {2} / {3} with {4} already being marked for slaughter, leaving us with {5}</ColonyManagerRedux.Livestock.Logs.CurrentCountButcher>
-    <ColonyManagerRedux.Livestock.Logs.AddDesignation>Added new {0} designation for {1}, bringing expected count / target to {2} / {3}</ColonyManagerRedux.Livestock.Logs.AddDesignation>
-    <ColonyManagerRedux.Livestock.Logs.RemoveDesignation>Removed excess {0} designation for {1}, bringing expected count / target to {2} / {3}</ColonyManagerRedux.Livestock.Logs.RemoveDesignation>
+    <ColonyManagerRedux.Livestock.Logs.AddDesignation>Added new {0} designation for {1} {2}, bringing expected count / target to {3} / {4}</ColonyManagerRedux.Livestock.Logs.AddDesignation>
+    <ColonyManagerRedux.Livestock.Logs.RemoveDesignation>Removed excess {0} designation for {1} {2}, bringing expected count / target to {3} / {4}</ColonyManagerRedux.Livestock.Logs.RemoveDesignation>
     <ColonyManagerRedux.Livestock.Logs.AddTraining>Set {1} to train {0}</ColonyManagerRedux.Livestock.Logs.AddTraining>
     <ColonyManagerRedux.Livestock.Logs.RemoveTraining>Set {1} to no longer train {0}</ColonyManagerRedux.Livestock.Logs.RemoveTraining>
     <ColonyManagerRedux.Livestock.Logs.AssigningToArea>Assigning {0} to area {1}</ColonyManagerRedux.Livestock.Logs.AssigningToArea>

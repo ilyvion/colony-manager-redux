@@ -754,7 +754,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
             jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.CurrentCountButcher".Translate(
                 TriggerPawnKind.pawnKind.label,
-                ageSex.GetLabel(),
+                ageSex.GetLabel(true),
                 animalCount,
                 target,
                 alreadySlaughtering,
@@ -791,6 +791,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         .Translate(
                             DesignationDefOf.Slaughter.ActionText(),
                             animal.Label,
+                            ageSex.GetLabel(),
                             animalCount,
                             target),
                         animal);
@@ -811,6 +812,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         .Translate(
                             DesignationDefOf.Slaughter.ActionText(),
                             animal.Label,
+                            ageSex.GetLabel(),
                             animalCount,
                             target),
                         animal);
@@ -844,7 +846,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.CurrentCountTame".Translate(
                     TriggerPawnKind.pawnKind.label,
-                    ageSex.GetLabel(),
+                    ageSex.GetLabel(true),
                     animalCount,
                     target,
                     alreadyTaming,
@@ -880,6 +882,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AddDesignation"
                         .Translate(
                             DesignationDefOf.Tame.ActionText(),
+                            ageSex.GetLabel(),
                             animal.Label,
                             animalCount,
                             target),
@@ -900,6 +903,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.RemoveDesignation"
                         .Translate(
                             DesignationDefOf.Tame.ActionText(),
+                            ageSex.GetLabel(),
                             animal.Label,
                             animalCount,
                             target),
