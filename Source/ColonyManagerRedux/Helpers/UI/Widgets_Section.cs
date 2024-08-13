@@ -8,6 +8,7 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public static class Widgets_Section
 {
     private static readonly Dictionary<string, float> _columnHeights = [];
@@ -23,7 +24,7 @@ public static class Widgets_Section
         var viewRect = new Rect(outRect.xMin, outRect.yMin, outRect.width, height);
         if (viewRect.height > outRect.height)
         {
-            viewRect.width -= ScrollbarWidth + Margin / 2f;
+            viewRect.width -= GenUI.ScrollBarWidth + Margin / 2f;
         }
 
         viewRect = viewRect.RoundToInt();
@@ -81,14 +82,19 @@ public static class Widgets_Section
         // header
         if (hasHeader)
         {
-            var headerRect = new Rect(position.x, position.y, width, SectionHeaderHeight)
-                .RoundToInt();
+            using var _ = GUIScope.Font(GameFont.Tiny);
+            var headerSize = Text.CalcSize(header);
+            var headerRect = new Rect(
+                position.x,
+                position.y,
+                headerSize.x + Margin,
+                SectionHeaderHeight).RoundToInt();
             IlyvionWidgets.Label(
                 headerRect,
                 header,
                 TextAnchor.LowerLeft,
                 GameFont.Tiny,
-                leftMargin: 3 * Margin);
+                leftMargin: Margin);
             position.y += SectionHeaderHeight;
         }
 

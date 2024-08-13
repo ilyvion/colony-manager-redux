@@ -455,7 +455,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         viewRect.height = _availablePawnKinds.Count * LargeListEntryHeight;
         if (viewRect.height > outRect.height)
         {
-            viewRect.width -= ScrollbarWidth;
+            viewRect.width -= GenUI.ScrollBarWidth;
         }
 
         Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);

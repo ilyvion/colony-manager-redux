@@ -40,7 +40,7 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
             cur.y,
             width,
             SliderHeight);
-        cur.y += ListEntryHeight;
+        cur.y += SliderHeight;
 
         var rowRect = new Rect(cur.x, cur.y, width, ListEntryHeight);
         cur.y += ListEntryHeight;

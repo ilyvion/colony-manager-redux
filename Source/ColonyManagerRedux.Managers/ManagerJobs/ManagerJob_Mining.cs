@@ -598,6 +598,7 @@ internal sealed class ManagerJob_Mining
         return cell.x % RoofSupportGridSpacing == 0 && cell.z % RoofSupportGridSpacing == 0;
     }
 
+    private const float MaxPathCost = 500f;
     public bool IsARoomDivider(Thing target)
     {
         if (!CheckRoomDivision)
@@ -961,6 +962,7 @@ internal sealed class ManagerJob_Mining
         return workDone;
     }
 
+    private const int MaxRegionDistance = 4;
     private static bool RegionsAreClose(Region start, Region end, int depth = 0)
     {
         if (depth > MaxRegionDistance)

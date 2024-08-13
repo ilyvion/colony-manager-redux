@@ -206,7 +206,7 @@ public class Settings : ModSettings
             cur.y,
             width,
             SliderHeight);
-        cur.y += entryHeight;
+        cur.y += SliderHeight;
 
         var useResourceListerToggleRect = new Rect(
             cur.x,

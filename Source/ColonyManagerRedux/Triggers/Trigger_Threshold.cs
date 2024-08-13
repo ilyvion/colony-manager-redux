@@ -196,7 +196,7 @@ public sealed class Trigger_Threshold : Trigger
             cur.y,
             width,
             SliderHeight);
-        cur.y += entryHeight;
+        cur.y += SliderHeight;
 
         var useResourceListerToggleRect = new Rect(
             cur.x,
@@ -217,7 +217,7 @@ public sealed class Trigger_Threshold : Trigger
             tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(GetCurrentCount(), targetCount);
         }
 
-        IlyvionWidgets.Label(thresholdLabelRect, label!, tooltip);
+        IlyvionWidgets.Label(thresholdLabelRect, label!, tooltip, TextAnchor.MiddleLeft);
 
         // add a little icon to mark interactivity
         GUI.color = Mouse.IsOver(thresholdLabelRect) ? GenUI.MouseoverColor : Color.white;

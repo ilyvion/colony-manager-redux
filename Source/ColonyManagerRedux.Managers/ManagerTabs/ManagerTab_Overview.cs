@@ -118,7 +118,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             contentRect.height = _overviewHeight;
             if (_overviewHeight > viewRect.height)
             {
-                contentRect.width -= ScrollbarWidth;
+                contentRect.width -= GenUI.ScrollBarWidth;
             }
 
             GUI.BeginGroup(viewRect);
