@@ -17,7 +17,7 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
         defaultLabel = "ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate();
 
-        _overlappingAnimals = new CachedValue<List<ThingDef>>([], updater: () =>
+        _overlappingAnimals = new CachedValue<List<ThingDef>>(() =>
         {
             var autoSlaughterVanillaAnimals = AutoSlaughterVanillaAnimals().ToList();
             var autoSlaugherLivestockAnimals = AutoSlaugherLivestockAnimals().ToList();

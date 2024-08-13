@@ -1,7 +1,6 @@
 // ManagerTab_Logs.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using ilyvion.Laboratory;
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;

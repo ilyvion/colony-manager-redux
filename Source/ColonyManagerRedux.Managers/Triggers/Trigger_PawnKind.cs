@@ -19,7 +19,7 @@ internal sealed class Trigger_PawnKind : Trigger
     {
         CountTargets = Utilities_Livestock.AgeSexArray.Select(_ => 5).ToArray();
 
-        _cachedTooltip = new CachedValue<string>("", 250, GetTooltip);
+        _cachedTooltip = new CachedValue<string>(GetTooltip);
     }
 
     public int[] Counts

@@ -17,7 +17,7 @@ internal sealed class Alert_NoManager : Alert
         defaultLabel = "ColonyManagerRedux.Alerts.NoManagerLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.NoManager".Translate();
 
-        _noManager = new(false, updater: () =>
+        _noManager = new(() =>
             Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
                 && !AnyConsciousManagerPawn());
     }
@@ -58,7 +58,7 @@ internal sealed class Alert_NoTable : Alert
     {
         defaultLabel = "ColonyManagerRedux.Alerts.NoTableLabel".Translate();
 
-        _noTable = new(false, updater: () =>
+        _noTable = new(() =>
             Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
             && !AnyManagerTable());
     }
@@ -133,9 +133,9 @@ internal sealed class Alert_TableAndAI : Alert
         defaultLabel = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManager".Translate();
 
-        _hasAIManager = new(false, updater: () =>
+        _hasAIManager = new(updater: () =>
             Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager));
-        _managerStations = new([], updater: () => ManagerStations);
+        _managerStations = new(() => ManagerStations);
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;

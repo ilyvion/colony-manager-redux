@@ -3,7 +3,6 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.IO;
-using ilyvion.Laboratory;
 using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux.Managers;

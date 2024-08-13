@@ -3,7 +3,6 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Reflection;
-using ilyvion.Laboratory;
 
 namespace ColonyManagerRedux;
 

@@ -220,8 +220,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 text += TriggerPawnKind.pawnKind.GetWild(Manager).Count() + "</i>";
                 return text;
             }
-            _cachedLabel = new CachedValue<string>(labelGetter(), 250, labelGetter);
-            return labelGetter();
+            _cachedLabel = new CachedValue<string>(labelGetter);
+            return _cachedLabel.Value;
         }
     }
 

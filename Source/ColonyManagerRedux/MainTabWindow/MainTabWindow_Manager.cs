@@ -1,7 +1,6 @@
 ﻿// MainTabWindow_Manager.cs
 // Copyright Karel Kroeze, 2018-2020
 
-using ilyvion.Laboratory;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
