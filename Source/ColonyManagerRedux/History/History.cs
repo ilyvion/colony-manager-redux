@@ -278,12 +278,12 @@ public partial class History : IExposable
             bgRect.yMax -= rect.height / 2 - 50f;
             bgRect = bgRect.ContractedBy(10f);
             Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 new(rect) { height = rect.height - 15f },
                 "ColonyManagerRedux.History.HistoryRecordingDisabled".Translate(),
                 TextAnchor.MiddleCenter,
                 GameFont.Medium);
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 new(rect) { y = rect.y + 20, height = rect.height - 15f },
                 "(" + "ColonyManagerRedux.History.ClickToEnableHistoryRecording".Translate() + ")",
                 TextAnchor.MiddleCenter,

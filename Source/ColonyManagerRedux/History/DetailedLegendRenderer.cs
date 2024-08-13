@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -51,7 +52,7 @@ public class DetailedLegendRenderer : IExposable
         if (chaptersOrdered.Count == 0)
         {
             GUI.DrawTexture(canvas.ContractedBy(Margin), Resources.SlightlyDarkBackground);
-            Widgets_Labels.Label(canvas, "ColonyManagerRedux.History.NoChapters".Translate(), TextAnchor.MiddleCenter,
+            IlyvionWidgets.Label(canvas, "ColonyManagerRedux.History.NoChapters".Translate(), TextAnchor.MiddleCenter,
                 color: Color.grey);
             return;
         }

@@ -156,7 +156,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         }
         if (i == 0)
         {
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 rect,
                 "ColonyManagerRedux.Logs.NoLogs".Translate(),
                 TextAnchor.MiddleCenter,
@@ -245,14 +245,14 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         }
 
         // draw label
-        Widgets_Labels.Label(headerLabelRect, headerLabel, null, TextAnchor.UpperLeft);
+        IlyvionWidgets.Label(headerLabelRect, headerLabel, null, TextAnchor.UpperLeft);
         TooltipHandler.TipRegion(headerLabelRect,
         "ColonyManagerRedux.Logs.ClickToExpandCollapse".Translate(
             (isSelectedLog
                 ? "ColonyManagerRedux.Logs.Collapse"
                 : "ColonyManagerRedux.Logs.Expand").Translate()));
 
-        Widgets_Labels.Label(dateLabelRect, dateLabel, null, TextAnchor.UpperLeft);
+        IlyvionWidgets.Label(dateLabelRect, dateLabel, null, TextAnchor.UpperLeft);
         TooltipHandler.TipRegion(dateLabelRect,
         "ColonyManagerRedux.Logs.ClickToExpandCollapse".Translate(
             (isSelectedLog
@@ -317,7 +317,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
 
         // draw label
         var selectToFilter = "ColonyManagerRedux.Logs.SelectToFilterLogsByJob".Translate();
-        Widgets_Labels.Label(labelRect, label, selectToFilter, TextAnchor.UpperLeft);
+        IlyvionWidgets.Label(labelRect, label, selectToFilter, TextAnchor.UpperLeft);
 
         if (tab.Enabled)
         {

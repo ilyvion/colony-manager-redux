@@ -109,7 +109,7 @@ public abstract class ManagerTab(Manager manager)
 
                 Widgets.DrawMenuSection(exceptionRect);
                 Widgets.DrawBox(exceptionRect, lineTexture: Resources.Error);
-                Widgets_Labels.Label(
+                IlyvionWidgets.Label(
                     exceptionRect.TrimLeft(Margin).TrimRight(Margin),
                     exceptionText,
                     TextAnchor.MiddleCenter,
@@ -204,7 +204,7 @@ public abstract class ManagerTab(Manager manager)
         }
 
         // draw label
-        Widgets_Labels.Label(labelRect, label, subLabel, TextAnchor.UpperLeft);
+        IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.UpperLeft);
 
         // if we're not doing export, render stamp
         var stampRect = new Rect(0, 0, StampSize, StampSize).CenteredIn(stampRegionRect);
@@ -331,12 +331,12 @@ public abstract class ManagerTab(Manager manager)
             bgRect.yMax -= rect.height / 2 - 50f;
             bgRect = bgRect.ContractedBy(10f);
             Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 new(rect) { height = rect.height - 15f },
                 "ColonyManagerRedux.History.JobSuspended".Translate(),
                 TextAnchor.MiddleCenter,
                 GameFont.Medium);
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 new(rect) { y = rect.y + 20, height = rect.height - 15f },
                 "(" + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
                     "ColonyManagerRedux.Job.Unsuspend".Translate()) + ")",

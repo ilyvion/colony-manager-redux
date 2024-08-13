@@ -3,8 +3,8 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Collections;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
-using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux;
 
@@ -172,7 +172,13 @@ public static class Utilities
         var iconRect = new Rect(rect.xMax - size - margin, 0f, size, size).CenteredOnYIn(labelRect);
 
         // draw label
-        Label(labelRect, label, TextAnchor.MiddleLeft, font, margin: margin, wrap: wrap);
+        IlyvionWidgets.Label(
+            labelRect,
+            label,
+            TextAnchor.MiddleLeft,
+            font,
+            leftMargin: margin,
+            wordWrap: wrap);
 
         // tooltip
         TooltipHandler.TipRegion(rect, tooltip);
@@ -265,7 +271,13 @@ public static class Utilities
         iconRect = iconRect.CenteredOnYIn(labelRect);
 
         // draw label
-        Label(rect, label, TextAnchor.MiddleLeft, GameFont.Small, margin: margin, wrap: wrap);
+        IlyvionWidgets.Label(
+            rect,
+            label,
+            TextAnchor.MiddleLeft,
+            GameFont.Small,
+            leftMargin: margin,
+            wordWrap: wrap);
 
         // tooltip
         if (tooltip.HasValue)
@@ -379,11 +391,11 @@ public static class Utilities
                 var offsetIcon = icon;
                 offsetIcon.x += xOffset;
                 offsetIcon.y += yOffset;
-                Label(offsetIcon, label, anchor, font, outlineColour, margin);
+                IlyvionWidgets.Label(offsetIcon, label, anchor, font, outlineColour, margin);
             }
         }
 
-        Label(icon, label, tooltip, anchor, font, textColour, margin);
+        IlyvionWidgets.Label(icon, label, tooltip, anchor, font, textColour, margin);
     }
 
     public static int SafeAbs(int value)

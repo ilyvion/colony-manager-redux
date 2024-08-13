@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -25,7 +26,7 @@ partial class ManagerTab_Overview
         public static void DrawHeader(Rect rect, PawnColumnWorker_Label @this)
         {
             rect.xMin = 0f;
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 rect,
                 @this.instance.WorkTypeDef.gerundLabel.CapitalizeFirst().Truncate(rect.width),
                 TextAnchor.MiddleCenter);
@@ -60,8 +61,8 @@ partial class ManagerTab_Overview
         {
             cellRect = rect;
             string activityString = GetPawnActivityString(pawn);
-            Widgets_Labels.Label(rect, activityString, activityString,
-                TextAnchor.MiddleCenter, margin: Constants.Margin, font: GameFont.Tiny);
+            IlyvionWidgets.Label(rect, activityString, activityString,
+                TextAnchor.MiddleCenter, leftMargin: Constants.Margin, gameFont: GameFont.Tiny);
         }
 
         private static string GetPawnActivityString(Pawn pawn)

@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Text;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux.Managers;
@@ -253,10 +254,10 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         }
         else
         {
-            Widgets_Labels.Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced".Translate(),
                 "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Disabled.Tip".Translate(),
-                TextAnchor.MiddleLeft, margin: Margin,
+                TextAnchor.MiddleLeft, leftMargin: Margin,
                 color: Color.grey);
         }
 

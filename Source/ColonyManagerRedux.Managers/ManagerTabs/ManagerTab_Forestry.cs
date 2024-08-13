@@ -2,9 +2,9 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Forestry;
-using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -178,7 +178,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             pos.y,
             width,
             height);
-        Label(rowRect, label, TextAnchor.MiddleLeft, color: Color.gray);
+        IlyvionWidgets.Label(rowRect, label, TextAnchor.MiddleLeft, color: Color.gray);
         return height;
     }
 

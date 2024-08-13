@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -80,8 +81,14 @@ public static class Widgets_Section
         // header
         if (hasHeader)
         {
-            var headerRect = new Rect(position.x, position.y, width, SectionHeaderHeight).RoundToInt();
-            Widgets_Labels.Label(headerRect, header, TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
+            var headerRect = new Rect(position.x, position.y, width, SectionHeaderHeight)
+                .RoundToInt();
+            IlyvionWidgets.Label(
+                headerRect,
+                header,
+                TextAnchor.LowerLeft,
+                GameFont.Tiny,
+                leftMargin: 3 * Margin);
             position.y += SectionHeaderHeight;
         }
 

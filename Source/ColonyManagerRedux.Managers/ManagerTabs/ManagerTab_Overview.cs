@@ -273,7 +273,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         }
 
         // draw label
-        Widgets_Labels.Label(
+        IlyvionWidgets.Label(
             labelRect,
             label,
             subLabel,

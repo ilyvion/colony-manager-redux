@@ -122,10 +122,20 @@ internal sealed class PawnKindSettings : IExposable
         }
 
         // headers
-        Widgets_Labels.Label(countRects[0, 1], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-        Widgets_Labels.Label(countRects[0, 2], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-        Widgets_Labels.Label(countRects[1, 0], "ColonyManagerRedux.Livestock.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
-        Widgets_Labels.Label(countRects[2, 0], "ColonyManagerRedux.Livestock.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[0, 1], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[0, 2], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[1, 0],
+            "ColonyManagerRedux.Livestock.Adult".Translate(),
+            TextAnchor.MiddleRight,
+            GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[2, 0],
+            "ColonyManagerRedux.Livestock.Juvenile".Translate(),
+            TextAnchor.MiddleRight,
+            GameFont.Tiny);
 
         // fields
         DoCountField(countRects[1, 1], AgeAndSex.AdultFemale);
@@ -257,7 +267,12 @@ internal sealed class PawnKindSettings : IExposable
                 EnabledTrainingTargets.Remove(allTrainingTargets[i]);
                 if (visible)
                 {
-                    Widgets_Labels.Label(cell, allTrainingTargets[i].LabelCap, report.Reason, TextAnchor.MiddleLeft, color: Color.grey, margin: Margin);
+                    IlyvionWidgets.Label(
+                        cell,
+                        allTrainingTargets[i].LabelCap,
+                        report.Reason, TextAnchor.MiddleLeft,
+                        color: Color.grey,
+                        leftMargin: Margin);
                 }
             }
         }
@@ -282,19 +297,19 @@ internal sealed class PawnKindSettings : IExposable
 
         if (report.Accepted)
         {
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 rowRect,
                 "ColonyManagerRedux.Livestock.MasterDefault".Translate(),
                 "ColonyManagerRedux.Livestock.MasterDefault.Tip".Translate(),
-                TextAnchor.MiddleLeft, margin: Margin);
+                TextAnchor.MiddleLeft, leftMargin: Margin);
         }
         else
         {
-            Widgets_Labels.Label(
+            IlyvionWidgets.Label(
                 rowRect,
                 "ColonyManagerRedux.Livestock.MasterDefault".Translate(),
                 report.Reason,
-                TextAnchor.MiddleLeft, margin: Margin, color: Color.gray);
+                TextAnchor.MiddleLeft, leftMargin: Margin, color: Color.gray);
         }
 
         TaggedString label = report.Accepted
@@ -322,10 +337,10 @@ internal sealed class PawnKindSettings : IExposable
         if (!report.Accepted)
         {
             DefaultRespectBonds = false;
-            Widgets_Labels.Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.RespectBonds".Translate(),
                 report.Reason,
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
         else
         {
@@ -347,10 +362,10 @@ internal sealed class PawnKindSettings : IExposable
         else
         {
             DefaultSetFollow = false;
-            Widgets_Labels.Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.Follow".Translate(),
                 report.Reason,
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
 
         if (report.Accepted)
@@ -389,25 +404,25 @@ internal sealed class PawnKindSettings : IExposable
         else
         {
             DefaultFollowTraining = false;
-            Widgets_Labels.Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.FollowTraining".Translate(),
                 report.Reason,
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
 
         // trainer selection
         rowRect.y += ListEntryHeight;
         if (report.Accepted)
         {
-            Widgets_Labels.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
+            IlyvionWidgets.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
                 "ColonyManagerRedux.Livestock.MasterTraining.Tip".Translate(),
-                TextAnchor.MiddleLeft, margin: Margin);
+                TextAnchor.MiddleLeft, leftMargin: Margin);
         }
         else
         {
-            Widgets_Labels.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
+            IlyvionWidgets.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
                 report.Reason,
-                TextAnchor.MiddleLeft, color: Color.gray, margin: Margin);
+                TextAnchor.MiddleLeft, color: Color.gray, leftMargin: Margin);
         }
 
         label = report.Accepted

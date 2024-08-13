@@ -378,7 +378,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
 
         // draw label
-        Widgets_Labels.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);
+        IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);
 
         // draw update interval
         UpdateInterval.Draw(

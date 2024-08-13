@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux.Managers;
@@ -74,10 +75,10 @@ partial class ManagerTab_Livestock
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             int estimatedMeatCount = pawn.EstimatedMeatCount();
-            Widgets_Labels.Label(rect, estimatedMeatCount.ToString(),
+            IlyvionWidgets.Label(rect, estimatedMeatCount.ToString(),
                 "ColonyManagerRedux.Livestock.Yields".Translate(pawn.RaceProps.meatDef.LabelCap,
                     estimatedMeatCount),
-                TextAnchor.MiddleCenter, GameFont.Tiny, margin: Margin);
+                TextAnchor.MiddleCenter, GameFont.Tiny, leftMargin: Margin);
         }
 
         protected override string GetHeaderTip(PawnTable table)
@@ -106,10 +107,10 @@ partial class ManagerTab_Livestock
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var milkableComp = pawn.TryGetComp<CompMilkable>();
-            Widgets_Labels.Label(rect, milkableComp.Fullness.ToString("0%"),
+            IlyvionWidgets.Label(rect, milkableComp.Fullness.ToString("0%"),
                 "ColonyManagerRedux.Livestock.Yields".Translate(milkableComp.Props.milkDef.LabelCap,
                     milkableComp.Props.milkAmount),
-                TextAnchor.MiddleCenter, GameFont.Tiny, margin: Margin);
+                TextAnchor.MiddleCenter, GameFont.Tiny, leftMargin: Margin);
         }
 
         protected override string GetHeaderTip(PawnTable table)
@@ -141,10 +142,10 @@ partial class ManagerTab_Livestock
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var shearableComp = pawn.TryGetComp<CompShearable>();
-            Widgets_Labels.Label(rect, shearableComp.Fullness.ToString("0%"),
+            IlyvionWidgets.Label(rect, shearableComp.Fullness.ToString("0%"),
                 "ColonyManagerRedux.Livestock.Yields".Translate(shearableComp.Props.woolDef.LabelCap,
                     shearableComp.Props.woolAmount),
-                TextAnchor.MiddleCenter, GameFont.Tiny, margin: Margin);
+                TextAnchor.MiddleCenter, GameFont.Tiny, leftMargin: Margin);
         }
 
         protected override string GetHeaderTip(PawnTable table)

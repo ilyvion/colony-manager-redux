@@ -4,6 +4,7 @@
 
 using System.IO;
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -214,9 +215,7 @@ public class Settings : ModSettings
             entryHeight);
         cur.y += entryHeight;
 
-
-        //Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
-        Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
+        IlyvionWidgets.Label(thresholdLabelRect, label!, tooltip);
 
         Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
                               "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref _defaultCountAllOnMap, true);

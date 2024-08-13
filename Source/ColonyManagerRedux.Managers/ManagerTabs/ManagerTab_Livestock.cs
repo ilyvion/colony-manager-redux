@@ -6,7 +6,6 @@ using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Utilities;
-using static ColonyManagerRedux.Widgets_Labels;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -94,7 +93,13 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             }
             else if (visible)
             {
-                Label(cell, keys[i].LabelCap, report.Reason, TextAnchor.MiddleLeft, color: Color.grey, margin: Margin);
+                IlyvionWidgets.Label(
+                    cell,
+                    keys[i].LabelCap,
+                    report.Reason,
+                    TextAnchor.MiddleLeft,
+                    color: Color.grey,
+                    leftMargin: Margin);
             }
         }
 
@@ -137,7 +142,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         // cop out if nothing is selected.
         if (SelectedJob == null)
         {
-            Label(rect, "ColonyManagerRedux.Livestock.SelectPawnKind".Translate(), TextAnchor.MiddleCenter);
+            IlyvionWidgets.Label(
+                rect,
+                "ColonyManagerRedux.Livestock.SelectPawnKind".Translate(),
+                TextAnchor.MiddleCenter);
             return;
         }
 
@@ -270,9 +278,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             var unavailableLabelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             unavailableLabelRect.xMin += Margin;
-            Label(unavailableLabelRect,
-                "ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal".Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
-                "ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip".Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
+            IlyvionWidgets.Label(unavailableLabelRect,
+                "ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal"
+                    .Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
+                "ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip"
+                    .Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
                 TextAnchor.MiddleLeft,
                 color: Color.grey);
             return ListEntryHeight;
@@ -313,10 +323,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             }
 
             // headers
-            Label(areaRects[1, 0], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-            Label(areaRects[2, 0], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-            Label(areaRects[0, 1], "ColonyManagerRedux.Livestock.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
-            Label(areaRects[0, 2], "ColonyManagerRedux.Livestock.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+            IlyvionWidgets.Label(
+                areaRects[1, 0], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
+            IlyvionWidgets.Label(
+                areaRects[2, 0], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
+            IlyvionWidgets.Label(
+                areaRects[0, 1],
+                "ColonyManagerRedux.Livestock.Adult".Translate(),
+                TextAnchor.MiddleRight,
+                GameFont.Tiny);
+            IlyvionWidgets.Label(
+                areaRects[0, 2],
+                "ColonyManagerRedux.Livestock.Juvenile".Translate(),
+                TextAnchor.MiddleRight,
+                GameFont.Tiny);
 
             // do the selectors
             job.RestrictArea[0] = AreaAllowedGUI.DoAllowedAreaSelectors(
@@ -356,7 +376,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         else
         {
             sendToSlaughterAreaRect.xMin += Margin;
-            Label(sendToSlaughterAreaRect,
+            IlyvionWidgets.Label(sendToSlaughterAreaRect,
                 "ColonyManagerRedux.Livestock.SendToSlaughterArea".Translate(),
                 "ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled".Translate(),
                 TextAnchor.MiddleLeft,
@@ -419,7 +439,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         else
         {
             sendToTrainingAreaRect.xMin += Margin;
-            Label(sendToTrainingAreaRect,
+            IlyvionWidgets.Label(sendToTrainingAreaRect,
                 "ColonyManagerRedux.Livestock.SendToTrainingArea".Translate(),
                 "ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet".Translate(),
                 TextAnchor.MiddleLeft,
@@ -561,7 +581,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     animalDef.GetTame(Manager, false).Count()) + ", " +
                 "ColonyManagerRedux.Livestock.WildCount".Translate(
                     animalDef.GetWild(Manager).Count()) + ".</i>";
-            Label(row, label, TextAnchor.MiddleLeft, margin: Margin * 2);
+            IlyvionWidgets.Label(row, label, TextAnchor.MiddleLeft, leftMargin: Margin * 2);
 
             // button
             if (Widgets.ButtonInvisible(row))
@@ -649,17 +669,17 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (report.Accepted)
         {
-            Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.MasterDefault".Translate(),
                 "ColonyManagerRedux.Livestock.MasterDefault.Tip".Translate(),
-                TextAnchor.MiddleLeft, margin: Margin);
+                TextAnchor.MiddleLeft, leftMargin: Margin);
         }
         else
         {
-            Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.MasterDefault".Translate(),
                 report.Reason,
-                TextAnchor.MiddleLeft, margin: Margin, color: Color.gray);
+                TextAnchor.MiddleLeft, leftMargin: Margin, color: Color.gray);
         }
         if (IlyvionWidgets.DisableableButtonText(buttonRect, GetMasterLabel(job), enabled: report.Accepted))
         {
@@ -693,10 +713,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         rowRect.y += ListEntryHeight;
         if (!report.Accepted)
         {
-            Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.RespectBonds".Translate(),
                 report.Reason,
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
         else if (job.Masters != MasterMode.Manual && job.Masters != MasterMode.Specific)
         {
@@ -707,10 +727,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         }
         else
         {
-            Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.RespectBonds".Translate(),
                 "ColonyManagerRedux.Livestock.RespectBonds.DisabledBecauseMastersNotSet".Translate(),
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
 
         // default follow
@@ -724,10 +744,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         }
         else
         {
-            Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.Follow".Translate(),
                 report.Reason,
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
 
         if (job.SetFollow && report.Accepted)
@@ -760,18 +780,18 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         }
         else
         {
-            Label(rowRect,
+            IlyvionWidgets.Label(rowRect,
                 "ColonyManagerRedux.Livestock.FollowTraining".Translate(),
                 report.Reason,
-                color: Color.grey, margin: Margin);
+                color: Color.grey, leftMargin: Margin);
         }
         // trainer selection
         if (job.FollowTraining && report.Accepted)
         {
             rowRect.y += ListEntryHeight;
-            Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
+            IlyvionWidgets.Label(rowRect, "ColonyManagerRedux.Livestock.MasterTraining".Translate(),
                 "ColonyManagerRedux.Livestock.MasterTraining.Tip".Translate(),
-                TextAnchor.MiddleLeft, margin: Margin);
+                TextAnchor.MiddleLeft, leftMargin: Margin);
 
             buttonRect = buttonRect.CenteredOnYIn(rowRect);
             if (Widgets.ButtonText(buttonRect, GetTrainerLabel(job)))
@@ -859,10 +879,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         }
 
         // headers
-        Label(countRects[0, 1], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-        Label(countRects[0, 2], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
-        Label(countRects[1, 0], "ColonyManagerRedux.Livestock.Adult".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
-        Label(countRects[2, 0], "ColonyManagerRedux.Livestock.Juvenile".Translate(), TextAnchor.MiddleRight, GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[0, 1], Gender.Female.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[0, 2], Gender.Male.ToString(), TextAnchor.LowerCenter, GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[1, 0],
+            "ColonyManagerRedux.Livestock.Adult".Translate(),
+            TextAnchor.MiddleRight,
+            GameFont.Tiny);
+        IlyvionWidgets.Label(
+            countRects[2, 0],
+            "ColonyManagerRedux.Livestock.Juvenile".Translate(),
+            TextAnchor.MiddleRight,
+            GameFont.Tiny);
 
         // fields
         DoCountField(job, countRects[1, 1], AgeAndSex.AdultFemale);
@@ -911,11 +941,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         animalsColumnRect.yMin += Margin;
         var headerRect = new Rect(animalsColumnRect.x, animalsColumnRect.y,
             animalsColumnRect.width, SectionHeaderHeight).RoundToInt();
-        Widgets_Labels.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
+        IlyvionWidgets.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Tame".Translate(),
                 SelectedJob!.TriggerPawnKind.pawnKind.GetLabelPlural())
-            .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
+            .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, leftMargin: 3 * Margin);
         animalsColumnRect.yMin += SectionHeaderHeight;
         animalsColumnRect.yMax -= Margin;
         GUI.DrawTexture(animalsColumnRect, Resources.SlightlyDarkBackground);
@@ -925,11 +955,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         headerRect = new Rect(animalsColumnRect2.x, animalsColumnRect2.y,
             animalsColumnRect2.width, SectionHeaderHeight).RoundToInt();
-        Widgets_Labels.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
+        IlyvionWidgets.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Wild".Translate(),
                 SelectedJob.TriggerPawnKind.pawnKind.GetLabelPlural())
-            .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, margin: 3 * Margin);
+            .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, leftMargin: 3 * Margin);
         animalsColumnRect2.yMin += SectionHeaderHeight;
         GUI.DrawTexture(animalsColumnRect2, Resources.SlightlyDarkBackground);
         GUI.BeginGroup(animalsColumnRect2);
@@ -963,7 +993,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         if (pawnTable.PawnsListForReading.Count == 0)
         {
             var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
-            Label(rect,
+            IlyvionWidgets.Label(rect,
                 "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
                 TextAnchor.MiddleCenter, color: Color.grey);
         }

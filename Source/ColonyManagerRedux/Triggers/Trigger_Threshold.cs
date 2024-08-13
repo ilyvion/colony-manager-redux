@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -216,7 +217,7 @@ public sealed class Trigger_Threshold : Trigger
             tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(GetCurrentCount(), targetCount);
         }
 
-        Widgets_Labels.Label(thresholdLabelRect, label!, tooltip);
+        IlyvionWidgets.Label(thresholdLabelRect, label!, tooltip);
 
         // add a little icon to mark interactivity
         GUI.color = Mouse.IsOver(thresholdLabelRect) ? GenUI.MouseoverColor : Color.white;

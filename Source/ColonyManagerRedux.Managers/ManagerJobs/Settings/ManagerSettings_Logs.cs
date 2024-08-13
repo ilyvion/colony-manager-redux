@@ -1,6 +1,7 @@
 // ManagerSettings_Logs.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux.Managers;
@@ -44,7 +45,7 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
         var rowRect = new Rect(cur.x, cur.y, width, ListEntryHeight);
         cur.y += ListEntryHeight;
 
-        Widgets_Labels.Label(
+        IlyvionWidgets.Label(
             thresholdLabelRect,
             "ColonyManagerRedux.Logs.JobSettings.KeepLogCount".Translate(KeepLogCount),
             "ColonyManagerRedux.Logs.JobSettings.KeepLogCount.Tip".Translate());
