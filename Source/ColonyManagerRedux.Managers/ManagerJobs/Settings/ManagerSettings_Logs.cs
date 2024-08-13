@@ -1,4 +1,4 @@
-// ManagerJobSettings_Logs.cs
+// ManagerSettings_Logs.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJobSettings_Logs : ManagerJobSettings
+internal sealed class ManagerSettings_Logs : ManagerSettings
 {
     public int KeepLogCount = 100;
     public bool ShowLogsWithNoWorkDone = true;

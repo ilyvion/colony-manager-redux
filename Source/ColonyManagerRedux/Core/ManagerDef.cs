@@ -8,7 +8,7 @@ public class ManagerDef : Def
     public int order;
     public Type? managerJobClass;
     public Type managerTabClass = typeof(ManagerTab);
-    public Type? managerJobSettingsClass;
+    public Type? managerSettingsClass;
 
     public List<ManagerJobCompProperties> jobComps = [];
     public List<ManagerCompProperties> managerComps = [];
@@ -51,9 +51,9 @@ public class ManagerDef : Def
             yield return $"{nameof(managerTabClass)} is not {nameof(ManagerTab)} or a subclass thereof";
         }
 
-        if (managerJobSettingsClass != null && !typeof(ManagerJobSettings).IsAssignableFrom(managerJobSettingsClass))
+        if (managerSettingsClass != null && !typeof(ManagerSettings).IsAssignableFrom(managerSettingsClass))
         {
-            yield return $"{nameof(managerJobSettingsClass)} is not a subclass of {nameof(ManagerJobSettings)}";
+            yield return $"{nameof(managerSettingsClass)} is not a subclass of {nameof(ManagerSettings)}";
         }
 
         foreach (ManagerJobCompProperties comp in jobComps)

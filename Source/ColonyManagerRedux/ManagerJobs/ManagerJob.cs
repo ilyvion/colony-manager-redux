@@ -8,6 +8,18 @@ using Verse.AI;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
+public abstract class ManagerJob<TSettings>(Manager manager) : ManagerJob(manager)
+    where TSettings : ManagerSettings
+{
+    public TSettings ManagerSettings => ColonyManagerReduxMod.Settings
+        .ManagerSettingsFor<TSettings>(Def)
+            ?? throw new InvalidOperationException($"Type {GetType().Name} claims to have a "
+            + $"manager settings type of {typeof(TSettings).Name}, but no such type has been "
+            + "registered. Did you remember to add your settings type to your ManagerDef with a "
+            + " managerSettingsClass value?");
+}
+
+[HotSwappable]
 public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
     internal ManagerDef _def;

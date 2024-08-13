@@ -12,7 +12,7 @@ namespace ColonyManagerRedux;
 public class Settings : ModSettings
 {
     private bool _jobDefSettingsAreLoaded;
-    private List<ManagerJobSettings> _jobSettings = [];
+    private List<ManagerSettings> _jobSettings = [];
     private int _currentJobSettingsTab = -1;
 
     private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
@@ -76,18 +76,18 @@ public class Settings : ModSettings
         LongEventHandler.ExecuteWhenFinished(() =>
         {
             ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
-            _jobSettings.AddRange(MakeManagerJobSettings());
+            _jobSettings.AddRange(MakeManagerSettings());
             _jobDefSettingsAreLoaded = true;
             ReloadSettings();
         });
     }
 
-    private static IEnumerable<ManagerJobSettings> MakeManagerJobSettings()
+    private static IEnumerable<ManagerSettings> MakeManagerSettings()
     {
         return DefDatabase<ManagerDef>.AllDefs
-            .Where(m => m.managerJobSettingsClass != null)
+            .Where(m => m.managerSettingsClass != null)
             .OrderBy(m => m.order)
-            .Select(m => ManagerDefMaker.MakeManagerJobSettings(m)!);
+            .Select(m => ManagerDefMaker.MakeManagerSettings(m)!);
     }
 
     public void DoSettingsWindowContents(Rect rect)
@@ -112,7 +112,7 @@ public class Settings : ModSettings
             Widgets_Section.BeginSectionColumn(rect, "Settings", out Vector2 position, out float width);
 
             Widgets_Section.Section(ref position, width, DrawGeneralSettings, "ColonyManagerRedux.GeneralSettingsTabLabel".Translate());
-            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
+            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
 
             Widgets_Section.EndSectionColumn("Settings", position);
         }
@@ -174,7 +174,7 @@ public class Settings : ModSettings
         var start = pos;
 
         DrawTriggerConfig(ref pos, width, ListEntryHeight,
-            "ColonyManagerRedux.ManagerJobSettings.TargetCount".Translate(
+            "ColonyManagerRedux.ManagerSettings.TargetCount".Translate(
                 DefaultTargetCount));
 
         Utilities.DrawReachabilityToggle(ref pos, width, ref _defaultShouldCheckReachable);
@@ -239,7 +239,7 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         // This normally happens much too early in the loading sequence (before defs are loaded,
-        // i.e. before MakeManagerJobSettings can do its thing), so we're abandoning ship until
+        // i.e. before MakeManagerSettings can do its thing), so we're abandoning ship until
         // _jobDefSettingsAreLoaded is true, and then ReloadSettings() does a reload for us.
         if (!_jobDefSettingsAreLoaded)
         {
@@ -258,7 +258,7 @@ public class Settings : ModSettings
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            _jobSettings ??= MakeManagerJobSettings().ToList();
+            _jobSettings ??= MakeManagerSettings().ToList();
             EnsureJobSettingsAreCorrect();
         }
     }
@@ -266,13 +266,13 @@ public class Settings : ModSettings
     private void EnsureJobSettingsAreCorrect()
     {
         var allManagerDefs = DefDatabase<ManagerDef>.AllDefs
-                        .Where(m => m.managerJobSettingsClass != null)
-                        .ToDictionary(j => j, _ => false);
+            .Where(m => m.managerSettingsClass != null)
+            .ToDictionary(j => j, _ => false);
 
         // remove settings that should no longer be here
         for (int i = _jobSettings.Count - 1; i >= 0; i--)
         {
-            ManagerJobSettings? item = _jobSettings[i];
+            ManagerSettings item = _jobSettings[i];
             if (!allManagerDefs.ContainsKey(item.Def))
             {
                 _jobSettings.RemoveAt(i);
@@ -286,7 +286,7 @@ public class Settings : ModSettings
         }
         foreach (var missingDef in allManagerDefs.Where(kv => !kv.Value).Select(kv => kv.Key))
         {
-            _jobSettings.Add(ManagerDefMaker.MakeManagerJobSettings(missingDef)!);
+            _jobSettings.Add(ManagerDefMaker.MakeManagerSettings(missingDef)!);
         }
 
         _jobSettings.SortBy(j => j.Def.order);
@@ -329,8 +329,7 @@ public class Settings : ModSettings
         };
     }
 
-    // TODO: Refactor ManagerJob to call this in the base class(?)
-    public T? ManagerJobSettingsFor<T>(ManagerDef def) where T : ManagerJobSettings
+    public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings
     {
         return _jobSettings.Find(s => s.Def == def) as T;
     }

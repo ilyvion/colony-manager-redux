@@ -1,4 +1,4 @@
-// ManagerJobSettings_Hunting.cs
+// ManagerSettings_Hunting.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJobSettings_Hunting : ManagerJobSettings
+internal sealed class ManagerSettings_Hunting : ManagerSettings
 {
     public bool DefaultAllowHumanLikeMeat;
     public bool DefaultAllowInsectMeat;
@@ -21,7 +21,7 @@ internal sealed class ManagerJobSettings_Hunting : ManagerJobSettings
             rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(panelRect, "Hunting.Settings", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawAllowWeirdMeat, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.Section(ref position, width, DrawAllowWeirdMeat, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
         Widgets_Section.Section(ref position, width, DrawUnforbidCorpses);
         Widgets_Section.EndSectionColumn("Hunting.Settings", position);
     }

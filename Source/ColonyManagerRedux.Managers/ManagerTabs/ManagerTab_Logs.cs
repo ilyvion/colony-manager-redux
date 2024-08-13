@@ -9,10 +9,9 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed partial class ManagerTab_Logs(Manager manager) : ManagerTab(manager)
+internal sealed partial class ManagerTab_Logs(Manager manager)
+    : ManagerTab<ManagerJob, ManagerSettings_Logs>(manager)
 {
-
-    // TODO: Let the number of tracked jobs be configurable
     protected override bool AllowJobDeselect => true;
     protected override bool DoMainContentWhenNothingSelected => true;
     protected override bool ShouldHaveNewJobButton => false;
@@ -60,8 +59,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager) : ManagerTab(mana
             logs = logs.Where(l => l.IsForJob(Selected));
         }
 
-        var logSettings = ColonyManagerReduxMod.Settings
-            .ManagerJobSettingsFor<ManagerJobSettings_Logs>(Def)!;
+        var logSettings = ManagerSettings;
         foreach (var log in logs.Reverse()
             .Where(l => logSettings.ShowLogsWithNoWorkDone || l.WorkDone))
         {

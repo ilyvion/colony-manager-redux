@@ -5,7 +5,7 @@
         <defName>CM_ForagingManager</defName>
         <order>600</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Foraging</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Foraging</managerJobSettingsClass>
+        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Foraging</managerSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Foraging</managerTabClass>
         <iconPath>UI/Icons/CMR_Foraging</iconPath>
         <label>foraging</label>

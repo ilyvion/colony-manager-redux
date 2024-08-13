@@ -5,7 +5,7 @@
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJob_Forestry : ManagerJob
+internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 {
     public sealed class History : HistoryWorker<ManagerJob_Forestry>
     {
@@ -75,7 +75,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob
 
     public override void PostMake()
     {
-        var forestrySettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Forestry>(Def);
+        var forestrySettings = ManagerSettings;
         if (forestrySettings != null)
         {
             _type = forestrySettings.DefaultForestryJobType;

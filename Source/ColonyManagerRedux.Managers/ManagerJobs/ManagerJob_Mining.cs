@@ -7,7 +7,8 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJob_Mining : ManagerJob, INotifyStoneChunkMined
+internal sealed class ManagerJob_Mining
+    : ManagerJob<ManagerSettings_Mining>, INotifyStoneChunkMined
 {
     public sealed class History : HistoryWorker<ManagerJob_Mining>
     {
@@ -93,7 +94,7 @@ internal sealed class ManagerJob_Mining : ManagerJob, INotifyStoneChunkMined
 
     public override void PostMake()
     {
-        var miningSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Mining>(Def);
+        var miningSettings = ManagerSettings;
         if (miningSettings != null)
         {
             SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;

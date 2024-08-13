@@ -9,6 +9,6 @@
     <ColonyManagerRedux.RecordHistoricalData>Record historical data</ColonyManagerRedux.RecordHistoricalData>
     <ColonyManagerRedux.RecordHistoricalData.Tip>With this setting enabled, the mod will, for each manager job that exists, ask it to record its data a certain number of times per day, data which later gets used to show graphs of how the values have changed over time. This data recording process isn't free, so if you're having performance issues, you could try turning this setting off.</ColonyManagerRedux.RecordHistoricalData.Tip>
 
-    <ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings>
-    <ColonyManagerRedux.ManagerJobSettings.TargetCount>Target count: {0}</ColonyManagerRedux.ManagerJobSettings.TargetCount>
+    <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
+    <ColonyManagerRedux.ManagerSettings.TargetCount>Target count: {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
 </LanguageData>

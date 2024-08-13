@@ -1,4 +1,4 @@
-// ManagerJobSettings_Mining.cs
+// ManagerSettings_Mining.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
+internal sealed class ManagerSettings_Mining : ManagerSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
 
@@ -30,7 +30,7 @@ internal sealed class ManagerJobSettings_Mining : ManagerJobSettings
             rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
         Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.Mining.JobSettings.DefaultChunks".Translate());
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
         Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety".Translate());

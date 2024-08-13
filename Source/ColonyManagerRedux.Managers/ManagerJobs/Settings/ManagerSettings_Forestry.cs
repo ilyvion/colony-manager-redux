@@ -1,4 +1,4 @@
-// ManagerJobSettings_Forestry.cs
+// ManagerSettings_Forestry.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJobSettings_Forestry : ManagerJobSettings
+internal sealed class ManagerSettings_Forestry : ManagerSettings
 {
     public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType = ManagerJob_Forestry.ForestryJobType.Logging;
     public bool DefaultAllowSaplings;

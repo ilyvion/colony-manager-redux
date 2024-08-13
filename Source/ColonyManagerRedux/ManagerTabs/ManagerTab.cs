@@ -9,6 +9,18 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+public abstract class ManagerTab<TJob, TSettings>(Manager manager) : ManagerTab<TJob>(manager)
+    where TJob : ManagerJob
+    where TSettings : ManagerSettings
+{
+    public TSettings ManagerSettings => ColonyManagerReduxMod.Settings
+        .ManagerSettingsFor<TSettings>(Def)
+            ?? throw new InvalidOperationException($"Type {GetType().Name} claims to have a "
+            + $"manager settings type of {typeof(TSettings).Name}, but no such type has been "
+            + "registered. Did you remember to add your settings type to your ManagerDef with a "
+            + " managerSettingsClass value?");
+}
+
 public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where T : ManagerJob
 {
     protected override IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<T>();

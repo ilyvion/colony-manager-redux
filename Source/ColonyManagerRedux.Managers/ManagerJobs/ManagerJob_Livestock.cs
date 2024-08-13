@@ -8,7 +8,7 @@ using Verse.Sound;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed partial class ManagerJob_Livestock : ManagerJob
+internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_Livestock>
 {
     public sealed class History : HistoryWorker<ManagerJob_Livestock>
     {
@@ -147,7 +147,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob
 
     public override void PostMake()
     {
-        var livestockSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Livestock>(Def);
+        var livestockSettings = ManagerSettings;
         if (livestockSettings != null)
         {
             PawnKindDef pawnKind = TriggerPawnKind.pawnKind;

@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
-internal sealed class ManagerJob_Hunting : ManagerJob
+internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 {
     public sealed class History : HistoryWorker<ManagerJob_Hunting>
     {
@@ -73,7 +73,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob
 
     public override void PostMake()
     {
-        var huntingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Hunting>(Def);
+        var huntingSettings = ManagerSettings;
         if (huntingSettings != null)
         {
             UnforbidCorpses = huntingSettings.DefaultUnforbidCorpses;

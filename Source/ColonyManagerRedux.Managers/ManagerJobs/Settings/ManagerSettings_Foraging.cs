@@ -1,4 +1,4 @@
-// ManagerJobSettings_Foraging.cs
+// ManagerSettings_Foraging.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJobSettings_Foraging : ManagerJobSettings
+internal sealed class ManagerSettings_Foraging : ManagerSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
     public bool DefaultForceFullyMature;
@@ -20,7 +20,7 @@ internal sealed class ManagerJobSettings_Foraging : ManagerJobSettings
             rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(panelRect, "Foraging.Settings", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerJobSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
         Widgets_Section.Section(ref position, width, DrawForceFullyMature);
         Widgets_Section.EndSectionColumn("Foraging.Settings", position);
     }

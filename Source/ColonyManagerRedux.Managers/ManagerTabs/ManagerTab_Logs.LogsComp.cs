@@ -17,7 +17,7 @@ partial class ManagerTab_Logs
         public override void Initialize()
         {
             var logSettings = ColonyManagerReduxMod.Settings
-                .ManagerJobSettingsFor<ManagerJobSettings_Logs>(ManagerDefOf.CM_LogsManager)!;
+                .ManagerSettingsFor<ManagerSettings_Logs>(ManagerDefOf.CM_LogsManager)!;
             _logs = new(logSettings.KeepLogCount);
         }
 
@@ -34,7 +34,7 @@ partial class ManagerTab_Logs
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
                 var logSettings = ColonyManagerReduxMod.Settings
-                    .ManagerJobSettingsFor<ManagerJobSettings_Logs>(ManagerDefOf.CM_LogsManager)!;
+                    .ManagerSettingsFor<ManagerSettings_Logs>(ManagerDefOf.CM_LogsManager)!;
                 if (_logs == null)
                 {
                     _logs = new(logSettings.KeepLogCount);

@@ -1,4 +1,4 @@
-// ManagerJobSettings_Livestock.cs
+// ManagerSettings_Livestock.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
@@ -10,7 +10,7 @@ namespace ColonyManagerRedux.Managers;
 internal sealed class PawnKindSettings : IExposable
 {
     private PawnKindDef? _def;
-    internal ManagerJobSettings_Livestock settings;
+    internal ManagerSettings_Livestock settings;
 
     public int[] DefaultCountTargets = Utilities_Livestock.AgeSexArray
                 .Select(_ => 5)
@@ -40,7 +40,7 @@ internal sealed class PawnKindSettings : IExposable
     private string[] _newCounts =
         Utilities_Livestock.AgeSexArray.Select(_ => "5").ToArray();
 
-#pragma warning disable CS8618 // Set by ManagerJobSettings_Livestock/scribe
+#pragma warning disable CS8618 // Set by ManagerSettings_Livestock/scribe
     public PawnKindSettings() { }
 #pragma warning restore CS8618
 
@@ -473,7 +473,7 @@ internal sealed class PawnKindSettings : IExposable
 }
 
 [HotSwappable]
-internal sealed class ManagerJobSettings_Livestock : ManagerJobSettings
+internal sealed class ManagerSettings_Livestock : ManagerSettings
 {
     private PawnKindSettings defaults = new();
     private Dictionary<PawnKindDef, PawnKindSettings> overrides = [];

@@ -5,7 +5,7 @@
         <defName>CM_LogsManager</defName>
         <order>5</order>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Logs</managerTabClass>
-        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Logs</managerJobSettingsClass>
+        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Logs</managerSettingsClass>
         <iconArea>Left</iconArea>
         <iconPath>UI/Icons/CMR_Logs</iconPath>
         <label>logs</label>

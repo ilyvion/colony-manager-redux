@@ -5,7 +5,7 @@
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerJob_Foraging : ManagerJob
+internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 {
     public sealed class History : HistoryWorker<ManagerJob_Foraging>
     {
@@ -66,7 +66,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob
 
     public override void PostMake()
     {
-        var foragingSettings = ColonyManagerReduxMod.Settings.ManagerJobSettingsFor<ManagerJobSettings_Foraging>(Def);
+        var foragingSettings = ManagerSettings;
         if (foragingSettings != null)
         {
             SyncFilterAndAllowed = foragingSettings.DefaultSyncFilterAndAllowed;

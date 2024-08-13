@@ -5,7 +5,7 @@
         <defName>CM_LivestockManager</defName>
         <order>500</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Livestock</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Livestock</managerJobSettingsClass>
+        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Livestock</managerSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Livestock</managerTabClass>
         <iconPath>UI/Icons/CMR_Livestock</iconPath>
         <label>livestock</label>

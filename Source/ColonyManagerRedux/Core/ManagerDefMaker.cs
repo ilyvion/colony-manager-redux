@@ -27,14 +27,14 @@ internal static class ManagerDefMaker
         return tab;
     }
 
-    public static ManagerJobSettings? MakeManagerJobSettings(ManagerDef def)
+    public static ManagerSettings? MakeManagerSettings(ManagerDef def)
     {
-        if (def.managerJobSettingsClass == null)
+        if (def.managerSettingsClass == null)
         {
             return null;
         }
 
-        ManagerJobSettings settings = (ManagerJobSettings)Activator.CreateInstance(def.managerJobSettingsClass);
+        ManagerSettings settings = (ManagerSettings)Activator.CreateInstance(def.managerSettingsClass);
         settings.Def = def;
         settings.PostMake();
         return settings;

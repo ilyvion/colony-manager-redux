@@ -5,7 +5,7 @@
         <defName>CM_MiningManager</defName>
         <order>700</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Mining</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Mining</managerJobSettingsClass>
+        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Mining</managerSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Mining</managerTabClass>
         <iconPath>UI/Icons/CMR_Mining</iconPath>
         <label>resource gathering</label>

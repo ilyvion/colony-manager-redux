@@ -1,10 +1,10 @@
-// ManagerJobSettings.cs
+// ManagerSettings.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public abstract class ManagerJobSettings : IExposable
+public abstract class ManagerSettings : IExposable
 {
 #pragma warning disable CS8618 // Set by ManagerDefMaker
     private ManagerDef def;
