@@ -4,21 +4,21 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_HuntingManager</defName>
         <order>300</order>
-        <managerJobClass>ColonyManagerRedux.ManagerJob_Hunting</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Hunting</managerJobSettingsClass>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Hunting</managerTabClass>
+        <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Hunting</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Hunting</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Hunting</managerTabClass>
         <iconPath>UI/Icons/CMR_Hunting</iconPath>
         <label>hunting</label>
-        <comps>
+        <jobComps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
-                <workerClass>ColonyManagerRedux.ManagerJob_Hunting+History</workerClass>
+                <workerClass>ColonyManagerRedux.Managers.ManagerJob_Hunting+History</workerClass>
                 <chapters>
                     <li>CM_HistoryStock</li>
                     <li>CM_HistoryCorpses</li>
                     <li>CM_HistoryDesignated</li>
                 </chapters>
             </li>
-        </comps>
+        </jobComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

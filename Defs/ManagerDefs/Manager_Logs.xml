@@ -4,11 +4,16 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_LogsManager</defName>
         <order>5</order>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Logs</managerTabClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Logs</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Logs</managerTabClass>
+        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Logs</managerJobSettingsClass>
         <iconArea>Left</iconArea>
         <iconPath>UI/Icons/CMR_Logs</iconPath>
         <label>logs</label>
+        <managerComps>
+            <li>
+                <compClass>ColonyManagerRedux.Managers.ManagerTab_Logs+LogsComp</compClass>
+            </li>
+        </managerComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

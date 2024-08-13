@@ -1,0 +1,113 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net481</TargetFramework>
+        <PlatformTarget>x64</PlatformTarget>
+        <LangVersion>12.0</LangVersion>
+        <Nullable>enable</Nullable>
+
+        <EnableNETAnalyzers>True</EnableNETAnalyzers>
+        <AnalysisLevel>preview-all</AnalysisLevel>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>5</WarningLevel>
+
+        <!-- 
+            Reasons:
+
+            CA1002: Do not expose generic lists
+                1) This is a game mod, not a library;
+                2) Rimworld makes very public use of these already
+
+            CA1031: Do not catch general exception types
+                This is a game mod, not a library; I'm only catching these exceptions to
+                prevent them from causing more trouble.
+
+            CA1305: Specify IFormatProvider
+                RimWorld always runs in the US culture for the sake of formatting.
+
+            CA1310: Specify StringComparison for correctness
+                RimWorld always runs in the US culture for the sake of string comparison.
+            
+            CA1707: Identifiers should not contain underscores
+                RimWorld's naming convention uses underscores.
+            
+            CA2201: Do not raise reserved exception types
+                This is a game mod, not a library; nobody's going to be catching these exceptions
+                except the game logger. They don't need to be fancy.
+
+            IDE0305: Use collection expression for fluent
+                I prefer the old LINQ method chaining over using a collection expression to turn
+                an enumerable into a collection.
+        -->
+        <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201;IDE0305</NoWarn>
+
+        <RootNamespace>ColonyManagerRedux.Managers</RootNamespace>
+        <AssemblyName>ColonyManagerRedux.Managers</AssemblyName>
+        <VersionPrefix>0.1.0</VersionPrefix>
+
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+
+        <ProjectDependenciesBasePath Condition="'$(ProjectDependenciesBasePath)'==''">..\..\..</ProjectDependenciesBasePath>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <OutputPath>../../1.5/Assemblies</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <DebugType>none</DebugType>
+        <Optimize>true</Optimize>
+        <DebugSymbols>false</DebugSymbols>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <DebugType>portable</DebugType>
+        <Optimize>false</Optimize>
+        <DebugSymbols>true</DebugSymbols>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IsExternalInit" Version="1.0.3">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Lib.Harmony" Version="2.3.3">
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </PackageReference>
+        <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
+            <ExcludeAssets>runtime</ExcludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+        <PackageReference Include="Nullable" Version="1.3.1">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="$(ProjectDependenciesBasePath)\ilyvion.Laboratory\ilyvion.Laboratory\ilyvion.Laboratory.csproj">
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.learned" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.steps" />
+        <Publicize Include="Assembly-CSharp:Verse.ThingFilterUI.viewHeight" />
+        <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.desPanelsCached" />
+        <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.forceActivatedCommand" />
+        <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.def" />
+
+        <Publicize Include="Assembly-CSharp:Verse.LoadedModManager.GetSettingsFilename" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.SetWanted" />
+        <Publicize Include="Assembly-CSharp:Verse.GenFilePaths.FolderUnderSaveData" />
+
+        <Publicize Include="Assembly-CSharp:RimWorld.CompMilkable.Active" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompShearable.Active" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />
+    </ItemGroup>
+</Project>

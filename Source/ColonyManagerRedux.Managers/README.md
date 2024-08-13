@@ -1,0 +1,1 @@
+This separate project exists mostly so that any part of the main mod that is `private` or `internal` won't actually be used by our `ManagerJob`s/`ManagerTab`s, so that we maintain no better or worse access to the mod's features than third party mods would.

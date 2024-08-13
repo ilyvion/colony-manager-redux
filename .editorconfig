@@ -17,5 +17,5 @@ dotnet_style_prefer_auto_properties = true
 dotnet_diagnostic.CA1812.severity = none
 
 # CA1051: CompProperties and Defs need public fields
-[{ManagerJobCompProperties,CompProperties_*,*Def}.cs]
+[{Manager*CompProperties,CompProperties_*,*Def}.cs]
 dotnet_diagnostic.CA1051.severity = none

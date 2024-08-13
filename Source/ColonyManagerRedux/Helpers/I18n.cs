@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux;
 
-internal static class I18n
+public static class I18n
 {
     public static string Aggressiveness(float aggression)
     {
@@ -26,11 +26,20 @@ internal static class I18n
 
     public static string YieldOne(float yield, ThingDef def)
     {
+        if (def == null)
+        {
+            throw new ArgumentNullException(nameof(def));
+        }
         return YieldOne($"{def.LabelCap} x{yield:F0} ");
     }
 
     public static string ActionText(this DesignationDef designationDef)
     {
+        if (designationDef == null)
+        {
+            throw new ArgumentNullException(nameof(designationDef));
+        }
+
         // Of course these can't just all be named the same as their defName. 🙄
         return ((string)(designationDef.defName switch
         {

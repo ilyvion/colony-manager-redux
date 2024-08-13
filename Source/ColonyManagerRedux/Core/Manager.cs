@@ -7,16 +7,8 @@ using ilyvion.Laboratory.Collections;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
-public partial class Manager : MapComponent, ILoadReferenceable
+public class Manager : MapComponent, ILoadReferenceable
 {
-    public enum ScribingMode
-    {
-        Transfer,
-        Normal
-    }
-
-    public static ScribingMode Mode { get; internal set; } = ScribingMode.Normal;
-
     private readonly List<ManagerTab> _tabs;
     public List<ManagerTab> Tabs => _tabs;
 
@@ -32,7 +24,9 @@ public partial class Manager : MapComponent, ILoadReferenceable
     private CellRect? _ancientDangerRect;
     public CellRect? AncientDangerRect => _ancientDangerRect;
 
-    internal DebugComponent debugComponent;
+    private readonly List<ManagerComp> _comps;
+
+    public bool ScribeGameSpecificData { get; set; } = true;
 
     public Manager(Map map) : base(map)
     {
@@ -41,13 +35,36 @@ public partial class Manager : MapComponent, ILoadReferenceable
             throw new ArgumentNullException(nameof(map));
         }
 
-        debugComponent = new(this);
         _jobTracker = new(this);
 
         _tabs = DefDatabase<ManagerDef>.AllDefs
             .OrderBy(m => m.order)
             .Select(m => ManagerDefMaker.MakeManagerTab(m, this))
             .ToList();
+
+        _comps = [];
+        var managerComps = DefDatabase<ManagerDef>.AllDefs
+            .SelectMany(m => m.managerComps);
+        foreach (var compProperties in managerComps)
+        {
+            ManagerComp? managerComp = null;
+            try
+            {
+                managerComp = (ManagerComp)Activator.CreateInstance(compProperties.compClass);
+                managerComp.Manager = this;
+                _comps.Add(managerComp);
+                managerComp.InitializeInt(compProperties);
+            }
+            catch (Exception ex)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Could not instantiate or initialize a ManagerComp: " + ex);
+                if (managerComp != null)
+                {
+                    _comps.Remove(managerComp);
+                }
+            }
+        }
 
         // if not created in SavingLoading, give yourself the ID of the map you were constructed on.
         id = map.uniqueID;
@@ -84,11 +101,6 @@ public partial class Manager : MapComponent, ILoadReferenceable
             return _managerTabsRight;
         }
     }
-
-    private ManagerTab_Logs? _managerTabLogs;
-    private ManagerTab_Logs? ManagerTabLogs =>
-        _managerTabLogs ??= _tabs.OfType<ManagerTab_Logs>().SingleOrDefault();
-    public CircularBuffer<ManagerLog>? Logs => ManagerTabLogs?.Logs;
 
     public string GetUniqueLoadID()
     {
@@ -145,6 +157,11 @@ public partial class Manager : MapComponent, ILoadReferenceable
         }
 
         _jobTracker ??= new JobTracker(this);
+
+        foreach (ManagerComp comp in _comps)
+        {
+            comp.PostExposeData();
+        }
     }
 
     public override void MapComponentTick()
@@ -172,7 +189,7 @@ public partial class Manager : MapComponent, ILoadReferenceable
                 catch (Exception err)
                 {
                     ColonyManagerReduxMod.Instance
-                        .LogError($"Suspending manager job because it errored on tick: \n{err}");
+                        .LogException($"Suspending manager job because it errored on tick", err);
                     job.IsSuspended = true;
                     job.CausedException = err;
                 }
@@ -182,14 +199,51 @@ public partial class Manager : MapComponent, ILoadReferenceable
         // tick tabs
         foreach (var tab in _tabs)
         {
-            tab.Tick();
+            try
+            {
+                tab.Tick();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance
+                    .LogException(
+                        $"Tab caused exception during {nameof(ManagerTab.Tick)}", err);
+            }
+        }
+
+        foreach (ManagerComp c in _comps)
+        {
+            try
+            {
+                c.CompTick();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance
+                    .LogException(
+                        $"ManagerComp caused exception during {nameof(ManagerComp.CompTick)}", err);
+            }
         }
     }
 
     public override void MapComponentUpdate()
     {
         base.MapComponentUpdate();
-        debugComponent.Update();
+
+        foreach (ManagerComp c in _comps)
+        {
+            try
+            {
+                c.CompUpdate();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance
+                    .LogException(
+                        $"ManagerComp caused exception during {nameof(ManagerComp.CompUpdate)}",
+                        err);
+            }
+        }
     }
 
     public bool TryDoWork()
@@ -219,5 +273,15 @@ public partial class Manager : MapComponent, ILoadReferenceable
             _nextManagerJobID = 0;
         }
         return result;
+    }
+
+    public T? CompOfType<T>() where T : class
+    {
+        return _comps?.FirstOrDefault(c => c is T) as T;
+    }
+
+    public IEnumerable<T> CompsOfType<T>() where T : class
+    {
+        return _comps?.Where(c => c is T).Cast<T>() ?? [];
     }
 }

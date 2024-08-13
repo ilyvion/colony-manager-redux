@@ -56,6 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Job state changes (active/completed) now happens as part of managerial work and not magically whenever the threshold changes. This also means that jobs that enter their completed state can do cleanup of their designations, to prevent already set designations from making the stock going way above targets post-completion.
 -   The alerts for missing managers and work tables now feature useful actions on click.
 -   When we allow slaughtering trained animals, prioritize slaughtering the least trained ones first.
+-   Moved our own ManagerDef classes into its own project so they can't accidentally access internal features which would give them an advantage over third-party implementations. This way we make sure all the features required for making the various features are correctly accessible from the outside.
 
 ### Fixed
 

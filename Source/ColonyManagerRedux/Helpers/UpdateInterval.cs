@@ -28,8 +28,13 @@ public class UpdateInterval(int ticks, string label)
     }
 
 
-    internal static void Draw(Rect canvas, ManagerJob job, bool exporting, bool suspended)
+    public static void Draw(Rect canvas, ManagerJob job, bool exporting, bool suspended)
     {
+        if (job == null)
+        {
+            throw new ArgumentNullException(nameof(job));
+        }
+
         Color nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
 
         string lastUpdateTooltip;
@@ -55,7 +60,7 @@ public class UpdateInterval(int ticks, string label)
         else if (job.HasBeenUpdated)
         {
             // how many hours have passed since the last update?
-            var lastUpdate = job.TimeSinceLastUpdate;
+            var lastUpdate = job.TicksSinceLastUpdate;
             var progress = (float)lastUpdate / GenDate.TicksPerHour;
 
             // how far over time are we? Draw redder if further over time.

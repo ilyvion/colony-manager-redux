@@ -13,13 +13,13 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     internal ManagerDef _def;
     public ManagerDef Def => _def;
 
-    private List<ManagerJobComp>? _comps;
+    private List<ManagerJobComp> _comps;
 
     private bool _shouldCheckReachable;
     public ref bool ShouldCheckReachable { get => ref _shouldCheckReachable; }
 
     private int _lastActionTick = -1;
-    public int TimeSinceLastUpdate => Find.TickManager.TicksGame - _lastActionTick;
+    public int TicksSinceLastUpdate => Find.TickManager.TicksGame - _lastActionTick;
     public bool HasBeenUpdated => _lastActionTick != -1;
 
     internal Manager _manager;
@@ -150,10 +150,10 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     internal void Initialize()
     {
-        if (_def.comps.Any())
+        if (_def.jobComps.Any())
         {
             _comps = [];
-            foreach (var compProperties in _def.comps)
+            foreach (var compProperties in _def.jobComps)
             {
                 ManagerJobComp? managerJobComp = null;
                 try
@@ -161,7 +161,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                     managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
                     managerJobComp.Parent = this;
                     _comps.Add(managerJobComp);
-                    managerJobComp.Initialize(compProperties);
+                    managerJobComp.InitializeInt(compProperties);
                 }
                 catch (Exception ex)
                 {
@@ -224,7 +224,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
 
-        if (Manager.Mode == Manager.ScribingMode.Normal)
+        if (Manager.ScribeGameSpecificData)
         {
             Scribe_Values.Look(ref _loadID, "loadID", 0);
             Scribe_References.Look(ref _manager, "manager");
@@ -239,7 +239,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                 IsManaged = true;
             }
         }
-        else if (Manager.Mode == Manager.ScribingMode.Transfer)
+        else
         {
             if (Scribe.mode == LoadSaveMode.LoadingVars)
             {
@@ -258,12 +258,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             Initialize();
         }
 
-        if (_comps != null)
+        foreach (ManagerJobComp comp in _comps)
         {
-            foreach (ManagerJobComp comp in _comps)
-            {
-                comp.PostExposeData();
-            }
+            comp.PostExposeData();
         }
     }
 
@@ -316,23 +313,28 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public virtual void Tick()
     {
-        if (!_comps.NullOrEmpty())
+        foreach (ManagerJobComp c in _comps)
         {
-            foreach (ManagerJobComp c in _comps!)
-            {
-                c.CompTick();
-            }
+            c.CompTick();
         }
     }
 
     public override string ToString()
     {
         var s = new StringBuilder();
+        s.AppendLine(Label);
+        s.AppendLine("Load ID:" + GetUniqueLoadID());
         s.AppendLine("Priority: " + Priority);
         s.AppendLine("Active: " + IsSuspended);
-        s.AppendLine("LastAction: " + _lastActionTick);
-        s.AppendLine("Interval: " + UpdateInterval);
-        s.AppendLine("GameTick: " + Find.TickManager.TicksGame);
+        s.AppendLine("LastActionTick: " + _lastActionTick);
+        s.AppendLine("Interval: " + UpdateInterval.Label);
+        s.AppendLine("TicksSinceLastUpdate: " + TicksSinceLastUpdate);
+        s.AppendLine("HasBeenUpdated: " + HasBeenUpdated);
+        s.AppendLine("IsSuspended: " + _isSuspended);
+        s.AppendLine("JobState: " + JobState);
+        s.AppendLine("IsManaged: " + IsManaged);
+        s.AppendLine("ShouldUpdate: " + ShouldUpdate);
+        s.AppendLine("ShouldDoNow: " + ShouldDoNow);
         return s.ToString();
     }
 

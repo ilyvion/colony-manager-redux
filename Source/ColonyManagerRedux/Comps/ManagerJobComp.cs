@@ -15,14 +15,13 @@ public abstract class ManagerJobComp
 
 #pragma warning restore CS8618
 
-    public virtual void Initialize(ManagerJobCompProperties props)
+    internal void InitializeInt(ManagerJobCompProperties props)
     {
         _props = props;
+        Initialize();
     }
-
-    public override string ToString()
+    public virtual void Initialize()
     {
-        return string.Concat(GetType().Name, "(parent=", _parent, ")");
     }
 
     public virtual void CompTick()
@@ -31,5 +30,10 @@ public abstract class ManagerJobComp
 
     public virtual void PostExposeData()
     {
+    }
+
+    public override string ToString()
+    {
+        return string.Concat(GetType().Name, "(parent=", _parent, ")");
     }
 }

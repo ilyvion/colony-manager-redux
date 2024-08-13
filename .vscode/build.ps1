@@ -7,7 +7,7 @@ $VersionTargetSuffix = "Mods\ColonyManagerRedux"
 $Target = "$VersionTargetPrefix\1.5\$VersionTargetSuffix"
 
 # build dlls
-dotnet build --configuration $Configuration Source/ColonyManagerRedux/ColonyManagerRedux.csproj
+dotnet build --configuration $Configuration ColonyManagerRedux.sln
 if ($LASTEXITCODE -gt 0) {
     throw "Build failed"
 }

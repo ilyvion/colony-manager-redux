@@ -23,11 +23,11 @@ public class ManagerJobCompProperties
         {
             yield return $"{nameof(compClass)} is not a subclass of {nameof(ManagerJobComp)}";
         }
-        for (int i = 0; i < parentDef.comps.Count; i++)
+        for (int i = 0; i < parentDef.jobComps.Count; i++)
         {
-            if (parentDef.comps[i] != this && parentDef.comps[i].compClass == compClass)
+            if (parentDef.jobComps[i] != this && parentDef.jobComps[i].compClass == compClass)
             {
-                yield return "two comps with same compClass: " + compClass;
+                yield return "two job comps with same compClass: " + compClass;
             }
         }
     }

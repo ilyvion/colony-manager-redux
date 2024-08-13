@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2018-2020
 
 using ilyvion.Laboratory;
-using Verse.Noise;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -12,7 +11,7 @@ namespace ColonyManagerRedux;
     "CA1812:AvoidUninstantiatedInternalClasses",
     Justification = "Class is instantiated via reflection")]
 [HotSwappable]
-internal sealed class MainTabWindow_Manager : MainTabWindow
+public sealed class MainTabWindow_Manager : MainTabWindow
 {
     private static ManagerTab? currentTab;
 
@@ -30,6 +29,10 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
 
     public static void GoTo(ManagerTab tab, ManagerJob? job = null)
     {
+        if (tab == null)
+        {
+            throw new ArgumentNullException(nameof(tab));
+        }
         // call pre/post open/close methods
         var old = CurrentTab;
         old.PreClose();
@@ -45,7 +48,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         }
     }
 
-    public override void DoWindowContents(Rect canvas)
+    public override void DoWindowContents(Rect inRect)
     {
         Manager manager = Manager.For(Find.CurrentMap);
 
@@ -64,7 +67,7 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
             + Mathf.Max(0, manager.ManagerTabsRight.Count - 1) * Margin,
             LargeIconSize);
 
-        var widthRemaining = canvas.width - leftIcons.width - rightIcons.width - 2 * Margin;
+        var widthRemaining = inRect.width - leftIcons.width - rightIcons.width - 2 * Margin;
 
         var middleIcons = new Rect(0f, 0f,
             Margin + manager.ManagerTabsMiddle.Count * (LargeIconSize + Margin),
@@ -86,11 +89,11 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         }
 
         // finetune rects
-        var middleCanvas = new Rect(canvas);
+        var middleCanvas = new Rect(inRect);
         middleCanvas.xMin += leftIcons.width;
         middleCanvas.xMax -= rightIcons.width;
         middleIcons = middleIcons.CenteredOnXIn(middleCanvas);
-        rightIcons.x += canvas.width - rightIcons.width;
+        rightIcons.x += inRect.width - rightIcons.width;
 
         if (IlyvionDebugViewSettings.DrawUIHelpers)
         {
@@ -137,8 +140,8 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
         GUI.EndGroup();
 
         // delegate actual content to the specific manager tab.
-        var contentCanvas = new Rect(0f, LargeIconSize + Margin, canvas.width,
-                                      canvas.height - LargeIconSize - Margin);
+        var contentCanvas = new Rect(0f, LargeIconSize + Margin, inRect.width,
+                                      inRect.height - LargeIconSize - Margin);
         GUI.BeginGroup(contentCanvas);
         CurrentTab.RenderTab(contentCanvas.AtZero());
         GUI.EndGroup();
@@ -149,6 +152,11 @@ internal sealed class MainTabWindow_Manager : MainTabWindow
 
     public static void DrawTabIcon(Rect rect, ManagerTab tab)
     {
+        if (tab == null)
+        {
+            throw new ArgumentNullException(nameof(tab));
+        }
+
         if (tab.Enabled)
         {
             if (tab == CurrentTab)

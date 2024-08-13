@@ -236,9 +236,9 @@ public abstract class ManagerTab(Manager manager)
                     "ColonyManagerRedux.Job.Suspend".Translate()));
         }
 
-        if (parameters.ShowProgressbar)
+        if (parameters.ShowProgressbar && job.Trigger != null)
         {
-            job.Trigger!.DrawHorizontalProgressBars(
+            job.Trigger.DrawHorizontalProgressBars(
                 progressRect,
                 !job.IsSuspended && !job.IsCompleted);
         }
@@ -582,7 +582,7 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
-    internal virtual void Notify_PawnsChanged()
+    protected internal virtual void Notify_PawnsChanged()
     {
     }
 }

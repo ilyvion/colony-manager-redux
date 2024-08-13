@@ -8,3 +8,8 @@ public class CompProperties_DrawOverviewListEntry
 {
     public DrawOverviewListEntryParameters drawListEntryParameters = new();
 }
+
+public class DrawOverviewListEntryParameters
+{
+    public bool ShowProgressbar { get; set; } = true;
+}

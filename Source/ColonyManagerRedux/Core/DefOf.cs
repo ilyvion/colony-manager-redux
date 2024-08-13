@@ -6,6 +6,17 @@ namespace ColonyManagerRedux;
 #pragma warning disable CS8618,CA2211
 
 [DefOf]
+public static class ManagerDefOf
+{
+    public static ManagerDef CM_LogsManager;
+
+    static ManagerDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(ManagerDefOf));
+    }
+}
+
+[DefOf]
 public static class ManagerJobHistoryChapterDefOf
 {
     public static ManagerJobHistoryChapterDef CM_HistoryStock;

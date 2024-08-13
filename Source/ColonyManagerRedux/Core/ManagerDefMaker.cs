@@ -40,3 +40,22 @@ internal static class ManagerDefMaker
         return settings;
     }
 }
+
+public static class ManagerDefMakerManagerExtensions
+{
+    public static T NewJob<T>(this Manager manager, ManagerDef def, params object[] args)
+        where T : ManagerJob
+    {
+        if (def == null)
+        {
+            throw new ArgumentNullException(nameof(def));
+        }
+
+        if (ManagerDefMaker.MakeManagerJob(def, manager, args) is not T managerJob)
+        {
+            throw new ArgumentException($"ManagerDef provided ({def}) does not produce a {typeof(T).Name}");
+        }
+
+        return managerJob;
+    }
+}

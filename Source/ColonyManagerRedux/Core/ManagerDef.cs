@@ -10,7 +10,8 @@ public class ManagerDef : Def
     public Type managerTabClass = typeof(ManagerTab);
     public Type? managerJobSettingsClass;
 
-    public List<ManagerJobCompProperties> comps = [];
+    public List<ManagerJobCompProperties> jobComps = [];
+    public List<ManagerCompProperties> managerComps = [];
 
     public IconArea iconArea = IconArea.Middle;
     [Unsaved(false)]
@@ -55,7 +56,7 @@ public class ManagerDef : Def
             yield return $"{nameof(managerJobSettingsClass)} is not a subclass of {nameof(ManagerJobSettings)}";
         }
 
-        foreach (ManagerJobCompProperties comp in comps)
+        foreach (ManagerJobCompProperties comp in jobComps)
         {
             foreach (string item in comp.ConfigErrors(this))
             {

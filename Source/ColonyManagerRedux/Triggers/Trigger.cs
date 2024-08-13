@@ -10,14 +10,14 @@ namespace ColonyManagerRedux;
 public abstract class Trigger(ManagerJob job) : IExposable
 {
     private ManagerJob _job = job;
-    public ManagerJob Job { get => _job; internal set => _job = value; }
+    public ManagerJob Job { get => _job; protected internal set => _job = value; }
 
     public abstract bool State { get; }
     public virtual string StatusTooltip { get; } = string.Empty;
 
     public virtual void ExposeData()
     {
-        if (Manager.Mode == Manager.ScribingMode.Normal)
+        if (_job.Manager.ScribeGameSpecificData)
         {
             Scribe_References.Look(ref _job, "job");
         }

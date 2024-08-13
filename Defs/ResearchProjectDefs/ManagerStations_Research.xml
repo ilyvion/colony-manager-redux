@@ -43,7 +43,7 @@
         <researchViewX>1.16</researchViewX>
         <researchViewY>0.18</researchViewY>
         <researchMods>
-            <li Class="ColonyManagerRedux.UnlockPowerTab" />
+            <li Class="ColonyManagerRedux.Managers.UnlockPowerTab" />
         </researchMods>
     </ResearchProjectDef>
 </Defs>

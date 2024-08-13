@@ -6,6 +6,19 @@ using System.Reflection.Emit;
 
 namespace ColonyManagerRedux;
 
+public static class PawnColumnWorkerDoHeaderExtensions
+{
+    public static void CustomLabelDoHeader(this PawnColumnWorker pawnColumnWorker, Rect rect, PawnTable table, Action<Rect, string, PawnTable, PawnColumnWorker> customDoHeaderAction)
+    {
+        RimWorld_PawnColumnWorker_DoHeader.CustomLabelDoHeader(pawnColumnWorker, rect, table, customDoHeaderAction);
+    }
+
+    public static void CustomIconDoHeader(this PawnColumnWorker pawnColumnWorker, Rect rect, PawnTable table, Action<Rect, Texture, PawnTable, PawnColumnWorker> customDoHeaderAction)
+    {
+        RimWorld_PawnColumnWorker_DoHeader.CustomIconDoHeader(pawnColumnWorker, rect, table, customDoHeaderAction);
+    }
+}
+
 [HarmonyPatch(typeof(PawnColumnWorker), nameof(PawnColumnWorker.DoHeader))]
 internal static class RimWorld_PawnColumnWorker_DoHeader
 {

@@ -21,7 +21,7 @@ internal static class RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary
             thing.def.thingCategories.Contains(ThingCategoryDefOf.StoneChunks))
         {
             foreach (var miningJob in Manager.For(___pawn.Map).JobTracker
-                .JobsOfType<ManagerJob_Mining>())
+                .JobsOfType<INotifyStoneChunkMined>())
             {
                 miningJob.Notify_StoneChunkMined(___pawn, thing);
             }

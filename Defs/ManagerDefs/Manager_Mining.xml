@@ -4,21 +4,26 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_MiningManager</defName>
         <order>700</order>
-        <managerJobClass>ColonyManagerRedux.ManagerJob_Mining</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Mining</managerJobSettingsClass>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Mining</managerTabClass>
+        <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Mining</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Mining</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Mining</managerTabClass>
         <iconPath>UI/Icons/CMR_Mining</iconPath>
         <label>resource gathering</label>
-        <comps>
+        <jobComps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
-                <workerClass>ColonyManagerRedux.ManagerJob_Mining+History</workerClass>
+                <workerClass>ColonyManagerRedux.Managers.ManagerJob_Mining+History</workerClass>
                 <chapters>
                     <li>CM_HistoryStock</li>
                     <li>CM_HistoryChunks</li>
                     <li>CM_HistoryDesignated</li>
                 </chapters>
             </li>
-        </comps>
+        </jobComps>
+        <managerComps>
+            <li>
+                <compClass>ColonyManagerRedux.Managers.ManagerTab_Mining+DebugComp</compClass>
+            </li>
+        </managerComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

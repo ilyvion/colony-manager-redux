@@ -2,6 +2,10 @@
 // Copyright Karel Kroeze, 2017-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Text;
+using LudeonTK;
+using Unity.Jobs.LowLevel.Unsafe;
+
 namespace ColonyManagerRedux;
 
 public class JobTracker(Manager manager) : IExposable
@@ -18,6 +22,32 @@ public class JobTracker(Manager manager) : IExposable
     ///     Highest priority available job
     /// </summary>
     public ManagerJob? NextJob => JobsInOrderOfPriority.FirstOrDefault();
+
+    [DebugOutput("Colony Manager Redux", true)]
+    public static void JobStatuses()
+    {
+        var manager = Manager.For(Find.CurrentMap);
+        var jobTracker = manager.JobTracker;
+
+        var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine("Job count: " + jobTracker.jobs.Count);
+        stringBuilder.AppendLine("Has no jobs: " + jobTracker.HasNoJobs);
+        stringBuilder.AppendLine("NextJob: " + jobTracker.NextJob?.ToString() ?? "<none>");
+        stringBuilder.AppendLine();
+        stringBuilder.AppendLine("Jobs: ");
+        foreach (var job in jobTracker.jobs)
+        {
+            stringBuilder.AppendLine(job.ToString());
+        }
+        stringBuilder.AppendLine();
+
+        stringBuilder.AppendLine("Jobs in order of priority: ");
+        foreach (var job in jobTracker.JobsInOrderOfPriority)
+        {
+            stringBuilder.AppendLine(job.ToString());
+        }
+        ColonyManagerReduxMod.Instance.LogDevMessage(stringBuilder.ToString());
+    }
 
     public void ExposeData()
     {
@@ -98,7 +128,7 @@ public class JobTracker(Manager manager) : IExposable
         CleanPriorities();
     }
 
-    public IEnumerable<T> JobsOfType<T>() where T : ManagerJob
+    public IEnumerable<T> JobsOfType<T>()
     {
         return jobs.OrderBy(job => job.Priority).OfType<T>();
     }
@@ -161,7 +191,11 @@ public class JobTracker(Manager manager) : IExposable
             };
             bool workDone = job.TryDoJob(log);
             log._workDone = workDone;
-            _manager.Logs?.PushBack(log);
+            foreach (var jobLogger in _manager.CompsOfType<IJobLogger>())
+            {
+                jobLogger.AddLog(log);
+            }
+
             if (!workDone)
             {
                 return TryDoNextJob();

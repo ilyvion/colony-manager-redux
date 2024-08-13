@@ -134,7 +134,7 @@ public class CachedValue<T>
             : throw new Exception("Calling Update() without updater");
     }
 
-    internal void Invalidate()
+    public void Invalidate()
     {
         _timeSet = null;
     }

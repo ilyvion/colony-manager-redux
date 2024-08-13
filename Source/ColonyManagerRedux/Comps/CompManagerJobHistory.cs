@@ -12,10 +12,8 @@ public class CompManagerJobHistory : ManagerJobComp
 #pragma warning restore CS8618
     public History History { get => history; }
 
-    public override void Initialize(ManagerJobCompProperties props)
+    public override void Initialize()
     {
-        base.Initialize(props);
-
         // create History tracker
         history = new History(Props.chapters)
         {
@@ -31,8 +29,6 @@ public class CompManagerJobHistory : ManagerJobComp
 
     public override void CompTick()
     {
-        base.CompTick();
-
         int ticksGame = Find.TickManager.TicksGame;
         if (historyUpdateTickJitter.Count != 0 && historyUpdateTickJitter.TryGetValue(ticksGame, out int originalTick))
         {
@@ -76,7 +72,7 @@ public class CompManagerJobHistory : ManagerJobComp
     public override void PostExposeData()
     {
         base.PostExposeData();
-        if (Manager.Mode == Manager.ScribingMode.Normal)
+        if (Parent.Manager.ScribeGameSpecificData)
         {
             Scribe_Deep.Look(ref history, "history");
         }

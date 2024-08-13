@@ -10,7 +10,12 @@ namespace ColonyManagerRedux;
 public class ColonyManagerReduxMod : IlyvionMod
 {
 #pragma warning disable CS8618 // Set by constructor
-    internal static ColonyManagerReduxMod Instance;
+    private static ColonyManagerReduxMod _instance;
+    public static ColonyManagerReduxMod Instance
+    {
+        get => _instance;
+        private set => _instance = value;
+    }
 #pragma warning restore CS8618
 
     protected override bool HasSettings => true;

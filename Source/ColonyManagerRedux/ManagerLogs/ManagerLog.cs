@@ -6,61 +6,18 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class ManagerLog : IExposable
 {
-    internal sealed class LogDetails : IExposable
-    {
-        private int jumpToTargetCycleIndex = -1;
-        public int NextTargetIndex
-        {
-            get
-            {
-                jumpToTargetCycleIndex++;
-                if (jumpToTargetCycleIndex >= Targets.Count)
-                {
-                    jumpToTargetCycleIndex = 0;
-                }
-                return jumpToTargetCycleIndex;
-            }
-        }
-
-        public string Text;
-        public List<LocalTargetInfo> Targets;
-
-        public LogDetails(string detailText, IEnumerable<LocalTargetInfo> targets)
-        {
-            Text = detailText;
-            Targets = targets.Where(t => t.IsValid && t != LocalTargetInfo.Invalid).ToList();
-        }
-
-        public LogDetails(string detailText, params LocalTargetInfo[] targets)
-            : this(detailText, (IEnumerable<LocalTargetInfo>)targets)
-        {
-        }
-
-#pragma warning disable CS8618 // For scribing only
-        public LogDetails()
-#pragma warning restore CS8618
-        {
-
-        }
-
-        public void ExposeData()
-        {
-            Scribe_Values.Look(ref Text!, "text");
-            Scribe_Collections.Look(ref Targets, "targets", LookMode.LocalTargetInfo);
-        }
-    }
-
     private ManagerJob? _originatingJob;
     private ManagerDef _originatingDef;
     private string? _label;
 
     internal bool _workDone;
+    public bool WorkDone => _workDone;
     private int _mapTile;
     private int _logTick;
     public string LogDate => GenDate.DateFullStringWithHourAt(GenDate.TickGameToAbs(_logTick), Find.WorldGrid.LongLatOf(_mapTile));
 
     private List<LogDetails> _details = [];
-    internal IEnumerable<LogDetails> Details
+    public IEnumerable<LogDetails> Details
     {
         get
         {
@@ -135,13 +92,61 @@ public class ManagerLog : IExposable
         Scribe_Collections.Look(ref _details, "details", LookMode.Deep);
     }
 
-    internal void AddDetail(string detailText, IEnumerable<LocalTargetInfo> targets)
+    public void AddDetail(string detailText, IEnumerable<LocalTargetInfo> targets)
     {
         _details.Add(new LogDetails(detailText, targets));
     }
 
-    internal void AddDetail(string detailText, params LocalTargetInfo[] targets)
+    public void AddDetail(string detailText, params LocalTargetInfo[] targets)
     {
         _details.Add(new LogDetails(detailText, targets));
+    }
+}
+
+public sealed class LogDetails : IExposable
+{
+    private int jumpToTargetCycleIndex = -1;
+    public int NextTargetIndex
+    {
+        get
+        {
+            jumpToTargetCycleIndex++;
+            if (jumpToTargetCycleIndex >= Targets.Count)
+            {
+                jumpToTargetCycleIndex = 0;
+            }
+            return jumpToTargetCycleIndex;
+        }
+    }
+
+    private string _text;
+    public string Text { get => _text; set => _text = value; }
+
+    private List<LocalTargetInfo> _targets;
+    public List<LocalTargetInfo> Targets { get => _targets; }
+
+
+    public LogDetails(string detailText, IEnumerable<LocalTargetInfo> targets)
+    {
+        _text = detailText;
+        _targets = targets.Where(t => t.IsValid && t != LocalTargetInfo.Invalid).ToList();
+    }
+
+    public LogDetails(string detailText, params LocalTargetInfo[] targets)
+        : this(detailText, (IEnumerable<LocalTargetInfo>)targets)
+    {
+    }
+
+#pragma warning disable CS8618 // For scribing only
+    public LogDetails()
+#pragma warning restore CS8618
+    {
+
+    }
+
+    public void ExposeData()
+    {
+        Scribe_Values.Look(ref _text!, "text");
+        Scribe_Collections.Look(ref _targets, "targets", LookMode.LocalTargetInfo);
     }
 }

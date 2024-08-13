@@ -5,62 +5,62 @@
         <defName>CM_CurrentActivity</defName>
         <label>current activity</label>
         <headerTip>Current activity</headerTip>
-        <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_CurrentActivity</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Overview+PawnColumnWorker_CurrentActivity</workerClass>
         <sortable>true</sortable>
         <widthPriority>100</widthPriority>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_WorkPriorities</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_WorkPriorities</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Overview+PawnColumnWorker_WorkPriorities</workerClass>
         <sortable>true</sortable>
         <widthPriority>50</widthPriority>
     </PawnColumnDef>
 
     <PawnColumnDef ParentName="LabelShortWithIcon">
         <defName>CM_LabelShortWithIcon</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Overview+PawnColumnWorker_Label</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Overview+PawnColumnWorker_Label</workerClass>
         <widthPriority>50</widthPriority>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_LifeStage</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_LifeStage</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_LifeStage</workerClass>
         <sortable>true</sortable>
         <headerIcon>UI/Icons/Gender/Genders</headerIcon>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_ExpectedMeatYield</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_ExpectedMeatYield</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_ExpectedMeatYield</workerClass>
         <sortable>true</sortable>
         <headerIcon>UI/Icons/CMR_meat</headerIcon>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_MilkProgress</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_MilkProgress</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_MilkProgress</workerClass>
         <sortable>true</sortable>
         <headerIcon>UI/Icons/CMR_milk</headerIcon>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_ShearProgress</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_ShearProgress</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_ShearProgress</workerClass>
         <sortable>true</sortable>
         <headerIcon>UI/Icons/CMR_wool</headerIcon>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_Tame</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_Tame</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_Tame</workerClass>
         <sortable>false</sortable>
         <headerIcon>UI/Icons/Animal/Tame</headerIcon>
     </PawnColumnDef>
 
     <PawnColumnDef>
         <defName>CM_Butcher</defName>
-        <workerClass>ColonyManagerRedux.ManagerTab_Livestock+PawnColumnWorker_Butcher</workerClass>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_Butcher</workerClass>
         <sortable>false</sortable>
         <headerIcon>UI/Icons/Animal/Slaughter</headerIcon>
     </PawnColumnDef>

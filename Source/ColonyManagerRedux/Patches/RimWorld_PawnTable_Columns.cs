@@ -3,6 +3,14 @@
 
 namespace ColonyManagerRedux;
 
+public static class PawnTableCurrentExtensions
+{
+    public static bool IsCurrentTable(this PawnTable? pawnTable)
+    {
+        return RimWorld_PawnTable_Columns.CurrentPawnTable == pawnTable;
+    }
+}
+
 [HarmonyPatch(typeof(PawnTable), nameof(PawnTable.Columns), MethodType.Getter)]
 internal static class RimWorld_PawnTable_Columns
 {

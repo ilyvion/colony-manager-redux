@@ -4,20 +4,20 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_ForagingManager</defName>
         <order>600</order>
-        <managerJobClass>ColonyManagerRedux.ManagerJob_Foraging</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Foraging</managerJobSettingsClass>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Foraging</managerTabClass>
+        <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Foraging</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Foraging</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Foraging</managerTabClass>
         <iconPath>UI/Icons/CMR_Foraging</iconPath>
         <label>foraging</label>
-        <comps>
+        <jobComps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
-                <workerClass>ColonyManagerRedux.ManagerJob_Foraging+History</workerClass>
+                <workerClass>ColonyManagerRedux.Managers.ManagerJob_Foraging+History</workerClass>
                 <chapters>
                     <li>CM_HistoryStock</li>
                     <li>CM_HistoryDesignated</li>
                 </chapters>
             </li>
-        </comps>
+        </jobComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

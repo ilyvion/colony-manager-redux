@@ -379,7 +379,7 @@ public partial class History : IExposable
         }
     }
 
-    internal void UpdateThingDefs(List<ThingDef> traderDefs, Color[]? colors = null)
+    public void UpdateThingDefs(List<ThingDef> traderDefs, Color[]? colors = null)
     {
         // So we don't modify a list passed to us
         traderDefs = new(traderDefs);

@@ -4,23 +4,23 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_ForestryManager</defName>
         <order>400</order>
-        <managerJobClass>ColonyManagerRedux.ManagerJob_Forestry</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Forestry</managerJobSettingsClass>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Forestry</managerTabClass>
+        <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Forestry</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Forestry</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Forestry</managerTabClass>
         <iconPath>UI/Icons/CMR_Tree</iconPath>
         <label>forestry</label>
-        <comps>
+        <jobComps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
-                <workerClass>ColonyManagerRedux.ManagerJob_Forestry+History</workerClass>
+                <workerClass>ColonyManagerRedux.Managers.ManagerJob_Forestry+History</workerClass>
                 <chapters>
                     <li>CM_HistoryStock</li>
                     <li>CM_HistoryDesignated</li>
                 </chapters>
             </li>
             <li Class="ColonyManagerRedux.CompProperties_DrawOverviewListEntry">
-                <workerClass>ColonyManagerRedux.ManagerTab_Forestry+DrawOverviewListEntryWorker</workerClass>
+                <workerClass>ColonyManagerRedux.Managers.ManagerTab_Forestry+DrawOverviewListEntryWorker</workerClass>
             </li>
-        </comps>
+        </jobComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

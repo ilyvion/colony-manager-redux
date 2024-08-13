@@ -4,14 +4,14 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_LivestockManager</defName>
         <order>500</order>
-        <managerJobClass>ColonyManagerRedux.ManagerJob_Livestock</managerJobClass>
-        <managerJobSettingsClass>ColonyManagerRedux.ManagerJobSettings_Livestock</managerJobSettingsClass>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_Livestock</managerTabClass>
+        <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Livestock</managerJobClass>
+        <managerJobSettingsClass>ColonyManagerRedux.Managers.ManagerJobSettings_Livestock</managerJobSettingsClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Livestock</managerTabClass>
         <iconPath>UI/Icons/CMR_Livestock</iconPath>
         <label>livestock</label>
-        <comps>
+        <jobComps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerJobHistory">
-                <workerClass>ColonyManagerRedux.ManagerJob_Livestock+History</workerClass>
+                <workerClass>ColonyManagerRedux.Managers.ManagerJob_Livestock+History</workerClass>
                 <chapters>
                     <li>CM_HistoryAdultMale</li>
                     <li>CM_HistoryAdultFemale</li>
@@ -19,7 +19,12 @@
                     <li>CM_HistoryJuvenileFemale</li>
                 </chapters>
             </li>
-        </comps>
+        </jobComps>
+        <managerComps>
+            <li>
+                <compClass>ColonyManagerRedux.Managers.ManagerJob_Livestock+LivestockCachesComp</compClass>
+            </li>
+        </managerComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>

@@ -4,10 +4,15 @@
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_ImportExportManager</defName>
         <order>1000</order>
-        <managerTabClass>ColonyManagerRedux.ManagerTab_ImportExport</managerTabClass>
+        <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_ImportExport</managerTabClass>
         <iconArea>Right</iconArea>
         <iconPath>UI/Icons/CMR_ImportExport</iconPath>
         <label>Import &amp; Export</label>
+        <managerComps>
+            <li>
+                <compClass>ColonyManagerRedux.Managers.ManagerTab_ImportExport+ScribeModeComp</compClass>
+            </li>
+        </managerComps>
     </ColonyManagerRedux.ManagerDef>
 
 </Defs>
