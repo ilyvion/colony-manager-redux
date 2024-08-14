@@ -278,7 +278,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public abstract bool TryDoJob(ManagerLog jobLog);
 
-    public abstract void CleanUp();
+    public abstract void CleanUp(ManagerLog? jobLog = null);
 
     public virtual void Delete(bool cleanup = true)
     {

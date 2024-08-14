@@ -313,16 +313,27 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         return true;
     }
 
-    public override void CleanUp()
+    public override void CleanUp(ManagerLog? jobLog)
     {
-        CleanDesignations();
+        CleanDesignations(jobLog);
 
-        foreach (var des in _designations)
+        var originalCount = _designations.Count;
+
+        // cancel outstanding designation
+        foreach (var designation in _designations)
         {
-            des.Delete();
+            designation.Delete();
         }
 
+        // clear the list completely
         _designations.Clear();
+
+        var newCount = _designations.Count;
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
     }
 
     public List<Designation> DesignationsOfOn(DesignationDef def, AgeAndSex ageSex)
@@ -532,7 +543,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             if (JobState != ManagerJobState.Completed)
             {
                 JobState = ManagerJobState.Completed;
-                CleanUp();
+                jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
+
+                CleanUp(jobLog);
             }
             return workDone;
         }

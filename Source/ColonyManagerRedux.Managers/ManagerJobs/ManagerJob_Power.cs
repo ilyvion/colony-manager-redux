@@ -183,8 +183,9 @@ internal sealed class ManagerJob_Power : ManagerJob
 
     public override WorkTypeDef? WorkTypeDef => ManagerWorkTypeDefOf.Managing;
 
-    public override void CleanUp()
+    public override void CleanUp(ManagerLog? jobLog)
     {
+        // The power job is never removed/cleaned up
         throw new NotImplementedException();
     }
 

@@ -165,15 +165,27 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     /// <summary>
     ///     Clean up all outstanding designations
     /// </summary>
-    public override void CleanUp()
+    public override void CleanUp(ManagerLog? jobLog)
     {
-        CleanDeadDesignations();
-        foreach (var des in _designations)
+        CleanDeadDesignations(jobLog);
+
+        var originalCount = _designations.Count;
+
+        // cancel outstanding designation
+        foreach (var designation in _designations)
         {
-            des.Delete();
+            designation.Delete();
         }
 
+        // clear the list completely
         _designations.Clear();
+
+        var newCount = _designations.Count;
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
     }
 
     public string? DesignationLabel(Designation designation)
@@ -296,7 +308,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             if (JobState != ManagerJobState.Completed)
             {
                 JobState = ManagerJobState.Completed;
-                CleanUp();
+                jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
+
+                CleanUp(jobLog);
             }
             return workDone;
         }

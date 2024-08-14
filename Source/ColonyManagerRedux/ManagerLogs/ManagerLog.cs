@@ -21,7 +21,7 @@ public class ManagerLog : IExposable
     {
         get
         {
-            if (!_workDone)
+            if (!_workDone && _details.Count == 0)
             {
                 yield return new LogDetails("ColonyManagerRedux.Logs.NoWorkDone".Translate());
             }

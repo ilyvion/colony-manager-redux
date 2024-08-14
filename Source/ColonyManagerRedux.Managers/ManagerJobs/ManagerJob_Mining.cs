@@ -265,15 +265,27 @@ internal sealed class ManagerJob_Mining
         return AllowedMinerals.Contains(thingDef);
     }
 
-    public override void CleanUp()
+    public override void CleanUp(ManagerLog? jobLog)
     {
-        CleanDeadDesignations();
+        CleanDeadDesignations(jobLog);
+
+        var originalCount = _designations.Count;
+
+        // cancel outstanding designation
         foreach (var designation in _designations)
         {
             designation.Delete();
         }
 
+        // clear the list completely
         _designations.Clear();
+
+        var newCount = _designations.Count;
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
     }
 
     public bool Counted(ThingDefCountClass thingDefCount)
@@ -844,7 +856,9 @@ internal sealed class ManagerJob_Mining
             if (JobState != ManagerJobState.Completed)
             {
                 JobState = ManagerJobState.Completed;
-                CleanUp();
+                jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
+
+                CleanUp(jobLog);
             }
             return workDone;
         }

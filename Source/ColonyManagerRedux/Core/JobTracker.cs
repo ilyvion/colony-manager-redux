@@ -128,11 +128,18 @@ public class JobTracker(Manager manager) : IExposable
             {
                 LogLabel = job.Tab.GetMainLabel(job) + " (" + job.Tab.GetSubLabel(job) + ")"
             };
+            var wasCompleted = job.JobState == ManagerJobState.Completed;
             bool workDone = job.TryDoJob(log);
-            log._workDone = workDone;
-            foreach (var jobLogger in _manager.CompsOfType<IJobLogger>())
+            if (!wasCompleted || job.JobState != ManagerJobState.Completed)
             {
-                jobLogger.AddLog(log);
+                // Don't log jobs where the state is Completed both before and after TryDoJob;
+                // those TryDoJobs are only for checking whether a job should be resumed again, and
+                // it was decided we weren't about to resume yet.
+                log._workDone = workDone;
+                foreach (var jobLogger in _manager.CompsOfType<IJobLogger>())
+                {
+                    jobLogger.AddLog(log);
+                }
             }
 
             if (!workDone)

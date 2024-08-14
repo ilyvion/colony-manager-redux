@@ -103,7 +103,9 @@
     <ColonyManagerRedux.Designations.Mine>mine</ColonyManagerRedux.Designations.Mine>
 
     <!-- Logs -->
-    <ColonyManagerRedux.Logs.NoWorkDone>No work could be done for this job at this time</ColonyManagerRedux.Logs.NoWorkDone>
+    <ColonyManagerRedux.Logs.JobCompleted>Job entered its completed state</ColonyManagerRedux.Logs.JobCompleted>
+    <ColonyManagerRedux.Logs.CleanJobCompletedDesignations>Removed {0} in-progress designations due to the job being completed ({1} before / {2} after)</ColonyManagerRedux.Logs.CleanJobCompletedDesignations>
+    <ColonyManagerRedux.Logs.NoWorkDone>Job reported it got no work done, and provided no more details</ColonyManagerRedux.Logs.NoWorkDone>
     <ColonyManagerRedux.Logs.CleanDeadDesignations>Removed {0} outdated designations ({1} before / {2} after)</ColonyManagerRedux.Logs.CleanDeadDesignations>
     <ColonyManagerRedux.Logs.CleanAreaDesignations>Removed {0} invalid designations ({1} missing target / {2} outside configured {3} area)</ColonyManagerRedux.Logs.CleanAreaDesignations>
     <ColonyManagerRedux.Logs.AddRelevantGameDesignations>Found and added {0} {1} designations that weren't already being tracked</ColonyManagerRedux.Logs.AddRelevantGameDesignations>
