@@ -16,6 +16,8 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
     public ManagerJob_Mining SelectedMiningJob => SelectedJob!;
 
+    protected override bool CreateNewSelectedJobOnMake => false;
+
     public static string GetMineralTooltip(ThingDef mineral)
     {
         var sb = new StringBuilder();
@@ -310,6 +312,10 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
     public override void PreOpen()
     {
         Refresh();
+        if (SelectedJob == null)
+        {
+            Selected = MakeNewJob();
+        }
     }
 
     protected override void Refresh()

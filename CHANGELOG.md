@@ -57,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   The alerts for missing managers and work tables now feature useful actions on click.
 -   When we allow slaughtering trained animals, prioritize slaughtering the least trained ones first.
 -   Moved our own ManagerDef classes into its own project so they can't accidentally access internal features which would give them an advantage over third-party implementations. This way we make sure all the features required for making the various features are correctly accessible from the outside.
+-   Base the filters for the resource gathering job on the actual available minerals and materials on the map, not hard-coded thing categories.
 
 ### Fixed
 

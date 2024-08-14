@@ -82,9 +82,11 @@ internal sealed class ManagerJob_Mining
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
+
+
     public ManagerJob_Mining(Manager manager) : base(manager)
     {
-        // populate the trigger field, set the root category to meats and allow all but human & insect meat.
+        // populate the trigger field
         Trigger = new Trigger_Threshold(this);
         ConfigureThresholdTriggerParentFilter();
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
@@ -999,10 +1001,17 @@ internal sealed class ManagerJob_Mining
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        // TODO: More precise thingdefs/categorydefs based on AllMinerals/AllDeconstructibleBuildings
-        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.ResourcesRaw, true);
-        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.PlantMatter, false);
-        TriggerThreshold.ParentFilter.SetAllow(ThingDefOf.ComponentIndustrial, true);
+        foreach (var mineral in AllMinerals)
+        {
+            TriggerThreshold.ParentFilter.SetAllow(mineral.building.mineableThing, true);
+        }
+        foreach (var material in AllDeconstructibleBuildings
+            .SelectMany(GetMaterialsInBuilding)
+            .Distinct())
+        {
+            TriggerThreshold.ParentFilter.SetAllow(material, true);
+        }
+        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, false);
     }
 
     public void Notify_StoneChunkMined(Pawn _, Thing thing)
