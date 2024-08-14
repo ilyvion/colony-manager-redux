@@ -139,7 +139,7 @@ public class Manager : MapComponent, ILoadReferenceable
         Scribe_Collections.Look(ref exposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            foreach (var exposableTab in exposableTabs)
+            foreach (var exposableTab in exposableTabs.Where(t => t != null))
             {
                 var oldTab = _tabs.Select((t, i) => (t, i))
                     .SingleOrDefault(v => v.t.GetType() == exposableTab.GetType());
