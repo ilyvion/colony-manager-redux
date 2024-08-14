@@ -2,7 +2,9 @@
 // Copyright Karel Kroeze, 2017-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Buffers;
 using System.Text;
+using ilyvion.Laboratory.Extensions;
 using LudeonTK;
 
 namespace ColonyManagerRedux;
@@ -16,6 +18,8 @@ public class JobTracker(Manager manager) : IExposable
         jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
 
     public bool HasNoJobs => jobs.Count == 0;
+
+    public int MaxPriority => jobs.Count - 1;
 
     /// <summary>
     ///     Highest priority available job
@@ -61,6 +65,7 @@ public class JobTracker(Manager manager) : IExposable
                     "If this keeps happening, please report it.");
                 jobs = jobs.Where(job => job.IsValid).ToList();
             }
+            CleanPriorities();
         }
     }
 
@@ -71,40 +76,8 @@ public class JobTracker(Manager manager) : IExposable
             throw new ArgumentNullException(nameof(job));
         }
 
-        job.Priority = jobs.Count + 1;
+        job.Priority = MaxPriority + 1;
         jobs.Add(job);
-    }
-
-    /// <summary>
-    ///     Add job to the stack with bottom priority.
-    /// </summary>
-    internal void BottomPriority<T>(T job) where T : ManagerJob
-    {
-        // get list of priorities for this type.
-        var jobsOfType = jobs.OfType<T>().OrderBy(j => j.Priority).ToList();
-        var priorities = jobsOfType.Select(j => j.Priority).ToList();
-
-        // make sure our job is on the bottom.
-        job.Priority = jobs.Count + 10;
-
-        // re-sort
-        jobsOfType = jobsOfType.OrderBy(j => j.Priority).ToList();
-
-        // fill in priorities, making sure we don't affect other types.
-        for (var i = 0; i < jobsOfType.Count; i++)
-        {
-            jobsOfType[i].Priority = priorities[i];
-        }
-        CleanPriorities();
-    }
-
-    internal void DecreasePriority<T>(T job) where T : ManagerJob
-    {
-        ManagerJob jobB = jobs.OfType<T>()
-            .OrderBy(mj => mj.Priority)
-            .First(mj => mj.Priority > job.Priority);
-        SwitchPriorities(job, jobB);
-        CleanPriorities();
     }
 
     /// <summary>
@@ -127,45 +100,12 @@ public class JobTracker(Manager manager) : IExposable
         CleanPriorities();
     }
 
-    public IEnumerable<T> JobsOfType<T>()
-    {
-        return jobs.OrderBy(job => job.Priority).OfType<T>();
-    }
+    public IEnumerable<T> JobsOfType<T>() => jobs.OrderBy(job => job.Priority).OfType<T>();
+
+    internal (int lowest, int highest) GetBoundsForJobsOfType<T>()
+        where T : ManagerJob => jobs.OfType<T>().Select(j => j.Priority).MinAndMax();
 
     public bool HasJob(ManagerJob job) => jobs.Contains(job);
-
-    internal void IncreasePriority<T>(T job) where T : ManagerJob
-    {
-        ManagerJob jobB =
-            jobs.OfType<T>().OrderByDescending(mj => mj.Priority).First(mj => mj.Priority < job.Priority);
-        SwitchPriorities(job, jobB);
-        CleanPriorities();
-    }
-
-    private static void SwitchPriorities(ManagerJob a, ManagerJob b)
-    {
-        (b.Priority, a.Priority) = (a.Priority, b.Priority);
-    }
-
-    internal void TopPriority<T>(T job) where T : ManagerJob
-    {
-        // get list of priorities for this type.
-        var jobsOfType = jobs.OfType<T>().OrderBy(j => j.Priority).ToList();
-        var priorities = jobsOfType.Select(j => j.Priority).ToList();
-
-        // make sure our job is on top.
-        job.Priority = -1;
-
-        // re-sort
-        jobsOfType = jobsOfType.OrderBy(j => j.Priority).ToList();
-
-        // fill in priorities, making sure we don't affect other types.
-        for (var i = 0; i < jobsOfType.Count; i++)
-        {
-            jobsOfType[i].Priority = priorities[i];
-        }
-        CleanPriorities();
-    }
 
     /// <summary>
     ///     Call the worker for the next available job
@@ -213,14 +153,77 @@ public class JobTracker(Manager manager) : IExposable
         return true;
     }
 
-    /// <summary>
-    ///     Normalize priorities
-    /// </summary>
     private void CleanPriorities()
     {
         foreach (var (job, priority) in jobs.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
         {
             job.Priority = priority;
         }
+    }
+
+    private static void SwitchPriorities(ManagerJob a, ManagerJob b)
+    {
+        (b.Priority, a.Priority) = (a.Priority, b.Priority);
+    }
+
+    private void Reprioritize<T>(T job, int newPriority) where T : ManagerJob
+    {
+        const int MaxStackSize = 256;
+
+        // get list of priorities for this type.
+        // Use ArrayPool<T> and stackalloc to reduce GC pressure
+        var jobsOfTypeCount = jobs.OfType<T>().Count();
+        using var jobsOfType = ArrayPool<ManagerJob>.Shared.RentWithSelfReturn(jobsOfTypeCount);
+        Span<int> priorities = jobsOfTypeCount < MaxStackSize
+            ? stackalloc int[jobsOfTypeCount]
+            : new int[jobsOfTypeCount];
+        foreach (var (j, i) in jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
+        {
+            jobsOfType[i] = j;
+            priorities[i] = j.Priority;
+        }
+
+        // make sure our job is on top.
+        job.Priority = newPriority;
+
+        // re-sort
+        IlyvionArray.SortBy(jobsOfType.Arr, 0, jobsOfTypeCount, j => j.Priority);
+
+        // fill in priorities, making sure we don't affect other types.
+        for (var i = 0; i < jobsOfTypeCount; i++)
+        {
+            jobsOfType[i].Priority = priorities[i];
+        }
+        CleanPriorities();
+    }
+
+    internal void TopPriority<T>(T job) where T : ManagerJob
+    {
+        Reprioritize(job, -1);
+    }
+
+    internal void BottomPriority<T>(T job) where T : ManagerJob
+    {
+        Reprioritize(job, MaxPriority + 1);
+    }
+
+    internal void IncreasePriority<T>(T job) where T : ManagerJob
+    {
+        ManagerJob jobB = jobs
+            .OfType<T>()
+            .OrderByDescending(mj => mj.Priority)
+            .First(mj => mj.Priority < job.Priority);
+        SwitchPriorities(job, jobB);
+        CleanPriorities();
+    }
+
+    internal void DecreasePriority<T>(T job) where T : ManagerJob
+    {
+        ManagerJob jobB = jobs
+            .OfType<T>()
+            .OrderBy(mj => mj.Priority)
+            .First(mj => mj.Priority > job.Priority);
+        SwitchPriorities(job, jobB);
+        CleanPriorities();
     }
 }

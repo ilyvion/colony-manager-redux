@@ -353,7 +353,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             false,
             job.IsSuspended);
 
-        if (DrawOrderButtons(orderRect, job, ManagerJobs.ToList(), Manager.JobTracker))
+        if (DrawOrderButtons(orderRect, job, Manager.JobTracker))
         {
             Refresh();
         }

@@ -25,6 +25,34 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where
     protected override IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<T>();
 
     public T? SelectedJob => (T?)Selected;
+
+    internal override (bool top, bool bottom) GetJobOrderBounds(ManagerJob job, JobTracker jobTracker)
+    {
+        var (lowest, highest) = jobTracker.GetBoundsForJobsOfType<T>();
+        bool top = job.Priority == lowest;
+        bool bottom = job.Priority == highest;
+        return (top, bottom);
+    }
+
+    internal override void TopPriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.TopPriority((T)job);
+    }
+
+    internal override void IncreasePriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.IncreasePriority((T)job);
+    }
+
+    internal override void DecreasePriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.DecreasePriority((T)job);
+    }
+
+    internal override void BottomPriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.BottomPriority((T)job);
+    }
 }
 
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerTab
@@ -263,7 +291,6 @@ public abstract class ManagerTab(Manager manager)
         if (parameters.ShowOrdering && DrawOrderButtons(
             orderRect,
             job,
-            ManagerJobs.ToList(),
             _manager.JobTracker))
         {
             Refresh();
@@ -498,32 +525,52 @@ public abstract class ManagerTab(Manager manager)
     {
     }
 
+    internal virtual (bool top, bool bottom) GetJobOrderBounds(
+        ManagerJob job,
+        JobTracker jobTracker)
+    {
+        bool top = job.Priority == 0;
+        bool bottom = job.Priority == jobTracker.MaxPriority;
+
+        return (top, bottom);
+    }
+
+    internal virtual void TopPriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.TopPriority(job);
+    }
+
+    internal virtual void IncreasePriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.IncreasePriority(job);
+    }
+
+    internal virtual void DecreasePriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.DecreasePriority(job);
+    }
+
+    internal virtual void BottomPriority(JobTracker jobTracker, ManagerJob job)
+    {
+        jobTracker.BottomPriority(job);
+    }
+
     /// <summary>
     ///     Draw a square group of ordering buttons for a job in rect.
     /// </summary>
-    // TODO: Track job positions directly in the jobs so we don't have to
-    //       deal with producing and asking a List<> about positions every
-    //       single frame
-    public static bool DrawOrderButtons(
+    public bool DrawOrderButtons(
         Rect rect,
         ManagerJob job,
-        List<ManagerJob> jobs,
-        JobTracker jobStack)
+        JobTracker jobTracker)
     {
         if (job == null)
         {
             throw new ArgumentNullException(nameof(job));
         }
-        if (jobs == null)
+        if (jobTracker == null)
         {
-            throw new ArgumentNullException(nameof(jobs));
+            throw new ArgumentNullException(nameof(jobTracker));
         }
-        if (jobStack == null)
-        {
-            throw new ArgumentNullException(nameof(jobStack));
-        }
-
-        var ret = false;
 
         float width = 22;
         float height = 22;
@@ -533,55 +580,57 @@ public abstract class ManagerTab(Manager manager)
             topRect = new(rect.xMax - width, rect.yMin, width, height),
             bottomRect = new(rect.xMax - width, rect.yMax - height, width, height);
 
+        var reOrdered = false;
+
+        var (top, bottom) = GetJobOrderBounds(job, jobTracker);
+
         if (IlyvionDebugViewSettings.DrawUIHelpers)
         {
             Widgets.DrawRectFast(upRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(downRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(topRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(bottomRect, ColorLibrary.Indigo.ToTransparent(.5f));
+            IlyvionWidgets.Label(rect, job.Priority.ToString(), TextAnchor.MiddleCenter);
         }
-
-        bool top = jobs.IndexOf(job) == 0,
-            bottom = jobs.IndexOf(job) == jobs.Count - 1;
 
         if (!top)
         {
             DrawOrderTooltips(upRect, topRect);
             if (Widgets.ButtonImage(topRect, Resources.ArrowTop))
             {
-                jobStack.TopPriority(job);
-                ret = true;
+                TopPriority(jobTracker, job);
+                reOrdered = true;
             }
 
             if (Widgets.ButtonImage(upRect, Resources.ArrowUp))
             {
-                jobStack.IncreasePriority(job);
-                ret = true;
+                IncreasePriority(jobTracker, job);
+                reOrdered = true;
             }
         }
 
         if (!bottom)
         {
-            DrawOrderTooltips(downRect, bottomRect, false);
+            DrawOrderTooltips(downRect, bottomRect, increase: false);
             if (Widgets.ButtonImage(downRect, Resources.ArrowDown))
             {
-                jobStack.DecreasePriority(job);
-                ret = true;
+                DecreasePriority(jobTracker, job);
+                reOrdered = true;
             }
 
             if (Widgets.ButtonImage(bottomRect, Resources.ArrowBottom))
             {
-                jobStack.BottomPriority(job);
-                ret = true;
+                BottomPriority(jobTracker, job);
+                reOrdered = true;
             }
         }
 
-        return ret;
+        return reOrdered;
     }
 
-    private static void DrawOrderTooltips(Rect step, Rect max, bool up = true)
+    private static void DrawOrderTooltips(Rect step, Rect max, bool increase = true)
     {
-        if (up)
+        if (increase)
         {
             TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.IncreasePriority".Translate());
             TooltipHandler.TipRegion(max, "ColonyManagerRedux.Job.TopPriority".Translate());
