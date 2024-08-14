@@ -32,7 +32,7 @@ public class ColonyManagerReduxMod : IlyvionMod
         Instance = this;
 
         // apply fixes
-        var harmony = new Harmony(content.Name);
+        var harmony = new Harmony(content.PackageId);
         //Harmony.DEBUG = true;
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         //Harmony.DEBUG = false;
