@@ -15,7 +15,7 @@
     <!-- Common -->
     <ColonyManagerRedux.Job.LastUpdatedTooltip>이 작업은 {0} 전에 마지막으로 업데이트 되었습니다, 그리고 매 {1} 마다 업데이트 됩니다.\n\n클릭해서 업데이트 간격을 변경하세요.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.IncreasePriority>작업 우선순위 증가</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>작업 우선순위 감소</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>작업 우선순위 감소</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>최대 우선순위</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>최소 우선순위</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Threshold>임계값</ColonyManagerRedux.Threshold>

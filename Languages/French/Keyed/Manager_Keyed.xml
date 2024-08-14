@@ -15,7 +15,7 @@
     <!-- Common -->
     <ColonyManagerRedux.Job.LastUpdatedTooltip>Ce travail a été mis a jour il y a {0}.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.IncreasePriority>Augmenter la priorité de travail</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>Diminuer la priorité de travail</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>Diminuer la priorité de travail</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>Priorité maximale</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>Priorité minimale</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Threshold>Seuil</ColonyManagerRedux.Threshold>

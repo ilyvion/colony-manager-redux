@@ -15,7 +15,7 @@
     <!-- Common -->
     <ColonyManagerRedux.Job.LastUpdatedTooltip>Это задание обновлялось {0} назад, и запланировано обновляться каждые {1}.\n\nНажмите, чтобы изменить интервал обновлений.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.IncreasePriority>Увеличить приоритет</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>Снизить приоритет</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>Снизить приоритет</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>Максимальный приоритет</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>Минимальный приоритет</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Threshold>Лимит</ColonyManagerRedux.Threshold>

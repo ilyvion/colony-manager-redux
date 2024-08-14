@@ -15,7 +15,7 @@
     <!-- Comum -->
     <ColonyManagerRedux.Job.LastUpdatedTooltip>Esta tarefa foi atualizada {0} de volta.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.IncreasePriority>Aumentar prioridade</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>Reduzir prioridade</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>Reduzir prioridade</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>Prioridade máxima</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>Prioridade mínima</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Threshold>Limite</ColonyManagerRedux.Threshold>

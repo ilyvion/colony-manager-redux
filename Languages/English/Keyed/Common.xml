@@ -32,7 +32,7 @@
     <ColonyManagerRedux.Job.ForceUpdate>Force update now</ColonyManagerRedux.Job.ForceUpdate>
     <ColonyManagerRedux.Job.AlreadyUpdatingOrSuspended>job is already due for an update or suspended</ColonyManagerRedux.Job.AlreadyUpdatingOrSuspended>
     <ColonyManagerRedux.Job.IncreasePriority>Increase job priority</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>Decrease job priority</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>Decrease job priority</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>Maximum priority</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>Minimum priority</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Job.DesignationLabel>{0}\n distance: {1}\n yield: {2}x {3}</ColonyManagerRedux.Job.DesignationLabel>

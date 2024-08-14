@@ -15,7 +15,7 @@
     <!-- Common -->
     <ColonyManagerRedux.Job.LastUpdatedTooltip>Dieser Auftrag wurde zuletzt vor {0} erneuert und ist eingeplant alle {1} upgedated zu werden.\n\nKlick um das Updateinterval zu ändern.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.IncreasePriority>Erhöhe Auftragspriorität</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>Senke Auftragspriorität</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>Senke Auftragspriorität</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>Maximale Priorität</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>Minimale Priorität</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Threshold>Schwellwert</ColonyManagerRedux.Threshold>

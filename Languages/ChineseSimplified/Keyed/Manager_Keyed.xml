@@ -14,7 +14,7 @@
     <!-- Common -->
     <ColonyManagerRedux.Job.LastUpdatedTooltip>此项工作更新于{0}之前。</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.IncreasePriority>提升工作优先级</ColonyManagerRedux.Job.IncreasePriority>
-    <ColonyManagerRedux.Job.DecreasePriorityn>降低工作优先级</ColonyManagerRedux.Job.DecreasePriorityn>
+    <ColonyManagerRedux.Job.DecreasePriority>降低工作优先级</ColonyManagerRedux.Job.DecreasePriority>
     <ColonyManagerRedux.Job.TopPriority>最高优先级</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>最低优先级</ColonyManagerRedux.Job.BottomPriority>
 

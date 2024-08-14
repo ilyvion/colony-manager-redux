@@ -588,7 +588,7 @@ public abstract class ManagerTab(Manager manager)
         }
         else
         {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.DecreasePriorityn".Translate());
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.DecreasePriority".Translate());
             TooltipHandler.TipRegion(max, "ColonyManagerRedux.Job.BottomPriority".Translate());
         }
     }
