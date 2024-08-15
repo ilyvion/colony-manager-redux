@@ -136,9 +136,15 @@ public partial class History : IExposable
         _chaptersShown.AddRange(_chapters);
     }
 
-    public static bool IsUpdateTick
+    public static bool IsUpdateTick(int jitter)
     {
-        get { return Periods.Any(p => Find.TickManager.TicksGame % PeriodTickInterval(p) == 0); }
+        var ticksGame = Find.TickManager.TicksGame;
+        var jitterTick = ticksGame + jitter;
+        if (jitterTick < 0)
+        {
+            return false;
+        }
+        return Periods.Any(p => jitterTick % PeriodTickInterval(p) == 0);
     }
 
     public void ExposeData()

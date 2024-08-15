@@ -12,6 +12,9 @@ public class CompManagerJobHistory : ManagerJobComp
 #pragma warning restore CS8618
     public History History { get => history; }
 
+    internal static HashSet<int> UsedUpdateJitters = [];
+    private int updateJitter;
+
     public override void Initialize()
     {
         // create History tracker
@@ -25,31 +28,28 @@ public class CompManagerJobHistory : ManagerJobComp
             PeriodShown = Props.periodShown,
             YAxisSuffix = Props.yAxisSuffix,
         };
+
+        // Set up a jitter for this comp
+        updateJitter = Rand.Range(-300, 300);
+        while (UsedUpdateJitters.Contains(updateJitter))
+        {
+            updateJitter = Rand.Range(-300, 300);
+        }
+        UsedUpdateJitters.Add(updateJitter);
     }
 
     public override void CompTick()
     {
-        int ticksGame = Find.TickManager.TicksGame;
-        if (historyUpdateTickJitter.Count != 0 && historyUpdateTickJitter.TryGetValue(ticksGame, out int originalTick))
-        {
-            DoHistoryUpdate(originalTick);
-            historyUpdateTickJitter.Remove(ticksGame);
-        }
-
-        if (!ColonyManagerReduxMod.Settings.RecordHistoricalData || !History.IsUpdateTick)
+        if (!ColonyManagerReduxMod.Settings.RecordHistoricalData
+            || !History.IsUpdateTick(updateJitter))
         {
             return;
         }
 
-        var jitterTick = ticksGame + Rand.Range(0, 300);
-        while (historyUpdateTickJitter.ContainsKey(jitterTick))
-        {
-            jitterTick = ticksGame + Rand.Range(0, 300);
-        }
-        historyUpdateTickJitter.Add(jitterTick, ticksGame);
+        int ticksGame = Find.TickManager.TicksGame;
+        DoHistoryUpdate(ticksGame + updateJitter);
     }
 
-    private readonly Dictionary<int, int> historyUpdateTickJitter = [];
     private void DoHistoryUpdate(int tick)
     {
         HistoryWorker worker = Props.Worker;
