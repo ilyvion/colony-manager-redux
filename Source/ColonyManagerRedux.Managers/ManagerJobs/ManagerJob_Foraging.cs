@@ -145,47 +145,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     }
 
     /// <summary>
-    ///     Remove designations in our managed list that are not in the game's designation manager.
-    /// </summary>
-    public void CleanDeadDesignations(ManagerLog? jobLog = null)
-    {
-        var originalCount = _designations.Count;
-        var gameDesignations =
-            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant);
-        _designations = _designations.Intersect(gameDesignations).ToList();
-        var newCount = _designations.Count;
-
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
-    }
-
-    /// <summary>
     ///     Clean up all outstanding designations
     /// </summary>
     public override void CleanUp(ManagerLog? jobLog)
     {
-        CleanDeadDesignations(jobLog);
-
-        var originalCount = _designations.Count;
-
-        // cancel outstanding designation
-        foreach (var designation in _designations)
-        {
-            designation.Delete();
-        }
-
-        // clear the list completely
-        _designations.Clear();
-
-        var newCount = _designations.Count;
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
+        CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
+        CleanUpDesignations(_designations, jobLog);
     }
 
     public string? DesignationLabel(Designation designation)
@@ -320,7 +285,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
 
         // clean up designations that were completed.
-        CleanDeadDesignations(jobLog);
+        CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
 
         // clean up designations that are (now) in the wrong area.
         CleanAreaDesignations(jobLog);

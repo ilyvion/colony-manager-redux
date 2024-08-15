@@ -148,46 +148,11 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
-    /// <summary>
-    ///     Remove obsolete designations from the list.
-    /// </summary>
-    public void CleanDesignations(ManagerLog? jobLog = null)
-    {
-        var originalCount = _designations.Count;
-        var gameDesignations =
-            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant);
-        _designations = _designations.Intersect(gameDesignations).ToList();
-        var newCount = _designations.Count;
-
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
-    }
-
     public override void CleanUp(ManagerLog? jobLog)
     {
         // clear the list of obsolete designations
-        CleanDesignations(jobLog);
-
-        var originalCount = _designations.Count;
-
-        // cancel outstanding designation
-        foreach (var designation in _designations)
-        {
-            designation.Delete();
-        }
-
-        // clear the list completely
-        _designations.Clear();
-
-        var newCount = _designations.Count;
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
+        CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
+        CleanUpDesignations(_designations, jobLog);
     }
 
     public string? DesignationLabel(Designation designation)
@@ -374,7 +339,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
 
         // clean dead designations
-        CleanDesignations(jobLog);
+        CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
 
         switch (Type)
         {

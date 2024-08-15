@@ -2,7 +2,9 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Buffers;
 using System.Text;
+using ilyvion.Laboratory.Extensions;
 using Verse.AI;
 
 namespace ColonyManagerRedux;
@@ -279,6 +281,69 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public abstract bool TryDoJob(ManagerLog jobLog);
 
     public abstract void CleanUp(ManagerLog? jobLog = null);
+
+    protected static void CleanUpDesignations(
+        List<Designation> designations, ManagerLog? jobLog = null)
+    {
+        if (designations == null)
+        {
+            throw new ArgumentNullException(nameof(designations));
+        }
+
+        var originalCount = designations.Count;
+
+        // cancel outstanding designation
+        foreach (var designation in designations)
+        {
+            designation.Delete();
+        }
+
+        // clear the list completely
+        designations.Clear();
+
+        var newCount = designations.Count;
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
+    }
+
+    protected virtual IEnumerable<Designation> GetIntersectionDesignations(
+        DesignationDef? designationDef)
+    {
+        return designationDef != null
+            ? Manager.map.designationManager.SpawnedDesignationsOfDef(designationDef)
+            : Manager.map.designationManager.AllDesignations;
+    }
+
+    protected void CleanDeadDesignations(
+        List<Designation> designations, DesignationDef? designationDef, ManagerLog? jobLog = null)
+    {
+        if (designations == null)
+        {
+            throw new ArgumentNullException(nameof(designations));
+        }
+
+        var originalCount = designations.Count;
+        var gameDesignations = GetIntersectionDesignations(designationDef);
+        using var designationsIntersection = ArrayPool<Designation>.Shared
+            .RentWithSelfReturn(designations.Count);
+        var newCount = 0;
+        foreach (var (d, i) in designations.Intersect(gameDesignations).Select((d, i) => (d, i)))
+        {
+            designationsIntersection[i] = d;
+            newCount++;
+        }
+        designations.Clear();
+        designations.AddRange(designationsIntersection.Arr.Take(newCount));
+
+        if (originalCount != newCount)
+        {
+            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
+                .Translate(originalCount - newCount, originalCount, newCount));
+        }
+    }
 
     public virtual void Delete(bool cleanup = true)
     {

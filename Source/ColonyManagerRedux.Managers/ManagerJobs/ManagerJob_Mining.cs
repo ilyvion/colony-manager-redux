@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Buffers;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
@@ -267,7 +269,7 @@ internal sealed class ManagerJob_Mining
 
     public override void CleanUp(ManagerLog? jobLog)
     {
-        CleanDeadDesignations(jobLog);
+        CleanDeadDesignations(_designations, null, jobLog);
 
         var originalCount = _designations.Count;
 
@@ -424,7 +426,7 @@ internal sealed class ManagerJob_Mining
 
         if (!cached)
         {
-            CleanDeadDesignations();
+            CleanDeadDesignations(_designations, null, null);
             AddRelevantGameDesignations();
         }
 
@@ -868,7 +870,7 @@ internal sealed class ManagerJob_Mining
         }
 
         // clean up designations that were completed.
-        CleanDeadDesignations(jobLog);
+        CleanDeadDesignations(_designations, null, jobLog);
 
         // add designations in the game that could have been handled by this job
         AddRelevantGameDesignations(jobLog);
@@ -993,24 +995,14 @@ internal sealed class ManagerJob_Mining
         return neighbours.Any(n => RegionsAreClose(n, end, depth + 1));
     }
 
-    private void CleanDeadDesignations(ManagerLog? jobLog = null)
+    protected override IEnumerable<Designation> GetIntersectionDesignations(DesignationDef? designationDef)
     {
-        var originalCount = _designations.Count;
-        // get the intersection of bills in the game and bills in our list.
-        var designations = Manager.map.designationManager.AllDesignations
+        return Manager.map.designationManager.AllDesignations
             .Where(d =>
                 (d.def == DesignationDefOf.Mine ||
                     d.def == DesignationDefOf.Deconstruct ||
                     d.def == DesignationDefOf.Haul) &&
-                (!d.target.HasThing || d.target.Thing.Map == Manager.map)); // equates to SpawnedDesignationsOfDef, with two defs.
-        _designations = _designations.Intersect(designations).ToList();
-        var newCount = _designations.Count;
-
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
+                (!d.target.HasThing || d.target.Thing.Map == Manager.map));
     }
 
     private void ConfigureThresholdTriggerParentFilter()

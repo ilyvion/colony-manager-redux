@@ -315,25 +315,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     public override void CleanUp(ManagerLog? jobLog)
     {
-        CleanDesignations(jobLog);
-
-        var originalCount = _designations.Count;
-
-        // cancel outstanding designation
-        foreach (var designation in _designations)
-        {
-            designation.Delete();
-        }
-
-        // clear the list completely
-        _designations.Clear();
-
-        var newCount = _designations.Count;
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
+        CleanDeadDesignations(_designations, null, jobLog);
+        CleanUpDesignations(_designations, jobLog);
     }
 
     public List<Designation> DesignationsOfOn(DesignationDef def, AgeAndSex ageSex)
@@ -555,7 +538,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         // clean up designations that were completed.
-        CleanDesignations(jobLog);
+        CleanDeadDesignations(_designations, null, jobLog);
 
         // add designations in the game that could have been handled by this job
         AddRelevantGameDesignations(jobLog);
@@ -576,24 +559,6 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         DoTamingJobs(jobLog, ref workDone);
 
         return workDone;
-    }
-
-    /// <summary>
-    ///     Remove obsolete designations from the list.
-    /// </summary>
-    public void CleanDesignations(ManagerLog? jobLog = null)
-    {
-        var originalCount = _designations.Count;
-        var gameDesignations =
-            Manager.map.designationManager.AllDesignations;
-        _designations = _designations.Intersect(gameDesignations).ToList();
-        var newCount = _designations.Count;
-
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
     }
 
     public void AddRelevantGameDesignations(ManagerLog jobLog)

@@ -179,46 +179,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Hunting;
 
-    /// <summary>
-    ///     Remove obsolete designations from the list.
-    /// </summary>
-    public void CleanDesignations(ManagerLog? jobLog = null)
-    {
-        var originalCount = _designations.Count;
-        var gameDesignations =
-            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt);
-        _designations = _designations.Intersect(gameDesignations).ToList();
-        var newCount = _designations.Count;
-
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanDeadDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
-    }
-
     public override void CleanUp(ManagerLog? jobLog)
     {
         // clear the list of obsolete designations
-        CleanDesignations(jobLog);
-
-        var originalCount = _designations.Count;
-
-        // cancel outstanding designation
-        foreach (var designation in _designations)
-        {
-            designation.Delete();
-        }
-
-        // clear the list completely
-        _designations.Clear();
-
-        var newCount = _designations.Count;
-        if (originalCount != newCount)
-        {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
-        }
+        CleanDeadDesignations(_designations, DesignationDefOf.Hunt, jobLog);
+        CleanUpDesignations(_designations, jobLog);
     }
 
     public string? DesignationLabel(Designation designation)
@@ -369,7 +334,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
 
         // clean dead designations
-        CleanDesignations(jobLog);
+        CleanDeadDesignations(_designations, DesignationDefOf.Hunt, jobLog);
 
         // clean designations not in area
         CleanAreaDesignations(jobLog);
