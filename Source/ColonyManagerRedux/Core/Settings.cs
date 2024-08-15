@@ -272,8 +272,19 @@ public class Settings : ModSettings
         for (int i = _jobSettings.Count - 1; i >= 0; i--)
         {
             ManagerSettings item = _jobSettings[i];
-            if (!allManagerDefs.ContainsKey(item.Def))
+            if (item == null)
             {
+                ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i} is null");
+                _jobSettings.RemoveAt(i);
+            }
+            else if (item.Def == null)
+            {
+                ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i}'s Def is null");
+                _jobSettings.RemoveAt(i);
+            }
+            else if (!allManagerDefs.ContainsKey(item.Def))
+            {
+                ColonyManagerReduxMod.Instance.LogWarning($"Job settings exist for {item.Def} but no such ManagerDef was found");
                 _jobSettings.RemoveAt(i);
             }
         }
@@ -285,6 +296,7 @@ public class Settings : ModSettings
         }
         foreach (var missingDef in allManagerDefs.Where(kv => !kv.Value).Select(kv => kv.Key))
         {
+            ColonyManagerReduxMod.Instance.LogMessage($"Creating new settings instance for {missingDef} since it was missing");
             _jobSettings.Add(ManagerDefMaker.MakeManagerSettings(missingDef)!);
         }
 
