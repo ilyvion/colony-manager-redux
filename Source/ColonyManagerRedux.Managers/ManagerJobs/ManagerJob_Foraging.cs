@@ -440,4 +440,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             parentFilter.SetAllow(harvestedThingDef, true);
         }
     }
+
+    protected override void Notify_AreaRemoved(Area area)
+    {
+        if (ForagingArea == area)
+        {
+            ForagingArea = null;
+        }
+    }
 }

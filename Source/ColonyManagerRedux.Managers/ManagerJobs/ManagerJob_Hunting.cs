@@ -543,4 +543,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         TriggerThreshold.ParentFilter.SetAllow(ManagerThingCategoryDefOf.FoodRaw, true);
     }
+
+    protected override void Notify_AreaRemoved(Area area)
+    {
+        if (HuntingGrounds == area)
+        {
+            HuntingGrounds = null;
+        }
+    }
 }

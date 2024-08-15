@@ -997,4 +997,35 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
         }
     }
+
+    protected override void Notify_AreaRemoved(Area area)
+    {
+        if (MilkArea == area)
+        {
+            MilkArea = null;
+        }
+        if (ShearArea == area)
+        {
+            ShearArea = null;
+        }
+        if (SlaughterArea == area)
+        {
+            SlaughterArea = null;
+        }
+        if (TameArea == area)
+        {
+            TameArea = null;
+        }
+        if (TrainingArea == area)
+        {
+            TrainingArea = null;
+        }
+        for (int i = 0; i < RestrictArea.Length; i++)
+        {
+            if (RestrictArea[i] == area)
+            {
+                RestrictArea[i] = null;
+            }
+        }
+    }
 }

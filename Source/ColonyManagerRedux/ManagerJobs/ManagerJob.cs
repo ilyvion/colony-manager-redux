@@ -439,4 +439,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         return _comps?.Where(c => c is T).Cast<T>() ?? [];
     }
+
+    protected internal virtual void Notify_AreaRemoved(Area area)
+    {
+    }
 }

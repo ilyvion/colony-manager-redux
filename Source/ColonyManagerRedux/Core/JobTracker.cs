@@ -14,6 +14,8 @@ public class JobTracker(Manager manager) : IExposable
     private readonly Manager _manager = manager;
 
     private List<ManagerJob> jobs = [];
+    public IEnumerable<ManagerJob> Jobs => jobs;
+
     private IEnumerable<ManagerJob> JobsInOrderOfPriority =>
         jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
 

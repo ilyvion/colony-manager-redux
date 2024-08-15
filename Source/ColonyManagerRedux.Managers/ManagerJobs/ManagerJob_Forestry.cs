@@ -537,4 +537,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     {
         TriggerThreshold.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
     }
+
+    protected override void Notify_AreaRemoved(Area area)
+    {
+        if (LoggingArea == area)
+        {
+            LoggingArea = null;
+        }
+        ClearAreas.Remove(area);
+    }
 }

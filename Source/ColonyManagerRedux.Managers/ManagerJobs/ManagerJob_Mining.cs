@@ -1033,4 +1033,12 @@ internal sealed class ManagerJob_Mining
             AddDesignation(thing, DesignationDefOf.Haul);
         }
     }
+
+    protected override void Notify_AreaRemoved(Area area)
+    {
+        if (MiningArea == area)
+        {
+            MiningArea = null;
+        }
+    }
 }
