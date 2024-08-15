@@ -317,7 +317,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     areaRects[x, y] = new Rect(
                         widths.Take(x).Sum(),
                         pos.y + heights.Take(y).Sum(),
-                        widths[x],
+                        widths[x] - Margin,
                         heights[y]);
                 }
             }
@@ -332,28 +332,50 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 "ColonyManagerRedux.Livestock.Adult".Translate(),
                 TextAnchor.MiddleRight,
                 GameFont.Tiny);
+
+            // do the selectors
+            job.RestrictArea[0] = AreaAllowedGUI.DoAllowedAreaSelectors(
+                ref areaRects[1, 1],
+                job.RestrictArea[0], 2, Manager, 0);
+            job.RestrictArea[1] = AreaAllowedGUI.DoAllowedAreaSelectors(
+                ref areaRects[2, 1],
+                job.RestrictArea[1], 2, Manager, 0);
+
+            // update the juvenile rects
+            areaRects[0, 2].y = areaRects[1, 1].yMax + Margin;
+            areaRects[1, 2].y = areaRects[1, 1].yMax + Margin;
+            areaRects[2, 2].y = areaRects[1, 1].yMax + Margin;
+
             IlyvionWidgets.Label(
                 areaRects[0, 2],
                 "ColonyManagerRedux.Livestock.Juvenile".Translate(),
                 TextAnchor.MiddleRight,
                 GameFont.Tiny);
 
-            // do the selectors
-            job.RestrictArea[0] = AreaAllowedGUI.DoAllowedAreaSelectors(
-                areaRects[1, 1],
-                job.RestrictArea[0], Manager, Margin);
-            job.RestrictArea[1] = AreaAllowedGUI.DoAllowedAreaSelectors(
-                areaRects[2, 1],
-                job.RestrictArea[1], Manager, Margin);
             job.RestrictArea[2] = AreaAllowedGUI.DoAllowedAreaSelectors(
-                areaRects[1, 2],
-                job.RestrictArea[2], Manager, Margin);
+                ref areaRects[1, 2],
+                job.RestrictArea[2], 2, Manager, 0);
             job.RestrictArea[3] = AreaAllowedGUI.DoAllowedAreaSelectors(
-                areaRects[2, 2],
-                job.RestrictArea[3], Manager, Margin);
+                ref areaRects[2, 2],
+                job.RestrictArea[3], 2, Manager, 0);
+
+            if (IlyvionDebugViewSettings.DrawUIHelpers)
+            {
+                Widgets.DrawRectFast(areaRects[0, 0], ColorLibrary.Red.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[0, 1], ColorLibrary.Green.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[0, 2], ColorLibrary.Blue.ToTransparent(.5f));
+
+                Widgets.DrawRectFast(areaRects[1, 0], ColorLibrary.Cyan.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[1, 1], ColorLibrary.Yellow.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[1, 2], ColorLibrary.Magenta.ToTransparent(.5f));
+
+                Widgets.DrawRectFast(areaRects[2, 0], ColorLibrary.Orange.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[2, 1], ColorLibrary.Purple.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[2, 2], ColorLibrary.Pink.ToTransparent(.5f));
+            }
 
             Text.Anchor = TextAnchor.UpperLeft; // DoAllowedAreaMode leaves the anchor in an incorrect state.
-            pos.y += 3 * ListEntryHeight;
+            pos.y = areaRects[2, 2].yMax;
         }
 
         var sendToSlaughterAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
@@ -368,9 +390,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             if (job.SendToSlaughterArea)
             {
                 var slaughterAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-                AreaAllowedGUI.DoAllowedAreaSelectors(slaughterAreaRect, ref job.SlaughterArea,
+                AreaAllowedGUI.DoAllowedAreaSelectors(ref slaughterAreaRect, ref job.SlaughterArea, 5,
                     Manager);
-                pos.y += ListEntryHeight;
+                pos.y += slaughterAreaRect.height;
             }
         }
         else
@@ -395,9 +417,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             if (job.SendToMilkingArea)
             {
                 var milkingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-                AreaAllowedGUI.DoAllowedAreaSelectors(milkingAreaRect, ref job.MilkArea,
+                AreaAllowedGUI.DoAllowedAreaSelectors(ref milkingAreaRect, ref job.MilkArea, 5,
                     Manager);
-                pos.y += ListEntryHeight;
+                pos.y += milkingAreaRect.height;
             }
         }
 
@@ -413,9 +435,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             if (job.SendToShearingArea)
             {
                 var shearingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-                AreaAllowedGUI.DoAllowedAreaSelectors(shearingAreaRect, ref job.ShearArea,
+                AreaAllowedGUI.DoAllowedAreaSelectors(ref shearingAreaRect, ref job.ShearArea, 5,
                     Manager);
-                pos.y += ListEntryHeight;
+                pos.y += shearingAreaRect.height;
             }
         }
 
@@ -431,9 +453,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             if (job.SendToTrainingArea)
             {
                 var trainingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-                AreaAllowedGUI.DoAllowedAreaSelectors(trainingAreaRect, ref job.TrainingArea,
+                AreaAllowedGUI.DoAllowedAreaSelectors(ref trainingAreaRect, ref job.TrainingArea, 5,
                     Manager);
-                pos.y += ListEntryHeight;
+                pos.y += trainingAreaRect.height;
             }
         }
         else
@@ -841,7 +863,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 "ColonyManagerRedux.Livestock.TamePastTargets.Tip".Translate(),
                 ref job.TamePastTargets);
 
-            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, Manager);
+            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, 5, Manager);
             DrawReachabilityToggle(ref pos, width, ref job.ShouldCheckReachable);
             DrawToggle(ref pos, width,
                 "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),

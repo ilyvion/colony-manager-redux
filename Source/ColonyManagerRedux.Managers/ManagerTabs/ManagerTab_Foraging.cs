@@ -89,7 +89,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
     public float DrawAreaRestriction(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForagingJob.ForagingArea, Manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedForagingJob.ForagingArea, 5, Manager);
         return pos.y - start.y;
     }
 

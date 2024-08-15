@@ -6,16 +6,18 @@ using Verse.Sound;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public static class AreaAllowedGUI
 {
-    public static Area? DoAllowedAreaSelectors(Rect rect,
-        Area? areaIn,
+    public static Area? DoAllowedAreaSelectors(ref Rect rect,
+        Area? currentArea,
+        int countPerRow,
         Map map,
-        float lrMargin = 0)
+        float margin = 0)
     {
-        var areaIO = areaIn;
-        DoAllowedAreaSelectors(rect, ref areaIO, map, lrMargin);
-        return areaIO;
+        var newArea = currentArea;
+        DoAllowedAreaSelectors(ref rect, ref newArea, countPerRow, map, margin);
+        return newArea;
     }
 
     // RimWorld.AreaAllowedGUI
@@ -23,6 +25,7 @@ public static class AreaAllowedGUI
         ref Vector2 pos,
         float width,
         ref Area? area,
+        int countPerRow,
         Map map,
         float margin = 0)
     {
@@ -31,13 +34,14 @@ public static class AreaAllowedGUI
             pos.y,
             width,
             Constants.ListEntryHeight);
-        pos.y += Constants.ListEntryHeight;
-        DoAllowedAreaSelectors(rect, ref area, map, margin);
+        DoAllowedAreaSelectors(ref rect, ref area, countPerRow, map, margin);
+        pos.y += rect.height;
     }
 
     public static void DoAllowedAreaSelectors(
-        Rect rect,
+        ref Rect rect,
         ref Area? allowedArea,
+        int countPerRow,
         Map map,
         float lrMargin = 0)
     {
@@ -55,16 +59,25 @@ public static class AreaAllowedGUI
         var allAreas = map.areaManager.AllAreas;
         var areaCount = 1 + allAreas.Where(a => a.AssignableAsAllowed()).Count();
 
-        var widthPerArea = rect.width / areaCount;
+        if (areaCount < countPerRow)
+        {
+            countPerRow = areaCount;
+        }
+
+        var areaRows = Mathf.CeilToInt((float)areaCount / countPerRow);
+        rect.height += (areaRows - 1) * Constants.ListEntryHeight;
+        var widthPerArea = rect.width / countPerRow;
+
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
-        var nullAreaRect = new Rect(rect.x, rect.y, widthPerArea, rect.height);
+        var nullAreaRect = new Rect(rect.x, rect.y, widthPerArea, rect.height / areaRows);
         DoAreaSelector(nullAreaRect, ref allowedArea, null);
         var areaIndex = 1;
         foreach (Area area in allAreas.Where(a => a.AssignableAsAllowed()))
         {
-            var xOffset = areaIndex * widthPerArea;
-            var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);
+            var xOffset = (areaIndex % countPerRow) * widthPerArea;
+            var yOffset = (areaIndex / countPerRow) * Constants.ListEntryHeight;
+            var areaRect = new Rect(rect.x + xOffset, rect.y + yOffset, widthPerArea, rect.height / areaRows);
             DoAreaSelector(areaRect, ref allowedArea, area);
             areaIndex++;
         }

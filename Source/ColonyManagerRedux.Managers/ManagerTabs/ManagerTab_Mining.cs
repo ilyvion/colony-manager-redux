@@ -228,7 +228,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
     public float DrawMiningArea(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedMiningJob.MiningArea, Manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedMiningJob.MiningArea, 5, Manager);
         return pos.y - start.y;
     }
 

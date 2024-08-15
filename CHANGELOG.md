@@ -58,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   When we allow slaughtering trained animals, prioritize slaughtering the least trained ones first.
 -   Moved our own ManagerDef classes into its own project so they can't accidentally access internal features which would give them an advantage over third-party implementations. This way we make sure all the features required for making the various features are correctly accessible from the outside.
 -   Base the filters for the resource gathering job on the actual available minerals and materials on the map, not hard-coded thing categories.
+-   The list of areas to pick from in the area selectors now splits them up into rows so you don't get an impossibly narrow selection box for each area if you have more than a few.
 
 ### Fixed
 
