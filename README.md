@@ -1,6 +1,21 @@
 [![RimWorld 1.5](https://img.shields.io/badge/RimWorld-1.5-brightgreen.svg)](http://rimworldgame.com/) [![Build](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml)
 
-**Colony Manager Redux** is ilyvion's new and improved take on Fluffy's Colony Manager. Why did I make my own custom version? This version may never have seen the light of day if Fluffy had kept updating the original, but after a long time without updates (nearly two years at the time of this writing) it felt like the space was prime for a replacement/new contender. I've put enough effort and care into this project at this point that I consider it an entirely separate project from the original, and will not be removing it or deprecating it should the original Colony Manager make a comeback.
+**Colony Manager Redux** is ilyvion's new and improved take on Fluffy's Colony Manager. Why did I make my own custom version? This version may never have seen the light of day if Fluffy had kept updating the original (though it's understandable why it's been hard), but after a long time without updates (nearly two years at the time of this writing) it felt like the space was primed for a replacement/new contender. I've put enough effort and care into this project at this point that I consider it an entirely separate project from the original, and will not be removing it or deprecating it should the original Colony Manager make a comeback.
+
+## Features
+
+The purpose of the mod is to let you assign certain tedious managerial tasks to your colonists instead of you having to do them manually. The main principle of the mod is that you configure the resource you want, and how many of that resource you want to maintain, and then the mod, along with a colonist with the manager work type, makes sure that these targets are met.
+
+Out of the box, the mod has the following manager jobs:
+
+**Hunting**: Set how much meat you want, and which kinds of animals you want to hunt, and watch your hunters take care of it.  
+**Forestry**: Set how much wood you want, and which kinds of trees you want to chop, and the plant cutters take care of the rest.  
+**Forestry (clearing)**: Mark an area for clearing, like the immediate outside of your colony, and watch your enemies having nothing to take cover behind the next time you're raided!  
+**Livestock**: Takes care of taming, culling (butchering excess), training and corralling your animals according to your specifications.  
+**Foraging**: Set how much you want of berries/herbal medicine/mushrooms, and watch your colonists go out and collect it.  
+**Resource gathering**: Set how much steel/silver/gold/jade/stone/etc. you want, and watch your colonists haul chunks for processing and mine the resources you're after automatically.
+
+## Background
 
 One of the biggest issues I had with the original was that its tabs and manager jobs were hard-coded, so initially I was going to leave it mostly as it was, but with the ability for third party modders to add their own manager tabs/jobs. But, as is often the case when I get really into a project, I got completely absorbed into the project, came up with a ton of new ideas, and spent a whole month implementing everything I could think of. The result is this mod.
 
