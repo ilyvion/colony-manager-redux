@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2024-08-16
+
 ### Changed
 
 -   Using new textures for the work benches and AI manager based on the [[JGH] Colony Manager retexture](https://steamcommunity.com/sharedfiles/filedetails/?id=2603340242) mod. Used with permission; license unknown.
@@ -86,6 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/pre-redux...v0.1.0
