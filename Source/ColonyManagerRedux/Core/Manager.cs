@@ -285,7 +285,7 @@ public class Manager : MapComponent, ILoadReferenceable
         }
     }
 
-    public bool TryDoWork()
+    public IEnumerable<IShouldRunCondition>? TryDoWork()
     {
         return JobTracker.TryDoNextJob();
     }

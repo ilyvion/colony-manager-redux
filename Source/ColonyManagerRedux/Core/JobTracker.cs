@@ -112,26 +112,93 @@ public class JobTracker(Manager manager) : IExposable
     /// <summary>
     ///     Call the worker for the next available job
     /// </summary>
-    internal bool TryDoNextJob()
+    internal IEnumerable<IShouldRunCondition>? TryDoNextJob()
     {
         var job = NextJob;
         if (job == null)
         {
-            return false;
+            return null;
         }
 
-        try
+        return TryDoNextJobInner();
+
+        IEnumerable<IShouldRunCondition> TryDoNextJobInner()
         {
             // update lastAction
             job.Touch();
 
             // perform next job if no action was taken
+            string jobLogLabel = null!;
+            try
+            {
+                jobLogLabel = job.Tab.GetMainLabel(job) + " (" + job.Tab.GetSubLabel(job) + ")";
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Suspending manager job because it errored on " +
+                    $"{nameof(TryDoNextJob)}: \n{err}");
+                job.IsSuspended = true;
+                job.CausedException = err;
+            }
+            if (job.CausedException != null)
+            {
+                yield return new WhenCoroutineIsCompleted(
+                    MultiTickCoroutineManager.StartCoroutine(
+                        TryDoNextJob() ?? [],
+                        debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})"));
+                yield break;
+            }
+
             ManagerLog log = new(job)
             {
-                LogLabel = job.Tab.GetMainLabel(job) + " (" + job.Tab.GetSubLabel(job) + ")"
+                LogLabel = jobLogLabel
             };
+            Boxed<bool> workDone = new(false);
+
             var wasCompleted = job.JobState == ManagerJobState.Completed;
-            bool workDone = job.TryDoJob(log);
+            IEnumerable<IShouldRunCondition> coroutine = null!;
+            try
+            {
+                coroutine = job.TryDoJobCoroutine(log, workDone)
+                    ?? TryDoJobTheOldWay(job, log, workDone);
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Suspending manager job because it errored on " +
+                    $"{nameof(TryDoNextJob)}: \n{err}");
+                job.IsSuspended = true;
+                job.CausedException = err;
+            }
+            if (job.CausedException != null)
+            {
+                yield return new WhenCoroutineIsCompleted(
+                    MultiTickCoroutineManager.StartCoroutine(
+                        TryDoNextJob() ?? [],
+                        debugHandle: $"TryDoNextJobAfterException2({job.GetUniqueLoadID()})"));
+                yield break;
+            }
+
+            CoroutineHandle handle = MultiTickCoroutineManager.StartCoroutine(coroutine,
+                debugHandle: $"TryDoNextJob({job.GetUniqueLoadID()})");
+            yield return new WhenCoroutineIsCompleted(handle);
+
+            if (handle.Exception is Exception err2)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Suspending manager job because it errored on " +
+                    $"{nameof(TryDoNextJob)}: \n{err2}");
+                job.IsSuspended = true;
+                job.CausedException = err2;
+
+                yield return new WhenCoroutineIsCompleted(
+                    MultiTickCoroutineManager.StartCoroutine(
+                        TryDoNextJob() ?? [],
+                        debugHandle: $"TryDoNextJobAfterException3({job.GetUniqueLoadID()})"));
+                yield break;
+            }
+
             if (!wasCompleted || job.JobState != ManagerJobState.Completed)
             {
                 // Don't log jobs where the state is Completed both before and after TryDoJob;
@@ -146,20 +213,20 @@ public class JobTracker(Manager manager) : IExposable
 
             if (!workDone)
             {
-                return TryDoNextJob();
+                yield return new WhenCoroutineIsCompleted(
+                    MultiTickCoroutineManager.StartCoroutine(
+                        TryDoNextJob() ?? [],
+                        debugHandle: $"TryDoNextJobAfterNoWorkDone({job.GetUniqueLoadID()})"));
             }
         }
-        catch (Exception err)
+
+        static IEnumerable<IShouldRunCondition> TryDoJobTheOldWay(ManagerJob job, ManagerLog log, Boxed<bool> workDone)
         {
-            ColonyManagerReduxMod.Instance
-                .LogError($"Suspending manager job because it errored on TryDoJob: \n{err}");
-            job.IsSuspended = true;
-            job.CausedException = err;
-
-            return TryDoNextJob();
+#pragma warning disable CS0618 // This is the one place we are allowed to call it
+            workDone.Value = job.TryDoJob(log);
+#pragma warning restore CS0618
+            yield break;
         }
-
-        return true;
     }
 
     private void CleanPriorities()

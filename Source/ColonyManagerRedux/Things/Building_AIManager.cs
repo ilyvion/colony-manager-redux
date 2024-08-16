@@ -107,6 +107,7 @@ public class Building_AIManager : Building
         }
     }
 
+    private CoroutineHandle? handle;
     public override void Tick()
     {
         base.Tick();
@@ -120,9 +121,6 @@ public class Building_AIManager : Building
         {
             var tick = Find.TickManager.TicksGame;
 
-            // turn on glower
-            Glower.IsLit = true;
-
             // random blinking on secondary
             if (tick % 30 == Rand.RangeInclusive(0, 25))
             {
@@ -132,8 +130,35 @@ public class Building_AIManager : Building
             // primary colour
             if (tick % 250 == 0)
             {
-                PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
-                PrimaryColour = Manager.For(Map).TryDoWork() ? Color.green : Color.red;
+                if (handle != null)
+                {
+                    if (handle.IsCompleted)
+                    {
+                        handle = null;
+                        PrimaryColour = Color.red;
+                        PowerTrader.PowerOutput = -PowerTrader.Props.idlePowerDraw;
+                    }
+                    else
+                    {
+                        PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
+                        PrimaryColour = Color.green;
+                    }
+                }
+                else
+                {
+                    PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
+                    var coroutine = Manager.For(Map).TryDoWork();
+                    PrimaryColour = coroutine != null ? Color.green : Color.red;
+                    if (coroutine != null)
+                    {
+                        PrimaryColour = Color.green;
+                        handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
+                    }
+                    else
+                    {
+                        PrimaryColour = Color.red;
+                    }
+                }
             }
             else
             {

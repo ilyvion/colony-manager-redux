@@ -14,6 +14,8 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
     private float workDone;
     private float workNeeded;
 
+    private CoroutineHandle? handle;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -72,17 +74,36 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
             },
             tickAction = () =>
             {
-                // learn a bit
-                pawn.skills.GetSkill(SkillDefOf.Intellectual).Learn(0.11f);
-
-                // update counter
-                workDone += pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed);
-
-                // are we done yet?
-                if (workDone > workNeeded)
+                if (handle == null)
                 {
-                    Manager.For(pawn.Map).TryDoWork();
-                    ReadyForNextToil();
+                    // learn a bit
+                    pawn.skills.GetSkill(SkillDefOf.Intellectual).Learn(0.11f);
+
+                    // update counter
+                    workDone += pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed);
+
+                    // are we done yet?
+                    if (workDone > workNeeded)
+                    {
+                        var coroutine = Manager.For(pawn.Map).TryDoWork();
+                        if (coroutine == null)
+                        {
+                            ReadyForNextToil();
+                        }
+                        else
+                        {
+                            handle = MultiTickCoroutineManager.StartCoroutine(
+                                coroutine,
+                                debugHandle: "JobDriver_ManagingAtManagingStation.Manage");
+                        }
+                    }
+                }
+                else
+                {
+                    if (handle.IsCompleted)
+                    {
+                        ReadyForNextToil();
+                    }
                 }
             }
         };
