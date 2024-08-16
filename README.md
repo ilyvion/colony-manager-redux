@@ -62,3 +62,4 @@ Unless you explicitly state otherwise, any contribution intentionally submitted 
 Parts of this mod were created by, or derived from works created by;
 
 -   Smashicons: top hat icon used in mod preview and mod icon graphics ([BY-NC](https://www.flaticon.com/authors/smashicons))
+-   [jeonggihun](https://steamcommunity.com/id/jeonggihun): new textures for the work benches and AI manager based on the [[JGH] Colony Manager retexture](https://steamcommunity.com/sharedfiles/filedetails/?id=2603340242) mod. Used with permission; license unknown.

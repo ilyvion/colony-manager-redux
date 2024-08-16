@@ -12,6 +12,7 @@
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(3.5,1.5)</drawSize>
         </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
         <costStuffCount>75</costStuffCount>
         <stuffCategories>
             <li>Metallic</li>
@@ -52,6 +53,7 @@
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(3.5,1.5)</drawSize>
         </graphicData>
+        <altitudeLayer>Building</altitudeLayer>
         <costStuffCount>100</costStuffCount>
         <costList>
             <Steel>50</Steel>
@@ -106,7 +108,7 @@
             <texPath>Buildings/AI_ManagerStation</texPath>
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
-            <drawSize>(2.5,2.5)</drawSize>
+            <drawSize>(3.6,3.6)</drawSize>
         </graphicData>
         <rotatable>false</rotatable>
         <altitudeLayer>Building</altitudeLayer>
@@ -145,8 +147,8 @@
             </li>
             <li Class="CompProperties_Glower">
                 <compClass>ColonyManagerRedux.CompGlowerAIManager</compClass>
-                <glowRadius>3</glowRadius>
-                <glowColor>(255,0,0,0)</glowColor>
+                <glowRadius>1</glowRadius>
+                <glowColor>(110,186,255,0)</glowColor>
             </li>
             <li Class="CompProperties_HeatPusher">
                 <compClass>CompHeatPusherPowered</compClass>
