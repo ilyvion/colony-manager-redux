@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
--   With the next textures, it makes more sense for the AI manager building to be 2x1 instead of 2x2
+-   With the new textures, it makes more sense for the AI manager building to be 2x1 instead of 2x2
 
 ## [0.1.2] - 2024-08-16
 
