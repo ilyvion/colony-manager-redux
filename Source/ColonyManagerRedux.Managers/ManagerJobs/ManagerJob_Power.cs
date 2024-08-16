@@ -307,21 +307,6 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            // TODO: Remove before publishing; won't ever be null in actual games.
-            Trigger = null;
-
-            // TODO: Remove before publishing; won't ever be null in actual games.
-            tradingHistory ??= new History(TraderDefs
-                .Select(def => new ThingDefCount(
-                    def,
-                    Manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count))
-                .ToArray())
-            {
-                DrawOptions = false,
-                DrawInlineLegend = false,
-                YAxisSuffix = "W",
-                DrawTargetLine = false,
-            };
             tradingHistory.UpdateThingDefs(TraderDefs);
             _traderBuildings.RemoveWhere(b => b == null);
             _batteryBuildings.RemoveWhere(b => b == null);

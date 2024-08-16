@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2024-08-16
+
 ### Added
 
 -   Job designations are now saved in the save file so job histories don't get messed up each time the game is loaded.
@@ -74,4 +76,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/pre-redux...v0.1.0

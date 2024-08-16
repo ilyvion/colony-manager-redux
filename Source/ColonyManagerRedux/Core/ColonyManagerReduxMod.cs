@@ -31,6 +31,8 @@ public class ColonyManagerReduxMod : IlyvionMod
 
         Instance = this;
 
+        VersionCheck.ShowRequiresAtLeastVersionMessageFor(new Version(0, 5), content.Name);
+
         // apply fixes
         var harmony = new Harmony(content.PackageId);
         //Harmony.DEBUG = true;

@@ -21,7 +21,6 @@ public abstract class Trigger(ManagerJob job) : IExposable
         }
     }
 
-    // TODO: Make this stuff comp/Def-based
     public virtual void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
     }
