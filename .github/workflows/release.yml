@@ -65,20 +65,20 @@ jobs:
                   asset_name: ColonyManagerRedux-${{ env.VERSION }}.zip
                   asset_content_type: application/zip
 
-            # - name: Converts Markdown to Steam markup
-            #   id: markdown_steam
-            #   uses: ilyvion/steamdown@main
-            #   with:
-            #       markdown: ${{ steps.changelog_reader.outputs.changes }}
+            - name: Converts Markdown to Steam markup
+              id: markdown_steam
+              uses: ilyvion/steamdown@main
+              with:
+                  markdown: ${{ steps.changelog_reader.outputs.changes }}
 
-            # - name: Upload to Steam Workshop
-            #   uses: ZehMatt/steam-workshop-upload@569de82c2fdf3042af8491379fb698829ba63a9d
-            #   with:
-            #       appid: 294100
-            #       itemid: 0
-            #       path: ${{ env.MOD_PATH }}
-            #       changenote: ${{ steps.markdown_steam.outputs.steam-markup }}
-            #   env:
-            #       STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
-            #       STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
-            #       STEAM_TFASEED: ${{ secrets.STEAM_TFASEED }}
+            - name: Upload to Steam Workshop
+              uses: ZehMatt/steam-workshop-upload@569de82c2fdf3042af8491379fb698829ba63a9d
+              with:
+                  appid: 294100
+                  itemid: 3310027356
+                  path: ${{ env.MOD_PATH }}
+                  changenote: ${{ steps.markdown_steam.outputs.steam-markup }}
+              env:
+                  STEAM_USERNAME: ${{ secrets.STEAM_USERNAME }}
+                  STEAM_PASSWORD: ${{ secrets.STEAM_PASSWORD }}
+                  STEAM_TFASEED: ${{ secrets.STEAM_TFASEED }}

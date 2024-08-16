@@ -26,6 +26,14 @@ The mod can be added to a game at any time. Removing the mod should be fine as w
 
 So, you want to add your own manager job/tab to the mod? Awesome! I've written a small set of articles on how to do this on the [Wiki](https://github.com/ilyvion/colony-manager-redux/wiki/Adding-a-custom-manager-feature), and you're also free to come ask me any questions you may have on my [Discord server](https://discord.gg/J9Q78avHgM) and I also hang out in the RimWorld discord.
 
+## Translations
+
+-   _None yet_
+
+Want your translation in this list? Release a translation mod (i.e. a mod with only a Languages folder, [i]not a copy of this entire mod + the translation[/i]) for this mod, and notify me of its existence, and I'll add it to the list.
+
+The original Colony Manager had some translations to various languages, but when I updated the mod, I added, changed and removed enough translations that it doesn't feel worthwhile to include these anymore. Plus, as mentioned above, I'd prefer translations to be separate mods to reduce my own maintenance load. You can find the old translation files from the original under the [OldLanguages](OldLanguages) directory.
+
 ## License
 
 The software and documentation is licensed under the MIT license ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT) and any original content is licensed under the Creative Commons Attribution-ShareAlike 4.0 International Public License ([LICENSE](LICENSE) or https://creativecommons.org/licenses/by-sa/4.0/)

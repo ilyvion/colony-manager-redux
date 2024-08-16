@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+-   Outdated translations were removed from the Languages directory and placed in OldLanguages as reference for any new translators.
+
 ## [0.1.0] - 2024-08-16
 
 ### Added
