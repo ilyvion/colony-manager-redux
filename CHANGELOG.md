@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Added iconPath to MainButtonDef for better compatibility with Vanilla Texture Expanded's usage of icons on main buttons.
+
 ## [0.1.3] - 2024-08-16
 
 ### Changed
