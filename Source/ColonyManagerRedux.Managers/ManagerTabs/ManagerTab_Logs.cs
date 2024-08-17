@@ -64,34 +64,40 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         {
             bool isSelectedLog = selectedLog == log;
 
-            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
-            DrawLogEntry(log, ref cur, scrollView.ViewRect.width, isSelectedLog);
-            row.height = cur.y - row.y;
-
-            Widgets.DrawHighlightIfMouseover(row);
-            if (isSelectedLog)
+            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 56f);
+            if (!scrollView.CanCull(row.height, cur.y))
             {
-                Widgets.DrawHighlightSelected(row);
-            }
+                DrawLogEntry(log, ref cur, scrollView.ViewRect.width, isSelectedLog);
+                row.height = cur.y - row.y; // 56 px
 
-            if (i++ % 2 == 1)
-            {
-                Widgets.DrawAltRect(row);
-            }
-
-            if (Widgets.ButtonInvisible(row))
-            {
-                if (!isSelectedLog)
+                Widgets.DrawHighlightIfMouseover(row);
+                if (isSelectedLog)
                 {
-                    selectedLog = log;
-                    RecacheLookTargets();
+                    Widgets.DrawHighlightSelected(row);
                 }
-                else
+
+                if (i++ % 2 == 1)
                 {
-                    selectedLog = null;
+                    Widgets.DrawAltRect(row);
+                }
+
+                if (Widgets.ButtonInvisible(row))
+                {
+                    if (!isSelectedLog)
+                    {
+                        selectedLog = log;
+                        RecacheLookTargets();
+                    }
+                    else
+                    {
+                        selectedLog = null;
+                    }
                 }
             }
-
+            else
+            {
+                cur.y += row.height;
+            }
 
             var curDetail = new Vector2(LargeIconSize, row.yMax);
             var j = 0;
