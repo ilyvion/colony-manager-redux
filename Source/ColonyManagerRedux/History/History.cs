@@ -136,15 +136,13 @@ public partial class History : IExposable
         _chaptersShown.AddRange(_chapters);
     }
 
-    public static bool IsUpdateTick(int jitter)
+    public static bool IsUpdateTick
     {
-        var ticksGame = Find.TickManager.TicksGame;
-        var jitterTick = ticksGame + jitter;
-        if (jitterTick < 0)
+        get
         {
-            return false;
+            var ticksGame = Find.TickManager.TicksGame;
+            return Periods.Any(p => ticksGame % PeriodTickInterval(p) == 0);
         }
-        return Periods.Any(p => jitterTick % PeriodTickInterval(p) == 0);
     }
 
     public void ExposeData()
@@ -301,7 +299,6 @@ public partial class History : IExposable
             }
         }
     }
-
     public void Update(int tick, params (int count, int target)[] counts)
     {
         if (counts == null)
@@ -311,12 +308,36 @@ public partial class History : IExposable
 
         if (counts.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance.LogWarning("History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "History updated with incorrect number of chapters");
         }
 
         for (var i = 0; i < counts.Length; i++)
         {
             _chapters[i].Add(counts[i].count, counts[i].target, tick);
+        }
+    }
+
+    public void Update(int tick, int[] counts, int[] targets)
+    {
+        if (counts == null)
+        {
+            throw new ArgumentNullException(nameof(counts));
+        }
+        if (targets == null)
+        {
+            throw new ArgumentNullException(nameof(targets));
+        }
+
+        if (counts.Length != _chapters.Count || targets.Length != _chapters.Count)
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "History updated with incorrect number of chapters");
+        }
+
+        for (var i = 0; i < counts.Length; i++)
+        {
+            _chapters[i].Add(counts[i], targets[i], tick);
         }
     }
 
@@ -329,7 +350,8 @@ public partial class History : IExposable
 
         if (maxes.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance.LogWarning("History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "History updated with incorrect number of chapters");
         }
 
         for (var i = 0; i < maxes.Length; i++)
