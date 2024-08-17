@@ -252,11 +252,10 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
-    public override bool TryDoJob(ManagerLog jobLog)
+    public override Coroutine TryDoJobCoroutine(
+        ManagerLog jobLog,
+        Boxed<bool> workDone)
     {
-        // keep track of work done
-        var workDone = false;
-
         if (!TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -266,7 +265,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
                 CleanUp(jobLog);
             }
-            return workDone;
+            yield break;
         }
         else
         {
@@ -275,19 +274,22 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // clean up designations that are (now) in the wrong area.
         CleanAreaDesignations(jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // add designations in the game that could have been handled by this job
         AddRelevantGameDesignations(jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // designate plants until trigger is met.
         var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
 
         if (count >= TriggerThreshold.TargetCount)
         {
-            return workDone;
+            yield break;
         }
 
         jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count,
@@ -317,10 +319,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                     count,
                     TriggerThreshold.TargetCount),
                 target);
-            workDone = true;
+            workDone.Value = true;
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
         }
-
-        return workDone;
     }
 
     private void AddDesignation(Designation des, bool addToGame = true)

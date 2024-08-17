@@ -198,7 +198,7 @@ internal sealed class ManagerJob_Mining
         _designations.Add(designation);
     }
 
-    public void AddRelevantGameDesignations(ManagerLog? jobLog = null)
+    public Coroutine AddRelevantGameDesignations(ManagerLog? jobLog = null)
     {
         int addedMineCount = 0;
         int addedDeconstructCount = 0;
@@ -212,6 +212,7 @@ internal sealed class ManagerJob_Mining
             addedMineCount++;
             AddDesignation(des);
         }
+        yield return ResumeImmediately.Singleton;
 
         foreach (var des in Manager.map.designationManager
             .SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
@@ -221,6 +222,7 @@ internal sealed class ManagerJob_Mining
             addedDeconstructCount++;
             AddDesignation(des);
         }
+        yield return ResumeImmediately.Singleton;
 
         foreach (var des in Manager.map.designationManager
             .SpawnedDesignationsOfDef(DesignationDefOf.Haul)
@@ -230,6 +232,7 @@ internal sealed class ManagerJob_Mining
             addedHaulCount++;
             AddDesignation(des);
         }
+
         if (addedMineCount > 0 || addedDeconstructCount > 0 || addedHaulCount > 0)
         {
             jobLog?.AddDetail("ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations"
@@ -427,7 +430,7 @@ internal sealed class ManagerJob_Mining
         if (!cached)
         {
             CleanDeadDesignations(_designations, null, null);
-            AddRelevantGameDesignations();
+            AddRelevantGameDesignations().RunImmediatelyToCompletion();
         }
 
         // deconstruction jobs
@@ -860,11 +863,8 @@ internal sealed class ManagerJob_Mining
         }
     }
 
-    public override bool TryDoJob(ManagerLog jobLog)
+    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
-        // keep track of work done
-        var workDone = false;
-
         if (!TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -874,7 +874,7 @@ internal sealed class ManagerJob_Mining
 
                 CleanUp(jobLog);
             }
-            return workDone;
+            yield break;
         }
         else
         {
@@ -883,9 +883,10 @@ internal sealed class ManagerJob_Mining
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // add designations in the game that could have been handled by this job
-        AddRelevantGameDesignations(jobLog);
+        yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
 
         // designate work until trigger is met.
         var count = TriggerThreshold.GetCurrentCount()
@@ -894,8 +895,10 @@ internal sealed class ManagerJob_Mining
 
         if (count >= TriggerThreshold.TargetCount)
         {
-            return workDone;
+            yield break;
         }
+
+        yield return ResumeImmediately.Singleton;
 
         // Prioritize chunks; it's the lowest hanging "fruit" in terms of effort
         if (HaulMapChunks)
@@ -917,7 +920,12 @@ internal sealed class ManagerJob_Mining
                         TriggerThreshold.TargetCount),
                     chunk.chunk);
 
-                workDone = true;
+                workDone.Value = true;
+
+                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
             }
         }
 
@@ -961,7 +969,12 @@ internal sealed class ManagerJob_Mining
                         TriggerThreshold.TargetCount),
                     building.building);
 
-                workDone = true;
+                workDone.Value = true;
+
+                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
             }
             if (skippedAncientDangerTargets.Count > 0)
             {
@@ -978,7 +991,7 @@ internal sealed class ManagerJob_Mining
             var mineral = minerals[i];
             if (!IsARoofSupport_Advanced(mineral.mineable))
             {
-                workDone = true;
+                workDone.Value = true;
                 AddDesignation(mineral.mineable, DesignationDefOf.Mine);
                 count += mineral.count;
 
@@ -991,10 +1004,13 @@ internal sealed class ManagerJob_Mining
                         count,
                         TriggerThreshold.TargetCount),
                     mineral.mineable);
+
+                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
             }
         }
-
-        return workDone;
     }
 
     private const int MaxRegionDistance = 4;

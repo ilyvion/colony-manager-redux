@@ -14,7 +14,10 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
     private float workDone;
     private float workNeeded;
 
+    private bool hadNoWork;
     private CoroutineHandle? handle;
+    private int? coroutineStartTick;
+    private int? coroutineEndTick;
 
     public override void ExposeData()
     {
@@ -22,6 +25,7 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
 
         Scribe_Values.Look(ref workNeeded, "workNeeded", 100);
         Scribe_Values.Look(ref workDone, "workDone");
+        Scribe_Values.Look(ref hadNoWork, "hadNoWork", false);
     }
 
     public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -32,7 +36,7 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
     protected override IEnumerable<Toil> MakeNewToils()
     {
         this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
-        this.FailOn(() => Manager.For(pawn.Map).JobTracker.NextJob == null);
+        this.FailOn(() => Manager.For(pawn.Map).JobTracker.NextJob == null && handle == null);
         yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
         var manage = Manage(TargetIndex.A);
         if (manage == null)
@@ -64,6 +68,8 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
             return null;
         }
 
+        var intlSkill = pawn.skills.GetSkill(SkillDefOf.Intellectual);
+        var managingSpeed = pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed);
         var toil = new Toil
         {
             defaultCompleteMode = ToilCompleteMode.Never,
@@ -71,39 +77,49 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
             {
                 workDone = 0;
                 workNeeded = comp.Props.speed;
+
+                hadNoWork = false;
+                handle = null;
+                coroutineStartTick = null;
+                coroutineEndTick = null;
             },
             tickAction = () =>
             {
-                if (handle == null)
+                if (!hadNoWork && workDone > workNeeded / 2 && handle == null)
                 {
-                    // learn a bit
-                    pawn.skills.GetSkill(SkillDefOf.Intellectual).Learn(0.11f);
-
-                    // update counter
-                    workDone += pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed);
-
-                    // are we done yet?
-                    if (workDone > workNeeded)
+                    var coroutine = Manager.For(pawn.Map).TryDoWork();
+                    if (coroutine == null)
                     {
-                        var coroutine = Manager.For(pawn.Map).TryDoWork();
-                        if (coroutine == null)
-                        {
-                            ReadyForNextToil();
-                        }
-                        else
-                        {
-                            handle = MultiTickCoroutineManager.StartCoroutine(
-                                coroutine,
-                                debugHandle: "JobDriver_ManagingAtManagingStation.Manage");
-                        }
+                        hadNoWork = true;
+                    }
+                    else
+                    {
+                        coroutineStartTick = Find.TickManager.TicksGame;
+                        handle = MultiTickCoroutineManager.StartCoroutine(
+                            coroutine,
+                            () => coroutineEndTick = Find.TickManager.TicksGame,
+                            debugHandle: "JobDriver_ManagingAtManagingStation.Manage");
                     }
                 }
-                else
+                if (workDone < workNeeded)
                 {
-                    if (handle.IsCompleted)
-                    {
-                        ReadyForNextToil();
-                    }
+                    // learn a bit
+                    intlSkill.Learn(0.11f);
+
+                    // update counter
+                    workDone += managingSpeed;
+                }
+                else if (handle != null && handle.IsCompleted)
+                {
+                    var tickCount = coroutineEndTick!.Value - coroutineStartTick!.Value;
+                    ColonyManagerReduxMod.Instance.LogDebug(
+                        $"TryDoWork took {tickCount} ticks to complete");
+
+                    ReadyForNextToil();
+                }
+                else if (handle == null)
+                {
+                    ReadyForNextToil();
                 }
             }
         };

@@ -175,14 +175,20 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             plant.def.plant.harvestedThingDef.LabelCap);
     }
 
-    public void DoClearAreaDesignations(ManagerLog jobLog, Area area, ref bool workDone)
+    public Coroutine DoClearAreaDesignations(ManagerLog jobLog, Area area, Boxed<bool> workDone)
     {
         var map = Manager.map;
         var designationManager = map.designationManager;
 
         bool designationsAdded = false;
-        foreach (var cell in area.ActiveCells)
+        foreach (var (cell, i) in area.ActiveCells.Select((c, i) => (c, i)))
         {
+            // This is at the start so that it also includes loops that were `continue`d.
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+
             // confirm there is a plant here that it is a tree and that it has no current designation
             var plant = cell.GetPlant(map);
 
@@ -219,7 +225,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                     plant.Label,
                     area.Label),
                 plant);
-            workDone = true;
+            workDone.Value = true;
             designationsAdded = true;
         }
 
@@ -352,11 +358,10 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
-    public override bool TryDoJob(ManagerLog jobLog)
+    public override Coroutine TryDoJobCoroutine(
+        ManagerLog jobLog,
+        Boxed<bool> workDone)
     {
-        // keep track if any actual work was done.
-        var workDone = false;
-
         if (Type == ForestryJobType.Logging && !TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -366,7 +371,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
                 CleanUp(jobLog);
             }
-            return workDone;
+            yield break;
         }
         else
         {
@@ -375,22 +380,31 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
         // clean dead designations
         CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
+        yield return ResumeImmediately.Singleton;
 
+        CoroutineHandle? handle = null;
         switch (Type)
         {
             case ForestryJobType.Logging:
-                DoLoggingJob(jobLog, ref workDone);
+                handle = MultiTickCoroutineManager.StartCoroutine(
+                    DoLoggingJob(jobLog, workDone),
+                    debugHandle: "DoLoggingJob");
                 break;
             case ForestryJobType.ClearArea:
                 if (ClearAreas.Any())
                 {
-                    DoClearAreas(jobLog, ref workDone);
+                    handle = MultiTickCoroutineManager.StartCoroutine(
+                        DoClearAreas(jobLog, workDone),
+                        debugHandle: "DoClearAreas");
                 }
 
                 break;
         }
 
-        return workDone;
+        if (handle != null)
+        {
+            yield return handle.ResumeWhenOtherCoroutineIsCompleted();
+        }
     }
 
     internal void UpdateClearAreas()
@@ -446,36 +460,41 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
-    private void DoClearAreas(ManagerLog jobLog, ref bool workDone)
+    private Coroutine DoClearAreas(ManagerLog jobLog, Boxed<bool> workDone)
     {
         foreach (var area in ClearAreas)
         {
-            DoClearAreaDesignations(jobLog, area, ref workDone);
+            yield return DoClearAreaDesignations(jobLog, area, workDone)
+                .ResumeWhenOtherCoroutineIsCompleted(debugHandle: nameof(DoClearAreaDesignations));
         }
     }
 
-    private void DoLoggingJob(ManagerLog jobLog, ref bool workDone)
+    private Coroutine DoLoggingJob(ManagerLog jobLog, Boxed<bool> workDone)
     {
         // remove designations not in zone.
         if (LoggingArea != null)
         {
             CleanAreaDesignations(jobLog);
+            yield return ResumeImmediately.Singleton;
         }
 
         // add external designations
         AddRelevantGameDesignations(jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // get current lumber count
         var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
+        yield return ResumeImmediately.Singleton;
 
         // designate until we're either out of trees or we have enough designated.
         if (count >= TriggerThreshold.TargetCount)
         {
-            return;
+            yield break;
         }
 
         jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount));
         var trees = GetLoggableTreesSorted();
+        yield return ResumeImmediately.Singleton;
 
         if (trees.Count == 0)
         {
@@ -500,7 +519,11 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                     count,
                     TriggerThreshold.TargetCount),
                 tree);
-            workDone = true;
+            workDone.Value = true;
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
         }
     }
 

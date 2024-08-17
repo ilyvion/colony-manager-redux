@@ -281,12 +281,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     [Obsolete("Implement TryDoJobCoroutine; this is only here for backwards compatibility")]
     public virtual bool TryDoJob(ManagerLog jobLog)
     {
-        // This should never be called as long as the IEnumerable<IShouldRunCondition> has been
+        // This should never be called as long as the Coroutine has been
         // properly implemented in the subclass.
         return false;
     }
 
-    public virtual IEnumerable<IShouldRunCondition> TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
+    public virtual Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         // We're allowing returning null here despite the signature because of backwards
         // compatibility, but anyone overriding this method should not!

@@ -189,11 +189,11 @@ internal sealed class ManagerJob_Power : ManagerJob
         throw new NotImplementedException();
     }
 
-    public override bool TryDoJob(ManagerLog jobLog)
+    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (!AnyPoweredStationOnline)
         {
-            return false;
+            yield break;
         }
 
         if (!ColonyManagerReduxMod.Settings.RecordHistoricalData)
@@ -202,16 +202,16 @@ internal sealed class ManagerJob_Power : ManagerJob
             {
                 JobState = ManagerJobState.Completed;
             }
-            return false;
+            yield break;
         }
         else
         {
             JobState = ManagerJobState.Active;
         }
 
-        RefreshBuildingLists(jobLog);
-        RefreshCompLists(jobLog);
-        return true;
+        yield return RefreshBuildingLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
+        yield return RefreshCompLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
+        workDone.Value = true;
     }
 
     private static IEnumerable<ThingDef> GetTraderDefs()
@@ -228,17 +228,31 @@ internal sealed class ManagerJob_Power : ManagerJob
                select td;
     }
 
-    private void RefreshBuildingLists(ManagerLog jobLog)
+    private Coroutine RefreshBuildingLists(ManagerLog jobLog)
     {
         int buildingsBefore = _traderBuildings.Count;
         int batteriesBefore = _batteryBuildings.Count;
-        _traderBuildings = TraderDefs
-            .SelectMany(Manager.map.listerBuildings.AllBuildingsColonistOfDef)
-            .ToList();
 
-        _batteryBuildings = BatteryDefs
-            .SelectMany(Manager.map.listerBuildings.AllBuildingsColonistOfDef)
-            .ToList();
+        _traderBuildings.Clear();
+        _batteryBuildings.Clear();
+
+        foreach (var (def, i) in TraderDefs.Select((d, i) => (d, i)))
+        {
+            _traderBuildings.AddRange(Manager.map.listerBuildings.AllBuildingsColonistOfDef(def));
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+        }
+
+        foreach (var (def, i) in BatteryDefs.Select((d, i) => (d, i)))
+        {
+            _batteryBuildings.AddRange(Manager.map.listerBuildings.AllBuildingsColonistOfDef(def));
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+        }
 
         int buildingsAfter = _traderBuildings.Count;
         int batteriesAfter = _batteryBuildings.Count;
@@ -250,23 +264,48 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
     }
 
-    private void RefreshCompLists(ManagerLog? jobLog = null)
+    private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
     {
-        // get list of power trader comps per def for consumers and producers.
-        _traders = TraderDefs
-            .Select(def => _traderBuildings
-                .Where(b => b.def == def)
-                .Select(b => b.GetComp<CompPowerTrader>())
-                .ToList())
-            .ToList();
+        foreach (var traders in _traders)
+        {
+            traders.Clear();
+        }
+        foreach (var batteries in _batteries)
+        {
+            batteries.Clear();
+        }
 
-        // get list of lists of powertrader comps per thingdef.
-        _batteries = BatteryDefs
-            .Select(def => _batteryBuildings
+        // get list of power trader comps per def for consumers and producers.
+        var compCounter = -1;
+        foreach (var (traders, i) in TraderDefs
+            .Select((def, i) => (_traderBuildings
                 .Where(b => b.def == def)
-                .Select(t => t.GetComp<CompPowerBattery>())
-                .ToList())
-            .ToList();
+                .Select(b => b.GetComp<CompPowerTrader>()), i)))
+        {
+            foreach (var comp in traders)
+            {
+                _traders[i].Add(comp);
+                if (++compCounter > 0 && compCounter % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
+            }
+        }
+
+        foreach (var (batteries, i) in BatteryDefs
+            .Select((def, i) => (_batteryBuildings
+                .Where(b => b.def == def)
+                .Select(b => b.GetComp<CompPowerBattery>()), i)))
+        {
+            foreach (var comp in batteries)
+            {
+                _batteries[i].Add(comp);
+                if (++compCounter > 0 && compCounter % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
+            }
+        }
 
         if (jobLog != null)
         {
@@ -310,7 +349,7 @@ internal sealed class ManagerJob_Power : ManagerJob
             tradingHistory.UpdateThingDefs(TraderDefs);
             _traderBuildings.RemoveWhere(b => b == null);
             _batteryBuildings.RemoveWhere(b => b == null);
-            RefreshCompLists();
+            RefreshCompLists().RunImmediatelyToCompletion();
         }
     }
 }

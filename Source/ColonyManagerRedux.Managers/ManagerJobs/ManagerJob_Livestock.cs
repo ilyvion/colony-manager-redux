@@ -329,7 +329,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             .ToList();
     }
 
-    public void DoFollowSettings(ManagerLog jobLog, ref bool workDone)
+    public void DoFollowSettings(ManagerLog jobLog, Boxed<bool> workDone)
     {
         foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager).ToList())
         {
@@ -339,8 +339,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (Trainers != MasterMode.Manual)
                     {
-                        SetMaster(jobLog, animal, Trainers, Trainer, ref workDone);
-                        SetFollowing(jobLog, animal, false, true, ref workDone);
+                        SetMaster(jobLog, animal, Trainers, Trainer, workDone);
+                        SetFollowing(jobLog, animal, false, true, workDone);
                     }
                 }
                 // default 
@@ -348,12 +348,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (Masters != MasterMode.Manual)
                     {
-                        SetMaster(jobLog, animal, Masters, Master, ref workDone);
+                        SetMaster(jobLog, animal, Masters, Master, workDone);
                     }
 
                     if (SetFollow)
                     {
-                        SetFollowing(jobLog, animal, FollowDrafted, FollowFieldwork, ref workDone);
+                        SetFollowing(jobLog, animal, FollowDrafted, FollowFieldwork, workDone);
                     }
                 }
             }
@@ -450,7 +450,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         return options.MinBy(p => p.GetFollowers().Count);
     }
 
-    public static void SetFollowing(ManagerLog jobLog, Pawn animal, bool drafted, bool fieldwork, ref bool workDone)
+    public static void SetFollowing(ManagerLog jobLog, Pawn animal, bool drafted, bool fieldwork, Boxed<bool> workDone)
     {
         if (animal?.playerSettings == null)
         {
@@ -469,7 +469,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     drafted ? "" : "ColonyManagerRedux.Livestock.Logs.Not".Translate(),
                     "ColonyManagerRedux.Livestock.Logs.Drafted".Translate()),
                 animal);
-            workDone = true;
+            workDone.Value = true;
         }
 
         if (animal.playerSettings.followFieldwork != fieldwork)
@@ -481,27 +481,27 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     fieldwork ? "" : "ColonyManagerRedux.Livestock.Logs.Not".Translate(),
                     "ColonyManagerRedux.Livestock.Logs.FieldWork".Translate()),
                 animal);
-            workDone = true;
+            workDone.Value = true;
         }
     }
 
-    public void SetMaster(ManagerLog jobLog, Pawn animal, MasterMode mode, Pawn? specificMaster, ref bool workDone)
+    public void SetMaster(ManagerLog jobLog, Pawn animal, MasterMode mode, Pawn? specificMaster, Boxed<bool> workDone)
     {
         switch (mode)
         {
             case MasterMode.Manual:
                 break;
             case MasterMode.Specific:
-                SetMaster(jobLog, animal, specificMaster, ref workDone);
+                SetMaster(jobLog, animal, specificMaster, workDone);
                 break;
             default:
                 var master = GetMaster(animal, mode);
-                SetMaster(jobLog, animal, master, ref workDone);
+                SetMaster(jobLog, animal, master, workDone);
                 break;
         }
     }
 
-    public static void SetMaster(ManagerLog jobLog, Pawn animal, Pawn? master, ref bool workDone)
+    public static void SetMaster(ManagerLog jobLog, Pawn animal, Pawn? master, Boxed<bool> workDone)
     {
         if (animal.playerSettings.Master != master)
         {
@@ -511,15 +511,15 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     master?.Label ?? "ColonyManagerRedux.Livestock.Logs.Nobody".Translate(),
                     animal.Label),
                 animal, master);
-            workDone = true;
+            workDone.Value = true;
         }
     }
 
-    public override bool TryDoJob(ManagerLog jobLog)
+    public override Coroutine TryDoJobCoroutine(
+        ManagerLog jobLog,
+        Boxed<bool> workDone)
     {
         jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
-
-        var workDone = false;
 
         if (!(TamePastTargets && TriggerPawnKind.pawnKind.GetWild(Manager).Any()) && TriggerPawnKind.State)
         {
@@ -530,7 +530,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
                 CleanUp(jobLog);
             }
-            return workDone;
+            yield break;
         }
         else
         {
@@ -539,29 +539,40 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // add designations in the game that could have been handled by this job
-        AddRelevantGameDesignations(jobLog);
+        yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
 
         // handle butchery
-        DoButcherJobs(jobLog, ref workDone);
+        if (ButcherExcess)
+        {
+            yield return DoButcherJobs(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+        }
 
         // handle training
-        DoTrainingJobs(jobLog: jobLog, workDone: ref workDone);
+        yield return DoTrainingJobs(jobLog: jobLog, workDone: workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
 
         // area restrictions
-        DoAreaRestrictions(jobLog, ref workDone);
+        // skip for roamers
+        if (!TriggerPawnKind.pawnKind.RaceProps.Roamer)
+        {
+            yield return DoAreaRestrictions(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+        }
 
         // follow settings
-        DoFollowSettings(jobLog, ref workDone);
+        DoFollowSettings(jobLog, workDone);
+        yield return ResumeImmediately.Singleton;
 
         // handle taming
-        DoTamingJobs(jobLog, ref workDone);
-
-        return workDone;
+        if (TryTameMore)
+        {
+            yield return DoTamingJobs(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+        }
     }
 
-    public void AddRelevantGameDesignations(ManagerLog jobLog)
+    public Coroutine AddRelevantGameDesignations(ManagerLog jobLog)
     {
         // get list of game designations not managed by this job that could have been assigned by this job.
         int addedCount = 0;
@@ -575,6 +586,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             AddDesignation(des, false);
             newTargets.Add(des.target);
         }
+        yield return ResumeImmediately.Singleton;
         foreach (
             var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
                 .Except(_designations)
@@ -591,7 +603,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
-    internal void DoTrainingJobs(ref bool workDone, ManagerLog? jobLog = null, bool assign = true)
+    internal Coroutine DoTrainingJobs(Boxed<bool> workDone, ManagerLog? jobLog = null, bool assign = true)
     {
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
@@ -626,36 +638,38 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                                 animal);
                         }
 
-                        workDone = true;
+                        workDone.Value = true;
                     }
                 }
+                yield return ResumeImmediately.Singleton;
             }
         }
     }
 
-    private void DoAreaRestrictions(ManagerLog jobLog, ref bool workDone)
+    private Coroutine DoAreaRestrictions(ManagerLog jobLog, Boxed<bool> workDone)
     {
-        // skip for roamers
-        if (TriggerPawnKind.pawnKind.RaceProps.Roamer)
-        {
-            return;
-        }
-
+        int animalCounter = -1;
         for (var i = 0; i < Utilities_Livestock.AgeSexArray.Length; i++)
         {
-            foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager, Utilities_Livestock.AgeSexArray[i]))
+            foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager,
+                Utilities_Livestock.AgeSexArray[i]))
             {
                 var currentArea = animal.playerSettings.AreaRestrictionInPawnCurrentMap;
-                void SetArea(Area? area) => animal.playerSettings.AreaRestrictionInPawnCurrentMap = area;
+                void SetArea(Area? area) =>
+                    animal.playerSettings.AreaRestrictionInPawnCurrentMap = area;
 
                 // slaughter
                 if (SendToSlaughterArea &&
-                     Manager.map.designationManager.DesignationOn(animal, DesignationDefOf.Slaughter) != null)
+                     Manager.map.designationManager.DesignationOn(animal,
+                        DesignationDefOf.Slaughter) != null)
                 {
-                    workDone |= currentArea != SlaughterArea;
+                    workDone.Value |= currentArea != SlaughterArea;
                     SetArea(SlaughterArea);
-                    jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                        animal, AreaUtility.AreaAllowedLabel_Area(SlaughterArea), ManagerWorkGiverDefOf.Slaughter.gerund
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
+                        animal,
+                        AreaUtility.AreaAllowedLabel_Area(SlaughterArea),
+                        ManagerWorkGiverDefOf.Slaughter.gerund
                     ), animal);
                 }
 
@@ -666,10 +680,13 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (currentArea != MilkArea)
                     {
-                        workDone = true;
+                        workDone.Value = true;
                         SetArea(MilkArea);
-                        jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                            animal, AreaUtility.AreaAllowedLabel_Area(MilkArea), ManagerWorkGiverDefOf.Milk.gerund
+                        jobLog.AddDetail(
+                            "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
+                                animal,
+                                AreaUtility.AreaAllowedLabel_Area(MilkArea),
+                                ManagerWorkGiverDefOf.Milk.gerund
                         ), animal);
                     }
                 }
@@ -681,7 +698,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (currentArea != ShearArea)
                     {
-                        workDone = true;
+                        workDone.Value = true;
                         SetArea(ShearArea);
                         jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
                             animal, AreaUtility.AreaAllowedLabel_Area(ShearArea), ManagerWorkGiverDefOf.Shear.gerund
@@ -694,7 +711,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (currentArea != TrainingArea)
                     {
-                        workDone = true;
+                        workDone.Value = true;
                         SetArea(TrainingArea);
                         jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
                             animal, AreaUtility.AreaAllowedLabel_Area(TrainingArea), ManagerWorkGiverDefOf.Train.gerund
@@ -705,23 +722,23 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 // all
                 else if (RestrictToArea && currentArea != RestrictArea[i])
                 {
-                    workDone = true;
+                    workDone.Value = true;
                     SetArea(RestrictArea[i]);
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AssigningToArea".Translate(
                         animal, AreaUtility.AreaAllowedLabel_Area(RestrictArea[i])
                     ), animal);
                 }
+
+                if (++animalCounter > 0 && animalCounter % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
             }
         }
     }
 
-    private void DoButcherJobs(ManagerLog jobLog, ref bool workDone)
+    private Coroutine DoButcherJobs(ManagerLog jobLog, Boxed<bool> workDone)
     {
-        if (!ButcherExcess)
-        {
-            return;
-        }
-
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
@@ -773,18 +790,21 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                             animalCount,
                             target),
                         animal);
-                    workDone = true;
+                    workDone.Value = true;
                 }
+                yield return ResumeImmediately.Singleton;
             }
 
             // remove extra designations
+            bool didRemove = false;
             while (targetDifference < 0)
             {
                 if (TryRemoveDesignation(ageSex, DesignationDefOf.Slaughter, out var animal))
                 {
-                    workDone = true;
+                    workDone.Value = true;
                     targetDifference++;
                     animalCount++;
+                    didRemove = true;
 
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.RemoveDesignation"
                         .Translate(
@@ -800,16 +820,16 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     break;
                 }
             }
+            if (didRemove)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
         }
     }
 
-    private void DoTamingJobs(ManagerLog jobLog, ref bool workDone)
+    private Coroutine DoTamingJobs(ManagerLog jobLog, Boxed<bool> workDone)
     {
-        if (!TryTameMore)
-        {
-            return;
-        }
-
+        int animalCounter = -1;
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // not enough animals?
@@ -867,7 +887,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                             animalCount,
                             target),
                         animal);
-                    workDone = true;
+                    workDone.Value = true;
+
+                    if (++animalCounter > 0 && animalCounter % Constants.CoroutineBreakAfter == 0)
+                    {
+                        yield return ResumeImmediately.Singleton;
+                    }
                 }
             }
 
@@ -876,7 +901,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 if (TryRemoveDesignation(ageSex, DesignationDefOf.Tame, out var animal))
                 {
-                    workDone = true;
+                    workDone.Value = true;
                     targetDifference++;
                     animalCount--;
 
@@ -892,6 +917,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 else
                 {
                     break;
+                }
+
+                if (++animalCounter > 0 && animalCounter % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
                 }
             }
         }

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+-   Major performance optimization/overhaul: Manager jobs now spread their work across multiple ticks rather than trying to do everything in a single tick. This should massively improve any hiccups/TPS issues that were caused by these jobs trying to do too much at a time.
 -   The hunting job can now focus on leather as the target resource instad of meat.
 
 ### Changed

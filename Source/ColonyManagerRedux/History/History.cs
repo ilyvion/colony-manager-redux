@@ -384,10 +384,10 @@ public partial class History : IExposable
         }
     }
 
-    public void UpdateThingDefs(List<ThingDef> traderDefs, Color[]? colors = null)
+    public void UpdateThingDefs(in List<ThingDef> newTraderDefs, Color[]? colors = null)
     {
         // So we don't modify a list passed to us
-        traderDefs = new(traderDefs);
+        List<ThingDef> traderDefs = new(newTraderDefs);
 
         // get range of colors if not set
         if (colors == null)

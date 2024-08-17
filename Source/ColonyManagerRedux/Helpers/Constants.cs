@@ -15,4 +15,5 @@ public static class Constants
     public static readonly Vector2 ButtonSize = new(200f, 40f);
     public const int DefaultMaxUpperThreshold = 3000;
     public const int MaxStackallocSize = 256;
+    public const int CoroutineBreakAfter = 10;
 }

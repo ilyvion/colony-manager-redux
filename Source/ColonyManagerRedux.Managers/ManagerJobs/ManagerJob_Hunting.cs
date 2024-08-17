@@ -455,11 +455,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    public override bool TryDoJob(ManagerLog jobLog)
+    public override Coroutine TryDoJobCoroutine(
+        ManagerLog jobLog,
+        Boxed<bool> workDone)
     {
-        // did we do any work?
-        var workDone = false;
-
         if (!TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -469,7 +468,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
                 CleanUp(jobLog);
             }
-            return workDone;
+            yield break;
         }
         else
         {
@@ -478,52 +477,56 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         // clean dead designations
         CleanDeadDesignations(_designations, DesignationDefOf.Hunt, jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // clean designations not in area
         CleanAreaDesignations(jobLog);
+        yield return ResumeImmediately.Singleton;
 
         // add designations that could have been handed out by us
         AddRelevantGameDesignations(jobLog);
+        yield return ResumeImmediately.Singleton;
 
-        // get the total count of meat in storage, expected meat in corpses and expected meat in designations.
-        var totalCount = TriggerThreshold.GetCurrentCount() + GetYieldInCorpses() + GetYieldInDesignations();
+        // get the total count of meat in storage, expected meat in corpses and
+        // expected meat in designations.
+        Boxed<int> totalCount = new(
+            TriggerThreshold.GetCurrentCount() + GetYieldInCorpses() + GetYieldInDesignations());
         if (totalCount >= TriggerThreshold.TargetCount)
         {
             jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
                 "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
                 Def.label
             ));
-            return false;
+            yield break;
         }
 
-        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(totalCount, TriggerThreshold.TargetCount));
+        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(
+            totalCount.Value, TriggerThreshold.TargetCount));
 
         // unforbid if allowed
         if (UnforbidCorpses)
         {
-            DoUnforbidCorpses(jobLog, ref workDone, ref totalCount);
+            var handle = MultiTickCoroutineManager.StartCoroutine(
+                DoUnforbidCorpses(jobLog, workDone, totalCount));
+            yield return handle.ResumeWhenOtherCoroutineIsCompleted();
 
             if (workDone && totalCount >= TriggerThreshold.TargetCount)
             {
-                return workDone;
+                yield break;
             }
         }
 
-        // get a list of huntable animals sorted by distance (ignoring obstacles) and expected meat count.
-        // note; attempt to balance cost and benefit, current formula: value = meat / ( distance ^ 2)
+        // get a list of huntable animals sorted by distance (ignoring obstacles) and
+        // expected meat count. NOTE: attempted to balance cost and benefit, current formula:
+        // value = meat / ( distance ^ 2)
         var huntableAnimals = GetHuntableAnimalsSorted();
 
-        if (huntableAnimals.Count == 0)
-        {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
-                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                Def.label
-            ));
-        }
-
         // while totalCount < count AND we have animals that can be designated, designate animal.
-        foreach (var huntableAnimal in huntableAnimals)
+        bool validTargets = false;
+        foreach (var (huntableAnimal, i) in huntableAnimals.Select((h, i) => (h, i)))
         {
+            validTargets = true;
+
             if (totalCount >= TriggerThreshold.TargetCount)
             {
                 break;
@@ -531,20 +534,31 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
             AddDesignation(new(huntableAnimal, DesignationDefOf.Hunt));
             int yield = huntableAnimal.EstimatedYield(TargetResource);
-            totalCount += yield;
+            totalCount.Value += yield;
             jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                 .Translate(
                     DesignationDefOf.Hunt.ActionText(),
                     "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
                     huntableAnimal.Label,
                     yield,
-                    totalCount,
+                    totalCount.Value,
                     TriggerThreshold.TargetCount),
                 huntableAnimal);
-            workDone = true;
+            workDone.Value = true;
+
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
         }
 
-        return workDone;
+        if (!validTargets)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                Def.label
+            ));
+        }
     }
 
     private void AddDesignation(Designation des, bool addToGame = true)
@@ -611,13 +625,16 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     // copypasta from autohuntbeacon by Carry
     // https://ludeon.com/forums/index.php?topic=8930.0
-    private void DoUnforbidCorpses(ManagerLog jobLog, ref bool workDone, ref int totalCount)
+    private Coroutine DoUnforbidCorpses(
+        ManagerLog jobLog,
+        Boxed<bool> workDone,
+        Boxed<int> totalCount)
     {
-        foreach (var corpse in Corpses)
+        foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
             if (totalCount >= TriggerThreshold.TargetCount)
             {
-                break;
+                yield break;
             }
 
             // don't unforbid corpses in storage - we're going to assume they were manually set.
@@ -628,28 +645,36 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 if (comp != null && comp.Stage == RotStage.Fresh)
                 {
                     // unforbid
-                    workDone = true;
                     corpse.SetForbidden(false, false);
+                    workDone.Value = true;
 
                     int yield = corpse.EstimatedYield(TargetResource);
-                    totalCount += yield;
+                    totalCount.Value += yield;
                     jobLog.AddDetail("ColonyManagerRedux.Hunting.Logs.UnforbidCorpse"
-                        .Translate(corpse.Label, yield, totalCount, TriggerThreshold.TargetCount),
+                        .Translate(
+                            corpse.Label,
+                            yield,
+                            totalCount.Value,
+                            TriggerThreshold.TargetCount),
                         corpse);
                 }
+            }
+
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
             }
         }
     }
 
-    private List<Pawn> GetHuntableAnimalsSorted()
+    private IEnumerable<Pawn> GetHuntableAnimalsSorted()
     {
         // get the 'home' position
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.mapPawns.AllPawns
             .Where(p => IsValidHuntingTarget(p, false))
-            .OrderByDescending(p =>
-                p.EstimatedYield(TargetResource) / Distance(p, position)).ToList();
+            .OrderByDescending(p => p.EstimatedYield(TargetResource) / Distance(p, position));
     }
 
     private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)

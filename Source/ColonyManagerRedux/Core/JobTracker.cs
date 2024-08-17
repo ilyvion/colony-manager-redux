@@ -9,6 +9,7 @@ using LudeonTK;
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public class JobTracker(Manager manager) : IExposable
 {
     private readonly Manager _manager = manager;
@@ -109,10 +110,13 @@ public class JobTracker(Manager manager) : IExposable
 
     public bool HasJob(ManagerJob job) => jobs.Contains(job);
 
+    private bool _isRunningJobs;
+    public bool IsRunningJobs => _isRunningJobs;
+
     /// <summary>
     ///     Call the worker for the next available job
     /// </summary>
-    internal IEnumerable<IShouldRunCondition>? TryDoNextJob()
+    internal Coroutine? TryDoNextJob()
     {
         var job = NextJob;
         if (job == null)
@@ -122,10 +126,10 @@ public class JobTracker(Manager manager) : IExposable
 
         return TryDoNextJobInner();
 
-        IEnumerable<IShouldRunCondition> TryDoNextJobInner()
+        Coroutine TryDoNextJobInner()
         {
-            // update lastAction
-            job.Touch();
+            bool responsibleForFlag = !_isRunningJobs;
+            _isRunningJobs = true;
 
             // perform next job if no action was taken
             string jobLogLabel = null!;
@@ -143,10 +147,12 @@ public class JobTracker(Manager manager) : IExposable
             }
             if (job.CausedException != null)
             {
-                yield return new WhenCoroutineIsCompleted(
-                    MultiTickCoroutineManager.StartCoroutine(
-                        TryDoNextJob() ?? [],
-                        debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})"));
+                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})");
+                if (responsibleForFlag)
+                {
+                    _isRunningJobs = false;
+                }
                 yield break;
             }
 
@@ -157,7 +163,7 @@ public class JobTracker(Manager manager) : IExposable
             Boxed<bool> workDone = new(false);
 
             var wasCompleted = job.JobState == ManagerJobState.Completed;
-            IEnumerable<IShouldRunCondition> coroutine = null!;
+            Coroutine coroutine = null!;
             try
             {
                 coroutine = job.TryDoJobCoroutine(log, workDone)
@@ -173,16 +179,18 @@ public class JobTracker(Manager manager) : IExposable
             }
             if (job.CausedException != null)
             {
-                yield return new WhenCoroutineIsCompleted(
-                    MultiTickCoroutineManager.StartCoroutine(
-                        TryDoNextJob() ?? [],
-                        debugHandle: $"TryDoNextJobAfterException2({job.GetUniqueLoadID()})"));
+                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryDoNextJobAfterException2({job.GetUniqueLoadID()})");
+                if (responsibleForFlag)
+                {
+                    _isRunningJobs = false;
+                }
                 yield break;
             }
 
             CoroutineHandle handle = MultiTickCoroutineManager.StartCoroutine(coroutine,
                 debugHandle: $"TryDoNextJob({job.GetUniqueLoadID()})");
-            yield return new WhenCoroutineIsCompleted(handle);
+            yield return handle.ResumeWhenOtherCoroutineIsCompleted();
 
             if (handle.Exception is Exception err2)
             {
@@ -192,10 +200,12 @@ public class JobTracker(Manager manager) : IExposable
                 job.IsSuspended = true;
                 job.CausedException = err2;
 
-                yield return new WhenCoroutineIsCompleted(
-                    MultiTickCoroutineManager.StartCoroutine(
-                        TryDoNextJob() ?? [],
-                        debugHandle: $"TryDoNextJobAfterException3({job.GetUniqueLoadID()})"));
+                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryDoNextJobAfterException3({job.GetUniqueLoadID()})");
+                if (responsibleForFlag)
+                {
+                    _isRunningJobs = false;
+                }
                 yield break;
             }
 
@@ -211,16 +221,22 @@ public class JobTracker(Manager manager) : IExposable
                 }
             }
 
+            // mark job as dealt with
+            job.Touch();
+
             if (!workDone)
             {
-                yield return new WhenCoroutineIsCompleted(
-                    MultiTickCoroutineManager.StartCoroutine(
-                        TryDoNextJob() ?? [],
-                        debugHandle: $"TryDoNextJobAfterNoWorkDone({job.GetUniqueLoadID()})"));
+                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryDoNextJobAfterNoWorkDone({job.GetUniqueLoadID()})");
+            }
+
+            if (responsibleForFlag)
+            {
+                _isRunningJobs = false;
             }
         }
 
-        static IEnumerable<IShouldRunCondition> TryDoJobTheOldWay(ManagerJob job, ManagerLog log, Boxed<bool> workDone)
+        static Coroutine TryDoJobTheOldWay(ManagerJob job, ManagerLog log, Boxed<bool> workDone)
         {
 #pragma warning disable CS0618 // This is the one place we are allowed to call it
             workDone.Value = job.TryDoJob(log);

@@ -160,9 +160,9 @@ internal sealed class Trigger_PawnKind : Trigger
     private bool AllTrainingWantedSet()
     {
         // do a dry run of the training assignment (no assignments are set).
-        // this is rediculously expensive, and should never be called on tick.
-        var actionTaken = false;
-        Job.DoTrainingJobs(ref actionTaken, assign: false);
+        // this is ridiculously expensive, and should never be called every tick.
+        Boxed<bool> actionTaken = new(false);
+        Job.DoTrainingJobs(actionTaken, assign: false).RunImmediatelyToCompletion();
         return !actionTaken;
     }
 }
