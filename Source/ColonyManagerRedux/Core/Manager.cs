@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Extensions;
+
 namespace ColonyManagerRedux;
 
 [HotSwappable]
@@ -20,7 +22,14 @@ public class Manager : MapComponent, ILoadReferenceable
 
     private bool _hasCheckedAncientDangerRect;
     private CellRect? _ancientDangerRect;
+
+    [Obsolete(
+        "The logic behind this property was entirely wrong; switch to the AncientDangerRects " +
+        "property instead", true)]
     public CellRect? AncientDangerRect => _ancientDangerRect;
+
+    private List<CellRect> _ancientDangerRects = [];
+    public List<CellRect> AncientDangerRects => _ancientDangerRects;
 
     private readonly List<ManagerComp> _comps;
 
@@ -133,12 +142,14 @@ public class Manager : MapComponent, ILoadReferenceable
         Scribe_Values.Look(ref _nextManagerJobID, "nextManagerJobID", 0);
 
         Scribe_Values.Look(ref _hasCheckedAncientDangerRect, "hasCheckedAncientDangerRect", false);
-        Scribe_Values.Look(ref _ancientDangerRect, "ancientDangerRect", null);
+        Scribe_Collections.Look(ref _ancientDangerRects, "ancientDangerRects", LookMode.Value);
 
         var exposableTabs = _tabs.OfType<IExposable>().ToList();
         Scribe_Collections.Look(ref exposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
+            Scribe_Values.Look(ref _ancientDangerRect, "ancientDangerRect", null);
+
             foreach (var exposableTab in exposableTabs.Where(t => t != null))
             {
                 var oldTab = _tabs.Select((t, i) => (t, i))
@@ -162,17 +173,34 @@ public class Manager : MapComponent, ILoadReferenceable
         }
     }
 
+    public override void FinalizeInit()
+    {
+        if (_ancientDangerRects == null)
+        {
+            _ancientDangerRects = [];
+            CheckAncientDangerRects();
+
+            // This might add a duplicated entry, but that's not a big deal; the logic will work
+            // just fine nonetheless.
+            if (_ancientDangerRect.HasValue)
+            {
+                ColonyManagerReduxMod.Instance.LogDebug("Transferred _ancientDangerRect value");
+                _ancientDangerRects.Add(_ancientDangerRect.Value);
+                _ancientDangerRect = null;
+            }
+            else
+            {
+                ColonyManagerReduxMod.Instance.LogDebug("Had no _ancientDangerRect value");
+            }
+        }
+    }
+
     public override void MapComponentTick()
     {
         base.MapComponentTick();
-
         if (!_hasCheckedAncientDangerRect)
         {
-            _ancientDangerRect = map.listerThings.GetThingsOfType<RectTrigger>()
-                .Where(t => t.signalTag.StartsWith("ancientTempleApproached"))
-                .SingleOrDefault()?.Rect;
-
-            _hasCheckedAncientDangerRect = true;
+            CheckAncientDangerRects();
         }
 
         // tick jobs
@@ -222,6 +250,19 @@ public class Manager : MapComponent, ILoadReferenceable
                         $"ManagerComp caused exception during {nameof(ManagerComp.CompTick)}", err);
             }
         }
+    }
+
+    private void CheckAncientDangerRects()
+    {
+        _ancientDangerRects.AddRange(map.listerThings.GetThingsOfType<RectTrigger>()
+            .Where(t => t.signalTag.StartsWith("ancientTempleApproached"))
+            .Select(t => t.Rect));
+
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"_ancientDangerRects.Count = {_ancientDangerRects.Count} after " +
+            "CheckAncientDangerRects");
+
+        _hasCheckedAncientDangerRect = true;
     }
 
     public override void MapComponentUpdate()

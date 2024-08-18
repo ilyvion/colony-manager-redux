@@ -192,7 +192,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
         if (SelectedMiningJob.DeconstructBuildings)
         {
-            var hasAncientDangerRect = Manager.AncientDangerRect.HasValue;
+            var hasAncientDangerRect = Manager.AncientDangerRects.Count > 0;
             var label = "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate();
             var labelHeight = Text.CalcHeight(label, width);
             rowRect.y += ListEntryHeight;

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Added iconPath to MainButtonDef for better compatibility with Vanilla Texture Expanded's usage of icons on main buttons.
 
+### Fixed
+
+-   Assumed that a map could only have zero or one ancient dangers; that was an incorrect assumption and caused exceptions. Now supports any number of ancient dangers.
+
 ## [0.1.3] - 2024-08-16
 
 ### Changed

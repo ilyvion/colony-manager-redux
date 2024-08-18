@@ -912,7 +912,7 @@ internal sealed class ManagerJob_Mining
         if (DeconstructBuildings)
         {
             var buildings = GetDeconstructibleBuildingsSorted();
-            var ancientDangerRect = Manager.AncientDangerRect;
+            var ancientDangerRects = Manager.AncientDangerRects;
             List<LocalTargetInfo> skippedAncientDangerTargets = [];
             for (var i = 0; i < buildings.Count && count < TriggerThreshold.TargetCount; i++)
             {
@@ -920,13 +920,20 @@ internal sealed class ManagerJob_Mining
 
                 if (!DeconstructAncientDangerWhenFogged)
                 {
-                    if (ancientDangerRect is CellRect rect
-                        && rect.CenterCell.Fogged(Manager)
-                        && rect.Contains(building.building.Position)
-                    )
+                    for (int j = ancientDangerRects.Count - 1; j >= 0; j--)
                     {
-                        skippedAncientDangerTargets.Add(building.building);
-                        continue;
+                        CellRect ancientDangerRect = ancientDangerRects[j];
+                        if (!ancientDangerRect.CenterCell.Fogged(Manager))
+                        {
+                            ancientDangerRects.RemoveAt(j);
+                            continue;
+                        }
+
+                        if (ancientDangerRect.Contains(building.building.Position))
+                        {
+                            skippedAncientDangerTargets.Add(building.building);
+                            break;
+                        }
                     }
                 }
                 AddDesignation(building.building, DesignationDefOf.Deconstruct);
