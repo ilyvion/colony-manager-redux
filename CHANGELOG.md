@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2024-08-18
+
 ### Changed
 
 -   Make use of the culling feature of GUIScope.ScrollView so we don't spend resources on rendering something that isn't even on screen. This improves performance a lot when there are a large number of logs in the log list.
@@ -112,7 +114,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.1...v0.1.2
