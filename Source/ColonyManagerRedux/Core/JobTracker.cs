@@ -177,13 +177,12 @@ public class JobTracker(Manager manager) : IExposable
 
     private void Reprioritize<T>(T job, int newPriority) where T : ManagerJob
     {
-        const int MaxStackSize = 256;
 
         // get list of priorities for this type.
         // Use ArrayPool<T> and stackalloc to reduce GC pressure
         var jobsOfTypeCount = jobs.OfType<T>().Count();
         using var jobsOfType = ArrayPool<ManagerJob>.Shared.RentWithSelfReturn(jobsOfTypeCount);
-        Span<int> priorities = jobsOfTypeCount < MaxStackSize
+        Span<int> priorities = jobsOfTypeCount < Constants.MaxStackallocSize
             ? stackalloc int[jobsOfTypeCount]
             : new int[jobsOfTypeCount];
         foreach (var (j, i) in jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
