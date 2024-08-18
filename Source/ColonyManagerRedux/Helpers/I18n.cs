@@ -4,6 +4,7 @@
 
 namespace ColonyManagerRedux;
 
+[HotSwappable]
 public static class I18n
 {
     public static string Aggressiveness(float aggression)
@@ -21,7 +22,7 @@ public static class I18n
 
     public static string YieldMany(IEnumerable<string> labels)
     {
-        return $"{"ColonyManagerRedux.Info.Yield".Translate()}\n - {labels.ToLineList(" - ")}";
+        return $"{"ColonyManagerRedux.Info.Yield".Translate()}\n{labels.ToLineList(" - ")}";
     }
 
     public static string YieldOne(float yield, ThingDef def)

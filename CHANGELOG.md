@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   When looking at the yields of things that had multiple resources, there'd be an extra dash at the beginning of the list. This is now gone.
+
 ## [0.1.5] - 2024-08-18
 
 ### Changed
