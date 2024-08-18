@@ -27,6 +27,8 @@ public class CompManagerJobHistory : ManagerJobComp
         };
     }
 
+    private int? _currentUpdateTick;
+    private bool _reportedSkippedUpdateTick;
     public override void CompTick()
     {
         if (!ColonyManagerReduxMod.Settings.RecordHistoricalData ||
@@ -36,10 +38,25 @@ public class CompManagerJobHistory : ManagerJobComp
         }
 
         int ticksGame = Find.TickManager.TicksGame;
+
+        if (!_reportedSkippedUpdateTick && _queuedToRecord > 0 && _currentUpdateTick != ticksGame)
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "It was time for a history update, but the previous update hasn't finished yet. " +
+                "This means that your history updates are taking longer than " +
+                History.PeriodTickInterval(Period.Day) + " ticks, which either means you have a " +
+                "very large number of jobs, jobs that have very slow history updates or that " +
+                "there is a bug. To avoid potentially adding to an ever increasing queue of " +
+                " history update tasks, we're going to skip this update cycle.");
+            _reportedSkippedUpdateTick = true;
+        }
+
+        _currentUpdateTick = ticksGame;
         DoHistoryUpdate(ticksGame);
     }
 
-    public static bool IsRecordingHistory { get; private set; }
+    private static bool _isRecordingHistory;
+    private static int _queuedToRecord;
     private void DoHistoryUpdate(int tick)
     {
         HistoryWorker worker = Props.Worker;
@@ -50,13 +67,17 @@ public class CompManagerJobHistory : ManagerJobComp
 
         Coroutine DoHistoryUpdateCoroutine()
         {
-            if (IsRecordingHistory)
+            if (_isRecordingHistory)
             {
                 // we only want to run one history update coroutine at any one time, even if many
                 // get scheduled to run at once
-                yield return new ResumeWhenTrue(() => IsRecordingHistory == false);
+                _queuedToRecord++;
+                ColonyManagerReduxMod.Instance.LogDebug($"Queueing @ {_queuedToRecord}");
+                yield return new ResumeWhenTrue(() => _isRecordingHistory == false);
+                _queuedToRecord--;
+                ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
             }
-            IsRecordingHistory = true;
+            _isRecordingHistory = true;
 
             int coroutineStartTick = Find.TickManager.TicksGame;
 
@@ -94,10 +115,16 @@ public class CompManagerJobHistory : ManagerJobComp
 
             int coroutineEndTick = Find.TickManager.TicksGame;
             var tickCount = coroutineEndTick - coroutineStartTick;
-            ColonyManagerReduxMod.Instance.LogDevMessage(
+            ColonyManagerReduxMod.Instance.LogDebug(
                 $"DoHistoryUpdateCoroutine took {tickCount} ticks to complete");
 
-            IsRecordingHistory = false;
+            _isRecordingHistory = false;
+            if (_queuedToRecord == 0)
+            {
+                _reportedSkippedUpdateTick = false;
+                _currentUpdateTick = null;
+                ColonyManagerReduxMod.Instance.LogDebug($"Reset rSU and cUT");
+            }
         }
     }
 

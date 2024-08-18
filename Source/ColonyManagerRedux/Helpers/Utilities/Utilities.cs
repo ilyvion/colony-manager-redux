@@ -41,9 +41,23 @@ public static class Utilities
         }
     }
 
+
     public static int CountProducts(
         this Map map,
         ThingFilter filter,
+        Zone_Stockpile? stockpile = null,
+        bool countAllOnMap = false)
+    {
+        Boxed<int> count = new();
+        CountProductsCoroutine(map, filter, count, stockpile, countAllOnMap)
+            .RunImmediatelyToCompletion();
+        return count.Value;
+    }
+
+    public static Coroutine CountProductsCoroutine(
+        this Map map,
+        ThingFilter filter,
+        Boxed<int> count,
         Zone_Stockpile? stockpile = null,
         bool countAllOnMap = false)
     {
@@ -57,31 +71,40 @@ public static class Utilities
             throw new ArgumentNullException(nameof(filter));
         }
 
-        var count = 0;
-        foreach (var td in filter.AllowedThingDefs)
+        if (count == null)
+        {
+            throw new ArgumentNullException(nameof(count));
+        }
+
+        foreach (var (thingDef, i) in filter.AllowedThingDefs.Select((t, i) => (t, i)))
         {
             // if it counts as a resource and we're not limited to a single stockpile, use the ingame counter (e.g. only steel in stockpiles.)
             if (!countAllOnMap &&
-                 td.CountAsResource &&
+                 thingDef.CountAsResource &&
                  stockpile == null)
             {
                 // we don't need to bother with quality / hitpoints as these are non-existant/irrelevant for resources.
-                count += map.resourceCounter.GetCount(td);
+                count.Value += map.resourceCounter.GetCount(thingDef);
             }
             else
             {
                 // otherwise, go look for stuff that matches our filters.
-                var thingList = map.listerThings.ThingsOfDef(td);
+                var thingList = map.listerThings.ThingsOfDef(thingDef);
 
                 // if filtered by stockpile, filter the thinglist accordingly.
                 if (stockpile != null)
                 {
                     var areaSlotGroup = stockpile.slotGroup;
-                    thingList = thingList.Where(t => t.Position.GetSlotGroup(map) == areaSlotGroup).ToList();
+                    thingList.RemoveWhere(t => t.Position.GetSlotGroup(map) != areaSlotGroup);
                 }
 
-                foreach (var t in thingList)
+                foreach (var (t, j) in thingList.Select((t, j) => (t, j)))
                 {
+                    if (j > 0 && j % CoroutineBreakAfter == 0)
+                    {
+                        yield return ResumeImmediately.Singleton;
+                    }
+
                     if (t.IsForbidden(Faction.OfPlayer) ||
                          t.Position.Fogged(map))
                     {
@@ -106,17 +129,15 @@ public static class Utilities
                         continue;
                     }
 
-
-#if DEBUG_COUNTS
-                    Log.Message(t.LabelCap + ": " + t.stackCount);
-#endif
-
-                    count += t.stackCount;
+                    count.Value += t.stackCount;
                 }
             }
-        }
 
-        return count;
+            if (i > 0 && i % CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+        }
     }
 
     public static void DrawReachabilityToggle(ref Vector2 pos, float width, ref bool reachability)

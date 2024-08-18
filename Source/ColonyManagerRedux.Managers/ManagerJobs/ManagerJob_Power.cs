@@ -15,40 +15,59 @@ internal sealed class ManagerJob_Power : ManagerJob
         public override bool UpdatesMax => true;
 
         private readonly CachedValue<(int current, int)[]> cachedTrade = new([]);
-        public override int GetCountForHistoryChapter(ManagerJob_Power managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetCountForHistoryChapterCoroutine(
+            ManagerJob_Power managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> count)
         {
             var trade = cachedTrade.Value;
 
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction)
             {
-                return trade.Where(i => i.current > 0).Sum(i => i.current);
+                count.Value = trade.Where(i => i.current > 0).Sum(i => i.current);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryConsumption)
             {
-                return trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current));
+                count.Value = trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current));
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries)
             {
-                return managerJob.GetCurrentBatteries().Sum(b => b.current);
+                count.Value = managerJob.GetCurrentBatteries().Sum(b => b.current);
             }
             else
             {
                 throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
             }
+            yield break;
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Power managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetTargetForHistoryChapterCoroutine(
+            ManagerJob_Power managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> target)
         {
-            return 0;
+            target.Value = 0;
+            yield break;
         }
 
-        public override int GetMaxForHistoryChapter(ManagerJob_Power managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetMaxForHistoryChapterCoroutine(
+            ManagerJob_Power managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> max)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries)
             {
-                return (int)managerJob._batteries.Sum(list => list.Sum(battery => battery.Props.storedEnergyMax));
+                max.Value = (int)managerJob._batteries.Sum(list =>
+                    list.Sum(battery => battery.Props.storedEnergyMax));
             }
-            return base.GetMaxForHistoryChapter(managerJob, tick, chapterDef);
+            else
+            {
+                max.Value = 0;
+            }
+            yield break;
         }
 
         public override void HistoryUpdateTick(ManagerJob_Power managerJob, int tick)
@@ -59,11 +78,14 @@ internal sealed class ManagerJob_Power : ManagerJob
                 cachedTrade.Update(trade);
             }
 
-            managerJob.tradingHistory.UpdateThingCountAndMax(
-                managerJob._traders.Select(list => list.Count).ToArray(),
-                managerJob._traders.Select(list => 0).ToArray());
+            if (History.IsUpdateTick)
+            {
+                managerJob.tradingHistory.UpdateThingCountAndMax(
+                    managerJob._traders.Select(list => list.Count).ToArray(),
+                    managerJob._traders.Select(list => 0).ToArray());
 
-            managerJob.tradingHistory.Update(tick, trade);
+                managerJob.tradingHistory.Update(tick, trade);
+            }
         }
     }
 
@@ -277,11 +299,20 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         // get list of power trader comps per def for consumers and producers.
         var compCounter = -1;
+
+        if (TraderDefs.Count < _traders.Count)
+        {
+            _traders.RemoveRange(TraderDefs.Count - 1, _traders.Count - TraderDefs.Count);
+        }
         foreach (var (traders, i) in TraderDefs
             .Select((def, i) => (_traderBuildings
                 .Where(b => b.def == def)
                 .Select(b => b.GetComp<CompPowerTrader>()), i)))
         {
+            if (i == _traders.Count)
+            {
+                _traders.Add([]);
+            }
             foreach (var comp in traders)
             {
                 _traders[i].Add(comp);
@@ -292,11 +323,19 @@ internal sealed class ManagerJob_Power : ManagerJob
             }
         }
 
+        if (BatteryDefs.Count < _batteries.Count)
+        {
+            _batteries.RemoveRange(BatteryDefs.Count - 1, _batteries.Count - BatteryDefs.Count);
+        }
         foreach (var (batteries, i) in BatteryDefs
             .Select((def, i) => (_batteryBuildings
                 .Where(b => b.def == def)
                 .Select(b => b.GetComp<CompPowerBattery>()), i)))
         {
+            if (i == _batteries.Count)
+            {
+                _batteries.Add([]);
+            }
             foreach (var comp in batteries)
             {
                 _batteries[i].Add(comp);

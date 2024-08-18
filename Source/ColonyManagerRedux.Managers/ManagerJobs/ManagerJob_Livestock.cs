@@ -12,49 +12,62 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 {
     public sealed class History : HistoryWorker<ManagerJob_Livestock>
     {
-        public override int GetCountForHistoryChapter(ManagerJob_Livestock managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetCountForHistoryChapterCoroutine(
+            ManagerJob_Livestock managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> count)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultFemale, cached: false);
+                count.Value = managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultFemale, cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultMale, cached: false);
+                count.Value = managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.AdultMale, cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileFemale, cached: false);
+                count.Value = managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileFemale, cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
-                return managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileMale, cached: false);
+                count.Value = managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileMale, cached: false);
             }
             else
             {
                 throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
             }
+            yield break;
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Livestock managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetTargetForHistoryChapterCoroutine(
+            ManagerJob_Livestock managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> target)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultFemale)
             {
-                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.AdultFemale);
+                target.Value = managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.AdultFemale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryAdultMale)
             {
-                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.AdultMale);
+                target.Value = managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.AdultMale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileFemale)
             {
-                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileFemale);
+                target.Value = managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileFemale);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
-                return managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileMale);
+                target.Value = managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileMale);
             }
-            return 0;
+            else
+            {
+                target.Value = 0;
+            }
+            yield break;
         }
     }
 

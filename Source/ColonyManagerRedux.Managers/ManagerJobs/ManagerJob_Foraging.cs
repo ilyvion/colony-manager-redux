@@ -9,15 +9,20 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 {
     public sealed class History : HistoryWorker<ManagerJob_Foraging>
     {
-        public override int GetCountForHistoryChapter(ManagerJob_Foraging managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetCountForHistoryChapterCoroutine(
+            ManagerJob_Foraging managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> count)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.GetCurrentCount(cached: false);
+                yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
+                    .ResumeWhenOtherCoroutineIsCompleted();
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.GetCurrentDesignatedCount();
+                count.Value = managerJob.GetCurrentDesignatedCount(cached: false);
             }
             else
             {
@@ -25,13 +30,21 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             }
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Foraging managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetTargetForHistoryChapterCoroutine(
+            ManagerJob_Foraging managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> target)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.TargetCount;
+                target.Value = managerJob.TriggerThreshold.TargetCount;
             }
-            return 0;
+            else
+            {
+                target.Value = 0;
+            }
+            yield break;
         }
     }
 

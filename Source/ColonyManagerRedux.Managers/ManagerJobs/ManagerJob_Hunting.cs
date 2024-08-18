@@ -9,19 +9,24 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     [HotSwappable]
     public sealed class History : HistoryWorker<ManagerJob_Hunting>
     {
-        public override int GetCountForHistoryChapter(ManagerJob_Hunting managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetCountForHistoryChapterCoroutine(
+            ManagerJob_Hunting managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> count)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.GetCurrentCount(cached: false);
+                yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
+                    .ResumeWhenOtherCoroutineIsCompleted();
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.GetYieldInDesignations(cached: false);
+                count.Value = managerJob.GetYieldInDesignations(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
             {
-                return managerJob.GetYieldInCorpses(cached: false);
+                count.Value = managerJob.GetYieldInCorpses(cached: false);
             }
             else
             {
@@ -29,13 +34,21 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
         }
 
-        public override int GetTargetForHistoryChapter(ManagerJob_Hunting managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+        public override Coroutine GetTargetForHistoryChapterCoroutine(
+            ManagerJob_Hunting managerJob,
+            int tick,
+            ManagerJobHistoryChapterDef chapterDef,
+            Boxed<int> target)
         {
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                return managerJob.TriggerThreshold.TargetCount;
+                target.Value = managerJob.TriggerThreshold.TargetCount;
             }
-            return 0;
+            else
+            {
+                target.Value = 0;
+            }
+            yield break;
         }
     }
 

@@ -82,6 +82,12 @@ public sealed class Trigger_Threshold : Trigger
             : _cachedCurrentCount.Update(CurrentCountRaw);
     }
 
+    public Coroutine GetCurrentCountCoroutine(Boxed<int> count)
+    {
+        return Job.Manager.map.CountProductsCoroutine(
+            ThresholdFilter, count, stockpile, CountAllOnMap);
+    }
+
     public WindowTriggerThresholdDetails DetailsWindow
     {
         get
