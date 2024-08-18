@@ -834,7 +834,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
             else
             {
-                jobLog.AddDetail("ColonyManagerRedux.Livestock.TamePastTargets".Translate());
+                jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.TamePastTargets".Translate(
+                    "ColonyManagerRedux.Livestock.TamePastTargets".Translate(),
+                    ageSex.GetLabel(true)));
             }
 
             if (targetDifference > 0 || TamePastTargets)

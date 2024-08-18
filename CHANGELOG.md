@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Make use of the culling feature of GUIScope.ScrollView so we don't spend resources on rendering something that isn't even on screen. This improves performance a lot when there are a large number of logs in the log list.
 
+### Fixed
+
+-   The log message produced when the Livestock job was taming past targets was incorrect and has been corrected.
+
 ## [0.1.4] - 2024-08-18
 
 ### Added

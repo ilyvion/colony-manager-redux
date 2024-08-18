@@ -127,5 +127,5 @@
     <ColonyManagerRedux.Livestock.Logs.AssigningMasterOf>Assigning {0} as master of {1}</ColonyManagerRedux.Livestock.Logs.AssigningMasterOf>
     <ColonyManagerRedux.Livestock.Logs.SetFollow>Set {0} to {1} follow their master when {2}</ColonyManagerRedux.Livestock.Logs.SetFollow>
     <ColonyManagerRedux.Livestock.Logs.CurrentCountTame>Checking if we should tame any {0} {1}: count / target is {2} / {3} with {4} already being marked for taming, leaving us with {5}</ColonyManagerRedux.Livestock.Logs.CurrentCountTame>
-    <ColonyManagerRedux.Livestock.Logs.TamePastTargets>Setting {0} is enabled, so we're going to mark as many animals as possible for taming, even if it puts us over the target</ColonyManagerRedux.Livestock.Logs.TamePastTargets>
+    <ColonyManagerRedux.Livestock.Logs.TamePastTargets>Setting '{0}' is enabled, so we're going to mark as many animals as possible for taming, even if it puts us over the target; currently checking if we can tame {1}</ColonyManagerRedux.Livestock.Logs.TamePastTargets>
 </LanguageData>
