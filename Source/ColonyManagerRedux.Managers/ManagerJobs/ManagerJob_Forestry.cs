@@ -48,6 +48,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     public bool AllowSaplings;
     public HashSet<Area> ClearAreas = [];
     public Area? LoggingArea;
+    public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
+
+    public bool SyncFilterAndAllowed = true;
 
     private List<Designation> _designations = [];
 
@@ -69,8 +72,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     {
         // populate the trigger field, set the root category to wood.
         Trigger = new Trigger_Threshold(this);
-        TriggerThreshold.ThresholdFilter.SetAllow(ThingDefOf.WoodLog, true);
         ConfigureThresholdTriggerParentFilter();
+        TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
 
     public override void PostMake()
@@ -80,6 +83,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         {
             _type = forestrySettings.DefaultForestryJobType;
             AllowSaplings = forestrySettings.DefaultAllowSaplings;
+            SyncFilterAndAllowed = forestrySettings.DefaultSyncFilterAndAllowed;
         }
     }
 
@@ -235,9 +239,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
         // settings, references first!
         Scribe_Collections.Look(ref AllowedTrees, "allowedTrees", LookMode.Def);
+        Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
-
 
         if (Manager.ScribeGameSpecificData)
         {
@@ -259,9 +263,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             ConfigureThresholdTriggerParentFilter();
+            TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
         }
     }
-
 
     private int CurrentDesignatedCountRaw
     {
@@ -287,6 +291,28 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             : _designatedWoodCachedValue.Update(CurrentDesignatedCountRaw);
     }
 
+    public void Notify_ThresholdFilterChanged()
+    {
+        ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
+
+        if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
+        {
+            return;
+        }
+
+        foreach (var thingDef in AllPlants)
+        {
+            if (TriggerThreshold.ThresholdFilter.Allows(thingDef.plant.harvestedThingDef))
+            {
+                AllowedTrees.Add(thingDef);
+            }
+            else
+            {
+                AllowedTrees.Remove(thingDef);
+            }
+        }
+    }
+
     public void RefreshAllTrees()
     {
         ColonyManagerReduxMod.Instance.LogDebug("Refreshing all trees");
@@ -305,7 +331,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
-    public void SetTreeAllowed(ThingDef tree, bool allow)
+    public void SetTreeAllowed(ThingDef tree, bool allow, bool sync = true)
     {
         if (allow)
         {
@@ -314,6 +340,16 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         else
         {
             AllowedTrees.Remove(tree);
+        }
+
+        if (SyncFilterAndAllowed && sync)
+        {
+            Sync = Utilities.SyncDirection.AllowedToFilter;
+
+            if (TriggerThreshold.ParentFilter.Allows(tree.plant.harvestedThingDef))
+            {
+                TriggerThreshold.ThresholdFilter.SetAllow(tree.plant.harvestedThingDef, allow);
+            }
         }
     }
 
@@ -535,7 +571,11 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        TriggerThreshold.ParentFilter.SetAllow(ThingDefOf.WoodLog, true);
+        TriggerThreshold.ParentFilter.SetDisallowAll();
+        foreach (var item in AllPlants)
+        {
+            TriggerThreshold.ParentFilter.SetAllow(item.plant.harvestedThingDef, true);
+        }
     }
 
     protected override void Notify_AreaRemoved(Area area)

@@ -16,6 +16,8 @@
     <ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>Clearing areas to keep wind turbines running smoothly, and deny enemies any possible cover in the killing fields</ColonyManagerRedux.Forestry.JobType.ClearArea.Tip>
     <ColonyManagerRedux.Forestry.JobType.Logging>Wood logging</ColonyManagerRedux.Forestry.JobType.Logging>
     <ColonyManagerRedux.Forestry.JobType.Logging.Tip>Chop trees for wood</ColonyManagerRedux.Forestry.JobType.Logging.Tip>
+    <ColonyManagerRedux.Forestry.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.Forestry.SyncFilterAndAllowed>
+    <ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the trees allowed for chopping, and vice versa.</ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip>
 
     <ColonyManagerRedux.Forestry.Clear>Clear {0}</ColonyManagerRedux.Forestry.Clear>
 

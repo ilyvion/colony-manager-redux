@@ -226,8 +226,14 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
                 currentCount, designatedCount, targetCount),
             "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
                 currentCount, designatedCount, targetCount),
-            SelectedForestryJob.Designations, null, SelectedForestryJob.DesignationLabel);
+            SelectedForestryJob.Designations,
+            delegate { SelectedForestryJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
+            SelectedForestryJob.DesignationLabel);
 
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.Forestry.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip".Translate(),
+            ref SelectedForestryJob.SyncFilterAndAllowed);
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForestryJob.ShouldCheckReachable);
         Utilities.DrawToggle(
             ref pos,
@@ -256,19 +262,8 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             Utilities.DrawToggle(rowRect, plantDef.LabelCap,
                 new TipSignal(() => GetTreeTooltip(plantDef), plantDef.GetHashCode()),
                 allowedTrees.Contains(plantDef),
-                () =>
-                {
-#pragma warning disable CA1868 // Unnecessary call to 'Contains(item)'
-                    if (allowedTrees.Contains(plantDef))
-                    {
-                        allowedTrees.Remove(plantDef);
-                    }
-                    else
-                    {
-                        allowedTrees.Add(plantDef);
-                    }
-#pragma warning restore CA1868 // Unnecessary call to 'Contains(item)'
-                });
+                () => SelectedForestryJob
+                    .SetTreeAllowed(plantDef, !allowedTrees.Contains(plantDef)));
             rowRect.y += ListEntryHeight;
         }
 
@@ -286,7 +281,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         var allowedTrees = SelectedForestryJob.AllowedTrees;
         var allPlants = SelectedForestryJob.AllPlants;
 
-        DrawShortcutToggle(allPlants, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect, "ColonyManagerRedux.Shortcuts.All", null);
+        DrawShortcutToggle(allPlants, allowedTrees, (t, v) => SelectedForestryJob.SetTreeAllowed(t, v), rowRect, "ColonyManagerRedux.Shortcuts.All", null);
 
         if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {
@@ -296,7 +291,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
                 .Where(tree => tree.plant.harvestTag == "Wood" ||
                     tree.plant.harvestedThingDef == ThingDefOf.WoodLog)
                 .ToList();
-            DrawShortcutToggle(trees, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
+            DrawShortcutToggle(trees, allowedTrees, (t, v) => SelectedForestryJob.SetTreeAllowed(t, v), rowRect,
                 "ColonyManagerRedux.Forestry.Trees", "ColonyManagerRedux.Forestry.Trees.Tip");
 
             // flammable (probably all - might be modded stuff).
@@ -304,7 +299,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             var flammable = allPlants.Where(tree => tree.BaseFlammability > 0).ToList();
             if (flammable.Count != allPlants.Count)
             {
-                DrawShortcutToggle(flammable, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
+                DrawShortcutToggle(flammable, allowedTrees, (t, v) => SelectedForestryJob.SetTreeAllowed(t, v), rowRect,
                     "ColonyManagerRedux.Forestry.Flammable", "ColonyManagerRedux.Forestry.Flammable.Tip");
                 rowRect.y += ListEntryHeight;
             }
@@ -314,7 +309,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
                 .ToList();
             if (!ugly.NullOrEmpty())
             {
-                DrawShortcutToggle(ugly, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
+                DrawShortcutToggle(ugly, allowedTrees, (t, v) => SelectedForestryJob.SetTreeAllowed(t, v), rowRect,
                     "ColonyManagerRedux.Forestry.Ugly", "ColonyManagerRedux.Forestry.Ugly.Tip");
                 rowRect.y += ListEntryHeight;
             }
@@ -324,7 +319,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
                 .Where(tree => tree.Fillage == FillCategory.Full ||
                     tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
                 .ToList();
-            DrawShortcutToggle(cover, allowedTrees, SelectedForestryJob.SetTreeAllowed, rowRect,
+            DrawShortcutToggle(cover, allowedTrees, (t, v) => SelectedForestryJob.SetTreeAllowed(t, v), rowRect,
                 "ColonyManagerRedux.Forestry.ProvidesCover", "ColonyManagerRedux.Forestry.ProvidesCover.Tip");
         }
 
