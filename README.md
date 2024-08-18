@@ -1,5 +1,8 @@
 [![RimWorld 1.5](https://img.shields.io/badge/RimWorld-1.5-brightgreen.svg)](http://rimworldgame.com/) [![Build](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml)
 
+> [!IMPORTANT]  
+> You might be used to downloading people's GitHub mods by using the **Code -> Download ZIP** method, but this won't work on my repos[^badpractice]; I make use of proper releases and you can always find the latest version of the mod for download on the [Releases page](https://github.com/ilyvion/colony-manager-redux/releases/latest).
+
 **Colony Manager Redux** is ilyvion's new and improved take on Fluffy's Colony Manager. Why did I make my own custom version? This version may never have seen the light of day if Fluffy had kept updating the original (though it's understandable why it's been hard), but after a long time without updates (nearly two years at the time of this writing) it felt like the space was primed for a replacement/new contender. I've put enough effort and care into this project at this point that I consider it an entirely separate project from the original, and will not be removing it or deprecating it should the original Colony Manager make a comeback.
 
 ## Features
@@ -63,3 +66,5 @@ Parts of this mod were created by, or derived from works created by;
 
 -   Smashicons: top hat icon used in mod preview and mod icon graphics ([BY-NC](https://www.flaticon.com/authors/smashicons))
 -   [jeonggihun](https://steamcommunity.com/id/jeonggihun): new textures for the work benches and AI manager based on the [[JGH] Colony Manager retexture](https://steamcommunity.com/sharedfiles/filedetails/?id=2603340242) mod. Used with permission; license unknown.
+
+[^badpractice]: I think this is really bad practice, but I won't fault less experienced developers for not setting up a whole build and release workflow since it's a rather advanced DevOps topic. Still, you won't find me doing it because, again, I think it's really bad practice for a whole host of reasons.
