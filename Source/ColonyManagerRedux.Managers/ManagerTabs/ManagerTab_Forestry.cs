@@ -231,7 +231,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             SelectedForestryJob.DesignationLabel);
 
         Utilities.DrawToggle(ref pos, width,
-            "ColonyManagerRedux.Forestry.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip".Translate(),
             ref SelectedForestryJob.SyncFilterAndAllowed);
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForestryJob.ShouldCheckReachable);

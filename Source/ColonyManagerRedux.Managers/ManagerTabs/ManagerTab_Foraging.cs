@@ -191,7 +191,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
             SelectedForagingJob.DesignationLabel);
 
         Utilities.DrawToggle(ref pos, width,
-            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
             ref SelectedForagingJob.SyncFilterAndAllowed);
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedForagingJob.ShouldCheckReachable);

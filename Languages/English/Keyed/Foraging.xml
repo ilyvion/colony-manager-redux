@@ -13,7 +13,6 @@
     <ColonyManagerRedux.Foraging.Edible.Tip>Select all edible plants</ColonyManagerRedux.Foraging.Edible.Tip>
     <ColonyManagerRedux.Foraging.Mushrooms>Mushrooms</ColonyManagerRedux.Foraging.Mushrooms>
     <ColonyManagerRedux.Foraging.Mushrooms.Tip>Select all mushrooms</ColonyManagerRedux.Foraging.Mushrooms.Tip>
-    <ColonyManagerRedux.Foraging.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.Foraging.SyncFilterAndAllowed>
     <ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the plants allowed for foraging, and vice versa.</ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip>
 
     <!-- Logging -->

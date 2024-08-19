@@ -291,7 +291,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
             SelectedMiningJob.DesignationLabel);
 
         Utilities.DrawToggle(ref pos, width,
-            "ColonyManagerRedux.Mining.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip".Translate(),
             ref SelectedMiningJob.SyncFilterAndAllowed);
         Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedMiningJob.ShouldCheckReachable);

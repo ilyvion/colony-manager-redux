@@ -23,7 +23,6 @@
     <ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Disabled.Tip>Disabled because checking for roof support is disabled.</ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Disabled.Tip>
     <ColonyManagerRedux.Mining.CheckRoomDivision>Check room boundaries</ColonyManagerRedux.Mining.CheckRoomDivision>
     <ColonyManagerRedux.Mining.CheckRoomDivision.Tip>Managers will try to prevent breaching walls that divide rooms, or that would create shortcuts.</ColonyManagerRedux.Mining.CheckRoomDivision.Tip>
-    <ColonyManagerRedux.Mining.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.Mining.SyncFilterAndAllowed>
     <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the resources and buildings allowed for mining/deconstruction, and vice versa. Note that because a lot of building parts can be built out of every resource, enabling 'walls,' e.g., will enable every resource that can be used to build walls.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, chunks, designated, target -->

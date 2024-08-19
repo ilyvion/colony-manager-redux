@@ -35,7 +35,7 @@ internal sealed class ManagerSettings_Foraging : ManagerSettings
 
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Foraging.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 

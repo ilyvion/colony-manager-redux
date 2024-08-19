@@ -37,7 +37,7 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
 
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Forestry.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 

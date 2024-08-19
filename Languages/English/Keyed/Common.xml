@@ -52,6 +52,8 @@
     <ColonyManagerRedux.Threshold.CountAllOnMap>Count all on map</ColonyManagerRedux.Threshold.CountAllOnMap>
     <ColonyManagerRedux.Threshold.CountAllOnMap.Tip>If enabled, counts all items allowed by the threshold filter on the map. If disabled, counts only those in stockpiles and storage buildings.</ColonyManagerRedux.Threshold.CountAllOnMap.Tip>
 
+    <ColonyManagerRedux.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.SyncFilterAndAllowed>
+
     <!-- time periods for update interval -->
     <ColonyManagerRedux.UpdateInterval.Hourly>Every hour</ColonyManagerRedux.UpdateInterval.Hourly>
     <ColonyManagerRedux.UpdateInterval.MultipleHourly>Every {0} hours</ColonyManagerRedux.UpdateInterval.MultipleHourly>

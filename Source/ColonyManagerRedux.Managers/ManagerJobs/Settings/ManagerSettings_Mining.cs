@@ -47,7 +47,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
 
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Mining.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip".Translate(),
             ref DefaultSyncFilterAndAllowed);
 
