@@ -72,9 +72,12 @@ partial class ManagerTab_Overview
 
         public override int GetOptimalWidth(PawnTable table)
         {
-            var maxActivityWidth = (int)table.PawnsListForReading
-                .Select(pawn => Text.CalcSize(GetPawnActivityString(pawn)).x)
-                .Max();
+            var pawnsListForReading = table.PawnsListForReading;
+            var maxActivityWidth = pawnsListForReading.Count > 0
+                ? (int)pawnsListForReading
+                    .Select(pawn => Text.CalcSize(GetPawnActivityString(pawn)).x)
+                    .Max()
+                : (int)table.Size.x;
             return maxActivityWidth;
         }
 
