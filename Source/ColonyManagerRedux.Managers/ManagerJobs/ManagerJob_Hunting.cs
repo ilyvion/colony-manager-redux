@@ -6,6 +6,7 @@ namespace ColonyManagerRedux.Managers;
 
 internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 {
+    [HotSwappable]
     public sealed class History : HistoryWorker<ManagerJob_Hunting>
     {
         public override int GetCountForHistoryChapter(ManagerJob_Hunting managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
@@ -16,11 +17,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                return managerJob.GetMeatInDesignations(cached: false);
+                return managerJob.GetYieldInDesignations(cached: false);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
             {
-                return managerJob.GetMeatInCorpses(cached: false);
+                return managerJob.GetYieldInCorpses(cached: false);
             }
             else
             {
@@ -38,11 +39,30 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    private readonly CachedValue<int> _corpseCachedValue = new(0);
-    private readonly CachedValue<int> _designatedCachedValue = new(0);
+    public enum HuntingTargetResource
+    {
+        Leather,
+        Meat
+    }
 
-    public HashSet<PawnKindDef> AllowedAnimals = [];
+    private readonly CachedValue<int> _corpseMeatCachedValue = new(0);
+    private readonly CachedValue<int> _corpseLeatherCachedValue = new(0);
+    private readonly CachedValue<int> _designatedMeatCachedValue = new(0);
+    private readonly CachedValue<int> _designatedLeatherCachedValue = new(0);
+
+    private HashSet<PawnKindDef> _allowedAnimalsMeat = [];
+    public HashSet<PawnKindDef> _allowedAnimalsLeather = [];
+
+    public HashSet<PawnKindDef> AllowedAnimals =>
+        TargetResource == HuntingTargetResource.Meat
+            ? _allowedAnimalsMeat
+            : _allowedAnimalsLeather;
+
     public Area? HuntingGrounds;
+
+    public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
+    public bool SyncFilterAndAllowed = true;
+
     public bool UnforbidCorpses = true;
     private bool _allowHumanLikeMeat;
 
@@ -60,15 +80,16 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
+    private HuntingTargetResource _targetResource = HuntingTargetResource.Meat;
+
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
     public ManagerJob_Hunting(Manager manager) : base(manager)
     {
-        // populate the trigger field, set the root category to meats and allow all but human & insect meat.
+        // populate the trigger field
         Trigger = new Trigger_Threshold(this);
-        TriggerThreshold.ThresholdFilter.SetAllow(ThingCategoryDefOf.MeatRaw, true);
 
-        ConfigureThresholdTriggerParentFilter();
+        TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
 
     public override void PostMake()
@@ -76,10 +97,16 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         var huntingSettings = ManagerSettings;
         if (huntingSettings != null)
         {
+            _targetResource = huntingSettings.DefaultTargetResource;
+            ConfigureThresholdTriggerParentFilter();
+
             UnforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
             _allowHumanLikeMeat = huntingSettings.DefaultAllowHumanLikeMeat;
             _allowInsectMeat = huntingSettings.DefaultAllowInsectMeat;
 
+            SyncFilterAndAllowed = huntingSettings.DefaultSyncFilterAndAllowed;
+
+            // XXX: What is the point of this? Aren't they all unset at the point of make anyway?
             if (!_allowHumanLikeMeat)
             {
                 foreach (var def in HumanLikeMeatDefs)
@@ -99,7 +126,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         base.PostImport();
 
-        AllowedAnimals.RemoveWhere(a => !AllAnimals.Contains(a));
+        _allowedAnimalsMeat.RemoveWhere(a => !AllAnimals.Contains(a));
+        _allowedAnimalsLeather.RemoveWhere(a => !AllAnimals.Contains(a));
     }
 
     public bool AllowHumanLikeMeat
@@ -177,6 +205,17 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     public override IEnumerable<string> Targets => AllowedAnimals
         .Select(pk => pk.LabelCap.Resolve());
 
+    public HuntingTargetResource TargetResource
+    {
+        get => _targetResource;
+        set
+        {
+            _targetResource = value;
+            RefreshAllAnimals();
+            ConfigureThresholdTriggerParentFilter();
+        }
+    }
+
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Hunting;
 
     public override void CleanUp(ManagerLog? jobLog)
@@ -208,7 +247,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         base.ExposeData();
 
         // settings
-        Scribe_Collections.Look(ref AllowedAnimals, "allowedAnimals", LookMode.Def);
+        Scribe_Values.Look(ref _targetResource, "targetResource", HuntingTargetResource.Meat);
+        Scribe_Collections.Look(ref _allowedAnimalsMeat, "allowedAnimals", LookMode.Def);
+        Scribe_Collections.Look(ref _allowedAnimalsLeather, "allowedAnimalsLeather", LookMode.Def);
+        Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref UnforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _allowHumanLikeMeat, "allowHumanLikeMeat");
         Scribe_Values.Look(ref _allowInsectMeat, "allowInsectMeat");
@@ -224,6 +266,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             ConfigureThresholdTriggerParentFilter();
+            TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
         }
     }
 
@@ -233,7 +276,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // current count in storage
 
         // try get cached value
-        if (cached && _corpseCachedValue.TryGetValue(out int cachedCount))
+        if (cached && _corpseMeatCachedValue.TryGetValue(out int cachedCount))
         {
             return cachedCount;
         }
@@ -270,14 +313,69 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
 
         // set cache
-        _corpseCachedValue.Update(count);
+        _corpseMeatCachedValue.Update(count);
 
         return count;
     }
 
+    public int GetLeatherInCorpses(bool cached = true)
+    {
+        // get current count + corpses in storage that is not a grave + designated count
+        // current count in storage
+
+        // try get cached value
+        if (cached && _corpseLeatherCachedValue.TryGetValue(out int cachedCount))
+        {
+            return cachedCount;
+        }
+
+        // corpses not buried / forbidden
+        var count = 0;
+        foreach (Thing current in Corpses)
+        {
+            // make sure it's a real corpse. (I dunno, poke it?)
+            // and that it's not forbidden (anymore) and can be reached.
+            if (current is Corpse corpse &&
+                 !corpse.IsForbidden(Faction.OfPlayer) &&
+                 Manager.map.reachability.CanReachColony(corpse.Position))
+            {
+                // check to see if it's buried.
+                var buried = false;
+                var slotGroup = Manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
+
+                // Sarcophagus inherits grave
+                if (slotGroup?.parent is Building_Storage building_Storage &&
+                     building_Storage.def == ThingDefOf.Grave)
+                {
+                    buried = true;
+                }
+
+                // get the rottable comp and check how far gone it is.
+                var rottable = corpse.TryGetComp<CompRottable>();
+
+                if (!buried && rottable?.Stage == RotStage.Fresh)
+                {
+                    count += corpse.EstimatedLeatherCount();
+                }
+            }
+        }
+
+        // set cache
+        _corpseLeatherCachedValue.Update(count);
+
+        return count;
+    }
+
+    public int GetYieldInCorpses(bool cached = true)
+    {
+        return TargetResource == HuntingTargetResource.Meat
+            ? GetMeatInCorpses(cached)
+            : GetLeatherInCorpses(cached);
+    }
+
     public int GetMeatInDesignations(bool cached = false)
     {
-        if (cached && _designatedCachedValue.TryGetValue(out int cachedCount))
+        if (cached && _designatedMeatCachedValue.TryGetValue(out int cachedCount))
         {
             return cachedCount;
         }
@@ -293,14 +391,44 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
 
         // update cache
-        _designatedCachedValue.Update(count);
+        _designatedMeatCachedValue.Update(count);
 
         return count;
     }
 
+    public int GetLeatherInDesignations(bool cached = false)
+    {
+        if (cached && _designatedLeatherCachedValue.TryGetValue(out int cachedCount))
+        {
+            return cachedCount;
+        }
+
+        // designated animals
+        var count = 0;
+        foreach (var des in _designations)
+        {
+            if (des.target.Thing is Pawn target)
+            {
+                count += target.EstimatedLeatherCount();
+            }
+        }
+
+        // update cache
+        _designatedLeatherCachedValue.Update(count);
+
+        return count;
+    }
+
+    public int GetYieldInDesignations(bool cached = false)
+    {
+        return TargetResource == HuntingTargetResource.Meat
+            ? GetMeatInDesignations(cached)
+            : GetLeatherInDesignations(cached);
+    }
+
     public void RefreshAllAnimals() => _allAnimals = null;
 
-    public void SetAnimalAllowed(PawnKindDef animal, bool allow)
+    public void SetAnimalAllowed(PawnKindDef animal, bool allow, bool sync = true)
     {
         if (allow)
         {
@@ -309,6 +437,20 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         else
         {
             AllowedAnimals.Remove(animal);
+        }
+
+        if (SyncFilterAndAllowed && sync)
+        {
+            Sync = Utilities.SyncDirection.AllowedToFilter;
+
+            var product = TargetResource == HuntingTargetResource.Meat
+                ? animal.RaceProps.meatDef
+                : animal.RaceProps.leatherDef;
+
+            if (TriggerThreshold.ParentFilter.Allows(product))
+            {
+                TriggerThreshold.ThresholdFilter.SetAllow(product, allow);
+            }
         }
     }
 
@@ -343,7 +485,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         AddRelevantGameDesignations(jobLog);
 
         // get the total count of meat in storage, expected meat in corpses and expected meat in designations.
-        var totalCount = TriggerThreshold.GetCurrentCount() + GetMeatInCorpses() + GetMeatInDesignations();
+        var totalCount = TriggerThreshold.GetCurrentCount() + GetYieldInCorpses() + GetYieldInDesignations();
         if (totalCount >= TriggerThreshold.TargetCount)
         {
             jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
@@ -387,7 +529,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
 
             AddDesignation(new(huntableAnimal, DesignationDefOf.Hunt));
-            int yield = huntableAnimal.EstimatedMeatCount();
+            int yield = huntableAnimal.EstimatedYield(TargetResource);
             totalCount += yield;
             jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                 .Translate(
@@ -478,27 +620,20 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
 
             // don't unforbid corpses in storage - we're going to assume they were manually set.
-            if (corpse != null &&
-                 !corpse.IsInAnyStorage() &&
-                 corpse.IsForbidden(Faction.OfPlayer))
+            if (corpse != null && !corpse.IsInAnyStorage() && corpse.IsForbidden(Faction.OfPlayer))
             {
                 // only fresh corpses
                 var comp = corpse.GetComp<CompRottable>();
-                if (comp != null &&
-                     comp.Stage == RotStage.Fresh)
+                if (comp != null && comp.Stage == RotStage.Fresh)
                 {
                     // unforbid
                     workDone = true;
                     corpse.SetForbidden(false, false);
 
-                    int yield = corpse.EstimatedMeatCount();
+                    int yield = corpse.EstimatedYield(TargetResource);
                     totalCount += yield;
                     jobLog.AddDetail("ColonyManagerRedux.Hunting.Logs.UnforbidCorpse"
-                        .Translate(
-                            corpse.Label,
-                            yield,
-                            totalCount,
-                            TriggerThreshold.TargetCount),
+                        .Translate(corpse.Label, yield, totalCount, TriggerThreshold.TargetCount),
                         corpse);
                 }
             }
@@ -512,7 +647,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         return Manager.map.mapPawns.AllPawns
             .Where(p => IsValidHuntingTarget(p, false))
-            .OrderByDescending(p => p.EstimatedMeatCount() / Distance(p, position)).ToList();
+            .OrderByDescending(p =>
+                p.EstimatedYield(TargetResource) / Distance(p, position)).ToList();
     }
 
     private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)
@@ -541,7 +677,45 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        TriggerThreshold.ParentFilter.SetAllow(ManagerThingCategoryDefOf.FoodRaw, true);
+        TriggerThreshold.ParentFilter.SetDisallowAll();
+        if (TargetResource == HuntingTargetResource.Meat)
+        {
+            foreach (var item in AllAnimals)
+            {
+                TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
+            }
+        }
+        else
+        {
+            foreach (var item in AllAnimals)
+            {
+                TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.leatherDef, true);
+            }
+        }
+    }
+
+    public void Notify_ThresholdFilterChanged()
+    {
+        ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
+
+        if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
+        {
+            return;
+        }
+
+        foreach (var pawnKindDef in AllAnimals)
+        {
+            if (TriggerThreshold.ThresholdFilter.Allows(TargetResource == HuntingTargetResource.Meat
+                ? pawnKindDef.RaceProps.meatDef
+                : pawnKindDef.RaceProps.leatherDef))
+            {
+                AllowedAnimals.Add(pawnKindDef);
+            }
+            else
+            {
+                AllowedAnimals.Remove(pawnKindDef);
+            }
+        }
     }
 
     protected override void Notify_AreaRemoved(Area area)

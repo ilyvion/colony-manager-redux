@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   The hunting job can now focus on leather as the target resource instad of meat.
+
 ### Changed
 
 -   Don't hard code wood as the only possible resource produced by the forestry job. It now handles multiple different kinds of tree products by reading them out of the actual plants on the map rather than just hardcoding it.

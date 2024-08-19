@@ -9,7 +9,8 @@ namespace ColonyManagerRedux.Managers;
 internal sealed class ManagerSettings_Forestry : ManagerSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
-    public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType = ManagerJob_Forestry.ForestryJobType.Logging;
+    public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType =
+        ManagerJob_Forestry.ForestryJobType.Logging;
     public bool DefaultAllowSaplings;
 
     public override void DoPanelContents(Rect rect)
@@ -20,9 +21,18 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
             rect.width,
             rect.height - Margin);
 
-        Widgets_Section.BeginSectionColumn(panelRect, "Forestry.Settings", out Vector2 position, out float width);
-        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
-        Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobSettings.DefaultJobType".Translate());
+        Widgets_Section.BeginSectionColumn(
+            panelRect, "Forestry.Settings", out Vector2 position, out float width);
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawJobType,
+            "ColonyManagerRedux.Forestry.JobSettings.DefaultJobType".Translate());
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawSyncFilterAndAllowed,
+            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
         Widgets_Section.Section(ref position, width, DrawAllowSaplings);
         Widgets_Section.EndSectionColumn("Forestry.Settings", position);
     }
@@ -101,7 +111,8 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
         base.ExposeData();
 
         Scribe_Values.Look(ref DefaultSyncFilterAndAllowed, "defaultSyncFilterAndAllowed", true);
-        Scribe_Values.Look(ref DefaultForestryJobType, "defaultForestryJobType", ManagerJob_Forestry.ForestryJobType.Logging);
+        Scribe_Values.Look(ref DefaultForestryJobType, "defaultForestryJobType",
+            ManagerJob_Forestry.ForestryJobType.Logging);
         Scribe_Values.Look(ref DefaultAllowSaplings, "defaultAllowSaplings", false);
     }
 }

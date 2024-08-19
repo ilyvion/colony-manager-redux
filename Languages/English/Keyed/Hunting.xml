@@ -22,6 +22,15 @@
     <ColonyManagerRedux.Hunting.AreaRestriction>Restrict hunting to</ColonyManagerRedux.Hunting.AreaRestriction>
     <ColonyManagerRedux.Hunting.Aggressive>Aggressive</ColonyManagerRedux.Hunting.Aggressive>
     <ColonyManagerRedux.Hunting.Aggressive.Tip>Toggle all aggressive animals</ColonyManagerRedux.Hunting.Aggressive.Tip>
+    <ColonyManagerRedux.Hunting.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the animals allowed for hunting, and vice versa.</ColonyManagerRedux.Hunting.SyncFilterAndAllowed.Tip>
+
+    <ColonyManagerRedux.Hunting.TargetResource>Target resource</ColonyManagerRedux.Hunting.TargetResource>
+    <ColonyManagerRedux.Hunting.TargetResource.Leather>Leather</ColonyManagerRedux.Hunting.TargetResource.Leather>
+    <ColonyManagerRedux.Hunting.TargetResource.Leather.Tip>Hunt animals primarily for their leather</ColonyManagerRedux.Hunting.TargetResource.Leather.Tip>
+    <ColonyManagerRedux.Hunting.TargetResource.Meat>Meat</ColonyManagerRedux.Hunting.TargetResource.Meat>
+    <ColonyManagerRedux.Hunting.TargetResource.Meat.Tip>Hunt animals primarily for their meat</ColonyManagerRedux.Hunting.TargetResource.Meat.Tip>
+
+    <ColonyManagerRedux.Hunting.ManagerSettings.DefaultTargetResource>Default target resource</ColonyManagerRedux.Hunting.ManagerSettings.DefaultTargetResource>
 
     <!-- Logging -->
     <ColonyManagerRedux.Hunting.Logs.Animal>animal</ColonyManagerRedux.Hunting.Logs.Animal>
