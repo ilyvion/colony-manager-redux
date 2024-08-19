@@ -543,26 +543,34 @@ internal sealed class ManagerJob_Mining
         return [];
     }
 
-    public static List<ThingDef> GetMaterialsInMineral(ThingDef mineral)
+    private CachedValues<ThingDef, List<ThingDef>> _materialsInMineralCache = new();
+    public List<ThingDef> GetMaterialsInMineral(ThingDef mineral)
     {
-        var resource = mineral.building?.mineableThing;
-        if (resource == null)
+        if (!_materialsInMineralCache.TryGetValue(mineral, out var materials))
         {
-            return [];
+            _materialsInMineralCache.Add(mineral, () => UpdateMaterialsInMineral(mineral));
+            materials = _materialsInMineralCache[mineral];
         }
+        return materials!;
 
-        // stone chunks
-        if (resource.IsChunk())
+        static List<ThingDef> UpdateMaterialsInMineral(ThingDef mineral)
         {
-            return GetMaterialsInChunk(resource);
+            var resource = mineral.building?.mineableThing;
+            if (resource == null)
+            {
+                return [];
+            }
+
+            // stone chunks
+            if (resource.IsChunk())
+            {
+                return GetMaterialsInChunk(resource);
+            }
+
+            // metals
+            List<ThingDef> list = [resource];
+            return list;
         }
-
-        // metals
-        var list = new List<ThingDef>
-        {
-            resource
-        };
-        return list;
     }
 
     public List<(Mineable mineable, int count, float distance)> GetMinableMineralsSorted()
@@ -838,8 +846,12 @@ internal sealed class ManagerJob_Mining
         if (SyncFilterAndAllowed && sync)
         {
             Sync = Utilities.SyncDirection.AllowedToFilter;
+
             foreach (var material in GetMaterialsInMineral(mineral))
             {
+                var setAllow = AllowedMinerals
+                    .Any(m => GetMaterialsInMineral(m).Contains(material));
+                TriggerThreshold.ThresholdFilter.SetAllow(material, setAllow);
                 if (TriggerThreshold.ParentFilter.Allows(material))
                 {
                     TriggerThreshold.ThresholdFilter.SetAllow(material, allow);

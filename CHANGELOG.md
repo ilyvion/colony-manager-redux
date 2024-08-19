@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   When looking at the yields of things that had multiple resources, there'd be an extra dash at the beginning of the list. This is now gone.
 -   If you opened the overview tab before your colonists had landed in a new game, you'd get an exception. This has been fixed.
+-   Synchronize threshold logic wasn't quite right; if you allowed one thing and disallowed another that produced the same resource, the filter would be removed. Now the logic only removes the filter if _no_ selected things produce a given resource.
 
 ## [0.1.5] - 2024-08-18
 

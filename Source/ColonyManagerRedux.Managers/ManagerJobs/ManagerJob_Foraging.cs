@@ -192,12 +192,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
-    public static List<ThingDef> GetMaterialsInPlant(ThingDef plantDef)
-    {
-        var plant = (plantDef?.plant) ?? throw new ArgumentNullException(nameof(plantDef));
-        return new List<ThingDef>([plant.harvestedThingDef]);
-    }
-
     public void Notify_ThresholdFilterChanged()
     {
         ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
@@ -206,10 +200,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             return;
         }
 
-
         foreach (var plant in AllPlants)
         {
-            if (GetMaterialsInPlant(plant).Any(TriggerThreshold.ThresholdFilter.Allows))
+            if (TriggerThreshold.ThresholdFilter.Allows(plant.plant.harvestedThingDef))
             {
                 AllowedPlants.Add(plant);
             }
@@ -253,13 +246,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         {
             Sync = Utilities.SyncDirection.AllowedToFilter;
 
-            foreach (var material in GetMaterialsInPlant(plant))
-            {
-                if (TriggerThreshold.ParentFilter.Allows(material))
-                {
-                    TriggerThreshold.ThresholdFilter.SetAllow(material, allow);
-                }
-            }
+            ThingDef harvestedThingDef = plant.plant.harvestedThingDef;
+            var setAllow = AllowedPlants.Any(p => p.plant.harvestedThingDef == harvestedThingDef);
+            TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
         }
     }
 

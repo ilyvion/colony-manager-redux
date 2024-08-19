@@ -443,14 +443,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         {
             Sync = Utilities.SyncDirection.AllowedToFilter;
 
-            var product = TargetResource == HuntingTargetResource.Meat
-                ? animal.RaceProps.meatDef
-                : animal.RaceProps.leatherDef;
+            ThingDef AnimalResource(PawnKindDef animal) =>
+                TargetResource == HuntingTargetResource.Meat
+                    ? animal.RaceProps.meatDef
+                    : animal.RaceProps.leatherDef;
 
-            if (TriggerThreshold.ParentFilter.Allows(product))
-            {
-                TriggerThreshold.ThresholdFilter.SetAllow(product, allow);
-            }
+            var resource = AnimalResource(animal);
+
+            var setAllow = AllowedAnimals.Any(a => AnimalResource(a) == resource);
+            TriggerThreshold.ThresholdFilter.SetAllow(resource, setAllow);
         }
     }
 
