@@ -100,14 +100,14 @@
     <ColonyManagerRedux.AgeAndSex.Male>male</ColonyManagerRedux.AgeAndSex.Male>
     <ColonyManagerRedux.AgeAndSex.Male.Plural>males</ColonyManagerRedux.AgeAndSex.Male.Plural>
 
-    <ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.JobSettings.DefaultTargetCountsHeader>
-    <ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.JobSettings.DefaultTamingHeader>
-    <ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.Livestock.JobSettings.DefaultButcherHeader>
-    <ColonyManagerRedux.Livestock.JobSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.Livestock.JobSettings.DefaultTrainingHeader>
-    <ColonyManagerRedux.Livestock.JobSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.Livestock.JobSettings.DefaultFollowHeader>
-    <ColonyManagerRedux.Livestock.JobSettings.Default>Defaults</ColonyManagerRedux.Livestock.JobSettings.Default>
-    <ColonyManagerRedux.Livestock.JobSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.Livestock.JobSettings.AddOverride>
-    <ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.Livestock.JobSettings.DeleteOverrideFor>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.Livestock.ManagerSettings.DefaultButcherHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.Default>Defaults</ColonyManagerRedux.Livestock.ManagerSettings.Default>
+    <ColonyManagerRedux.Livestock.ManagerSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.Livestock.ManagerSettings.AddOverride>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.Livestock.ManagerSettings.DeleteOverrideFor>
 
     <!-- Logging -->
     <ColonyManagerRedux.Livestock.Logs.TooMany>{0} too many</ColonyManagerRedux.Livestock.Logs.TooMany>

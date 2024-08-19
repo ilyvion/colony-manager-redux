@@ -47,14 +47,14 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
 
         IlyvionWidgets.Label(
             thresholdLabelRect,
-            "ColonyManagerRedux.Logs.JobSettings.KeepLogCount".Translate(KeepLogCount),
-            "ColonyManagerRedux.Logs.JobSettings.KeepLogCount.Tip".Translate());
+            "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount".Translate(KeepLogCount),
+            "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip".Translate());
         KeepLogCount = (int)GUI.HorizontalSlider(thresholdRect, KeepLogCount, 1, DefaultMaxUpperThreshold);
 
         //rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone".Translate(),
-            "ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone.Tip".Translate(
+            "ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone".Translate(),
+            "ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone.Tip".Translate(
                 "ColonyManagerRedux.Logs.NoWorkDone".Translate()
             ),
             ref ShowLogsWithNoWorkDone);

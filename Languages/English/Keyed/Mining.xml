@@ -40,8 +40,8 @@
     <ColonyManagerRedux.Mining.Precious>Precious</ColonyManagerRedux.Mining.Precious>
     <ColonyManagerRedux.Mining.Precious.Tip>Toggle all mineables that yield precious materials</ColonyManagerRedux.Mining.Precious.Tip>
 
-    <ColonyManagerRedux.Mining.JobSettings.DefaultChunks>Default chunks</ColonyManagerRedux.Mining.JobSettings.DefaultChunks>
-    <ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety>
+    <ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks>Default chunks</ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks>
+    <ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety>
 
     <!-- Logging -->
     <ColonyManagerRedux.Mining.Logs.Chunk>chunk</ColonyManagerRedux.Mining.Logs.Chunk>

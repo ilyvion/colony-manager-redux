@@ -8,8 +8,8 @@
     <ColonyManagerRedux.Logs.JobDoesNotExist>Can't go to job because job no longer exists</ColonyManagerRedux.Logs.JobDoesNotExist>
     <ColonyManagerRedux.Logs.SelectToFilterLogsByJob>Select this job to filter logs only for this job. Select the already selected job to unselect.</ColonyManagerRedux.Logs.SelectToFilterLogsByJob>
 
-    <ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone>Show logs with no work done</ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone>
-    <ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone.Tip>With this setting disabled, manager jobs that had no work to be done will have their logs hidden. These logs are often saying little more than "{0}" and may have low utility.</ColonyManagerRedux.Logs.JobSettings.ShowLogsWithNoWorkDone.Tip>
-    <ColonyManagerRedux.Logs.JobSettings.KeepLogCount>Keep {0} of most the recent logs</ColonyManagerRedux.Logs.JobSettings.KeepLogCount>
-    <ColonyManagerRedux.Logs.JobSettings.KeepLogCount.Tip>The larger this number, the more memory these logs will use, and the more space they will use in the save file.\n\nThis value is only updated when starting a new game or when loading an existing game. Modifying this value will not immediately change an ongoing game's log retention count setting.</ColonyManagerRedux.Logs.JobSettings.KeepLogCount.Tip>
+    <ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone>Show logs with no work done</ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone>
+    <ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone.Tip>With this setting disabled, manager jobs that had no work to be done will have their logs hidden. These logs are often saying little more than "{0}" and may have low utility.</ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone.Tip>
+    <ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount>Keep {0} of most the recent logs</ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount>
+    <ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip>The larger this number, the more memory these logs will use, and the more space they will use in the save file.\n\nThis value is only updated when starting a new game or when loading an existing game. Modifying this value will not immediately change an ongoing game's log retention count setting.</ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip>
 </LanguageData>

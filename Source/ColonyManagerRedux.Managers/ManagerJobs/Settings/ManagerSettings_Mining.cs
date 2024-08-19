@@ -31,9 +31,9 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
 
         Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
-        Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.Mining.JobSettings.DefaultChunks".Translate());
+        Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks".Translate());
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
-        Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.Mining.JobSettings.DefaultHealthAndSafety".Translate());
+        Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety".Translate());
         Widgets_Section.EndSectionColumn("Mining.Settings", position);
     }
 

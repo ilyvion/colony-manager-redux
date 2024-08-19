@@ -27,7 +27,7 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
             ref position,
             width,
             DrawJobType,
-            "ColonyManagerRedux.Forestry.JobSettings.DefaultJobType".Translate());
+            "ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType".Translate());
         Widgets_Section.Section(
             ref position,
             width,

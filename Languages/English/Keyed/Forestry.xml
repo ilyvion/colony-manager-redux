@@ -29,7 +29,7 @@
     <ColonyManagerRedux.Forestry.ProvidesCover>Cover</ColonyManagerRedux.Forestry.ProvidesCover>
     <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Select all plants that provide cover</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
 
-    <ColonyManagerRedux.Forestry.JobSettings.DefaultJobType>Default job type</ColonyManagerRedux.Forestry.JobSettings.DefaultJobType>
+    <ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType>Default job type</ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType>
 
     <!-- Logging -->
     <ColonyManagerRedux.Forestry.Logs.Tree>tree</ColonyManagerRedux.Forestry.Logs.Tree>

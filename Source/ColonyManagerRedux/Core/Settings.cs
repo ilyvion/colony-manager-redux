@@ -13,8 +13,8 @@ namespace ColonyManagerRedux;
 public class Settings : ModSettings
 {
     private bool _jobDefSettingsAreLoaded;
-    private List<ManagerSettings> _jobSettings = [];
-    private int _currentJobSettingsTab = -1;
+    private List<ManagerSettings> _managerSettings = [];
+    private int _currentManagerSettingsTab = -1;
 
     private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
     public int DefaultUpdateIntervalTicks
@@ -77,7 +77,7 @@ public class Settings : ModSettings
         LongEventHandler.ExecuteWhenFinished(() =>
         {
             ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
-            _jobSettings.AddRange(MakeManagerSettings());
+            _managerSettings.AddRange(MakeManagerSettings());
             _jobDefSettingsAreLoaded = true;
             ReloadSettings();
         });
@@ -95,12 +95,12 @@ public class Settings : ModSettings
     {
         var tabs = new[] {
             new TabRecord("ColonyManagerRedux.SharedSettingsTabLabel".Translate(), () => {
-                _currentJobSettingsTab = -1;
-            }, _currentJobSettingsTab == -1)
-        }.Concat(_jobSettings.Select((s, i) => new TabRecord(s.Label, () =>
+                _currentManagerSettingsTab = -1;
+            }, _currentManagerSettingsTab == -1)
+        }.Concat(_managerSettings.Select((s, i) => new TabRecord(s.Label, () =>
             {
-                _currentJobSettingsTab = i;
-            }, _currentJobSettingsTab == i)))
+                _currentManagerSettingsTab = i;
+            }, _currentManagerSettingsTab == i)))
         .ToList();
 
         int rowCount = (int)Math.Ceiling((double)tabs.Count / 5);
@@ -108,7 +108,7 @@ public class Settings : ModSettings
         Widgets.DrawMenuSection(rect);
         TabDrawer.DrawTabs(rect, tabs, rowCount, null);
 
-        if (_currentJobSettingsTab == -1)
+        if (_currentManagerSettingsTab == -1)
         {
             Widgets_Section.BeginSectionColumn(rect, "Settings", out Vector2 position, out float width);
 
@@ -120,7 +120,7 @@ public class Settings : ModSettings
         else
         {
             GUI.BeginGroup(rect);
-            _jobSettings[_currentJobSettingsTab].DoPanelContents(rect.AtZero());
+            _managerSettings[_currentManagerSettingsTab].DoPanelContents(rect.AtZero());
             GUI.EndGroup();
         }
     }
@@ -253,54 +253,55 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
 
-        Scribe_Collections.Look(ref _jobSettings, "jobSettings", LookMode.Deep);
+        // TODO: Migrate/deprecate "jobSettings" for "managerSettings"
+        Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            _jobSettings ??= MakeManagerSettings().ToList();
-            EnsureJobSettingsAreCorrect();
+            _managerSettings ??= MakeManagerSettings().ToList();
+            EnsureManagerSettingsAreCorrect();
         }
     }
 
-    private void EnsureJobSettingsAreCorrect()
+    private void EnsureManagerSettingsAreCorrect()
     {
         var allManagerDefs = DefDatabase<ManagerDef>.AllDefs
             .Where(m => m.managerSettingsClass != null)
             .ToDictionary(j => j, _ => false);
 
         // remove settings that should no longer be here
-        for (int i = _jobSettings.Count - 1; i >= 0; i--)
+        for (int i = _managerSettings.Count - 1; i >= 0; i--)
         {
-            ManagerSettings item = _jobSettings[i];
+            ManagerSettings item = _managerSettings[i];
             if (item == null)
             {
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i} is null");
-                _jobSettings.RemoveAt(i);
+                _managerSettings.RemoveAt(i);
             }
             else if (item.Def == null)
             {
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i}'s Def is null");
-                _jobSettings.RemoveAt(i);
+                _managerSettings.RemoveAt(i);
             }
             else if (!allManagerDefs.ContainsKey(item.Def))
             {
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings exist for {item.Def} but no such ManagerDef was found");
-                _jobSettings.RemoveAt(i);
+                _managerSettings.RemoveAt(i);
             }
         }
 
         // add any settings that are missing
-        foreach (var jobSettings in _jobSettings)
+        foreach (var managerSettings in _managerSettings)
         {
-            allManagerDefs[jobSettings.Def] = true;
+            allManagerDefs[managerSettings.Def] = true;
         }
         foreach (var missingDef in allManagerDefs.Where(kv => !kv.Value).Select(kv => kv.Key))
         {
             ColonyManagerReduxMod.Instance.LogMessage($"Creating new settings instance for {missingDef} since it was missing");
-            _jobSettings.Add(ManagerDefMaker.MakeManagerSettings(missingDef)!);
+            _managerSettings.Add(ManagerDefMaker.MakeManagerSettings(missingDef)!);
         }
 
-        _jobSettings.SortBy(j => j.Def.order);
+        _managerSettings.SortBy(j => j.Def.order);
     }
 
     private void ReloadSettings()
@@ -342,6 +343,6 @@ public class Settings : ModSettings
 
     public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings
     {
-        return _jobSettings.Find(s => s.Def == def) as T;
+        return _managerSettings.Find(s => s.Def == def) as T;
     }
 }
