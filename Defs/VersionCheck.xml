@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ilyvion.Laboratory.VersionCheckDef>
+        <defName>CMR_VersionCheck</defName>
+        <modName>Colony Manager Redux</modName>
+        <majorVersion>0</majorVersion>
+        <minorVersion>8</minorVersion>
+    </ilyvion.Laboratory.VersionCheckDef>
+</Defs>
