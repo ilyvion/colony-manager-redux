@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+
+-   ilyvion's Laboratory: v0.6
+    > [!IMPORTANT]  
+    > This release requires an update to ilyvion's Laboratory!
+
 ### Added
 
 -   Major performance optimization/overhaul #1: Manager jobs now spread their work across multiple ticks rather than trying to do everything in a single tick. This should massively improve any hiccups/TPS issues that were caused by these jobs trying to do too much at a time.

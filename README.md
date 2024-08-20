@@ -3,6 +3,9 @@
 > [!IMPORTANT]  
 > You might be used to downloading people's GitHub mods by using the **Code -> Download ZIP** method, but this won't work on my repos[^badpractice]; I make use of proper releases and you can always find the latest version of the mod for download on the [Releases page](https://github.com/ilyvion/colony-manager-redux/releases/latest).
 
+> [!IMPORTANT]  
+> This mod depends on [ilyvion's Laboratory](https://github.com/ilyvion/ilyvion-laboratory) to work. If you're installing this mod manually (i.e. not from the Steam Workshop), make sure you install it too. Also, whenever this mod requires an update to ilyvion's Laboratory to function properly, I will make sure to announce that in the change notes, so when you update this mod, either also always update ilyvion's Laboratory, to be safe, or track which version you have so you know when to update.
+
 **Colony Manager Redux** is ilyvion's new and improved take on Fluffy's Colony Manager. Why did I make my own custom version? This version may never have seen the light of day if Fluffy had kept updating the original (though it's understandable why it's been hard), but after a long time without updates (nearly two years at the time of this writing) it felt like the space was primed for a replacement/new contender. I've put enough effort and care into this project at this point that I consider it an entirely separate project from the original, and will not be removing it or deprecating it should the original Colony Manager make a comeback.
 
 ## Features
@@ -43,6 +46,16 @@ The mod can be added to a game at any time. Removing the mod should be fine as w
 ## For modders
 
 So, you want to add your own manager job/tab to the mod? Awesome! I've written a small set of articles on how to do this on the [Wiki](https://github.com/ilyvion/colony-manager-redux/wiki/Adding-a-custom-manager-feature), and you're also free to come ask me any questions you may have on my [Discord server](https://discord.gg/J9Q78avHgM) and I also hang out in the RimWorld discord.
+
+## Troubleshooting
+
+If you get an error that looks like this:
+
+```
+ReflectionTypeLoadException getting types in assembly ColonyManagerRedux: System.Reflection.ReflectionTypeLoadException: Exception of type 'System.Reflection.ReflectionTypeLoadException' was thrown.
+```
+
+It most likely means that you've updated this mod but not ilyvion's Laboratory. I try my best to remember to announce when a new release requires an update to ilyvion's Laboratory, so I apologize in advance if I ever forget.
 
 ## Translations
 
