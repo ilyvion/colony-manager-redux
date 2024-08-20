@@ -4,7 +4,6 @@
     <MainButtonDef>
         <defName>ColonyManagerRedux_Manager</defName>
         <label>manager</label>
-        <iconPath>UI/Buttons/CMR_MainIcon</iconPath>
         <description>Choose which colonist does what kinds of work, and in what priority order.</description>
         <tabWindowClass>ColonyManagerRedux.MainTabWindow_Manager</tabWindowClass>
         <order>11</order>

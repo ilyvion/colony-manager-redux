@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="ilyvion.Laboratory.PatchOperationFindModById">
+        <mods>
+            <li>vanillaexpanded.vtexe</li>
+        </mods>
+        <match Class="PatchOperationAdd">
+            <xpath>Defs/MainButtonDef[defName="ColonyManagerRedux_Manager"]</xpath>
+            <value>
+                <iconPath>UI/Buttons/CMR_MainIcon</iconPath>
+            </value>
+        </match>
+    </Operation>
+</Patch>
