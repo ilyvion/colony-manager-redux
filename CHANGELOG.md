@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2024-08-20
+
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.6
@@ -136,7 +138,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.5...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.2...v0.1.3
