@@ -15,14 +15,30 @@ public class JobTracker(Manager manager) : IExposable
     private readonly Manager _manager = manager;
 
     private List<ManagerJob> jobs = [];
-    public IEnumerable<ManagerJob> Jobs => jobs;
+    internal List<ManagerJob> JobLists
+    {
+        get
+        {
+            if (jobs == null)
+            {
+                ColonyManagerReduxMod.Instance.LogError("The jobs collection was null. This " +
+                    "should never happen, but it means that any configured jobs you had will " +
+                    "have been lost. If this happens repeatedly, there's something seriously " +
+                    "wrong with your game somewhere.");
+                jobs = [];
+            }
+            return jobs;
+        }
+    }
+
+    public IEnumerable<ManagerJob> Jobs => JobLists;
 
     private IEnumerable<ManagerJob> JobsInOrderOfPriority =>
-        jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
+        Jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
 
-    public bool HasNoJobs => jobs.Count == 0;
+    public bool HasNoJobs => JobLists.Count == 0;
 
-    public int MaxPriority => jobs.Count - 1;
+    public int MaxPriority => JobLists.Count - 1;
 
     /// <summary>
     ///     Highest priority available job
@@ -36,12 +52,12 @@ public class JobTracker(Manager manager) : IExposable
         var jobTracker = manager.JobTracker;
 
         var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine("Job count: " + jobTracker.jobs.Count);
+        stringBuilder.AppendLine("Job count: " + jobTracker.JobLists.Count);
         stringBuilder.AppendLine("Has no jobs: " + jobTracker.HasNoJobs);
         stringBuilder.AppendLine("NextJob: " + jobTracker.NextJob?.ToString() ?? "<none>");
         stringBuilder.AppendLine();
         stringBuilder.AppendLine("Jobs: ");
-        foreach (var job in jobTracker.jobs)
+        foreach (var job in jobTracker.Jobs)
         {
             stringBuilder.AppendLine(job.ToString());
         }
@@ -58,6 +74,18 @@ public class JobTracker(Manager manager) : IExposable
     public void ExposeData()
     {
         Scribe_Collections.Look(ref jobs, "jobs", LookMode.Deep, _manager);
+
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            if (jobs == null)
+            {
+                jobs = [];
+                ColonyManagerReduxMod.Instance.LogError("The jobs collection was null on load. " +
+                    "This means it wasn't saved properly and any configured jobs you had will " +
+                    "have been lost. If this happens repeatedly, there's something seriously " +
+                    "wrong with your game somewhere.");
+            }
+        }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
@@ -80,7 +108,7 @@ public class JobTracker(Manager manager) : IExposable
         }
 
         job.Priority = MaxPriority + 1;
-        jobs.Add(job);
+        JobLists.Add(job);
     }
 
     /// <summary>
@@ -99,16 +127,16 @@ public class JobTracker(Manager manager) : IExposable
             job.CleanUp();
         }
 
-        jobs.Remove(job);
+        JobLists.Remove(job);
         CleanPriorities();
     }
 
-    public IEnumerable<T> JobsOfType<T>() => jobs.OrderBy(job => job.Priority).OfType<T>();
+    public IEnumerable<T> JobsOfType<T>() => Jobs.OrderBy(job => job.Priority).OfType<T>();
 
     internal (int lowest, int highest) GetBoundsForJobsOfType<T>()
-        where T : ManagerJob => jobs.OfType<T>().Select(j => j.Priority).MinAndMax();
+        where T : ManagerJob => Jobs.OfType<T>().Select(j => j.Priority).MinAndMax();
 
-    public bool HasJob(ManagerJob job) => jobs.Contains(job);
+    public bool HasJob(ManagerJob job) => JobLists.Contains(job);
 
     private bool _isRunningJobs;
     public bool IsRunningJobs => _isRunningJobs;
@@ -247,7 +275,7 @@ public class JobTracker(Manager manager) : IExposable
 
     private void CleanPriorities()
     {
-        foreach (var (job, priority) in jobs.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
+        foreach (var (job, priority) in Jobs.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
         {
             job.Priority = priority;
         }
@@ -263,12 +291,12 @@ public class JobTracker(Manager manager) : IExposable
 
         // get list of priorities for this type.
         // Use ArrayPool<T> and stackalloc to reduce GC pressure
-        var jobsOfTypeCount = jobs.OfType<T>().Count();
+        var jobsOfTypeCount = Jobs.OfType<T>().Count();
         using var jobsOfType = ArrayPool<ManagerJob>.Shared.RentWithSelfReturn(jobsOfTypeCount);
         Span<int> priorities = jobsOfTypeCount < Constants.MaxStackallocSize
             ? stackalloc int[jobsOfTypeCount]
             : new int[jobsOfTypeCount];
-        foreach (var (j, i) in jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
+        foreach (var (j, i) in Jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
         {
             jobsOfType[i] = j;
             priorities[i] = j.Priority;
@@ -300,7 +328,7 @@ public class JobTracker(Manager manager) : IExposable
 
     internal void IncreasePriority<T>(T job) where T : ManagerJob
     {
-        ManagerJob jobB = jobs
+        ManagerJob jobB = Jobs
             .OfType<T>()
             .OrderByDescending(mj => mj.Priority)
             .First(mj => mj.Priority < job.Priority);
@@ -310,7 +338,7 @@ public class JobTracker(Manager manager) : IExposable
 
     internal void DecreasePriority<T>(T job) where T : ManagerJob
     {
-        ManagerJob jobB = jobs
+        ManagerJob jobB = Jobs
             .OfType<T>()
             .OrderBy(mj => mj.Priority)
             .First(mj => mj.Priority > job.Priority);

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   A player has reported an error where their jobs list had become null. This shouldn't be possible, but since it happened anyway, let's code so that we can at least recover from it if it does happen.
+
 ## [0.2.2] - 2024-08-21
 
 ### Fixed
