@@ -121,8 +121,18 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
                 {
                     ReadyForNextToil();
                 }
-            }
+            },
+
         };
+        toil.AddFinishAction(() =>
+        {
+            if (handle != null && !handle.IsCompleted)
+            {
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    $"Cancelling managing coroutine because toil finished early");
+                handle.Cancel();
+            }
+        });
 
         toil.WithProgressBar(TargetIndex.A, () => workDone / workNeeded);
         return toil;

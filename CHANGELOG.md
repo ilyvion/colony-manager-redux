@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   FinalizeInit methods added to jobs and manager comps
 
+### Fixed
+
+-   Jobs whose managers get interrupted in their work for whatever reasons now stop running as soon as it happens; before this they would run to completion even when interrupted, which isn't very appropriate.
+
 ## [0.2.4] - 2024-08-21
 
 ### Fixed
