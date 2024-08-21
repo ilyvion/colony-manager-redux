@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2024-08-21
+
 ### Fixed
 
 -   Discovered and fixed another source of exceptions in Forestry jobs. Hopefully this is the last one. 🤞
 
-## [0.2.1] - 2024-08-20
+## [0.2.1] - 2024-08-21
 
 ### Fixed
 
@@ -148,7 +150,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.2.2...HEAD
+[0.2.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.0...v0.2.2
 [0.2.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.5...v0.2.0
 [0.1.5]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.1.4...v0.1.5
