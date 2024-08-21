@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Discovered and fixed another source of exceptions in Forestry jobs. Hopefully this is the last one. 🤞
+
 ## [0.2.1] - 2024-08-20
 
 ### Fixed

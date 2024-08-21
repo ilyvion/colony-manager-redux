@@ -13,6 +13,7 @@ internal static class Utilities_Plants
             // if !clearArea, remove things that do not yield wood
             .Where(td => clearArea || (td.plant.harvestTag == "Wood" ||
                 td.plant.harvestedThingDef == ThingDefOf.WoodLog) &&
+                td.plant.harvestedThingDef != null &&
                 td.plant.harvestYield > 0)
             .Distinct();
     }

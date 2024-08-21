@@ -143,6 +143,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         {
             _type = value;
             RefreshAllTrees();
+            ConfigureThresholdTriggerParentFilter();
         }
     }
 
@@ -609,10 +610,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        TriggerThreshold.ParentFilter.SetDisallowAll();
-        foreach (var item in AllPlants)
+        if (Type == ForestryJobType.Logging)
         {
-            TriggerThreshold.ParentFilter.SetAllow(item.plant.harvestedThingDef, true);
+            TriggerThreshold.ParentFilter.SetDisallowAll();
+            foreach (var item in AllPlants)
+            {
+                TriggerThreshold.ParentFilter.SetAllow(item.plant.harvestedThingDef, true);
+            }
         }
     }
 
