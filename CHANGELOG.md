@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Forgot to make sure a certain operation doesn't happen during load which caused an exception in any Forestry jobs on load.
+
 ## [0.2.0] - 2024-08-20
 
 ### Dependencies

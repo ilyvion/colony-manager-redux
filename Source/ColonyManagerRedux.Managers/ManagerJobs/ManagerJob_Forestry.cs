@@ -85,7 +85,10 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     {
         // populate the trigger field, set the root category to wood.
         Trigger = new Trigger_Threshold(this);
-        ConfigureThresholdTriggerParentFilter();
+        if (Scribe.mode == LoadSaveMode.Inactive)
+        {
+            ConfigureThresholdTriggerParentFilter();
+        }
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
 
