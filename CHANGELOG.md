@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   FinalizeInit methods added to jobs and manager comps
+
 ## [0.2.4] - 2024-08-21
 
 ### Fixed

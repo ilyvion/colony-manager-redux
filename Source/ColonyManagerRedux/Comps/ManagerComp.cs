@@ -2,6 +2,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 
+
 namespace ColonyManagerRedux;
 
 public abstract class ManagerComp
@@ -33,6 +34,10 @@ public abstract class ManagerComp
     }
 
     public virtual void PostExposeData()
+    {
+    }
+
+    protected internal virtual void FinalizeInit()
     {
     }
 

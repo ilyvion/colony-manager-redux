@@ -278,6 +278,10 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
     }
 
+    protected internal virtual void FinalizeInit()
+    {
+    }
+
     [Obsolete("Implement TryDoJobCoroutine; this is only here for backwards compatibility")]
     public virtual bool TryDoJob(ManagerLog jobLog)
     {

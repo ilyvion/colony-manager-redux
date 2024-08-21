@@ -193,6 +193,16 @@ public class Manager : MapComponent, ILoadReferenceable
                 ColonyManagerReduxMod.Instance.LogDebug("Had no _ancientDangerRect value");
             }
         }
+
+        foreach (var job in _jobTracker.Jobs)
+        {
+            job.FinalizeInit();
+        }
+
+        foreach (ManagerComp comp in _comps)
+        {
+            comp.FinalizeInit();
+        }
     }
 
     public override void MapComponentTick()
