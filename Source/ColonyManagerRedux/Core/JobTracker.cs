@@ -89,12 +89,12 @@ public class JobTracker(Manager manager) : IExposable
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            if (jobs.Any(j => !j.IsValid))
+            if (jobs.Any(job => job == null || !job.IsValid))
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    $"Removing {jobs.Count(j => !j.IsValid)} invalid manager jobs. " +
+                    $"Removing {jobs.Count(j => j == null || !j.IsValid)} invalid manager jobs. " +
                     "If this keeps happening, please report it.");
-                jobs = jobs.Where(job => job.IsValid).ToList();
+                jobs.RemoveWhere(job => job == null || !job.IsValid);
             }
             CleanPriorities();
         }
