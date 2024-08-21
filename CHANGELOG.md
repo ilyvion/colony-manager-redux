@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   A player has reported an error where their jobs list had become null. This shouldn't be possible, but since it happened anyway, let's code so that we can at least recover from it if it does happen.
+-   When the setting 'Mine thick roofs' was disabled, attempting to check whether or not the mod could mine cells without roofs would cause an exception. This has been remedied.
 
 ## [0.2.2] - 2024-08-21
 

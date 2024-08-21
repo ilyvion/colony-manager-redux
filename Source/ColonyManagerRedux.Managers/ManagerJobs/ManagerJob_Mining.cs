@@ -688,7 +688,7 @@ internal sealed class ManagerJob_Mining
             return true;
         }
 
-        return !target.Map.roofGrid.RoofAt(target.Position).isThickRoof;
+        return !target.Map.roofGrid.RoofAt(target.Position)?.isThickRoof ?? true;
     }
 
     public bool IsInAllowedArea(Thing target)
