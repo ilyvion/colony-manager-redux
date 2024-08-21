@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2024-08-21
+
 ### Fixed
 
 -   A player has reported an error where one of their jobs had become null after a load. This shouldn't be possible, but since it happened anyway, let's code so that we can at least recover from it if it does happen.
@@ -161,7 +163,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.2.3...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.2.4...HEAD
+[0.2.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.0...v0.2.1
