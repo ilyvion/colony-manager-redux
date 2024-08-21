@@ -8,7 +8,7 @@
     <supportedVersions>
         <li>1.5</li>
     </supportedVersions>
-    <modVersion>0.2.0</modVersion>
+    <modVersion>0.2.1</modVersion>
     <modDependencies>
         <li>
             <packageId>brrainz.harmony</packageId>
