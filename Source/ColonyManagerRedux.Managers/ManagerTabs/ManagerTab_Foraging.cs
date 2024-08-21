@@ -143,8 +143,11 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
         return sb.ToString();
     }
 
+    private List<ThingDef> _tmpThings = [];
     public float DrawPlantShortcuts(Vector2 pos, float width)
     {
+        using var _ = new DoOnDispose(_tmpThings.Clear);
+
         var start = pos;
 
         // list of keys in allowed trees list (all plans that yield wood in biome, static)
@@ -161,14 +164,17 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
 
         // toggle edible
         rowRect.y += ListEntryHeight;
-        var edible = allPlants.Where(p => p.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false).ToList();
-        DrawShortcutToggle(edible, allowedPlants, (p, v) => SelectedForagingJob.SetPlantAllowed(p, v), rowRect,
+        _tmpThings.Clear();
+        _tmpThings.AddRange(
+            allPlants.Where(p => p.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false));
+        DrawShortcutToggle(_tmpThings, allowedPlants, (p, v) => SelectedForagingJob.SetPlantAllowed(p, v), rowRect,
             "ColonyManagerRedux.Foraging.Edible", "ColonyManagerRedux.Foraging.Edible.Tip");
 
         // toggle shrooms
         rowRect.y += ListEntryHeight;
-        var shrooms = allPlants.Where(p => p.plant?.cavePlant ?? false).ToList();
-        DrawShortcutToggle(shrooms, allowedPlants, (p, v) => SelectedForagingJob.SetPlantAllowed(p, v), rowRect,
+        _tmpThings.Clear();
+        _tmpThings.AddRange(allPlants.Where(p => p.plant?.cavePlant ?? false));
+        DrawShortcutToggle(_tmpThings, allowedPlants, (p, v) => SelectedForagingJob.SetPlantAllowed(p, v), rowRect,
             "ColonyManagerRedux.Foraging.Mushrooms", "ColonyManagerRedux.Foraging.Mushrooms.Tip");
 
         return rowRect.yMax - start.y;

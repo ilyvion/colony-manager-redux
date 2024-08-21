@@ -30,8 +30,8 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     private List<ManagerJob> _jobs = [];
     private List<MultiCheckboxState> _selectedJobs = [];
 
-    private List<ManagerJob> SelectedJobs =>
-        _jobs.Where((_, i) => _selectedJobs[i] == MultiCheckboxState.On).ToList();
+    private IEnumerable<ManagerJob> SelectedJobs =>
+        _jobs.Where((_, i) => _selectedJobs[i] == MultiCheckboxState.On);
 
     protected override void DoTabContents(Rect canvas)
     {
@@ -90,7 +90,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     private void DoExport(string name)
     {
         Manager.SetScribingMode(ScribingMode.Transfer);
-        var exportJobs = SelectedJobs;
+        var exportJobs = SelectedJobs.ToList();
         try
         {
             try

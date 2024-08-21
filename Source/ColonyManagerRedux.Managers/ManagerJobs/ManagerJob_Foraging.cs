@@ -307,7 +307,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count,
             TriggerThreshold.TargetCount));
-        var targets = GetValidForagingTargetsSorted();
+        var targets = GetValidForagingTargetsSorted().ToList();
 
         if (targets.Count == 0)
         {
@@ -382,16 +382,14 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
-    private List<Plant> GetValidForagingTargetsSorted()
+    private IEnumerable<Plant> GetValidForagingTargetsSorted()
     {
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.listerThings.AllThings
-                      .Where(IsValidForagingTarget)
-
-                      .Select(p => (Plant)p)
-                      .OrderByDescending(p => p.YieldNow() / Distance(p, position))
-                      .ToList();
+            .Where(IsValidForagingTarget)
+            .Select(p => (Plant)p)
+            .OrderByDescending(p => p.YieldNow() / Distance(p, position));
     }
 
     private bool IsValidForagingTarget(LocalTargetInfo t)

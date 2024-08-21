@@ -1055,12 +1055,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var currentJobs = Manager.JobTracker.JobsOfType<ManagerJob_Livestock>().ToList();
 
         // concatenate lists of animals on biome and animals in colony.
-        _availablePawnKinds = Manager.map.Biome.AllWildAnimals.ToList();
-        _availablePawnKinds.AddRange(
+        _availablePawnKinds.Clear();
+        _availablePawnKinds.AddRange(Manager.map.Biome.AllWildAnimals.Concat(
             Manager.map.mapPawns.AllPawns
                 .Where(p => p.RaceProps.Animal)
-                .Select(p => p.kindDef));
-        _availablePawnKinds = _availablePawnKinds
+                .Select(p => p.kindDef))
 
             // get distinct pawnkinds from the merges
             .Distinct()
@@ -1069,7 +1068,6 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             .Where(pk => !currentJobs.Select(job => job.TriggerPawnKind.pawnKind).Contains(pk))
 
             // order by label
-            .OrderBy(def => def.LabelCap.RawText)
-            .ToList();
+            .OrderBy(def => def.LabelCap.RawText));
     }
 }

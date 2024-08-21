@@ -95,7 +95,7 @@ internal static class Utilities_Livestock
 
         // if not, set up a cache
         List<Pawn> getter() => map.mapPawns.AllPawnsSpawned
-            .Where(p => p.RaceProps.Animal          // is animal
+            .Where(p => p.RaceProps.Animal      // is animal
                 && !p.Dead                      // is alive
                 && p.kindDef == pawnKind        // is our managed pawnkind
                 && !p.IsHiddenFromPlayer()      // is not hidden from us
@@ -116,8 +116,8 @@ internal static class Utilities_Livestock
             return pawns;
         }
 
-        List<Pawn> getter() =>
-                pawnKind.GetAll(map).Where(p => PawnIsOfAgeSex(p, ageSex)).ToList(); // is of age and sex we want
+        // is of age and sex we want
+        List<Pawn> getter() => pawnKind.GetAll(map).Where(p => PawnIsOfAgeSex(p, ageSex)).ToList();
         allSexedCache.Add(key, getter);
         return getter();
     }
@@ -133,15 +133,12 @@ internal static class Utilities_Livestock
         // is it up to date?
         if (cacheExists && followerCache[pawn].TryGetValue(out var cached) && cached != null)
         {
-            return cached.ToList();
+            return cached;
         }
 
         // if not, get a new list.
         cached = pawn.MapHeld.mapPawns.PawnsInFaction(pawn.Faction)
-            .Where(p => !p.Dead &&
-                p.RaceProps.Animal &&
-                p.playerSettings.Master == pawn
-            ).ToList();
+            .Where(p => !p.Dead && p.RaceProps.Animal && p.playerSettings.Master == pawn).ToList();
 
         // update if key exists
         if (cacheExists)
@@ -156,12 +153,12 @@ internal static class Utilities_Livestock
             followerCache.Add(pawn, new(cached, 2));
         }
 
-        return cached.ToList();
+        return cached;
     }
 
-    public static List<Pawn> GetFollowers(this Pawn pawn, PawnKindDef pawnKind)
+    public static IEnumerable<Pawn> GetFollowers(this Pawn pawn, PawnKindDef pawnKind)
     {
-        return GetFollowers(pawn).Where(f => f.kindDef == pawnKind).ToList();
+        return GetFollowers(pawn).Where(f => f.kindDef == pawnKind);
     }
 
     public static MasterMode GetMasterMode(this Pawn pawn)
@@ -213,7 +210,7 @@ internal static class Utilities_Livestock
         if (cacheExists &&
             masterCache[key].TryGetValue(out var cached) && cached != null)
         {
-            return cached.ToList();
+            return cached;
         }
 
         // if not, get a new list.
@@ -236,17 +233,17 @@ internal static class Utilities_Livestock
             masterCache.Add(key, new(cached, 2));
         }
 
-        return cached.ToList();
+        return cached;
     }
 
-    public static IEnumerable<Pawn>? GetTame(this PawnKindDef pawnKind, Map map, bool includeGuests = true)
+    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, bool includeGuests = true)
     {
         var tameCache = Manager.For(map).LivestockCaches().TameCache;
 
         var key = (pawnKind, map.uniqueID, includeGuests);
         if (tameCache.TryGetValue(key, out var pawns))
         {
-            return pawns;
+            return pawns!;
         }
 
         List<Pawn> getter() => pawnKind.GetAll(map)
@@ -258,11 +255,6 @@ internal static class Utilities_Livestock
 
     public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex, bool cached = true, bool includeGuests = true)
     {
-#if DEBUG_LIFESTOCK_COUNTS
-        List<Pawn> tame = GetAll( ageSex ).Where( p => p.Faction == Faction.OfPlayer ).ToList();
-        Log.Message( "Tamecount " + ageSex + ": " + tame.Count );
-        return tame;
-#else
         var tameSexedCache = Manager.For(map).LivestockCaches().TameSexedCache;
 
         var key = (pawnKind, map.uniqueID, ageSex, includeGuests);
@@ -279,10 +271,9 @@ internal static class Utilities_Livestock
             .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest())).ToList();
         tameSexedCache.Add(key, getter);
         return getter();
-#endif
     }
 
-    public static List<Pawn> GetTrainers(this PawnKindDef pawnkind, Map map, MasterMode mode)
+    public static IEnumerable<Pawn> GetTrainers(this PawnKindDef pawnkind, Map map, MasterMode mode)
     {
         return pawnkind.GetMasterOptions(map, mode)
             .Where(p =>
@@ -293,8 +284,7 @@ internal static class Utilities_Livestock
                 Mathf.Clamp(
                     GenMath.LerpDouble(
                         0.3f, 1f, 0f, 9f,
-                        pawnkind.RaceProps.wildness), 0f, 20f))
-            .ToList();
+                        pawnkind.RaceProps.wildness), 0f, 20f));
     }
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
@@ -314,12 +304,6 @@ internal static class Utilities_Livestock
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
     {
-#if DEBUG_LIFESTOCK_COUNTS
-        foreach (Pawn p in GetAll( ageSex )) Log.Message(p.Faction?.GetCallLabel() ?? "NULL" );
-        List<Pawn> wild = GetAll( ageSex ).Where( p => p.Faction == null ).ToList();
-        Log.Message( "Wildcount " + ageSex + ": " + wild.Count );
-        return wild;
-#else
         var wildSexedCache = Manager.For(map).LivestockCaches().WildSexedCache;
 
         var key = (pawnKind, map.uniqueID, ageSex);
@@ -331,7 +315,6 @@ internal static class Utilities_Livestock
         List<Pawn> getter() => pawnKind.GetAll(map, ageSex).Where(p => p.Faction == null).ToList();
         wildSexedCache.Add(key, getter);
         return getter();
-#endif
     }
 
 

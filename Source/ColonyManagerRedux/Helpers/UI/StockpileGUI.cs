@@ -16,7 +16,9 @@ public static class StockpileGUI
     private static List<Texture2D>? textures;
 
     private static Vector2 _scrollPosition;
-    public static float DoStockpileSelectors(Vector2 position, float width, ref Zone_Stockpile? activeStockpile, Map map)
+    private static List<Zone_Stockpile> _tmpStockpiles = [];
+    public static float DoStockpileSelectors(
+        Vector2 position, float width, ref Zone_Stockpile? activeStockpile, Map map)
     {
         if (map == null)
         {
@@ -24,10 +26,11 @@ public static class StockpileGUI
         }
 
         // get all stockpiles
-        var allStockpiles = map.zoneManager.AllZones.OfType<Zone_Stockpile>().ToList();
+        _tmpStockpiles.AddRange(map.zoneManager.AllZones.OfType<Zone_Stockpile>());
+        using var _ = new DoOnDispose(_tmpStockpiles.Clear);
 
         // count + 1 for all stockpiles
-        var stockPileCount = allStockpiles.Count + 1;
+        var stockPileCount = _tmpStockpiles.Count + 1;
         int rowCount = (int)Math.Ceiling((double)stockPileCount / StockPilesPerRow);
         bool needsScrollbars = rowCount > 3;
         float viewWidth = needsScrollbars ? width - 16f : width;
@@ -36,7 +39,7 @@ public static class StockpileGUI
         // create colour swatch
         if (textures == null || textures.Count != stockPileCount - 1)
         {
-            CreateTextures(allStockpiles);
+            CreateTextures(_tmpStockpiles);
         }
 
         mouseOverZone = null;
@@ -54,7 +57,8 @@ public static class StockpileGUI
         {
             if (j == 0)
             {
-                var nullAreaRect = new Rect(position.x, position.y, widthPerCell, Constants.ListEntryHeight);
+                var nullAreaRect = new Rect(
+                    position.x, position.y, widthPerCell, Constants.ListEntryHeight);
                 DoZoneSelector(nullAreaRect, ref activeStockpile, null, BaseContent.GreyTex);
             }
             else
@@ -63,7 +67,8 @@ public static class StockpileGUI
                     position.x + j % StockPilesPerRow * widthPerCell,
                     position.y + j / StockPilesPerRow * Constants.ListEntryHeight,
                     widthPerCell, Constants.ListEntryHeight);
-                DoZoneSelector(stockpileRect, ref activeStockpile, allStockpiles[j - 1], textures[j - 1]);
+                DoZoneSelector(
+                    stockpileRect, ref activeStockpile, _tmpStockpiles[j - 1], textures[j - 1]);
             }
         }
 

@@ -178,6 +178,7 @@ public partial class History : IExposable
     }
 
     private GraphRenderer? graphRenderer;
+    private List<Chapter> _tmpChapters = [];
     public void DrawPlot(in Rect rect, bool positiveOnly = false, bool negativeOnly = false)
     {
         bool recordHistoricalData = ColonyManagerReduxMod.Settings.RecordHistoricalData;
@@ -211,17 +212,22 @@ public partial class History : IExposable
         }
 
         // subset chapters
-        var chapters =
-            _chaptersShown.Where(chapter => !positiveOnly || chapter.counts[(int)PeriodShown].Any(i => i > 0))
+        _tmpChapters.AddRange(
+            _chaptersShown.Where(chapter =>
+                !positiveOnly || chapter.counts[(int)PeriodShown].Any(i => i > 0))
                 .Where(chapter => !negativeOnly || chapter.counts[(int)PeriodShown].Any(i => i < 0))
-                .OrderBy(_chapters.IndexOf)
-                .ToList();
-        foreach (var chapter in chapters)
+                .OrderBy(_chapters.IndexOf));
+        using var _ = new DoOnDispose(_tmpChapters.Clear);
+
+        foreach (var chapter in _tmpChapters)
         {
             chapter.GraphSeries!.Hidden = false;
         }
 
-        graphRenderer.DrawGraph(rect, chapters.Select(c => c.ValuesFor(PeriodShown, sign)).ToArray(), chapters.Select(c => c.TargetsFor(PeriodShown, sign)).ToArray());
+        graphRenderer.DrawGraph(
+            rect,
+            _tmpChapters.Select(c => c.ValuesFor(PeriodShown, sign)).ToArray(),
+            _tmpChapters.Select(c => c.TargetsFor(PeriodShown, sign)).ToArray());
 
         // period / variables picker
         if (DrawOptions)
@@ -238,10 +244,12 @@ public partial class History : IExposable
                         new FloatMenuOption("ColonyManagerRedux.History.Period".Translate() +
                             ": " + $"ColonyManagerRedux.History.PeriodShown.{p}"
                                 .Translate().CapitalizeFirst(),
-                            delegate { PeriodShown = p; })).ToList();
-                    if (AllowTogglingLegend && _chapters.Count > 1) // add option to show/hide legend if appropriate.
+                            () => PeriodShown = p)).ToList();
+                    // add option to show/hide legend if appropriate.
+                    if (AllowTogglingLegend && _chapters.Count > 1)
                     {
-                        options.Add(new FloatMenuOption("ColonyManagerRedux.History.ShowHideLegend".Translate(),
+                        options.Add(new FloatMenuOption(
+                            "ColonyManagerRedux.History.ShowHideLegend".Translate(),
                             delegate { DrawInlineLegend = !DrawInlineLegend; }));
                     }
 

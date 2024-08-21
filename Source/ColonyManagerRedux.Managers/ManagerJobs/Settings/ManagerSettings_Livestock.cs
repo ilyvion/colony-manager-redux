@@ -532,21 +532,23 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
 
     private int _currentLivestockSettingsTab = -1;
     private PawnKindSettings? currentOverrideTab;
+    private List<TabRecord> _tmpTabRecords = [];
     public override void DoPanelContents(Rect rect)
     {
-        var tabs = (new[]
-        {
+        _tmpTabRecords.Add(
             new TabRecord("ColonyManagerRedux.Livestock.ManagerSettings.Default".Translate(), () =>
             {
                 _currentLivestockSettingsTab = -1;
                 currentOverrideTab = null;
-            }, _currentLivestockSettingsTab == -1)
-        }).Concat(overrides.Select((s) => new TabRecord(s.Key.GetLabelPlural().CapitalizeFirst(), () =>
+            }, _currentLivestockSettingsTab == -1));
+        _tmpTabRecords.AddRange(
+            overrides.Select((s) => new TabRecord(s.Key.GetLabelPlural().CapitalizeFirst(), () =>
             {
                 _currentLivestockSettingsTab = 0;
                 currentOverrideTab = s.Value;
-            }, _currentLivestockSettingsTab == 0 && currentOverrideTab == s.Value)))
-        .Append(new TabRecordWithTip("+", "ColonyManagerRedux.Livestock.ManagerSettings.AddOverride".Translate(), () =>
+            }, _currentLivestockSettingsTab == 0 && currentOverrideTab == s.Value)));
+        _tmpTabRecords.Add(
+            new TabRecordWithTip("+", "ColonyManagerRedux.Livestock.ManagerSettings.AddOverride".Translate(), () =>
             {
                 var options = new List<FloatMenuOption>();
                 foreach (var pawnKindDef in PawnKindDefs)
@@ -569,14 +571,14 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));
-            }, false))
-        .ToList();
+            }, false));
+        using var _ = new DoOnDispose(_tmpTabRecords.Clear);
 
-        int rowCount = (int)Math.Ceiling((double)tabs.Count / 5);
+        int rowCount = (int)Math.Ceiling((double)_tmpTabRecords.Count / 5);
         rect.yMin += rowCount * SectionHeaderHeight + rowCount * Margin;
         rect = rect.ContractedBy(Margin);
         Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, tabs, rowCount, null);
+        TabDrawer.DrawTabs(rect, _tmpTabRecords, rowCount, null);
 
         var panelRect = new Rect(
             rect.xMin,

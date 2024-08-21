@@ -93,29 +93,40 @@ public class Settings : ModSettings
             .Select(m => ManagerDefMaker.MakeManagerSettings(m)!);
     }
 
+    private List<TabRecord> _tmpTabRecords = [];
     public void DoSettingsWindowContents(Rect rect)
     {
-        var tabs = new[] {
-            new TabRecord("ColonyManagerRedux.SharedSettingsTabLabel".Translate(), () => {
+        _tmpTabRecords.Add(
+            new TabRecord("ColonyManagerRedux.SharedSettingsTabLabel".Translate(), () =>
+            {
                 _currentManagerSettingsTab = -1;
-            }, _currentManagerSettingsTab == -1)
-        }.Concat(_managerSettings.Select((s, i) => new TabRecord(s.Label, () =>
+            }, _currentManagerSettingsTab == -1));
+        _tmpTabRecords.AddRange(_managerSettings.Select((s, i) => new TabRecord(s.Label, () =>
             {
                 _currentManagerSettingsTab = i;
-            }, _currentManagerSettingsTab == i)))
-        .ToList();
+            }, _currentManagerSettingsTab == i)));
+        using var _ = new DoOnDispose(_tmpTabRecords.Clear);
 
-        int rowCount = (int)Math.Ceiling((double)tabs.Count / 5);
+        int rowCount = (int)Math.Ceiling((double)_tmpTabRecords.Count / 5);
         rect.yMin += rowCount * SectionHeaderHeight + Margin;
         Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, tabs, rowCount, null);
+        TabDrawer.DrawTabs(rect, _tmpTabRecords, rowCount, null);
 
         if (_currentManagerSettingsTab == -1)
         {
-            Widgets_Section.BeginSectionColumn(rect, "Settings", out Vector2 position, out float width);
+            Widgets_Section.BeginSectionColumn(
+                rect, "Settings", out Vector2 position, out float width);
 
-            Widgets_Section.Section(ref position, width, DrawGeneralSettings, "ColonyManagerRedux.GeneralSettingsTabLabel".Translate());
-            Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                DrawGeneralSettings,
+                "ColonyManagerRedux.GeneralSettingsTabLabel".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                DrawThreshold,
+                "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
 
             Widgets_Section.EndSectionColumn("Settings", position);
         }

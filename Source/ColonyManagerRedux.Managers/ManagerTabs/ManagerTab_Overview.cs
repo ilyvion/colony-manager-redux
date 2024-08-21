@@ -15,7 +15,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     private float _overviewHeight = 9999f;
     private Vector2 _overviewScrollPosition = Vector2.zero;
-    private List<Pawn> Workers = [];
+    private List<Pawn> _workers = [];
 
     private SkillDef? SkillDef { get; set; }
 
@@ -376,15 +376,15 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     private void RefreshWorkers()
     {
-        var temp =
-            Manager.map.mapPawns.FreeColonistsSpawned.Where(
-                pawn => !pawn.WorkTypeIsDisabled(WorkTypeDef));
+        var temp = Manager.map.mapPawns.FreeColonistsSpawned.Where(
+            pawn => !pawn.WorkTypeIsDisabled(WorkTypeDef));
 
         // sort by either specific skill def or average over job - depending on which is known.
         temp = SkillDef != null
             ? temp.OrderByDescending(pawn => pawn.skills.GetSkill(SkillDef).Level)
             : temp.OrderByDescending(pawn => pawn.skills.AverageOfRelevantSkillsFor(WorkTypeDef));
 
-        Workers = temp.ToList();
+        _workers.Clear();
+        _workers.AddRange(temp);
     }
 }

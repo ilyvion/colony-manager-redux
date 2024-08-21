@@ -124,8 +124,11 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         return rowRect.yMin - start.y;
     }
 
+    private List<ThingDef> _tmpThings = [];
     public float DrawAllowedMineralsShortcuts(Vector2 pos, float width)
     {
+        using var _ = new DoOnDispose(_tmpThings.Clear);
+
         var start = pos;
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
@@ -139,26 +142,52 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
             ListEntryHeight);
 
         // toggle all
-        DrawShortcutToggle(allMinerals, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ColonyManagerRedux.Shortcuts.All", null);
+        DrawShortcutToggle(
+            allMinerals,
+            allowedMinerals,
+            (m, v) => SelectedMiningJob.SetAllowMineral(m, v),
+            rowRect,
+            "ColonyManagerRedux.Shortcuts.All",
+            null);
 
         // toggle stone
         rowRect.y += ListEntryHeight;
-        var stone = allMinerals.Where(m => !m.building.isResourceRock).ToList();
-        DrawShortcutToggle(stone, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ColonyManagerRedux.Mining.Stone", "ColonyManagerRedux.Mining.Stone.Tip");
+        _tmpThings.Clear();
+        _tmpThings.AddRange(allMinerals.Where(m => !m.building.isResourceRock));
+        DrawShortcutToggle(
+            _tmpThings,
+            allowedMinerals,
+            (m, v) => SelectedMiningJob.SetAllowMineral(m, v),
+            rowRect,
+            "ColonyManagerRedux.Mining.Stone",
+            "ColonyManagerRedux.Mining.Stone.Tip");
 
         // toggle metal
         rowRect.y += ListEntryHeight;
-        var metal = allMinerals
-            .Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing))
-            .ToList();
-        DrawShortcutToggle(metal, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ColonyManagerRedux.Mining.Metal", "ColonyManagerRedux.Mining.Metal.Tip");
+        _tmpThings.Clear();
+        _tmpThings.AddRange(allMinerals
+            .Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing)));
+        DrawShortcutToggle(
+            _tmpThings,
+            allowedMinerals,
+            (m, v) => SelectedMiningJob.SetAllowMineral(m, v),
+            rowRect,
+            "ColonyManagerRedux.Mining.Metal",
+            "ColonyManagerRedux.Mining.Metal.Tip");
 
         // toggle precious
         rowRect.y += ListEntryHeight;
-        var precious = allMinerals
-            .Where(m => m.building.isResourceRock && (m.building.mineableThing?.smallVolume ?? false))
-            .ToList();
-        DrawShortcutToggle(precious, allowedMinerals, (m, v) => SelectedMiningJob.SetAllowMineral(m, v), rowRect, "ColonyManagerRedux.Mining.Precious", "ColonyManagerRedux.Mining.Precious.Tip");
+        _tmpThings.Clear();
+        _tmpThings.AddRange(allMinerals
+            .Where(m => m.building.isResourceRock
+                && (m.building.mineableThing?.smallVolume ?? false)));
+        DrawShortcutToggle(
+            _tmpThings,
+            allowedMinerals,
+            (m, v) => SelectedMiningJob.SetAllowMineral(m, v),
+            rowRect,
+            "ColonyManagerRedux.Mining.Precious",
+            "ColonyManagerRedux.Mining.Precious.Tip");
 
         return rowRect.yMax - start.y;
     }

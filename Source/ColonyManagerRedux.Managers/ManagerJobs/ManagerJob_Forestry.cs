@@ -72,7 +72,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     {
         get
         {
-            _allPlants ??= Utilities_Plants.GetForestryPlants(Manager, Type == ForestryJobType.ClearArea).ToList();
+            _allPlants ??= Utilities_Plants
+                .GetForestryPlants(Manager, Type == ForestryJobType.ClearArea).ToList();
             return _allPlants;
         }
     }
@@ -552,31 +553,15 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         DeepProfiler.Start( "GetLoggableTreesSorted" );
 #endif
         var list = Manager.map.listerThings.AllThings.Where(IsValidForestryTarget)
-                          .Select(p => (Plant)p)
-                          .OrderByDescending(p => p.YieldNow() / Distance(p, position))
-                          .ToList();
+            .Select(p => (Plant)p)
+            .OrderByDescending(p => p.YieldNow() / Distance(p, position))
+            .ToList();
 
 #if DEBUG_PERFORMANCE
         DeepProfiler.End();
 #endif
 
         return list;
-    }
-
-    private List<IntVec3> GetWindCells()
-    {
-        return Manager.map.listerBuildings
-                      .allBuildingsColonist
-                      .Where(b => b.GetComp<CompPowerPlantWind>() != null)
-                      .SelectMany(turbine => WindTurbineUtility.CalculateWindCells(turbine.Position,
-                                                                                     turbine.Rotation,
-                                                                                     turbine.RotatedSize))
-                      .ToList();
-    }
-
-    private bool IsInWindTurbineArea(IntVec3 position)
-    {
-        return GetWindCells().Contains(position);
     }
 
     private bool IsValidForestryTarget(LocalTargetInfo t)

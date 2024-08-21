@@ -180,7 +180,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    public List<Corpse> Corpses
+    public IEnumerable<Corpse> Corpses
     {
         get
         {
@@ -191,7 +191,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 thing => thing?.InnerPawn != null &&
                     (HuntingGrounds == null ||
                     HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
-                    AllowedAnimals.Contains(thing.InnerPawn.kindDef)).ToList();
+                    AllowedAnimals.Contains(thing.InnerPawn.kindDef));
         }
     }
 

@@ -222,7 +222,7 @@ partial class ManagerTab_Overview
                     ((PawnColumnWorker_Label)item.Worker).instance = this;
                 }
 
-                return Workers;
+                return _workers;
             }),
             UI.screenWidth - (int)(Constants.Margin * 2f),
             (int)(UI.screenHeight - 35 - Constants.Margin * 2f));

@@ -238,8 +238,11 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         return count > 1 ? $"{count}x {label}" : label;
     }
 
+    private List<PawnKindDef> _tmpPawnKinds = [];
     public float DrawAnimalShortcuts(Vector2 pos, float width)
     {
+        using var _ = new DoOnDispose(_tmpPawnKinds.Clear);
+
         var start = pos;
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
@@ -248,38 +251,66 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
         // toggle all
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        DrawShortcutToggle(allAnimals, allowedAnimals, (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v), rowRect,
-            "ColonyManagerRedux.Shortcuts.All", null);
+        DrawShortcutToggle(
+            allAnimals,
+            allowedAnimals,
+            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
+            rowRect,
+            "ColonyManagerRedux.Shortcuts.All",
+            null);
 
         // toggle predators
         rowRect.y += ListEntryHeight;
-        var predators = allAnimals.Where(a => a.RaceProps.predator).ToList();
-        DrawShortcutToggle(predators, allowedAnimals, (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v), rowRect,
-            "ColonyManagerRedux.Hunting.Predators", "ColonyManagerRedux.Hunting.Predators.Tip");
+        _tmpPawnKinds.Clear();
+        _tmpPawnKinds.AddRange(allAnimals.Where(a => a.RaceProps.predator));
+        DrawShortcutToggle(
+            _tmpPawnKinds,
+            allowedAnimals,
+            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
+            rowRect,
+            "ColonyManagerRedux.Hunting.Predators",
+            "ColonyManagerRedux.Hunting.Predators.Tip");
 
         // aggressive animals
         rowRect.y += ListEntryHeight;
-        var aggressive = allAnimals.Where(a => a.RaceProps.manhunterOnDamageChance >= 0.05).ToList();
-        DrawShortcutToggle(aggressive, allowedAnimals, (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v), rowRect,
-            "ColonyManagerRedux.Hunting.Aggressive", "ColonyManagerRedux.Hunting.Aggressive.Tip");
+        _tmpPawnKinds.Clear();
+        _tmpPawnKinds.AddRange(allAnimals.Where(a => a.RaceProps.manhunterOnDamageChance >= 0.05));
+        DrawShortcutToggle(
+            _tmpPawnKinds,
+            allowedAnimals,
+            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
+            rowRect,
+            "ColonyManagerRedux.Hunting.Aggressive",
+            "ColonyManagerRedux.Hunting.Aggressive.Tip");
 
         // toggle herd animals
         rowRect.y += ListEntryHeight;
-        var herders = allAnimals.Where(a => a.RaceProps.herdAnimal).ToList();
-        DrawShortcutToggle(herders, allowedAnimals, (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v), rowRect,
-            "ColonyManagerRedux.Hunting.HerdAnimals", "ColonyManagerRedux.Hunting.HerdAnimals.Tip");
+        _tmpPawnKinds.Clear();
+        _tmpPawnKinds.AddRange(allAnimals.Where(a => a.RaceProps.herdAnimal));
+        DrawShortcutToggle(
+            _tmpPawnKinds,
+            allowedAnimals,
+            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
+            rowRect,
+            "ColonyManagerRedux.Hunting.HerdAnimals",
+            "ColonyManagerRedux.Hunting.HerdAnimals.Tip");
 
         // exploding animals
-        var exploding = allAnimals
-            .Where(a => a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
-                        || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion))
-            .ToList();
+        _tmpPawnKinds.Clear();
+        _tmpPawnKinds.AddRange(allAnimals.Where(
+            a => a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
+                || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion)));
 
-        if (exploding.Count > 0)
+        if (_tmpPawnKinds.Count > 0)
         {
             rowRect.y += ListEntryHeight;
-            DrawShortcutToggle(exploding, allowedAnimals, (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v), rowRect,
-                "ColonyManagerRedux.Hunting.Exploding", "ColonyManagerRedux.Hunting.Exploding.Tip");
+            DrawShortcutToggle(
+                _tmpPawnKinds,
+                allowedAnimals,
+                (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
+                rowRect,
+                "ColonyManagerRedux.Hunting.Exploding",
+                "ColonyManagerRedux.Hunting.Exploding.Tip");
         }
 
         return rowRect.yMax - start.y;

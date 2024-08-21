@@ -26,6 +26,7 @@ public class DetailedLegendRenderer : IExposable
     private bool _maxPerChapter;
     public bool MaxPerChapter { get => _maxPerChapter; set => _maxPerChapter = value; }
 
+    private List<History.Chapter> _tmpChaptersOrdered = [];
     public void DrawDetailedLegend(History history, Rect canvas, ref Vector2 scrollPos, int? max, bool positiveOnly = false,
         bool negativeOnly = false)
     {
@@ -37,10 +38,11 @@ public class DetailedLegendRenderer : IExposable
         // set sign
         var sign = negativeOnly ? -1 : 1;
 
-        var chaptersOrdered = history._chapters
+        _tmpChaptersOrdered.AddRange(history._chapters
             .Where(chapter => !positiveOnly || chapter.counts[(int)history.PeriodShown].Any(i => i > 0))
             .Where(chapter => !negativeOnly || chapter.counts[(int)history.PeriodShown].Any(i => i < 0))
-            .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign).ToList();
+            .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign));
+        using var _ = new DoOnDispose(_tmpChaptersOrdered.Clear);
 
         if (IlyvionDebugViewSettings.DrawUIHelpers)
         {
@@ -48,7 +50,7 @@ public class DetailedLegendRenderer : IExposable
         }
 
         // get out early if no chapters.
-        if (chaptersOrdered.Count == 0)
+        if (_tmpChaptersOrdered.Count == 0)
         {
             GUI.DrawTexture(canvas.ContractedBy(Margin), Resources.SlightlyDarkBackground);
             IlyvionWidgets.Label(canvas, "ColonyManagerRedux.History.NoChapters".Translate(), TextAnchor.MiddleCenter,
@@ -59,8 +61,8 @@ public class DetailedLegendRenderer : IExposable
         // max
         float _max = max
             ?? (DrawMaxMarkers
-                ? chaptersOrdered.Max(chapter => chapter.TrueMax)
-                : chaptersOrdered.FirstOrDefault()?.Last(history.PeriodShown).count * sign)
+                ? _tmpChaptersOrdered.Max(chapter => chapter.TrueMax)
+                : _tmpChaptersOrdered.FirstOrDefault()?.Last(history.PeriodShown).count * sign)
             ?? 0;
 
         // cell height
@@ -68,7 +70,7 @@ public class DetailedLegendRenderer : IExposable
         var barHeight = 18f;
 
         // n rows
-        var n = chaptersOrdered.Count;
+        var n = _tmpChaptersOrdered.Count;
 
         // scrolling region
         var viewRect = canvas;
@@ -83,7 +85,7 @@ public class DetailedLegendRenderer : IExposable
         Widgets.BeginScrollView(canvas, ref scrollPos, viewRect);
         for (var i = 0; i < n; i++)
         {
-            History.Chapter chapter = chaptersOrdered[i];
+            History.Chapter chapter = _tmpChaptersOrdered[i];
 
             // set up rects
             var row = new Rect(0f, height * i, viewRect.width, height);

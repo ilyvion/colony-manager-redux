@@ -351,19 +351,19 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         CleanUpDesignations(_designations, jobLog);
     }
 
-    public List<Designation> DesignationsOfOn(DesignationDef def, AgeAndSex ageSex)
+    public void DesignationsOfOn(DesignationDef def, AgeAndSex ageSex, List<Designation> workList)
     {
-        return _designations
+        workList.Clear();
+        workList.AddRange(_designations
             .Where(des => des.def == def
                 && des.target.HasThing
                 && des.target.Thing is Pawn pawn
-                && pawn.PawnIsOfAgeSex(ageSex))
-            .ToList();
+                && pawn.PawnIsOfAgeSex(ageSex)));
     }
 
     public void DoFollowSettings(ManagerLog jobLog, Boxed<bool> workDone)
     {
-        foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager).ToList())
+        foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager))
         {
             if (animal.training.HasLearned(TrainableDefOf.Obedience))
             {
@@ -774,15 +774,18 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
+    private List<Designation> _tmpDesignations = [];
     private Coroutine DoCullingJobs(
         ManagerLog jobLog, DesignationDef cullingDesignationDef, Boxed<bool> workDone)
     {
+        using var _ = new DoOnDispose(_tmpDesignations.Clear);
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
             int animalCount = TriggerPawnKind.pawnKind
                 .GetTame(Manager, ageSex, includeGuests: false).Count();
-            int alreadyCulling = DesignationsOfOn(cullingDesignationDef, ageSex).Count;
+            DesignationsOfOn(cullingDesignationDef, ageSex, _tmpDesignations);
+            int alreadyCulling = _tmpDesignations.Count;
             int target = TriggerPawnKind.CountTargets[(int)ageSex];
             var targetDifference = animalCount - alreadyCulling - target;
 
@@ -817,12 +820,13 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     // cull least trained animals first
                     .OrderBy(p => p.training.learned.Count(l => l.Value))
                     .ThenBy(
-                        p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks)
-                    .ToList();
+                        p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks);
 
-                for (var i = 0; i < targetDifference && i < animals.Count; i++)
+                var animalsEnumerator = animals.GetEnumerator();
+
+                for (var i = 0; i < targetDifference && animalsEnumerator.MoveNext(); i++)
                 {
-                    Pawn animal = animals[i];
+                    Pawn animal = animalsEnumerator.Current;
                     AddDesignation(new(animal, cullingDesignationDef));
                     animalCount--;
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AddDesignation"
@@ -872,13 +876,16 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     private Coroutine DoTamingJobs(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        using var _ = new DoOnDispose(_tmpDesignations.Clear);
+
         int animalCounter = -1;
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // not enough animals?
             int target = TriggerPawnKind.CountTargets[(int)ageSex];
             int animalCount = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count();
-            int alreadyTaming = DesignationsOfOn(DesignationDefOf.Tame, ageSex).Count;
+            DesignationsOfOn(DesignationDefOf.Tame, ageSex, _tmpDesignations);
+            int alreadyTaming = _tmpDesignations.Count;
             var targetDifference = target
                 - animalCount
                 - alreadyTaming;
@@ -972,7 +979,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     private bool RoughlyEquallyDistributed(List<Pawn> masters)
     {
-        var followerCounts = masters.Select(p => p.GetFollowers(TriggerPawnKind.pawnKind).Count).ToArray();
+        var followerCounts = masters.Select(p => p.GetFollowers(TriggerPawnKind.pawnKind).EnumerableCount()).ToArray();
         return followerCounts.Max() - followerCounts.Min() <= 1;
     }
 
@@ -981,16 +988,17 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         animal = null;
 
         // get current designations
-        var currentDesignations = DesignationsOfOn(def, ageSex);
+        using var _ = new DoOnDispose(_tmpDesignations.Clear);
+        DesignationsOfOn(def, ageSex, _tmpDesignations);
 
         // if none, return false
-        if (currentDesignations.Count == 0)
+        if (_tmpDesignations.Count == 0)
         {
             return false;
         }
 
         // else, remove one from the game as well as our managed list. (delete last - this should be the youngest/oldest).
-        var designation = currentDesignations.Last();
+        var designation = _tmpDesignations.Last();
         animal = (Pawn)designation.target.Thing;
         _designations.Remove(designation);
         designation.Delete();

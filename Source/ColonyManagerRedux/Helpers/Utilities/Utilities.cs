@@ -358,6 +358,7 @@ public static class Utilities
         DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size);
     }
 
+    private static List<IntVec3> _tmpHomeCells = [];
     public static IntVec3 GetBaseCenter(this Map map)
     {
         if (map == null)
@@ -366,28 +367,30 @@ public static class Utilities
         }
 
         // we need to define a 'base' position to calculate distances.
-        // Try to find a managerstation (in all non-debug cases this method will only fire if there is such a station).
+        // Try to find a managerstation (in all non-debug cases this method will only fire if there
+        // is such a station).
         var position = IntVec3.Zero;
-        Building managerStation = map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
-                                     .FirstOrDefault();
+        Building managerStation = map.listerBuildings
+            .AllBuildingsColonistOfClass<Building_ManagerStation>()
+            .FirstOrDefault();
         if (managerStation != null)
         {
             return managerStation.InteractionCell;
         }
 
         // otherwise, use the average of the home area. Not ideal, but it'll do.
-        var homeCells =
-            map.areaManager.Get<Area_Home>().ActiveCells.ToList();
-        if (homeCells.Count > 0)
+        _tmpHomeCells.AddRange(map.areaManager.Get<Area_Home>().ActiveCells);
+        using var _ = new DoOnDispose(_tmpHomeCells.Clear);
+        if (_tmpHomeCells.Count > 0)
         {
-            for (var i = 0; i < homeCells.Count; i++)
+            for (var i = 0; i < _tmpHomeCells.Count; i++)
             {
-                position += homeCells[i];
+                position += _tmpHomeCells[i];
             }
 
-            position.x /= homeCells.Count;
-            position.y /= homeCells.Count;
-            position.z /= homeCells.Count;
+            position.x /= _tmpHomeCells.Count;
+            position.y /= _tmpHomeCells.Count;
+            position.z /= _tmpHomeCells.Count;
             var standableCell = position;
 
             // find the closest traversable cell to the center
@@ -401,7 +404,8 @@ public static class Utilities
         else
         {
             // Just return the position of a pawn (or, if nobody is alive, the map center)
-            return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement().Position ?? map.Center;
+            return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement()
+                .Position ?? map.Center;
         }
     }
 

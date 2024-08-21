@@ -80,7 +80,8 @@ internal sealed class ManagerJob_Mining
     {
         get
         {
-            _allDeconstructibleBuildings ??= Utilities_Mining.GetDeconstructibleBuildings(Manager).ToList();
+            _allDeconstructibleBuildings ??=
+                Utilities_Mining.GetDeconstructibleBuildings(Manager).ToList();
             return _allDeconstructibleBuildings;
         }
     }
@@ -503,18 +504,18 @@ internal sealed class ManagerJob_Mining
         return 0;
     }
 
-    public List<(Building building, int count, float distance)> GetDeconstructibleBuildingsSorted()
+    public IEnumerable<(Building building, int count, float distance)> GetDeconstructibleBuildingsSorted()
     {
         var position = Manager.map.GetBaseCenter();
 
-        return Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).OfType<Building>()
+        return Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial)
+            .OfType<Building>()
             .Where(IsValidDeconstructionTarget)
             .Select(b => (b, GetCountInBuilding(b), Distance(b, position)))
-            .OrderByDescending(b => b.Item2 / b.Item3)
-            .ToList();
+            .OrderByDescending(b => b.Item2 / b.Item3);
     }
 
-    public List<(Thing chunk, int count, float distance)> GetChunksSorted()
+    public IEnumerable<(Thing chunk, int count, float distance)> GetChunksSorted()
     {
         Map map = Manager.map;
         var position = map.GetBaseCenter();
@@ -526,11 +527,10 @@ internal sealed class ManagerJob_Mining
                 && !map.reservationManager.IsReserved(t))
             .Select(c => (c, GetCountInChunk(c), Distance(c, position)))
             .Where(c => c.Item2 > 0)
-            .OrderByDescending(c => c.Item2 / c.Item3)
-            .ToList();
+            .OrderByDescending(c => c.Item2 / c.Item3);
     }
 
-    public static List<ThingDef> GetMaterialsInBuilding(ThingDef building)
+    public static IEnumerable<ThingDef> GetMaterialsInBuilding(ThingDef building)
     {
         if (building == null)
         {
@@ -546,14 +546,14 @@ internal sealed class ManagerJob_Mining
                 && !building.stuffCategories.NullOrEmpty()
                 && td.stuffProps.categories.Intersect(building.stuffCategories).Any());
 
-        return baseCosts.Concat(possibleStuffs).ToList();
+        return baseCosts.Concat(possibleStuffs);
     }
 
-    public static List<ThingDef> GetMaterialsInChunk(ThingDef chunk)
+    public static IEnumerable<ThingDef> GetMaterialsInChunk(ThingDef chunk)
     {
         if (!chunk.butcherProducts.NullOrEmpty())
         {
-            return chunk.butcherProducts.Select(tc => tc.thingDef).ToList();
+            return chunk.butcherProducts.Select(tc => tc.thingDef);
         }
 
         return [];
@@ -580,7 +580,7 @@ internal sealed class ManagerJob_Mining
             // stone chunks
             if (resource.IsChunk())
             {
-                return GetMaterialsInChunk(resource);
+                return GetMaterialsInChunk(resource).ToList();
             }
 
             // metals
@@ -589,15 +589,14 @@ internal sealed class ManagerJob_Mining
         }
     }
 
-    public List<(Mineable mineable, int count, float distance)> GetMinableMineralsSorted()
+    public IEnumerable<(Mineable mineable, int count, float distance)> GetMinableMineralsSorted()
     {
         var position = Manager.map.GetBaseCenter();
 
         return Manager.map.listerThings.AllThings.OfType<Mineable>()
             .Where(IsValidMiningTarget)
             .Select(m => (m, GetCountInMineral(m), Distance(m, position)))
-            .OrderByDescending(m => m.Item2 / m.Item3)
-            .ToList();
+            .OrderByDescending(m => m.Item2 / m.Item3);
     }
 
     public bool IsARoofSupport_Advanced(Building building)
@@ -653,10 +652,9 @@ internal sealed class ManagerJob_Mining
         // check if there are more than two rooms in the surrounding cells.
         var rooms = adjacent.Select(c => c.GetRoom(Manager.map))
             .Where(r => r != null)
-            .Distinct()
-            .ToList();
+            .Distinct();
 
-        if (rooms.Count >= 2)
+        if (rooms.Count() >= 2)
         {
             return true;
         }
@@ -917,9 +915,13 @@ internal sealed class ManagerJob_Mining
         if (HaulMapChunks)
         {
             var chunks = GetChunksSorted();
-            for (var i = 0; i < chunks.Count && count < TriggerThreshold.TargetCount; i++)
+            var chunksEnumerator = chunks.GetEnumerator();
+            for (
+                var i = 0;
+                chunksEnumerator.MoveNext() && count < TriggerThreshold.TargetCount;
+                i++)
             {
-                var chunk = chunks[i];
+                var chunk = chunksEnumerator.Current;
                 AddDesignation(chunk.chunk, DesignationDefOf.Haul);
                 count += chunk.count;
 
@@ -945,11 +947,15 @@ internal sealed class ManagerJob_Mining
         if (DeconstructBuildings)
         {
             var buildings = GetDeconstructibleBuildingsSorted();
+            var buildingsEnumerator = buildings.GetEnumerator();
             var ancientDangerRects = Manager.AncientDangerRects;
             List<LocalTargetInfo> skippedAncientDangerTargets = [];
-            for (var i = 0; i < buildings.Count && count < TriggerThreshold.TargetCount; i++)
+            for (
+                var i = 0;
+                buildingsEnumerator.MoveNext() && count < TriggerThreshold.TargetCount;
+                i++)
             {
-                var building = buildings[i];
+                var building = buildingsEnumerator.Current;
 
                 if (!DeconstructAncientDangerWhenFogged)
                 {
@@ -999,9 +1005,10 @@ internal sealed class ManagerJob_Mining
         }
 
         var minerals = GetMinableMineralsSorted();
-        for (var i = 0; i < minerals.Count && count < TriggerThreshold.TargetCount; i++)
+        var mineralsEnumerator = minerals.GetEnumerator();
+        for (var i = 0; mineralsEnumerator.MoveNext() && count < TriggerThreshold.TargetCount; i++)
         {
-            var mineral = minerals[i];
+            var mineral = mineralsEnumerator.Current;
             if (!IsARoofSupport_Advanced(mineral.mineable))
             {
                 workDone.Value = true;

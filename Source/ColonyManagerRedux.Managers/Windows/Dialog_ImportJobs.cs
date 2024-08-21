@@ -16,11 +16,11 @@ internal sealed class Dialog_ImportJobs : Window
 
     private static readonly Vector2 ButtonSize = new(175f, 38f);
 
-    private List<ManagerJob> SelectedJobs
+    private IEnumerable<ManagerJob> SelectedJobs
     {
         get
         {
-            return _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On).ToList();
+            return _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
         }
     }
 
@@ -163,14 +163,15 @@ internal sealed class Dialog_ImportJobs : Window
 
     private void OnAccept()
     {
-        var selectedJobs = SelectedJobs;
-        foreach (var job in selectedJobs)
+        var jobCount = 0;
+        foreach (var job in SelectedJobs)
         {
+            jobCount++;
             job.PreImport();
             Manager.For(Find.CurrentMap).JobTracker.Add(job);
             job.PostImport();
         }
-        _onImport?.Invoke(selectedJobs.Count);
+        _onImport?.Invoke(jobCount);
         Close();
     }
 }

@@ -134,6 +134,7 @@ public class Manager : MapComponent, ILoadReferenceable
         return this;
     }
 
+    private List<IExposable> _tmpExposableTabs = [];
     public override void ExposeData()
     {
         Scribe_Values.Look(ref id, "id", -1, true);
@@ -144,13 +145,14 @@ public class Manager : MapComponent, ILoadReferenceable
         Scribe_Values.Look(ref _hasCheckedAncientDangerRect, "hasCheckedAncientDangerRect", false);
         Scribe_Collections.Look(ref _ancientDangerRects, "ancientDangerRects", LookMode.Value);
 
-        var exposableTabs = _tabs.OfType<IExposable>().ToList();
-        Scribe_Collections.Look(ref exposableTabs, "tabs", LookMode.Deep, this);
+        _tmpExposableTabs.AddRange(_tabs.OfType<IExposable>());
+        using var _ = new DoOnDispose(_tmpExposableTabs.Clear);
+        Scribe_Collections.Look(ref _tmpExposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             Scribe_Values.Look(ref _ancientDangerRect, "ancientDangerRect", null);
 
-            foreach (var exposableTab in exposableTabs.Where(t => t != null))
+            foreach (var exposableTab in _tmpExposableTabs.Where(t => t != null))
             {
                 var oldTab = _tabs.Select((t, i) => (t, i))
                     .SingleOrDefault(v => v.t.GetType() == exposableTab.GetType());

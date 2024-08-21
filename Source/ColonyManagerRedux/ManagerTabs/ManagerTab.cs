@@ -330,8 +330,7 @@ public abstract class ManagerTab(Manager manager)
 
     public virtual string GetSubLabel(ManagerJob job)
     {
-        var targets = job.Targets.ToList();
-        if (targets.Count > 0)
+        if (job.Targets.Any())
         {
             return string.Join(", ", job.Targets);
         }

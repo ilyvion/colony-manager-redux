@@ -19,8 +19,8 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
 
         _overlappingAnimals = new CachedValue<List<ThingDef>>(() =>
         {
-            var autoSlaughterVanillaAnimals = AutoSlaughterVanillaAnimals().ToList();
-            var autoSlaugherLivestockAnimals = AutoSlaugherLivestockAnimals().ToList();
+            var autoSlaughterVanillaAnimals = AutoSlaughterVanillaAnimals();
+            var autoSlaugherLivestockAnimals = AutoSlaugherLivestockAnimals();
 
             return autoSlaughterVanillaAnimals.Intersect(autoSlaugherLivestockAnimals).ToList();
         });
