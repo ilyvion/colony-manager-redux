@@ -14,7 +14,6 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class Settings : ModSettings
 {
-    private bool _jobDefSettingsAreLoaded;
     private List<ManagerSettings> _managerSettings = [];
     private int _currentManagerSettingsTab = -1;
 
@@ -75,14 +74,8 @@ public class Settings : ModSettings
 
     public Settings()
     {
-        ColonyManagerReduxMod.Instance.LogDebug("Initializing new settings value!");
-        LongEventHandler.ExecuteWhenFinished(() =>
-        {
-            ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
-            _managerSettings.AddRange(MakeManagerSettings());
-            _jobDefSettingsAreLoaded = true;
-            ReloadSettings();
-        });
+        ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
+        _managerSettings.AddRange(MakeManagerSettings());
     }
 
     private static IEnumerable<ManagerSettings> MakeManagerSettings()
@@ -250,14 +243,6 @@ public class Settings : ModSettings
 
     public override void ExposeData()
     {
-        // This normally happens much too early in the loading sequence (before defs are loaded,
-        // i.e. before MakeManagerSettings can do its thing), so we're abandoning ship until
-        // _jobDefSettingsAreLoaded is true, and then ReloadSettings() does a reload for us.
-        if (!_jobDefSettingsAreLoaded)
-        {
-            return;
-        }
-
         Scribe_Values.Look(ref _defaultUpdateIntervalTicks, "defaultUpdateInterval", GenDate.TicksPerDay);
         Scribe_Values.Look(ref _defaultTargetCount, "defaultTargetCount", 500);
         Scribe_Values.Look(ref _defaultShouldCheckReachable, "defaultShouldCheckReachable", true);
@@ -315,43 +300,6 @@ public class Settings : ModSettings
         }
 
         _managerSettings.SortBy(j => j.Def.order);
-    }
-
-    private void ReloadSettings()
-    {
-        string settingsFilename = LoadedModManager.GetSettingsFilename(
-            Mod.Content.FolderName,
-            Mod.GetType().Name);
-        try
-        {
-            if (File.Exists(settingsFilename))
-            {
-                Scribe.loader.InitLoading(settingsFilename);
-                try
-                {
-                    if (Scribe.EnterNode("ModSettings"))
-                    {
-                        try
-                        {
-                            ExposeData();
-                        }
-                        finally
-                        {
-                            Scribe.ExitNode();
-                        }
-                    }
-                }
-                finally
-                {
-                    Scribe.loader.FinalizeLoading();
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            ColonyManagerReduxMod.Instance
-                .LogException($"Caught exception while reloading mod settings data for {Mod.Content.FolderName}", e);
-        };
     }
 
     public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings

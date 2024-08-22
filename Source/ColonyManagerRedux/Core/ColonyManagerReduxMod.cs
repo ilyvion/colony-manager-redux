@@ -36,8 +36,6 @@ public class ColonyManagerReduxMod : IlyvionMod
         //Harmony.DEBUG = true;
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         //Harmony.DEBUG = false;
-
-        GetSettings<Settings>();
     }
 
     public override void DoSettingsWindowContents(Rect inRect)
