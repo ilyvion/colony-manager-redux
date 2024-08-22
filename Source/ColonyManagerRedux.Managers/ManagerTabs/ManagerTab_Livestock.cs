@@ -7,6 +7,8 @@ using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Utilities;
 
+using TabRecord = Verse.TabRecord;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
