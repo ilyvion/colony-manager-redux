@@ -21,7 +21,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
     public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
 
-    public override void DoPanelContents(Rect rect)
+    public override void DoTabContents(Rect rect)
     {
         var panelRect = new Rect(
             rect.xMin,

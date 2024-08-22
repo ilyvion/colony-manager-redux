@@ -12,7 +12,7 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
     public int KeepLogCount = 100;
     public bool ShowLogsWithNoWorkDone = true;
 
-    public override void DoPanelContents(Rect rect)
+    public override void DoTabContents(Rect rect)
     {
         var panelRect = new Rect(
             rect.xMin,

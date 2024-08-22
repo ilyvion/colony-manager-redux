@@ -15,7 +15,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
     public bool DefaultAllowInsectMeat;
     public bool DefaultUnforbidCorpses = true;
 
-    public override void DoPanelContents(Rect rect)
+    public override void DoTabContents(Rect rect)
     {
         var panelRect = new Rect(
             rect.xMin,

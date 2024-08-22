@@ -4,6 +4,7 @@
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
+
 using TabRecord = Verse.TabRecord;
 
 namespace ColonyManagerRedux.Managers;
@@ -533,7 +534,7 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
     private int _currentLivestockSettingsTab = -1;
     private PawnKindSettings? currentOverrideTab;
     private List<TabRecord> _tmpTabRecords = [];
-    public override void DoPanelContents(Rect rect)
+    public override void DoTabContents(Rect rect)
     {
         _tmpTabRecords.Add(
             new TabRecord("ColonyManagerRedux.Livestock.ManagerSettings.Default".Translate(), () =>

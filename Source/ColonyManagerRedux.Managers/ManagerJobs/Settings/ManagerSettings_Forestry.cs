@@ -13,7 +13,7 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
         ManagerJob_Forestry.ForestryJobType.Logging;
     public bool DefaultAllowSaplings;
 
-    public override void DoPanelContents(Rect rect)
+    public override void DoTabContents(Rect rect)
     {
         var panelRect = new Rect(
             rect.xMin,

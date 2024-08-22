@@ -2,20 +2,20 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.IO;
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
-using TabRecord = Verse.TabRecord;
+using TabRecord = ilyvion.Laboratory.UI.TabRecord;
 
 namespace ColonyManagerRedux;
 
 [HotSwappable]
 public class Settings : ModSettings
 {
+    private SharedManagerSettings _sharedManagerSettings;
     private List<ManagerSettings> _managerSettings = [];
-    private int _currentManagerSettingsTab = -1;
+    private Tab _currentManagerSettings;
 
     private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
     public int DefaultUpdateIntervalTicks
@@ -72,10 +72,41 @@ public class Settings : ModSettings
         internal set => DefaultUpdateIntervalTicks = value.Ticks;
     }
 
+    private List<TabRecord> _tabList = [];
+
+    private sealed class SharedManagerSettings(Settings settings) : Tab
+    {
+        public override string Title => "ColonyManagerRedux.SharedSettingsTabLabel".Translate();
+        public override void DoTabContents(Rect inRect)
+        {
+            Widgets_Section.BeginSectionColumn(
+                inRect, "Settings", out Vector2 position, out float width);
+
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawGeneralSettings,
+                "ColonyManagerRedux.GeneralSettingsTabLabel".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawThreshold,
+                "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+
+            Widgets_Section.EndSectionColumn("Settings", position);
+        }
+    }
+
     public Settings()
     {
         ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
         _managerSettings.AddRange(MakeManagerSettings());
+
+        _currentManagerSettings = _sharedManagerSettings = new(this);
+        _tabList.AddRange(
+            Gen.YieldSingle<Tab>(_sharedManagerSettings)
+            .Concat(_managerSettings)
+            .Select(m => new TabRecord(m, () => ref _currentManagerSettings)));
     }
 
     private static IEnumerable<ManagerSettings> MakeManagerSettings()
@@ -86,48 +117,23 @@ public class Settings : ModSettings
             .Select(m => ManagerDefMaker.MakeManagerSettings(m)!);
     }
 
-    private List<TabRecord> _tmpTabRecords = [];
     public void DoSettingsWindowContents(Rect rect)
     {
-        _tmpTabRecords.Add(
-            new TabRecord("ColonyManagerRedux.SharedSettingsTabLabel".Translate(), () =>
-            {
-                _currentManagerSettingsTab = -1;
-            }, _currentManagerSettingsTab == -1));
-        _tmpTabRecords.AddRange(_managerSettings.Select((s, i) => new TabRecord(s.Label, () =>
-            {
-                _currentManagerSettingsTab = i;
-            }, _currentManagerSettingsTab == i)));
-        using var _ = new DoOnDispose(_tmpTabRecords.Clear);
-
-        int rowCount = (int)Math.Ceiling((double)_tmpTabRecords.Count / 5);
+        int rowCount = (int)Math.Ceiling((double)(_managerSettings.Count + 1) / 5);
         rect.yMin += rowCount * SectionHeaderHeight + Margin;
         Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, _tmpTabRecords, rowCount, null);
+        TabDrawer.DrawTabs(rect, _tabList, rowCount, null);
 
-        if (_currentManagerSettingsTab == -1)
+        try
         {
-            Widgets_Section.BeginSectionColumn(
-                rect, "Settings", out Vector2 position, out float width);
-
-            Widgets_Section.Section(
-                ref position,
-                width,
-                DrawGeneralSettings,
-                "ColonyManagerRedux.GeneralSettingsTabLabel".Translate());
-            Widgets_Section.Section(
-                ref position,
-                width,
-                DrawThreshold,
-                "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
-
-            Widgets_Section.EndSectionColumn("Settings", position);
+            using var _g = GUIScope.WidgetGroup(rect);
+            _currentManagerSettings.DoTabContents(rect.AtZero());
         }
-        else
+        catch (Exception err)
         {
-            GUI.BeginGroup(rect);
-            _managerSettings[_currentManagerSettingsTab].DoPanelContents(rect.AtZero());
-            GUI.EndGroup();
+            ColonyManagerReduxMod.Instance.LogError(
+                $"Exception while calling DoTabContents for {_currentManagerSettings.Title}:\n" +
+                err);
         }
     }
 

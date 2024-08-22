@@ -11,7 +11,7 @@ internal sealed class ManagerSettings_Foraging : ManagerSettings
     public bool DefaultSyncFilterAndAllowed = true;
     public bool DefaultForceFullyMature;
 
-    public override void DoPanelContents(Rect rect)
+    public override void DoTabContents(Rect rect)
     {
         var panelRect = new Rect(
             rect.xMin,
