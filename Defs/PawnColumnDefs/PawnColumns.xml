@@ -59,9 +59,9 @@
     </PawnColumnDef>
 
     <PawnColumnDef>
-        <defName>CM_Butcher</defName>
-        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_Butcher</workerClass>
+        <defName>CM_Cull</defName>
+        <workerClass>ColonyManagerRedux.Managers.ManagerTab_Livestock+PawnColumnWorker_Cull</workerClass>
         <sortable>false</sortable>
-        <headerIcon>UI/Icons/Animal/Slaughter</headerIcon>
+        <headerIcon>UI/Icons/Gender/Genders</headerIcon>
     </PawnColumnDef>
 </Defs>

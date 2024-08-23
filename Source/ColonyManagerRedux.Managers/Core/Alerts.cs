@@ -36,7 +36,7 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
     public override TaggedString GetExplanation()
     {
         return "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate(
-            "ColonyManagerRedux.Livestock.ButcherExcess".Translate(),
+            "ColonyManagerRedux.Livestock.CullExcess".Translate(),
             "- " + _overlappingAnimals.Value.Join(a => a.race.AnyPawnKind.GetLabelPlural(), "\n- "));
     }
 
@@ -55,7 +55,7 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
     {
         foreach (var managerJobLivestock in Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob_Livestock>())
         {
-            if (managerJobLivestock.ButcherExcess)
+            if (managerJobLivestock.CullExcess)
             {
                 yield return managerJobLivestock.TriggerPawnKind.pawnKind.race;
             }

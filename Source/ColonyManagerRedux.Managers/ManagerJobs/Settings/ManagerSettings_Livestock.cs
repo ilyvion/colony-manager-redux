@@ -3,7 +3,7 @@
 
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
-
+using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 using TabRecord = Verse.TabRecord;
 
 namespace ColonyManagerRedux.Managers;
@@ -21,10 +21,11 @@ internal sealed class PawnKindSettings : IExposable
     public bool DefaultTryTameMore;
     public bool DefaultTamePastTargets;
 
-    public bool DefaultButcherExcess = true;
-    public bool DefaultButcherTrained;
-    public bool DefaultButcherPregnant;
-    public bool DefaultButcherBonded;
+    public bool DefaultCullExcess = true;
+    public bool DefaultCullTrained;
+    public bool DefaultCullPregnant;
+    public bool DefaultCullBonded;
+    public LivestockCullingStrategy DefaultCullingStrategy;
 
     public bool DefaultUnassignTraining;
     public bool DefaultTrainYoung;
@@ -52,10 +53,10 @@ internal sealed class PawnKindSettings : IExposable
         Array.Copy(copyFrom.DefaultCountTargets, DefaultCountTargets, DefaultCountTargets.Length);
         DefaultTryTameMore = copyFrom.DefaultTryTameMore;
         DefaultTamePastTargets = copyFrom.DefaultTamePastTargets;
-        DefaultButcherExcess = copyFrom.DefaultButcherExcess;
-        DefaultButcherTrained = copyFrom.DefaultButcherTrained;
-        DefaultButcherPregnant = copyFrom.DefaultButcherPregnant;
-        DefaultButcherBonded = copyFrom.DefaultButcherBonded;
+        DefaultCullExcess = copyFrom.DefaultCullExcess;
+        DefaultCullTrained = copyFrom.DefaultCullTrained;
+        DefaultCullPregnant = copyFrom.DefaultCullPregnant;
+        DefaultCullBonded = copyFrom.DefaultCullBonded;
         DefaultUnassignTraining = copyFrom.DefaultUnassignTraining;
         DefaultTrainYoung = copyFrom.DefaultTrainYoung;
         DefaultMasterMode = copyFrom.DefaultMasterMode;
@@ -75,7 +76,7 @@ internal sealed class PawnKindSettings : IExposable
         Widgets_Section.BeginSectionColumn(panelRect, "Livestock.Settings", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawTargetCounts, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader".Translate());
-        Widgets_Section.Section(ref position, width, DrawButcherSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultButcherHeader".Translate());
+        Widgets_Section.Section(ref position, width, DrawCullingSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawTrainingSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawFollowSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader".Translate());
         if (_def != null)
@@ -180,37 +181,57 @@ internal sealed class PawnKindSettings : IExposable
         return pos.y - start.y;
     }
 
-    private float DrawButcherSection(Vector2 pos, float width)
+    private float DrawCullingSection(Vector2 pos, float width)
     {
         var start = pos;
 
-        // butchery stuff
-        var butcherExcessRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Utilities.DrawToggle(butcherExcessRect,
-            "ColonyManagerRedux.Livestock.ButcherExcess".Translate(),
-            "ColonyManagerRedux.Livestock.ButcherExcess.Tip".Translate(),
-            ref DefaultButcherExcess);
+        var cullingStrategies =
+            (LivestockCullingStrategy[])Enum.GetValues(typeof(LivestockCullingStrategy));
+
+        var cellWidth = width / (cullingStrategies.Length + 1);
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+        Utilities.DrawToggle(cellRect,
+            "ColonyManagerRedux.Livestock.CullingStrategy.None".Translate(),
+            "ColonyManagerRedux.Livestock.CullingStrategy.None.Tip".Translate(),
+            !DefaultCullExcess,
+            () => DefaultCullExcess = false,
+            () => { });
+        cellRect.x += cellWidth;
+
+        foreach (var cullingStrategy in cullingStrategies)
+        {
+            Utilities.DrawToggle(
+                cellRect,
+                $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}".Translate(),
+                $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}.Tip"
+                    .Translate(),
+                DefaultCullExcess && DefaultCullingStrategy == cullingStrategy,
+                () => { DefaultCullExcess = true; DefaultCullingStrategy = cullingStrategy; },
+                () => { });
+            cellRect.x += cellWidth;
+        }
         pos.y += ListEntryHeight;
 
-        var cellWidth = (width - Margin * 2) / 3f;
-        var butcherOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+        cellWidth = (width - Margin * 2) / 3f;
+        var cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
-        Utilities.DrawToggle(butcherOptionRect,
-            "ColonyManagerRedux.Livestock.ButcherTrained".Translate(),
-            "ColonyManagerRedux.Livestock.ButcherTrained.Tip".Translate(),
-            ref DefaultButcherTrained, font: GameFont.Tiny, wrap: false);
-        butcherOptionRect.x += cellWidth + Margin;
+        Utilities.DrawToggle(cullingOptionRect,
+            "ColonyManagerRedux.Livestock.CullTrained".Translate(),
+            "ColonyManagerRedux.Livestock.CullTrained.Tip".Translate(),
+            ref DefaultCullTrained, font: GameFont.Tiny, wrap: false);
+        cullingOptionRect.x += cellWidth + Margin;
 
-        Utilities.DrawToggle(butcherOptionRect,
-            "ColonyManagerRedux.Livestock.ButcherPregnant".Translate(),
-            "ColonyManagerRedux.Livestock.ButcherPregnant.Tip".Translate(),
-            ref DefaultButcherPregnant, font: GameFont.Tiny, wrap: false);
-        butcherOptionRect.x += cellWidth + Margin;
+        Utilities.DrawToggle(cullingOptionRect,
+            "ColonyManagerRedux.Livestock.CullPregnant".Translate(),
+            "ColonyManagerRedux.Livestock.CullPregnant.Tip".Translate(),
+            ref DefaultCullPregnant, font: GameFont.Tiny, wrap: false);
+        cullingOptionRect.x += cellWidth + Margin;
 
-        Utilities.DrawToggle(butcherOptionRect,
-            "ColonyManagerRedux.Livestock.ButcherBonded".Translate(),
-            "ColonyManagerRedux.Livestock.ButcherBonded.Tip".Translate(),
-            ref DefaultButcherBonded, font: GameFont.Tiny, wrap: false);
+        Utilities.DrawToggle(cullingOptionRect,
+            "ColonyManagerRedux.Livestock.CullBonded".Translate(),
+            "ColonyManagerRedux.Livestock.CullBonded.Tip".Translate(),
+            ref DefaultCullBonded, font: GameFont.Tiny, wrap: false);
 
         pos.y += ListEntryHeight;
 
@@ -448,7 +469,6 @@ internal sealed class PawnKindSettings : IExposable
         return rowRect.yMax - start.y;
     }
 
-
     public void ExposeData()
     {
         Scribe_Defs.Look(ref _def, "def");
@@ -463,10 +483,12 @@ internal sealed class PawnKindSettings : IExposable
         Scribe_Values.Look(ref DefaultTryTameMore, "defaultTryTameMore", false);
         Scribe_Values.Look(ref DefaultTamePastTargets, "defaultTamePastTargets", false);
 
-        Scribe_Values.Look(ref DefaultButcherExcess, "defaultButcherExcess", true);
-        Scribe_Values.Look(ref DefaultButcherTrained, "defaultButcherTrained", false);
-        Scribe_Values.Look(ref DefaultButcherPregnant, "defaultButcherPregnant", false);
-        Scribe_Values.Look(ref DefaultButcherBonded, "defaultButcherBonded", false);
+        Scribe_Values.Look(ref DefaultCullExcess, "defaultButcherExcess", true);
+        Scribe_Values.Look(ref DefaultCullTrained, "defaultButcherTrained", false);
+        Scribe_Values.Look(ref DefaultCullPregnant, "defaultButcherPregnant", false);
+        Scribe_Values.Look(ref DefaultCullBonded, "defaultButcherBonded", false);
+        Scribe_Values.Look(
+            ref DefaultCullingStrategy, "cullingStrategy", LivestockCullingStrategy.Butcher);
 
         Scribe_Collections.Look(ref EnabledTrainingTargets, "enabledTrainingTargets", LookMode.Def);
         Scribe_Values.Look(ref DefaultUnassignTraining, "defaultUnassignTraining", false);

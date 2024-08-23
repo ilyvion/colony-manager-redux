@@ -7,14 +7,20 @@
     <ColonyManagerRedux.Livestock.Training>Training</ColonyManagerRedux.Livestock.Training>
     <ColonyManagerRedux.Livestock.RestrictToArea>Restrict animals to area?</ColonyManagerRedux.Livestock.RestrictToArea>
     <ColonyManagerRedux.Livestock.RestrictToArea.Tip>Restrict animals to a specific area, optionally separated by gender and lifestage</ColonyManagerRedux.Livestock.RestrictToArea.Tip>
-    <ColonyManagerRedux.Livestock.ButcherExcess>Butcher excess livestock</ColonyManagerRedux.Livestock.ButcherExcess>
-    <ColonyManagerRedux.Livestock.ButcherExcess.Tip>Should excess livestock be butchered for meat?</ColonyManagerRedux.Livestock.ButcherExcess.Tip>
-    <ColonyManagerRedux.Livestock.ButcherTrained>Trained</ColonyManagerRedux.Livestock.ButcherTrained>
-    <ColonyManagerRedux.Livestock.ButcherTrained.Tip>Are trained animals allowed to be butchered?</ColonyManagerRedux.Livestock.ButcherTrained.Tip>
-    <ColonyManagerRedux.Livestock.ButcherPregnant>Pregnant</ColonyManagerRedux.Livestock.ButcherPregnant>
-    <ColonyManagerRedux.Livestock.ButcherPregnant.Tip>Are pregnant animals allowed to be butchered?</ColonyManagerRedux.Livestock.ButcherPregnant.Tip>
-    <ColonyManagerRedux.Livestock.ButcherBonded>Bonded</ColonyManagerRedux.Livestock.ButcherBonded>
-    <ColonyManagerRedux.Livestock.ButcherBonded.Tip>Are bonded animals allowed to be butchered?</ColonyManagerRedux.Livestock.ButcherBonded.Tip>
+    <ColonyManagerRedux.Livestock.CullExcess>Cull excess livestock</ColonyManagerRedux.Livestock.CullExcess>
+    <ColonyManagerRedux.Livestock.CullExcess.Tip>Should excess livestock be culled?</ColonyManagerRedux.Livestock.CullExcess.Tip>
+    <ColonyManagerRedux.Livestock.CullingStrategy.None>None</ColonyManagerRedux.Livestock.CullingStrategy.None>
+    <ColonyManagerRedux.Livestock.CullingStrategy.None.Tip>Don't cull excess animals</ColonyManagerRedux.Livestock.CullingStrategy.None.Tip>
+    <ColonyManagerRedux.Livestock.CullingStrategy.Butcher>Butcher</ColonyManagerRedux.Livestock.CullingStrategy.Butcher>
+    <ColonyManagerRedux.Livestock.CullingStrategy.Butcher.Tip>Cull excess animals by designating them for slaughter</ColonyManagerRedux.Livestock.CullingStrategy.Butcher.Tip>
+    <ColonyManagerRedux.Livestock.CullingStrategy.Release>Release</ColonyManagerRedux.Livestock.CullingStrategy.Release>
+    <ColonyManagerRedux.Livestock.CullingStrategy.Release.Tip>Cull excess animals by designating them for release into the wild</ColonyManagerRedux.Livestock.CullingStrategy.Release.Tip>
+    <ColonyManagerRedux.Livestock.CullTrained>Trained</ColonyManagerRedux.Livestock.CullTrained>
+    <ColonyManagerRedux.Livestock.CullTrained.Tip>Are trained animals allowed to be culled?</ColonyManagerRedux.Livestock.CullTrained.Tip>
+    <ColonyManagerRedux.Livestock.CullPregnant>Pregnant</ColonyManagerRedux.Livestock.CullPregnant>
+    <ColonyManagerRedux.Livestock.CullPregnant.Tip>Are pregnant animals allowed to be culled?</ColonyManagerRedux.Livestock.CullPregnant.Tip>
+    <ColonyManagerRedux.Livestock.CullBonded>Bonded</ColonyManagerRedux.Livestock.CullBonded>
+    <ColonyManagerRedux.Livestock.CullBonded.Tip>Are bonded animals allowed to be culled?</ColonyManagerRedux.Livestock.CullBonded.Tip>
     <ColonyManagerRedux.Livestock.TameMore>Auto-designate animals to be tamed</ColonyManagerRedux.Livestock.TameMore>
     <ColonyManagerRedux.Livestock.TameMore.Tip>Should the manager designate wild animals to be tamed?</ColonyManagerRedux.Livestock.TameMore.Tip>
     <ColonyManagerRedux.Livestock.TamePastTargets>Tame animals even when targets are met</ColonyManagerRedux.Livestock.TamePastTargets>
@@ -36,8 +42,8 @@
     <ColonyManagerRedux.Livestock.UnassignTraining.Tip>Unassign other existing training targets for animals that don't match these settings</ColonyManagerRedux.Livestock.UnassignTraining.Tip>
     <ColonyManagerRedux.Livestock.TrainYoung>Train young animals</ColonyManagerRedux.Livestock.TrainYoung>
     <ColonyManagerRedux.Livestock.TrainYoung.Tip>When assigning training to animals, also include juvenile animals</ColonyManagerRedux.Livestock.TrainYoung.Tip>
-    <ColonyManagerRedux.Livestock.SendToSlaughterArea>Restrict animals marked for slaughter</ColonyManagerRedux.Livestock.SendToSlaughterArea>
-    <ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>Restrict animals designated for slaughtering to a specific area</ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToCullingArea>Restrict animals marked for culling</ColonyManagerRedux.Livestock.SendToCullingArea>
+    <ColonyManagerRedux.Livestock.SendToCullingArea.Tip>Restrict animals designated for culling to a specific area</ColonyManagerRedux.Livestock.SendToCullingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToMilkingArea>Restrict animals ready to be milked</ColonyManagerRedux.Livestock.SendToMilkingArea>
     <ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>Restrict animals with milk fullness close to 100% to a specific area.</ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToShearingArea>Restrict animals ready to be sheared</ColonyManagerRedux.Livestock.SendToShearingArea>
@@ -45,14 +51,15 @@
     <ColonyManagerRedux.Livestock.TargetCountsHeader>Target counts</ColonyManagerRedux.Livestock.TargetCountsHeader>
     <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>Area restrictions</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
     <ColonyManagerRedux.Livestock.TrainingHeader>Training</ColonyManagerRedux.Livestock.TrainingHeader>
-    <ColonyManagerRedux.Livestock.ButcherHeader>Butchering</ColonyManagerRedux.Livestock.ButcherHeader>
+    <ColonyManagerRedux.Livestock.CullingHeader>Culling</ColonyManagerRedux.Livestock.CullingHeader>
     <ColonyManagerRedux.Livestock.TamingHeader>Taming</ColonyManagerRedux.Livestock.TamingHeader>
-    <ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>Animal is designated for {0}</ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>
+    <ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>The animal is designated for {0}</ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>
+    <ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor>Whether an animal is designated for {0}</ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor>
     <ColonyManagerRedux.Livestock.Tame>tame</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>wild</ColonyManagerRedux.Livestock.Wild>
     <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
     <ColonyManagerRedux.Livestock.SelectPawnKind>No job selected</ColonyManagerRedux.Livestock.SelectPawnKind>
-    <ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>Disabled because excess livestock is not being butchered.</ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled>
+    <ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled>Disabled because excess livestock is not being culled.</ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled>
     <ColonyManagerRedux.Livestock.SendToTrainingArea>Restrict animals marked for training</ColonyManagerRedux.Livestock.SendToTrainingArea>
     <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restrict animals designated for training to a specific area.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
     <ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>Disabled because no training target is set.</ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>
@@ -102,7 +109,7 @@
 
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>
-    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultButcherHeader>Default butchering</ColonyManagerRedux.Livestock.ManagerSettings.DefaultButcherHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader>Default culling</ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.Default>Defaults</ColonyManagerRedux.Livestock.ManagerSettings.Default>
@@ -117,7 +124,11 @@
     <ColonyManagerRedux.Livestock.Logs.Drafted>drafted</ColonyManagerRedux.Livestock.Logs.Drafted>
     <ColonyManagerRedux.Livestock.Logs.FieldWork>field work</ColonyManagerRedux.Livestock.Logs.FieldWork>
 
-    <ColonyManagerRedux.Livestock.Logs.CurrentCountButcher>Checking if we should butcher any {0} {1}: count / target is {2} / {3} with {4} already being marked for slaughter, leaving us with {5}</ColonyManagerRedux.Livestock.Logs.CurrentCountButcher>
+    <ColonyManagerRedux.Livestock.Logs.CurrentCountCulling>Checking if we should {0} any {1} {2}: count / target is {3} / {4} with {5} already being marked for {6}, leaving us with {7}</ColonyManagerRedux.Livestock.Logs.CurrentCountCulling>
+    <ColonyManagerRedux.Livestock.Logs.Slaughter>butcher</ColonyManagerRedux.Livestock.Logs.Slaughter>
+    <ColonyManagerRedux.Livestock.Logs.Slaughter.Action>slaughter</ColonyManagerRedux.Livestock.Logs.Slaughter.Action>
+    <ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild>release</ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild>
+    <ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild.Action>release</ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild.Action>
     <ColonyManagerRedux.Livestock.Logs.AddDesignation>Added new {0} designation for {1} {2}, bringing expected count / target to {3} / {4}</ColonyManagerRedux.Livestock.Logs.AddDesignation>
     <ColonyManagerRedux.Livestock.Logs.RemoveDesignation>Removed excess {0} designation for {1} {2}, bringing expected count / target to {3} / {4}</ColonyManagerRedux.Livestock.Logs.RemoveDesignation>
     <ColonyManagerRedux.Livestock.Logs.AddTraining>Set {1} to train {0}</ColonyManagerRedux.Livestock.Logs.AddTraining>

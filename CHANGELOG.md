@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   FinalizeInit methods added to jobs and manager comps
+-   You can now cull your excess animals by releasing them into the wild instead of slaughtering them. This can be handy if you're playing with an ideoligion that causes your pawns to frown upon animal cruelty of any kind or one that celebrates releasing animals.
 
 ### Fixed
 

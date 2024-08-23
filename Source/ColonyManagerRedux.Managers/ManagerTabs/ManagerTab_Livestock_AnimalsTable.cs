@@ -5,6 +5,7 @@
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
+using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -15,6 +16,7 @@ partial class ManagerTab_Livestock
     {
 #pragma warning disable CS8618
         public ManagerTab_Livestock instance;
+        public Func<ManagerJob_Livestock?> jobGetter;
 #pragma warning restore CS8618
 
         protected bool IsCurrentTableWildTable => instance.animalsWildTable.IsCurrentTable();
@@ -24,15 +26,20 @@ partial class ManagerTab_Livestock
             base.DoHeader(rect, table);
             if (!def.HeaderInteractable)
             {
-                Rect interactableHeaderRect = GetInteractableHeaderRect(rect, table);
-                if (Mouse.IsOver(interactableHeaderRect))
+                HeaderInteraction(rect, table);
+            }
+        }
+
+        protected void HeaderInteraction(Rect rect, PawnTable table)
+        {
+            Rect interactableHeaderRect = GetInteractableHeaderRect(rect, table);
+            if (Mouse.IsOver(interactableHeaderRect))
+            {
+                Widgets.DrawHighlight(interactableHeaderRect);
+                string headerTip = GetHeaderTip(table);
+                if (!headerTip.NullOrEmpty())
                 {
-                    Widgets.DrawHighlight(interactableHeaderRect);
-                    string headerTip = GetHeaderTip(table);
-                    if (!headerTip.NullOrEmpty())
-                    {
-                        TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
-                    }
+                    TooltipHandler.TipRegion(interactableHeaderRect, headerTip);
                 }
             }
         }
@@ -194,22 +201,58 @@ partial class ManagerTab_Livestock
     }
 
     [HotSwappable]
-    public sealed class PawnColumnWorker_Butcher : PawnColumnWorker_Livestock
+    public sealed class PawnColumnWorker_Cull : PawnColumnWorker_Livestock
     {
-        public override bool VisibleCurrently => !IsCurrentTableWildTable;
+        public override bool VisibleCurrently => !IsCurrentTableWildTable
+            && jobGetter()!.CullExcess;
+
+        public override void DoHeader(Rect rect, PawnTable table)
+        {
+            //base.DoHeader(rect, table);
+            HeaderInteraction(rect, table);
+            this.CustomIconDoHeader(rect, table, (rect, _, _, _) => DrawHeader(rect));
+        }
+
+        private void DrawHeader(Rect rect)
+        {
+            var job = jobGetter()!;
+            var texture = GetCullingStrategyTexture(job);
+
+            var iconRect = new Rect(0f, 0f, 26, 26).CenteredIn(rect);
+
+            GUI.DrawTexture(iconRect, texture);
+
+        }
+
+        private static Texture2D GetCullingStrategyTexture(ManagerJob_Livestock job)
+        {
+            return job.CullingStrategy switch
+            {
+                LivestockCullingStrategy.Butcher => Resources.Slaughter,
+                LivestockCullingStrategy.Release => Resources.ReleaseToTheWild,
+                _ => throw new NotImplementedException()
+            };
+        }
 
         protected override string GetHeaderTip(PawnTable table)
         {
-            return "ColonyManagerRedux.Livestock.ButcherHeader".Translate();
+            var job = jobGetter()!;
+            return "ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor".Translate(
+                    $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action"
+                        .Translate());
         }
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
-            if (pawn.Map.designationManager.DesignationOn(pawn, DesignationDefOf.Slaughter) != null)
+            var job = jobGetter()!;
+            if (pawn.Map.designationManager.DesignationOn(pawn, job.CullingDesignationDef) != null)
             {
-                GUI.DrawTexture(rect, Resources.Slaughter);
-                TooltipHandler.TipRegion(rect, "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
-                    "ColonyManagerRedux.Livestock.ButcherHeader".Translate().ToString().UncapitalizeFirst()
+                GUI.DrawTexture(rect.ContractedBy(2), GetCullingStrategyTexture(job));
+                TooltipHandler.TipRegion(
+                    rect,
+                    "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
+                    $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action"
+                        .Translate()
                 ));
             }
         }
@@ -217,7 +260,7 @@ partial class ManagerTab_Livestock
 
     private PawnTable? animalsTameTable;
     private PawnTable? animalsWildTable;
-    private PawnTable CreateAnimalsTable(Func<IEnumerable<Pawn>> animalGetter)
+    private PawnTable CreateAnimalsTable(Func<IEnumerable<Pawn>> animalGetter, Func<ManagerJob_Livestock?> jobGetter)
     {
         PawnTable table = null!;
         table = (PawnTable)Activator.CreateInstance(
@@ -234,6 +277,7 @@ partial class ManagerTab_Livestock
                 {
                     PawnColumnWorker_Livestock worker = (PawnColumnWorker_Livestock)item.Worker;
                     worker.instance = this;
+                    worker.jobGetter = jobGetter;
                 }
 
                 return animalGetter();

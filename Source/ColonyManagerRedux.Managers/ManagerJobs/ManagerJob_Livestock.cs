@@ -71,10 +71,16 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
-    public bool ButcherBonded;
-    public bool ButcherExcess;
-    public bool ButcherPregnant;
-    public bool ButcherTrained;
+    public enum LivestockCullingStrategy
+    {
+        Butcher,
+        Release
+    }
+
+    public bool CullBonded;
+    public bool CullExcess;
+    public bool CullPregnant;
+    public bool CullTrained;
     public bool FollowDrafted;
     public bool FollowFieldwork;
     public bool FollowTraining;
@@ -86,11 +92,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     public bool RestrictToArea;
     public bool SendToMilkingArea;
     public bool SendToShearingArea;
-    public bool SendToSlaughterArea;
+    public bool SendToCullingArea;
     public bool SendToTrainingArea;
     public bool SetFollow;
     public Area? ShearArea;
-    public Area? SlaughterArea;
+    public Area? CullingArea;
     public Area? TameArea;
     public Pawn? Trainer;
     public MasterMode Trainers;
@@ -98,6 +104,18 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     public Area? TrainingArea;
     public bool TryTameMore;
     public bool TamePastTargets;
+
+    private LivestockCullingStrategy _cullingStrategy = LivestockCullingStrategy.Butcher;
+    public LivestockCullingStrategy CullingStrategy
+    {
+        get => _cullingStrategy; set => _cullingStrategy = value;
+    }
+    public DesignationDef CullingDesignationDef => _cullingStrategy switch
+    {
+        LivestockCullingStrategy.Butcher => DesignationDefOf.Slaughter,
+        LivestockCullingStrategy.Release => DesignationDefOf.ReleaseAnimalToWild,
+        _ => throw new NotImplementedException($"{_cullingStrategy} not handled"),
+    };
 
     private CachedValue<string>? _cachedLabel;
     private List<Designation> _designations;
@@ -121,8 +139,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         RestrictArea = Utilities_Livestock.AgeSexArray.Select(k => (Area?)null).ToArray();
 
         // set up sending animals designated for slaughter to an area (freezer)
-        SendToSlaughterArea = false;
-        SlaughterArea = null;
+        SendToCullingArea = false;
+        CullingArea = null;
 
         // set up milking area
         SendToMilkingArea = false;
@@ -141,11 +159,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         TamePastTargets = false;
         TameArea = null;
 
-        // set defaults for butchering
-        ButcherExcess = true;
-        ButcherTrained = false;
-        ButcherPregnant = false;
-        ButcherBonded = false;
+        // set defaults for culling
+        CullExcess = true;
+        CullTrained = false;
+        CullPregnant = false;
+        CullBonded = false;
 
         // following
         SetFollow = true;
@@ -171,10 +189,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
             TryTameMore = pawnKindSettings.DefaultTryTameMore;
             TamePastTargets = pawnKindSettings.DefaultTamePastTargets;
-            ButcherExcess = pawnKindSettings.DefaultButcherExcess;
-            ButcherTrained = pawnKindSettings.DefaultButcherTrained;
-            ButcherPregnant = pawnKindSettings.DefaultButcherPregnant;
-            ButcherBonded = pawnKindSettings.DefaultButcherBonded;
+            CullExcess = pawnKindSettings.DefaultCullExcess;
+            CullTrained = pawnKindSettings.DefaultCullTrained;
+            CullPregnant = pawnKindSettings.DefaultCullPregnant;
+            CullBonded = pawnKindSettings.DefaultCullBonded;
+            _cullingStrategy = pawnKindSettings.DefaultCullingStrategy;
 
             foreach (var def in TrainingTracker.TrainableDefs)
             {
@@ -377,12 +396,15 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     {
         base.ExposeData();
 
-        Scribe_Values.Look(ref ButcherExcess, "butcherExcess", true);
-        Scribe_Values.Look(ref ButcherTrained, "butcherTrained");
-        Scribe_Values.Look(ref ButcherPregnant, "butcherPregnant");
-        Scribe_Values.Look(ref ButcherBonded, "butcherBonded");
+        Scribe_Values.Look(ref CullExcess, "butcherExcess", true);
+        Scribe_Values.Look(ref CullTrained, "butcherTrained");
+        Scribe_Values.Look(ref CullPregnant, "butcherPregnant");
+        Scribe_Values.Look(ref CullBonded, "butcherBonded");
+        Scribe_Values.Look(
+            ref _cullingStrategy, "cullingStrategy", LivestockCullingStrategy.Butcher);
+
         Scribe_Values.Look(ref RestrictToArea, "restrictToArea");
-        Scribe_Values.Look(ref SendToSlaughterArea, "sendToSlaughterArea");
+        Scribe_Values.Look(ref SendToCullingArea, "sendToSlaughterArea");
         Scribe_Values.Look(ref SendToMilkingArea, "sendToMilkingArea");
         Scribe_Values.Look(ref SendToShearingArea, "sendToShearingArea");
         Scribe_Values.Look(ref SendToTrainingArea, "sendToTrainingArea");
@@ -406,7 +428,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
 
             Scribe_References.Look(ref TameArea, "tameArea");
-            Scribe_References.Look(ref SlaughterArea, "slaughterArea");
+            Scribe_References.Look(ref CullingArea, "slaughterArea");
             Scribe_References.Look(ref MilkArea, "milkArea");
             Scribe_References.Look(ref ShearArea, "shearArea");
             Scribe_References.Look(ref TrainingArea, "trainingArea");
@@ -557,10 +579,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         // add designations in the game that could have been handled by this job
         yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
 
-        // handle butchery
-        if (ButcherExcess)
+        // handle culling
+        if (CullExcess)
         {
-            yield return DoButcherJobs(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+            var cullingDesignationDef = CullingDesignationDef;
+            yield return DoCullingJobs(jobLog, cullingDesignationDef, workDone)
+                .ResumeWhenOtherCoroutineIsCompleted();
         }
 
         // handle training
@@ -672,16 +696,16 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     animal.playerSettings.AreaRestrictionInPawnCurrentMap = area;
 
                 // slaughter
-                if (SendToSlaughterArea &&
+                if (SendToCullingArea &&
                      Manager.map.designationManager.DesignationOn(animal,
                         DesignationDefOf.Slaughter) != null)
                 {
-                    workDone.Value |= currentArea != SlaughterArea;
-                    SetArea(SlaughterArea);
+                    workDone.Value |= currentArea != CullingArea;
+                    SetArea(CullingArea);
                     jobLog.AddDetail(
                         "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
                         animal,
-                        AreaUtility.AreaAllowedLabel_Area(SlaughterArea),
+                        AreaUtility.AreaAllowedLabel_Area(CullingArea),
                         ManagerWorkGiverDefOf.Slaughter.gerund
                     ), animal);
                 }
@@ -750,41 +774,47 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
-    private Coroutine DoButcherJobs(ManagerLog jobLog, Boxed<bool> workDone)
+    private Coroutine DoCullingJobs(
+        ManagerLog jobLog, DesignationDef cullingDesignationDef, Boxed<bool> workDone)
     {
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
-            int animalCount = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count();
-            int alreadySlaughtering = DesignationsOfOn(DesignationDefOf.Slaughter, ageSex).Count;
+            int animalCount = TriggerPawnKind.pawnKind
+                .GetTame(Manager, ageSex, includeGuests: false).Count();
+            int alreadyCulling = DesignationsOfOn(cullingDesignationDef, ageSex).Count;
             int target = TriggerPawnKind.CountTargets[(int)ageSex];
-            var targetDifference = animalCount - alreadySlaughtering - target;
+            var targetDifference = animalCount - alreadyCulling - target;
 
-            jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.CurrentCountButcher".Translate(
+            jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.CurrentCountCulling".Translate(
+                $"ColonyManagerRedux.Livestock.Logs.{cullingDesignationDef.defName}".Translate(),
                 TriggerPawnKind.pawnKind.label,
                 ageSex.GetLabel(true),
                 animalCount,
                 target,
-                alreadySlaughtering,
+                alreadyCulling,
+                $"ColonyManagerRedux.Livestock.Logs.{cullingDesignationDef.defName}.Action"
+                    .Translate(),
                 targetDifference < 0
                     ? "ColonyManagerRedux.Livestock.Logs.TooFew".Translate(-targetDifference)
                     : "ColonyManagerRedux.Livestock.Logs.TooMany".Translate(targetDifference)));
 
             if (targetDifference > 0)
             {
-                // should slaughter oldest adults, youngest juveniles.
+                // should cull oldest adults, youngest juveniles.
                 var oldestFirst = ageSex.IsAdult();
 
                 // get list of animals in correct sort order.
-                var animals = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false)
+                var animals = TriggerPawnKind.pawnKind
+                    .GetTame(Manager, ageSex, includeGuests: false)
                     .Where(
                         p => Manager.map.designationManager.DesignationOn(
-                            p, DesignationDefOf.Slaughter) == null
-                        && (ButcherTrained ||
+                            p, cullingDesignationDef) == null
+                        && (CullTrained ||
                             !p.training.HasLearned(TrainableDefOf.Obedience))
-                        && (ButcherPregnant || !p.VisiblyPregnant())
-                        && (ButcherBonded || !p.BondedWithColonist()))
-                    // slaughter least trained animals first
+                        && (CullPregnant || !p.VisiblyPregnant())
+                        && (CullBonded || !p.BondedWithColonist()))
+                    // cull least trained animals first
                     .OrderBy(p => p.training.learned.Count(l => l.Value))
                     .ThenBy(
                         p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks)
@@ -793,11 +823,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 for (var i = 0; i < targetDifference && i < animals.Count; i++)
                 {
                     Pawn animal = animals[i];
-                    AddDesignation(new(animal, DesignationDefOf.Slaughter));
+                    AddDesignation(new(animal, cullingDesignationDef));
                     animalCount--;
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AddDesignation"
                         .Translate(
-                            DesignationDefOf.Slaughter.ActionText(),
+                            cullingDesignationDef.ActionText(),
                             animal.Label,
                             ageSex.GetLabel(),
                             animalCount,
@@ -812,7 +842,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             bool didRemove = false;
             while (targetDifference < 0)
             {
-                if (TryRemoveDesignation(ageSex, DesignationDefOf.Slaughter, out var animal))
+                if (TryRemoveDesignation(ageSex, cullingDesignationDef, out var animal))
                 {
                     workDone.Value = true;
                     targetDifference++;
@@ -1053,9 +1083,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         {
             ShearArea = null;
         }
-        if (SlaughterArea == area)
+        if (CullingArea == area)
         {
-            SlaughterArea = null;
+            CullingArea = null;
         }
         if (TameArea == area)
         {

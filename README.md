@@ -17,7 +17,7 @@ Out of the box, the mod has the following manager jobs:
 **Hunting**: Set how much meat you want, and which kinds of animals you want to hunt, and watch your hunters take care of it.  
 **Forestry**: Set how much wood you want, and which kinds of trees you want to chop, and the plant cutters take care of the rest.  
 **Forestry (clearing)**: Mark an area for clearing, like the immediate outside of your colony, and watch your enemies having nothing to take cover behind the next time you're raided!  
-**Livestock**: Takes care of taming, culling (butchering excess), training and corralling your animals according to your specifications.  
+**Livestock**: Takes care of taming, culling (butchering or releasing excess), training and corralling your animals according to your specifications.  
 **Foraging**: Set how much you want of berries/herbal medicine/mushrooms, and watch your colonists go out and collect it.  
 **Resource gathering**: Set how much steel/silver/gold/jade/stone/etc. you want, and watch your colonists haul chunks for processing and mine the resources you're after automatically.
 

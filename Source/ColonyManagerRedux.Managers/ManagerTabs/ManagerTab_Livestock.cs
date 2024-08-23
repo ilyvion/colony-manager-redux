@@ -5,6 +5,7 @@
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
+using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 using static ColonyManagerRedux.Utilities;
 
 using TabRecord = Verse.TabRecord;
@@ -174,8 +175,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             "ColonyManagerRedux.Livestock.TargetCountsHeader".Translate());
         Widgets_Section.Section(SelectedJob, ref position, width, DrawTamingSection,
             "ColonyManagerRedux.Livestock.TamingHeader".Translate());
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawButcherSection,
-            "ColonyManagerRedux.Livestock.ButcherHeader".Translate());
+        Widgets_Section.Section(SelectedJob, ref position, width, DrawCullingSection,
+            "ColonyManagerRedux.Livestock.CullingHeader".Translate());
         Widgets_Section.Section(SelectedJob, ref position, width, DrawTrainingSection,
             "ColonyManagerRedux.Livestock.TrainingHeader".Translate());
         Widgets_Section.Section(SelectedJob, ref position, width, DrawAreaRestrictionsSection,
@@ -382,17 +383,17 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         var sendToSlaughterAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
-        if (job.ButcherExcess)
+        if (job.CullExcess)
         {
             DrawToggle(sendToSlaughterAreaRect,
-                "ColonyManagerRedux.Livestock.SendToSlaughterArea".Translate(),
-                "ColonyManagerRedux.Livestock.SendToSlaughterArea.Tip".Translate(),
-                ref job.SendToSlaughterArea);
+                "ColonyManagerRedux.Livestock.SendToCullingArea".Translate(),
+                "ColonyManagerRedux.Livestock.SendToCullingArea.Tip".Translate(),
+                ref job.SendToCullingArea);
 
-            if (job.SendToSlaughterArea)
+            if (job.SendToCullingArea)
             {
                 var slaughterAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-                AreaAllowedGUI.DoAllowedAreaSelectors(ref slaughterAreaRect, ref job.SlaughterArea, 5,
+                AreaAllowedGUI.DoAllowedAreaSelectors(ref slaughterAreaRect, ref job.CullingArea, 5,
                     Manager);
                 pos.y += slaughterAreaRect.height;
             }
@@ -401,8 +402,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             sendToSlaughterAreaRect.xMin += Margin;
             IlyvionWidgets.Label(sendToSlaughterAreaRect,
-                "ColonyManagerRedux.Livestock.SendToSlaughterArea".Translate(),
-                "ColonyManagerRedux.Livestock.DisabledBecauseSlaughterExcessDisabled".Translate(),
+                "ColonyManagerRedux.Livestock.SendToCullingArea".Translate(),
+                "ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled".Translate(),
                 TextAnchor.MiddleLeft,
                 color: Color.grey);
         }
@@ -619,39 +620,64 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Widgets.EndScrollView();
     }
 
-    private float DrawButcherSection(ManagerJob_Livestock job, Vector2 pos, float width)
+    private float DrawCullingSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
         var start = pos;
 
-        // butchery stuff
-        var butcherExcessRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        DrawToggle(butcherExcessRect,
-            "ColonyManagerRedux.Livestock.ButcherExcess".Translate(),
-            "ColonyManagerRedux.Livestock.ButcherExcess.Tip".Translate(),
-            ref job.ButcherExcess);
+        var cullingStrategies =
+            (LivestockCullingStrategy[])Enum.GetValues(typeof(LivestockCullingStrategy));
+
+        var cellWidth = width / (cullingStrategies.Length + 1);
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+        DrawToggle(cellRect,
+            "ColonyManagerRedux.Livestock.CullingStrategy.None".Translate(),
+            "ColonyManagerRedux.Livestock.CullingStrategy.None.Tip".Translate(),
+            !job.CullExcess,
+            () => { job.CullExcess = false; animalsTameTable?.SetDirty(); },
+            () => { });
+        cellRect.x += cellWidth;
+
+        foreach (var cullingStrategy in cullingStrategies)
+        {
+            DrawToggle(
+                cellRect,
+                $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}".Translate(),
+                $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}.Tip"
+                    .Translate(),
+                job.CullExcess && job.CullingStrategy == cullingStrategy,
+                () =>
+                {
+                    job.CullExcess = true;
+                    job.CullingStrategy = cullingStrategy;
+                    animalsTameTable?.SetDirty();
+                },
+                () => { });
+            cellRect.x += cellWidth;
+        }
         pos.y += ListEntryHeight;
 
-        if (job.ButcherExcess)
+        if (job.CullExcess)
         {
-            var cellWidth = (width - Margin * 2) / 3f;
-            var butcherOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+            cellWidth = (width - Margin * 2) / 3f;
+            var cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
-            DrawToggle(butcherOptionRect,
-                "ColonyManagerRedux.Livestock.ButcherTrained".Translate(),
-                "ColonyManagerRedux.Livestock.ButcherTrained.Tip".Translate(),
-                ref job.ButcherTrained, font: GameFont.Tiny, wrap: false);
-            butcherOptionRect.x += cellWidth + Margin;
+            DrawToggle(cullingOptionRect,
+                "ColonyManagerRedux.Livestock.CullTrained".Translate(),
+                "ColonyManagerRedux.Livestock.CullTrained.Tip".Translate(),
+                ref job.CullTrained, font: GameFont.Tiny, wrap: false);
+            cullingOptionRect.x += cellWidth + Margin;
 
-            DrawToggle(butcherOptionRect,
-                "ColonyManagerRedux.Livestock.ButcherPregnant".Translate(),
-                "ColonyManagerRedux.Livestock.ButcherPregnant.Tip".Translate(),
-                ref job.ButcherPregnant, font: GameFont.Tiny, wrap: false);
-            butcherOptionRect.x += cellWidth + Margin;
+            DrawToggle(cullingOptionRect,
+                "ColonyManagerRedux.Livestock.CullPregnant".Translate(),
+                "ColonyManagerRedux.Livestock.CullPregnant.Tip".Translate(),
+                ref job.CullPregnant, font: GameFont.Tiny, wrap: false);
+            cullingOptionRect.x += cellWidth + Margin;
 
-            DrawToggle(butcherOptionRect,
-                "ColonyManagerRedux.Livestock.ButcherBonded".Translate(),
-                "ColonyManagerRedux.Livestock.ButcherBonded.Tip".Translate(),
-                ref job.ButcherBonded, font: GameFont.Tiny, wrap: false);
+            DrawToggle(cullingOptionRect,
+                "ColonyManagerRedux.Livestock.CullBonded".Translate(),
+                "ColonyManagerRedux.Livestock.CullBonded.Tip".Translate(),
+                ref job.CullBonded, font: GameFont.Tiny, wrap: false);
 
             pos.y += ListEntryHeight;
         }
@@ -860,12 +886,12 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         if (job.TryTameMore)
         {
+            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, 5, Manager);
+
             DrawToggle(ref pos, width,
                 "ColonyManagerRedux.Livestock.TamePastTargets".Translate(),
                 "ColonyManagerRedux.Livestock.TamePastTargets.Tip".Translate(),
                 ref job.TamePastTargets);
-
-            AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, 5, Manager);
             DrawReachabilityToggle(ref pos, width, ref job.ShouldCheckReachable);
             DrawToggle(ref pos, width,
                 "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
@@ -1009,7 +1035,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
                 return animalGetter(pawnKind) ?? [];
-            });
+            }, () => SelectedJob);
             pawnTable.SetFixedSize(new(rect.width, rect.height));
         }
 

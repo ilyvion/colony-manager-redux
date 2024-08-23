@@ -291,6 +291,12 @@ public static class Utilities
         // finetune rects
         iconRect = iconRect.CenteredOnYIn(labelRect);
 
+        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        {
+            Widgets.DrawRectFast(labelRect, ColorLibrary.NeonGreen.ToTransparent(.5f));
+            Widgets.DrawRectFast(iconRect, ColorLibrary.PaleBlue.ToTransparent(.5f));
+        }
+
         // draw label
         IlyvionWidgets.Label(
             rect,
