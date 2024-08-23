@@ -12,6 +12,16 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public sealed class MainTabWindow_Manager : MainTabWindow
 {
+
+    private Manager? _manager;
+    private Manager Manager
+    {
+        get
+        {
+            _manager ??= Manager.For(Find.CurrentMap);
+            return _manager;
+        }
+    }
     private static ManagerTab? currentTab;
 
     public static ManagerTab CurrentTab
@@ -22,6 +32,46 @@ public sealed class MainTabWindow_Manager : MainTabWindow
             return currentTab;
         }
         set => currentTab = value;
+    }
+
+
+    private List<ManagerTab>? _managerTabsLeft;
+    private List<ManagerTab> ManagerTabsLeft
+    {
+        get
+        {
+            _managerTabsLeft ??=
+                Manager.Tabs
+                .Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show)
+                .ToList();
+            return _managerTabsLeft;
+        }
+    }
+
+    private List<ManagerTab>? _managerTabsMiddle;
+    private List<ManagerTab> ManagerTabsMiddle
+    {
+        get
+        {
+            _managerTabsMiddle ??=
+                Manager.Tabs
+                .Where(tab => tab.Def.iconArea == IconArea.Middle && tab.Show)
+                .ToList();
+            return _managerTabsMiddle;
+        }
+    }
+
+    private List<ManagerTab>? _managerTabsRight;
+    private List<ManagerTab> ManagerTabsRight
+    {
+        get
+        {
+            _managerTabsRight ??=
+                Manager.Tabs
+                .Where(tab => tab.Def.iconArea == IconArea.Right && tab.Show)
+                .ToList();
+            return _managerTabsRight;
+        }
     }
 
     public static ManagerTab DefaultTab => Manager.For(Find.CurrentMap).Tabs[0];
@@ -49,8 +99,6 @@ public sealed class MainTabWindow_Manager : MainTabWindow
 
     public override void DoWindowContents(Rect inRect)
     {
-        Manager manager = Manager.For(Find.CurrentMap);
-
         // zooming in seems to cause Text.Font to start at Tiny, make sure it's set to Small for our panels.
         Text.Font = GameFont.Small;
 
@@ -58,26 +106,26 @@ public sealed class MainTabWindow_Manager : MainTabWindow
 
         // three areas of icons for tabs, left middle and right.
         var leftIcons = new Rect(0f, 0f,
-            manager.ManagerTabsLeft.Count * LargeIconSize
-            + Mathf.Max(0, manager.ManagerTabsLeft.Count - 1) * Margin,
+            ManagerTabsLeft.Count * LargeIconSize
+            + Mathf.Max(0, ManagerTabsLeft.Count - 1) * Margin,
             LargeIconSize);
         var rightIcons = new Rect(0f, 0f,
-            manager.ManagerTabsRight.Count * LargeIconSize
-            + Mathf.Max(0, manager.ManagerTabsRight.Count - 1) * Margin,
+            ManagerTabsRight.Count * LargeIconSize
+            + Mathf.Max(0, ManagerTabsRight.Count - 1) * Margin,
             LargeIconSize);
 
         var widthRemaining = inRect.width - leftIcons.width - rightIcons.width - 2 * Margin;
 
         var middleIcons = new Rect(0f, 0f,
-            Margin + manager.ManagerTabsMiddle.Count * (LargeIconSize + Margin),
+            Margin + ManagerTabsMiddle.Count * (LargeIconSize + Margin),
             LargeIconSize);
 
         var middleMargin = Margin;
         if (middleIcons.width > widthRemaining)
         {
-            middleMargin -= (middleIcons.width - widthRemaining) / (manager.ManagerTabsMiddle.Count + 1);
+            middleMargin -= (middleIcons.width - widthRemaining) / (ManagerTabsMiddle.Count + 1);
             middleIcons.width -= middleIcons.width - widthRemaining;
-            middleIcons.width = Mathf.Max(middleIcons.width, manager.ManagerTabsMiddle.Count * LargeIconSize);
+            middleIcons.width = Mathf.Max(middleIcons.width, ManagerTabsMiddle.Count * LargeIconSize);
         }
 
         var outerMargin = Margin;
@@ -105,7 +153,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         // left icons (overview and logs from our end)
         GUI.BeginGroup(leftIcons);
         var cur = new Vector2(0f, 0f);
-        foreach (var tab in manager.ManagerTabsLeft)
+        foreach (var tab in ManagerTabsLeft)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
@@ -117,7 +165,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         // right icons (import/export from our end)
         GUI.BeginGroup(rightIcons);
         cur = new Vector2(0f, 0f);
-        foreach (var tab in manager.ManagerTabsRight)
+        foreach (var tab in ManagerTabsRight)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
@@ -129,7 +177,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         // middle icons (the bulk of icons)
         GUI.BeginGroup(middleIcons);
         cur = new Vector2(middleMargin, 0f);
-        foreach (var tab in manager.ManagerTabsMiddle)
+        foreach (var tab in ManagerTabsMiddle)
         {
             var iconRect = new Rect(cur.x, cur.y, LargeIconSize, LargeIconSize);
             DrawTabIcon(iconRect, tab);
@@ -202,6 +250,12 @@ public sealed class MainTabWindow_Manager : MainTabWindow
     public override void PreOpen()
     {
         base.PreOpen();
+
+        // Reset these caches so we're not holding on to outdated values
+        _manager = null;
+        _managerTabsLeft = null;
+        _managerTabsMiddle = null;
+        _managerTabsRight = null;
 
         // make sure the currently open tab is for this map
         if (CurrentTab.Manager.map != Find.CurrentMap)

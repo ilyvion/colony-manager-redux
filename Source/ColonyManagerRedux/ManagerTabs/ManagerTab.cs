@@ -71,6 +71,8 @@ public abstract class ManagerTab(Manager manager)
     private ManagerDef _def;
     public ManagerDef Def { get => _def; internal set => _def = value; }
 
+    public bool Show => !ColonyManagerReduxMod.Settings.DisabledManagers.Contains(_def);
+
     private Manager _manager = manager;
     public Manager Manager { get => _manager; private set => _manager = value; }
 

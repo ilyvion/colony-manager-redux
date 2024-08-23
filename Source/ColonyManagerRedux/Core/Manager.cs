@@ -11,10 +11,6 @@ public class Manager : MapComponent, ILoadReferenceable
 {
     private readonly List<ManagerTab> _tabs;
     public List<ManagerTab> Tabs => _tabs;
-
-    private List<ManagerTab>? _managerTabsLeft;
-    private List<ManagerTab>? _managerTabsMiddle;
-    private List<ManagerTab>? _managerTabsRight;
     internal int id = -1;
 
     private bool _wasLoaded;
@@ -79,35 +75,6 @@ public class Manager : MapComponent, ILoadReferenceable
 
     private JobTracker _jobTracker;
     public JobTracker JobTracker => _jobTracker ??= new JobTracker(this);
-
-    internal List<ManagerTab> ManagerTabsLeft
-    {
-        get
-        {
-            _managerTabsLeft ??= _tabs.Where(tab => tab.Def.iconArea == IconArea.Left).ToList();
-            return _managerTabsLeft;
-        }
-    }
-
-    internal List<ManagerTab> ManagerTabsMiddle
-    {
-        get
-        {
-            _managerTabsMiddle ??=
-                _tabs.Where(tab => tab.Def.iconArea == IconArea.Middle).ToList();
-            return _managerTabsMiddle;
-        }
-    }
-
-    internal List<ManagerTab> ManagerTabsRight
-    {
-        get
-        {
-            _managerTabsRight ??=
-                _tabs.Where(tab => tab.Def.iconArea == IconArea.Right).ToList();
-            return _managerTabsRight;
-        }
-    }
 
     public string GetUniqueLoadID()
     {
@@ -249,6 +216,7 @@ public class Manager : MapComponent, ILoadReferenceable
             }
         }
 
+        // tick comps
         foreach (ManagerComp c in _comps)
         {
             try

@@ -66,13 +66,28 @@ public class Settings : ModSettings
         internal set => _recordHistoricalData = value;
     }
 
+    private HashSet<ManagerDef> _disabledManagers = [];
+    public HashSet<ManagerDef> DisabledManagers => _disabledManagers;
+
     public UpdateInterval DefaultUpdateInterval
     {
         get => TicksToInterval(DefaultUpdateIntervalTicks);
         internal set => DefaultUpdateIntervalTicks = value.Ticks;
     }
 
-    private List<TabRecord> _tabList = [];
+    private List<TabRecord>? _tabList;
+    private List<TabRecord> TabList
+    {
+        get
+        {
+            _tabList ??=
+                Gen.YieldSingle<Tab>(_sharedManagerSettings)
+                .Concat(_managerSettings.Where(m => m.Show))
+                .Select(m => new TabRecord(m, () => ref _currentManagerSettings))
+                .ToList();
+            return _tabList;
+        }
+    }
 
     private sealed class SharedManagerSettings(Settings settings) : Tab
     {
@@ -92,6 +107,11 @@ public class Settings : ModSettings
                 width,
                 settings.DrawThreshold,
                 "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawDisableManagers,
+                "ColonyManagerRedux.ManagerSettings.DisableManagers".Translate());
 
             Widgets_Section.EndSectionColumn("Settings", position);
         }
@@ -103,10 +123,6 @@ public class Settings : ModSettings
         _managerSettings.AddRange(MakeManagerSettings());
 
         _currentManagerSettings = _sharedManagerSettings = new(this);
-        _tabList.AddRange(
-            Gen.YieldSingle<Tab>(_sharedManagerSettings)
-            .Concat(_managerSettings)
-            .Select(m => new TabRecord(m, () => ref _currentManagerSettings)));
     }
 
     private static IEnumerable<ManagerSettings> MakeManagerSettings()
@@ -122,7 +138,7 @@ public class Settings : ModSettings
         int rowCount = (int)Math.Ceiling((double)(_managerSettings.Count + 1) / 5);
         rect.yMin += rowCount * SectionHeaderHeight + Margin;
         Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, _tabList, rowCount, null);
+        TabDrawer.DrawTabs(rect, TabList, rowCount, null);
 
         try
         {
@@ -202,6 +218,34 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
+    public float DrawDisableManagers(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var text = "ColonyManagerRedux.ManagerSettings.DisableManagers.Tip".Translate();
+        float height = -1;
+        using (GUIScope.Font(GameFont.Tiny))
+        {
+            height = Text.CalcHeight(text, width);
+        }
+        IlyvionWidgets.Label(ref pos, width, height, text, gameFont: GameFont.Tiny);
+
+        foreach (var managerDef in DefDatabase<ManagerDef>.AllDefs.OrderBy(m => m.order))
+        {
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                managerDef.LabelCap,
+                null,
+                !_disabledManagers.Contains(managerDef),
+                () => _disabledManagers.Remove(managerDef),
+                () => _disabledManagers.Add(managerDef),
+                wrap: false);
+        }
+
+        return pos.y - start.y;
+    }
+
     public void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string label,
         string? tooltip = null)
     {
@@ -257,13 +301,15 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
 
-        // TODO: Migrate/deprecate "jobSettings" for "managerSettings"
         Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
+        Scribe_Collections.Look(ref _disabledManagers, "disabledManagers", LookMode.Def);
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             _managerSettings ??= MakeManagerSettings().ToList();
             EnsureManagerSettingsAreCorrect();
+
+            _disabledManagers ??= [];
         }
     }
 
@@ -311,5 +357,10 @@ public class Settings : ModSettings
     public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings
     {
         return _managerSettings.Find(s => s.Def == def) as T;
+    }
+
+    internal void PreOpen()
+    {
+        _tabList = null;
     }
 }

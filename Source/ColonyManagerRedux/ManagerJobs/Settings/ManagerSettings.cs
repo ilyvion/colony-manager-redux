@@ -36,4 +36,11 @@ public abstract class ManagerSettings : Tab, IExposable
     }
 
     public override string Title { get => Label; }
+
+    // We need to seal this so subclasses can't "override" the DisabledManagers setting.
+    public override sealed bool Show =>
+        !ColonyManagerReduxMod.Settings.DisabledManagers.Contains(def) && ShowSettingTab;
+
+    // We instead offer this one as a replacement
+    public virtual bool ShowSettingTab => true;
 }
