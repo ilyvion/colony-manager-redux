@@ -142,13 +142,13 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         middleIcons = middleIcons.CenteredOnXIn(middleCanvas);
         rightIcons.x += inRect.width - rightIcons.width;
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(leftIcons, Color.red.ToTransparent(.5f));
             Widgets.DrawRectFast(middleIcons, Color.green.ToTransparent(.5f));
             Widgets.DrawRectFast(rightIcons, Color.blue.ToTransparent(.5f));
             Widgets.DrawLineHorizontal(middleCanvas.x, LargeIconSize + 8f, middleCanvas.width);
-        }
+        });
 
         // left icons (overview and logs from our end)
         GUI.BeginGroup(leftIcons);

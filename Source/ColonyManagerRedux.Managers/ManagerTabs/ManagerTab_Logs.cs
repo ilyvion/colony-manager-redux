@@ -214,12 +214,12 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
 
         using var _g = GUIScope.WidgetGroup(rowRect);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(iconRect, ColorLibrary.HotPink.ToTransparent(.5f));
             Widgets.DrawRectFast(headerLabelRect, Color.blue.ToTransparent(.2f));
             Widgets.DrawRectFast(dateLabelRect, Color.green.ToTransparent(.2f));
-        }
+        });
 
         if (log.HasJob)
         {
@@ -314,11 +314,11 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
 
         using var _g = GUIScope.WidgetGroup(rowRect);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(iconRect, ColorLibrary.HotPink.ToTransparent(.5f));
             Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
-        }
+        });
 
         // draw label
         var selectToFilter = "ColonyManagerRedux.Logs.SelectToFilterLogsByJob".Translate();

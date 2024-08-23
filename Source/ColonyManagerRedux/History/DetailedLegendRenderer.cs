@@ -44,10 +44,8 @@ public class DetailedLegendRenderer : IExposable
             .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign));
         using var _ = new DoOnDispose(_tmpChaptersOrdered.Clear);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
-        {
-            Widgets.DrawRectFast(canvas, ColorLibrary.NeonGreen.ToTransparent(.5f));
-        }
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
+            Widgets.DrawRectFast(canvas, ColorLibrary.NeonGreen.ToTransparent(.5f)));
 
         // get out early if no chapters.
         if (_tmpChaptersOrdered.Count == 0)
@@ -93,12 +91,12 @@ public class DetailedLegendRenderer : IExposable
             // icon is square, size defined by height.
             var bar = new Rect(Margin + height, height * i, viewRect.width - height - Margin, height);
 
-            if (IlyvionDebugViewSettings.DrawUIHelpers)
+            IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             {
                 Widgets.DrawRectFast(row, ColorLibrary.Red.ToTransparent(.5f));
                 Widgets.DrawRectFast(icon, ColorLibrary.Teal.ToTransparent(.5f));
                 Widgets.DrawRectFast(bar, ColorLibrary.Yellow.ToTransparent(.5f));
-            }
+            });
 
             // if icons should not be drawn make the bar full size.
             if (!DrawIcons)

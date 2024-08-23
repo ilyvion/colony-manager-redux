@@ -173,13 +173,13 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         var buttonRect = new Rect(timeRect.xMax + Constants.Margin, 1f, 100f, rect.height - 2f);
         var deleteRect = new Rect(buttonRect.xMax + Constants.Margin, (rect.height - IconSize) / 2, IconSize, IconSize);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(nameRect, ColorLibrary.Aqua.ToTransparent(.5f));
             Widgets.DrawRectFast(timeRect, ColorLibrary.Beige.ToTransparent(.5f));
             Widgets.DrawRectFast(buttonRect, ColorLibrary.BrickRed.ToTransparent(.5f));
             Widgets.DrawRectFast(deleteRect, ColorLibrary.BrightPink.ToTransparent(.5f));
-        }
+        });
 
         // name
         Text.Anchor = TextAnchor.MiddleLeft;
@@ -370,11 +370,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
         labelRect = labelRect.CenteredOnYIn(rowRect);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
             Widgets.DrawRectFast(statusRect, Color.yellow.ToTransparent(.2f));
-        }
+        });
 
         // draw label
         IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);

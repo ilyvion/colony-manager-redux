@@ -260,7 +260,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         labelRect = labelRect.CenteredOnYIn(rowRect);
         iconRect = iconRect.CenteredOnYIn(rowRect);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(iconRect, ColorLibrary.HotPink.ToTransparent(.5f));
             Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
@@ -269,7 +269,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             Widgets.DrawRectFast(stampRegionRect, Color.red.ToTransparent(.2f));
             Widgets.DrawRectFast(progressRect, Color.green.ToTransparent(.2f));
             Widgets.DrawRectFast(orderRect, ColorLibrary.Aqua.ToTransparent(.5f));
-        }
+        });
 
         // draw label
         IlyvionWidgets.Label(

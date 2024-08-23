@@ -222,7 +222,7 @@ public abstract class ManagerTab(Manager manager)
         // do the drawing
         GUI.BeginGroup(rowRect);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(labelRect, Color.blue.ToTransparent(.2f));
             Widgets.DrawRectFast(statusRect, Color.yellow.ToTransparent(.2f));
@@ -230,7 +230,7 @@ public abstract class ManagerTab(Manager manager)
             Widgets.DrawRectFast(stampRegionRect, Color.red.ToTransparent(.2f));
             Widgets.DrawRectFast(progressRect, Color.green.ToTransparent(.2f));
             Widgets.DrawRectFast(orderRect, ColorLibrary.Aqua.ToTransparent(.5f));
-        }
+        });
 
         // draw label
         IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.UpperLeft);
@@ -585,14 +585,14 @@ public abstract class ManagerTab(Manager manager)
 
         var (top, bottom) = GetJobOrderBounds(job, jobTracker);
 
-        if (IlyvionDebugViewSettings.DrawUIHelpers)
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(upRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(downRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(topRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(bottomRect, ColorLibrary.Indigo.ToTransparent(.5f));
             IlyvionWidgets.Label(rect, job.Priority.ToString(), TextAnchor.MiddleCenter);
-        }
+        });
 
         if (!top)
         {

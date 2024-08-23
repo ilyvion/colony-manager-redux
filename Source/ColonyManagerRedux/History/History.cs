@@ -274,11 +274,11 @@ public partial class History : IExposable
             GUI.color = Color.white;
             Widgets.Label(labelRect, periodShown);
 
-            if (IlyvionDebugViewSettings.DrawUIHelpers)
+            IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             {
                 Widgets.DrawRectFast(switchRect, ColorLibrary.Aquamarine.ToTransparent(.5f));
                 Widgets.DrawRectFast(labelRect, ColorLibrary.Khaki.ToTransparent(.5f));
-            }
+            });
         }
 
         if (!recordHistoricalData)

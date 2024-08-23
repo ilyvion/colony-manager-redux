@@ -362,7 +362,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 ref areaRects[2, 2],
                 job.RestrictArea[3], 2, Manager, 0);
 
-            if (IlyvionDebugViewSettings.DrawUIHelpers)
+            IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             {
                 Widgets.DrawRectFast(areaRects[0, 0], ColorLibrary.Red.ToTransparent(.5f));
                 Widgets.DrawRectFast(areaRects[0, 1], ColorLibrary.Green.ToTransparent(.5f));
@@ -375,7 +375,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 Widgets.DrawRectFast(areaRects[2, 0], ColorLibrary.Orange.ToTransparent(.5f));
                 Widgets.DrawRectFast(areaRects[2, 1], ColorLibrary.Purple.ToTransparent(.5f));
                 Widgets.DrawRectFast(areaRects[2, 2], ColorLibrary.Pink.ToTransparent(.5f));
-            }
+            });
 
             Text.Anchor = TextAnchor.UpperLeft; // DoAllowedAreaMode leaves the anchor in an incorrect state.
             pos.y = areaRects[2, 2].yMax;
