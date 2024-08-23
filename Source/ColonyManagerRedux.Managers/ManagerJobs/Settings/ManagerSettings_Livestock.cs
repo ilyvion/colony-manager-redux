@@ -16,8 +16,8 @@ internal sealed class PawnKindSettings : IExposable
     internal ManagerSettings_Livestock settings;
 
     public int[] DefaultCountTargets = Utilities_Livestock.AgeSexArray
-                .Select(_ => 5)
-                .ToArray();
+        .Select(_ => 5)
+        .ToArray();
 
     public bool DefaultTryTameMore;
     public bool DefaultTamePastTargets;
