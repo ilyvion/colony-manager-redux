@@ -774,7 +774,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
-    private List<Designation> _tmpDesignations = [];
+    private readonly List<Designation> _tmpDesignations = [];
     private Coroutine DoCullingJobs(
         ManagerLog jobLog, DesignationDef cullingDesignationDef, Boxed<bool> workDone)
     {

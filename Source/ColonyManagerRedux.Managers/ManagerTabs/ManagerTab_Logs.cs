@@ -17,7 +17,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
 
     private ManagerLog? selectedLog;
 
-    private ScrollViewStatus _logListScrollViewStatus = new();
+    private readonly ScrollViewStatus _logListScrollViewStatus = new();
 
     private readonly List<LookTargets[]> cachedLookTargets = [];
     private void RecacheLookTargets()

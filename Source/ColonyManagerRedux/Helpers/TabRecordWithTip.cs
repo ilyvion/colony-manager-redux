@@ -3,14 +3,9 @@
 
 namespace ColonyManagerRedux;
 
-public class TabRecordWithTip : TabRecord
+public class TabRecordWithTip(string label, string tooltip, Action clickedAction, bool selected) : TabRecord(label, clickedAction, selected)
 {
-    private readonly string _tooltip;
-
-    public TabRecordWithTip(string label, string tooltip, Action clickedAction, bool selected) : base(label, clickedAction, selected)
-    {
-        _tooltip = tooltip;
-    }
+    private readonly string _tooltip = tooltip;
 
     public override string GetTip()
     {

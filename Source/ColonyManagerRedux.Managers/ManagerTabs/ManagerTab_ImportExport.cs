@@ -280,7 +280,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
     }
 
-    private ScrollViewStatus _scrollViewStatus = new();
+    private readonly ScrollViewStatus _scrollViewStatus = new();
     protected override void DoJobList(Rect jobsRect)
     {
         using var scrollView = GUIScope.ScrollView(jobsRect, _scrollViewStatus);

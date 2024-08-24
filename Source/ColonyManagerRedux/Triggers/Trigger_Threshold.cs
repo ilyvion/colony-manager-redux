@@ -39,7 +39,7 @@ public sealed class Trigger_Threshold : Trigger
 
     private ThingFilter thresholdFilter;
     public ThingFilter ThresholdFilter { get => thresholdFilter; }
-    private CachedValue<int> _cachedCurrentCount = new(0);
+    private readonly CachedValue<int> _cachedCurrentCount = new(0);
 
     private string? _stockpile_scribe;
 

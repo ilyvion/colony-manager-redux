@@ -124,7 +124,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         return rowRect.yMin - start.y;
     }
 
-    private List<ThingDef> _tmpThings = [];
+    private readonly List<ThingDef> _tmpThings = [];
     public float DrawAllowedMineralsShortcuts(Vector2 pos, float width)
     {
         using var _ = new DoOnDispose(_tmpThings.Clear);

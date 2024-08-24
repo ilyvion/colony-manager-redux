@@ -16,7 +16,7 @@ public static class StockpileGUI
     private static List<Texture2D>? textures;
 
     private static Vector2 _scrollPosition;
-    private static List<Zone_Stockpile> _tmpStockpiles = [];
+    private static readonly List<Zone_Stockpile> _tmpStockpiles = [];
     public static float DoStockpileSelectors(
         Vector2 position, float width, ref Zone_Stockpile? activeStockpile, Map map)
     {

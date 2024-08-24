@@ -11,10 +11,10 @@ public class UpdateInterval(int ticks, string label)
 {
     private static UpdateInterval? _daily;
 
-    private string _label = label;
+    private readonly string _label = label;
     public string Label { get => _label; }
 
-    private int _ticks = ticks;
+    private readonly int _ticks = ticks;
     public int Ticks { get => _ticks; }
 
     public static UpdateInterval Daily

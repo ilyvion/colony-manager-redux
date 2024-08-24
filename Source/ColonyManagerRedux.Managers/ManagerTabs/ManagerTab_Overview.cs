@@ -15,7 +15,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     private float _overviewHeight = 9999f;
     private Vector2 _overviewScrollPosition = Vector2.zero;
-    private List<Pawn> _workers = [];
+    private readonly List<Pawn> _workers = [];
 
     private SkillDef? SkillDef { get; set; }
 

@@ -143,7 +143,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
         return sb.ToString();
     }
 
-    private List<ThingDef> _tmpThings = [];
+    private readonly List<ThingDef> _tmpThings = [];
     public float DrawPlantShortcuts(Vector2 pos, float width)
     {
         using var _ = new DoOnDispose(_tmpThings.Clear);

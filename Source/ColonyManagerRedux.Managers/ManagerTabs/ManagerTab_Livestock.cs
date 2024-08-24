@@ -17,7 +17,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 {
     internal const int TrainingJobsPerRow = 3;
 
-    private List<PawnKindDef> _availablePawnKinds = [];
+    private readonly List<PawnKindDef> _availablePawnKinds = [];
 
     private string[] _newCounts = ["", "", "", ""];
 

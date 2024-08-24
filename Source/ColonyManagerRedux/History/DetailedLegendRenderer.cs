@@ -26,7 +26,7 @@ public class DetailedLegendRenderer : IExposable
     private bool _maxPerChapter;
     public bool MaxPerChapter { get => _maxPerChapter; set => _maxPerChapter = value; }
 
-    private List<History.Chapter> _tmpChaptersOrdered = [];
+    private readonly List<History.Chapter> _tmpChaptersOrdered = [];
     public void DrawDetailedLegend(History history, Rect canvas, ref Vector2 scrollPos, int? max, bool positiveOnly = false,
         bool negativeOnly = false)
     {

@@ -559,7 +559,7 @@ internal sealed class ManagerJob_Mining
         return [];
     }
 
-    private CachedValues<ThingDef, List<ThingDef>> _materialsInMineralCache = new();
+    private readonly CachedValues<ThingDef, List<ThingDef>> _materialsInMineralCache = new();
     public List<ThingDef> GetMaterialsInMineral(ThingDef mineral)
     {
         if (!_materialsInMineralCache.TryGetValue(mineral, out var materials))

@@ -111,8 +111,8 @@ internal sealed class ManagerJob_Power : ManagerJob
 
     private List<Building> _batteryBuildings = [];
     private List<Building> _traderBuildings = [];
-    private List<List<CompPowerBattery>> _batteries = [];
-    private List<List<CompPowerTrader>> _traders = [];
+    private readonly List<List<CompPowerBattery>> _batteries = [];
+    private readonly List<List<CompPowerTrader>> _traders = [];
 
     private readonly CachedValue<int[]> cachedTradeCounts = new([]);
     private int[] CachedTradeCounts
@@ -153,7 +153,7 @@ internal sealed class ManagerJob_Power : ManagerJob
 
     internal History tradingHistory;
 
-    private CachedValue<bool> _cachedAnyPoweredStationOnline = new(false);
+    private readonly CachedValue<bool> _cachedAnyPoweredStationOnline = new(false);
     public bool AnyPoweredStationOnline
     {
         get

@@ -457,7 +457,7 @@ public abstract class ManagerTab(Manager manager)
             () => options.ForEach(p => setAllowed(p, false)));
     }
 
-    private ScrollViewStatus _jobListScrollViewStatus = new();
+    private readonly ScrollViewStatus _jobListScrollViewStatus = new();
     protected virtual void DoJobList(Rect rect)
     {
         Widgets.DrawMenuSection(rect);

@@ -178,7 +178,7 @@ public partial class History : IExposable
     }
 
     private GraphRenderer? graphRenderer;
-    private List<Chapter> _tmpChapters = [];
+    private readonly List<Chapter> _tmpChapters = [];
     public void DrawPlot(in Rect rect, bool positiveOnly = false, bool negativeOnly = false)
     {
         bool recordHistoricalData = ColonyManagerReduxMod.Settings.RecordHistoricalData;

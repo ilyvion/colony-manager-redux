@@ -238,7 +238,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         return count > 1 ? $"{count}x {label}" : label;
     }
 
-    private List<PawnKindDef> _tmpPawnKinds = [];
+    private readonly List<PawnKindDef> _tmpPawnKinds = [];
     public float DrawAnimalShortcuts(Vector2 pos, float width)
     {
         using var _ = new DoOnDispose(_tmpPawnKinds.Clear);

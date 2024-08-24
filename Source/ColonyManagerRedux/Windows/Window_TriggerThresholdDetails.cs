@@ -10,7 +10,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
     private string _input = "";
     private readonly Trigger_Threshold _trigger = trigger;
 
-    private ThingFilterUI.UIState _uIState = new();
+    private readonly ThingFilterUI.UIState _uIState = new();
 
     public override Vector2 InitialSize => new(300f, 500);
 

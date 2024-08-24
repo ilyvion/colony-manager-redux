@@ -533,7 +533,7 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
 
     private int _currentLivestockSettingsTab = -1;
     private PawnKindSettings? currentOverrideTab;
-    private List<TabRecord> _tmpTabRecords = [];
+    private readonly List<TabRecord> _tmpTabRecords = [];
     public override void DoTabContents(Rect rect)
     {
         _tmpTabRecords.Add(

@@ -358,7 +358,7 @@ public static class Utilities
         DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size);
     }
 
-    private static List<IntVec3> _tmpHomeCells = [];
+    private static readonly List<IntVec3> _tmpHomeCells = [];
     public static IntVec3 GetBaseCenter(this Map map)
     {
         if (map == null)

@@ -13,7 +13,7 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class Settings : ModSettings
 {
-    private SharedManagerSettings _sharedManagerSettings;
+    private readonly SharedManagerSettings _sharedManagerSettings;
     private List<ManagerSettings> _managerSettings = [];
     private Tab _currentManagerSettings;
 

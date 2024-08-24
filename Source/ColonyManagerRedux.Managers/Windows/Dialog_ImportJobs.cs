@@ -10,7 +10,7 @@ internal sealed class Dialog_ImportJobs : Window
 {
     private readonly Action<int>? _onImport;
     private readonly List<ManagerJob> _jobs;
-    private List<MultiCheckboxState> _selectedJobs;
+    private readonly List<MultiCheckboxState> _selectedJobs;
 
     public override Vector2 InitialSize => new(400f, 400f);
 
@@ -36,7 +36,7 @@ internal sealed class Dialog_ImportJobs : Window
         closeOnAccept = false;
     }
 
-    private ScrollViewStatus _scrollViewStatus = new();
+    private readonly ScrollViewStatus _scrollViewStatus = new();
     private void DoJobListGUI(Rect jobsRect)
     {
         using var scrollView = GUIScope.ScrollView(jobsRect, _scrollViewStatus);
