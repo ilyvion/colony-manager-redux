@@ -401,10 +401,22 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
     public float DrawUnforbidCorpses(Vector2 pos, float width)
     {
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Utilities.DrawToggle(rowRect, "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(), "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
+        var start = pos;
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(),
+            "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
             ref SelectedHuntingJob.UnforbidCorpses);
-        return ListEntryHeight;
+
+        if (SelectedHuntingJob.UnforbidCorpses)
+        {
+            Utilities.DrawToggle(ref pos, width,
+                "ColonyManagerRedux.Hunting.UnforbidAllCorpses".Translate(),
+                "ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip".Translate(),
+                ref SelectedHuntingJob.UnforbidAllCorpses);
+        }
+
+        return pos.y - start.y;
     }
 
     public override void PreOpen()

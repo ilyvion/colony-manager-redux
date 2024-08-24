@@ -14,6 +14,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
     public bool DefaultAllowHumanLikeMeat;
     public bool DefaultAllowInsectMeat;
     public bool DefaultUnforbidCorpses = true;
+    public bool DefaultUnforbidAllCorpses = true;
 
     public override void DoTabContents(Rect rect)
     {
@@ -108,12 +109,18 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
 
     public float DrawUnforbidCorpses(Vector2 pos, float width)
     {
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Utilities.DrawToggle(rowRect,
+        var start = pos;
+
+        Utilities.DrawToggle(ref pos, width,
             "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(),
             "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
             ref DefaultUnforbidCorpses);
-        return ListEntryHeight;
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.Hunting.UnforbidAllCorpses".Translate(),
+            "ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip".Translate(),
+            ref DefaultUnforbidAllCorpses);
+
+        return pos.y - start.y;
     }
 
     public override void ExposeData()

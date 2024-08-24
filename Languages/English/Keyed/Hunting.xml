@@ -10,6 +10,8 @@
     <ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>Should insect meat be counted? \n\nNOTE: This is a shortcut for toggling insect meat in the threshold filter. You can set more options in the threshold details.</ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>
     <ColonyManagerRedux.Hunting.UnforbidCorpses>Unforbid corpses</ColonyManagerRedux.Hunting.UnforbidCorpses>
     <ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>Automatically unforbid (fresh) corpses of animal types set to be hunted.</ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>
+    <ColonyManagerRedux.Hunting.UnforbidAllCorpses>Also unforbid corpses of disallowed animals</ColonyManagerRedux.Hunting.UnforbidAllCorpses>
+    <ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip>Because corpses don't fight back, it can make sense to gather their corpses even if you disallow hunting those animals when they are alive.</ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip>
     <ColonyManagerRedux.Hunting.Animals>Allowed animals</ColonyManagerRedux.Hunting.Animals>
     <ColonyManagerRedux.Hunting.TargetCount>Target count: {0}+{1}+{2}/{3}</ColonyManagerRedux.Hunting.TargetCount>
     <ColonyManagerRedux.Hunting.TargetCountTooltip>Target: {3}\n{0} in storage\n{1} expected from butchery\n{2} expected from current designations.</ColonyManagerRedux.Hunting.TargetCountTooltip>

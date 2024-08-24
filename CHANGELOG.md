@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   FinalizeInit methods added to jobs and manager comps
 -   You can now cull your excess animals by releasing them into the wild instead of slaughtering them. This can be handy if you're playing with an ideoligion that causes your pawns to frown upon animal cruelty of any kind or one that celebrates releasing animals.
 -   Managers can now be hidden in the settings. This is only visual; their functionality will still remain even if hidden.
+-   Setting in hunting jobs to unforbid all corpses, not just animals selected for hunting. Since corpes (typically) can't fight back, it can often be safe to collect those even when hunting the same animals isn't.
 
 ### Fixed
 

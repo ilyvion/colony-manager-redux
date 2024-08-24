@@ -76,10 +76,14 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
     public bool SyncFilterAndAllowed = true;
 
-    public bool UnforbidCorpses = true;
-    private bool _allowHumanLikeMeat;
+    private bool _unforbidCorpses = true;
+    public ref bool UnforbidCorpses => ref _unforbidCorpses;
+    private bool _unforbidAllCorpses = true;
+    public ref bool UnforbidAllCorpses => ref _unforbidAllCorpses;
 
+    private bool _allowHumanLikeMeat;
     private bool _allowInsectMeat;
+
     private List<Designation> _designations = [];
     private List<ThingDef>? _humanLikeMeatDefs;
 
@@ -113,7 +117,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             _targetResource = huntingSettings.DefaultTargetResource;
             ConfigureThresholdTriggerParentFilter();
 
-            UnforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
+            _unforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
+            _unforbidAllCorpses = huntingSettings.DefaultUnforbidAllCorpses;
             _allowHumanLikeMeat = huntingSettings.DefaultAllowHumanLikeMeat;
             _allowInsectMeat = huntingSettings.DefaultAllowInsectMeat;
 
@@ -191,7 +196,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 thing => thing?.InnerPawn != null &&
                     (HuntingGrounds == null ||
                     HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
-                    AllowedAnimals.Contains(thing.InnerPawn.kindDef));
+                    (_unforbidAllCorpses || AllowedAnimals.Contains(thing.InnerPawn.kindDef)));
         }
     }
 
@@ -264,7 +269,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         Scribe_Collections.Look(ref _allowedAnimalsMeat, "allowedAnimals", LookMode.Def);
         Scribe_Collections.Look(ref _allowedAnimalsLeather, "allowedAnimalsLeather", LookMode.Def);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
-        Scribe_Values.Look(ref UnforbidCorpses, "unforbidCorpses", true);
+        Scribe_Values.Look(ref _unforbidCorpses, "unforbidCorpses", true);
+        Scribe_Values.Look(ref _unforbidAllCorpses, "unforbidAllCorpses", true);
         Scribe_Values.Look(ref _allowHumanLikeMeat, "allowHumanLikeMeat");
         Scribe_Values.Look(ref _allowInsectMeat, "allowInsectMeat");
 
@@ -517,7 +523,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             totalCount.Value, TriggerThreshold.TargetCount));
 
         // unforbid if allowed
-        if (UnforbidCorpses)
+        if (_unforbidCorpses)
         {
             var handle = MultiTickCoroutineManager.StartCoroutine(
                 DoUnforbidCorpses(jobLog, workDone, totalCount));
