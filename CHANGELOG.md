@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Jobs whose managers get interrupted in their work for whatever reasons now stop running as soon as it happens; before this they would run to completion even when interrupted, which isn't very appropriate.
+-   The synchronize logic fix from 0.2.0 wasn't correctly implemented for the resource gathering job, but has been fixed now.
 
 ## [0.2.4] - 2024-08-21
 

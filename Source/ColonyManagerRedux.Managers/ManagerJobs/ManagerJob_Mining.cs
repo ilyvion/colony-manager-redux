@@ -838,10 +838,10 @@ internal sealed class ManagerJob_Mining
 
             foreach (var material in GetMaterialsInBuilding(building))
             {
-                if (TriggerThreshold.ParentFilter.Allows(material))
-                {
-                    TriggerThreshold.ThresholdFilter.SetAllow(material, allow);
-                }
+                var setAllow =
+                    AllowedBuildings.Any(b => GetMaterialsInBuilding(b).Contains(material)) ||
+                    AllowedMinerals.Any(m => GetMaterialsInMineral(m).Contains(material));
+                TriggerThreshold.ThresholdFilter.SetAllow(material, setAllow);
             }
         }
     }
@@ -863,13 +863,10 @@ internal sealed class ManagerJob_Mining
 
             foreach (var material in GetMaterialsInMineral(mineral))
             {
-                var setAllow = AllowedMinerals
-                    .Any(m => GetMaterialsInMineral(m).Contains(material));
+                var setAllow =
+                    AllowedBuildings.Any(b => GetMaterialsInBuilding(b).Contains(material)) ||
+                    AllowedMinerals.Any(m => GetMaterialsInMineral(m).Contains(material));
                 TriggerThreshold.ThresholdFilter.SetAllow(material, setAllow);
-                if (TriggerThreshold.ParentFilter.Allows(material))
-                {
-                    TriggerThreshold.ThresholdFilter.SetAllow(material, allow);
-                }
             }
         }
     }
