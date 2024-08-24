@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2024-08-24
+
+### Dependencies
+
+-   ilyvion's Laboratory: v0.11
+    > [!IMPORTANT]  
+    > This release requires an update to ilyvion's Laboratory!
+
 ### Added
 
 -   FinalizeInit methods added to jobs and manager comps
@@ -175,7 +183,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.2.4...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.1...v0.2.2
