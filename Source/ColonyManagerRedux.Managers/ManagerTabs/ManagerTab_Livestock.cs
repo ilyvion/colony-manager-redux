@@ -137,6 +137,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Refresh();
     }
 
+    protected override bool DoMainContentWhenNothingSelected => true;
     protected override void DoMainContent(Rect rect)
     {
         // background
@@ -147,8 +148,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             IlyvionWidgets.Label(
                 rect,
-                "ColonyManagerRedux.Livestock.SelectPawnKind".Translate(),
-                TextAnchor.MiddleCenter);
+                "ColonyManagerRedux.Livestock.NoPawnKindSelected".Translate(),
+                TextAnchor.MiddleCenter,
+                color: Color.gray);
             return;
         }
 

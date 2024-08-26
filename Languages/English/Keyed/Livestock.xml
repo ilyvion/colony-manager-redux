@@ -58,7 +58,7 @@
     <ColonyManagerRedux.Livestock.Tame>tame</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>wild</ColonyManagerRedux.Livestock.Wild>
     <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
-    <ColonyManagerRedux.Livestock.SelectPawnKind>No job selected</ColonyManagerRedux.Livestock.SelectPawnKind>
+    <ColonyManagerRedux.Livestock.NoPawnKindSelected>No animal selected</ColonyManagerRedux.Livestock.NoPawnKindSelected>
     <ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled>Disabled because excess livestock is not being culled.</ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled>
     <ColonyManagerRedux.Livestock.SendToTrainingArea>Restrict animals marked for training</ColonyManagerRedux.Livestock.SendToTrainingArea>
     <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restrict animals designated for training to a specific area.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
