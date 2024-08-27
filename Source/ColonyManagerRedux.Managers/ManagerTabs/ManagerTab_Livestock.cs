@@ -8,7 +8,7 @@ using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 using static ColonyManagerRedux.Utilities;
 
-using TabRecord = Verse.TabRecord;
+using TabRecord = ilyvion.Laboratory.UI.TabRecord;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -21,7 +21,6 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     private string[] _newCounts = ["", "", "", ""];
 
-    private bool _onCurrentTab;
     private Vector2 _scrollPosition = Vector2.zero;
     private PawnKindDef? _selectedAvailable;
 
@@ -35,7 +34,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     protected override void PostSelect()
     {
-        _onCurrentTab = Selected != null;
+        if (Selected != null)
+        {
+            _currentTab = TabList[1].Tab;
+        }
         _selectedAvailable = null;
         if (Selected != null)
         {
@@ -199,7 +201,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             {
                 SelectedJob.Delete();
                 Selected = null;
-                _onCurrentTab = false;
+                _currentTab = TabList[0].Tab;
                 Refresh();
                 return; // just skip to the next tick to avoid null reference errors.
             }
@@ -211,7 +213,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.Common.Manage".Translate()))
             {
                 SelectedJob.IsManaged = true;
-                _onCurrentTab = true;
+                _currentTab = TabList[1].Tab;
                 Manager.JobTracker.Add(SelectedJob);
                 Refresh();
             }
@@ -237,40 +239,50 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         GUI.color = Color.white;
     }
 
+    private Tab? _currentTab;
+    private List<TabRecord>? _tabList;
+    private List<TabRecord> TabList
+    {
+        get
+        {
+            _tabList ??= [
+                new TabRecord(new AvailableTab(this), () => ref _currentTab!),
+                new TabRecord(new CurrentTab(base.DoJobList), () => ref _currentTab!),
+            ];
+
+            return _tabList;
+        }
+    }
+
     protected override void DoJobList(Rect rect)
     {
         rect.yMin += 31f;
 
-        // background (minus top line so we can draw tabs.)
-        Widgets.DrawMenuSection(rect);
+        _currentTab ??= TabList[0].Tab;
 
-        // tabs
-        var tabs = new List<TabRecord>();
-        var availableTabRecord = new TabRecord("ColonyManagerRedux.Thresholds.Available".Translate(), delegate
+        using (GUIScope.WidgetGroup(rect))
         {
-            _onCurrentTab = false;
-            Refresh();
-        }, !_onCurrentTab);
-        tabs.Add(availableTabRecord);
-        var currentTabRecord = new TabRecord("ColonyManagerRedux.Thresholds.Current".Translate(), delegate
-        {
-            _onCurrentTab = true;
-            Refresh();
-        }, _onCurrentTab);
-        tabs.Add(currentTabRecord);
-
-        TabDrawer.DrawTabs(rect, tabs);
-
-        var outRect = rect;
-        var viewRect = outRect.AtZero();
-
-        if (_onCurrentTab)
-        {
-            base.DoJobList(outRect);
+            _currentTab.DoTabContents(rect.AtZero());
         }
-        else
+
+        TabDrawer.DrawTabs(rect, TabList);
+    }
+
+    private sealed class CurrentTab(Action<Rect> doJobList) : Tab
+    {
+        public override string Title => "ColonyManagerRedux.Thresholds.Current".Translate();
+        public override void DoTabContents(Rect inRect)
         {
-            DrawAvailableJobList(outRect, viewRect);
+            doJobList(inRect);
+        }
+    }
+
+    private sealed class AvailableTab(ManagerTab_Livestock managerTab) : Tab
+    {
+        public override string Title => "ColonyManagerRedux.Thresholds.Available".Translate();
+        public override void DoTabContents(Rect inRect)
+        {
+            managerTab.DrawAvailableJobList(inRect);
         }
     }
 
@@ -476,16 +488,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         return pos.y - start.y;
     }
 
-    private void DrawAvailableJobList(Rect outRect, Rect viewRect)
+    private void DrawAvailableJobList(Rect rect)
     {
+        Widgets.DrawMenuSection(rect);
+
         // set sizes
+        var viewRect = rect.AtZero();
+
         viewRect.height = _availablePawnKinds.Count * LargeListEntryHeight;
-        if (viewRect.height > outRect.height)
+        if (viewRect.height > rect.height)
         {
             viewRect.width -= GenUI.ScrollBarWidth;
         }
 
-        Widgets.BeginScrollView(outRect, ref _scrollPosition, viewRect);
+        Widgets.BeginScrollView(rect, ref _scrollPosition, viewRect);
         GUI.BeginGroup(viewRect);
 
         for (var i = 0; i < _availablePawnKinds.Count; i++)
