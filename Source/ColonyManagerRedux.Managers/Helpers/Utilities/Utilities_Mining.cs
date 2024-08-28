@@ -32,4 +32,10 @@ internal static class Utilities_Mining
                 && d.building.isNaturalRock)
             .OrderBy(d => d.LabelCap.RawText);
     }
+
+    internal static IEnumerable<ThingDefCountClass> GetChunkProducts(this ThingDef chunk)
+    {
+        return (chunk.butcherProducts ?? Enumerable.Empty<ThingDefCountClass>())
+            .Concat(chunk.smeltProducts ?? Enumerable.Empty<ThingDefCountClass>());
+    }
 }

@@ -57,6 +57,8 @@ internal sealed class ManagerJob_Mining
 
     private const int RoofSupportGridSpacing = 5;
     private readonly CachedValue<int> _chunksCachedValue = new(0);
+    private readonly CachedValue<ChunkProcessingKind> _chunkProductKindCachedValue
+        = new(ChunkProcessingKind.Neither);
     private readonly CachedValue<int> _designatedCachedValue = new(0);
     public HashSet<ThingDef> AllowedBuildings = [];
 
@@ -241,7 +243,8 @@ internal sealed class ManagerJob_Mining
         foreach (var des in Manager.map.designationManager
             .SpawnedDesignationsOfDef(DesignationDefOf.Haul)
             .Except(_designations)
-            .Where(des => des.target.HasThing && des.target.Thing.def.butcherProducts.Any(Counted)))
+            .Where(des => des.target.HasThing &&
+                des.target.Thing.def.GetChunkProducts().Any(Counted)))
         {
             addedHaulCount++;
             AddDesignation(des);
@@ -345,7 +348,7 @@ internal sealed class ManagerJob_Mining
                 thing.LabelCap,
                 Distance(thing, Manager.map.GetBaseCenter()).ToString("F0"),
                 GetCountInChunk(thing),
-                thing.def.butcherProducts.First().thingDef.LabelCap);
+                thing.def.GetChunkProducts().First().thingDef.LabelCap);
         }
 
         return string.Empty;
@@ -406,17 +409,47 @@ internal sealed class ManagerJob_Mining
 
     public int GetCountInChunk(ThingDef chunk)
     {
-        if (chunk.butcherProducts.NullOrEmpty())
+        if (chunk.butcherProducts.NullOrEmpty() && chunk.smeltProducts.NullOrEmpty())
         {
             return 0;
         }
 
-        return chunk.butcherProducts
+        return chunk.GetChunkProducts()
             .Where(Counted)
             .Sum(tc => tc.count);
     }
 
-    public int CurrentDesignatedCount => GetCountInChunks();
+    public ChunkProcessingKind GetChunkProductKind()
+    {
+        if (_chunkProductKindCachedValue.TryGetValue(out var chunkProductKind))
+        {
+            return chunkProductKind;
+        }
+
+        chunkProductKind = ChunkProcessingKind.Neither;
+        foreach (var chunk in DefDatabase<ThingDef>.AllDefs.Where(t => t.IsChunk() &&
+            ((t.butcherProducts?.Any(Counted) ?? false) ||
+                (t.smeltProducts?.Any(Counted) ?? false))))
+        {
+            if (chunk.butcherProducts != null)
+            {
+                chunkProductKind |= ChunkProcessingKind.Stonecutting;
+            }
+            if (chunk.smeltProducts != null)
+            {
+                chunkProductKind |= ChunkProcessingKind.Smelting;
+            }
+
+            if (chunkProductKind == ChunkProcessingKind.Both)
+            {
+                break;
+            }
+        }
+
+        _chunkProductKindCachedValue.Update(chunkProductKind);
+        return chunkProductKind;
+    }
+
     public int GetCountInChunks(bool cached = true)
     {
         if (cached && _chunksCachedValue.TryGetValue(out int count))
@@ -469,7 +502,7 @@ internal sealed class ManagerJob_Mining
         // hauling jobs
         count += _designations
             .Where(d => d.def == DesignationDefOf.Haul && d.target.HasThing)
-            .Sum(d => d.target.Thing.def.butcherProducts.Where(Counted).Sum(tc => tc.count));
+            .Sum(d => GetCountInChunk(d.target.Thing));
 
         _designatedCachedValue.Update(count);
         return count;
@@ -551,12 +584,7 @@ internal sealed class ManagerJob_Mining
 
     public static IEnumerable<ThingDef> GetMaterialsInChunk(ThingDef chunk)
     {
-        if (!chunk.butcherProducts.NullOrEmpty())
-        {
-            return chunk.butcherProducts.Select(tc => tc.thingDef);
-        }
-
-        return [];
+        return chunk.GetChunkProducts().Select(tc => tc.thingDef);
     }
 
     private readonly CachedValues<ThingDef, List<ThingDef>> _materialsInMineralCache = new();
@@ -782,6 +810,7 @@ internal sealed class ManagerJob_Mining
         ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
 
         _chunksCachedValue.Invalidate();
+        _chunkProductKindCachedValue.Invalidate();
 
         if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
         {
@@ -918,19 +947,19 @@ internal sealed class ManagerJob_Mining
                 chunksEnumerator.MoveNext() && count < TriggerThreshold.TargetCount;
                 i++)
             {
-                var chunk = chunksEnumerator.Current;
-                AddDesignation(chunk.chunk, DesignationDefOf.Haul);
-                count += chunk.count;
+                var (chunk, chunkCount, _) = chunksEnumerator.Current;
+                AddDesignation(chunk, DesignationDefOf.Haul);
+                count += chunkCount;
 
                 jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                     .Translate(
                         DesignationDefOf.Haul.ActionText(),
                         "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
-                        chunk.chunk.Label,
-                        chunk.count,
+                        chunk.Label,
+                        chunkCount,
                         count,
                         TriggerThreshold.TargetCount),
-                    chunk.chunk);
+                    chunk);
 
                 workDone.Value = true;
 
@@ -1079,7 +1108,7 @@ internal sealed class ManagerJob_Mining
             return;
         }
 
-        if (thing.def.designateHaulable && thing.def.butcherProducts.Any(p => TriggerThreshold.ThresholdFilter.Allows(p.thingDef)) &&
+        if (thing.def.designateHaulable && thing.def.GetChunkProducts().Any(Counted) &&
             _designations.Any(d => d.target.Cell == thing.Position))
         {
             AddDesignation(thing, DesignationDefOf.Haul);
@@ -1093,4 +1122,13 @@ internal sealed class ManagerJob_Mining
             MiningArea = null;
         }
     }
+}
+
+[Flags]
+internal enum ChunkProcessingKind
+{
+    Neither = 0x0,
+    Stonecutting = 0x1,
+    Smelting = 0x2,
+    Both = Stonecutting | Smelting
 }

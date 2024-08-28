@@ -14,14 +14,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -   Livestock tab's main section was blank when no animal was selected; made it look a bit nicer.
+-   Due to an oversight, chunks that are processed by smelting (such as steel slag chunks) were not being marked for collection when the 'Designate chunks on the map for hauling' setting was enabled.
 
 ## [0.3.0] - 2024-08-24
 
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.11
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -65,8 +66,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.6
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 

@@ -309,12 +309,15 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         var chunkCount = SelectedMiningJob.GetCountInChunks();
         var designatedCount = SelectedMiningJob.GetCountInDesignations();
         var targetCount = SelectedMiningJob.TriggerThreshold.TargetCount;
+        var chunkProductKind = SelectedMiningJob.GetChunkProductKind();
 
         SelectedMiningJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Mining.TargetCount".Translate(
                 currentCount, chunkCount, designatedCount, targetCount),
             "ColonyManagerRedux.Mining.TargetCount.Tip".Translate(
-                currentCount, chunkCount, designatedCount, targetCount),
+                currentCount, chunkCount, designatedCount, targetCount,
+                $"ColonyManagerRedux.Mining.TargetCount.Tip.{chunkProductKind}"
+                    .Translate()),
             SelectedMiningJob.Designations,
             delegate { SelectedMiningJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
             SelectedMiningJob.DesignationLabel);

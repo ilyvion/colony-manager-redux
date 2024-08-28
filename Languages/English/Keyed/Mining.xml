@@ -27,7 +27,11 @@
 
     <!-- cur, chunks, designated, target -->
     <ColonyManagerRedux.Mining.TargetCount>Target count: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
-    <ColonyManagerRedux.Mining.TargetCount.Tip>Target: {3}\n{0} in storage\n{1} expected from stonecutting\n{2} expected from current designations.</ColonyManagerRedux.Mining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>Target: {3}\n{0} in storage\n{1} expected from {4}\n{2} expected from current designations.</ColonyManagerRedux.Mining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount.Tip.Stonecutting>stonecutting</ColonyManagerRedux.Mining.TargetCount.Tip.Stonecutting>
+    <ColonyManagerRedux.Mining.TargetCount.Tip.Smelting>smelting</ColonyManagerRedux.Mining.TargetCount.Tip.Smelting>
+    <ColonyManagerRedux.Mining.TargetCount.Tip.Both>stonecutting and smelting</ColonyManagerRedux.Mining.TargetCount.Tip.Both>
+    <ColonyManagerRedux.Mining.TargetCount.Tip.Neither>processing (none of the selected material(s) can be extracted from chunks)</ColonyManagerRedux.Mining.TargetCount.Tip.Neither>
 
     <!-- Jobs -->
     <ColonyManagerRedux.Mining.NewJob.Tip>Create a new resource gathering job</ColonyManagerRedux.Mining.NewJob.Tip>
