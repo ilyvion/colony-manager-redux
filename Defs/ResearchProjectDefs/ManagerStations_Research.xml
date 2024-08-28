@@ -9,7 +9,7 @@
         <techLevel>Industrial</techLevel>
         <requiredResearchBuilding>HiTechResearchBench</requiredResearchBuilding>
         <prerequisites></prerequisites>
-        <tab>ManagerTab</tab>
+        <tab>CMR_ResearchTab</tab>
         <researchViewX>0.16</researchViewX>
         <researchViewY>0.16</researchViewY>
     </ResearchProjectDef>
@@ -24,7 +24,7 @@
         <prerequisites>
             <li>ManagingSoftware</li>
         </prerequisites>
-        <tab>ManagerTab</tab>
+        <tab>CMR_ResearchTab</tab>
         <researchViewX>1.15</researchViewX>
         <researchViewY>0.65</researchViewY>
     </ResearchProjectDef>
@@ -39,7 +39,7 @@
         <prerequisites>
             <li>ManagingSoftware</li>
         </prerequisites>
-        <tab>ManagerTab</tab>
+        <tab>CMR_ResearchTab</tab>
         <researchViewX>1.16</researchViewX>
         <researchViewY>0.18</researchViewY>
         <researchMods>

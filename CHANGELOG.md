@@ -7,9 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Colony Manager Redux research tab now has a title and description.
+
 ### Fixed
 
--   Livestock tab's main section was blank when no animal was selected; make it look a bit nicer.
+-   Livestock tab's main section was blank when no animal was selected; made it look a bit nicer.
 
 ## [0.3.0] - 2024-08-24
 
