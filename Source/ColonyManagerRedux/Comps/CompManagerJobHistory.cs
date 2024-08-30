@@ -49,6 +49,7 @@ public class CompManagerJobHistory : ManagerJobComp
                 "there is a bug. To avoid potentially adding to an ever increasing queue of " +
                 " history update tasks, we're going to skip this update cycle.");
             _reportedSkippedUpdateTick = true;
+            return;
         }
 
         _currentUpdateTick = ticksGame;
@@ -77,7 +78,12 @@ public class CompManagerJobHistory : ManagerJobComp
                 _queuedToRecord--;
                 ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
             }
+            else
+            {
+                ColonyManagerReduxMod.Instance.LogDebug("No queueing");
+            }
             _isRecordingHistory = true;
+            ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
 
             int coroutineStartTick = Find.TickManager.TicksGame;
 
