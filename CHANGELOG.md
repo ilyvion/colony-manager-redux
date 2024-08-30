@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Colony Manager Redux research tab now has a title and description.
 
+### Changed
+
+-   Make the sorting of potential targets for various jobs a multi-tick operation. This should help substantially with performance when on large maps or when enabling the 'Calculate distance based on actual path' setting.
+
 ### Fixed
 
 -   Livestock tab's main section was blank when no animal was selected; made it look a bit nicer.

@@ -914,19 +914,26 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 // get the 'home' position
                 var position = Manager.map.GetBaseCenter();
 
-                // get list of animals in sorted by youngest weighted to distance.
-                var animals = TriggerPawnKind.pawnKind.GetWild(Manager, ageSex)
-                    .Where(p => p != null &&
+                // get list of animals in sorted by youngest weighted by distance.
+                List<Pawn> sortedAnimals = [];
+                yield return GetTargetsSorted(
+                    TriggerPawnKind.pawnKind.GetWild(Manager, ageSex),
+                    sortedAnimals,
+                    p => p != null &&
                         p.Spawned &&
                         Manager.map.designationManager.DesignationOn(p) == null &&
                         (TameArea == null || TameArea.ActiveCells.Contains(p.Position)) &&
-                        IsReachable(p))
-                    .OrderBy(p => p.ageTracker.AgeBiologicalTicks / Distance(p, position));
+                        IsReachable(p),
+                    (p, d) => p.ageTracker.AgeBiologicalTicks / d)
+                    .ResumeWhenOtherCoroutineIsCompleted();
 
-                var animalEnumerator = animals.GetEnumerator();
-                for (var i = 0; (TamePastTargets || i < targetDifference) && animalEnumerator.MoveNext(); i++)
+                foreach (var (animal, i) in sortedAnimals.Select((a, i) => (a, i)))
                 {
-                    Pawn animal = animalEnumerator.Current;
+                    if (!TamePastTargets && i >= targetDifference)
+                    {
+                        break;
+                    }
+
                     AddDesignation(new(animal, DesignationDefOf.Tame));
                     animalCount++;
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AddDesignation"

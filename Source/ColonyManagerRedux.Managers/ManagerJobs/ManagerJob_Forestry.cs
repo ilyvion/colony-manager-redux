@@ -511,10 +511,15 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
 
         jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount));
-        var trees = GetLoggableTreesSorted();
-        yield return ResumeImmediately.Singleton;
 
-        if (trees.Count == 0)
+        List<Plant> sortedTrees = [];
+        yield return GetTargetsSorted(
+            sortedTrees,
+            IsValidForestryTarget,
+            (p, d) => p.YieldNow() / d)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        if (sortedTrees.Count == 0)
         {
             jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
                 "ColonyManagerRedux.Forestry.Logs.Trees".Translate(),
@@ -522,9 +527,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             ));
         }
 
-        for (var i = 0; i < trees.Count && count < TriggerThreshold.TargetCount; i++)
+        foreach (var (tree, i) in sortedTrees.Select((t, i) => (t, i)))
         {
-            Plant tree = trees[i];
             int yield = tree.YieldNow();
             count += yield;
             AddDesignation(new(tree, DesignationDefOf.HarvestPlant));
@@ -543,25 +547,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 yield return ResumeImmediately.Singleton;
             }
         }
-    }
-
-    private List<Plant> GetLoggableTreesSorted()
-    {
-        var position = Manager.map.GetBaseCenter();
-
-#if DEBUG_PERFORMANCE
-        DeepProfiler.Start( "GetLoggableTreesSorted" );
-#endif
-        var list = Manager.map.listerThings.AllThings.Where(IsValidForestryTarget)
-            .Select(p => (Plant)p)
-            .OrderByDescending(p => p.YieldNow() / Distance(p, position))
-            .ToList();
-
-#if DEBUG_PERFORMANCE
-        DeepProfiler.End();
-#endif
-
-        return list;
     }
 
     private bool IsValidForestryTarget(LocalTargetInfo t)

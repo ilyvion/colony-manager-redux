@@ -307,9 +307,15 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count,
             TriggerThreshold.TargetCount));
-        var targets = GetValidForagingTargetsSorted().ToList();
 
-        if (targets.Count == 0)
+        List<Plant> sortedPlants = [];
+        yield return GetTargetsSorted(
+            sortedPlants,
+            IsValidForagingTarget,
+            (p, d) => p.YieldNow() / d)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        if (sortedPlants.Count == 0)
         {
             jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
                 "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
@@ -317,21 +323,20 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             ));
         }
 
-        for (var i = 0; i < targets.Count && count < TriggerThreshold.TargetCount; i++)
+        foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
         {
-            Plant target = targets[i];
-            int yield = target.YieldNow();
+            int yield = plant.YieldNow();
             count += yield;
-            AddDesignation(new(target, DesignationDefOf.HarvestPlant));
+            AddDesignation(new(plant, DesignationDefOf.HarvestPlant));
             jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                 .Translate(
                     DesignationDefOf.HarvestPlant.ActionText(),
                     "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
-                    target.Label,
+                    plant.Label,
                     yield,
                     count,
                     TriggerThreshold.TargetCount),
-                target);
+                plant);
             workDone.Value = true;
             if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
             {
@@ -380,16 +385,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                     incorrectAreaCount,
                     Def.label));
         }
-    }
-
-    private IEnumerable<Plant> GetValidForagingTargetsSorted()
-    {
-        var position = Manager.map.GetBaseCenter();
-
-        return Manager.map.listerThings.AllThings
-            .Where(IsValidForagingTarget)
-            .Select(p => (Plant)p)
-            .OrderByDescending(p => p.YieldNow() / Distance(p, position));
     }
 
     private bool IsValidForagingTarget(LocalTargetInfo t)

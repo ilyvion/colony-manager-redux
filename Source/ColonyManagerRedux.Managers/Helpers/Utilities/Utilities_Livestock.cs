@@ -302,7 +302,7 @@ internal static class Utilities_Livestock
         return getter();
     }
 
-    public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
+    public static IEnumerable<Pawn> GetWild(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
     {
         var wildSexedCache = Manager.For(map).LivestockCaches().WildSexedCache;
 

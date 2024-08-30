@@ -18,7 +18,7 @@ public abstract class ManagerJob<TSettings>(Manager manager) : ManagerJob(manage
             ?? throw new InvalidOperationException($"Type {GetType().Name} claims to have a "
             + $"manager settings type of {typeof(TSettings).Name}, but no such type has been "
             + "registered. Did you remember to add your settings type to your ManagerDef with a "
-            + " managerSettingsClass value?");
+            + "managerSettingsClass value?");
 }
 
 [HotSwappable]
@@ -390,6 +390,109 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
 
         return Mathf.Sqrt(source.DistanceToSquared(target.Position)) * 2;
+    }
+
+    public virtual Coroutine DistancesCoroutine(
+        IEnumerable<Thing> targets, IntVec3 source, List<float> distances)
+    {
+        if (targets == null)
+        {
+            throw new ArgumentNullException(nameof(targets));
+        }
+        if (distances == null)
+        {
+            throw new ArgumentNullException(nameof(distances));
+        }
+
+        foreach (var (target, i) in targets.Select((t, i) => (t, i)))
+        {
+            distances.Add(Distance(target, source));
+
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+        }
+    }
+
+    private Queue<List<(Thing thing, int i)>> _tmpTargets = [];
+    private Queue<List<float>> _tmpTargetDistances = [];
+    public virtual Coroutine GetTargetsSorted<TThing, TSorter>(
+        IEnumerable<TThing> unsortedTargets,
+        List<TThing> sortedTargets,
+        Func<TThing, bool> predicate,
+        Func<TThing, float, TSorter> sorter,
+        IntVec3? sourcePosition = null)
+        where TThing : Thing
+        where TSorter : IComparable<TSorter>
+    {
+        if (unsortedTargets == null)
+        {
+            throw new ArgumentNullException(nameof(unsortedTargets));
+        }
+        if (sortedTargets == null)
+        {
+            throw new ArgumentNullException(nameof(sortedTargets));
+        }
+
+        List<(Thing thing, int i)> targets;
+        if (_tmpTargets.Count > 0)
+        {
+            targets = _tmpTargets.Dequeue();
+        }
+        else
+        {
+            targets = [];
+        }
+
+        List<float> targetDistances;
+        if (_tmpTargetDistances.Count > 0)
+        {
+            targetDistances = _tmpTargetDistances.Dequeue();
+        }
+        else
+        {
+            targetDistances = [];
+        }
+
+        targets.AddRange(unsortedTargets.Where(predicate).Cast<Thing>().Select((t, i) => (t, i)));
+
+        using var _ = new DoOnDispose(() =>
+        {
+            targets.Clear();
+            targetDistances.Clear();
+
+            _tmpTargets.Enqueue(targets);
+            _tmpTargetDistances.Enqueue(targetDistances);
+        });
+
+        var position = sourcePosition ?? Manager.map.GetBaseCenter();
+
+        yield return DistancesCoroutine(targets.Select(t => t.thing), position, targetDistances)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        targets.SortByDescending(t => sorter((TThing)t.thing, targetDistances[t.i]));
+
+        sortedTargets.Clear();
+        sortedTargets.AddRange(targets.Select(t => t.thing).Cast<TThing>());
+    }
+
+    public virtual Coroutine GetTargetsSorted<TThing, TSorter>(
+        List<TThing> sortedTargets,
+        Func<TThing, bool> predicate,
+        Func<TThing, float, TSorter> sorter,
+        IntVec3? sourcePosition = null)
+        where TThing : Thing
+        where TSorter : IComparable<TSorter>
+    {
+        return GetTargetsSorted(
+            typeof(Pawn).IsAssignableFrom(typeof(TThing))
+                ? Manager.map.mapPawns.AllPawns.OfType<TThing>()
+                : Manager.map.listerThings.AllThings.OfType<TThing>(),
+            sortedTargets,
+            predicate,
+            sorter,
+            sourcePosition);
     }
 
     public virtual bool IsReachable(Thing target)

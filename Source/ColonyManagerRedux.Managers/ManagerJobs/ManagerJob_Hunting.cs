@@ -538,7 +538,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // get a list of huntable animals sorted by distance (ignoring obstacles) and
         // expected meat count. NOTE: attempted to balance cost and benefit, current formula:
         // value = meat / ( distance ^ 2)
-        var huntableAnimals = GetHuntableAnimalsSorted();
+        List<Pawn> huntableAnimals = [];
+        yield return GetTargetsSorted(
+            huntableAnimals,
+            p => IsValidHuntingTarget(p, false),
+            (p, d) => p.EstimatedYield(TargetResource) / d)
+            .ResumeWhenOtherCoroutineIsCompleted();
 
         // while totalCount < count AND we have animals that can be designated, designate animal.
         bool validTargets = false;
@@ -684,16 +689,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 yield return ResumeImmediately.Singleton;
             }
         }
-    }
-
-    private IEnumerable<Pawn> GetHuntableAnimalsSorted()
-    {
-        // get the 'home' position
-        var position = Manager.map.GetBaseCenter();
-
-        return Manager.map.mapPawns.AllPawns
-            .Where(p => IsValidHuntingTarget(p, false))
-            .OrderByDescending(p => p.EstimatedYield(TargetResource) / Distance(p, position));
     }
 
     private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)

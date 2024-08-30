@@ -537,32 +537,6 @@ internal sealed class ManagerJob_Mining
         return 0;
     }
 
-    public IEnumerable<(Building building, int count, float distance)> GetDeconstructibleBuildingsSorted()
-    {
-        var position = Manager.map.GetBaseCenter();
-
-        return Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial)
-            .OfType<Building>()
-            .Where(IsValidDeconstructionTarget)
-            .Select(b => (b, GetCountInBuilding(b), Distance(b, position)))
-            .OrderByDescending(b => b.Item2 / b.Item3);
-    }
-
-    public IEnumerable<(Thing chunk, int count, float distance)> GetChunksSorted()
-    {
-        Map map = Manager.map;
-        var position = map.GetBaseCenter();
-
-        return Manager.map.listerThings.AllThings
-            .Where(t => t.def.IsChunk()
-                && !t.IsInAnyStorage()
-                && !t.IsForbidden(Faction.OfPlayer)
-                && !map.reservationManager.IsReserved(t))
-            .Select(c => (c, GetCountInChunk(c), Distance(c, position)))
-            .Where(c => c.Item2 > 0)
-            .OrderByDescending(c => c.Item2 / c.Item3);
-    }
-
     public static IEnumerable<ThingDef> GetMaterialsInBuilding(ThingDef building)
     {
         if (building == null)
@@ -615,16 +589,6 @@ internal sealed class ManagerJob_Mining
             List<ThingDef> list = [resource];
             return list;
         }
-    }
-
-    public IEnumerable<(Mineable mineable, int count, float distance)> GetMinableMineralsSorted()
-    {
-        var position = Manager.map.GetBaseCenter();
-
-        return Manager.map.listerThings.AllThings.OfType<Mineable>()
-            .Where(IsValidMiningTarget)
-            .Select(m => (m, GetCountInMineral(m), Distance(m, position)))
-            .OrderByDescending(m => m.Item2 / m.Item3);
     }
 
     public bool IsARoofSupport_Advanced(Building building)
@@ -940,14 +904,26 @@ internal sealed class ManagerJob_Mining
         // Prioritize chunks; it's the lowest hanging "fruit" in terms of effort
         if (HaulMapChunks)
         {
-            var chunks = GetChunksSorted();
-            var chunksEnumerator = chunks.GetEnumerator();
-            for (
-                var i = 0;
-                chunksEnumerator.MoveNext() && count < TriggerThreshold.TargetCount;
-                i++)
+            Map map = Manager.map;
+            List<Thing> sortedChunks = [];
+            yield return GetTargetsSorted(
+                sortedChunks,
+                t => t.def.IsChunk()
+                    && !t.IsInAnyStorage()
+                    && !t.IsForbidden(Faction.OfPlayer)
+                    && !map.reservationManager.IsReserved(t)
+                    && GetCountInChunk(t) > 0,
+                (c, d) => GetCountInChunk(c) / d)
+                .ResumeWhenOtherCoroutineIsCompleted();
+
+            foreach (var (chunk, i) in sortedChunks.Select((c, i) => (c, i)))
             {
-                var (chunk, chunkCount, _) = chunksEnumerator.Current;
+                if (count >= TriggerThreshold.TargetCount)
+                {
+                    break;
+                }
+
+                int chunkCount = GetCountInChunk(chunk);
                 AddDesignation(chunk, DesignationDefOf.Haul);
                 count += chunkCount;
 
@@ -972,16 +948,24 @@ internal sealed class ManagerJob_Mining
 
         if (DeconstructBuildings)
         {
-            var buildings = GetDeconstructibleBuildingsSorted();
-            var buildingsEnumerator = buildings.GetEnumerator();
+            List<Building> sortedBuildings = [];
+            yield return GetTargetsSorted(
+                sortedBuildings,
+                IsValidDeconstructionTarget,
+                (b, d) => GetCountInBuilding(b) / d)
+                .ResumeWhenOtherCoroutineIsCompleted();
+
             var ancientDangerRects = Manager.AncientDangerRects;
             List<LocalTargetInfo> skippedAncientDangerTargets = [];
-            for (
-                var i = 0;
-                buildingsEnumerator.MoveNext() && count < TriggerThreshold.TargetCount;
-                i++)
+
+            foreach (var (building, i) in sortedBuildings.Select((c, i) => (c, i)))
             {
-                var building = buildingsEnumerator.Current;
+                if (count >= TriggerThreshold.TargetCount)
+                {
+                    break;
+                }
+
+                int buildingCount = GetCountInBuilding(building);
 
                 if (!DeconstructAncientDangerWhenFogged)
                 {
@@ -994,25 +978,25 @@ internal sealed class ManagerJob_Mining
                             continue;
                         }
 
-                        if (ancientDangerRect.Contains(building.building.Position))
+                        if (ancientDangerRect.Contains(building.Position))
                         {
-                            skippedAncientDangerTargets.Add(building.building);
+                            skippedAncientDangerTargets.Add(building);
                             break;
                         }
                     }
                 }
-                AddDesignation(building.building, DesignationDefOf.Deconstruct);
-                count += building.count;
+                AddDesignation(building, DesignationDefOf.Deconstruct);
+                count += buildingCount;
 
                 jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                     .Translate(
                         DesignationDefOf.Deconstruct.ActionText(),
                         "ColonyManagerRedux.Mining.Logs.Building".Translate(),
-                        building.building.Label,
-                        building.count,
+                        building.Label,
+                        buildingCount,
                         count,
                         TriggerThreshold.TargetCount),
-                    building.building);
+                    building);
 
                 workDone.Value = true;
 
@@ -1030,26 +1014,37 @@ internal sealed class ManagerJob_Mining
             }
         }
 
-        var minerals = GetMinableMineralsSorted();
-        var mineralsEnumerator = minerals.GetEnumerator();
-        for (var i = 0; mineralsEnumerator.MoveNext() && count < TriggerThreshold.TargetCount; i++)
+        List<Mineable> sortedMineable = [];
+        yield return GetTargetsSorted(
+            sortedMineable,
+            IsValidMiningTarget,
+            (m, d) => GetCountInMineral(m) / d)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        foreach (var (mineable, i) in sortedMineable.Select((c, i) => (c, i)))
         {
-            var mineral = mineralsEnumerator.Current;
-            if (!IsARoofSupport_Advanced(mineral.mineable))
+            if (count >= TriggerThreshold.TargetCount)
+            {
+                break;
+            }
+
+            int mineableCount = GetCountInMineral(mineable);
+
+            if (!IsARoofSupport_Advanced(mineable))
             {
                 workDone.Value = true;
-                AddDesignation(mineral.mineable, DesignationDefOf.Mine);
-                count += mineral.count;
+                AddDesignation(mineable, DesignationDefOf.Mine);
+                count += mineableCount;
 
                 jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                     .Translate(
                         DesignationDefOf.Mine.ActionText(),
                         "ColonyManagerRedux.Mining.Logs.Rock".Translate(),
-                        mineral.mineable.Label,
-                        mineral.count,
+                        mineable.Label,
+                        mineableCount,
                         count,
                         TriggerThreshold.TargetCount),
-                    mineral.mineable);
+                    mineable);
 
                 if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
                 {
