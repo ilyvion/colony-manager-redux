@@ -18,7 +18,7 @@ internal sealed class Alert_NoManager : Alert
         defaultExplanation = "ColonyManagerRedux.Alerts.NoManager".Translate();
 
         _noManager = new(() =>
-            Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
+            Manager.For(Find.CurrentMap).JobTracker.JobList.Count > 0
                 && !AnyConsciousManagerPawn());
     }
 
@@ -38,6 +38,109 @@ internal sealed class Alert_NoManager : Alert
                         ManagerWorkTypeDefOf.Managing)) ||
                     Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
                         ManagerThingDefOf.CM_AIManager);
+    }
+
+    protected override void OnClick()
+    {
+        Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
+    }
+}
+
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Microsoft.Performance",
+    "CA1812:AvoidUninstantiatedInternalClasses",
+    Justification = "Class is instantiated via reflection")]
+[HotSwappable]
+internal sealed class Alert_JobsNotUpdating : Alert
+{
+    private enum OutdatedJob
+    {
+        No,
+        HalfDay,
+        Day,
+        TwoDays
+    }
+
+    readonly CachedValue<OutdatedJob> _outdatedJobs;
+
+    public Alert_JobsNotUpdating()
+    {
+        defaultLabel = "ColonyManagerRedux.Alerts.JobsNotUpdatingLabel".Translate();
+        defaultExplanation = "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate();
+
+        _outdatedJobs = new(() =>
+        {
+            var mostOudatedJobTickCount = Manager.For(Find.CurrentMap).JobTracker.JobList
+                .Where(j => !j.IsSuspended && j.ShouldDoNow)
+                .Max(j => (int?)(j.TicksSinceLastUpdate - j.UpdateInterval.Ticks));
+
+            if (mostOudatedJobTickCount > GenDate.TicksPerDay * 1.5)
+            {
+                return OutdatedJob.TwoDays;
+            }
+            else if (mostOudatedJobTickCount > GenDate.TicksPerDay)
+            {
+                return OutdatedJob.Day;
+            }
+            else if (mostOudatedJobTickCount > (GenDate.TicksPerDay / 2))
+            {
+                return OutdatedJob.HalfDay;
+            }
+            else
+            {
+                return OutdatedJob.No;
+            }
+        });
+    }
+
+    public override AlertPriority Priority
+    {
+        get
+        {
+            return _outdatedJobs.Value switch
+            {
+                OutdatedJob.Day => AlertPriority.High,
+                OutdatedJob.TwoDays => AlertPriority.Critical,
+                _ => AlertPriority.Medium,
+            };
+        }
+    }
+
+    private const float PulseFreq = 0.5f;
+
+    private const float PulseAmpCritical = 0.6f;
+
+    protected override Color BGColor
+    {
+        get
+        {
+            float num = Pulser.PulseBrightness(0.5f,
+                Pulser.PulseBrightness(PulseFreq, PulseAmpCritical));
+            return new Color(num, num, num) * (_outdatedJobs.Value switch
+            {
+                OutdatedJob.Day => Color.yellow.ToTransparent(.5f),
+                OutdatedJob.TwoDays => Color.red.ToTransparent(.5f),
+                _ => Color.clear,
+            });
+        }
+    }
+
+    public override AlertReport GetReport()
+    {
+        // No need to report jobs not being updated if there's no manager to update them
+        if (Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager))
+        {
+            return false;
+        }
+
+        return _outdatedJobs.Value != OutdatedJob.No;
+    }
+
+    public override TaggedString GetExplanation()
+    {
+        return "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate(
+            $"ColonyManagerRedux.Alerts.JobsNotUpdating.{_outdatedJobs.Value}"
+                .Translate());
     }
 
     protected override void OnClick()

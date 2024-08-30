@@ -15,7 +15,7 @@ public class JobTracker(Manager manager) : IExposable
     private readonly Manager _manager = manager;
 
     private List<ManagerJob> jobs = [];
-    internal List<ManagerJob> JobLists
+    internal List<ManagerJob> JobList
     {
         get
         {
@@ -31,14 +31,14 @@ public class JobTracker(Manager manager) : IExposable
         }
     }
 
-    public IEnumerable<ManagerJob> Jobs => JobLists;
+    public IEnumerable<ManagerJob> Jobs => JobList;
 
     private IEnumerable<ManagerJob> JobsInOrderOfPriority =>
         Jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
 
-    public bool HasNoJobs => JobLists.Count == 0;
+    public bool HasNoJobs => JobList.Count == 0;
 
-    public int MaxPriority => JobLists.Count - 1;
+    public int MaxPriority => JobList.Count - 1;
 
     /// <summary>
     ///     Highest priority available job
@@ -52,7 +52,7 @@ public class JobTracker(Manager manager) : IExposable
         var jobTracker = manager.JobTracker;
 
         var stringBuilder = new StringBuilder();
-        stringBuilder.AppendLine("Job count: " + jobTracker.JobLists.Count);
+        stringBuilder.AppendLine("Job count: " + jobTracker.JobList.Count);
         stringBuilder.AppendLine("Has no jobs: " + jobTracker.HasNoJobs);
         stringBuilder.AppendLine("NextJob: " + jobTracker.NextJob?.ToString() ?? "<none>");
         stringBuilder.AppendLine();
@@ -108,7 +108,7 @@ public class JobTracker(Manager manager) : IExposable
         }
 
         job.Priority = MaxPriority + 1;
-        JobLists.Add(job);
+        JobList.Add(job);
     }
 
     /// <summary>
@@ -127,7 +127,7 @@ public class JobTracker(Manager manager) : IExposable
             job.CleanUp();
         }
 
-        JobLists.Remove(job);
+        JobList.Remove(job);
         CleanPriorities();
     }
 
@@ -136,7 +136,7 @@ public class JobTracker(Manager manager) : IExposable
     internal (int lowest, int highest) GetBoundsForJobsOfType<T>()
         where T : ManagerJob => Jobs.OfType<T>().Select(j => j.Priority).MinAndMax();
 
-    public bool HasJob(ManagerJob job) => JobLists.Contains(job);
+    public bool HasJob(ManagerJob job) => JobList.Contains(job);
 
     private bool _isRunningJobs;
     public bool IsRunningJobs => _isRunningJobs;

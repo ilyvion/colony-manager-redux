@@ -13,6 +13,11 @@
     <ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>
     <ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>Auto-slaughter animal overlap</ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>
     <ColonyManagerRedux.Alerts.AutoslaughterOverlap>You have configured both a Colony Manager livestock job and RimWorld's auto-slaughter to be responsible for maintaining animal count targets for one or more animals. These two systems will likely be in conflict, and you should either turn off the '{0}' setting for the manager job(s), or turn off auto-slaughter for the given animal(s). The animals that have an overlap are:\n\n{1}</ColonyManagerRedux.Alerts.AutoslaughterOverlap>
+    <ColonyManagerRedux.Alerts.JobsNotUpdatingLabel>Manager jobs are not updating</ColonyManagerRedux.Alerts.JobsNotUpdatingLabel>
+    <ColonyManagerRedux.Alerts.JobsNotUpdating>You have manager jobs configured that haven't been updated in over {0} since they were due for an update. Make sure your managers aren't so busy with other tasks that they don't have time to update your manager jobs.\n\n(Click to open work window)</ColonyManagerRedux.Alerts.JobsNotUpdating>
+    <ColonyManagerRedux.Alerts.JobsNotUpdating.HalfDay>half a day</ColonyManagerRedux.Alerts.JobsNotUpdating.HalfDay>
+    <ColonyManagerRedux.Alerts.JobsNotUpdating.Day>a day</ColonyManagerRedux.Alerts.JobsNotUpdating.Day>
+    <ColonyManagerRedux.Alerts.JobsNotUpdating.TwoDays>two days</ColonyManagerRedux.Alerts.JobsNotUpdating.TwoDays>
 
     <!-- Common -->
     <ColonyManagerRedux.Common.Manage>Manage!</ColonyManagerRedux.Common.Manage>

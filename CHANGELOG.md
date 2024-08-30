@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   Colony Manager Redux research tab now has a title and description.
+-   Show an alert if jobs aren't being updated in a reasonable amount of time.
 
 ### Changed
 

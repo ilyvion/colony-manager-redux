@@ -108,5 +108,7 @@
         <Publicize Include="Assembly-CSharp:RimWorld.CompMilkable.Active" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompShearable.Active" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />
+
+        <Publicize Include="Assembly-CSharp:RimWorld.AlertsReadout.activeAlerts" />
     </ItemGroup>
 </Project>
