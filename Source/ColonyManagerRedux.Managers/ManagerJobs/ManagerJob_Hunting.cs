@@ -291,59 +291,19 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public int GetMeatInCorpses(bool cached = true)
     {
-        // get current count + corpses in storage that is not a grave + designated count
-        // current count in storage
-
-        // try get cached value
-        if (cached && _corpseMeatCachedValue.TryGetValue(out int cachedCount))
-        {
-            return cachedCount;
-        }
-
-        // corpses not buried / forbidden
-        var count = 0;
-        foreach (Thing current in Corpses)
-        {
-            // make sure it's a real corpse. (I dunno, poke it?)
-            // and that it's not forbidden (anymore) and can be reached.
-            if (current is Corpse corpse &&
-                 !corpse.IsForbidden(Faction.OfPlayer) &&
-                 Manager.map.reachability.CanReachColony(corpse.Position))
-            {
-                // check to see if it's buried.
-                var buried = false;
-                var slotGroup = Manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
-
-                // Sarcophagus inherits grave
-                if (slotGroup?.parent is Building_Storage building_Storage &&
-                     building_Storage.def == ThingDefOf.Grave)
-                {
-                    buried = true;
-                }
-
-                // get the rottable comp and check how far gone it is.
-                var rottable = corpse.TryGetComp<CompRottable>();
-
-                if (!buried && rottable?.Stage == RotStage.Fresh)
-                {
-                    count += corpse.EstimatedMeatCount();
-                }
-            }
-        }
-
-        // set cache
-        _corpseMeatCachedValue.Update(count);
-
-        return count;
+        return GetResourceInCorpses(_corpseMeatCachedValue, c => c.EstimatedMeatCount(), cached);
     }
 
     public int GetLeatherInCorpses(bool cached = true)
     {
-        // get current count + corpses in storage that is not a grave + designated count
-        // current count in storage
+        return GetResourceInCorpses(
+            _corpseLeatherCachedValue, c => c.EstimatedLeatherCount(), cached);
+    }
 
-        // try get cached value
-        if (cached && _corpseLeatherCachedValue.TryGetValue(out int cachedCount))
+    private int GetResourceInCorpses(
+        CachedValue<int> cache, Func<Corpse, int> resourceCounter, bool cached = true)
+    {
+        if (cached && cache.TryGetValue(out int cachedCount))
         {
             return cachedCount;
         }
@@ -374,13 +334,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
                 if (!buried && rottable?.Stage == RotStage.Fresh)
                 {
-                    count += corpse.EstimatedLeatherCount();
+                    count += resourceCounter(corpse);
                 }
             }
         }
 
         // set cache
-        _corpseLeatherCachedValue.Update(count);
+        cache.Update(count);
 
         return count;
     }
