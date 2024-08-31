@@ -140,6 +140,7 @@ public static class ManagerWorkGiverDefOf
 public static class ManagerMainButtonDefOf
 {
     public static MainButtonDef Work;
+    public static MainButtonDef ColonyManagerRedux_Manager;
 
     static ManagerMainButtonDefOf()
     {

@@ -36,7 +36,6 @@
         <tickerType>Normal</tickerType>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
-                <compClass>ColonyManagerRedux.CompManagerStation</compClass>
                 <speed>1000</speed>
             </li>
             <li Class="CompProperties_Forbiddable" />
@@ -88,7 +87,6 @@
                 <soundPowerOff>Power_OffSmall</soundPowerOff>
             </li>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
-                <compClass>ColonyManagerRedux.CompManagerStation</compClass>
                 <speed>500</speed>
             </li>
             <li Class="CompProperties_Forbiddable" />
@@ -158,6 +156,7 @@
             <li Class="CompProperties_Forbiddable" />
             <li Class="CompProperties_Flickable" />
             <li Class="CompProperties_Breakdownable" />
+            <li Class="ColonyManagerRedux.CompProperties_ManagerStation" />
         </comps>
         <researchPrerequisites>
             <li>AdvancedManagingSoftware</li>

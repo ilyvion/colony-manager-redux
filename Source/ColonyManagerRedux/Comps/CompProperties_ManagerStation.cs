@@ -9,9 +9,6 @@ public class CompProperties_ManagerStation : CompProperties
 
     public CompProperties_ManagerStation()
     {
-    }
-
-    public CompProperties_ManagerStation(Type compClass) : base(compClass)
-    {
+        compClass = typeof(CompManagerStation);
     }
 }

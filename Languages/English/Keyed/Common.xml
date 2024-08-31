@@ -121,4 +121,7 @@
     <ColonyManagerRedux.Logs.NoValidTargets>No currently undesignated {0} to designate for {1}</ColonyManagerRedux.Logs.NoValidTargets>
     <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.AddDesignation>
 
+    <!-- Misc. -->
+    <ColonyManagerRedux.ManagerStation.OpenManagerTab>Manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab>
+    <ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>Opens the manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>
 </LanguageData>
