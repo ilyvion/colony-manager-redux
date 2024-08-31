@@ -105,6 +105,7 @@ public abstract class ManagerTab(Manager manager)
     }
 
     protected virtual bool ShouldHaveNewJobButton => true;
+    private ScrollViewStatus _exceptionScrollViewStatus = new();
     protected virtual void DoTabContents(Rect canvas)
     {
         // set up rects
@@ -131,19 +132,55 @@ public abstract class ManagerTab(Manager manager)
         {
             if (Selected.CausedException != null)
             {
-                var exceptionText = Selected.CausedExceptionText!;
-                var height = Text.CalcHeight(exceptionText, contentCanvas.width - 2 * Margin);
+                const float ExceptionBoxHeight = 110f;
 
-                var exceptionRect = new Rect(contentCanvas.x, contentCanvas.y, contentCanvas.width, height + 2 * Margin);
+                var exceptionText = Selected.CausedExceptionText!;
+                var exceptionRect = new Rect(
+                    contentCanvas.x,
+                    contentCanvas.y,
+                    contentCanvas.width,
+                    ExceptionBoxHeight + 2 * Margin);
 
                 Widgets.DrawMenuSection(exceptionRect);
                 Widgets.DrawBox(exceptionRect, lineTexture: Resources.Error);
-                IlyvionWidgets.Label(
-                    exceptionRect.TrimLeft(Margin).TrimRight(Margin),
-                    exceptionText,
-                    TextAnchor.MiddleCenter,
-                    color: ColorLibrary.LogError);
-                contentCanvas.yMin += exceptionRect.height + Margin;
+
+                using (var scrollView = GUIScope.ScrollView(
+                    exceptionRect,
+                    _exceptionScrollViewStatus))
+                {
+
+                    var textHeight = Text.CalcHeight(
+                        exceptionText, scrollView.ViewRect.width - 2 * Margin);
+
+                    var textRect = exceptionRect.AtZero();
+                    //textRect.yMin += Margin;
+                    textRect.width = scrollView.ViewRect.width;
+                    textRect.height = Mathf.Max(textHeight + 4 * Margin, exceptionRect.height);
+                    scrollView.Height = textRect.height;
+
+                    IlyvionWidgets.Label(
+                        textRect.TrimLeft(Margin).TrimRight(Margin),
+                        exceptionText,
+                        TextAnchor.MiddleLeft,
+                        color: ColorLibrary.LogError);
+                    contentCanvas.yMin += ExceptionBoxHeight + 3 * Margin;
+                }
+
+                using var _t = GUIScope.Font(GameFont.Tiny);
+                const float ButtonWidth = 130f;
+                Rect buttonRect = new(
+                    contentCanvas.xMax - ButtonWidth - Margin,
+                    Margin,
+                    ButtonWidth,
+                    Text.LineHeight);
+                if (Widgets.ButtonText(buttonRect, "Copy to clipboard"))
+                {
+                    GUIUtility.systemCopyBuffer = exceptionText;
+                    Messages.Message(
+                        "Exception copied to clipboard.",
+                        MessageTypeDefOf.NeutralEvent,
+                        historical: false);
+                }
             }
             using var _g = GUIScope.WidgetGroup(contentCanvas);
             DoMainContent(contentCanvas.AtZero());

@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   Make the sorting of potential targets for various jobs a multi-tick operation. This should help substantially with performance when on large maps or when enabling the 'Calculate distance based on actual path' setting.
+-   The way job exceptions were rendered wasn't very nice. It's been improved substantially now, and also includes a "copy to clipboard" button now.
 
 ### Fixed
 
