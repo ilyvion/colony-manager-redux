@@ -310,29 +310,24 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         // corpses not buried / forbidden
         var count = 0;
-        foreach (Thing current in Corpses)
+        foreach (Corpse corpse in Corpses)
         {
-            // make sure it's a real corpse. (I dunno, poke it?)
-            // and that it's not forbidden (anymore) and can be reached.
-            if (current is Corpse corpse &&
-                 !corpse.IsForbidden(Faction.OfPlayer) &&
+            // make sure it's not forbidden and can be reached.
+            if (!corpse.IsForbidden(Faction.OfPlayer) &&
                  Manager.map.reachability.CanReachColony(corpse.Position))
             {
                 // check to see if it's buried.
-                var buried = false;
+                // Sarcophagus inherits grave, so we don't have to check it separately.
                 var slotGroup = Manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
-
-                // Sarcophagus inherits grave
                 if (slotGroup?.parent is Building_Storage building_Storage &&
                      building_Storage.def == ThingDefOf.Grave)
                 {
-                    buried = true;
+                    continue;
                 }
 
                 // get the rottable comp and check how far gone it is.
-                var rottable = corpse.TryGetComp<CompRottable>();
-
-                if (!buried && rottable?.Stage == RotStage.Fresh)
+                if (corpse.TryGetComp<CompRottable>(out var rottable)
+                    && rottable.Stage == RotStage.Fresh)
                 {
                     count += resourceCounter(corpse);
                 }
