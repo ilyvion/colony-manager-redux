@@ -6,6 +6,7 @@ using static ColonyManagerRedux.Managers.ManagerJob_Hunting;
 
 namespace ColonyManagerRedux.Managers;
 
+[HotSwappable]
 internal static class Utilities_Hunting
 {
     public static int EstimatedMeatCount(this PawnKindDef kind)
@@ -56,8 +57,8 @@ internal static class Utilities_Hunting
             .Concat(map.mapPawns.AllPawns
                 .Where(p => (p.RaceProps?.Animal ?? false)
                     && !(map.fogGrid?.IsFogged(p.Position) ?? true))
-                .Select(p => p.kindDef)
+                .Select(p => p.kindDef))
             .Distinct()
-            .OrderBy(pk => pk.label));
+            .OrderBy(pk => pk.label);
     }
 }

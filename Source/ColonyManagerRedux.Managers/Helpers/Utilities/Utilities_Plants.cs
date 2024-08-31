@@ -4,6 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
+[HotSwappable]
 internal static class Utilities_Plants
 {
     public static IEnumerable<ThingDef> GetForestryPlants(Map map, bool clearArea)
@@ -15,7 +16,8 @@ internal static class Utilities_Plants
                 td.plant.harvestedThingDef == ThingDefOf.WoodLog) &&
                 td.plant.harvestedThingDef != null &&
                 td.plant.harvestYield > 0)
-            .Distinct();
+            .Distinct()
+            .OrderBy(pk => pk.label);
     }
 
     public static IEnumerable<ThingDef> GetForagingPlants(Map map)
@@ -26,7 +28,8 @@ internal static class Utilities_Plants
             .Where(plant => plant.plant.harvestYield > 0 &&
                 plant.plant.harvestedThingDef != null &&
                 plant.plant.harvestTag != "Wood")
-            .Distinct();
+            .Distinct()
+            .OrderBy(pk => pk.label);
     }
 
     private static IEnumerable<ThingDef> GetAllPlants(Map map)

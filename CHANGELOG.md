@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Livestock tab's main section was blank when no animal was selected; made it look a bit nicer.
 -   Due to an oversight, chunks that are processed by smelting (such as steel slag chunks) were not being marked for collection when the 'Designate chunks on the map for hauling' setting was enabled.
 -   The mechanism to skip a history update was missing the escape hatch so it queued them up anyway.
+-   Animals and plants weren't being sorted properly in their respective lists. Animals could also show up as duplicated.
 
 ## [0.3.0] - 2024-08-24
 
