@@ -40,7 +40,8 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         }
 
         // Don't issue manager work when there's an active AI manager.
-        if (Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>().Any(b => b.Powered))
+        if (Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
+            .Any(b => b.Powered))
         {
             JobFailReason.Is("ColonyManagerRedux.CannotManage.AIManager".Translate());
             return false;
@@ -66,7 +67,7 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
             return false;
         }
 
-        if (!Manager.For(pawn.Map).JobTracker.JobsOfType<ManagerJob>().Any())
+        if (Manager.For(pawn.Map).JobTracker.JobList.Count == 0)
         {
             JobFailReason.Is("ColonyManagerRedux.CannotManage.NoJobs".Translate());
             return false;
@@ -83,12 +84,11 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced)
     {
-        return new Job(ManagerJobDefOf.ManagingAtManagingStation, t as Building_ManagerStation);
+        return new Job(ManagerJobDefOf.ManagingAtManagingStation, t);
     }
 
     public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
     {
-        return pawn.Map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
-                   .Select(b => b as Thing);
+        return pawn.Map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>();
     }
 }
