@@ -115,6 +115,12 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 () => SelectedHuntingJob
                     .SetAnimalAllowed(animalDef, !allowedAnimals.Contains(animalDef)));
 
+            Rect iconRect = new Rect(
+                rowRect.xMax - 2 * (SmallIconSize + Margin) - Margin,
+                rowRect.yMin + (rowRect.height - SmallIconSize) / 2,
+                SmallIconSize,
+                SmallIconSize);
+
             // if aggressive, draw warning icon
             if (animalDef.RaceProps.manhunterOnDamageChance >= 0.1)
             {
@@ -134,13 +140,54 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 {
                     GUI.color = Color.gray;
                 }
-
-                GUI.DrawTexture(
-                    new Rect(rowRect.xMax - 2 * (SmallIconSize + Margin) - Margin,
-                        rowRect.yMin + (rowRect.height - SmallIconSize) / 2,
-                        SmallIconSize, SmallIconSize),
-                    Resources.ClawIcon);
+                GUI.DrawTexture(iconRect, Resources.ClawIcon);
                 GUI.color = color;
+
+                iconRect.x -= Margin + SmallIconSize;
+            }
+
+            if (ModsConfig.IdeologyActive)
+            {
+                bool atLeastOneVenerated = false;
+                bool allVenerated = true;
+                foreach (Pawn item in Manager.map.mapPawns.FreeColonistsSpawned)
+                {
+                    var isVenerated =
+                        item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
+                    atLeastOneVenerated |= isVenerated;
+                    allVenerated &= isVenerated;
+                }
+
+                if (atLeastOneVenerated)
+                {
+                    var color = GUI.color;
+                    if (allowedAnimals.Contains(animalDef))
+                    {
+                        if (allVenerated)
+                        {
+                            GUI.color = Color.red;
+                        }
+                        else
+                        {
+                            GUI.color = Resources.Orange;
+                        }
+                    }
+                    else
+                    {
+                        GUI.color = Color.gray;
+                    }
+                    GUI.DrawTexture(iconRect, Resources.Venerated);
+                    GUI.color = color;
+
+                    TooltipHandler.TipRegion(iconRect,
+                        "ColonyManagerRedux.Hunting.VeneratedAnimal.Tip".Translate(
+                            allVenerated
+                                ? "ColonyManagerRedux.Misc.All".Translate()
+                                : "ColonyManagerRedux.Misc.Some".Translate()
+                        ));
+
+                    iconRect.x -= Margin + SmallIconSize;
+                }
             }
 
             rowRect.y += ListEntryHeight;

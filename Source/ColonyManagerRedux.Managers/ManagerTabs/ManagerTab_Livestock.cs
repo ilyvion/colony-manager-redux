@@ -618,6 +618,44 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 TooltipHandler.TipRegion(lowerIconRect, I18n.Aggressiveness(animalDef.RaceProps.manhunterOnTameFailChance));
             }
 
+            if (ModsConfig.IdeologyActive)
+            {
+                bool atLeastOneVenerated = false;
+                bool allVenerated = true;
+                foreach (Pawn item in Manager.map.mapPawns.FreeColonistsSpawned)
+                {
+                    var isVenerated =
+                        item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
+                    atLeastOneVenerated |= isVenerated;
+                    allVenerated &= isVenerated;
+                }
+
+                if (atLeastOneVenerated)
+                {
+                    var color = GUI.color;
+                    if (allVenerated)
+                    {
+                        GUI.color = Color.red;
+                    }
+                    else
+                    {
+                        GUI.color = Resources.Orange;
+                    }
+
+                    GUI.DrawTexture(lowerIconRect, Resources.Venerated);
+                    GUI.color = color;
+
+                    TooltipHandler.TipRegion(lowerIconRect,
+                        "ColonyManagerRedux.Livestock.VeneratedAnimal.Tip".Translate(
+                            allVenerated
+                                ? "ColonyManagerRedux.Misc.All".Translate()
+                                : "ColonyManagerRedux.Misc.Some".Translate()
+                        ));
+
+                    lowerIconRect.x -= Margin + SmallIconSize;
+                }
+            }
+
             // draw label
             var label = animalDef.LabelCap + "\n<i>" +
                 "ColonyManagerRedux.Livestock.TameCount".Translate(

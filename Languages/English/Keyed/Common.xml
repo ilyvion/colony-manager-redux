@@ -124,4 +124,6 @@
     <!-- Misc. -->
     <ColonyManagerRedux.ManagerStation.OpenManagerTab>Manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab>
     <ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>Opens the manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>
+    <ColonyManagerRedux.Misc.Some>some</ColonyManagerRedux.Misc.Some>
+    <ColonyManagerRedux.Misc.All>all</ColonyManagerRedux.Misc.All>
 </LanguageData>

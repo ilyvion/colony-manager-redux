@@ -66,6 +66,7 @@
     <ColonyManagerRedux.Livestock.CannotTrainTooSmall>{0} are too small to train this.</ColonyManagerRedux.Livestock.CannotTrainTooSmall>
     <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>{0} cannot be restricted</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>
     <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip>{0} cannot be restricted to an area because they are a roaming animal. Try penning them in an enclosure instead.</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip>
+    <ColonyManagerRedux.Livestock.VeneratedAnimal.Tip>Animal is venerated by {0} of your colonists. Colonists who venerate the animal will be upset if the animal is slaughtered, upset if they eat the animal, and upset if the tame animal dies.</ColonyManagerRedux.Livestock.VeneratedAnimal.Tip>
 
     <!-- following -->
     <ColonyManagerRedux.Livestock.FollowHeader>Following</ColonyManagerRedux.Livestock.FollowHeader>
