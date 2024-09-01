@@ -325,6 +325,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
         {
+            if (count >= TriggerThreshold.TargetCount)
+            {
+                break;
+            }
+
             int yield = plant.YieldNow();
             count += yield;
             AddDesignation(new(plant, DesignationDefOf.HarvestPlant));

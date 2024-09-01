@@ -529,6 +529,11 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
         foreach (var (tree, i) in sortedTrees.Select((t, i) => (t, i)))
         {
+            if (count >= TriggerThreshold.TargetCount)
+            {
+                break;
+            }
+
             int yield = tree.YieldNow();
             count += yield;
             AddDesignation(new(tree, DesignationDefOf.HarvestPlant));

@@ -500,12 +500,17 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             (p, d) => p.EstimatedYield(TargetResource) / d)
             .ResumeWhenOtherCoroutineIsCompleted();
 
+        if (huntableAnimals.Count == 0)
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                Def.label
+            ));
+        }
+
         // while totalCount < count AND we have animals that can be designated, designate animal.
-        bool validTargets = false;
         foreach (var (huntableAnimal, i) in huntableAnimals.Select((h, i) => (h, i)))
         {
-            validTargets = true;
-
             if (totalCount >= TriggerThreshold.TargetCount)
             {
                 break;
@@ -529,14 +534,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             {
                 yield return ResumeImmediately.Singleton;
             }
-        }
-
-        if (!validTargets)
-        {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
-                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                Def.label
-            ));
         }
     }
 
