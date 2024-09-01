@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Show an alert if jobs aren't being updated in a reasonable amount of time.
 -   Added a gizmo to the manager buildings that takes you to the manager tab.
 -   When the Ideology DLC is active, the hunting and livestock tabs will show warnings on animals who at least one colonist venerates.
+-   Refresh button added to forestry tab
 
 ### Changed
 

@@ -73,6 +73,16 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         Widgets_Section.EndSectionColumn("Forestry.Options", position);
 
         Widgets_Section.BeginSectionColumn(treesColumnRect, "Forestry.Trees", out position, out width);
+        var refreshRect = new Rect(
+            position.x + width - SmallIconSize - 2 * Margin,
+            position.y + Margin,
+            SmallIconSize,
+            SmallIconSize);
+        if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
+        {
+            SelectedForestryJob.RefreshAllTrees();
+        }
+
         Widgets_Section.Section(ref position, width, DrawTreeShortcuts, "ColonyManagerRedux.Forestry.Trees".Translate());
         Widgets_Section.Section(ref position, width, DrawTreeList);
         Widgets_Section.EndSectionColumn("Forestry.Trees", position);
