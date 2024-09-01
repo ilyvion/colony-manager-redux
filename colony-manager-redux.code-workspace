@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "D:/RimWorld/1.5/Data"
+		},
+		{
+			"path": "D:/RimWorldArtSource"
+		}
+	],
+    "settings": {
+        "xml.format.maxLineWidth": 0
+    }
+}

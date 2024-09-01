@@ -35,7 +35,7 @@
   <temperatureMode>Celsius</temperatureMode>
   <autosaveIntervalDays>1</autosaveIntervalDays>
   <testMapSizes>False</testMapSizes>
-  <maxNumberOfPlayerSettlements>1</maxNumberOfPlayerSettlements>
+  <maxNumberOfPlayerSettlements>2</maxNumberOfPlayerSettlements>
   <pauseOnLoad>False</pauseOnLoad>
   <automaticPauseMode>MajorThreat</automaticPauseMode>
   <mapDragSensitivity>1.3</mapDragSensitivity>
@@ -54,7 +54,9 @@
     <li>Actions\T: Damage To Death</li>
     <li>Actions\T: 300 damage</li>
     <li>Actions\Hot reload languages</li>
-    <li>Settings\Draw UI Helpers</li>
+    <li>Actions\Hot reload Defs</li>
+    <li>Actions\T: Stop mental state</li>
+    <li>Settings\Should Draw UI Helpers</li>
   </debugActionPalette>
   <devPalettePosition>
     <x>0</x>
