@@ -92,7 +92,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         get
         {
-            _allAnimals ??= Utilities_Hunting.GetAnimals(Manager).ToList();
+            _allAnimals ??= Utilities_Hunting.GetMapPawnKindDefs(Manager).ToList();
             return _allAnimals;
         }
     }
