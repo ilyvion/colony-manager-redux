@@ -312,7 +312,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         foreach (Corpse corpse in Corpses)
         {
             // make sure it's not forbidden and can be reached.
-            if (!corpse.IsForbidden(Faction.OfPlayer) &&
+            if (IsCountedResource(corpse) &&
+                !corpse.IsForbidden(Faction.OfPlayer) &&
                  Manager.map.reachability.CanReachColony(corpse.Position))
             {
                 // check to see if it's buried.
@@ -674,6 +675,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             ? pawnKindDef.RaceProps.meatDef
             : pawnKindDef.RaceProps.leatherDef);
     }
+
+    private bool IsCountedResource(Pawn pawn) => IsCountedResource(pawn.kindDef);
+
+    private bool IsCountedResource(Corpse corpse) => IsCountedResource(corpse.InnerPawn);
 
     private void ConfigureThresholdTriggerParentFilter()
     {

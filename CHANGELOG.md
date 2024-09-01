@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Show an alert if jobs aren't being updated in a reasonable amount of time.
 -   Added a gizmo to the manager buildings that takes you to the manager tab.
 -   When the Ideology DLC is active, the hunting and livestock tabs will show warnings on animals who at least one colonist venerates.
--   Refresh button added to forestry tab
+-   Refresh button added to forestry tab.
 
 ### Changed
 
@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   When using path based distance, a thing's map can sometimes be null; this would cause an exception.
 -   Include all pawn kinds, not just ones from animals, otherwise players can't select things like human meat when said pawn kinds are available.
 -   Recalculate treshold filters on refresh. By not doing this, any new kinds of resources that became available would not show up in lists and threshold filters.
+-   Only count corpses' resources when they match the threshold filter for hunting jobs.
 
 ## [0.3.0] - 2024-08-24
 
