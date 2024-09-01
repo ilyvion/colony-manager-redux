@@ -242,6 +242,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 AllowedPlants.Remove(plant);
             }
         }
+        ConfigureThresholdTriggerParentFilter();
     }
 
     public void SetPlantAllowed(ThingDef plant, bool allow, bool sync = true)
@@ -439,6 +440,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     private void ConfigureThresholdTriggerParentFilter()
     {
         ThingFilter parentFilter = TriggerThreshold.ParentFilter;
+        parentFilter.SetDisallowAll();
         foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
         {
             parentFilter.SetAllow(harvestedThingDef, true);

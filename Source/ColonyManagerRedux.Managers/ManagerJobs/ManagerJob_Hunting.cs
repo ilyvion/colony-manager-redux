@@ -230,7 +230,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         {
             _targetResource = value;
             RefreshAllAnimals();
-            ConfigureThresholdTriggerParentFilter();
         }
     }
 
@@ -399,7 +398,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             : GetLeatherInDesignations(cached);
     }
 
-    public void RefreshAllAnimals() => _allAnimals = null;
+    public void RefreshAllAnimals()
+    {
+        _allAnimals = null;
+        ConfigureThresholdTriggerParentFilter();
+    }
 
     public void SetAnimalAllowed(PawnKindDef animal, bool allow, bool sync = true)
     {

@@ -353,6 +353,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 AllowedTrees.Remove(tree);
             }
         }
+        ConfigureThresholdTriggerParentFilter();
     }
 
     public void SetTreeAllowed(ThingDef tree, bool allow, bool sync = true)

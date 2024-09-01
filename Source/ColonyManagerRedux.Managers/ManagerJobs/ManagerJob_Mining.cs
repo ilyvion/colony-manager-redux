@@ -812,6 +812,8 @@ internal sealed class ManagerJob_Mining
 
         _allDeconstructibleBuildings = null;
         _allMinerals = null;
+
+        ConfigureThresholdTriggerParentFilter();
     }
 
     public void SetBuildingAllowed(ThingDef building, bool allow, bool sync = true)

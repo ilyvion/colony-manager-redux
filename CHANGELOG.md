@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Animals and plants weren't being sorted properly in their respective lists. Animals could also show up as duplicated.
 -   When using path based distance, a thing's map can sometimes be null; this would cause an exception.
 -   Include all pawn kinds, not just ones from animals, otherwise players can't select things like human meat when said pawn kinds are available.
+-   Recalculate treshold filters on refresh. By not doing this, any new kinds of resources that became available would not show up in lists and threshold filters.
 
 ## [0.3.0] - 2024-08-24
 
