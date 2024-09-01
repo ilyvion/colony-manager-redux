@@ -326,8 +326,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 }
 
                 // get the rottable comp and check how far gone it is.
-                if (corpse.TryGetComp<CompRottable>(out var rottable)
-                    && rottable.Stage == RotStage.Fresh)
+                if (!corpse.IsNotFresh())
                 {
                     count += resourceCounter(corpse);
                 }
@@ -551,7 +550,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     private void AddRelevantGameDesignations(ManagerLog jobLog)
     {
-        // get list of game designations not managed by this job that could have been assigned by this job.
+        // get list of game designations not managed by this job that could have been assigned
+        // by this job.
         int addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
         foreach (var des in
@@ -599,7 +599,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    // copypasta from autohuntbeacon by Carry
+    // originally copypasta from autohuntbeacon by Carry
     // https://ludeon.com/forums/index.php?topic=8930.0
     private Coroutine DoUnforbidCorpses(
         ManagerLog jobLog,
@@ -613,14 +613,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 yield break;
             }
 
-            // don't unforbid corpses in storage - we're going to assume they were manually set.
+            // don't unforbid corpses in storage - we're going to assume they were intentionally
+            // forbidden.
             if (corpse != null && !corpse.IsInAnyStorage() && corpse.IsForbidden(Faction.OfPlayer))
             {
-                // only fresh corpses
-                var comp = corpse.GetComp<CompRottable>();
-                if (comp != null && comp.Stage == RotStage.Fresh)
+                if (!corpse.IsNotFresh())
                 {
-                    // unforbid
                     corpse.SetForbidden(false, false);
                     workDone.Value = true;
 
@@ -667,6 +665,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             && IsReachable(target);
     }
 
+    private bool IsCountedResource(PawnKindDef pawnKindDef)
+    {
+        return TriggerThreshold.ThresholdFilter.Allows(TargetResource == HuntingTargetResource.Meat
+            ? pawnKindDef.RaceProps.meatDef
+            : pawnKindDef.RaceProps.leatherDef);
+    }
+
     private void ConfigureThresholdTriggerParentFilter()
     {
         TriggerThreshold.ParentFilter.SetDisallowAll();
@@ -697,9 +702,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         foreach (var pawnKindDef in AllAnimals)
         {
-            if (TriggerThreshold.ThresholdFilter.Allows(TargetResource == HuntingTargetResource.Meat
-                ? pawnKindDef.RaceProps.meatDef
-                : pawnKindDef.RaceProps.leatherDef))
+            if (IsCountedResource(pawnKindDef))
             {
                 AllowedAnimals.Add(pawnKindDef);
             }
