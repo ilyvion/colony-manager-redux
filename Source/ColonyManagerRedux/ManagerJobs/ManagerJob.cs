@@ -381,12 +381,20 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
         if (UsePathBasedDistance)
         {
-            var path = target.Map.pathFinder.FindPath(source, target,
-                TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
-                PathEndMode.Touch);
-            var cost = path.Found ? path.TotalCost : int.MaxValue;
-            path.ReleaseToPool();
-            return cost * 2;
+            if (target.Map == null)
+            {
+                ColonyManagerReduxMod.Instance.LogWarning($"{target} does not have a valid Map; " +
+                    "cannot use path based distance.");
+            }
+            else
+            {
+                var path = target.Map.pathFinder.FindPath(source, target,
+                    TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
+                    PathEndMode.Touch);
+                var cost = path.Found ? path.TotalCost : int.MaxValue;
+                path.ReleaseToPool();
+                return cost * 2;
+            }
         }
 
         return Mathf.Sqrt(source.DistanceToSquared(target.Position)) * 2;
