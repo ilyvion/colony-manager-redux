@@ -406,8 +406,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
         // target count (1)
         var currentCount = SelectedHuntingJob.TriggerThreshold.GetCurrentCount();
-        var corpseCount = SelectedHuntingJob.GetMeatInCorpses();
-        var designatedCount = SelectedHuntingJob.GetMeatInDesignations();
+        var corpseCount = SelectedHuntingJob.GetYieldInCorpses();
+        var designatedCount = SelectedHuntingJob.GetYieldInDesignations();
         var targetCount = SelectedHuntingJob.TriggerThreshold.TargetCount;
 
         SelectedHuntingJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,

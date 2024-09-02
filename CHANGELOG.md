@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Include all pawn kinds, not just ones from animals, otherwise players can't select things like human meat when said pawn kinds are available.
 -   Recalculate treshold filters on refresh. By not doing this, any new kinds of resources that became available would not show up in lists and threshold filters.
 -   Only count corpses' resources when they match the threshold filter for hunting jobs.
+-   When leather was chosen as the target resource, the Hunting tab was still showing counts for meat.
 
 ## [0.3.0] - 2024-08-24
 
