@@ -449,6 +449,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 _designations.AddRange(
                     Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
                         .Where(des => ((Pawn)des.target.Thing).kindDef == TriggerPawnKind.pawnKind));
+
+                // We no longer mark manager jobs as complete, so set them all back to active
+                JobState = ManagerJobState.Active;
             }
         }
     }
@@ -555,22 +558,6 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         Boxed<bool> workDone)
     {
         jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
-
-        if (!(TamePastTargets && TriggerPawnKind.pawnKind.GetWild(Manager).Any()) && TriggerPawnKind.State)
-        {
-            if (JobState != ManagerJobState.Completed)
-            {
-                JobState = ManagerJobState.Completed;
-                jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
-
-                CleanUp(jobLog);
-            }
-            yield break;
-        }
-        else
-        {
-            JobState = ManagerJobState.Active;
-        }
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Make the sorting of potential targets for various jobs a multi-tick operation. This should help substantially with performance when on large maps or when enabling the 'Calculate distance based on actual path' setting.
 -   The way job exceptions were rendered wasn't very nice. It's been improved substantially now, and also includes a "copy to clipboard" button now.
+-   Livestock jobs no longer get marked as complete. They are a bit complicated to reasonably determine completeness for, and the earlier logic was definitely not right.
 
 ### Fixed
 
