@@ -903,7 +903,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
                 // get list of animals in sorted by youngest weighted by distance.
                 List<Pawn> sortedAnimals = [];
-                yield return GetTargetsSorted(
+                yield return GetThingsSorted(
                     TriggerPawnKind.pawnKind.GetWild(Manager, ageSex),
                     sortedAnimals,
                     p => p != null &&
@@ -911,7 +911,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         Manager.map.designationManager.DesignationOn(p) == null &&
                         (TameArea == null || TameArea.ActiveCells.Contains(p.Position)) &&
                         IsReachable(p),
-                    (p, d) => p.ageTracker.AgeBiologicalTicks / d)
+                    (p, d) => p.ageTracker.AgeBiologicalTicks / d,
+                    t => t)
                     .ResumeWhenOtherCoroutineIsCompleted();
 
                 foreach (var (animal, i) in sortedAnimals.Select((a, i) => (a, i)))

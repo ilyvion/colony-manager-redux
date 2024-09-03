@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Make the sorting of potential targets for various jobs a multi-tick operation. This should help substantially with performance when on large maps or when enabling the 'Calculate distance based on actual path' setting.
 -   The way job exceptions were rendered wasn't very nice. It's been improved substantially now, and also includes a "copy to clipboard" button now.
 -   Livestock jobs no longer get marked as complete. They are a bit complicated to reasonably determine completeness for, and the earlier logic was definitely not right.
+-   Jobs will now reduce the number of designations so that the number achieved at the end is only slightly higher than the target.
 
 ### Fixed
 
@@ -32,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Recalculate treshold filters on refresh. By not doing this, any new kinds of resources that became available would not show up in lists and threshold filters.
 -   Only count corpses' resources when they match the threshold filter for hunting jobs.
 -   When leather was chosen as the target resource, the Hunting tab was still showing counts for meat.
+-   The resource gathering job for detecting designations didn't catch designations that weren't initiated by its own processes.
 
 ## [0.3.0] - 2024-08-24
 

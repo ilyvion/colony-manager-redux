@@ -137,14 +137,15 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     public void AddRelevantGameDesignations(ManagerLog jobLog)
     {
-        // get list of game designations not managed by this job that could have been assigned by this job.
+        // get list of game designations not managed by this job that could have been assigned
+        // by this job.
         int addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
         foreach (
             var des in Manager.map.designationManager
                 .SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
                 .Except(_designations)
-                .Where(des => IsValidForagingTarget(des.target)))
+                .Where(des => IsValidDesignatedForagingTarget(des.target)))
         {
             addedCount++;
             AddDesignation(des, false);
@@ -299,10 +300,59 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         yield return ResumeImmediately.Singleton;
 
         // designate plants until trigger is met.
-        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
+        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount(false);
 
         if (count >= TriggerThreshold.TargetCount)
         {
+            List<Designation> sortedDesignations = [];
+            yield return GetThingsSorted(
+                _designations.Where(d => d.target.HasThing),
+                sortedDesignations,
+                _ => true,
+                (p, d) => p.YieldNow() / d,
+                d => (Plant)d.target.Thing)
+                .ResumeWhenOtherCoroutineIsCompleted();
+
+            // reduce designations until we're just above target
+            foreach (var (designation, i) in sortedDesignations.Select((d, i) => (d, i)).Reverse())
+            {
+                var plant = (Plant)designation.target.Thing;
+                int yield = plant.YieldNow();
+                count -= yield;
+                if (count >= TriggerThreshold.TargetCount)
+                {
+                    designation.Delete();
+                    _designations.Remove(designation);
+                    jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
+                        .Translate(
+                            DesignationDefOf.HarvestPlant.ActionText(),
+                            "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
+                            plant.Label,
+                            yield,
+                            count,
+                            TriggerThreshold.TargetCount),
+                        plant);
+                    workDone.Value = true;
+                }
+                else
+                {
+                    break;
+                }
+
+                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
+            }
+
+            if (!workDone)
+            {
+                jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                    "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                    Def.label
+                ));
+            }
+
             yield break;
         }
 
@@ -312,7 +362,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         List<Plant> sortedPlants = [];
         yield return GetTargetsSorted(
             sortedPlants,
-            IsValidForagingTarget,
+            IsValidUndesignatedForagingTarget,
             (p, d) => p.YieldNow() / d)
             .ResumeWhenOtherCoroutineIsCompleted();
 
@@ -393,38 +443,55 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
-    private bool IsValidForagingTarget(LocalTargetInfo t)
+    private bool IsValidUndesignatedForagingTarget(LocalTargetInfo t)
     {
         return t.HasThing
-            && IsValidForagingTarget(t.Thing);
+            && IsValidUndesignatedForagingTarget(t.Thing);
     }
 
-    private bool IsValidForagingTarget(Thing t)
+    private bool IsValidUndesignatedForagingTarget(Thing t)
     {
-        return t is Plant plant && IsValidForagingTarget(plant);
+        return t is Plant plant && IsValidUndesignatedForagingTarget(plant);
     }
 
-    private bool IsValidForagingTarget(Plant target)
+    private bool IsValidUndesignatedForagingTarget(Plant target)
     {
-        // should be a plant, and be on the same map as this job
         return target.def.plant != null
             && target.Map == Manager.map
 
-            // non-biome plants won't be on the list, also filters non-yield or wood plants
             && AllowedPlants.Contains(target.def)
             && target.Spawned
             && Manager.map.designationManager.DesignationOn(target) == null
 
             // cut only mature plants, or non-mature that yield something right now.
-            && (!ForceFullyMature && target.YieldNow() > 1
-              || target.LifeStage == PlantLifeStage.Mature)
+            && ((!ForceFullyMature && target.YieldNow() > 1)
+                || target.LifeStage == PlantLifeStage.Mature)
 
-            // limit to area of interest
-            && (ForagingArea == null
-              || ForagingArea.ActiveCells.Contains(target.Position))
+            && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position))
 
-            // reachable
             && IsReachable(target);
+    }
+
+    private bool IsValidDesignatedForagingTarget(LocalTargetInfo t)
+    {
+        return t.HasThing
+            && IsValidDesignatedForagingTarget(t.Thing);
+    }
+
+    private bool IsValidDesignatedForagingTarget(Thing t)
+    {
+        return t is Plant plant && IsValidDesignatedForagingTarget(plant);
+    }
+
+    private bool IsValidDesignatedForagingTarget(Plant target)
+    {
+        return target.def.plant != null
+            && target.Map == Manager.map
+
+            && AllowedPlants.Contains(target.def)
+            && target.Spawned
+
+            && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position));
     }
 
     private void ConfigureThresholdTrigger()

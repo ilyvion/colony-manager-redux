@@ -423,15 +423,15 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
     }
 
-    private Queue<List<(Thing thing, int i)>> _tmpTargets = [];
+    private Queue<List<(object thing, int i)>> _tmpTargets = [];
     private Queue<List<float>> _tmpTargetDistances = [];
-    public virtual Coroutine GetTargetsSorted<TThing, TSorter>(
-        IEnumerable<TThing> unsortedTargets,
-        List<TThing> sortedTargets,
+    public virtual Coroutine GetThingsSorted<TOrigin, TThing, TSorter>(
+        IEnumerable<TOrigin> unsortedTargets,
+        List<TOrigin> sortedTargets,
         Func<TThing, bool> predicate,
         Func<TThing, float, TSorter> sorter,
+        Func<TOrigin, TThing> toTThing,
         IntVec3? sourcePosition = null)
-        where TThing : Thing
         where TSorter : IComparable<TSorter>
     {
         if (unsortedTargets == null)
@@ -443,7 +443,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             throw new ArgumentNullException(nameof(sortedTargets));
         }
 
-        List<(Thing thing, int i)> targets;
+        List<(object thing, int i)> targets;
         if (_tmpTargets.Count > 0)
         {
             targets = _tmpTargets.Dequeue();
@@ -463,7 +463,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             targetDistances = [];
         }
 
-        targets.AddRange(unsortedTargets.Where(predicate).Cast<Thing>().Select((t, i) => (t, i)));
+        targets.AddRange(unsortedTargets
+            .Where(o => predicate(toTThing(o)))
+            .Select((t, i) => ((object)t!, i)));
 
         using var _ = new DoOnDispose(() =>
         {
@@ -476,13 +478,34 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
         var position = sourcePosition ?? Manager.map.GetBaseCenter();
 
-        yield return DistancesCoroutine(targets.Select(t => t.thing), position, targetDistances)
-            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return DistancesCoroutine(
+            targets.Select(t => (toTThing((TOrigin)t.thing) as Thing)!),
+            position,
+            targetDistances).ResumeWhenOtherCoroutineIsCompleted();
 
-        targets.SortByDescending(t => sorter((TThing)t.thing, targetDistances[t.i]));
+        targets.SortByDescending(t => sorter(toTThing((TOrigin)t.thing), targetDistances[t.i]));
 
         sortedTargets.Clear();
-        sortedTargets.AddRange(targets.Select(t => t.thing).Cast<TThing>());
+        sortedTargets.AddRange(targets.Select(t => (TOrigin)t.thing));
+    }
+
+    [Obsolete("Use GetThingsSorted instead")]
+    public virtual Coroutine GetTargetsSorted<TThing, TSorter>(
+        IEnumerable<TThing> unsortedTargets,
+        List<TThing> sortedTargets,
+        Func<TThing, bool> predicate,
+        Func<TThing, float, TSorter> sorter,
+        IntVec3? sourcePosition = null)
+        where TThing : Thing
+        where TSorter : IComparable<TSorter>
+    {
+        return GetThingsSorted(
+            unsortedTargets,
+            sortedTargets,
+            predicate,
+            sorter,
+            t => t,
+            sourcePosition);
     }
 
     public virtual Coroutine GetTargetsSorted<TThing, TSorter>(
@@ -493,14 +516,15 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         where TThing : Thing
         where TSorter : IComparable<TSorter>
     {
-        return GetTargetsSorted(
+        return GetThingsSorted(
             typeof(Pawn).IsAssignableFrom(typeof(TThing))
                 ? Manager.map.mapPawns.AllPawns.OfType<TThing>()
                 : Manager.map.listerThings.AllThings.OfType<TThing>(),
             sortedTargets,
             predicate,
             sorter,
-            sourcePosition);
+            t => t,
+            sourcePosition: sourcePosition);
     }
 
     public virtual bool IsReachable(Thing target)

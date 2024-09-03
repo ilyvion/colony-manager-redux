@@ -119,7 +119,8 @@
     <ColonyManagerRedux.Logs.CurrentCount>Current count / target before adding new designations: {0} / {1}</ColonyManagerRedux.Logs.CurrentCount>
     <ColonyManagerRedux.Logs.TargetsAlreadySatisfied>Job targets are already expected to be satisfied with its current designations; making no changes</ColonyManagerRedux.Logs.TargetsAlreadySatisfied>
     <ColonyManagerRedux.Logs.NoValidTargets>No currently undesignated {0} to designate for {1}</ColonyManagerRedux.Logs.NoValidTargets>
-    <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.AddDesignation>
+    <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} of type {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.AddDesignation>
+    <ColonyManagerRedux.Logs.RemoveDesignation>Removed extraneous {0} designation for {1} of type {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.RemoveDesignation>
 
     <!-- Misc. -->
     <ColonyManagerRedux.ManagerStation.OpenManagerTab>Manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab>

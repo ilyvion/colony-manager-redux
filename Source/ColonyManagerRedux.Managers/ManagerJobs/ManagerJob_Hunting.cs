@@ -392,7 +392,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         return count;
     }
 
-    public int GetYieldInDesignations(bool cached = false)
+    public int GetYieldInDesignations(bool cached = true)
     {
         return TargetResource == HuntingTargetResource.Meat
             ? GetMeatInDesignations(cached)
@@ -468,12 +468,58 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // expected meat in designations.
         Boxed<int> totalCount = new(
             TriggerThreshold.GetCurrentCount() + GetYieldInCorpses() + GetYieldInDesignations());
+
         if (totalCount >= TriggerThreshold.TargetCount)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
-                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                Def.label
-            ));
+            List<Designation> sortedDesignations = [];
+            yield return GetThingsSorted(
+                _designations.Where(d => d.target.HasThing),
+                sortedDesignations,
+                _ => true,
+                (p, d) => p.EstimatedYield(TargetResource) / d,
+                d => (Pawn)d.target.Thing)
+                .ResumeWhenOtherCoroutineIsCompleted();
+
+            // reduce designations until we're just above target
+            foreach (var (designation, i) in sortedDesignations.Select((d, i) => (d, i)).Reverse())
+            {
+                var plant = (Pawn)designation.target.Thing;
+                int yield = plant.EstimatedYield(TargetResource);
+                totalCount.Value -= yield;
+                if (totalCount >= TriggerThreshold.TargetCount)
+                {
+                    designation.Delete();
+                    _designations.Remove(designation);
+                    jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
+                        .Translate(
+                            DesignationDefOf.Hunt.ActionText(),
+                            "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
+                            plant.Label,
+                            yield,
+                            totalCount.Value,
+                            TriggerThreshold.TargetCount),
+                        plant);
+                    workDone.Value = true;
+                }
+                else
+                {
+                    break;
+                }
+
+                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
+            }
+
+            if (!workDone)
+            {
+                jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                    "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                    Def.label
+                ));
+            }
+
             yield break;
         }
 
@@ -499,7 +545,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         List<Pawn> huntableAnimals = [];
         yield return GetTargetsSorted(
             huntableAnimals,
-            p => IsValidHuntingTarget(p, false),
+            IsValidUndesignatedHuntingTarget,
             (p, d) => p.EstimatedYield(TargetResource) / d)
             .ResumeWhenOtherCoroutineIsCompleted();
 
@@ -561,7 +607,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         foreach (var des in
             Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
                 .Except(_designations)
-                .Where(des => IsValidHuntingTarget(des.target, true)))
+                .Where(des => IsValidDesignatedHuntingTarget(des.target)))
         {
             addedCount++;
             AddDesignation(des, false);
@@ -645,28 +691,53 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    private bool IsValidHuntingTarget(LocalTargetInfo t, bool allowHunted)
+    private bool IsValidUndesignatedHuntingTarget(LocalTargetInfo t)
     {
         return t.HasThing
             && t.Thing is Pawn pawn
-            && IsValidHuntingTarget(pawn, allowHunted);
+            && IsValidUndesignatedHuntingTarget(pawn);
     }
 
-    private bool IsValidHuntingTarget(Pawn target, bool allowHunted)
+    private bool IsValidUndesignatedHuntingTarget(Pawn target)
     {
         return target.RaceProps.Animal
+            && target.Map == Manager.map
             && !target.health.Dead
+
+            && AllowedAnimals.Contains(target.kindDef)
+            && target.Spawned
+            && Manager.map.designationManager.DesignationOn(target) == null
+
+            // wild animals only
+            && target.Faction == null
+
+            // non-biome animals won't be on the list
+            && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position))
+
+            && IsReachable(target);
+    }
+
+    private bool IsValidDesignatedHuntingTarget(LocalTargetInfo t)
+    {
+        return t.HasThing
+            && t.Thing is Pawn pawn
+            && IsValidDesignatedHuntingTarget(pawn);
+    }
+
+    private bool IsValidDesignatedHuntingTarget(Pawn target)
+    {
+        return target.RaceProps.Animal
+            && target.Map == Manager.map
+            && !target.health.Dead
+
+            && AllowedAnimals.Contains(target.kindDef)
             && target.Spawned
 
             // wild animals only
             && target.Faction == null
 
             // non-biome animals won't be on the list
-            && AllowedAnimals.Contains(target.kindDef)
-            && (allowHunted || Manager.map.designationManager.DesignationOn(target) == null)
-            && (HuntingGrounds == null ||
-                 HuntingGrounds.ActiveCells.Contains(target.Position))
-            && IsReachable(target);
+            && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position));
     }
 
     private bool IsCountedResource(PawnKindDef pawnKindDef)

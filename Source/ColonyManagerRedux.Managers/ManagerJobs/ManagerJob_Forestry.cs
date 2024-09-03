@@ -152,12 +152,14 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
     public void AddRelevantGameDesignations(ManagerLog jobLog)
     {
-        // get list of game designations not managed by this job that could have been assigned by this job.
+        // get list of game designations not managed by this job that could have been assigned
+        // by this job.
         int addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
-        foreach (var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.CutPlant)
+        foreach (var des in Manager.map.designationManager
+            .SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
             .Except(_designations)
-            .Where(des => IsValidForestryTarget(des.target)))
+            .Where(des => IsValidDesignatedForestryTarget(des.target)))
         {
             addedCount++;
             AddDesignation(des, false);
@@ -502,12 +504,61 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         yield return ResumeImmediately.Singleton;
 
         // get current lumber count
-        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount();
+        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount(false);
         yield return ResumeImmediately.Singleton;
 
         // designate until we're either out of trees or we have enough designated.
         if (count >= TriggerThreshold.TargetCount)
         {
+            List<Designation> sortedDesignations = [];
+            yield return GetThingsSorted(
+                _designations.Where(d => d.target.HasThing),
+                sortedDesignations,
+                _ => true,
+                (p, d) => p.YieldNow() / d,
+                d => (Plant)d.target.Thing)
+                .ResumeWhenOtherCoroutineIsCompleted();
+
+            // reduce designations until we're just above target
+            foreach (var (designation, i) in sortedDesignations.Select((d, i) => (d, i)).Reverse())
+            {
+                var tree = (Plant)designation.target.Thing;
+                int yield = tree.YieldNow();
+                count -= yield;
+                if (count >= TriggerThreshold.TargetCount)
+                {
+                    designation.Delete();
+                    _designations.Remove(designation);
+                    jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
+                        .Translate(
+                            DesignationDefOf.HarvestPlant.ActionText(),
+                            "ColonyManagerRedux.Forestry.Logs.Tree".Translate(),
+                            tree.Label,
+                            yield,
+                            count,
+                            TriggerThreshold.TargetCount),
+                        tree);
+                    workDone.Value = true;
+                }
+                else
+                {
+                    break;
+                }
+
+                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                {
+                    yield return ResumeImmediately.Singleton;
+                }
+            }
+
+            if (!workDone)
+            {
+                jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                    "ColonyManagerRedux.Forestry.Logs.Trees".Translate(),
+                    Def.label
+                ));
+            }
+
             yield break;
         }
 
@@ -516,7 +567,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         List<Plant> sortedTrees = [];
         yield return GetTargetsSorted(
             sortedTrees,
-            IsValidForestryTarget,
+            IsValidUndesignatedForestryTarget,
             (p, d) => p.YieldNow() / d)
             .ResumeWhenOtherCoroutineIsCompleted();
 
@@ -541,7 +592,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
                 .Translate(
                     DesignationDefOf.HarvestPlant.ActionText(),
-                    string.Empty,
+                    "ColonyManagerRedux.Forestry.Logs.Tree".Translate(),
                     tree.Label,
                     yield,
                     count,
@@ -555,33 +606,57 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
-    private bool IsValidForestryTarget(LocalTargetInfo t)
+    private bool IsValidUndesignatedForestryTarget(LocalTargetInfo t)
     {
         return t.HasThing
-            && IsValidForestryTarget(t.Thing);
+            && IsValidUndesignatedForestryTarget(t.Thing);
     }
 
-    private bool IsValidForestryTarget(Thing t)
+    private bool IsValidUndesignatedForestryTarget(Thing t)
     {
         return t is Plant plant
-            && IsValidForestryTarget(plant);
+            && IsValidUndesignatedForestryTarget(plant);
     }
 
-    private bool IsValidForestryTarget(Plant target)
+    private bool IsValidUndesignatedForestryTarget(Plant target)
     {
         return target.def.plant != null
+            && target.Map == Manager.map
 
             && AllowedTrees.Contains(target.def)
-
             && target.Spawned
             && Manager.map.designationManager.DesignationOn(target) == null
 
             // cut only mature trees, or saplings that yield something right now.
-            && (AllowSaplings || target.LifeStage == PlantLifeStage.Mature) && target.YieldNow() > 1
+            && ((AllowSaplings && target.YieldNow() > 1)
+                || target.LifeStage == PlantLifeStage.Mature)
+
             && (LoggingArea == null || LoggingArea.ActiveCells.Contains(target.Position))
 
-            // reachable
             && IsReachable(target);
+    }
+
+    private bool IsValidDesignatedForestryTarget(LocalTargetInfo t)
+    {
+        return t.HasThing
+            && IsValidDesignatedForestryTarget(t.Thing);
+    }
+
+    private bool IsValidDesignatedForestryTarget(Thing t)
+    {
+        return t is Plant plant
+            && IsValidDesignatedForestryTarget(plant);
+    }
+
+    private bool IsValidDesignatedForestryTarget(Plant target)
+    {
+        return target.def.plant != null
+            && target.Map == Manager.map
+
+            && AllowedTrees.Contains(target.def)
+            && target.Spawned
+
+            && (LoggingArea == null || LoggingArea.ActiveCells.Contains(target.Position));
     }
 
     private void ConfigureThresholdTriggerParentFilter()
