@@ -54,17 +54,18 @@ public class JobTracker(Manager manager) : IExposable
         var stringBuilder = new StringBuilder();
         stringBuilder.AppendLine("Job count: " + jobTracker.JobList.Count);
         stringBuilder.AppendLine("Has no jobs: " + jobTracker.HasNoJobs);
-        stringBuilder.AppendLine("NextJob: " + jobTracker.NextJob?.ToString() ?? "<none>");
+        stringBuilder.AppendLine("Next job: " + jobTracker.NextJob?.GetUniqueLoadID() ?? "<none>");
         stringBuilder.AppendLine();
-        stringBuilder.AppendLine("Jobs: ");
-        foreach (var job in jobTracker.Jobs)
+
+        stringBuilder.AppendLine("Next jobs in order of priority: ");
+        foreach (var job in jobTracker.JobsInOrderOfPriority)
         {
-            stringBuilder.AppendLine(job.ToString());
+            stringBuilder.AppendLine(job.GetUniqueLoadID());
         }
         stringBuilder.AppendLine();
 
-        stringBuilder.AppendLine("Jobs in order of priority: ");
-        foreach (var job in jobTracker.JobsInOrderOfPriority)
+        stringBuilder.AppendLine("All jobs: ");
+        foreach (var job in jobTracker.Jobs)
         {
             stringBuilder.AppendLine(job.ToString());
         }
