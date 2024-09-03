@@ -297,9 +297,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             unavailableLabelRect.xMin += Margin;
             IlyvionWidgets.Label(unavailableLabelRect,
                 "ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal"
-                    .Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
+                    .Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural().CapitalizeFirst()),
                 "ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip"
-                    .Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural()),
+                    .Translate(job.TriggerPawnKind.pawnKind.GetLabelPlural().CapitalizeFirst()),
                 TextAnchor.MiddleLeft,
                 color: Color.grey);
             return ListEntryHeight;
