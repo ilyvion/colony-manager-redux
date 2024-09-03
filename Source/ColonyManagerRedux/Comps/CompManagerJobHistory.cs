@@ -83,6 +83,17 @@ public class CompManagerJobHistory : ManagerJobComp
                 ColonyManagerReduxMod.Instance.LogDebug("No queueing");
             }
             _isRecordingHistory = true;
+            using var _ = new DoOnDispose(() =>
+            {
+                _isRecordingHistory = false;
+                if (_queuedToRecord == 0)
+                {
+                    _reportedSkippedUpdateTick = false;
+                    _currentUpdateTick = null;
+                    ColonyManagerReduxMod.Instance.LogDebug($"Reset rSU and cUT");
+                }
+            });
+
             ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
 
             int coroutineStartTick = Find.TickManager.TicksGame;
@@ -123,14 +134,6 @@ public class CompManagerJobHistory : ManagerJobComp
             var tickCount = coroutineEndTick - coroutineStartTick;
             ColonyManagerReduxMod.Instance.LogDebug(
                 $"DoHistoryUpdateCoroutine took {tickCount} ticks to complete");
-
-            _isRecordingHistory = false;
-            if (_queuedToRecord == 0)
-            {
-                _reportedSkippedUpdateTick = false;
-                _currentUpdateTick = null;
-                ColonyManagerReduxMod.Instance.LogDebug($"Reset rSU and cUT");
-            }
         }
     }
 
