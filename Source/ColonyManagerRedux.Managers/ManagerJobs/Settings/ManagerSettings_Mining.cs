@@ -13,6 +13,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
     public bool DefaultDeconstructBuildings;
     public bool DefaultDeconstructAncientDangerWhenFogged;
 
+    public bool DefaultTakeOwnershipOfMiningJobs;
     public bool DefaultHaulMapChunks = true;
     public bool DefaultHaulMinedChunks = true;
 
@@ -31,6 +32,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
 
         Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.Section(ref position, width, DrawMining, "ColonyManagerRedux.Mining.ManagerSettings.DefaultMining".Translate());
         Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks".Translate());
         Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
         Widgets_Section.Section(ref position, width, DrawRoofRoomChecks, "ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety".Translate());
@@ -52,6 +54,19 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
             ref DefaultSyncFilterAndAllowed);
 
         return ListEntryHeight;
+    }
+
+    public float DrawMining(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(rowRect,
+            "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
+            "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip".Translate(),
+            ref DefaultTakeOwnershipOfMiningJobs);
+
+        return rowRect.yMax - pos.y;
     }
 
     public float DrawHaulChunks(Vector2 pos, float width)
@@ -129,12 +144,15 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
             "defaultDeconstructAncientDangerWhenFogged",
             false);
 
+        Scribe_Values.Look(
+            ref DefaultTakeOwnershipOfMiningJobs, "defaultTakeOwnershipOfMiningJobs", false);
         Scribe_Values.Look(ref DefaultHaulMapChunks, "defaultHaulMapChunks", true);
         Scribe_Values.Look(ref DefaultHaulMinedChunks, "defaultHaulMinedChunks", true);
 
         Scribe_Values.Look(ref DefaultMineThickRoofs, "defaultMineThickRoofs", true);
         Scribe_Values.Look(ref DefaultCheckRoofSupport, "defaultCheckRoofSupport", true);
-        Scribe_Values.Look(ref DefaultCheckRoofSupportAdvanced, "defaultCheckRoofSupportAdvanced", false);
+        Scribe_Values.Look(
+            ref DefaultCheckRoofSupportAdvanced, "defaultCheckRoofSupportAdvanced", false);
         Scribe_Values.Look(ref DefaultCheckRoomDivision, "defaultCheckRoomDivision", true);
     }
 }

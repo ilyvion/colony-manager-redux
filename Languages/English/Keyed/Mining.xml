@@ -3,6 +3,9 @@
     <ColonyManagerRedux.Mining.MiningArea>Area of Operation</ColonyManagerRedux.Mining.MiningArea>
     <ColonyManagerRedux.Mining.HealthAndSafety>Health and Safety</ColonyManagerRedux.Mining.HealthAndSafety>
     <ColonyManagerRedux.Mining.AllowedMinerals>Minerals</ColonyManagerRedux.Mining.AllowedMinerals>
+    <ColonyManagerRedux.Mining.Mining>Mining</ColonyManagerRedux.Mining.Mining>
+    <ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs>Take ownership of other mining designations</ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs>
+    <ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip>With this setting enabled, the job will take ownership of mining designations it didn't create. This is not desirable if you're designating mining for the sake of making/expanding rooms, e.g., as it means the manager can cancel your mining jobs if targets are met or decide to prioritize other resource gathering jobs over your manually designated ones.\n\nNote that even with this setting enabled, settings like area of operation and the kind of resources targeted are still taken into account, so another way to not have your own jobs messed with is to assign an area outside your colony for resource gathering.</ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip>
     <ColonyManagerRedux.Mining.AllowedBuildings>Buildings</ColonyManagerRedux.Mining.AllowedBuildings>
     <ColonyManagerRedux.Mining.Chunks>Chunks</ColonyManagerRedux.Mining.Chunks>
     <ColonyManagerRedux.Mining.HaulMapChunks>Designate chunks on the map for hauling</ColonyManagerRedux.Mining.HaulMapChunks>
@@ -44,6 +47,8 @@
     <ColonyManagerRedux.Mining.Precious>Precious</ColonyManagerRedux.Mining.Precious>
     <ColonyManagerRedux.Mining.Precious.Tip>Toggle all mineables that yield precious materials</ColonyManagerRedux.Mining.Precious.Tip>
 
+    <!-- settings -->
+    <ColonyManagerRedux.Mining.ManagerSettings.DefaultMining>Default mining</ColonyManagerRedux.Mining.ManagerSettings.DefaultMining>
     <ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks>Default chunks</ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks>
     <ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety>Default Health and Safety</ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety>
 

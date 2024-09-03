@@ -64,6 +64,7 @@ internal sealed class ManagerJob_Mining
 
     public HashSet<ThingDef> AllowedMinerals = [];
     public bool MineThickRoofs = true;
+    public bool TakeOwnershipOfMiningJobs;
     public bool CheckRoofSupport = true;
     public bool CheckRoofSupportAdvanced;
     public bool CheckRoomDivision = true;
@@ -116,6 +117,7 @@ internal sealed class ManagerJob_Mining
         if (miningSettings != null)
         {
             SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;
+            TakeOwnershipOfMiningJobs = miningSettings.DefaultTakeOwnershipOfMiningJobs;
             HaulMapChunks = miningSettings.DefaultHaulMapChunks;
             HaulMinedChunks = miningSettings.DefaultHaulMinedChunks;
             DeconstructBuildings = miningSettings.DefaultDeconstructBuildings;
@@ -220,15 +222,18 @@ internal sealed class ManagerJob_Mining
         int addedDeconstructCount = 0;
         int addedHaulCount = 0;
 
-        foreach (var des in Manager.map.designationManager
-            .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
-            .Except(_designations)
-            .Where(des => IsValidMiningTarget(des.target, true)))
+        if (TakeOwnershipOfMiningJobs)
         {
-            addedMineCount++;
-            AddDesignation(des);
+            foreach (var des in Manager.map.designationManager
+                .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
+                .Except(_designations)
+                .Where(des => IsValidMiningTarget(des.target, true)))
+            {
+                addedMineCount++;
+                AddDesignation(des);
+            }
+            yield return ResumeImmediately.Singleton;
         }
-        yield return ResumeImmediately.Singleton;
 
         foreach (var des in Manager.map.designationManager
             .SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
@@ -372,6 +377,7 @@ internal sealed class ManagerJob_Mining
         Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
         Scribe_Values.Look(ref MineThickRoofs, "mineThickRoofs", true);
+        Scribe_Values.Look(ref TakeOwnershipOfMiningJobs, "takeOwnershipOfMiningJobs", false);
 
         // don't store history in import/export mode.
         if (Manager.ScribeGameSpecificData)
