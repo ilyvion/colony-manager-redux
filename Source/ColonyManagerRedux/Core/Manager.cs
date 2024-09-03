@@ -19,7 +19,7 @@ public class Manager : MapComponent, ILoadReferenceable
 
     [Obsolete(
         "The logic behind this property was entirely wrong; switch to the AncientDangerRects " +
-        "property instead", true)]
+        "property instead; this property will be removed in a future version", true)]
     public CellRect? AncientDangerRect => _ancientDangerRect;
 
     private List<CellRect> _ancientDangerRects = [];

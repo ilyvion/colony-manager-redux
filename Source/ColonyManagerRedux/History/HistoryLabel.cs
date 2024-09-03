@@ -102,7 +102,8 @@ public class ManagerJobHistoryChapterDefLabel : HistoryLabel
     }
 }
 
-[Obsolete("Use ManagerJobHistoryChapterDefs instead of this directly.")]
+[Obsolete("Use ManagerJobHistoryChapterDefs instead of this directly; " +
+        "this method will be removed in a future version")]
 public class TranslationHistoryLabel : HistoryLabel
 {
     private string translationKey;

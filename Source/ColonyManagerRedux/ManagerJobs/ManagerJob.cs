@@ -282,7 +282,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
     }
 
-    [Obsolete("Implement TryDoJobCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement TryDoJobCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual bool TryDoJob(ManagerLog jobLog)
     {
         // This should never be called as long as the Coroutine has been
@@ -489,7 +490,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         sortedTargets.AddRange(targets.Select(t => (TOrigin)t.thing));
     }
 
-    [Obsolete("Use GetThingsSorted instead")]
+    [Obsolete("Use GetThingsSorted instead; " +
+        "this method will be removed in a future version")]
     public virtual Coroutine GetTargetsSorted<TThing, TSorter>(
         IEnumerable<TThing> unsortedTargets,
         List<TThing> sortedTargets,

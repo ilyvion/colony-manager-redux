@@ -151,17 +151,20 @@ public abstract class HistoryWorker
 {
     public virtual bool UpdatesMax { get; }
 
-    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual int GetCountForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         throw new NotImplementedException();
     }
-    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual int GetTargetForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         throw new NotImplementedException();
     }
-    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual int GetMaxForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         throw new NotImplementedException();
@@ -270,17 +273,20 @@ public abstract class HistoryWorker
 
 public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
 {
-    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public override sealed int GetCountForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         return GetCountForHistoryChapter((T)managerJob, tick, chapterDef);
     }
-    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public override sealed int GetTargetForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         return GetTargetForHistoryChapter((T)managerJob, tick, chapterDef);
     }
-    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public override sealed int GetMaxForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         return GetMaxForHistoryChapter((T)managerJob, tick, chapterDef);
@@ -290,17 +296,20 @@ public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
         HistoryUpdateTick((T)managerJob, tick);
     }
 
-    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual int GetCountForHistoryChapter(T managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         throw new NotImplementedException();
     }
-    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual int GetTargetForHistoryChapter(T managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         throw new NotImplementedException();
     }
-    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility")]
+    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
+        "this method will be removed in a future version")]
     public virtual int GetMaxForHistoryChapter(T managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
     {
         throw new NotImplementedException();
