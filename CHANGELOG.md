@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Only count corpses' resources when they match the threshold filter for hunting jobs.
 -   When leather was chosen as the target resource, the Hunting tab was still showing counts for meat.
 -   The resource gathering job for detecting designations didn't catch designations that weren't initiated by its own processes.
+-   Don't attempt to count the yield of plants that have despawned.
 
 ## [0.3.0] - 2024-08-24
 

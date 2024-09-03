@@ -112,6 +112,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                     continue;
                 }
 
+                if (!plant.Spawned)
+                {
+                    continue;
+                }
+
                 count += plant.YieldNow();
             }
             return count;

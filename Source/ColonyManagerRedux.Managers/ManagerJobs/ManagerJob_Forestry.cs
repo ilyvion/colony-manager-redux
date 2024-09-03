@@ -300,11 +300,22 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             var count = 0;
             foreach (var des in _designations)
             {
-                if (des.target.HasThing &&
-                     des.target.Thing is Plant plant)
+                if (!des.target.HasThing)
                 {
-                    count += plant.YieldNow();
+                    continue;
                 }
+
+                if (des.target.Thing is not Plant plant)
+                {
+                    continue;
+                }
+
+                if (!plant.Spawned)
+                {
+                    continue;
+                }
+
+                count += plant.YieldNow();
             }
             return count;
         }
