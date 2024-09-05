@@ -187,7 +187,7 @@ public class Manager : MapComponent, ILoadReferenceable
             {
                 try
                 {
-                    job.Tick();
+                    job.IntTick();
                 }
                 catch (Exception err)
                 {

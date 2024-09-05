@@ -542,12 +542,17 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                     p => p.CanReach(target, PathEndMode.Touch, Danger.Some)));
     }
 
-    public virtual void Tick()
+    internal void IntTick()
     {
+        Tick();
         foreach (ManagerJobComp c in _comps)
         {
             c.CompTick();
         }
+    }
+
+    public virtual void Tick()
+    {
     }
 
     public override string ToString()
