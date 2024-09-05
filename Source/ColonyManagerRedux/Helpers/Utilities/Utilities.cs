@@ -76,14 +76,15 @@ public static class Utilities
             throw new ArgumentNullException(nameof(count));
         }
 
-        foreach (var (thingDef, i) in filter.AllowedThingDefs.Select((t, i) => (t, i)))
+        var loopingIndex = 0;
+        foreach (var thingDef in filter.AllowedThingDefs)
         {
-            // if it counts as a resource and we're not limited to a single stockpile, use the ingame counter (e.g. only steel in stockpiles.)
-            if (!countAllOnMap &&
-                 thingDef.CountAsResource &&
-                 stockpile == null)
+            // if it counts as a resource and we're not limited to a single stockpile,
+            // use the ingame counter (e.g. only steel in stockpiles.)
+            if (!countAllOnMap && thingDef.CountAsResource && stockpile == null)
             {
-                // we don't need to bother with quality / hitpoints as these are non-existant/irrelevant for resources.
+                // we don't need to bother with quality / hitpoints as these are
+                // non-existant/irrelevant for resources.
                 count.Value += map.resourceCounter.GetCount(thingDef);
             }
             else
@@ -98,15 +99,14 @@ public static class Utilities
                     thingList.RemoveWhere(t => t.Position.GetSlotGroup(map) != areaSlotGroup);
                 }
 
-                foreach (var (t, j) in thingList.Select((t, j) => (t, j)))
+                foreach (var t in thingList)
                 {
-                    if (j > 0 && j % CoroutineBreakAfter == 0)
+                    if (++loopingIndex > 0 && loopingIndex % CoroutineBreakAfter == 0)
                     {
                         yield return ResumeImmediately.Singleton;
                     }
 
-                    if (t.IsForbidden(Faction.OfPlayer) ||
-                         t.Position.Fogged(map))
+                    if (t.IsForbidden(Faction.OfPlayer) || t.Position.Fogged(map))
                     {
                         continue;
                     }
@@ -133,7 +133,7 @@ public static class Utilities
                 }
             }
 
-            if (i > 0 && i % CoroutineBreakAfter == 0)
+            if (++loopingIndex > 0 && loopingIndex % CoroutineBreakAfter == 0)
             {
                 yield return ResumeImmediately.Singleton;
             }
