@@ -228,7 +228,8 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
     {
         var start = pos;
         var currentCount = SelectedForestryJob.TriggerThreshold.GetCurrentCount();
-        var designatedCount = SelectedForestryJob.GetCurrentDesignatedCount();
+        SelectedForestryJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+        var designatedCount = SelectedForestryJob.CachedCurrentDesignatedCount.Value;
         var targetCount = SelectedForestryJob.TriggerThreshold.TargetCount;
 
         SelectedForestryJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,

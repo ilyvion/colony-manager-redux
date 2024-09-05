@@ -22,7 +22,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                count.Value = managerJob.GetCurrentDesignatedCount(cached: false);
+                yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+                count.Value = managerJob._cachedCurrentDesignatedCount.Value;
             }
             else
             {
@@ -54,9 +56,6 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         Logging
     }
 
-    private readonly CachedValue<int>
-        _designatedWoodCachedValue = new(0);
-
     public HashSet<ThingDef> AllowedTrees = [];
     public bool AllowSaplings;
     public HashSet<Area> ClearAreas = [];
@@ -66,6 +65,10 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     public bool SyncFilterAndAllowed = true;
 
     private List<Designation> _designations = [];
+
+    private MultiTickCachedValue<int> _cachedCurrentDesignatedCount;
+    internal MultiTickCachedValue<int> CachedCurrentDesignatedCount
+        => _cachedCurrentDesignatedCount;
 
     private List<ThingDef>? _allPlants;
     public List<ThingDef> AllPlants
@@ -84,6 +87,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
     public ManagerJob_Forestry(Manager manager) : base(manager)
     {
+        _cachedCurrentDesignatedCount = new(0, GetCurrentDesignatedCountCoroutine);
+
         // populate the trigger field, set the root category to wood.
         Trigger = new Trigger_Threshold(this);
         if (Scribe.mode == LoadSaveMode.Inactive)
@@ -293,39 +298,34 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
-    private int CurrentDesignatedCountRaw
+    private Coroutine GetCurrentDesignatedCountCoroutine(AnyBoxed<int> count)
     {
-        get
+        for (int i = 0; i < _designations.Count; i++)
         {
-            var count = 0;
-            foreach (var des in _designations)
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
             {
-                if (!des.target.HasThing)
-                {
-                    continue;
-                }
-
-                if (des.target.Thing is not Plant plant)
-                {
-                    continue;
-                }
-
-                if (!plant.Spawned)
-                {
-                    continue;
-                }
-
-                count += plant.YieldNow();
+                yield return ResumeImmediately.Singleton;
             }
-            return count;
-        }
-    }
 
-    public int GetCurrentDesignatedCount(bool cached = true)
-    {
-        return cached && _designatedWoodCachedValue.TryGetValue(out int count)
-            ? count
-            : _designatedWoodCachedValue.Update(CurrentDesignatedCountRaw);
+            Designation? des = _designations[i];
+
+            if (!des.target.HasThing)
+            {
+                continue;
+            }
+
+            if (des.target.Thing is not Plant plant)
+            {
+                continue;
+            }
+
+            if (!plant.Spawned)
+            {
+                continue;
+            }
+
+            count.Value += plant.YieldNow();
+        }
     }
 
     public void Notify_ThresholdFilterChanged()
@@ -515,7 +515,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         yield return ResumeImmediately.Singleton;
 
         // get current lumber count
-        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount(false);
+        yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
         yield return ResumeImmediately.Singleton;
 
         // designate until we're either out of trees or we have enough designated.
