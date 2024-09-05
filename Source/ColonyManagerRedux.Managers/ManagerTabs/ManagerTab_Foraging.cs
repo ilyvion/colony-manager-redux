@@ -183,7 +183,8 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
     public float DrawThreshold(Vector2 pos, float width)
     {
         var currentCount = SelectedForagingJob.TriggerThreshold.GetCurrentCount();
-        var designatedCount = SelectedForagingJob.GetCurrentDesignatedCount();
+        SelectedForagingJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+        var designatedCount = SelectedForagingJob.CachedCurrentDesignatedCount.Value;
         var targetCount = SelectedForagingJob.TriggerThreshold.TargetCount;
         var start = pos;
 

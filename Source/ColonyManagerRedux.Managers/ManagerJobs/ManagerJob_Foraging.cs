@@ -22,7 +22,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                count.Value = managerJob.GetCurrentDesignatedCount(cached: false);
+                yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+                count.Value = managerJob._cachedCurrentDesignatedCount.Value;
             }
             else
             {
@@ -48,7 +50,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
-    private readonly CachedValue<int> _cachedCurrentDesignatedCount = new(0);
 
     public HashSet<ThingDef> AllowedPlants = [];
     public Area? ForagingArea;
@@ -57,6 +58,10 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     public bool SyncFilterAndAllowed = true;
 
     private List<Designation> _designations = [];
+
+    private MultiTickCachedValue<int> _cachedCurrentDesignatedCount;
+    internal MultiTickCachedValue<int> CachedCurrentDesignatedCount
+        => _cachedCurrentDesignatedCount;
 
     private List<ThingDef>? _allPlants;
     public List<ThingDef> AllPlants
@@ -70,8 +75,19 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
+    public List<Designation> Designations => new(_designations);
+
+    public override bool IsValid => base.IsValid && TriggerThreshold != null;
+
+    public override IEnumerable<string> Targets => AllowedPlants
+        .Select(plant => plant.LabelCap.Resolve());
+
+    public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
+
     public ManagerJob_Foraging(Manager manager) : base(manager)
     {
+        _cachedCurrentDesignatedCount = new(0, GetCurrentDesignatedCountCoroutine);
+
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
         Trigger = new Trigger_Threshold(this);
         ConfigureThresholdTrigger();
@@ -94,51 +110,35 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         AllowedPlants.RemoveWhere(p => !AllPlants.Contains(p));
     }
 
-    private int CurrentDesignatedCountRaw
+    private Coroutine GetCurrentDesignatedCountCoroutine(AnyBoxed<int> count)
     {
-        get
+        for (int i = 0; i < _designations.Count; i++)
         {
-            var count = 0;
-            foreach (var des in _designations)
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
             {
-                if (!des.target.HasThing)
-                {
-                    continue;
-                }
-
-
-                if (des.target.Thing is not Plant plant)
-                {
-                    continue;
-                }
-
-                if (!plant.Spawned)
-                {
-                    continue;
-                }
-
-                count += plant.YieldNow();
+                yield return ResumeImmediately.Singleton;
             }
-            return count;
+
+            Designation? des = _designations[i];
+
+            if (!des.target.HasThing)
+            {
+                continue;
+            }
+
+            if (des.target.Thing is not Plant plant)
+            {
+                continue;
+            }
+
+            if (!plant.Spawned)
+            {
+                continue;
+            }
+
+            count.Value += plant.YieldNow();
         }
     }
-
-    public int GetCurrentDesignatedCount(bool cached = true)
-    {
-        return cached && _cachedCurrentDesignatedCount.TryGetValue(out int count)
-            ? count
-            : _cachedCurrentDesignatedCount.Update(CurrentDesignatedCountRaw);
-    }
-
-    public List<Designation> Designations => new(_designations);
-
-    public override bool IsValid => base.IsValid && TriggerThreshold != null;
-
-    public override IEnumerable<string> Targets => AllowedPlants
-        .Select(plant => plant.LabelCap.Resolve());
-
-    public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
-
 
     public void AddRelevantGameDesignations(ManagerLog jobLog)
     {
@@ -305,7 +305,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         yield return ResumeImmediately.Singleton;
 
         // designate plants until trigger is met.
-        var count = TriggerThreshold.GetCurrentCount() + GetCurrentDesignatedCount(false);
+        yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
 
         if (count >= TriggerThreshold.TargetCount)
         {
