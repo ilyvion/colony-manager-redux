@@ -22,11 +22,17 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                count.Value = managerJob.GetYieldInDesignations(cached: false);
+                var cachedValue = managerJob.GetYieldInDesignationsCache();
+                yield return cachedValue.DoUpdateIfNeeded(force: true)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+                count.Value = cachedValue.Value;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
             {
-                count.Value = managerJob.GetYieldInCorpses(cached: false);
+                var cachedValue = managerJob.GetYieldInCorpsesCache();
+                yield return cachedValue.DoUpdateIfNeeded(force: true)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+                count.Value = cachedValue.Value;
             }
             else
             {
@@ -58,10 +64,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         Meat
     }
 
-    private readonly CachedValue<int> _corpseMeatCachedValue = new(0);
-    private readonly CachedValue<int> _corpseLeatherCachedValue = new(0);
-    private readonly CachedValue<int> _designatedMeatCachedValue = new(0);
-    private readonly CachedValue<int> _designatedLeatherCachedValue = new(0);
+    private readonly MultiTickCachedValue<int> _corpseMeatCachedValue;
+    private readonly MultiTickCachedValue<int> _corpseLeatherCachedValue;
+    private readonly MultiTickCachedValue<int> _designatedMeatCachedValue;
+    private readonly MultiTickCachedValue<int> _designatedLeatherCachedValue;
 
     private HashSet<PawnKindDef> _allowedAnimalsMeat = [];
     public HashSet<PawnKindDef> _allowedAnimalsLeather = [];
@@ -103,6 +109,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public ManagerJob_Hunting(Manager manager) : base(manager)
     {
+        _corpseMeatCachedValue = new(0, GetMeatInCorpsesCoroutine);
+        _corpseLeatherCachedValue = new(0, GetLeatherInCorpsesCoroutine);
+        _designatedMeatCachedValue = new(0, GetMeatInDesignationsCoroutine);
+        _designatedLeatherCachedValue = new(0, GetLeatherInDesignationsCoroutine);
+
         // populate the trigger field
         Trigger = new Trigger_Threshold(this);
 
@@ -288,36 +299,40 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    public int GetMeatInCorpses(bool cached = true)
+    public MultiTickCachedValue<int> GetYieldInCorpsesCache()
     {
-        return GetResourceInCorpses(_corpseMeatCachedValue, c => c.EstimatedMeatCount(), cached);
+        return TargetResource == HuntingTargetResource.Meat
+            ? _corpseMeatCachedValue
+            : _corpseLeatherCachedValue;
     }
 
-    public int GetLeatherInCorpses(bool cached = true)
+    private Coroutine GetMeatInCorpsesCoroutine(AnyBoxed<int> count)
     {
-        return GetResourceInCorpses(
-            _corpseLeatherCachedValue, c => c.EstimatedLeatherCount(), cached);
+        return GetResourceInCorpses(count, c => c.EstimatedMeatCount());
     }
 
-    private int GetResourceInCorpses(
-        CachedValue<int> cache, Func<Corpse, int> resourceCounter, bool cached = true)
+    private Coroutine GetLeatherInCorpsesCoroutine(AnyBoxed<int> count)
     {
-        if (cached && cache.TryGetValue(out int cachedCount))
-        {
-            return cachedCount;
-        }
+        return GetResourceInCorpses(count, c => c.EstimatedLeatherCount());
+    }
 
+    private Coroutine GetResourceInCorpses(AnyBoxed<int> count, Func<Corpse, int> resourceCounter)
+    {
         // corpses not buried / forbidden
-        var count = 0;
-        foreach (Corpse corpse in Corpses)
+        foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+
             // make sure it's not forbidden and can be reached.
             if (IsCountedResource(corpse) &&
                 !corpse.IsForbidden(Faction.OfPlayer) &&
                  Manager.map.reachability.CanReachColony(corpse.Position))
             {
                 // check to see if it's buried.
-                // Sarcophagus inherits grave, so we don't have to check it separately.
+                // Sarcophagus inherits grave, so we don't have to check for it separately.
                 var slotGroup = Manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
                 if (slotGroup?.parent is Building_Storage building_Storage &&
                      building_Storage.def == ThingDefOf.Grave)
@@ -328,75 +343,53 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 // get the rottable comp and check how far gone it is.
                 if (!corpse.IsNotFresh())
                 {
-                    count += resourceCounter(corpse);
+                    count.Value += resourceCounter(corpse);
                 }
             }
         }
-
-        // set cache
-        cache.Update(count);
-
-        return count;
     }
 
-    public int GetYieldInCorpses(bool cached = true)
+    public MultiTickCachedValue<int> GetYieldInDesignationsCache()
     {
         return TargetResource == HuntingTargetResource.Meat
-            ? GetMeatInCorpses(cached)
-            : GetLeatherInCorpses(cached);
+            ? _designatedMeatCachedValue
+            : _designatedLeatherCachedValue;
     }
 
-    public int GetMeatInDesignations(bool cached = false)
+    private Coroutine GetMeatInDesignationsCoroutine(AnyBoxed<int> count)
     {
-        if (cached && _designatedMeatCachedValue.TryGetValue(out int cachedCount))
-        {
-            return cachedCount;
-        }
-
         // designated animals
-        var count = 0;
-        foreach (var des in _designations)
+        for (int i = 0; i < _designations.Count; i++)
         {
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+
+            Designation? des = _designations[i];
             if (des.target.Thing is Pawn target)
             {
-                count += target.EstimatedMeatCount();
+                count.Value += target.EstimatedMeatCount();
             }
         }
-
-        // update cache
-        _designatedMeatCachedValue.Update(count);
-
-        return count;
     }
 
-    public int GetLeatherInDesignations(bool cached = false)
+    private Coroutine GetLeatherInDesignationsCoroutine(AnyBoxed<int> count)
     {
-        if (cached && _designatedLeatherCachedValue.TryGetValue(out int cachedCount))
-        {
-            return cachedCount;
-        }
-
         // designated animals
-        var count = 0;
-        foreach (var des in _designations)
+        for (int i = 0; i < _designations.Count; i++)
         {
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+
+            Designation? des = _designations[i];
             if (des.target.Thing is Pawn target)
             {
-                count += target.EstimatedLeatherCount();
+                count.Value += target.EstimatedLeatherCount();
             }
         }
-
-        // update cache
-        _designatedLeatherCachedValue.Update(count);
-
-        return count;
-    }
-
-    public int GetYieldInDesignations(bool cached = true)
-    {
-        return TargetResource == HuntingTargetResource.Meat
-            ? GetMeatInDesignations(cached)
-            : GetLeatherInDesignations(cached);
     }
 
     public void RefreshAllAnimals()
@@ -466,8 +459,18 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         // get the total count of meat in storage, expected meat in corpses and
         // expected meat in designations.
+        var corpsesCachedValue = GetYieldInCorpsesCache();
+        yield return corpsesCachedValue.DoUpdateIfNeeded(force: true)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        var designationsCachedValue = GetYieldInDesignationsCache();
+        yield return designationsCachedValue.DoUpdateIfNeeded(force: true)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
         Boxed<int> totalCount = new(
-            TriggerThreshold.GetCurrentCount() + GetYieldInCorpses() + GetYieldInDesignations());
+            TriggerThreshold.GetCurrentCount()
+            + corpsesCachedValue.Value
+            + designationsCachedValue.Value);
 
         if (totalCount >= TriggerThreshold.TargetCount)
         {

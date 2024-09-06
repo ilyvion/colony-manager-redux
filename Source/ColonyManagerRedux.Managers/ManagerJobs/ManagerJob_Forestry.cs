@@ -22,7 +22,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+                yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 count.Value = managerJob._cachedCurrentDesignatedCount.Value;
             }
@@ -515,7 +515,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         yield return ResumeImmediately.Singleton;
 
         // get current lumber count
-        yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+        yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
         yield return ResumeImmediately.Singleton;

@@ -22,7 +22,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+                yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 count.Value = managerJob._cachedCurrentDesignatedCount.Value;
             }
@@ -305,7 +305,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         yield return ResumeImmediately.Singleton;
 
         // designate plants until trigger is met.
-        yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(true)
+        yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
 
