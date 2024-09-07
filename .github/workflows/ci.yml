@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - development
+            - main
         paths-ignore:
             - "README.md"
             - "CHANGELOG.md"
