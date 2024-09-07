@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Attempt to fix bug reported by player who experienced that the hunting job started causing exceptions. It appears to have been caused by either meatDef or leatherDef being null on some animals, so make a null check before setting either as allowed.
+
 ## [0.4.0] - 2024-09-04
 
 ### Added
