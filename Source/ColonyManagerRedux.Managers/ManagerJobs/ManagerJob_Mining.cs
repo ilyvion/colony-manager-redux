@@ -713,9 +713,9 @@ internal sealed class ManagerJob_Mining
             // not ours
             && target.Faction != Faction.OfPlayer
 
-            && includeDesignated
+            && (includeDesignated
                 ? (designation == null || designation.def == DesignationDefOf.Deconstruct)
-                : designation == null
+                : designation == null)
 
             // allowed
             && !target.IsForbidden(Faction.OfPlayer)
@@ -755,7 +755,8 @@ internal sealed class ManagerJob_Mining
             return false;
         }
 
-        Designation designation = Manager.map.designationManager.DesignationOn(target);
+        Designation designation = Manager.map.designationManager.DesignationOn(target) ??
+            Manager.map.designationManager.DesignationAt(target.Position, DesignationDefOf.Mine);
         return target.def.mineable
 
             // allowed
@@ -765,9 +766,9 @@ internal sealed class ManagerJob_Mining
             // NOTE: also in IsReachable, but we expect a lot of fogged tiles, so move this check up a bit.
             && !target.Position.Fogged(Manager.map)
 
-            && includeDesignated
+            && (includeDesignated
                 ? (designation == null || designation.def == DesignationDefOf.Mine)
-                : designation == null
+                : designation == null)
 
             // matches settings
             && IsInAllowedArea(target)
@@ -1069,6 +1070,7 @@ internal sealed class ManagerJob_Mining
                     && !t.IsInAnyStorage()
                     && !t.IsForbidden(Faction.OfPlayer)
                     && !map.reservationManager.IsReserved(t)
+                    && Manager.map.designationManager.DesignationOn(t) == null
                     && GetCountInChunk(t) > 0,
                 (c, d) => GetCountInChunk(c) / d)
                 .ResumeWhenOtherCoroutineIsCompleted();
@@ -1108,7 +1110,7 @@ internal sealed class ManagerJob_Mining
             List<Building> sortedBuildings = [];
             yield return GetTargetsSorted(
                 sortedBuildings,
-                b => IsValidDeconstructionTarget(b, true),
+                b => IsValidDeconstructionTarget(b),
                 (b, d) => GetCountInBuilding(b) / d)
                 .ResumeWhenOtherCoroutineIsCompleted();
 
@@ -1174,7 +1176,7 @@ internal sealed class ManagerJob_Mining
         List<Mineable> sortedMineable = [];
         yield return GetTargetsSorted(
             sortedMineable,
-            m => IsValidMiningTarget(m, true),
+            m => IsValidMiningTarget(m),
             (m, d) => GetCountInMineral(m) / d)
             .ResumeWhenOtherCoroutineIsCompleted();
 

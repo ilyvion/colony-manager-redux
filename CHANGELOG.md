@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   There was some error in the logic for designating in the resource gathering job which led to various bizarre behaviors like marking unmined stone for deconstruction and constantly re-designating already existing desigations for hauling/deconstruction/mining that have now been corrected.
+
 ## [0.4.1] - 2024-09-07
 
 ### Fixed
