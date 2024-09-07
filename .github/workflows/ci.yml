@@ -3,7 +3,7 @@ name: Continuous Integration
 on:
     push:
         branches:
-            - main
+            - development
         paths-ignore:
             - "README.md"
             - "CHANGELOG.md"
