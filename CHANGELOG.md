@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+
+-   ilyvion's Laboratory: v0.13
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
+
 ### Changed
 
 -   Made more counting logic (i.e. current designations and relevant resources for a given job type) multi-tick operations to reduce per-tick performance cost.

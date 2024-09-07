@@ -4,6 +4,6 @@
         <defName>CMR_VersionCheck</defName>
         <modName>Colony Manager Redux</modName>
         <majorVersion>0</majorVersion>
-        <minorVersion>11</minorVersion>
+        <minorVersion>13</minorVersion>
     </ilyvion.Laboratory.VersionCheckDef>
 </Defs>
