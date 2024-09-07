@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-09-07
+
 ### Fixed
 
 -   Attempt to fix bug reported by player who experienced that the hunting job started causing exceptions. It appears to have been caused by either meatDef or leatherDef being null on some animals, so make a null check before setting either as allowed.
@@ -219,7 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.2.3...v0.2.4
