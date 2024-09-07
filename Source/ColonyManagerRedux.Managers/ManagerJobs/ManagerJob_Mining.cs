@@ -25,11 +25,15 @@ internal sealed class ManagerJob_Mining
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                count.Value = managerJob.GetCountInDesignations(cached: false);
+                yield return managerJob._designatedCachedValue.DoUpdateIfNeeded(force: true)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+                count.Value = managerJob._designatedCachedValue.Value;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryChunks)
             {
-                count.Value = managerJob.GetCountInChunks(cached: false);
+                yield return managerJob._chunksCachedValue.DoUpdateIfNeeded(force: true)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+                count.Value = managerJob._chunksCachedValue.Value;
             }
             else
             {
@@ -56,10 +60,14 @@ internal sealed class ManagerJob_Mining
     }
 
     private const int RoofSupportGridSpacing = 5;
-    private readonly CachedValue<int> _chunksCachedValue = new(0);
+    private readonly MultiTickCachedValue<int> _chunksCachedValue;
+    internal MultiTickCachedValue<int> ChunksCachedValue
+        => _chunksCachedValue;
     private readonly CachedValue<ChunkProcessingKind> _chunkProductKindCachedValue
         = new(ChunkProcessingKind.Neither);
-    private readonly CachedValue<int> _designatedCachedValue = new(0);
+    private readonly MultiTickCachedValue<int> _designatedCachedValue;
+    internal MultiTickCachedValue<int> DesignatedCachedValue
+        => _designatedCachedValue;
     public HashSet<ThingDef> AllowedBuildings = [];
 
     public HashSet<ThingDef> AllowedMinerals = [];
@@ -105,6 +113,8 @@ internal sealed class ManagerJob_Mining
 
     public ManagerJob_Mining(Manager manager) : base(manager)
     {
+        _chunksCachedValue = new(0, GetCountInChunksCoroutine);
+        _designatedCachedValue = new(0, GetCountInDesignationsCoroutine);
         // populate the trigger field
         Trigger = new Trigger_Threshold(this);
         ConfigureThresholdTriggerParentFilter();
@@ -456,56 +466,61 @@ internal sealed class ManagerJob_Mining
         return chunkProductKind;
     }
 
-    public int GetCountInChunks(bool cached = true)
+    private Coroutine GetCountInChunksCoroutine(AnyBoxed<int> count)
     {
-        if (cached && _chunksCachedValue.TryGetValue(out int count))
+        foreach (var (chunk, i) in Manager.map.listerThings.AllThings
+            .Where(t => t.def.IsChunk() && t.IsInAnyStorage()).Select((c, i) => (c, i)))
         {
-            return count;
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+
+            if (chunk.IsForbidden(Faction.OfPlayer))
+            {
+                continue;
+            }
+
+            count.Value += GetCountInChunk(chunk);
         }
-
-        count = Manager.map.listerThings.AllThings
-            .Where(t => t.def.IsChunk()
-                && t.IsInAnyStorage()
-                && !t.IsForbidden(Faction.OfPlayer))
-            .Sum(GetCountInChunk);
-
-        _chunksCachedValue.Update(count);
-        return count;
     }
 
-    public int GetCountInDesignations(bool cached = true)
+    private Coroutine GetCountInDesignationsCoroutine(AnyBoxed<int> count)
     {
-        if (cached && _designatedCachedValue.TryGetValue(out int cachedCount))
+        Dictionary<ThingDef, int> mineralCounts = [];
+        for (int i = 0; i < _designations.Count; i++)
         {
-            return cachedCount;
+            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            {
+                yield return ResumeImmediately.Singleton;
+            }
+
+            Designation? des = _designations[i];
+
+            if (des.def == DesignationDefOf.Deconstruct)
+            {
+                count.Value += GetCountInBuilding(des.target.Thing as Building);
+            }
+            else if (des.def == DesignationDefOf.Mine && des.target.Cell.IsValid)
+            {
+                var mineralDef =
+                    Manager.map.thingGrid.ThingsListAtFast(des.target.Cell).FirstOrDefault()?.def;
+                if (mineralDef == null || !Allowed(mineralDef))
+                {
+                    continue;
+                }
+                if (!mineralCounts.TryAdd(mineralDef, 1))
+                {
+                    mineralCounts[mineralDef]++;
+                }
+            }
+            else if (des.def == DesignationDefOf.Haul && des.target.HasThing)
+            {
+                count.Value += GetCountInChunk(des.target.Thing);
+            }
         }
 
-        // deconstruction jobs
-        var count = _designations
-            .Where(d => d.def == DesignationDefOf.Deconstruct)
-            .Sum(d => GetCountInBuilding(d.target.Thing as Building));
-
-        // mining jobs
-        var mineralCounts = _designations
-            .Where(d => d.def == DesignationDefOf.Mine && d.target.Cell.IsValid)
-            .Select(d => Manager.map.thingGrid.ThingsListAtFast(d.target.Cell)
-                .FirstOrDefault()?.def)
-            .Where(d => d != null)
-            .GroupBy(d => d, d => d, (d, g) => new { def = d, count = g.Count() })
-            .Where(g => Allowed(g.def));
-
-        foreach (var mineralCount in mineralCounts)
-        {
-            count += GetCountInMineral(mineralCount.def) * mineralCount.count;
-        }
-
-        // hauling jobs
-        count += _designations
-            .Where(d => d.def == DesignationDefOf.Haul && d.target.HasThing)
-            .Sum(d => GetCountInChunk(d.target.Thing));
-
-        _designatedCachedValue.Update(count);
-        return count;
+        count.Value += mineralCounts.Select(kv => GetCountInMineral(kv.Key) * kv.Value).Sum();
     }
 
     public int GetCountInMineral(Mineable rock)
@@ -785,7 +800,6 @@ internal sealed class ManagerJob_Mining
     {
         ColonyManagerReduxMod.Instance.LogDebug("Threshold changed.");
 
-        _chunksCachedValue.Invalidate();
         _chunkProductKindCachedValue.Invalidate();
 
         if (!SyncFilterAndAllowed || Sync == Utilities.SyncDirection.AllowedToFilter)
@@ -903,10 +917,16 @@ internal sealed class ManagerJob_Mining
         // add designations in the game that could have been handled by this job
         yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
 
+        // update counts
+        yield return _chunksCachedValue.DoUpdateIfNeeded(force: true)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return _designatedCachedValue.DoUpdateIfNeeded(force: true)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
         // designate work until trigger is met.
         var count = TriggerThreshold.GetCurrentCount()
-            + GetCountInChunks()
-            + GetCountInDesignations();
+            + _chunksCachedValue.Value
+            + _designatedCachedValue.Value;
 
         if (count >= TriggerThreshold.TargetCount)
         {

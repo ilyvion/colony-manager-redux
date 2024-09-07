@@ -118,13 +118,24 @@ public class CompManagerJobHistory : ManagerJobComp
             int[] chapterTargets = new int[chapterCount];
             foreach (var (chapterDef, i) in Props.chapters.Select((c, i) => (c, i)))
             {
+                var preChapterTick = Find.TickManager.TicksGame;
                 yield return Props.Worker.GetCountForHistoryChapterCoroutine(
                     Parent, tick, chapterDef, count)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    $"{nameof(HistoryWorker.GetCountForHistoryChapterCoroutine)} for chapter " +
+                    $"{chapterDef.defName} took " +
+                    $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete");
                 chapterCounts[i] = count.Value;
+
+                preChapterTick = Find.TickManager.TicksGame;
                 yield return Props.Worker.GetTargetForHistoryChapterCoroutine(
                     Parent, tick, chapterDef, count)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    $"{nameof(HistoryWorker.GetTargetForHistoryChapterCoroutine)} for chapter " +
+                    $"{chapterDef.defName} took " +
+                    $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete");
                 chapterTargets[i] = count.Value;
             }
 
@@ -133,7 +144,7 @@ public class CompManagerJobHistory : ManagerJobComp
             int coroutineEndTick = Find.TickManager.TicksGame;
             var tickCount = coroutineEndTick - coroutineStartTick;
             ColonyManagerReduxMod.Instance.LogDebug(
-                $"DoHistoryUpdateCoroutine took {tickCount} ticks to complete");
+                $"{nameof(DoHistoryUpdateCoroutine)} took {tickCount} ticks to complete");
         }
     }
 
