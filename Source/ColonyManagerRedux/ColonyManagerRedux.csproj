@@ -57,7 +57,7 @@
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <DebugType>portable</DebugType>
         <Optimize>true</Optimize>
-        <DebugSymbols>false</DebugSymbols>
+        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
