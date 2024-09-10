@@ -127,10 +127,24 @@ public class Settings : ModSettings
 
     private static IEnumerable<ManagerSettings> MakeManagerSettings()
     {
-        return DefDatabase<ManagerDef>.AllDefs
+        foreach (var managerDef in DefDatabase<ManagerDef>.AllDefs
             .Where(m => m.managerSettingsClass != null)
-            .OrderBy(m => m.order)
-            .Select(m => ManagerDefMaker.MakeManagerSettings(m)!);
+            .OrderBy(m => m.order))
+        {
+            ManagerSettings? managerSettings = null;
+            try
+            {
+                managerSettings = ManagerDefMaker.MakeManagerSettings(managerDef)!;
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    $"Could not create {nameof(ManagerSettings)} instance for " +
+                    $"{managerDef.defName} because it threw an exception: \n{err}");
+                continue;
+            }
+            yield return managerSettings;
+        }
     }
 
     public void DoSettingsWindowContents(Rect rect)
