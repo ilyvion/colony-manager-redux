@@ -240,7 +240,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 {
                     var stage = kind.lifeStages[i];
                     var part = stage?.butcherBodyPart;
-                    if (part == null || stage == null)
+                    if (part == null || stage == null || part.thing == null)
                     {
                         continue;
                     }
