@@ -34,12 +34,13 @@ internal static class Utilities_Hunting
     public static int EstimatedYield(this Corpse c, HuntingTargetResource resource) =>
         EstimatedYield(c.InnerPawn, resource);
 
-    internal static IEnumerable<PawnKindDef> GetMapPawnKindDefs(Map map) =>
+    internal static IEnumerable<PawnKindDef> GetMapPawnKindDefs(Map map, bool animalsOnly = true) =>
         // Get all the wild animals on the map
         map.Biome.AllWildAnimals
             // and any visible pawns on the map
             .Concat(map.mapPawns.AllPawns
-                .Where(p => !(map.fogGrid?.IsFogged(p.Position) ?? true))
+                .Where(p => (!animalsOnly || (p.RaceProps?.Animal ?? false))
+                    && !(map.fogGrid?.IsFogged(p.Position) ?? true))
                 .Select(p => p.kindDef))
             // and any corpses on the map
             .Concat(map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
