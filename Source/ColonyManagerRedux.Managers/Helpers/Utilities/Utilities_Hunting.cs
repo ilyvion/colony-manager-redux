@@ -26,6 +26,11 @@ internal static class Utilities_Hunting
 
     public static int EstimatedLeatherCount(this Corpse c) => EstimatedLeatherCount(c.InnerPawn);
 
+    public static int EstimatedYield(this PawnKindDef kind, HuntingTargetResource resource) =>
+        resource == HuntingTargetResource.Meat
+            ? kind.EstimatedMeatCount()
+            : kind.EstimatedLeatherCount();
+
     public static int EstimatedYield(this Pawn p, HuntingTargetResource resource) =>
         resource == HuntingTargetResource.Meat
             ? p.EstimatedMeatCount()

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Don't list non-huntable pawns in the hunting tab animal list.
 -   No meats or leathers were being listed in the threshold filters on the hunting tab due to a bug.
+-   Hunting tab animal list tooltips were showing meat yields even when leather was the chosen resource.
 
 ## [0.4.2] - 2024-09-07
 

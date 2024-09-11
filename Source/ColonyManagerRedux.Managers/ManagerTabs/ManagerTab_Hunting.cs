@@ -110,7 +110,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         {
             // draw the toggle
             Utilities.DrawToggle(rowRect, animalDef.LabelCap,
-                new TipSignal(GetAnimalKindTooltip(animalDef),
+                new TipSignal(GetAnimalKindTooltip(animalDef, SelectedHuntingJob.TargetResource),
                     animalDef.GetHashCode()), allowedAnimals.Contains(animalDef),
                 () => SelectedHuntingJob
                     .SetAnimalAllowed(animalDef, !allowedAnimals.Contains(animalDef)));
@@ -196,7 +196,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         return rowRect.yMin - start.y;
     }
 
-    public static string GetAnimalKindTooltip(PawnKindDef kind)
+    public static string GetAnimalKindTooltip(PawnKindDef kind, HuntingTargetResource targetResource)
     {
         var sb = new StringBuilder();
         sb.Append(kind.race.description);
@@ -205,10 +205,15 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         {
             sb.Append("\n\n");
 
-            var yields = new List<string>
+            List<string> yields = [];
+
+            var resourceDef = targetResource == HuntingTargetResource.Meat
+                ? kind.race.race.meatDef
+                : kind.race.race.leatherDef;
+            if (resourceDef != null)
             {
-                YieldLine(kind.EstimatedMeatCount(), kind.race.race.meatDef.label)
-            };
+                yields.Add(YieldLine(kind.EstimatedYield(targetResource), resourceDef.label));
+            }
 
             // butcherProducts (only used for buildings in vanilla)
             if (!kind.race.butcherProducts.NullOrEmpty())
@@ -268,10 +273,12 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             if (yields.Count == 1)
             {
                 sb.AppendLine(I18n.YieldOne(yields.First()));
+                sb.AppendLine();
             }
             else if (yields.Count > 1)
             {
                 sb.AppendLine(I18n.YieldMany(yields));
+                sb.AppendLine();
             }
 
             sb.Append(I18n.Aggressiveness(kind.race.race.manhunterOnDamageChance));
