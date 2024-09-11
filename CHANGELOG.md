@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Handle the situation where a ThingDef used as a HistoryLabel doesn't have a valid label.
+
 ## [0.4.3] - 2024-09-11
 
 ### Fixed
