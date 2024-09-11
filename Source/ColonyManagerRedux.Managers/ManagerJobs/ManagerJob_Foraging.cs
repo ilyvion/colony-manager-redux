@@ -309,7 +309,8 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             .ResumeWhenOtherCoroutineIsCompleted();
         var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
 
-        if (count >= TriggerThreshold.TargetCount)
+        if (count >= TriggerThreshold.TargetCount
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedDesignations = [];
             yield return GetThingsSorted(
@@ -326,7 +327,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 var plant = (Plant)designation.target.Thing;
                 int yield = plant.YieldNow();
                 count -= yield;
-                if (count >= TriggerThreshold.TargetCount)
+                if (count >= TriggerThreshold.TargetCount
+                    || ColonyManagerReduxMod.Settings
+                        .ShouldRemoveMoreDesignations(_designations.Count))
                 {
                     designation.Delete();
                     _designations.Remove(designation);
@@ -381,9 +384,18 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             ));
         }
 
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                Def.label
+            ));
+        }
+
         foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
         {
-            if (count >= TriggerThreshold.TargetCount)
+            if (count >= TriggerThreshold.TargetCount
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
             }

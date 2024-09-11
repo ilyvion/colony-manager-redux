@@ -66,6 +66,21 @@ public class Settings : ModSettings
         internal set => _recordHistoricalData = value;
     }
 
+    private int _maxDesignationsPerJob;
+    public int MaxDesignationsPerJob
+    {
+        get => _maxDesignationsPerJob * 10;
+        internal set => _maxDesignationsPerJob = value / 10;
+    }
+    public bool CanAddMoreDesignations(int currentCount)
+    {
+        return MaxDesignationsPerJob == 0 || MaxDesignationsPerJob < currentCount;
+    }
+    public bool ShouldRemoveMoreDesignations(int currentCount)
+    {
+        return MaxDesignationsPerJob != 0 && MaxDesignationsPerJob > currentCount;
+    }
+
     private HashSet<ManagerDef> _disabledManagers = [];
     public HashSet<ManagerDef> DisabledManagers => _disabledManagers;
 
@@ -209,6 +224,19 @@ public class Settings : ModSettings
             "ColonyManagerRedux.RecordHistoricalData.Tip".Translate(),
             ref _recordHistoricalData, true);
 
+        DrawSliderConfig(
+            _maxDesignationsPerJob,
+            v => _maxDesignationsPerJob = v,
+            150,
+            ref pos,
+            width,
+            ListEntryHeight,
+            MaxDesignationsPerJob > 0
+                ? "ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob".Translate(
+                    MaxDesignationsPerJob)
+                : "ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob".Translate(),
+            "ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip".Translate());
+
         return pos.y - start.y;
     }
 
@@ -216,9 +244,28 @@ public class Settings : ModSettings
     {
         var start = pos;
 
-        DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        DrawSliderConfig(
+            DefaultTargetCount,
+            v => DefaultTargetCount = v,
+            DefaultMaxUpperThreshold,
+            ref pos,
+            width,
+            ListEntryHeight,
             "ColonyManagerRedux.ManagerSettings.TargetCount".Translate(
                 DefaultTargetCount));
+
+        var countAllOnMapToggleRect = new Rect(
+            pos.x,
+            pos.y,
+            width,
+            ListEntryHeight);
+        pos.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            countAllOnMapToggleRect,
+            "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
+            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(),
+            ref _defaultCountAllOnMap,
+            true);
 
         Utilities.DrawReachabilityToggle(ref pos, width, ref _defaultShouldCheckReachable);
         Utilities.DrawToggle(
@@ -260,36 +307,39 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
-    public void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string label,
-        string? tooltip = null)
+    public static void DrawSliderConfig(
+        int value,
+        Action<int> setValue,
+        int maxValue,
+        ref Vector2 cur,
+        float width,
+        float entryHeight,
+        string label,
+        string? tooltip = null,
+        int minValue = 0)
     {
         // target threshold
-        var thresholdLabelRect = new Rect(
+        var labelRect = new Rect(
             cur.x,
             cur.y,
             width,
             entryHeight);
         cur.y += entryHeight;
 
-        var thresholdRect = new Rect(
+        var sliderRect = new Rect(
             cur.x,
             cur.y,
             width,
             SliderHeight);
         cur.y += SliderHeight;
 
-        var useResourceListerToggleRect = new Rect(
-            cur.x,
-            cur.y,
-            width,
-            entryHeight);
-        cur.y += entryHeight;
-
-        IlyvionWidgets.Label(thresholdLabelRect, label!, tooltip);
-
-        Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
-                              "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref _defaultCountAllOnMap, true);
-        DefaultTargetCount = (int)GUI.HorizontalSlider(thresholdRect, DefaultTargetCount, 0, DefaultMaxUpperThreshold);
+        IlyvionWidgets.Label(labelRect, label!, tooltip);
+        var newValue = (int)GUI.HorizontalSlider(
+            sliderRect, value, minValue, maxValue);
+        if (value != newValue)
+        {
+            setValue?.Invoke(newValue);
+        }
     }
 
     private static UpdateInterval TicksToInterval(int ticks)
