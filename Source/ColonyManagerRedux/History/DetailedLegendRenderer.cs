@@ -176,6 +176,16 @@ public class DetailedLegendRenderer : IExposable
             // are we currently showing this line?
             var shown = history._chaptersShown.Contains(chapter);
 
+            string labelTooltip;
+            try
+            {
+                labelTooltip = chapter.label.Label.UncapitalizeFirst();
+            }
+            catch (Exception ex)
+            {
+                labelTooltip = chapter.label.Label + " (error:\n" + ex + "\n)";
+            };
+
             // tooltip on entire row
             var tooltip = $"{chapter.label}: " +
                 Utils.FormatCount(
@@ -185,7 +195,7 @@ public class DetailedLegendRenderer : IExposable
                     .Translate(shown
                         ? "ColonyManagerRedux.History.Hide".Translate()
                         : "ColonyManagerRedux.History.Show".Translate(),
-                        chapter.label.Label.UncapitalizeFirst());
+                        labelTooltip);
             TooltipHandler.TipRegion(row, tooltip);
 
             // handle input
