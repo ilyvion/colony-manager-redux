@@ -89,7 +89,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     public ref bool UnforbidAllCorpses => ref _unforbidAllCorpses;
 
     private List<Designation> _designations = [];
-    private List<ThingDef>? _humanLikeMeatDefs;
 
     private List<PawnKindDef>? _allAnimals;
     public List<PawnKindDef> AllAnimals
@@ -139,6 +138,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
             TriggerThreshold.ThresholdFilter.SetAllow(
                 ManagerThingDefOf.Meat_Megaspider, huntingSettings.DefaultAllowInsectMeat);
+
+            if (ModsConfig.AnomalyActive)
+            {
+                TriggerThreshold.ThresholdFilter.SetAllow(
+                    ManagerThingDefOf.Meat_Twisted, huntingSettings.DefaultAllowTwistedMeat);
+            }
         }
     }
 
@@ -177,6 +182,16 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
+    public bool AllowTwistedMeat
+    {
+        set
+        {
+            // update filter
+            Sync = Utilities.SyncDirection.FilterToAllowed;
+            TriggerThreshold.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Twisted, value);
+        }
+    }
+
     public IEnumerable<Corpse> Corpses
     {
         get
@@ -194,7 +209,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public List<Designation> Designations => new(_designations);
 
-    public List<ThingDef> HumanLikeMeatDefs
+    private static List<ThingDef>? _humanLikeMeatDefs;
+    public static List<ThingDef> HumanLikeMeatDefs
     {
         get
         {

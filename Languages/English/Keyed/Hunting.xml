@@ -8,6 +8,8 @@
     <ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>Should human meat be counted? \n\nNOTE: This is a shortcut for toggling humanoid meats in the threshold filter. You can set more options in the threshold details.</ColonyManagerRedux.Hunting.AllowHumanMeat.Tip>
     <ColonyManagerRedux.Hunting.AllowInsectMeat>Count insect meat</ColonyManagerRedux.Hunting.AllowInsectMeat>
     <ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>Should insect meat be counted? \n\nNOTE: This is a shortcut for toggling insect meat in the threshold filter. You can set more options in the threshold details.</ColonyManagerRedux.Hunting.AllowInsectMeat.Tip>
+    <ColonyManagerRedux.Hunting.AllowTwistedMeat>Count twisted meat</ColonyManagerRedux.Hunting.AllowTwistedMeat>
+    <ColonyManagerRedux.Hunting.AllowTwistedMeat.Tip>Should twisted meat be counted? \n\nNOTE: This is a shortcut for toggling twisted meat in the threshold filter. You can set more options in the threshold details.</ColonyManagerRedux.Hunting.AllowTwistedMeat.Tip>
     <ColonyManagerRedux.Hunting.UnforbidCorpses>Unforbid corpses</ColonyManagerRedux.Hunting.UnforbidCorpses>
     <ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>Automatically unforbid (fresh) corpses of animal types set to be hunted.</ColonyManagerRedux.Hunting.UnforbidCorpses.Tip>
     <ColonyManagerRedux.Hunting.UnforbidAllCorpses>Also unforbid corpses of disallowed animals</ColonyManagerRedux.Hunting.UnforbidAllCorpses>

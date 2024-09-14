@@ -13,6 +13,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
         ManagerJob_Hunting.HuntingTargetResource.Meat;
     public bool DefaultAllowHumanLikeMeat;
     public bool DefaultAllowInsectMeat;
+    public bool DefaultAllowTwistedMeat;
     public bool DefaultUnforbidCorpses = true;
     public bool DefaultUnforbidAllCorpses = true;
 
@@ -104,6 +105,14 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
             "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
             ref DefaultAllowInsectMeat);
 
+        if (ModsConfig.AnomalyActive)
+        {
+            Utilities.DrawToggle(ref pos, width,
+                "ColonyManagerRedux.Hunting.AllowTwistedMeat".Translate(),
+                "ColonyManagerRedux.Hunting.AllowTwistedMeat.Tip".Translate(),
+                ref DefaultAllowTwistedMeat);
+        }
+
         return pos.y - start.y;
     }
 
@@ -132,6 +141,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
             ManagerJob_Hunting.HuntingTargetResource.Meat);
         Scribe_Values.Look(ref DefaultAllowHumanLikeMeat, "defaultAllowHumanLikeMeat", false);
         Scribe_Values.Look(ref DefaultAllowInsectMeat, "defaultAllowInsectMeat", false);
+        Scribe_Values.Look(ref DefaultAllowTwistedMeat, "defaultAllowTwistedMeat", false);
         Scribe_Values.Look(ref DefaultUnforbidCorpses, "defaultUnforbidCorpses", true);
     }
 }

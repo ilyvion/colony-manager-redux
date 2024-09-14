@@ -448,11 +448,21 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 SelectedHuntingJob.AllowNoneHumanLikeMeat,
                 () => SelectedHuntingJob.AllowHumanLikeMeat = true,
                 () => SelectedHuntingJob.AllowHumanLikeMeat = false);
+
             Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
                 "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
                 SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Megaspider),
                 () => SelectedHuntingJob.AllowInsectMeat = true,
                 () => SelectedHuntingJob.AllowInsectMeat = false);
+
+            if (ModsConfig.AnomalyActive)
+            {
+                Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowTwistedMeat".Translate(),
+                    "ColonyManagerRedux.Hunting.AllowTwistedMeat.Tip".Translate(),
+                    SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Twisted),
+                    () => SelectedHuntingJob.AllowTwistedMeat = true,
+                    () => SelectedHuntingJob.AllowTwistedMeat = false);
+            }
         }
 
         return pos.y - start.y;

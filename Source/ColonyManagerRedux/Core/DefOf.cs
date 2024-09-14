@@ -46,6 +46,8 @@ public static class ManagerThingDefOf
     public static ThingDef CM_BasicManagerStation;
     public static ThingDef CM_ManagerStation;
     public static ThingDef Meat_Megaspider;
+    [MayRequireAnomaly]
+    public static ThingDef Meat_Twisted;
 
     static ManagerThingDefOf()
     {

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Setting for limiting the number of designations a job can manage at one time.
 -   Properly count the resources produced by buildings in the active designations list on the resource gathering tab.
 -   Added nuzzle icon to the available livestock animal list when a given animal has nuzzle behavior, with information about how often it nuzzles.
+-   Added twisted meat quick toggle to the hunting job to go along with insect meat and human meat when the Anomaly DLC is active.
 
 ### Changed
 
