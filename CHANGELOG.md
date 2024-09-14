@@ -22,6 +22,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Made more counting logic (i.e. current designations and relevant resources for a given job type) multi-tick operations to reduce per-tick performance cost.
 
+## [0.4.4] - 2024-09-14
+
+### Fixed
+
+-   Handle the situation where a ThingDef used as a HistoryLabel doesn't have a valid label.
+
+## [0.4.3] - 2024-09-11
+
+### Fixed
+
+-   Don't list non-huntable pawns in the hunting tab animal list.
+-   No meats or leathers were being listed in the threshold filters on the hunting tab due to a bug.
+-   Hunting tab animal list tooltips were showing meat yields even when leather was the chosen resource.
+-   Butchered body parts can be misconfigured to produce a null thing. While technically a bug in the other mod, it causes us to throw an exception, so handle it.
+
 ## [0.4.2] - 2024-09-07
 
 ### Fixed
@@ -242,7 +257,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.3.0...v0.4.0

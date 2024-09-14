@@ -751,6 +751,14 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         return resourceDef != null && TriggerThreshold.ThresholdFilter.Allows(resourceDef);
     }
 
+    private bool IsValidResource(PawnKindDef pawnKindDef)
+    {
+        ThingDef resourceDef = TargetResource == HuntingTargetResource.Meat
+            ? pawnKindDef.RaceProps.meatDef
+            : pawnKindDef.RaceProps.leatherDef;
+        return resourceDef != null;
+    }
+
     private bool IsCountedResource(Pawn pawn) => IsCountedResource(pawn.kindDef);
 
     private bool IsCountedResource(Corpse corpse) => IsCountedResource(corpse.InnerPawn);
@@ -760,14 +768,16 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         TriggerThreshold.ParentFilter.SetDisallowAll();
         if (TargetResource == HuntingTargetResource.Meat)
         {
-            foreach (var item in AllAnimals.Where(IsCountedResource))
+            foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
+                .Where(IsValidResource))
             {
                 TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
             }
         }
         else
         {
-            foreach (var item in AllAnimals.Where(IsCountedResource))
+            foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
+                .Where(IsValidResource))
             {
                 TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.leatherDef, true);
             }

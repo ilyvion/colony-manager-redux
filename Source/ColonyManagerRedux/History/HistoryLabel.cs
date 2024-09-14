@@ -64,7 +64,9 @@ public class DefHistoryLabel<T> : HistoryLabel where T : Def, new()
     {
     }
 
-    public override string Label => def.LabelCap;
+    public override string Label => ((string?)def?.LabelCap)
+        ?? def?.defName.CapitalizeFirst()
+        ?? "<null>";
 
     public override void ExposeData()
     {
