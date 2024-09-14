@@ -50,7 +50,8 @@ internal static class Utilities_Hunting
             // and any corpses on the map
             .Concat(map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
                 .Cast<Corpse>()
-                .Where(c => c?.InnerPawn != null)
+                .Where(c => c?.InnerPawn != null
+                    && (!animalsOnly || (c.InnerPawn.RaceProps?.Animal ?? false)))
                 .Select(c => c.InnerPawn.kindDef))
             .Distinct()
             .OrderBy(pk => pk.label);

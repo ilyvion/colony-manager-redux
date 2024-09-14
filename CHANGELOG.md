@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   The code responsible for not deconstructing ancient dangers wasn't working at all. Works now!
 -   The logic behind the "count human meat" and "count insect meat" toggles for hunting jobs wasn't quite right. Now it works like it should.
+-   Only show huntable pawns in the hunting tab list
 
 ## [0.4.4] - 2024-09-14
 
