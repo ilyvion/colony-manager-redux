@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.4] - 2024-09-14
+
 ### Fixed
 
 -   Handle the situation where a ThingDef used as a HistoryLabel doesn't have a valid label.
@@ -240,7 +242,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.4.3...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.4.4...HEAD
+[0.4.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.0...v0.4.1
