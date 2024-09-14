@@ -4,6 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
+[HotSwappable]
 internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 {
     [HotSwappable]
@@ -87,9 +88,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     private bool _unforbidAllCorpses = true;
     public ref bool UnforbidAllCorpses => ref _unforbidAllCorpses;
 
-    private bool _allowHumanLikeMeat;
-    private bool _allowInsectMeat;
-
     private List<Designation> _designations = [];
     private List<ThingDef>? _humanLikeMeatDefs;
 
@@ -130,24 +128,17 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
             _unforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
             _unforbidAllCorpses = huntingSettings.DefaultUnforbidAllCorpses;
-            _allowHumanLikeMeat = huntingSettings.DefaultAllowHumanLikeMeat;
-            _allowInsectMeat = huntingSettings.DefaultAllowInsectMeat;
 
             SyncFilterAndAllowed = huntingSettings.DefaultSyncFilterAndAllowed;
 
-            // XXX: What is the point of this? Aren't they all unset at the point of make anyway?
-            if (!_allowHumanLikeMeat)
+            foreach (var def in HumanLikeMeatDefs)
             {
-                foreach (var def in HumanLikeMeatDefs)
-                {
-                    TriggerThreshold.ThresholdFilter.SetAllow(def, false);
-                }
+                TriggerThreshold.ThresholdFilter.SetAllow(
+                    def, huntingSettings.DefaultAllowHumanLikeMeat);
             }
 
-            if (!_allowInsectMeat)
-            {
-                TriggerThreshold.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, false);
-            }
+            TriggerThreshold.ThresholdFilter.SetAllow(
+                ManagerThingDefOf.Meat_Megaspider, huntingSettings.DefaultAllowInsectMeat);
         }
     }
 
@@ -159,19 +150,16 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         _allowedAnimalsLeather.RemoveWhere(a => !AllAnimals.Contains(a));
     }
 
+    public bool AllowAllHumanLikeMeat
+        => HumanLikeMeatDefs.All(TriggerThreshold.ThresholdFilter.Allows);
+    public bool AllowNoneHumanLikeMeat
+        => !HumanLikeMeatDefs.Any(TriggerThreshold.ThresholdFilter.Allows);
     public bool AllowHumanLikeMeat
     {
-        get => _allowHumanLikeMeat;
         set
         {
-            // no change
-            if (value == _allowHumanLikeMeat)
-            {
-                return;
-            }
-
-            // update value and filter
-            _allowHumanLikeMeat = value;
+            // update filter
+            Sync = Utilities.SyncDirection.FilterToAllowed;
             foreach (var def in HumanLikeMeatDefs)
             {
                 TriggerThreshold.ThresholdFilter.SetAllow(def, value);
@@ -181,17 +169,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public bool AllowInsectMeat
     {
-        get => _allowInsectMeat;
         set
         {
-            // no change
-            if (value == _allowInsectMeat)
-            {
-                return;
-            }
-
-            // update value and filter
-            _allowInsectMeat = value;
+            // update filter
+            Sync = Utilities.SyncDirection.FilterToAllowed;
             TriggerThreshold.ThresholdFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, value);
         }
     }
@@ -281,8 +262,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref _unforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _unforbidAllCorpses, "unforbidAllCorpses", true);
-        Scribe_Values.Look(ref _allowHumanLikeMeat, "allowHumanLikeMeat");
-        Scribe_Values.Look(ref _allowInsectMeat, "allowInsectMeat");
 
         if (Manager.ScribeGameSpecificData)
         {

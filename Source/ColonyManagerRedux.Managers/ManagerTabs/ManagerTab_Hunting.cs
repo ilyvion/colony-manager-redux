@@ -432,7 +432,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
         Utilities.DrawToggle(ref pos, width,
             "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
-            "ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip".Translate(),
+            "ColonyManagerRedux.Hunting.SyncFilterAndAllowed.Tip".Translate(),
             ref SelectedHuntingJob.SyncFilterAndAllowed);
 
         Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
@@ -444,7 +444,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             // allow human & insect meat (2)
             Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
                 "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
-                SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ThingDefOf.Meat_Human),
+                SelectedHuntingJob.AllowAllHumanLikeMeat,
+                SelectedHuntingJob.AllowNoneHumanLikeMeat,
                 () => SelectedHuntingJob.AllowHumanLikeMeat = true,
                 () => SelectedHuntingJob.AllowHumanLikeMeat = false);
             Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
