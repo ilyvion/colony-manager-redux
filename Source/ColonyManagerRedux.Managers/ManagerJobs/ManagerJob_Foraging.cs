@@ -317,13 +317,15 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 _designations.Where(d => d.target.HasThing),
                 sortedDesignations,
                 _ => true,
-                (p, d) => p.YieldNow() / d,
+                (p, d) => -p.YieldNow() / d,
                 d => (Plant)d.target.Thing)
                 .ResumeWhenOtherCoroutineIsCompleted();
 
             // reduce designations until we're just above target
-            foreach (var (designation, i) in sortedDesignations.Select((d, i) => (d, i)).Reverse())
+            for (int i = 0; i < sortedDesignations.Count; i++)
             {
+                var designation = sortedDesignations[i];
+
                 var plant = (Plant)designation.target.Thing;
                 int yield = plant.YieldNow();
                 count -= yield;

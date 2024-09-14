@@ -475,13 +475,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 _designations.Where(d => d.target.HasThing),
                 sortedDesignations,
                 _ => true,
-                (p, d) => p.EstimatedYield(TargetResource) / d,
+                (p, d) => -p.EstimatedYield(TargetResource) / d,
                 d => (Pawn)d.target.Thing)
                 .ResumeWhenOtherCoroutineIsCompleted();
 
             // reduce designations until we're just above target
-            foreach (var (designation, i) in sortedDesignations.Select((d, i) => (d, i)).Reverse())
+            for (int i = 0; i < sortedDesignations.Count; i++)
             {
+                var designation = sortedDesignations[i];
+
                 var plant = (Pawn)designation.target.Thing;
                 int yield = plant.EstimatedYield(TargetResource);
                 totalCount.Value -= yield;

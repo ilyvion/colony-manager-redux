@@ -975,6 +975,7 @@ internal sealed class ManagerJob_Mining
         if (count >= TriggerThreshold.TargetCount
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
+            int designationCounter = 0;
             List<Designation> sortedMineDesignations = [];
             yield return GetThingsSorted(
                 _designations.Where(d => d.def == DesignationDefOf.Mine
@@ -982,13 +983,12 @@ internal sealed class ManagerJob_Mining
                     && d.target.Cell.GetFirstThing<Mineable>(Manager.map) is not null),
                 sortedMineDesignations,
                 _ => true,
-                (m, d) => GetCountInMineral(m) / d,
+                (m, d) => -GetCountInMineral(m) / d,
                 d => d.target.Cell.GetFirstThing<Mineable>(Manager.map))
                 .ResumeWhenOtherCoroutineIsCompleted();
 
             // reduce designations until we're just above target
-            foreach (var (designation, i) in sortedMineDesignations
-                .Select((d, i) => (d, i)).Reverse())
+            foreach (var designation in sortedMineDesignations)
             {
                 var mineable = designation.target.Cell.GetFirstThing<Mineable>(Manager.map);
                 int yield = GetCountInMineral(mineable);
@@ -1009,13 +1009,15 @@ internal sealed class ManagerJob_Mining
                             TriggerThreshold.TargetCount),
                         mineable);
                     workDone.Value = true;
+                    designationCounter++;
                 }
                 else
                 {
                     break;
                 }
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (designationCounter > 0
+                    && designationCounter % Constants.CoroutineBreakAfter == 0)
                 {
                     yield return ResumeImmediately.Singleton;
                 }
@@ -1030,13 +1032,12 @@ internal sealed class ManagerJob_Mining
                         d.def == DesignationDefOf.Deconstruct),
                     sortedDeconstructDesignations,
                     _ => true,
-                    (b, d) => GetCountInBuilding(b) / d,
+                    (b, d) => -GetCountInBuilding(b) / d,
                     d => (Building)d.target.Thing)
                     .ResumeWhenOtherCoroutineIsCompleted();
 
                 // reduce designations until we're just above target
-                foreach (var (designation, i) in sortedDeconstructDesignations
-                    .Select((d, i) => (d, i)).Reverse())
+                foreach (var designation in sortedDeconstructDesignations)
                 {
                     var building = (Building)designation.target.Thing;
                     int yield = GetCountInBuilding(building);
@@ -1057,13 +1058,15 @@ internal sealed class ManagerJob_Mining
                                 TriggerThreshold.TargetCount),
                             building);
                         workDone.Value = true;
+                        designationCounter++;
                     }
                     else
                     {
                         break;
                     }
 
-                    if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                    if (designationCounter > 0
+                        && designationCounter % Constants.CoroutineBreakAfter == 0)
                     {
                         yield return ResumeImmediately.Singleton;
                     }
@@ -1078,13 +1081,12 @@ internal sealed class ManagerJob_Mining
                     _designations.Where(d => d.target.HasThing && d.def == DesignationDefOf.Haul),
                     sortedHaulDesignations,
                     _ => true,
-                    (c, d) => GetCountInChunk(c) / d,
+                    (c, d) => -GetCountInChunk(c) / d,
                     d => d.target.Thing)
                     .ResumeWhenOtherCoroutineIsCompleted();
 
                 // reduce designations until we're just above target
-                foreach (var (designation, i) in sortedHaulDesignations
-                    .Select((d, i) => (d, i)).Reverse())
+                foreach (var designation in sortedHaulDesignations)
                 {
                     var chunk = designation.target.Thing;
                     int chunkCount = GetCountInChunk(chunk);
@@ -1105,13 +1107,15 @@ internal sealed class ManagerJob_Mining
                                 TriggerThreshold.TargetCount),
                             chunk);
                         workDone.Value = true;
+                        designationCounter++;
                     }
                     else
                     {
                         break;
                     }
 
-                    if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                    if (designationCounter > 0
+                        && designationCounter % Constants.CoroutineBreakAfter == 0)
                     {
                         yield return ResumeImmediately.Singleton;
                     }
