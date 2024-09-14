@@ -599,10 +599,25 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             TooltipHandler.TipRegion(lowerIconRect,
                 "Trainability".Translate() + ": " + animalDef.RaceProps.trainability.LabelCap);
 
-            // if aggressive, draw warning icon
-            lowerIconRect.x -= Margin + SmallIconSize;
+            // if it nuzzles, draw nuzzle icon
+            if (animalDef.RaceProps.nuzzleMtbHours > 0f)
+            {
+                lowerIconRect.x -= Margin + SmallIconSize;
+
+                var nuzzleInterval = Mathf.RoundToInt(animalDef.RaceProps.nuzzleMtbHours * 2500f)
+                    .ToStringTicksToPeriod();
+
+
+                GUI.DrawTexture(lowerIconRect, Resources.Nuzzle);
+                TooltipHandler.TipRegion(
+                    lowerIconRect, "NuzzleInterval".Translate() + ": " + nuzzleInterval);
+            }
+
+            // if it's aggressive, draw warning icon
             if (animalDef.RaceProps.manhunterOnTameFailChance >= 0.1)
             {
+                lowerIconRect.x -= Margin + SmallIconSize;
+
                 var color = GUI.color;
                 if (animalDef.RaceProps.manhunterOnTameFailChance > 0.25)
                 {
@@ -632,6 +647,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
                 if (atLeastOneVenerated)
                 {
+                    lowerIconRect.x -= Margin + SmallIconSize;
+
                     var color = GUI.color;
                     if (allVenerated)
                     {
@@ -651,8 +668,6 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                                 ? "ColonyManagerRedux.Misc.All".Translate()
                                 : "ColonyManagerRedux.Misc.Some".Translate()
                         ));
-
-                    lowerIconRect.x -= Margin + SmallIconSize;
                 }
             }
 
