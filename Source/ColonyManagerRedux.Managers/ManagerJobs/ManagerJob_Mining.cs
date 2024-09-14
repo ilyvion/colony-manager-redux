@@ -339,11 +339,27 @@ internal sealed class ManagerJob_Mining
     {
         if (designation.def == DesignationDefOf.Deconstruct)
         {
-            var building = designation.target.Thing;
-            return "ColonyManagerRedux.Job.DesignationLabel".Translate(
-                building.LabelCap,
-                Distance(building, Manager.map.GetBaseCenter()).ToString("F0"),
-                "?", "?");
+            var building = (Building)designation.target.Thing;
+            List<ThingDefCountClass> buildingCounts = GetCountsInBuilding(building);
+            if (buildingCounts.Count > 1)
+            {
+                return "ColonyManagerRedux.Job.DesignationLabelMulti".Translate(
+                    building.LabelCap,
+                    Distance(building, Manager.map.GetBaseCenter()).ToString("F0"),
+                    buildingCounts.Join(
+                        tc => $"{tc.count}x {tc.thingDef.LabelCap}",
+                        "\n- "
+                    ));
+            }
+            else
+            {
+                var buildingCount = buildingCounts[0];
+                return "ColonyManagerRedux.Job.DesignationLabel".Translate(
+                    building.LabelCap,
+                    Distance(building, Manager.map.GetBaseCenter()).ToString("F0"),
+                    buildingCount.count,
+                    buildingCount.thingDef.LabelCap);
+            }
         }
 
         if (designation.def == DesignationDefOf.Mine)
@@ -402,6 +418,33 @@ internal sealed class ManagerJob_Mining
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
         }
+    }
+
+    private static List<ThingDefCountClass> _tmpBuildingCounts = [];
+    public static List<ThingDefCountClass> GetCountsInBuilding(Building? building)
+    {
+        _tmpBuildingCounts.Clear();
+
+        var def = building?.def;
+        if (def == null || building == null)
+        {
+            return _tmpBuildingCounts;
+        }
+
+        foreach (var item in def.CostListAdjusted(building.Stuff, false))
+        {
+            var item2 = new ThingDefCountClass(item.thingDef, item.count);
+            item2.count = Mathf.Min(
+                GenMath.RoundRandom(item2.count * def.resourcesFractionWhenDeconstructed),
+                item2.count);
+
+            if (item2.count != 0)
+            {
+                _tmpBuildingCounts.Add(item2);
+            }
+        }
+
+        return _tmpBuildingCounts;
     }
 
     public int GetCountInBuilding(Building? building)

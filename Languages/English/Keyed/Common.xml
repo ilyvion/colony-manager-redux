@@ -41,6 +41,7 @@
     <ColonyManagerRedux.Job.TopPriority>Maximum priority</ColonyManagerRedux.Job.TopPriority>
     <ColonyManagerRedux.Job.BottomPriority>Minimum priority</ColonyManagerRedux.Job.BottomPriority>
     <ColonyManagerRedux.Job.DesignationLabel>{0}\n distance: {1}\n yield: {2}x {3}</ColonyManagerRedux.Job.DesignationLabel>
+    <ColonyManagerRedux.Job.DesignationLabelMulti>{0}\n distance: {1}\n yield:\n- {2}</ColonyManagerRedux.Job.DesignationLabelMulti>
     <ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>Job threshold has been reached.</ColonyManagerRedux.Job.JobHasbeenCompletedTooltip>
     <ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>Job has been suspended.</ColonyManagerRedux.Job.JobHasBeenSuspendedTooltip>
     <ColonyManagerRedux.Job.JobHasBeenSuspendedDueToExceptionTooltip>Job has been suspended due to an exception. Unless the cause of exception has been sorted out, unsuspending it may cause another exception immediately.</ColonyManagerRedux.Job.JobHasBeenSuspendedDueToExceptionTooltip>

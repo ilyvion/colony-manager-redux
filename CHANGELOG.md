@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Catch exceptions that happen when MangerSettings are instantiated.
 -   Setting for limiting the number of designations a job can manage at one time.
+-   Properly count the resources produced by buildings in the active designations list on the resource gathering tab.
 
 ### Changed
 
