@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   Made more counting logic (i.e. current designations and relevant resources for a given job type) multi-tick operations to reduce per-tick performance cost.
+-   Hard code the presence of human meat, insect meat and, if the anomaly DLC is present, twisted meat in the hunting threshold filter.
 
 ### Fixed
 

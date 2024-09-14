@@ -781,6 +781,19 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             {
                 TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
             }
+
+            // Hard code human meats, insect meat and twisted meat
+            foreach (var meatDef in HumanLikeMeatDefs)
+            {
+                TriggerThreshold.ParentFilter.SetAllow(meatDef, true);
+            }
+
+            TriggerThreshold.ParentFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, true);
+
+            if (ModsConfig.AnomalyActive)
+            {
+                TriggerThreshold.ParentFilter.SetAllow(ManagerThingDefOf.Meat_Twisted, true);
+            }
         }
         else
         {
