@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.13
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -86,8 +86,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.11
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -131,8 +131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.6
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
