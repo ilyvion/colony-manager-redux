@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Made more counting logic (i.e. current designations and relevant resources for a given job type) multi-tick operations to reduce per-tick performance cost.
 
+### Fixed
+
+-   The code responsible for not deconstructing ancient dangers wasn't working at all. Works now!
+
 ## [0.4.4] - 2024-09-14
 
 ### Fixed

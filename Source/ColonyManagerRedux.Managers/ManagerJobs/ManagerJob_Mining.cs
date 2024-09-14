@@ -1146,6 +1146,7 @@ internal sealed class ManagerJob_Mining
 
                 int buildingCount = GetCountInBuilding(building);
 
+                bool skipBuilding = false;
                 if (!DeconstructAncientDangerWhenFogged)
                 {
                     for (int j = ancientDangerRects.Count - 1; j >= 0; j--)
@@ -1159,25 +1160,30 @@ internal sealed class ManagerJob_Mining
 
                         if (ancientDangerRect.Contains(building.Position))
                         {
+                            skipBuilding = true;
                             skippedAncientDangerTargets.Add(building);
                             break;
                         }
                     }
                 }
-                AddDesignation(building, DesignationDefOf.Deconstruct);
-                count += buildingCount;
 
-                jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
-                    .Translate(
-                        DesignationDefOf.Deconstruct.ActionText(),
-                        "ColonyManagerRedux.Mining.Logs.Building".Translate(),
-                        building.Label,
-                        buildingCount,
-                        count,
-                        TriggerThreshold.TargetCount),
-                    building);
+                if (!skipBuilding)
+                {
+                    AddDesignation(building, DesignationDefOf.Deconstruct);
+                    count += buildingCount;
 
-                workDone.Value = true;
+                    jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
+                        .Translate(
+                            DesignationDefOf.Deconstruct.ActionText(),
+                            "ColonyManagerRedux.Mining.Logs.Building".Translate(),
+                            building.Label,
+                            buildingCount,
+                            count,
+                            TriggerThreshold.TargetCount),
+                        building);
+
+                    workDone.Value = true;
+                }
 
                 if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
                 {
