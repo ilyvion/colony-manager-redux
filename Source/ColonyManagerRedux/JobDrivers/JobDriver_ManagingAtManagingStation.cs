@@ -134,6 +134,7 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
             }
         });
 
+        toil.WithEffect(EffecterDefOf.Research, TargetIndex.A);
         toil.WithProgressBar(TargetIndex.A, () => workDone / workNeeded);
         return toil;
     }
