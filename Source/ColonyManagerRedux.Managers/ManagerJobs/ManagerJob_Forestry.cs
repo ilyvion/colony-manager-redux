@@ -521,7 +521,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         yield return ResumeImmediately.Singleton;
 
         // designate until we're either out of trees or we have enough designated.
-        if (count >= TriggerThreshold.TargetCount)
+        if (count >= TriggerThreshold.TargetCount
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedDesignations = [];
             yield return GetThingsSorted(
@@ -538,7 +539,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 var tree = (Plant)designation.target.Thing;
                 int yield = tree.YieldNow();
                 count -= yield;
-                if (count >= TriggerThreshold.TargetCount)
+                if (count >= TriggerThreshold.TargetCount
+                    || ColonyManagerReduxMod.Settings
+                        .ShouldRemoveMoreDesignations(_designations.Count))
                 {
                     designation.Delete();
                     _designations.Remove(designation);
@@ -575,7 +578,17 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             yield break;
         }
 
-        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount));
+        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount"
+            .Translate(count, TriggerThreshold.TargetCount));
+
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Forestry.Logs.Trees".Translate(),
+                Def.label
+            ));
+            yield break;
+        }
 
         List<Plant> sortedTrees = [];
         yield return GetTargetsSorted(
@@ -590,11 +603,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 "ColonyManagerRedux.Forestry.Logs.Trees".Translate(),
                 Def.label
             ));
+            yield break;
         }
 
         foreach (var (tree, i) in sortedTrees.Select((t, i) => (t, i)))
         {
-            if (count >= TriggerThreshold.TargetCount)
+            if (count >= TriggerThreshold.TargetCount
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
             }

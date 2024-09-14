@@ -10,7 +10,7 @@
     <ColonyManagerRedux.RecordHistoricalData.Tip>With this setting enabled, the mod will, for each manager job that exists, ask it to record its data a certain number of times per day, data which later gets used to show graphs of how the values have changed over time. This data recording process isn't free, so if you're having performance issues, you could try turning this setting off.</ColonyManagerRedux.RecordHistoricalData.Tip>
     <ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob>Jobs can manage as many designations as they need to meet targets</ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob>
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob>Jobs can only manage up to {0} designations at any time</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob>
-    <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
+    <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target. Note that not necessarily all types of manager jobs can or will respect this setting.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
 
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
     <ColonyManagerRedux.ManagerSettings.TargetCount>Target count: {0}</ColonyManagerRedux.ManagerSettings.TargetCount>

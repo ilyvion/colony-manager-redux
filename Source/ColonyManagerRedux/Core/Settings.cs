@@ -74,11 +74,11 @@ public class Settings : ModSettings
     }
     public bool CanAddMoreDesignations(int currentCount)
     {
-        return MaxDesignationsPerJob == 0 || MaxDesignationsPerJob < currentCount;
+        return MaxDesignationsPerJob == 0 || MaxDesignationsPerJob > currentCount;
     }
     public bool ShouldRemoveMoreDesignations(int currentCount)
     {
-        return MaxDesignationsPerJob != 0 && MaxDesignationsPerJob > currentCount;
+        return MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
     }
 
     private HashSet<ManagerDef> _disabledManagers = [];
@@ -364,6 +364,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _defaultCountAllOnMap, "defaultCountAllOnMap", false);
         Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
+        Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");
 
         Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
         Scribe_Collections.Look(ref _disabledManagers, "disabledManagers", LookMode.Def);

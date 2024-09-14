@@ -472,7 +472,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             + corpsesCachedValue.Value
             + designationsCachedValue.Value);
 
-        if (totalCount >= TriggerThreshold.TargetCount)
+        if (totalCount >= TriggerThreshold.TargetCount
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedDesignations = [];
             yield return GetThingsSorted(
@@ -489,7 +490,9 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 var plant = (Pawn)designation.target.Thing;
                 int yield = plant.EstimatedYield(TargetResource);
                 totalCount.Value -= yield;
-                if (totalCount >= TriggerThreshold.TargetCount)
+                if (totalCount >= TriggerThreshold.TargetCount
+                    || ColonyManagerReduxMod.Settings
+                        .ShouldRemoveMoreDesignations(_designations.Count))
                 {
                     designation.Delete();
                     _designations.Remove(designation);
@@ -532,14 +535,22 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // unforbid if allowed
         if (_unforbidCorpses)
         {
-            var handle = MultiTickCoroutineManager.StartCoroutine(
-                DoUnforbidCorpses(jobLog, workDone, totalCount));
-            yield return handle.ResumeWhenOtherCoroutineIsCompleted();
+            yield return DoUnforbidCorpses(jobLog, workDone, totalCount)
+                .ResumeWhenOtherCoroutineIsCompleted();
 
             if (workDone && totalCount >= TriggerThreshold.TargetCount)
             {
                 yield break;
             }
+        }
+
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                Def.label
+            ));
+            yield break;
         }
 
         // get a list of huntable animals sorted by distance (ignoring obstacles) and
@@ -558,12 +569,14 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
                 Def.label
             ));
+            yield break;
         }
 
         // while totalCount < count AND we have animals that can be designated, designate animal.
         foreach (var (huntableAnimal, i) in huntableAnimals.Select((h, i) => (h, i)))
         {
-            if (totalCount >= TriggerThreshold.TargetCount)
+            if (totalCount >= TriggerThreshold.TargetCount
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
             }

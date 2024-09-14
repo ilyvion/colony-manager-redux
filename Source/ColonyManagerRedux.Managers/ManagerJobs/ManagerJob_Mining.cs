@@ -929,7 +929,8 @@ internal sealed class ManagerJob_Mining
             + _chunksCachedValue.Value
             + _designatedCachedValue.Value;
 
-        if (count >= TriggerThreshold.TargetCount)
+        if (count >= TriggerThreshold.TargetCount
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedMineDesignations = [];
             yield return GetThingsSorted(
@@ -949,7 +950,9 @@ internal sealed class ManagerJob_Mining
                 var mineable = designation.target.Cell.GetFirstThing<Mineable>(Manager.map);
                 int yield = GetCountInMineral(mineable);
                 count -= yield;
-                if (count >= TriggerThreshold.TargetCount)
+                if (count >= TriggerThreshold.TargetCount
+                    || ColonyManagerReduxMod.Settings
+                        .ShouldRemoveMoreDesignations(_designations.Count))
                 {
                     designation.Delete();
                     _designations.Remove(designation);
@@ -975,7 +978,8 @@ internal sealed class ManagerJob_Mining
                 }
             }
 
-            if (count >= TriggerThreshold.TargetCount)
+            if (count >= TriggerThreshold.TargetCount
+                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
             {
                 List<Designation> sortedDeconstructDesignations = [];
                 yield return GetThingsSorted(
@@ -994,7 +998,9 @@ internal sealed class ManagerJob_Mining
                     var building = (Building)designation.target.Thing;
                     int yield = GetCountInBuilding(building);
                     count -= yield;
-                    if (count >= TriggerThreshold.TargetCount)
+                    if (count >= TriggerThreshold.TargetCount
+                        || ColonyManagerReduxMod.Settings
+                            .ShouldRemoveMoreDesignations(_designations.Count))
                     {
                         designation.Delete();
                         _designations.Remove(designation);
@@ -1021,7 +1027,8 @@ internal sealed class ManagerJob_Mining
                 }
             }
 
-            if (count >= TriggerThreshold.TargetCount)
+            if (count >= TriggerThreshold.TargetCount
+                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
             {
                 List<Designation> sortedHaulDesignations = [];
                 yield return GetThingsSorted(
@@ -1039,7 +1046,9 @@ internal sealed class ManagerJob_Mining
                     var chunk = designation.target.Thing;
                     int chunkCount = GetCountInChunk(chunk);
                     count -= chunkCount;
-                    if (count >= TriggerThreshold.TargetCount)
+                    if (count >= TriggerThreshold.TargetCount
+                        || ColonyManagerReduxMod.Settings
+                            .ShouldRemoveMoreDesignations(_designations.Count))
                     {
                         designation.Delete();
                         _designations.Remove(designation);
@@ -1077,6 +1086,18 @@ internal sealed class ManagerJob_Mining
             yield break;
         }
 
+        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount"
+            .Translate(count, TriggerThreshold.TargetCount));
+
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                Def.label
+            ));
+            yield break;
+        }
+
         yield return ResumeImmediately.Singleton;
 
         // Prioritize chunks; it's the lowest hanging "fruit" in terms of effort
@@ -1097,7 +1118,8 @@ internal sealed class ManagerJob_Mining
 
             foreach (var (chunk, i) in sortedChunks.Select((c, i) => (c, i)))
             {
-                if (count >= TriggerThreshold.TargetCount)
+                if (count >= TriggerThreshold.TargetCount
+                    || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
                 {
                     break;
                 }
@@ -1125,6 +1147,15 @@ internal sealed class ManagerJob_Mining
             }
         }
 
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                Def.label
+            ));
+            yield break;
+        }
+
         if (DeconstructBuildings)
         {
             List<Building> sortedBuildings = [];
@@ -1139,7 +1170,8 @@ internal sealed class ManagerJob_Mining
 
             foreach (var (building, i) in sortedBuildings.Select((c, i) => (c, i)))
             {
-                if (count >= TriggerThreshold.TargetCount)
+                if (count >= TriggerThreshold.TargetCount
+                    || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
                 {
                     break;
                 }
@@ -1199,6 +1231,15 @@ internal sealed class ManagerJob_Mining
             }
         }
 
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                Def.label
+            ));
+            yield break;
+        }
+
         List<Mineable> sortedMineable = [];
         yield return GetTargetsSorted(
             sortedMineable,
@@ -1208,7 +1249,8 @@ internal sealed class ManagerJob_Mining
 
         foreach (var (mineable, i) in sortedMineable.Select((c, i) => (c, i)))
         {
-            if (count >= TriggerThreshold.TargetCount)
+            if (count >= TriggerThreshold.TargetCount
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
             }

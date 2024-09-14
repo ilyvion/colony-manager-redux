@@ -121,7 +121,7 @@
     <ColonyManagerRedux.Logs.NoValidTargets>No currently undesignated {0} to designate for {1}</ColonyManagerRedux.Logs.NoValidTargets>
     <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} of type {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.AddDesignation>
     <ColonyManagerRedux.Logs.RemoveDesignation>Removed extraneous {0} designation for {1} of type {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.RemoveDesignation>
-    <ColonyManagerRedux.Logs.CantAddMoreDesignations>No currently undesignated {0} to designate for {1}</ColonyManagerRedux.Logs.CantAddMoreDesignations>
+    <ColonyManagerRedux.Logs.CantAddMoreDesignations>Can't designate any more {0} for {1} due to the configured designation limit.</ColonyManagerRedux.Logs.CantAddMoreDesignations>
 
     <!-- Misc. -->
     <ColonyManagerRedux.ManagerStation.OpenManagerTab>Manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab>

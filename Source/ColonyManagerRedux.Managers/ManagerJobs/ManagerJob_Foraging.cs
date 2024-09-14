@@ -366,8 +366,17 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             yield break;
         }
 
-        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(count,
-            TriggerThreshold.TargetCount));
+        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount"
+            .Translate(count, TriggerThreshold.TargetCount));
+
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        {
+            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                Def.label
+            ));
+            yield break;
+        }
 
         List<Plant> sortedPlants = [];
         yield return GetTargetsSorted(
@@ -382,14 +391,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
                 Def.label
             ));
-        }
-
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
-        {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
-                Def.label
-            ));
+            yield break;
         }
 
         foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
