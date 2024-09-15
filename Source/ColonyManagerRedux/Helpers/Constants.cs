@@ -17,4 +17,6 @@ public static class Constants
     public const int DefaultMaxUpperThreshold = 3000;
     public const int MaxStackallocSize = 256;
     public const int CoroutineBreakAfter = 10;
+
+    public const string SurvivalistsAdditionsModId = "mlie.survivalistsadditions";
 }

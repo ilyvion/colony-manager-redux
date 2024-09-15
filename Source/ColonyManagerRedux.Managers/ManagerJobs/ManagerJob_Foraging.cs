@@ -136,7 +136,10 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 continue;
             }
 
-            count.Value += plant.YieldNow();
+            if (!plant.def.TrySpecialDesigationCount(count))
+            {
+                count.Value += plant.YieldNow();
+            }
         }
     }
 
@@ -181,11 +184,21 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         // label, dist, yield.
         var plant = (Plant)designation.target.Thing;
-        return "ColonyManagerRedux.Job.DesignationLabel".Translate(
-            plant.LabelCap,
-            Distance(plant, Manager.map.GetBaseCenter()).ToString("F0"),
-            plant.YieldNow(),
-            plant.def.plant.harvestedThingDef.LabelCap);
+        if (plant.def.TrySpecialDesignationYieldTooltip(out var tooltip))
+        {
+            return "ColonyManagerRedux.Job.DesignationLabelMulti".Translate(
+                plant.LabelCap,
+                Distance(plant, Manager.map.GetBaseCenter()).ToString("F0"),
+                tooltip);
+        }
+        else
+        {
+            return "ColonyManagerRedux.Job.DesignationLabel".Translate(
+                plant.LabelCap,
+                Distance(plant, Manager.map.GetBaseCenter()).ToString("F0"),
+                plant.YieldNow(),
+                plant.def.plant.harvestedThingDef.LabelCap);
+        }
     }
 
     public override void ExposeData()
@@ -221,7 +234,15 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         foreach (var plant in AllPlants)
         {
-            if (TriggerThreshold.ThresholdFilter.Allows(plant.plant.harvestedThingDef))
+            bool shouldAllowPlant = false;
+            if (!plant.TrySpecialFilterSync(
+                TriggerThreshold.ThresholdFilter, ref shouldAllowPlant))
+            {
+                shouldAllowPlant
+                    = TriggerThreshold.ThresholdFilter.Allows(plant.plant.harvestedThingDef);
+            }
+
+            if (shouldAllowPlant)
             {
                 AllowedPlants.Add(plant);
             }
@@ -266,9 +287,13 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         {
             Sync = Utilities.SyncDirection.AllowedToFilter;
 
-            ThingDef harvestedThingDef = plant.plant.harvestedThingDef;
-            var setAllow = AllowedPlants.Any(p => p.plant.harvestedThingDef == harvestedThingDef);
-            TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
+            if (!plant.TrySpecialAllowedSync(AllowedPlants, TriggerThreshold.ThresholdFilter))
+            {
+                ThingDef harvestedThingDef = plant.plant.harvestedThingDef;
+                var setAllow = AllowedPlants
+                    .Any(p => p.plant.harvestedThingDef == harvestedThingDef);
+                TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
+            }
         }
     }
 
@@ -534,6 +559,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
         {
             parentFilter.SetAllow(harvestedThingDef, true);
+        }
+
+        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId))
+        {
+            parentFilter.SetAllow(ManagerThingDefOf.SRV_Turnip, true);
+            parentFilter.SetAllow(ManagerThingDefOf.SRV_Turnip_Green, true);
         }
     }
 

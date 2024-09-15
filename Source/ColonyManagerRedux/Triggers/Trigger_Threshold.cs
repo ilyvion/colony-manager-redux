@@ -245,7 +245,7 @@ public sealed class Trigger_Threshold : Trigger
                 {
                     var option = string.Empty;
                     Action? onClick = () => Find.WindowStack.TryRemove(typeof(MainTabWindow_Manager), false);
-                    Action<UnityEngine.Rect>? onHover = null;
+                    Action<Rect>? onHover = null;
                     if (designation.target.HasThing)
                     {
                         var thing = designation.target.Thing;

@@ -31,7 +31,7 @@ public static class I18n
         {
             throw new ArgumentNullException(nameof(def));
         }
-        return YieldOne($"{def.LabelCap} x{yield:F0} ");
+        return YieldOne($"{def.LabelCap} x{yield:F0}");
     }
 
     public static string ActionText(this DesignationDef designationDef)

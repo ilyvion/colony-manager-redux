@@ -48,6 +48,12 @@ public static class ManagerThingDefOf
     public static ThingDef Meat_Megaspider;
     [MayRequireAnomaly]
     public static ThingDef Meat_Twisted;
+    [MayRequireSurvivalistsAdditions]
+    public static ThingDef SRV_PlantTurnip;
+    [MayRequireSurvivalistsAdditions]
+    public static ThingDef SRV_Turnip;
+    [MayRequireSurvivalistsAdditions]
+    public static ThingDef SRV_Turnip_Green;
 
     static ManagerThingDefOf()
     {

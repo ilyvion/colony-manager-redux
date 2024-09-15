@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Added nuzzle icon to the available livestock animal list when a given animal has nuzzle behavior, with information about how often it nuzzles.
 -   Added twisted meat quick toggle to the hunting job to go along with insect meat and human meat when the Anomaly DLC is active.
 -   Animation/effect when working the manager's desk (same as when doing research).
+-   Explicit support for Survivalist's Additions' turnip plants. The way these plants work is really odd and they need special handling to be useful when managed by Colony Manager. A player requested support, so it's been added.
 
 ### Changed
 

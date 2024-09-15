@@ -138,7 +138,14 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
         if (plant.plant != null && plant.plant.harvestYield >= 1f && plant.plant.harvestedThingDef != null)
         {
             sb.Append("\n\n");
-            sb.Append(I18n.YieldOne(plant.plant.harvestYield, plant.plant.harvestedThingDef));
+            if (plant.TrySpecialYieldTooltip(out var tooltip))
+            {
+                sb.Append(tooltip);
+            }
+            else
+            {
+                sb.Append(I18n.YieldOne(plant.plant.harvestYield, plant.plant.harvestedThingDef));
+            }
         }
         return sb.ToString();
     }
