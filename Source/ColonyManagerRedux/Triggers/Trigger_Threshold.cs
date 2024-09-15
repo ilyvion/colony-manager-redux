@@ -264,9 +264,7 @@ public sealed class Trigger_Threshold : Trigger
                         var cell = designation.target.Cell;
                         if (cell.IsValid)
                         {
-                            var map = Find.CurrentMap;
-                            // designation.map would be better, but that's private. We should only ever be looking at jobs on the current map anyway,
-                            // so I suppose it doesn't matter -- ColonyManagerRedux.
+                            var map = designation.Map;
                             option = designationLabelGetter?.Invoke(designation) ?? cell.GetTerrain(map).LabelCap;
                             onClick += () => CameraJumper.TryJump(cell, map);
                             onHover += (c) =>

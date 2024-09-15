@@ -110,5 +110,7 @@
         <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />
 
         <Publicize Include="Assembly-CSharp:RimWorld.AlertsReadout.activeAlerts" />
+
+        <Publicize Include="Assembly-CSharp:Verse.Designation.Map" />
     </ItemGroup>
 </Project>
