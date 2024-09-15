@@ -196,6 +196,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         return rowRect.yMin - start.y;
     }
 
+    private static readonly List<string> _tmpAnimalKindTooltipYields = [];
     public static string GetAnimalKindTooltip(PawnKindDef kind, HuntingTargetResource targetResource)
     {
         var sb = new StringBuilder();
@@ -205,14 +206,15 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         {
             sb.Append("\n\n");
 
-            List<string> yields = [];
+            _tmpAnimalKindTooltipYields.Clear();
 
             var resourceDef = targetResource == HuntingTargetResource.Meat
                 ? kind.race.race.meatDef
                 : kind.race.race.leatherDef;
             if (resourceDef != null)
             {
-                yields.Add(YieldLine(kind.EstimatedYield(targetResource), resourceDef.label));
+                _tmpAnimalKindTooltipYields.Add(
+                    YieldLine(kind.EstimatedYield(targetResource), resourceDef.label));
             }
 
             // butcherProducts (only used for buildings in vanilla)
@@ -220,7 +222,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             {
                 foreach (var product in kind.race.butcherProducts)
                 {
-                    yields.Add(YieldLine(product.count, product.thingDef.label));
+                    _tmpAnimalKindTooltipYields.Add(
+                        YieldLine(product.count, product.thingDef.label));
                 }
             }
 
@@ -229,7 +232,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             {
                 foreach (var leaving in kind.race.killedLeavings)
                 {
-                    yields.Add(YieldLine(leaving.count, leaving.thingDef.label));
+                    _tmpAnimalKindTooltipYields.Add(
+                        YieldLine(leaving.count, leaving.thingDef.label));
                 }
             }
 
@@ -266,18 +270,18 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                             : kind.labelFemale;
                     }
 
-                    yields.Add($"{part.thing.label} ({label})");
+                    _tmpAnimalKindTooltipYields.Add($"{part.thing.label} ({label})");
                 }
             }
 
-            if (yields.Count == 1)
+            if (_tmpAnimalKindTooltipYields.Count == 1)
             {
-                sb.AppendLine(I18n.YieldOne(yields.First()));
+                sb.AppendLine(I18n.YieldOne(_tmpAnimalKindTooltipYields.First()));
                 sb.AppendLine();
             }
-            else if (yields.Count > 1)
+            else if (_tmpAnimalKindTooltipYields.Count > 1)
             {
-                sb.AppendLine(I18n.YieldMany(yields));
+                sb.AppendLine(I18n.YieldMany(_tmpAnimalKindTooltipYields));
                 sb.AppendLine();
             }
 
