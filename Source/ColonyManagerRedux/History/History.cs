@@ -435,9 +435,19 @@ public partial class History : IExposable
             }
         }
 
-        foreach (var chapter in _chapters)
+        for (int i = _chapters.Count - 1; i >= 0; i--)
         {
-            traderDefs.Remove(chapter.ThingDefCount.thingDef);
+            Chapter? chapter = _chapters[i];
+            if (!traderDefs.Remove(chapter.ThingDefCount.thingDef))
+            {
+                // Attempted to remove a def we don't actually have. This most likely means it's a
+                // building that no longer exists. Let's remove it.
+                ColonyManagerReduxMod.Instance.LogWarning("Removing thingDef chapter "
+                    + chapter.ThingDefCount.thingDef + " because it no longer exists. "
+                    + "(Most likely cause: a mod with a building consuming/producing power "
+                    + "was removed.)");
+                _chapters.RemoveAt(i);
+            }
         }
         if (traderDefs.Count > 0)
         {

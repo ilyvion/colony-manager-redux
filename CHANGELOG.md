@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Removing mods that have buildings consuming/producing power lead to a constant stream of warnings in the log due to a mismatch between the expected building type count and the actual building type count. Colony Manager now properly discards buildings that no longer exist, which should fix the issue.
+
 ## [0.5.0] - 2024-09-15
 
 ### Dependencies
