@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2024-09-18
+
 ### Fixed
 
 -   Removing mods that have buildings consuming/producing power lead to a constant stream of warnings in the log due to a mismatch between the expected building type count and the actual building type count. Colony Manager now properly discards buildings that no longer exist, which should fix the issue.
@@ -275,7 +277,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.1...HEAD
+[0.5.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.4...v0.5.0
 [0.4.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.3...v0.4.4
 [0.4.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.2...v0.4.3
