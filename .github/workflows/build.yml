@@ -13,6 +13,7 @@ jobs:
         runs-on: windows-latest
         env:
             ProjectDependenciesBasePath: ..\..
+            RimWorldSteamWorkshopFolderPath: ..\..\.deps\refs
         steps:
             - name: Checkout Repository
               uses: actions/checkout@v4
@@ -40,6 +41,7 @@ jobs:
                   path: |
                       About/
                       1.5/
+                      1.5_AnimalGenetics/
                       Defs/
                       Languages/
                       Patches/
@@ -47,6 +49,7 @@ jobs:
                       LICENSE
                       README.md
                       CHANGELOG.md
+                      LoadFolders.xml
                       !**/.*
                       !About/*.pdn
                       !About/*.svg

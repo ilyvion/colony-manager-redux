@@ -174,6 +174,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         Master = null;
         Trainers = MasterMode.Manual;
         Trainer = null;
+
+        TamingPawnSortScore = DefaultTamingPawnSortScore;
+        CullingPawnSorter = DefaultCullingPawnSorter;
     }
 
     public override void PostMake()
@@ -791,11 +794,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
             if (targetDifference > 0)
             {
-                // should cull oldest adults, youngest juveniles.
-                var oldestFirst = ageSex.IsAdult();
-
                 // get list of animals in correct sort order.
-                var animals = TriggerPawnKind.pawnKind
+                var animalsUnsorted = TriggerPawnKind.pawnKind
                     .GetTame(Manager, ageSex, includeGuests: false)
                     .Where(
                         p => Manager.map.designationManager.DesignationOn(
@@ -803,11 +803,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         && (CullTrained ||
                             !p.training.HasLearned(TrainableDefOf.Obedience))
                         && (CullPregnant || !p.VisiblyPregnant())
-                        && (CullBonded || !p.BondedWithColonist()))
-                    // cull least trained animals first
-                    .OrderBy(p => p.training.learned.Count(l => l.Value))
-                    .ThenBy(
-                        p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks);
+                        && (CullBonded || !p.BondedWithColonist()));
+                var animals = CullingPawnSorter(ageSex, animalsUnsorted);
 
                 var animalsEnumerator = animals.GetEnumerator();
 
@@ -911,7 +908,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         Manager.map.designationManager.DesignationOn(p) == null &&
                         (TameArea == null || TameArea.ActiveCells.Contains(p.Position)) &&
                         IsReachable(p),
-                    (p, d) => p.ageTracker.AgeBiologicalTicks / d,
+                    TamingPawnSortScore,
                     t => t)
                     .ResumeWhenOtherCoroutineIsCompleted();
 
@@ -970,6 +967,28 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 }
             }
         }
+    }
+
+    public enum SortingKind
+    {
+        Taming,
+        Culling
+    }
+
+    public Func<Pawn, float, float> TamingPawnSortScore;
+    private float DefaultTamingPawnSortScore(Pawn pawn, float distance)
+        => pawn.ageTracker.AgeBiologicalTicks / distance;
+
+    public Func<AgeAndSex, IEnumerable<Pawn>, IEnumerable<Pawn>> CullingPawnSorter;
+    private IEnumerable<Pawn> DefaultCullingPawnSorter(
+        AgeAndSex ageAndSex, IEnumerable<Pawn> pawns)
+    {
+        // should cull oldest adults, youngest juveniles.
+        var oldestFirst = ageAndSex.IsAdult();
+
+        return pawns
+            .OrderBy(p => p.training.learned.Count(l => l.Value))
+            .ThenBy(p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks);
     }
 
     private bool RoughlyEquallyDistributed(List<Pawn> masters)

@@ -108,6 +108,15 @@
     <ColonyManagerRedux.AgeAndSex.Male>male</ColonyManagerRedux.AgeAndSex.Male>
     <ColonyManagerRedux.AgeAndSex.Male.Plural>males</ColonyManagerRedux.AgeAndSex.Male.Plural>
 
+    <!-- Animal Genetics interop -->
+    <ColonyManagerRedux.Livestock.AnimalGenetics.Use>Selection overrides using Animal Genetics</ColonyManagerRedux.Livestock.AnimalGenetics.Use>
+    <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTaming>Taming</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTaming>
+    <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTamingTip>Instead of the usual way an animal is selected for taming by Colony Manager, use Animal Genetics parameters to select an animal for taming. The animals will be chosen in the order of fitting the desired genetic bias the most.</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTamingTip>
+    <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCulling>Culling</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCulling>
+    <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCullingTip>Instead of the usual way an animal is selected for culling by Colony Manager, use Animal Genetics parameters to select an animal for culling. The animals will be chosen in the order of fitting the desired genetic bias the least.</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCullingTip>
+    <ColonyManagerRedux.Livestock.AnimalGenetics.GeneBias>Animal Genetics gene bias</ColonyManagerRedux.Livestock.AnimalGenetics.GeneBias>
+
+    <!-- Settings -->
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader>Default culling</ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader>

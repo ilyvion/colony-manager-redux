@@ -32,6 +32,16 @@ public abstract class ManagerJobComp
     {
     }
 
+    public virtual void PreRenderSection(
+        string sectionColumn, string section, ref Vector2 position, float width)
+    {
+    }
+
+    public virtual void PostRenderSection(
+        string sectionColumn, string section, ref Vector2 position, float width)
+    {
+    }
+
     public override string ToString()
     {
         return string.Concat(GetType().Name, "(parent=", _parent, ")");

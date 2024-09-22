@@ -16,7 +16,6 @@ namespace ColonyManagerRedux.Managers;
 internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab<ManagerJob_Livestock>(manager)
 {
     internal const int TrainingJobsPerRow = 3;
-
     private readonly List<PawnKindDef> _availablePawnKinds = [];
 
     private string[] _newCounts = ["", "", "", ""];
@@ -139,6 +138,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         Refresh();
     }
 
+    internal const string LivestockOptions = "Livestock.Options";
+
     protected override bool DoMainContentWhenNothingSelected => true;
     protected override void DoMainContent(Rect rect)
     {
@@ -173,24 +174,35 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Livestock.Options", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(
+            optionsColumnRect, LivestockOptions, out Vector2 position, out float width);
 
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawTargetCountsSection,
+        DrawSection(
+            LivestockOptions,
+            "TargetCounts",
+            ref position,
+            width,
+            DrawTargetCountsSection,
             "ColonyManagerRedux.Livestock.TargetCountsHeader".Translate());
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawTamingSection,
+        DrawSection(LivestockOptions, "Taming", ref position, width, DrawTamingSection,
             "ColonyManagerRedux.Livestock.TamingHeader".Translate());
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawCullingSection,
+        DrawSection(LivestockOptions, "Culling", ref position, width, DrawCullingSection,
             "ColonyManagerRedux.Livestock.CullingHeader".Translate());
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawTrainingSection,
+        DrawSection(LivestockOptions, "Training", ref position, width, DrawTrainingSection,
             "ColonyManagerRedux.Livestock.TrainingHeader".Translate());
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawAreaRestrictionsSection,
+        DrawSection(
+            LivestockOptions,
+            "AreaRestrictions",
+            ref position,
+            width,
+            DrawAreaRestrictionsSection,
             "ColonyManagerRedux.Livestock.AreaRestrictionsHeader".Translate());
-        Widgets_Section.Section(SelectedJob, ref position, width, DrawFollowSection,
+        DrawSection(LivestockOptions, "Follow", ref position, width, DrawFollowSection,
             "ColonyManagerRedux.Livestock.FollowHeader".Translate());
 
         position.y -= Margin;
 
-        Widgets_Section.EndSectionColumn("Livestock.Options", position);
+        Widgets_Section.EndSectionColumn(LivestockOptions, position);
 
         DrawAnimalTables(animalsColumnRect);
 

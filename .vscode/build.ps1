@@ -6,6 +6,8 @@ $VersionTargetPrefix = "D:\RimWorld"
 $VersionTargetSuffix = "Mods\ColonyManagerRedux"
 $Target = "$VersionTargetPrefix\1.5\$VersionTargetSuffix"
 
+$env:RimWorldSteamWorkshopFolderPath = "..\..\.deps\refs"
+
 # build dlls
 dotnet build --configuration $Configuration ColonyManagerRedux.sln
 if ($LASTEXITCODE -gt 0) {
@@ -19,7 +21,7 @@ Remove-Item -Path $Target -Recurse -ErrorAction SilentlyContinue
 Copy-Item -Path 1.5 $Target\1.5 -Recurse
 
 # copy interop mod files
-# <NONE>
+Copy-Item -Path 1.5_AnimalGenetics $Target\1.5_AnimalGenetics -Recurse
 
 Copy-Item -Path Defs $Target\Defs -Recurse
 Copy-Item -Path Languages $Target\Languages -Recurse
@@ -37,7 +39,7 @@ Copy-Item -Path LICENSE $Target
 #Copy-Item -Path LICENSE.Apache-2.0 $Target
 #Copy-Item -Path LICENSE.MIT $Target
 Copy-Item -Path README.md $Target
-#Copy-Item -Path LoadFolders.xml $Target
+Copy-Item -Path LoadFolders.xml $Target
 
 # Trigger auto-hotswap
 New-Item -Path $Target\1.5\Assemblies\ColonyManagerRedux.dll.hotswap -Type file

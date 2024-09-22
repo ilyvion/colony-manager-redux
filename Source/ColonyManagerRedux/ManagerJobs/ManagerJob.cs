@@ -599,6 +599,19 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         return _comps?.Where(c => c is T).Cast<T>() ?? [];
     }
 
+    public void ForAllCompsOfType<T>(Action<T> action) where T : ManagerJobComp
+    {
+        if (action == null)
+        {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        foreach (var comp in CompsOfType<T>())
+        {
+            action(comp);
+        }
+    }
+
     protected internal virtual void Notify_AreaRemoved(Area area)
     {
     }

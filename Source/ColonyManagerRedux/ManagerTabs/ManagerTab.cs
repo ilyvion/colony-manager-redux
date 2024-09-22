@@ -53,6 +53,23 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where
     {
         jobTracker.BottomPriority((T)job);
     }
+
+    protected void DrawSection(
+        string sectionColumn,
+        string section,
+        ref Vector2 position,
+        float width,
+        Func<T, Vector2, float, float> drawerFunc,
+        string header = "")
+    {
+        var localPosition = position;
+        SelectedJob!.ForAllCompsOfType<ManagerJobComp>(
+            c => c.PreRenderSection(sectionColumn, section, ref localPosition, width));
+        Widgets_Section.Section(SelectedJob, ref localPosition, width, drawerFunc, header);
+        SelectedJob.ForAllCompsOfType<ManagerJobComp>(
+            c => c.PostRenderSection(sectionColumn, section, ref localPosition, width));
+        position = localPosition;
+    }
 }
 
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerTab

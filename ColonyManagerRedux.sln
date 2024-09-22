@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux", "Sourc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.Managers", "Source\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj", "{70A02BB0-2089-4FFE-8C7F-2551FFD7DFEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.AnimalGenetics", "Source\ColonyManagerRedux.AnimalGenetics\ColonyManagerRedux.AnimalGenetics.csproj", "{FFE1C205-BCF9-462E-81FA-79F4CD8A12E0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{70A02BB0-2089-4FFE-8C7F-2551FFD7DFEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70A02BB0-2089-4FFE-8C7F-2551FFD7DFEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70A02BB0-2089-4FFE-8C7F-2551FFD7DFEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFE1C205-BCF9-462E-81FA-79F4CD8A12E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFE1C205-BCF9-462E-81FA-79F4CD8A12E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFE1C205-BCF9-462E-81FA-79F4CD8A12E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFE1C205-BCF9-462E-81FA-79F4CD8A12E0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_LivestockManager"]/jobComps</xpath>
+        <value>
+            <li>
+                <compClass>ColonyManagerRedux.AnimalGenetics.ManagerJob_Livestock_AnimalGenetics</compClass>
+            </li>
+        </value>
+    </Operation>
+</Patch>
