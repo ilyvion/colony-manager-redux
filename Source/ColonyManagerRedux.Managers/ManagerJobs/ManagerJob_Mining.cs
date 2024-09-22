@@ -509,9 +509,13 @@ internal sealed class ManagerJob_Mining
         return chunkProductKind;
     }
 
+    private List<Thing> _tmpAllThings = [];
     private Coroutine GetCountInChunksCoroutine(AnyBoxed<int> count)
     {
-        foreach (var (chunk, i) in Manager.map.listerThings.AllThings
+        _tmpAllThings.AddRange(Manager.map.listerThings.AllThings);
+        using var _ = new DoOnDispose(_tmpAllThings.Clear);
+
+        foreach (var (chunk, i) in _tmpAllThings
             .Where(t => t.def.IsChunk() && t.IsInAnyStorage()).Select((c, i) => (c, i)))
         {
             if (i > 0 && i % Constants.CoroutineBreakAfter == 0)

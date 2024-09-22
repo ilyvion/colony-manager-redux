@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Don't keep iterating over listerThings.AllThings across multiple ticks; there's a high risk that it could change from one tick to the next, which would cause 'Collection was modified' exceptions.
+
 ## [0.5.1] - 2024-09-18
 
 ### Fixed
