@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.2] - 2024-09-22
+
 ### Fixed
 
 -   Don't keep iterating over listerThings.AllThings across multiple ticks; there's a high risk that it could change from one tick to the next, which would cause 'Collection was modified' exceptions.
@@ -281,7 +283,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.1...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.2...HEAD
+[0.5.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.4...v0.5.0
 [0.4.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.3...v0.4.4
