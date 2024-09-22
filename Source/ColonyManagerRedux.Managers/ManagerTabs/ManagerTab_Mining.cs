@@ -107,11 +107,10 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         var start = pos;
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
-        var allMinerals = SelectedMiningJob.AllMinerals;
-
+        
         // toggle for each animal
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var mineral in allMinerals)
+        foreach (var mineral in Utilities_Mining.AllMinerals)
         {
             // draw the toggle
             Utilities.DrawToggle(rowRect, mineral.LabelCap,
@@ -133,7 +132,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
-        var allMinerals = SelectedMiningJob.AllMinerals;
+        var allMinerals = Utilities_Mining.AllMinerals;
 
         var rowRect = new Rect(
             pos.x,

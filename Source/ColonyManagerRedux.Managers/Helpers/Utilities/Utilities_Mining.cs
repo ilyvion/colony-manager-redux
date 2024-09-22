@@ -6,10 +6,19 @@ namespace ColonyManagerRedux.Managers;
 
 internal static class Utilities_Mining
 {
+    private static List<ThingCategoryDef>? _chunkCategoryDefs;
+    private static List<ThingCategoryDef> ChunkCategoryDefs
+    {
+        get
+        {
+            _chunkCategoryDefs ??= ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.ToList();
+            return _chunkCategoryDefs;
+        }
+    }
+
     public static bool IsChunk(this ThingDef def)
     {
-        return def?.thingCategories?.Any(c => ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.Contains(c)) ??
-            false;
+        return def?.thingCategories?.Any(c => ChunkCategoryDefs.Contains(c)) ?? false;
     }
 
     internal static IEnumerable<ThingDef> GetDeconstructibleBuildings(Map map)
@@ -25,12 +34,18 @@ internal static class Utilities_Mining
             .OrderBy(b => b.LabelCap.RawText);
     }
 
-    internal static IEnumerable<ThingDef> GetMinerals()
+    private static List<ThingDef>? _minerals;
+    internal static List<ThingDef> AllMinerals
     {
-        return DefDatabase<ThingDef>.AllDefsListForReading
-            .Where(d => d.building != null
-                && d.building.isNaturalRock)
-            .OrderBy(d => d.LabelCap.RawText);
+        get
+        {
+            _minerals ??= DefDatabase<ThingDef>.AllDefsListForReading
+                .Where(d => d.building != null
+                    && d.building.isNaturalRock)
+                .OrderBy(d => d.LabelCap.RawText)
+                .ToList();
+            return _minerals;
+        }
     }
 
     internal static IEnumerable<ThingDefCountClass> GetChunkProducts(this ThingDef chunk)

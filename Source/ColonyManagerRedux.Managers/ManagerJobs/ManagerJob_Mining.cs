@@ -97,16 +97,6 @@ internal sealed class ManagerJob_Mining
         }
     }
 
-    private List<ThingDef>? _allMinerals;
-    public List<ThingDef> AllMinerals
-    {
-        get
-        {
-            _allMinerals ??= Utilities_Mining.GetMinerals().ToList();
-            return _allMinerals;
-        }
-    }
-
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
 
@@ -144,7 +134,7 @@ internal sealed class ManagerJob_Mining
     {
         base.PostImport();
 
-        AllowedMinerals.RemoveWhere(m => !AllMinerals.Contains(m));
+        AllowedMinerals.RemoveWhere(m => !Utilities_Mining.AllMinerals.Contains(m));
         AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));
     }
 
@@ -867,7 +857,7 @@ internal sealed class ManagerJob_Mining
             }
         }
 
-        foreach (var mineral in AllMinerals)
+        foreach (var mineral in Utilities_Mining.AllMinerals)
         {
             if (GetMaterialsInMineral(mineral).Any(TriggerThreshold.ThresholdFilter.Allows))
             {
@@ -882,10 +872,9 @@ internal sealed class ManagerJob_Mining
 
     public void RefreshAllBuildingsAndMinerals()
     {
-        ColonyManagerReduxMod.Instance.LogDebug("Refreshing all buildings and minerals");
+        ColonyManagerReduxMod.Instance.LogDebug("Refreshing all deconstructible buildings");
 
         _allDeconstructibleBuildings = null;
-        _allMinerals = null;
 
         ConfigureThresholdTriggerParentFilter();
     }
@@ -1361,7 +1350,7 @@ internal sealed class ManagerJob_Mining
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        foreach (var mineral in AllMinerals)
+        foreach (var mineral in Utilities_Mining.AllMinerals)
         {
             TriggerThreshold.ParentFilter.SetAllow(mineral.building.mineableThing, true);
         }
