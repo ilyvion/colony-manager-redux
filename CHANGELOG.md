@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Add a check for whether a humanlike race that has organic flesh actually produces meat. The assumption that that's the case is apparently not universal and failing to check it can lead to a NullReferenceException.
+
 ## [0.5.2] - 2024-09-22
 
 ### Fixed

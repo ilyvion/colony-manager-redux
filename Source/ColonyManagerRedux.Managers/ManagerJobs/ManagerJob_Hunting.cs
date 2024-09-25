@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Extensions;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
@@ -216,9 +218,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         {
             _humanLikeMeatDefs ??= DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(def => def.category == ThingCategory.Pawn &&
-                    (def.race?.Humanlike ?? false) &&
-                    (def.race?.IsFlesh ?? false))
-                .Select(pk => pk.race.meatDef)
+                    def.race != null &&
+                    def.race.hasMeat &&
+                    def.race.Humanlike &&
+                    def.race.IsFlesh)
+                .Select(pk => pk.Dump(p => p.defName).race.meatDef.Dump())
                 .Distinct()
                 .ToList();
 
