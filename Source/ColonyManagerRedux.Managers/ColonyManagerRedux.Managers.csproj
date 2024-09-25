@@ -43,7 +43,7 @@
 
         <RootNamespace>ColonyManagerRedux.Managers</RootNamespace>
         <AssemblyName>ColonyManagerRedux.Managers</AssemblyName>
-        <VersionPrefix>0.5.2</VersionPrefix>
+        <VersionPrefix>0.5.3</VersionPrefix>
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 

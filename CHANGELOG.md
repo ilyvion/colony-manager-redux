@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.3] - 2024-09-24
+
 ### Fixed
 
 -   Add a check for whether a humanlike race that has organic flesh actually produces meat. The assumption that that's the case is apparently not universal and failing to check it can lead to a NullReferenceException.
@@ -287,7 +289,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.2...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.3...HEAD
+[0.5.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.1...v0.5.2
 [0.5.1]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.0...v0.5.1
 [0.5.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.4.4...v0.5.0
