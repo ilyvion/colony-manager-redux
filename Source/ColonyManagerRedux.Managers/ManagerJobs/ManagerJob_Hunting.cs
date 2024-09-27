@@ -221,12 +221,27 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                     def.race != null &&
                     def.race.hasMeat &&
                     def.race.Humanlike &&
-                    def.race.IsFlesh)
-                .Select(pk => pk.Dump(p => p.defName).race.meatDef.Dump())
+                    def.race.IsFlesh &&
+                    CheckAndReportIfInvalidMeatDef(def))
+                .Select(pk => pk.race.meatDef)
                 .Distinct()
                 .ToList();
 
             return _humanLikeMeatDefs;
+
+            static bool CheckAndReportIfInvalidMeatDef(ThingDef def)
+            {
+                if (def.race.meatDef != null)
+                {
+                    return true;
+                }
+
+                ColonyManagerReduxMod.Instance.LogWarning(
+                    $"The race of {def} (from {def.modContentPack.Name}) claims to have "
+                    + "humanlike meat, but its meatDef is null. This race is probably missing "
+                    + "having the property `hasMeat` set to `false`.");
+                return false;
+            }
         }
     }
 

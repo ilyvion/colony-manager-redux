@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Add an additional check for humanlike races that claim to produce meat actually do. Believing the race properties without checking explicitly it can lead to a NullReferenceException.
+
 ## [0.5.3] - 2024-09-24
 
 ### Fixed
