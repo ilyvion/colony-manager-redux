@@ -544,43 +544,51 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             upperIconRect.y += Margin;
 
             // draw meat yield icon
-            var estimatedMeatCount = animalDef.EstimatedMeatCount();
-            Widgets.DefIcon(upperIconRect, animalDef.RaceProps.meatDef);
-            TooltipHandler.TipRegion(upperIconRect,
-                "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.meatDef.LabelCap,
-                    estimatedMeatCount));
+            if (animalDef.RaceProps.hasMeat && CheckAndReportIfInvalidMeatDef(animalDef))
+            {
+                var estimatedMeatCount = animalDef.EstimatedMeatCount();
+                Widgets.DefIcon(upperIconRect, animalDef.RaceProps.meatDef);
+                TooltipHandler.TipRegion(upperIconRect,
+                    "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.meatDef.LabelCap,
+                        estimatedMeatCount));
+
+                upperIconRect.x -= Margin + SmallIconSize;
+            }
 
             // draw leather yield icon
             if (animalDef.RaceProps.leatherDef != null)
             {
-                upperIconRect.x -= Margin + SmallIconSize;
                 var estimatedLeatherCount = animalDef.EstimatedLeatherCount();
                 Widgets.DefIcon(upperIconRect, animalDef.RaceProps.leatherDef);
                 TooltipHandler.TipRegion(upperIconRect,
                     "ColonyManagerRedux.Livestock.Yields".Translate(animalDef.RaceProps.leatherDef.LabelCap,
                         estimatedLeatherCount));
+
+                upperIconRect.x -= Margin + SmallIconSize;
             }
 
             // draw milk yield icon
             var milkableProperties = animalDef.race.GetCompProperties<CompProperties_Milkable>();
             if (milkableProperties != null)
             {
-                upperIconRect.x -= Margin + SmallIconSize;
                 Widgets.DefIcon(upperIconRect, milkableProperties.milkDef);
                 TooltipHandler.TipRegion(upperIconRect,
                     "ColonyManagerRedux.Livestock.YieldsInterval".Translate(milkableProperties.milkDef.LabelCap,
                         milkableProperties.milkAmount, milkableProperties.milkIntervalDays));
+
+                upperIconRect.x -= Margin + SmallIconSize;
             }
 
             // draw milk yield icon
             var shearableProperties = animalDef.race.GetCompProperties<CompProperties_Shearable>();
             if (shearableProperties != null)
             {
-                upperIconRect.x -= Margin + SmallIconSize;
                 Widgets.DefIcon(upperIconRect, shearableProperties.woolDef);
                 TooltipHandler.TipRegion(upperIconRect,
                     "ColonyManagerRedux.Livestock.YieldsInterval".Translate(shearableProperties.woolDef.LabelCap,
                         shearableProperties.woolAmount, shearableProperties.shearIntervalDays));
+
+                upperIconRect.x -= Margin + SmallIconSize;
             }
 
             var lowerIconRect = new Rect(row)
@@ -701,6 +709,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         GUI.EndGroup();
         Widgets.EndScrollView();
+
+        static bool CheckAndReportIfInvalidMeatDef(PawnKindDef def)
+        {
+            if (def.RaceProps.meatDef != null)
+            {
+                return true;
+            }
+
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"The race of {def} (from {def.modContentPack.Name}) claims to have "
+                + "meat, but its meatDef is null. This race is probably missing "
+                + "having the property `hasMeat` set to `false`.");
+            return false;
+        }
     }
 
     private float DrawCullingSection(ManagerJob_Livestock job, Vector2 pos, float width)
