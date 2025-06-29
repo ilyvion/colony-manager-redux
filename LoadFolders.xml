@@ -1,7 +1,14 @@
 <loadFolders>
     <v1.5>
-        <li>/</li>
+        <li>Common</li>
         <li>1.5</li>
         <li IfModActive="Mlie.AnimalGenetics">1.5_AnimalGenetics</li>
+        <li IfModActive="Mlie.AnimalGenetics">Common_AnimalGenetics</li>
     </v1.5>
+    <v1.6>
+        <li>Common</li>
+        <li>1.6</li>
+        <li IfModActive="Mlie.AnimalGenetics">1.6_AnimalGenetics</li>
+        <li IfModActive="Mlie.AnimalGenetics">Common_AnimalGenetics</li>
+    </v1.6>
 </loadFolders>

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   When the Animal Genetics mod is active, allow overriding Colony Manager's usual mechanism for choosing which animal(s) to tame or cull with using preferences around its genetics to decide.
+-   Rimworld 1.6 support.
 
 ## [0.5.4] - 2024-09-27
 

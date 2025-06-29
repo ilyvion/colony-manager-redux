@@ -46,7 +46,7 @@
         <VersionPrefix>0.5.4</VersionPrefix>
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-
+        
         <ProjectDependenciesBasePath Condition="'$(ProjectDependenciesBasePath)'==''">..\..\..</ProjectDependenciesBasePath>
     </PropertyGroup>
 
@@ -66,15 +66,37 @@
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
+    <Choose>
+        <When Condition="'$(RimWorldVersion)' == '1.5'">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
+                <OutputPath>../../1.5/Assemblies</OutputPath>
+            </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*-*">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
+        </When>
+        <When Condition="'$(RimWorldVersion)' == '1.6'">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
+                <OutputPath>../../1.6/Assemblies</OutputPath>
+            </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*-*">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
+        </When>
+    </Choose>
+
     <ItemGroup>
-        <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
+        <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Lib.Harmony" Version="2.3.3">
-            <ExcludeAssets>runtime</ExcludeAssets>
-        </PackageReference>
-        <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
         <PackageReference Include="PolySharp" Version="1.14.1">
@@ -89,20 +111,9 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>
-        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.learned" />
-        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.steps" />
         <Publicize Include="Assembly-CSharp:Verse.ThingFilterUI.viewHeight" />
         <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.desPanelsCached" />
         <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.forceActivatedCommand" />
-        <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.def" />
-
-        <Publicize Include="Assembly-CSharp:Verse.LoadedModManager.GetSettingsFilename" />
-        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.SetWanted" />
-        <Publicize Include="Assembly-CSharp:Verse.GenFilePaths.FolderUnderSaveData" />
-
-        <Publicize Include="Assembly-CSharp:RimWorld.CompMilkable.Active" />
-        <Publicize Include="Assembly-CSharp:RimWorld.CompShearable.Active" />
-        <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />
 
         <Publicize Include="Assembly-CSharp:RimWorld.AlertsReadout.activeAlerts" />
 

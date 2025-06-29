@@ -708,7 +708,7 @@ internal sealed class ManagerJob_Mining
         {
             for (var j = i + 1; j < adjacent.Length; j++)
             {
-                var path = Manager.map.pathFinder.FindPath(adjacent[i], adjacent[j],
+                var path = Manager.map.pathFinder.FindPathCmr(adjacent[i], adjacent[j],
                     TraverseParms.For(TraverseMode.NoPassClosedDoors, Danger.Some));
                 var cost = path.TotalCost;
                 path.ReleaseToPool();

@@ -141,6 +141,8 @@ internal sealed class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_
         }, false
         );
 
+#if v1_5
         base.DoListingItems(inRect, columnWidth);
+#endif
     }
 }

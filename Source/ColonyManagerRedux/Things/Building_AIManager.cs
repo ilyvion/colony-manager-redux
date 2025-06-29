@@ -108,7 +108,11 @@ public class Building_AIManager : Building
     }
 
     private CoroutineHandle? handle;
+#if v1_5
     public override void Tick()
+#else
+    protected override void Tick()
+#endif
     {
         base.Tick();
 
@@ -188,7 +192,11 @@ public class Building_AIManager : Building
         if (_glowDirty)
         {
             // Update glow grid
+#if v1_5
             Map.glowGrid.DirtyCache(Position);
+#else
+            Map.glowGrid.DirtyCell(Position);
+#endif
 
             // the following two should not be necesarry, but for some reason do seem to be.
             Map.mapDrawer.MapMeshDirty(Position, MapMeshFlagDefOf.GroundGlow);

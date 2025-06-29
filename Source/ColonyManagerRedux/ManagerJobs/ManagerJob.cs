@@ -389,7 +389,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             }
             else
             {
-                var path = target.Map.pathFinder.FindPath(source, target,
+                var path = target.Map.pathFinder.FindPathCmr(source, target,
                     TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
                     PathEndMode.Touch);
                 var cost = path.Found ? path.TotalCost : int.MaxValue;

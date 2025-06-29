@@ -284,7 +284,12 @@ internal static class Utilities_Livestock
                 Mathf.Clamp(
                     GenMath.LerpDouble(
                         0.3f, 1f, 0f, 9f,
-                        pawnkind.RaceProps.wildness), 0f, 20f));
+#if v1_5
+                        pawnkind.RaceProps.wildness
+#else
+                        pawnkind.race.statBases.GetStatValueFromList(StatDefOf.Wildness, 0f)
+#endif
+                        ), 0f, 20f));
     }
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)

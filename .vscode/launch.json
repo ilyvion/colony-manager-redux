@@ -6,34 +6,39 @@
     "configurations": [
         {
             "name": "Rimworld Mod Project",
-            "type": "clr",
+            "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             "env": {
-                "HARMONY_LOG_FILE": "${workspaceFolder}\\.savedatafolder\\1.5\\Harmony.log"
+                "HARMONY_LOG_FILE": "${workspaceFolder}/.savedatafolder/${input:rimWorldVersion}/Harmony.log"
             },
             "args": [
-                "-savedatafolder=${workspaceFolder}\\.savedatafolder\\1.5",
+                "--host",
+                "flatpak",
+                "run",
+                "--filesystem=${workspaceFolder}",
+                "--command=/home/alex/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/common/RimWorld/RimWorldLinux",
+                "com.valvesoftware.Steam",
+                "-savedatafolder=${workspaceFolder}/.savedatafolder/${input:rimWorldVersion}",
                 //"-quicktest",
             ],
-            "program": "D://RimWorld/1.5/RimWorldWin64.exe",
+            "program": "flatpak-spawn",
             "cwd": "${workspaceFolder}",
             "console": "internalConsole",
             "internalConsoleOptions": "neverOpen",
             "stopAtEntry": true
-        },
-        { // ignore
-            "name": ".NET Framework Attach",
-            "type": "clr",
-            "request": "attach",
-            "processId": "${command:pickProcess}",
-            "symbolOptions": {
-                "searchPaths": [
-                    ".vscode/obj/Debug/*"
-                ],
-                "searchMicrosoftSymbolServer": false,
-                "searchNuGetOrgSymbolServer": false
-            }
+        }
+    ],
+    "inputs": [
+        {
+            "id": "rimWorldVersion",
+            "type": "pickString",
+            "description": "Rimworld version to launch?",
+            "options": [
+                "1.6",
+                "1.5"
+            ],
+            "default": "1.6"
         }
     ]
 }

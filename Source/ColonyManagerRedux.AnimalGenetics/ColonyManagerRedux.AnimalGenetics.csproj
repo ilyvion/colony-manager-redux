@@ -43,7 +43,7 @@
 
         <RootNamespace>ColonyManagerRedux.AnimalGenetics</RootNamespace>
         <AssemblyName>ColonyManagerRedux.AnimalGenetics</AssemblyName>
-        <VersionPrefix>0.5.1</VersionPrefix>
+        <VersionPrefix>0.5.4</VersionPrefix>
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 
@@ -52,7 +52,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <OutputPath>../../1.5_AnimalGenetics/Assemblies</OutputPath>
+        <OutputPath>../../$(RimWorldVersion)_AnimalGenetics/Assemblies</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -67,15 +67,35 @@
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
+    <Choose>
+        <When Condition="'$(RimWorldVersion)' == '1.5'">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*-*">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
+        </When>
+        <When Condition="'$(RimWorldVersion)' == '1.6'">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*-*">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
+        </When>
+    </Choose>
+
     <ItemGroup>
         <PackageReference Include="Krafs.Publicizer" Version="2.2.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Lib.Harmony" Version="2.3.3">
-            <ExcludeAssets>runtime</ExcludeAssets>
-        </PackageReference>
-        <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
         <PackageReference Include="PolySharp" Version="1.14.1">
@@ -92,7 +112,7 @@
             <Private>false</Private>
         </ProjectReference>
         <Reference Include="AnimalGenetics">
-            <HintPath>$(RimWorldSteamWorkshopFolderPath)\2830943477\1.5\Assemblies\AnimalGenetics.dll</HintPath>
+            <HintPath>$(RimWorldSteamWorkshopFolderPath)\2830943477\$(RimWorldVersion)\Assemblies\AnimalGenetics.dll</HintPath>
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </Reference>

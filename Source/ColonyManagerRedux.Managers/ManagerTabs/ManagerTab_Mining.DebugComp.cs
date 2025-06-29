@@ -24,7 +24,7 @@ partial class ManagerTab_Mining
             {
                 debugPathFrameCounter++;
 
-                var path = Manager.map.pathFinder.FindPath(debugPath.source, debugPath.target,
+                var path = Manager.map.pathFinder.FindPathCmr(debugPath.source, debugPath.target,
                     TraverseParms.For(TraverseMode.PassDoors, Danger.Some));
                 path.DrawPath(null);
                 path.ReleaseToPool();

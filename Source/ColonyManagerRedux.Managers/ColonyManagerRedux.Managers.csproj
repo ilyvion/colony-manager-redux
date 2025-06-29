@@ -51,8 +51,31 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <OutputPath>../../1.5/Assemblies</OutputPath>
+        <OutputPath>../../$(RimWorldVersion)/Assemblies</OutputPath>
     </PropertyGroup>
+
+    <Choose>
+        <When Condition="'$(RimWorldVersion)' == '1.5'">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*-*">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
+        </When>
+        <When Condition="'$(RimWorldVersion)' == '1.6'">
+            <PropertyGroup>
+                <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
+            </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*-*">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
+        </When>
+    </Choose>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <DebugType>portable</DebugType>
@@ -74,9 +97,6 @@
         <PackageReference Include="Lib.Harmony" Version="2.3.3">
             <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
-        <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
-            <ExcludeAssets>runtime</ExcludeAssets>
-        </PackageReference>
         <PackageReference Include="PolySharp" Version="1.14.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
@@ -91,13 +111,8 @@
     </ItemGroup>
     <ItemGroup>
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.learned" />
-        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.steps" />
-        <Publicize Include="Assembly-CSharp:Verse.ThingFilterUI.viewHeight" />
-        <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.desPanelsCached" />
-        <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.forceActivatedCommand" />
         <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.def" />
 
-        <Publicize Include="Assembly-CSharp:Verse.LoadedModManager.GetSettingsFilename" />
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.SetWanted" />
         <Publicize Include="Assembly-CSharp:Verse.GenFilePaths.FolderUnderSaveData" />
 

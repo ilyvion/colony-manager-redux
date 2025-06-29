@@ -8,7 +8,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "command": ".vscode/build.ps1",
+            "command": ".vscode/build.sh",
             "args": [],
             "problemMatcher": []
         }

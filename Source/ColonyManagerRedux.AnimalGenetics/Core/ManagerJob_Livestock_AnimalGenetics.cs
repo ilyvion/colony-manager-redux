@@ -19,6 +19,13 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     private Func<AgeAndSex, IEnumerable<Pawn>, IEnumerable<Pawn>> OriginalCullingPawnSorter;
 #pragma warning restore CS8618
 
+    private List<StatDef> AffectedStats =>
+#if v1_5
+            global::AnimalGenetics.Constants.affectedStats;
+#else
+            global::AnimalGenetics.Constants.AffectedStats;
+#endif
+
     public override void Initialize()
     {
         ColonyManagerReduxMod.Instance.LogDevMessage("AnimalGenetics job comp initialized!");
@@ -31,9 +38,9 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
         OriginalCullingPawnSorter = livestockJob.CullingPawnSorter;
         livestockJob.CullingPawnSorter = CullingPawnSorter;
 
-        foreach (var gene in global::AnimalGenetics.Constants.affectedStats)
+        foreach (var gene in AffectedStats)
         {
-            _values[gene] = 1.0f / global::AnimalGenetics.Constants.affectedStats.Count;
+            _values[gene] = 1.0f / AffectedStats.Count;
         }
     }
 
@@ -71,12 +78,16 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
 
         Text.Font = GameFont.Tiny;
 
-        foreach (var gene in global::AnimalGenetics.Constants.affectedStats)
+        foreach (var gene in AffectedStats)
         {
             var label = global::AnimalGenetics.Constants.GetLabel(gene);
             var description = global::AnimalGenetics.Constants.GetDescription(gene);
 
+#if v1_5
             var highlightRect = listingStandard.Label(label, -1f, description);
+#else
+            var highlightRect = listingStandard.Label(label, -1f, (TipSignal?)description);
+#endif
 
             highlightRect.height += DoGeneSlider(listingStandard, gene);
 
@@ -157,7 +168,7 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
 
     private float CalculatePreferenceScore(Pawn pawn)
     {
-        return global::AnimalGenetics.Constants.affectedStats
+        return AffectedStats
             .Select(gene => GetGene(pawn, gene) * _values[gene])
             .Sum();
     }
