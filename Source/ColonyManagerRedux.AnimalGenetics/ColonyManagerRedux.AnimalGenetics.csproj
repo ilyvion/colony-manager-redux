@@ -43,7 +43,6 @@
 
         <RootNamespace>ColonyManagerRedux.AnimalGenetics</RootNamespace>
         <AssemblyName>ColonyManagerRedux.AnimalGenetics</AssemblyName>
-        <VersionPrefix>0.5.4</VersionPrefix>
 
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 

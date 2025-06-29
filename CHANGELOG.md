@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-06-29
+
 ### Added
 
 -   When the Animal Genetics mod is active, allow overriding Colony Manager's usual mechanism for choosing which animal(s) to tame or cull with using preferences around its genetics to decide.
@@ -300,7 +302,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.4...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.4..v0.6.0
 [0.5.4]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.2...v0.5.3
 [0.5.2]: https://github.com/ilyvion/realistic-orbital-trade/compare/v0.5.1...v0.5.2
