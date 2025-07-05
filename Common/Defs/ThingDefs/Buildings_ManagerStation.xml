@@ -106,8 +106,8 @@
             <texPath>Buildings/AI_ManagerStation</texPath>
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
-            <drawSize>(3.6,3.6)</drawSize>
-            <drawOffset>(0, 0, 0.5)</drawOffset>
+            <drawSize>(3.6, 3.6)</drawSize>
+            <drawOffset>(0, 0, 0.1)</drawOffset>
         </graphicData>
         <rotatable>false</rotatable>
         <altitudeLayer>Building</altitudeLayer>
@@ -130,7 +130,7 @@
             <Mass>65</Mass>
         </statBases>
         <selectable>true</selectable>
-        <size>(2,1)</size>
+        <size>(2, 2)</size>
         <designationCategory>Production</designationCategory>
         <passability>PassThroughOnly</passability>
         <pathCost>100</pathCost>

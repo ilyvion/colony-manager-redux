@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-    The AI Manager Station would clip through things behind it due to its abnormal size. The building has been changed from a 2x1 to a 2x2 building.
+
 ## [0.6.0] - 2025-06-29
 
 ### Added
