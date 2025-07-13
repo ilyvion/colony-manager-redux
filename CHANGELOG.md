@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2025-07-13
+
 ### Fixed
 
 -    The AI Manager Station would clip through things behind it due to its abnormal size. The building has been changed from a 2x1 to a 2x2 building.
+-    Attempt to fix issue with Gathering Resource tab.
 
 ## [0.6.0] - 2025-06-29
 
@@ -306,7 +309,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.0..v0.6.1
 [0.6.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.4..v0.6.0
 [0.5.4]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.3...v0.5.4
 [0.5.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.2...v0.5.3
