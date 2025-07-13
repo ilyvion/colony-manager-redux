@@ -41,7 +41,7 @@ internal static class Utilities_Mining
         {
             _minerals ??= DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(d => d.building != null
-                    && d.building.isNaturalRock)
+                    && d.building.isNaturalRock && d.building.mineableThing != null)
                 .OrderBy(d => d.LabelCap.RawText)
                 .ToList();
             return _minerals;
