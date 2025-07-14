@@ -102,6 +102,8 @@
         <label>AI manager</label>
         <thingClass>ColonyManagerRedux.Building_AIManager</thingClass>
         <description>An enormous supercomputer capable of automously managing your colony. Claims that the AI has a malevolent psychopath subroutine are entirely false. We promise.</description>
+        <uiIconScale>0.65</uiIconScale>
+        <uiIconOffset>(0, 0.1)</uiIconOffset>
         <graphicData>
             <texPath>Buildings/AI_ManagerStation</texPath>
             <graphicClass>Graphic_Multi</graphicClass>
