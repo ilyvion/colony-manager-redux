@@ -1,10 +1,10 @@
 <Project>
     <PropertyGroup>
-        <VersionPrefix>0.6.1</VersionPrefix>
+        <VersionPrefix>0.7.0</VersionPrefix>
 
         <!-- Intellisense doesn't work without specifying this explicitly -->
         <RimWorldVersion Condition="'$(RimWorldVersion)'==''">1.6</RimWorldVersion>
-        
+
         <DefaultItemExcludes>$(DefaultItemExcludes);obj/**</DefaultItemExcludes>
         <BaseIntermediateOutputPath>obj/$(RimWorldVersion)</BaseIntermediateOutputPath>
     </PropertyGroup>
