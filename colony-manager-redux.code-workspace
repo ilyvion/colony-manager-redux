@@ -4,13 +4,8 @@
 			"path": "."
 		},
 		{
-			"path": "D:/RimWorld/1.5/Data"
-		},
-		{
-			"path": "D:/RimWorldArtSource"
+			"path": "../../../../.var/app/com.valvesoftware.Steam/.steam/steam/steamapps/common/RimWorld/Data"
 		}
 	],
-    "settings": {
-        "xml.format.maxLineWidth": 0
-    }
+	"settings": {}
 }

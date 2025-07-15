@@ -52,18 +52,16 @@
 
     <PropertyGroup>
         <OutputPath>../../$(RimWorldVersion)_AnimalGenetics/Assemblies</OutputPath>
+        <DebugType>portable</DebugType>
+        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <DebugType>portable</DebugType>
         <Optimize>true</Optimize>
-        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <DebugType>portable</DebugType>
         <Optimize>false</Optimize>
-        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <Choose>
@@ -71,21 +69,11 @@
             <PropertyGroup>
                 <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
             </PropertyGroup>
-            <ItemGroup>
-                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
-                    <ExcludeAssets>runtime</ExcludeAssets>
-                </PackageReference>
-            </ItemGroup>
         </When>
         <When Condition="'$(RimWorldVersion)' == '1.6'">
             <PropertyGroup>
                 <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
             </PropertyGroup>
-            <ItemGroup>
-                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*">
-                    <ExcludeAssets>runtime</ExcludeAssets>
-                </PackageReference>
-            </ItemGroup>
         </When>
     </Choose>
 
@@ -100,6 +88,9 @@
         <PackageReference Include="PolySharp" Version="1.14.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Krafs.Rimworld.Ref" Version="$(RimWorldVersion).*">
+            <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
 
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">

@@ -50,43 +50,29 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <OutputPath>../../1.5/Assemblies</OutputPath>
+        <OutputPath>../../$(RimWorldVersion)/Assemblies</OutputPath>
+        <DebugType>portable</DebugType>
+        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <DebugType>portable</DebugType>
         <Optimize>true</Optimize>
-        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-        <DebugType>portable</DebugType>
         <Optimize>false</Optimize>
-        <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
 
     <Choose>
         <When Condition="'$(RimWorldVersion)' == '1.5'">
             <PropertyGroup>
                 <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
-                <OutputPath>../../1.5/Assemblies</OutputPath>
             </PropertyGroup>
-            <ItemGroup>
-                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
-                    <ExcludeAssets>runtime</ExcludeAssets>
-                </PackageReference>
-            </ItemGroup>
         </When>
         <When Condition="'$(RimWorldVersion)' == '1.6'">
             <PropertyGroup>
                 <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
-                <OutputPath>../../1.6/Assemblies</OutputPath>
             </PropertyGroup>
-            <ItemGroup>
-                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*">
-                    <ExcludeAssets>runtime</ExcludeAssets>
-                </PackageReference>
-            </ItemGroup>
         </When>
     </Choose>
 
@@ -101,6 +87,9 @@
         <PackageReference Include="PolySharp" Version="1.14.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="Krafs.Rimworld.Ref" Version="$(RimWorldVersion).*">
+            <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
     </ItemGroup>
 
