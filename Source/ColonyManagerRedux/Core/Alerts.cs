@@ -1,16 +1,12 @@
 ﻿// Alerts.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_NoManager : Alert
 {
-    readonly CachedValue<bool> _noManager;
+    private readonly CachedValue<bool> _noManager;
 
     public Alert_NoManager()
     {
@@ -18,8 +14,16 @@ internal sealed class Alert_NoManager : Alert
         defaultExplanation = "ColonyManagerRedux.Alerts.NoManager".Translate();
 
         _noManager = new(() =>
-            Manager.For(Find.CurrentMap).JobTracker.JobList.Count > 0
-                && !AnyConsciousManagerPawn());
+        {
+            var currentMap = Find.CurrentMap;
+            if (currentMap == null)
+            {
+                return false;
+            }
+            var manager = Manager.For(currentMap);
+            return manager.JobTracker.JobList.Count > 0
+                && !AnyConsciousManagerPawn();
+        });
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
@@ -61,7 +65,7 @@ internal sealed class Alert_JobsNotUpdating : Alert
         TwoDays
     }
 
-    readonly CachedValue<OutdatedJob> _outdatedJobs;
+    private readonly CachedValue<OutdatedJob> _outdatedJobs;
 
     public Alert_JobsNotUpdating()
     {
@@ -70,7 +74,13 @@ internal sealed class Alert_JobsNotUpdating : Alert
 
         _outdatedJobs = new(() =>
         {
-            var mostOudatedJobTickCount = Manager.For(Find.CurrentMap).JobTracker.JobList
+            var currentMap = Find.CurrentMap;
+            if (currentMap == null)
+            {
+                return OutdatedJob.No;
+            }
+            var manager = Manager.For(currentMap);
+            var mostOudatedJobTickCount = manager.JobTracker.JobList
                 .Where(j => !j.IsSuspended && j.ShouldDoNow)
                 .Max(j => (int?)(j.TicksSinceLastUpdate - j.UpdateInterval.Ticks));
 
@@ -93,18 +103,12 @@ internal sealed class Alert_JobsNotUpdating : Alert
         });
     }
 
-    public override AlertPriority Priority
+    public override AlertPriority Priority => _outdatedJobs.Value switch
     {
-        get
-        {
-            return _outdatedJobs.Value switch
-            {
-                OutdatedJob.Day => AlertPriority.High,
-                OutdatedJob.TwoDays => AlertPriority.Critical,
-                _ => AlertPriority.Medium,
-            };
-        }
-    }
+        OutdatedJob.Day => AlertPriority.High,
+        OutdatedJob.TwoDays => AlertPriority.Critical,
+        _ => AlertPriority.Medium,
+    };
 
     private const float PulseFreq = 0.5f;
 
@@ -149,21 +153,24 @@ internal sealed class Alert_JobsNotUpdating : Alert
     }
 }
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_NoTable : Alert
 {
-    readonly CachedValue<bool> _noTable;
+    private readonly CachedValue<bool> _noTable;
 
     public Alert_NoTable()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.NoTableLabel".Translate();
 
         _noTable = new(() =>
-            Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob>().Any()
-            && !AnyManagerTable());
+        {
+            var currentMap = Find.CurrentMap;
+            if (currentMap == null)
+            {
+                return false;
+            }
+            var manager = Manager.For(currentMap);
+            return manager.JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerTable();
+        });
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
@@ -222,14 +229,10 @@ internal sealed class Alert_NoTable : Alert
     }
 }
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
 internal sealed class Alert_TableAndAI : Alert
 {
-    readonly CachedValue<bool> _hasAIManager;
-    readonly CachedValue<List<Thing>> _managerStations;
+    private readonly CachedValue<bool> _hasAIManager;
+    private readonly CachedValue<List<Thing>> _managerStations;
 
     public Alert_TableAndAI()
     {
@@ -237,7 +240,14 @@ internal sealed class Alert_TableAndAI : Alert
         defaultExplanation = "ColonyManagerRedux.Alerts.ManagerDeskAndAIManager".Translate();
 
         _hasAIManager = new(updater: () =>
-            Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager));
+        {
+            var currentMap = Find.CurrentMap;
+            if (currentMap == null)
+            {
+                return false;
+            }
+            return currentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
+        });
         _managerStations = new(() => ManagerStations);
     }
 

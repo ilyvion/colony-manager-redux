@@ -1,12 +1,8 @@
 ﻿// Alerts.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux.Managers;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
 [HotSwappable]
 internal sealed class Alert_AutoslaughterOverlap : Alert
 {
@@ -42,7 +38,13 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
 
     private static IEnumerable<ThingDef> AutoSlaughterVanillaAnimals()
     {
-        foreach (AutoSlaughterConfig config in Find.CurrentMap.autoSlaughterManager.configs)
+        var currentMap = Find.CurrentMap;
+        if (currentMap == null)
+        {
+            yield break;
+        }
+
+        foreach (AutoSlaughterConfig config in currentMap.autoSlaughterManager.configs)
         {
             if (config.maxTotal != -1 || config.maxFemales != -1 || config.maxFemalesYoung != -1 || config.maxMales != -1 || config.maxMalesYoung != -1)
             {
@@ -53,7 +55,14 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
 
     private static IEnumerable<ThingDef> AutoSlaugherLivestockAnimals()
     {
-        foreach (var managerJobLivestock in Manager.For(Find.CurrentMap).JobTracker.JobsOfType<ManagerJob_Livestock>())
+        var currentMap = Find.CurrentMap;
+        if (currentMap == null)
+        {
+            yield break;
+        }
+
+        var manager = Manager.For(currentMap);
+        foreach (var managerJobLivestock in manager.JobTracker.JobsOfType<ManagerJob_Livestock>())
         {
             if (managerJobLivestock.CullExcess)
             {

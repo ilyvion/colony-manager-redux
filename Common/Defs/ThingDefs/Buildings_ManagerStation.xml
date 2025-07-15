@@ -169,4 +169,58 @@
             </buildingTags>
         </building>
     </ThingDef>
+
+    <GravshipComponentTypeDef MayRequire="Ludeon.RimWorld.Odyssey">
+        <defName>ManagerDatabase</defName>
+        <label>manager database</label>
+        <requiredForLaunch>false</requiredForLaunch>
+    </GravshipComponentTypeDef>
+
+    <ThingDef ParentName="GravshipComponentBase" MayRequire="Ludeon.RimWorld.Odyssey">
+        <defName>CM_ManagerDatabase</defName>
+        <label>manager database</label>
+        <description>A database that takes your colony's management jobs along when switching maps using a gravship.</description>
+        <graphicData>
+            <graphicClass>Graphic_Multi</graphicClass>
+            <texPath>Buildings/ManagerDatabase</texPath>
+            <drawSize>(2, 2)</drawSize>
+        </graphicData>
+        <rotatable>false</rotatable>
+        <statBases>
+            <MaxHitPoints>400</MaxHitPoints>
+            <Flammability>0.3</Flammability>
+            <Beauty>-10</Beauty>
+            <WorkToBuild>3000</WorkToBuild>
+            <Mass>35</Mass>
+        </statBases>
+        <size>(2, 2)</size>
+        <constructionSkillPrerequisite>5</constructionSkillPrerequisite>
+        <resourcesFractionWhenDeconstructed>1</resourcesFractionWhenDeconstructed>
+        <fillPercent>0.6</fillPercent>
+        <passability>PassThroughOnly</passability>
+        <pathCost>20</pathCost>
+        <canOverlapZones>false</canOverlapZones>
+        <designationCategory>Odyssey</designationCategory>
+        <costList>
+            <Steel>200</Steel>
+            <ComponentIndustrial>5</ComponentIndustrial>
+        </costList>
+        <researchPrerequisites>
+            <li>BasicGravtech</li>
+            <li>ManagingSoftware</li>
+        </researchPrerequisites>
+        <placeWorkers>
+            <li>PlaceWorker_OnSubstructure</li>
+        </placeWorkers>
+        <comps>
+            <li Class="CompProperties_GravshipFacility">
+                <requiresLOS>false</requiresLOS>
+                <componentTypeDef>ManagerDatabase</componentTypeDef>
+                <maxSimultaneous>1</maxSimultaneous>
+                <maxDistance>500</maxDistance>
+            </li>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerDatabase" />
+        </comps>
+    </ThingDef>
+
 </Defs>

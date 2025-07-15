@@ -129,4 +129,5 @@
     <ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>Opens the manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>
     <ColonyManagerRedux.Misc.Some>some</ColonyManagerRedux.Misc.Some>
     <ColonyManagerRedux.Misc.All>all</ColonyManagerRedux.Misc.All>
+    <ColonyManagerRedux.Misc.NoManagerDatabaseOnShip>Because there is no manager database on the ship, the manager jobs that are associated with the current map will not be brought over to the new map.</ColonyManagerRedux.Misc.NoManagerDatabaseOnShip>
 </LanguageData>

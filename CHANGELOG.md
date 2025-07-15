@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Manager Database gravship component has been added which upon the gravship's launch copies a map's manager jobs onto the ship, and upon the gravship's landing, copies the ship's stored jobs back to the new map.
+
 ### Changed
 
 -   Shrink the icon for the AI Manager in the production menu so it fits within the box.

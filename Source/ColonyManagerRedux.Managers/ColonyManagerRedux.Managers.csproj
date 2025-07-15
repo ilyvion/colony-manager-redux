@@ -59,7 +59,7 @@
                 <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
             </PropertyGroup>
             <ItemGroup>
-                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*-*">
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.5.*">
                     <ExcludeAssets>runtime</ExcludeAssets>
                 </PackageReference>
             </ItemGroup>
@@ -69,7 +69,7 @@
                 <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
             </PropertyGroup>
             <ItemGroup>
-                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*-*">
+                <PackageReference Include="Krafs.Rimworld.Ref" Version="1.6.*">
                     <ExcludeAssets>runtime</ExcludeAssets>
                 </PackageReference>
             </ItemGroup>

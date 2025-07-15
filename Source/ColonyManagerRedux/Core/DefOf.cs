@@ -1,5 +1,5 @@
 // DefOf.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
@@ -45,6 +45,10 @@ public static class ManagerThingDefOf
     public static ThingDef CM_AIManager;
     public static ThingDef CM_BasicManagerStation;
     public static ThingDef CM_ManagerStation;
+#if !v1_5
+    [MayRequireOdyssey]
+    public static ThingDef CM_ManagerDatabase;
+#endif
     public static ThingDef Meat_Megaspider;
     [MayRequireAnomaly]
     public static ThingDef Meat_Twisted;

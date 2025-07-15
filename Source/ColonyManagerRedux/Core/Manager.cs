@@ -1,6 +1,6 @@
 ﻿// Manager.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
@@ -170,6 +170,8 @@ public class Manager : MapComponent, ILoadReferenceable
         {
             comp.FinalizeInit();
         }
+
+        _wasLoaded = true;
     }
 
     public override void MapComponentTick()
