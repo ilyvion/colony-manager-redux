@@ -230,13 +230,13 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         var currentCount = SelectedForestryJob.TriggerThreshold.GetCurrentCount();
         SelectedForestryJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
         var designatedCount = SelectedForestryJob.CachedCurrentDesignatedCount.Value;
-        var targetCount = SelectedForestryJob.TriggerThreshold.TargetCount;
+        var targetLabel = SelectedForestryJob.TriggerThreshold.TargetLabel;
 
         SelectedForestryJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Forestry.TargetCount".Translate(
-                currentCount, designatedCount, targetCount),
+                currentCount, designatedCount, targetLabel),
             "ColonyManagerRedux.Forestry.TargetCountTooltip".Translate(
-                currentCount, designatedCount, targetCount),
+                currentCount, designatedCount, targetLabel),
             SelectedForestryJob.Designations,
             delegate { SelectedForestryJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
             SelectedForestryJob.DesignationLabel);

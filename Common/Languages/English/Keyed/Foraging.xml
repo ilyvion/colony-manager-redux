@@ -3,8 +3,8 @@
 <LanguageData>
     <ColonyManagerRedux.Foraging.NewForagingJob>New job</ColonyManagerRedux.Foraging.NewForagingJob>
     <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Create a new foraging job</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
-    <ColonyManagerRedux.Foraging.TargetCount>Target count: {0}+{1}/{2}</ColonyManagerRedux.Foraging.TargetCount>
-    <ColonyManagerRedux.Foraging.TargetCountTooltip>Target: {2}\n{0} in storage\n{1} expected from current designations.</ColonyManagerRedux.Foraging.TargetCountTooltip>
+    <ColonyManagerRedux.Foraging.TargetCount>Active if: {0} {2} (+ {1} expected)</ColonyManagerRedux.Foraging.TargetCount>
+    <ColonyManagerRedux.Foraging.TargetCountTooltip>{0} in storage\nJob is active if {2} in storage\n{1} expected from current designations.</ColonyManagerRedux.Foraging.TargetCountTooltip>
     <ColonyManagerRedux.Foraging.ForceFullyMature>Only fully matured plants</ColonyManagerRedux.Foraging.ForceFullyMature>
     <ColonyManagerRedux.Foraging.ForceFullyMature.Tip>Should foraging be limited to fully mature plants only?</ColonyManagerRedux.Foraging.ForceFullyMature.Tip>
     <ColonyManagerRedux.Foraging.ForagingArea>Allow foraging in:</ColonyManagerRedux.Foraging.ForagingArea>

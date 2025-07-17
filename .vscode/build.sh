@@ -23,19 +23,21 @@ rm -rf "$TARGET"
 mkdir -p "$TARGET"
 cp -r 1.5 "$TARGET/1.5"
 cp -r 1.6 "$TARGET/1.6"
+cp -r Common "$TARGET/Common"
 
 # copy interop mod files
 cp -r 1.5_AnimalGenetics "$TARGET/1.5_AnimalGenetics"
 cp -r 1.6_AnimalGenetics "$TARGET/1.6_AnimalGenetics"
-cp -r Common "$TARGET/Common"
 cp -r Common_AnimalGenetics "$TARGET/Common_AnimalGenetics"
 
+# copy metadata files
 mkdir -p "$TARGET/About"
 cp About/About.xml "$TARGET/About/"
 cp About/Preview.png "$TARGET/About/"
 cp About/ModIcon.png "$TARGET/About/"
 cp About/PublishedFileId.txt "$TARGET/About/"
 
+# copy other files
 cp CHANGELOG.md "$TARGET/"
 cp LICENSE "$TARGET/"
 #cp LICENSE.Apache-2.0 "$TARGET/"

@@ -107,7 +107,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         var start = pos;
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
-        
+
         // toggle for each animal
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var mineral in Utilities_Mining.AllMinerals)
@@ -235,11 +235,11 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         {
             var hasAncientDangerRect = Manager.AncientDangerRects.Count > 0;
             var label = "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate();
-            var labelHeight = Text.CalcHeight(label, width);
+            var labelHeight = Text.CalcHeight(label, width - Margin);
             rowRect.y += ListEntryHeight;
             rowRect.height = labelHeight;
             Utilities.DrawToggle(rowRect,
-                "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate(),
+                label,
                 "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged.Tip".Translate(),
                 ref SelectedMiningJob.DeconstructAncientDangerWhenFogged,
                 leaveRoomForAdditionalIcon: !hasAncientDangerRect);
@@ -322,14 +322,14 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         var chunkCount = SelectedMiningJob.ChunksCachedValue.Value;
         SelectedMiningJob.DesignatedCachedValue.DoUpdateIfNeeded();
         var designatedCount = SelectedMiningJob.DesignatedCachedValue.Value;
-        var targetCount = SelectedMiningJob.TriggerThreshold.TargetCount;
+        var targetLabel = SelectedMiningJob.TriggerThreshold.TargetLabel;
         var chunkProductKind = SelectedMiningJob.GetChunkProductKind();
 
         SelectedMiningJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Mining.TargetCount".Translate(
-                currentCount, chunkCount, designatedCount, targetCount),
+                currentCount, chunkCount, designatedCount, targetLabel),
             "ColonyManagerRedux.Mining.TargetCount.Tip".Translate(
-                currentCount, chunkCount, designatedCount, targetCount,
+                currentCount, chunkCount, designatedCount, targetLabel,
                 $"ColonyManagerRedux.Mining.TargetCount.Tip.{chunkProductKind}"
                     .Translate()),
             SelectedMiningJob.Designations,

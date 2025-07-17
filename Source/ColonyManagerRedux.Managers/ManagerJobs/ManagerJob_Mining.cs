@@ -106,7 +106,7 @@ internal sealed class ManagerJob_Mining
         _chunksCachedValue = new(0, GetCountInChunksCoroutine);
         _designatedCachedValue = new(0, GetCountInDesignationsCoroutine);
         // populate the trigger field
-        Trigger = new Trigger_Threshold(this);
+        Trigger = new Trigger_Threshold(this) { AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter };
         ConfigureThresholdTriggerParentFilter();
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
@@ -407,6 +407,7 @@ internal sealed class ManagerJob_Mining
         {
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
+            TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
         }
     }
 
@@ -965,7 +966,7 @@ internal sealed class ManagerJob_Mining
             + _chunksCachedValue.Value
             + _designatedCachedValue.Value;
 
-        if (count >= TriggerThreshold.TargetCount
+        if (TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             int designationCounter = 0;
@@ -986,7 +987,7 @@ internal sealed class ManagerJob_Mining
                 var mineable = designation.target.Cell.GetFirstThing<Mineable>(Manager.map);
                 int yield = GetCountInMineral(mineable);
                 count -= yield;
-                if (count >= TriggerThreshold.TargetCount
+                if (TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings
                         .ShouldRemoveMoreDesignations(_designations.Count))
                 {
@@ -999,7 +1000,7 @@ internal sealed class ManagerJob_Mining
                             mineable.Label,
                             yield,
                             count,
-                            TriggerThreshold.TargetCount),
+                            TriggerThreshold.TargetLabel),
                         mineable);
                     workDone.Value = true;
                     designationCounter++;
@@ -1016,7 +1017,7 @@ internal sealed class ManagerJob_Mining
                 }
             }
 
-            if (count >= TriggerThreshold.TargetCount
+            if (TriggerThreshold.DoesCountMeetTarget(count)
                 || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
             {
                 List<Designation> sortedDeconstructDesignations = [];
@@ -1035,7 +1036,7 @@ internal sealed class ManagerJob_Mining
                     var building = (Building)designation.target.Thing;
                     int yield = GetCountInBuilding(building);
                     count -= yield;
-                    if (count >= TriggerThreshold.TargetCount
+                    if (TriggerThreshold.DoesCountMeetTarget(count)
                         || ColonyManagerReduxMod.Settings
                             .ShouldRemoveMoreDesignations(_designations.Count))
                     {
@@ -1048,7 +1049,7 @@ internal sealed class ManagerJob_Mining
                                 building.Label,
                                 yield,
                                 count,
-                                TriggerThreshold.TargetCount),
+                                TriggerThreshold.TargetLabel),
                             building);
                         workDone.Value = true;
                         designationCounter++;
@@ -1066,7 +1067,7 @@ internal sealed class ManagerJob_Mining
                 }
             }
 
-            if (count >= TriggerThreshold.TargetCount
+            if (TriggerThreshold.DoesCountMeetTarget(count)
                 || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
             {
                 List<Designation> sortedHaulDesignations = [];
@@ -1097,7 +1098,7 @@ internal sealed class ManagerJob_Mining
                                 chunk.Label,
                                 chunkCount,
                                 count,
-                                TriggerThreshold.TargetCount),
+                                TriggerThreshold.TargetLabel),
                             chunk);
                         workDone.Value = true;
                         designationCounter++;
@@ -1158,7 +1159,7 @@ internal sealed class ManagerJob_Mining
 
             foreach (var (chunk, i) in sortedChunks.Select((c, i) => (c, i)))
             {
-                if (count >= TriggerThreshold.TargetCount
+                if (TriggerThreshold.DoesCountMeetTarget(count)
                     || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
                 {
                     break;
@@ -1175,7 +1176,7 @@ internal sealed class ManagerJob_Mining
                         chunk.Label,
                         chunkCount,
                         count,
-                        TriggerThreshold.TargetCount),
+                        TriggerThreshold.TargetLabel),
                     chunk);
 
                 workDone.Value = true;
@@ -1210,7 +1211,7 @@ internal sealed class ManagerJob_Mining
 
             foreach (var (building, i) in sortedBuildings.Select((c, i) => (c, i)))
             {
-                if (count >= TriggerThreshold.TargetCount
+                if (TriggerThreshold.DoesCountMeetTarget(count)
                     || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
                 {
                     break;
@@ -1251,7 +1252,7 @@ internal sealed class ManagerJob_Mining
                             building.Label,
                             buildingCount,
                             count,
-                            TriggerThreshold.TargetCount),
+                            TriggerThreshold.TargetLabel),
                         building);
 
                     workDone.Value = true;
@@ -1289,7 +1290,7 @@ internal sealed class ManagerJob_Mining
 
         foreach (var (mineable, i) in sortedMineable.Select((c, i) => (c, i)))
         {
-            if (count >= TriggerThreshold.TargetCount
+            if (TriggerThreshold.DoesCountMeetTarget(count)
                 || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
@@ -1310,7 +1311,7 @@ internal sealed class ManagerJob_Mining
                         mineable.Label,
                         mineableCount,
                         count,
-                        TriggerThreshold.TargetCount),
+                        TriggerThreshold.TargetLabel),
                     mineable);
 
                 if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
@@ -1350,17 +1351,21 @@ internal sealed class ManagerJob_Mining
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        foreach (var mineral in Utilities_Mining.AllMinerals)
+        if (!TriggerThreshold.AllowAnyThreshold)
         {
-            TriggerThreshold.ParentFilter.SetAllow(mineral.building.mineableThing, true);
+            TriggerThreshold.ParentFilter.SetDisallowAll();
+            foreach (var mineral in Utilities_Mining.AllMinerals)
+            {
+                TriggerThreshold.ParentFilter.SetAllow(mineral.building.mineableThing, true);
+            }
+            foreach (var material in AllDeconstructibleBuildings
+                .SelectMany(GetMaterialsInBuilding)
+                .Distinct())
+            {
+                TriggerThreshold.ParentFilter.SetAllow(material, true);
+            }
+            TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, false);
         }
-        foreach (var material in AllDeconstructibleBuildings
-            .SelectMany(GetMaterialsInBuilding)
-            .Distinct())
-        {
-            TriggerThreshold.ParentFilter.SetAllow(material, true);
-        }
-        TriggerThreshold.ParentFilter.SetAllow(ThingCategoryDefOf.Chunks, false);
     }
 
     public void Notify_StoneChunkMined(Pawn _, Thing thing)

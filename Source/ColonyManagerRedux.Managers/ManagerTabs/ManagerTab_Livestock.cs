@@ -77,17 +77,18 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         return ((ManagerJob_Livestock)job).TriggerPawnKind.StatusTooltip;
     }
 
-    public static void DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
+    public static int DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
     {
         var cellCount = Math.Min(TrainingJobsPerRow, job.Training.Count);
         var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
-        var keys = ManagerJob_Livestock.TrainingTracker.TrainableDefs;
+        var keys = TrainingTracker.TrainableDefs;
 
         GUI.BeginGroup(rect);
+        int shownJobs = job.Training.Count;
         for (var i = 0; i < job.Training.Count; i++)
         {
             var cell = new Rect(i % cellCount * (cellWidth + Margin), i / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
-            var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
+            var report = CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
             if (visible && report.Accepted)
             {
                 var checkOn = job.Training[keys[i]];
@@ -105,14 +106,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     color: Color.grey,
                     leftMargin: Margin);
             }
+            else
+            {
+                shownJobs--;
+            }
         }
 
         GUI.EndGroup();
+
+        return shownJobs;
     }
 
     public static string GetMasterLabel(ManagerJob_Livestock job)
     {
-        var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (!report.Accepted)
         {
             return "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
@@ -821,7 +828,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 .CenteredOnYIn(rowRect);
 
         // master selection
-        var report = ManagerJob_Livestock.CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
         if (report.Accepted)
         {
             IlyvionWidgets.Label(rowRect,
@@ -1060,10 +1067,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     private float DrawTrainingSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
-        int rowCount = (int)Math.Ceiling((double)job.Training.Count / TrainingJobsPerRow);
-        var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * rowCount);
-        DrawTrainingSelector(job, trainingRect, rowCount);
-        var height = ListEntryHeight * rowCount;
+        int allRowsCount = (int)Math.Ceiling((double)job.Training.Count / TrainingJobsPerRow);
+        var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * allRowsCount);
+        int visibleJobsRowCount = (int)Math.Ceiling((double)DrawTrainingSelector(job, trainingRect, allRowsCount) / TrainingJobsPerRow);
+        var height = ListEntryHeight * visibleJobsRowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
         DrawToggle(unassignTrainingRect,

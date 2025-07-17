@@ -220,6 +220,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
+            TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
             ConfigureThresholdTriggerParentFilter();
         }
     }
@@ -334,7 +335,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             .ResumeWhenOtherCoroutineIsCompleted();
         var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
 
-        if (count >= TriggerThreshold.TargetCount
+        if (TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedDesignations = [];
@@ -354,7 +355,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 var plant = (Plant)designation.target.Thing;
                 int yield = plant.YieldNow();
                 count -= yield;
-                if (count >= TriggerThreshold.TargetCount
+                if (TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings
                         .ShouldRemoveMoreDesignations(_designations.Count))
                 {
@@ -367,7 +368,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                             plant.Label,
                             yield,
                             count,
-                            TriggerThreshold.TargetCount),
+                            TriggerThreshold.TargetLabel),
                         plant);
                     workDone.Value = true;
                 }
@@ -423,7 +424,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
         {
-            if (count >= TriggerThreshold.TargetCount
+            if (TriggerThreshold.DoesCountMeetTarget(count)
                 || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
@@ -439,7 +440,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                     plant.Label,
                     yield,
                     count,
-                    TriggerThreshold.TargetCount),
+                    TriggerThreshold.TargetLabel),
                 plant);
             workDone.Value = true;
             if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
@@ -544,6 +545,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     private void ConfigureThresholdTrigger()
     {
+        TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
         TriggerThreshold.ThresholdFilter.SetDisallowAll();
         if (Scribe.mode == LoadSaveMode.Inactive)
@@ -554,17 +556,20 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        ThingFilter parentFilter = TriggerThreshold.ParentFilter;
-        parentFilter.SetDisallowAll();
-        foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
+        if (!TriggerThreshold.AllowAnyThreshold)
         {
-            parentFilter.SetAllow(harvestedThingDef, true);
-        }
+            ThingFilter parentFilter = TriggerThreshold.ParentFilter;
+            parentFilter.SetDisallowAll();
+            foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
+            {
+                parentFilter.SetAllow(harvestedThingDef, true);
+            }
 
-        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId))
-        {
-            parentFilter.SetAllow(ManagerThingDefOf.SRV_Turnip, true);
-            parentFilter.SetAllow(ManagerThingDefOf.SRV_Turnip_Green, true);
+            if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId))
+            {
+                parentFilter.SetAllow(ManagerThingDefOf.SRV_Turnip, true);
+                parentFilter.SetAllow(ManagerThingDefOf.SRV_Turnip_Green, true);
+            }
         }
     }
 

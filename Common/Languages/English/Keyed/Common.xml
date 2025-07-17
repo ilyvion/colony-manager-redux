@@ -57,8 +57,22 @@
     <ColonyManagerRedux.Threshold.PathBasedDistance.Tip>If enabled, distances will be calculated based on real paths. If disabled, distances will be calculated 'as the crow flies'. \n\nNOTE: Enabling this option on jobs with a large amount of possible targets may lead to significant lag spikes.</ColonyManagerRedux.Threshold.PathBasedDistance.Tip>
     <ColonyManagerRedux.Threshold.CountAllOnMap>Count all on map</ColonyManagerRedux.Threshold.CountAllOnMap>
     <ColonyManagerRedux.Threshold.CountAllOnMap.Tip>If enabled, counts all items allowed by the threshold filter on the map. If disabled, counts only those in stockpiles and storage buildings.</ColonyManagerRedux.Threshold.CountAllOnMap.Tip>
+    <ColonyManagerRedux.Threshold.AllowAnyThreshold>Allow using any item for determining the threshold</ColonyManagerRedux.Threshold.AllowAnyThreshold>
+    <ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip>If enabled, any item can be used to determine the threshold, not just those directly relevant to the job.\n\nWarning: Disabling this setting will have the effect of resetting the threshold filter to only include items directly relevant to the job again.</ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip>
+    <ColonyManagerRedux.Threshold.AllowAnyThreshold.Warning>&lt;b&gt;WARNING&lt;/b&gt;: If the filtering is on something else than the items relevant to the job itself will almost certainly lead to odd behavior with the job's designation calculations, as the assumed expected resources from designations won't actually affect the threshold count as expected.</ColonyManagerRedux.Threshold.AllowAnyThreshold.Warning>
+
+    <ColonyManagerRedux.Threshold.LowerThan>Lower than</ColonyManagerRedux.Threshold.LowerThan>
+    <ColonyManagerRedux.Threshold.LowerThan.Tip>The job will be active as long as the count of selected items is lower than {0}.</ColonyManagerRedux.Threshold.LowerThan.Tip>
+    <ColonyManagerRedux.Threshold.EqualTo>Equal to</ColonyManagerRedux.Threshold.EqualTo>
+    <ColonyManagerRedux.Threshold.EqualTo.Tip>The job will be active as long as the count of selected items is equal to {0}.</ColonyManagerRedux.Threshold.EqualTo.Tip>
+    <ColonyManagerRedux.Threshold.NotEqualTo>Not equal to</ColonyManagerRedux.Threshold.NotEqualTo>
+    <ColonyManagerRedux.Threshold.NotEqualTo.Tip>The job will be active as long as the count of selected items is not equal to {0}.</ColonyManagerRedux.Threshold.NotEqualTo.Tip>
+    <ColonyManagerRedux.Threshold.GreaterThan>Greater than</ColonyManagerRedux.Threshold.GreaterThan>
+    <ColonyManagerRedux.Threshold.GreaterThan.Tip>The job will be active as long as the count of selected items is greater than {0}.</ColonyManagerRedux.Threshold.GreaterThan.Tip>
+    <ColonyManagerRedux.Threshold.Op.Warning>&lt;b&gt;WARNING&lt;/b&gt;: Using an operator other than 'lower than' may lead to unexpected behavior as far as the job trying to meet its target is concerned — most jobs are striving to do something to increase the count until it meets the threshold.</ColonyManagerRedux.Threshold.Op.Warning>
 
     <ColonyManagerRedux.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.SyncFilterAndAllowed>
+    <ColonyManagerRedux.AnyStockpile>Any stockpile</ColonyManagerRedux.AnyStockpile>
 
     <!-- time periods for update interval -->
     <ColonyManagerRedux.UpdateInterval.Hourly>Every hour</ColonyManagerRedux.UpdateInterval.Hourly>
@@ -68,7 +82,7 @@
     <ColonyManagerRedux.UpdateInterval.Yearly>Yearly</ColonyManagerRedux.UpdateInterval.Yearly>
 
     <!-- Thresholds -->
-    <ColonyManagerRedux.Thresholds.ThresholdCount>Threshold: {0}/{1}</ColonyManagerRedux.Thresholds.ThresholdCount>
+    <ColonyManagerRedux.Thresholds.ThresholdCount>Active if: {0} {1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Click to open threshold details.\n\nTarget: {1}\nIn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
 
     <!-- Tab headers -->
@@ -120,8 +134,8 @@
     <ColonyManagerRedux.Logs.CurrentCount>Current count / target before adding new designations: {0} / {1}</ColonyManagerRedux.Logs.CurrentCount>
     <ColonyManagerRedux.Logs.TargetsAlreadySatisfied>Job targets are already expected to be satisfied with its current designations; making no changes</ColonyManagerRedux.Logs.TargetsAlreadySatisfied>
     <ColonyManagerRedux.Logs.NoValidTargets>No currently undesignated {0} to designate for {1}</ColonyManagerRedux.Logs.NoValidTargets>
-    <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} of type {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.AddDesignation>
-    <ColonyManagerRedux.Logs.RemoveDesignation>Removed extraneous {0} designation for {1} of type {2} with expected yield {3}, bringing expected count / target to {4} / {5}</ColonyManagerRedux.Logs.RemoveDesignation>
+    <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} of type {2} with expected yield {3}, bringing expected target to {4} {5}</ColonyManagerRedux.Logs.AddDesignation>
+    <ColonyManagerRedux.Logs.RemoveDesignation>Removed extraneous {0} designation for {1} of type {2} with expected yield {3}, bringing expected target to {4} {5}</ColonyManagerRedux.Logs.RemoveDesignation>
     <ColonyManagerRedux.Logs.CantAddMoreDesignations>Can't designate any more {0} for {1} due to the configured designation limit.</ColonyManagerRedux.Logs.CantAddMoreDesignations>
 
     <!-- Misc. -->

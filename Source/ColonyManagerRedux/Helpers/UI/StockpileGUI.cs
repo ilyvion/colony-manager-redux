@@ -129,7 +129,7 @@ public static class StockpileGUI
         rect = rect.ContractedBy(1f);
         GUI.DrawTexture(rect, tex);
         Text.Anchor = TextAnchor.MiddleLeft;
-        var label = zone?.label ?? "Any stockpile";
+        var label = zone?.label ?? "ColonyManagerRedux.AnyStockpile".Translate();
         var innerRect = rect;
         innerRect.xMin += 4f;
         innerRect.xMax -= 4f;

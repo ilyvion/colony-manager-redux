@@ -29,8 +29,8 @@
     <ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the resources and buildings allowed for mining/deconstruction, and vice versa. Note that because a lot of building parts can be built out of every resource, enabling 'walls,' e.g., will enable every resource that can be used to build walls.</ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip>
 
     <!-- cur, chunks, designated, target -->
-    <ColonyManagerRedux.Mining.TargetCount>Target count: {0}+{1}+{2}/{3}</ColonyManagerRedux.Mining.TargetCount>
-    <ColonyManagerRedux.Mining.TargetCount.Tip>Target: {3}\n{0} in storage\n{1} expected from {4}\n{2} expected from current designations.</ColonyManagerRedux.Mining.TargetCount.Tip>
+    <ColonyManagerRedux.Mining.TargetCount>Active if: {0} {3} (+{1}+{2} expected)</ColonyManagerRedux.Mining.TargetCount>
+    <ColonyManagerRedux.Mining.TargetCount.Tip>{0} in storage\nJob is active if {3} in storage\n{1} expected from {4}\n{2} expected from current designations.</ColonyManagerRedux.Mining.TargetCount.Tip>
     <ColonyManagerRedux.Mining.TargetCount.Tip.Stonecutting>stonecutting</ColonyManagerRedux.Mining.TargetCount.Tip.Stonecutting>
     <ColonyManagerRedux.Mining.TargetCount.Tip.Smelting>smelting</ColonyManagerRedux.Mining.TargetCount.Tip.Smelting>
     <ColonyManagerRedux.Mining.TargetCount.Tip.Both>stonecutting and smelting</ColonyManagerRedux.Mining.TargetCount.Tip.Both>

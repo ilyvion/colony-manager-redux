@@ -13,7 +13,7 @@
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target. Note that not necessarily all types of manager jobs can or will respect this setting.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
 
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
-    <ColonyManagerRedux.ManagerSettings.TargetCount>Target count: {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
+    <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
     <ColonyManagerRedux.ManagerSettings.DisableManagers>Active managers</ColonyManagerRedux.ManagerSettings.DisableManagers>
     <ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>Removing a manager from this list will make it so that that manager's tab and manager settings will be hidden. Jobs will still show up until manually removed, though. You can turn a manager off if you never use a specific manager's features, e.g., to declutter your UI. Changes here will not take effect until the manager tabs window is closed and re-opened or the mod's settings windows is closed and re-opened.</ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>
 </LanguageData>

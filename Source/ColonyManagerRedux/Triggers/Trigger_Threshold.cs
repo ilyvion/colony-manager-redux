@@ -15,7 +15,22 @@ public sealed class Trigger_Threshold : Trigger
     {
         LowerThan,
         Equals,
-        HigherThan
+        HigherThan,
+        NotEquals,
+    }
+
+    private bool allowAnyThreshold;
+    public bool AllowAnyThreshold
+    {
+        get => allowAnyThreshold;
+        set
+        {
+            allowAnyThreshold = value;
+            if (allowAnyThreshold)
+            {
+                ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
+            }
+        }
     }
 
     private bool countAllOnMap;
@@ -26,9 +41,7 @@ public sealed class Trigger_Threshold : Trigger
 
     private Ops op;
     public Ops Op { get => op; set => op = value; }
-
-    private ThingFilter parentFilter;
-    public ThingFilter ParentFilter { get => parentFilter; set => parentFilter = value; }
+    public ThingFilter ParentFilter { get; private set; }
 
     private Zone_Stockpile? stockpile;
     public Zone_Stockpile? Stockpile { get => stockpile; set => stockpile = value; }
@@ -36,6 +49,7 @@ public sealed class Trigger_Threshold : Trigger
 
     private int targetCount;
     public int TargetCount { get => targetCount; set => targetCount = value; }
+    public string TargetLabel => $"{OpString} {targetCount}";
 
     private ThingFilter thresholdFilter;
     public ThingFilter ThresholdFilter { get => thresholdFilter; }
@@ -44,6 +58,8 @@ public sealed class Trigger_Threshold : Trigger
     private string? _stockpile_scribe;
 
     public Action? SettingsChanged { get; set; }
+
+    public Action? AllowAnyThresholdChanged { get; set; }
 
     public Trigger_Threshold(ManagerJob job) : base(job)
     {
@@ -55,8 +71,7 @@ public sealed class Trigger_Threshold : Trigger
         Settings settings = ColonyManagerReduxMod.Settings;
         countAllOnMap = settings.DefaultCountAllOnMap;
 
-        parentFilter = new ThingFilter();
-        parentFilter.SetDisallowAll();
+        ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
 
         thresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
         ThresholdFilter.SetDisallowAll();
@@ -103,19 +118,14 @@ public sealed class Trigger_Threshold : Trigger
 
     public bool IsValid => ThresholdFilter.AllowedDefCount > 0;
 
-    public string OpString
+    public string OpString => op switch
     {
-        get
-        {
-            return op switch
-            {
-                Ops.LowerThan => " < ",
-                Ops.Equals => " = ",
-                Ops.HigherThan => " > ",
-                _ => " ? ",
-            };
-        }
-    }
+        Ops.LowerThan => "<\u200B",
+        Ops.Equals => "=",
+        Ops.HigherThan => ">",
+        Ops.NotEquals => "!=",
+        _ => "?",
+    };
 
     public override bool State
     {
@@ -132,6 +142,9 @@ public sealed class Trigger_Threshold : Trigger
                 case Ops.HigherThan:
                     return GetCurrentCount() > targetCount;
 
+                case Ops.NotEquals:
+                    return GetCurrentCount() != targetCount;
+
                 default:
                     ColonyManagerReduxMod.Instance.LogWarning(
                         "Trigger_ThingThreshold was defined without a correct operator");
@@ -140,7 +153,7 @@ public sealed class Trigger_Threshold : Trigger
         }
     }
 
-    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), targetCount);
+    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetLabel);
 
     public override void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
@@ -203,13 +216,6 @@ public sealed class Trigger_Threshold : Trigger
             width,
             SliderHeight);
         cur.y += SliderHeight;
-
-        var useResourceListerToggleRect = new Rect(
-            cur.x,
-            cur.y,
-            width,
-            entryHeight);
-        cur.y += entryHeight;
 
 
         Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
@@ -289,7 +295,61 @@ public sealed class Trigger_Threshold : Trigger
             }
         }
 
-        Utilities.DrawToggle(useResourceListerToggleRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
+        // var allowAnyThresholdLabel = "ColonyManagerRedux.Threshold.AllowAnyThreshold".Translate();
+        // Text.Font = GameFont.Medium;
+        // var allowAnyThresholdLabelHeight = Text.CalcHeight(allowAnyThresholdLabel, width - Margin);
+
+        var allowAnyThresholdRect = new Rect(
+            cur.x,
+            cur.y,
+            width,
+            //allowAnyThresholdLabelHeight
+            entryHeight);
+        cur.y += entryHeight; //allowAnyThresholdLabelHeight;
+
+        var currentAllowAnyThreshold = allowAnyThreshold;
+        //allowAnyThresholdRect.height = allowAnyThresholdLabelHeight;
+        Utilities.DrawToggle(allowAnyThresholdRect, "ColonyManagerRedux.Threshold.AllowAnyThreshold".Translate(),
+            "ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip".Translate(), ref allowAnyThreshold,
+            leaveRoomForAdditionalIcon: false);
+        if (currentAllowAnyThreshold != allowAnyThreshold)
+        {
+            if (allowAnyThreshold)
+            {
+                // if we allow any threshold, we need to reset the parent filter
+                ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
+            }
+            AllowAnyThresholdChanged?.Invoke();
+            if (!allowAnyThreshold)
+            {
+                // if we disallow any threshold, we need to disallow all items not in the parent filter
+                ThresholdFilter.SetDisallowAll(ParentFilter.AllowedThingDefs);
+            }
+        }
+
+        // var iconRect = new Rect(
+        //     allowAnyThresholdRect.xMax - SmallIconSize - Margin,
+        //     0f,
+        //     SmallIconSize,
+        //     SmallIconSize).CenteredOnYIn(allowAnyThresholdRect);
+        // iconRect.x -= SmallIconSize + Margin;
+        // TooltipHandler.TipRegion(
+        //     iconRect,
+        //     "ColonyManagerRedux.Threshold.AllowAnyThreshold.Warning".Translate());
+        // GUI.color = allowAnyThreshold
+        //     ? Resources.Orange
+        //     : Color.grey;
+        // GUI.DrawTexture(iconRect, Resources.Warning);
+        // GUI.color = Color.white;
+
+        var countAllOnMapRect = new Rect(
+            cur.x,
+            cur.y,
+            width,
+            entryHeight);
+        cur.y += entryHeight;
+
+        Utilities.DrawToggle(countAllOnMapRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
             "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
         targetCount = (int)GUI.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
     }
@@ -301,6 +361,7 @@ public sealed class Trigger_Threshold : Trigger
         Scribe_Values.Look(ref maxUpperThreshold, "maxUpperThreshold");
         Scribe_Values.Look(ref op, "operator");
         Scribe_Deep.Look(ref thresholdFilter, "thresholdFilter", (object)ThresholdFilter_SettingsChanged);
+        Scribe_Values.Look(ref allowAnyThreshold, "allowAnyThreshold");
         Scribe_Values.Look(ref countAllOnMap, "countAllOnMap");
 
         // stockpile needs special treatment - is not referenceable.
@@ -315,6 +376,29 @@ public sealed class Trigger_Threshold : Trigger
             stockpile =
                 Job.Manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
                     z.label == _stockpile_scribe) as Zone_Stockpile;
+        }
+    }
+
+    public bool DoesCountMeetTarget(int count)
+    {
+        switch (op)
+        {
+            case Ops.LowerThan:
+                return count >= targetCount;
+
+            case Ops.Equals:
+                return count != targetCount;
+
+            case Ops.HigherThan:
+                return count <= targetCount;
+
+            case Ops.NotEquals:
+                return count == targetCount;
+
+            default:
+                ColonyManagerReduxMod.Instance.LogWarning(
+                    "Trigger_Threshold was defined without a correct operator");
+                return true;
         }
     }
 }

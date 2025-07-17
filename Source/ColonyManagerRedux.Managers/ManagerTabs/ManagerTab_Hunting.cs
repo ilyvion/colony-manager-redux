@@ -423,13 +423,13 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         var designationsCache = SelectedHuntingJob.GetYieldInDesignationsCache();
         designationsCache.DoUpdateIfNeeded();
         var designatedCount = designationsCache.Value;
-        var targetCount = SelectedHuntingJob.TriggerThreshold.TargetCount;
+        var targetLabel = SelectedHuntingJob.TriggerThreshold.TargetLabel;
 
         SelectedHuntingJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Hunting.TargetCount".Translate(
-                currentCount, corpseCount, designatedCount, targetCount),
+                currentCount, corpseCount, designatedCount, targetLabel),
             "ColonyManagerRedux.Hunting.TargetCountTooltip".Translate(
-                currentCount, corpseCount, designatedCount, targetCount),
+                currentCount, corpseCount, designatedCount, targetLabel),
             SelectedHuntingJob.Designations,
             delegate { SelectedHuntingJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
             SelectedHuntingJob.DesignationLabel);

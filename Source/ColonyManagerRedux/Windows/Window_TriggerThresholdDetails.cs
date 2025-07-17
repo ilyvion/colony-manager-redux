@@ -27,7 +27,9 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         var zoneRect = new Rect(filterRect.xMin, filterRect.yMax + Margin, filterRect.width,
             zoneRectHeight);
         var buttonRect = new Rect(filterRect.xMin, zoneRect.yMax + Margin,
-            filterRect.width, Constants.ListEntryHeight);
+            (filterRect.width - Margin) / 2f, Constants.ListEntryHeight);
+
+        buttonRect.x -= Constants.SmallIconSize + Constants.Margin;
 
         // draw thingfilter
         ThingFilterUI.DoThingFilterConfigWindow(filterRect, _uIState, _trigger.ThresholdFilter, _trigger.ParentFilter);
@@ -43,21 +45,45 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref _trigger.StockpileRef, _trigger.Job.Manager);
 
         // draw operator button
-        // if (Widgets.ButtonText(buttonRect, Trigger.OpString))
-        // {
-        //     var list = new List<FloatMenuOption>
-        //     {
-        //         new( "Lower than",
-        //                              delegate { Trigger.Op = Trigger_Threshold.Ops.LowerThan; } ),
-        //         new( "Equal to", delegate { Trigger.Op = Trigger_Threshold.Ops.Equals; } ),
-        //         new( "Greater than",
-        //                              delegate { Trigger.Op = Trigger_Threshold.Ops.HigherThan; } )
-        //     };
-        //     Find.WindowStack.Add(new FloatMenu(list));
-        // }
+        if (Widgets.ButtonText(buttonRect, _trigger.OpString))
+        {
+            var list = new List<FloatMenuOption>
+            {
+                new("ColonyManagerRedux.Threshold.LowerThan".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.LowerThan),
+                new("ColonyManagerRedux.Threshold.EqualTo".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.Equals),
+                new("ColonyManagerRedux.Threshold.NotEqualTo".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.NotEquals),
+                new("ColonyManagerRedux.Threshold.GreaterThan".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.HigherThan)
+            };
+            Find.WindowStack.Add(new FloatMenu(list));
+        }
+        string? opTooltip = null;
+        opTooltip = _trigger.Op switch
+        {
+            Trigger_Threshold.Ops.LowerThan => (string)"ColonyManagerRedux.Threshold.LowerThan.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.Equals => (string)"ColonyManagerRedux.Threshold.EqualTo.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.NotEquals => (string)"ColonyManagerRedux.Threshold.NotEqualTo.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.HigherThan => (string)"ColonyManagerRedux.Threshold.GreaterThan.Tip".Translate(_trigger.TargetCount),
+            _ => "Unknown operator",
+        };
+        TooltipHandler.TipRegion(buttonRect, opTooltip);
+
+        var iconRect = new Rect(
+            buttonRect.xMax + Constants.Margin,
+            0f,
+            Constants.SmallIconSize,
+            Constants.SmallIconSize).CenteredOnYIn(buttonRect);
+        TooltipHandler.TipRegion(
+            iconRect,
+            "ColonyManagerRedux.Threshold.Op.Warning".Translate());
+        GUI.color = _trigger.Op != Trigger_Threshold.Ops.LowerThan
+            ? Resources.Orange
+            : Color.grey;
+        GUI.DrawTexture(iconRect, Resources.Warning);
+        GUI.color = Color.white;
 
         // move operator button canvas for count input
-        //buttonRect.x = buttonRect.xMax + Margin;
+        buttonRect.x += Constants.SmallIconSize + Constants.Margin;
+        buttonRect.x = buttonRect.xMax + Margin;
 
         // if current input is invalid color the element red
         var oldColor = GUI.color;
@@ -76,6 +102,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 
         // draw the input field
         _input = Widgets.TextField(buttonRect, _input);
+        TooltipHandler.TipRegion(buttonRect, opTooltip);
         GUI.color = oldColor;
 
         // close on enter

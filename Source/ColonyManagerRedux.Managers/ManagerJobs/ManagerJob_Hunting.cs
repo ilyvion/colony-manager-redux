@@ -114,7 +114,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         _designatedLeatherCachedValue = new(0, GetLeatherInDesignationsCoroutine);
 
         // populate the trigger field
-        Trigger = new Trigger_Threshold(this);
+        Trigger = new Trigger_Threshold(this) { AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter };
 
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
@@ -310,6 +310,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         {
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
+            TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
         }
     }
 
@@ -486,7 +487,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             + corpsesCachedValue.Value
             + designationsCachedValue.Value);
 
-        if (totalCount >= TriggerThreshold.TargetCount
+        if (TriggerThreshold.DoesCountMeetTarget(totalCount)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedDesignations = [];
@@ -506,7 +507,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 var plant = (Pawn)designation.target.Thing;
                 int yield = plant.EstimatedYield(TargetResource);
                 totalCount.Value -= yield;
-                if (totalCount >= TriggerThreshold.TargetCount
+                if (TriggerThreshold.DoesCountMeetTarget(totalCount)
                     || ColonyManagerReduxMod.Settings
                         .ShouldRemoveMoreDesignations(_designations.Count))
                 {
@@ -519,7 +520,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                             plant.Label,
                             yield,
                             totalCount.Value,
-                            TriggerThreshold.TargetCount),
+                            TriggerThreshold.TargetLabel),
                         plant);
                     workDone.Value = true;
                 }
@@ -554,7 +555,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             yield return DoUnforbidCorpses(jobLog, workDone, totalCount)
                 .ResumeWhenOtherCoroutineIsCompleted();
 
-            if (workDone && totalCount >= TriggerThreshold.TargetCount)
+            if (workDone && TriggerThreshold.DoesCountMeetTarget(totalCount))
             {
                 yield break;
             }
@@ -591,7 +592,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // while totalCount < count AND we have animals that can be designated, designate animal.
         foreach (var (huntableAnimal, i) in huntableAnimals.Select((h, i) => (h, i)))
         {
-            if (totalCount >= TriggerThreshold.TargetCount
+            if (TriggerThreshold.DoesCountMeetTarget(totalCount)
                 || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
@@ -607,7 +608,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                     huntableAnimal.Label,
                     yield,
                     totalCount.Value,
-                    TriggerThreshold.TargetCount),
+                    TriggerThreshold.TargetLabel),
                 huntableAnimal);
             workDone.Value = true;
 
@@ -690,7 +691,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
-            if (totalCount >= TriggerThreshold.TargetCount)
+            if (TriggerThreshold.DoesCountMeetTarget(totalCount))
             {
                 yield break;
             }
@@ -794,34 +795,37 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        TriggerThreshold.ParentFilter.SetDisallowAll();
-        if (TargetResource == HuntingTargetResource.Meat)
+        if (!TriggerThreshold.AllowAnyThreshold)
         {
-            foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
-                .Where(IsValidResource))
+            TriggerThreshold.ParentFilter.SetDisallowAll();
+            if (TargetResource == HuntingTargetResource.Meat)
             {
-                TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
-            }
+                foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
+                    .Where(IsValidResource))
+                {
+                    TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
+                }
 
-            // Hard code human meats, insect meat and twisted meat
-            foreach (var meatDef in HumanLikeMeatDefs)
-            {
-                TriggerThreshold.ParentFilter.SetAllow(meatDef, true);
-            }
+                // Hard code human meats, insect meat and twisted meat
+                foreach (var meatDef in HumanLikeMeatDefs)
+                {
+                    TriggerThreshold.ParentFilter.SetAllow(meatDef, true);
+                }
 
-            TriggerThreshold.ParentFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, true);
+                TriggerThreshold.ParentFilter.SetAllow(ManagerThingDefOf.Meat_Megaspider, true);
 
-            if (ModsConfig.AnomalyActive)
-            {
-                TriggerThreshold.ParentFilter.SetAllow(ManagerThingDefOf.Meat_Twisted, true);
+                if (ModsConfig.AnomalyActive)
+                {
+                    TriggerThreshold.ParentFilter.SetAllow(ManagerThingDefOf.Meat_Twisted, true);
+                }
             }
-        }
-        else
-        {
-            foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
-                .Where(IsValidResource))
+            else
             {
-                TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.leatherDef, true);
+                foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
+                    .Where(IsValidResource))
+                {
+                    TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.leatherDef, true);
+                }
             }
         }
     }

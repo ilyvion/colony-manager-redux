@@ -90,7 +90,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         _cachedCurrentDesignatedCount = new(0, GetCurrentDesignatedCountCoroutine);
 
         // populate the trigger field, set the root category to wood.
-        Trigger = new Trigger_Threshold(this);
+        Trigger = new Trigger_Threshold(this) { AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter };
         if (Scribe.mode == LoadSaveMode.Inactive)
         {
             ConfigureThresholdTriggerParentFilter();
@@ -295,6 +295,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         {
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
+            TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
         }
     }
 
@@ -521,7 +522,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         yield return ResumeImmediately.Singleton;
 
         // designate until we're either out of trees or we have enough designated.
-        if (count >= TriggerThreshold.TargetCount
+        if (TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
         {
             List<Designation> sortedDesignations = [];
@@ -541,7 +542,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 var tree = (Plant)designation.target.Thing;
                 int yield = tree.YieldNow();
                 count -= yield;
-                if (count >= TriggerThreshold.TargetCount
+                if (TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings
                         .ShouldRemoveMoreDesignations(_designations.Count))
                 {
@@ -554,7 +555,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                             tree.Label,
                             yield,
                             count,
-                            TriggerThreshold.TargetCount),
+                            TriggerThreshold.TargetLabel),
                         tree);
                     workDone.Value = true;
                 }
@@ -610,7 +611,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
         foreach (var (tree, i) in sortedTrees.Select((t, i) => (t, i)))
         {
-            if (count >= TriggerThreshold.TargetCount
+            if (TriggerThreshold.DoesCountMeetTarget(count)
                 || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
             {
                 break;
@@ -626,7 +627,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                     tree.Label,
                     yield,
                     count,
-                    TriggerThreshold.TargetCount),
+                    TriggerThreshold.TargetLabel),
                 tree);
             workDone.Value = true;
             if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
@@ -691,12 +692,15 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
     private void ConfigureThresholdTriggerParentFilter()
     {
-        if (Type == ForestryJobType.Logging)
+        if (!TriggerThreshold.AllowAnyThreshold)
         {
-            TriggerThreshold.ParentFilter.SetDisallowAll();
-            foreach (var item in AllPlants)
+            if (Type == ForestryJobType.Logging)
             {
-                TriggerThreshold.ParentFilter.SetAllow(item.plant.harvestedThingDef, true);
+                TriggerThreshold.ParentFilter.SetDisallowAll();
+                foreach (var item in AllPlants)
+                {
+                    TriggerThreshold.ParentFilter.SetAllow(item.plant.harvestedThingDef, true);
+                }
             }
         }
     }

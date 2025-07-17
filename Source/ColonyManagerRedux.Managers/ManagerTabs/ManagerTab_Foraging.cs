@@ -192,14 +192,14 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
         var currentCount = SelectedForagingJob.TriggerThreshold.GetCurrentCount();
         SelectedForagingJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
         var designatedCount = SelectedForagingJob.CachedCurrentDesignatedCount.Value;
-        var targetCount = SelectedForagingJob.TriggerThreshold.TargetCount;
+        var targetLabel = SelectedForagingJob.TriggerThreshold.TargetLabel;
         var start = pos;
 
         SelectedForagingJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
             "ColonyManagerRedux.Foraging.TargetCount".Translate(
-                currentCount, designatedCount, targetCount),
+                currentCount, designatedCount, targetLabel),
             "ColonyManagerRedux.Foraging.TargetCountTooltip".Translate(
-                currentCount, designatedCount, targetCount),
+                currentCount, designatedCount, targetLabel),
             SelectedForagingJob.Designations,
             () => SelectedForagingJob.Sync = Utilities.SyncDirection.FilterToAllowed,
             SelectedForagingJob.DesignationLabel);
