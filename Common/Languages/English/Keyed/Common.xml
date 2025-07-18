@@ -77,6 +77,7 @@
     <ColonyManagerRedux.UpdateInterval.Daily>Daily</ColonyManagerRedux.UpdateInterval.Daily>
     <ColonyManagerRedux.UpdateInterval.Monthly>Monthly</ColonyManagerRedux.UpdateInterval.Monthly>
     <ColonyManagerRedux.UpdateInterval.Yearly>Yearly</ColonyManagerRedux.UpdateInterval.Yearly>
+    <ColonyManagerRedux.UpdateInterval.Custom>Every {0}</ColonyManagerRedux.UpdateInterval.Custom>
 
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Active if: {0} {1}</ColonyManagerRedux.Thresholds.ThresholdCount>

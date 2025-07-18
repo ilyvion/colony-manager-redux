@@ -17,27 +17,35 @@ public static class Utilities
         AllowedToFilter
     }
 
-    private static List<UpdateInterval>? _updateIntervalOptions;
+    private static readonly List<UpdateInterval> _defaultUpdateIntervalOptions = [
+        new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.UpdateInterval.Hourly".Translate()),
+        new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(2)),
+        new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(4)),
+        new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(8)),
+        UpdateInterval.Daily,
+        new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.UpdateInterval.Monthly".Translate()),
+        new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.UpdateInterval.Yearly".Translate()),
+    ];
 
     public static List<UpdateInterval> UpdateIntervalOptions
     {
         get
         {
-            if (_updateIntervalOptions.NullOrEmpty())
+            if (ColonyManagerReduxMod.Settings.CustomUpdateIntervalTickList.Empty())
             {
-                _updateIntervalOptions =
-                [
-                    new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.UpdateInterval.Hourly".Translate()),
-                    new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(2)),
-                    new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(4)),
-                    new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(8)),
-                    UpdateInterval.Daily,
-                    new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.UpdateInterval.Monthly".Translate()),
-                    new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.UpdateInterval.Yearly".Translate()),
-                ];
+                // if there are no custom update intervals, return the default ones.
+                return _defaultUpdateIntervalOptions;
             }
-
-            return _updateIntervalOptions!;
+            else
+            {
+                // if there are custom update intervals, add them to the list.
+                var value = _defaultUpdateIntervalOptions.ToList();
+                value.AddRange(ColonyManagerReduxMod.Settings.CustomUpdateIntervalTickList
+                    .Select(ticks => new UpdateInterval(ticks,
+                        "ColonyManagerRedux.UpdateInterval.Custom".Translate(ticks.ToStringTicksToPeriodVerbose()))));
+                value.SortBy(i => i.Ticks);
+                return value;
+            }
         }
     }
 

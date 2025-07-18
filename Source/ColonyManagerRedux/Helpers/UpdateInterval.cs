@@ -85,7 +85,7 @@ public class UpdateInterval(int ticks, string label)
             }
 
             lastUpdateTooltip = "ColonyManagerRedux.Job.LastUpdatedTooltip".Translate(
-                lastUpdate.TimeString()) + " ";
+                lastUpdate.ToStringTicksToPeriod()) + " ";
         }
         else
         {
@@ -103,12 +103,12 @@ public class UpdateInterval(int ticks, string label)
         if (suspended)
         {
             lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip".Translate(
-                job.UpdateInterval._ticks.TimeString());
+                job.UpdateInterval._ticks.ToStringTicksToPeriod());
         }
         else
         {
             lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip".Translate(
-                job.UpdateInterval._ticks.TimeString());
+                job.UpdateInterval._ticks.ToStringTicksToPeriod());
         }
 
         if (!exporting)

@@ -85,7 +85,9 @@ public abstract class ManagerTab(Manager manager)
         ProgressRectWidth = 60f,
         StatusRectWidth = StampSize + LastUpdateRectWidth + ProgressRectWidth + 2 * Margin;
 
+#pragma warning disable CS8618 // Set externally
     private ManagerDef _def;
+#pragma warning restore CS8618
     public ManagerDef Def { get => _def; internal set => _def = value; }
 
     public bool Show => !ColonyManagerReduxMod.Settings.DisabledManagers.Contains(_def);

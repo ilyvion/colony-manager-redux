@@ -4,6 +4,7 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+using Verse.Sound;
 using static ColonyManagerRedux.Constants;
 
 using TabRecord = ilyvion.Laboratory.UI.TabRecord;
@@ -79,6 +80,13 @@ public class Settings : ModSettings
     public bool ShouldRemoveMoreDesignations(int currentCount)
     {
         return MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
+    }
+
+    private List<int> _customUpdateIntervalTickList = [];
+    public List<int> CustomUpdateIntervalTickList
+    {
+        get => _customUpdateIntervalTickList;
+        internal set => _customUpdateIntervalTickList = value;
     }
 
     private bool _showNoManagerAlert = true;
@@ -171,6 +179,11 @@ public class Settings : ModSettings
                 width,
                 settings.DrawThreshold,
                 "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawCustomUpdateIntervals,
+                "ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals".Translate());
             Widgets_Section.Section(
                 ref position,
                 width,
@@ -331,6 +344,96 @@ public class Settings : ModSettings
             true);
 
         return pos.y - start.y;
+    }
+
+    private const int DefaultCustomUpdateIntervalTicks = GenDate.TicksPerDay;
+    private int _addCustomUpdateIntervalTicks = DefaultCustomUpdateIntervalTicks;
+    public float DrawCustomUpdateIntervals(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        string periodLabel = _addCustomUpdateIntervalTicks.ToStringTicksToPeriodVerbose();
+        Vector2 periodSize = Text.CalcSize(periodLabel);
+        var periodLabelAreaRect = new Rect(pos.x, pos.y, periodSize.x + Margin, ListEntryHeight);
+        var periodWidth = periodSize.x + Margin;
+        IlyvionWidgets.Label(periodLabelAreaRect, periodLabel, TextAnchor.MiddleLeft);
+
+        var rowPos = pos;
+        rowPos.x += periodWidth;
+        if (RowButton("0", ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks = 0;
+        }
+        if (RowButton("ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour".Translate(), ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks = Mathf.Max(0, _addCustomUpdateIntervalTicks - GenDate.TicksPerHour);
+        }
+        if (RowButton("ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour".Translate(), ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks += GenDate.TicksPerHour;
+        }
+        if (RowButton("ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByDay".Translate(), ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks = Mathf.Max(0, _addCustomUpdateIntervalTicks - GenDate.TicksPerDay);
+        }
+        if (RowButton("ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByDay".Translate(), ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks += GenDate.TicksPerDay;
+        }
+        if (RowButton("ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear".Translate(), ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks = Mathf.Max(0, _addCustomUpdateIntervalTicks - GenDate.TicksPerYear);
+        }
+        if (RowButton("ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear".Translate(), ref rowPos))
+        {
+            _addCustomUpdateIntervalTicks += GenDate.TicksPerYear;
+        }
+        rowPos.x += Margin;
+        if (RowButton("ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals".Translate(), ref rowPos))
+        {
+            _customUpdateIntervalTickList.Add(_addCustomUpdateIntervalTicks);
+            _customUpdateIntervalTickList.Sort();
+            _addCustomUpdateIntervalTicks = DefaultCustomUpdateIntervalTicks;
+        }
+        pos.y += ListEntryHeight + Margin;
+
+        for (int i = 0; i < _customUpdateIntervalTickList.Count; i++)
+        {
+            int customUpdateIntervalTicks = _customUpdateIntervalTickList[i];
+            var rect = new Rect(
+                Margin + pos.x,
+                pos.y,
+                width - 2 * Margin,
+                ListEntryHeight);
+            pos.y += ListEntryHeight;
+            if (i % 2 == 0)
+            {
+                Widgets.DrawLightHighlight(rect);
+            }
+            IlyvionWidgets.Label(
+                new Rect(rect.x + 4f, rect.y, rect.width - 4f, rect.height),
+                customUpdateIntervalTicks.ToStringTicksToPeriodVerbose(),
+                TextAnchor.MiddleLeft);
+            if (Widgets.ButtonImage(
+                new Rect(rect.xMax - ListEntryHeight, rect.y, ListEntryHeight, ListEntryHeight),
+                TexButton.Delete,
+                Color.white,
+                GenUI.SubtleMouseoverColor))
+            {
+                _customUpdateIntervalTickList.RemoveAt(i);
+                SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+            }
+        }
+
+        return pos.y - start.y;
+    }
+
+    private static bool RowButton(string buttonLabel, ref Vector2 pos)
+    {
+        var buttonWidth = Text.CalcSize(buttonLabel).x + 4 * Margin;
+        Rect buttonRect = new(pos.x, pos.y, buttonWidth, ListEntryHeight);
+        pos.x += buttonWidth + Margin;
+        return Widgets.ButtonText(buttonRect, buttonLabel);
     }
 
     public float DrawAlertSettings(Vector2 pos, float width)
@@ -527,7 +630,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
         Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");
-
+        Scribe_Collections.Look(ref _customUpdateIntervalTickList, "customUpdateIntervalTickList", LookMode.Value);
         Scribe_Values.Look(ref _showNoManagerAlert, "showNoManagerAlert", true);
         Scribe_Values.Look(ref _showNoTableAlert, "showNoTableAlert", true);
         Scribe_Values.Look(ref _showJobsNotUpdatingAlert, "showJobsNotUpdatingAlert", true);
@@ -545,6 +648,7 @@ public class Settings : ModSettings
             EnsureManagerSettingsAreCorrect();
 
             _disabledManagers ??= [];
+            _customUpdateIntervalTickList ??= [];
         }
     }
 

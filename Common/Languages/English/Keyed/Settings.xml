@@ -14,6 +14,16 @@
 
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
     <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: &lt; {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
+
+    <ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals>Custom update intervals</ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals>
+    <ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour>- hour</ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour>
+    <ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour>+ hour</ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour>
+    <ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByDay>- day</ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByDay>
+    <ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByDay>+ day</ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByDay>
+    <ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear>- year</ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear>
+    <ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear>+ year</ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear>
+    <ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals>Add new</ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals>
+
     <ColonyManagerRedux.ManagerSettings.DisableManagers>Active managers</ColonyManagerRedux.ManagerSettings.DisableManagers>
     <ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>Removing a manager from this list will make it so that that manager's tab and manager settings will be hidden. Jobs will still show up until manually removed, though. You can turn a manager off if you never use a specific manager's features, e.g., to declutter your UI. Changes here will not take effect until the manager tabs window is closed and re-opened or the mod's settings windows is closed and re-opened.</ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>
 
