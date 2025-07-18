@@ -43,6 +43,19 @@ jobs:
                   version: ${{ env.NO_PREFIX_VERSION }}
                   path: ${{ env.MOD_PATH }}/CHANGELOG.md
 
+            - name: Converts Markdown to Steam markup
+              id: markdown_steam
+              uses: ilyvion/steamdown@main
+              with:
+                  markdown: ${{ steps.changelog_reader.outputs.changes }}
+
+            - name: Fail if Steam markup contains a double quote
+              run: |
+                if [[ "${{ steps.markdown_steam.outputs.steam-markup }}" == *\"* ]]; then
+                  echo "Changelog contains a double quote, which would cause the Steam upload to fail."
+                  exit 1
+                fi
+
             - name: Create Release
               id: create_release
               uses: actions/create-release@v1
@@ -64,12 +77,6 @@ jobs:
                   asset_path: ${{ env.MOD_PATH }}.zip
                   asset_name: ColonyManagerRedux-${{ env.VERSION }}.zip
                   asset_content_type: application/zip
-
-            - name: Converts Markdown to Steam markup
-              id: markdown_steam
-              uses: ilyvion/steamdown@main
-              with:
-                  markdown: ${{ steps.changelog_reader.outputs.changes }}
 
             - name: Upload to Steam Workshop
               uses: ZehMatt/steam-workshop-upload@569de82c2fdf3042af8491379fb698829ba63a9d
