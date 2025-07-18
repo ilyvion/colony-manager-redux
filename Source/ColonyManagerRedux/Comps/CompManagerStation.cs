@@ -8,6 +8,7 @@ public class CompManagerStation : ThingComp
 {
     public CompProperties_ManagerStation Props => (CompProperties_ManagerStation)props;
 
+    private CoroutineHandle? _handle;
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         yield return new Command_Action
@@ -18,5 +19,25 @@ public class CompManagerStation : ThingComp
             defaultDesc = "ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip".Translate(),
             icon = Resources.ManagerTab_Gizmo,
         };
+
+        if (DebugSettings.ShowDevGizmos)
+        {
+            yield return new Command_Action
+            {
+                defaultLabel = "DEV: Manage Jobs",
+                action = () =>
+                    {
+                        if (_handle == null || _handle.IsCompleted)
+                        {
+                            Manager manager = Manager.For(parent.Map);
+                            var coroutine = manager.TryDoWork();
+                            if (coroutine != null)
+                            {
+                                _handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
+                            }
+                        }
+                    }
+            };
+        }
     }
 }
