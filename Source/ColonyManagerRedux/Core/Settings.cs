@@ -81,6 +81,55 @@ public class Settings : ModSettings
         return MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
     }
 
+    private bool _showNoManagerAlert = true;
+    public bool ShowNoManagerAlert
+    {
+        get => _showNoManagerAlert;
+        internal set => _showNoManagerAlert = value;
+    }
+
+    private bool _showNoTableAlert = true;
+    public bool ShowNoTableAlert
+    {
+        get => _showNoTableAlert;
+        internal set => _showNoTableAlert = value;
+    }
+
+    private bool _showJobsNotUpdatingAlert = true;
+    public bool ShowJobsNotUpdatingAlert
+    {
+        get => _showJobsNotUpdatingAlert;
+        internal set => _showJobsNotUpdatingAlert = value;
+    }
+
+    private float _daysBeforeShowingAlert = 0.5f;
+    public float DaysBeforeShowingAlert
+    {
+        get => _daysBeforeShowingAlert;
+        internal set => _daysBeforeShowingAlert = value;
+    }
+
+    private float _daysBeforeShowingHighAlert = 1f;
+    public float DaysBeforeShowingHighAlert
+    {
+        get => _daysBeforeShowingHighAlert;
+        internal set => _daysBeforeShowingHighAlert = value;
+    }
+
+    private float _daysBeforeShowingCriticalAlert = 2f;
+    public float DaysBeforeShowingCriticalAlert
+    {
+        get => _daysBeforeShowingCriticalAlert;
+        internal set => _daysBeforeShowingCriticalAlert = value;
+    }
+
+    private bool _showNoTableNeededAlert = true;
+    public bool ShowNoTableNeededAlert
+    {
+        get => _showNoTableNeededAlert;
+        internal set => _showNoTableNeededAlert = value;
+    }
+
     private HashSet<ManagerDef> _disabledManagers = [];
     public HashSet<ManagerDef> DisabledManagers => _disabledManagers;
 
@@ -122,6 +171,11 @@ public class Settings : ModSettings
                 width,
                 settings.DrawThreshold,
                 "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawAlertSettings,
+                "ColonyManagerRedux.ManagerSettings.AlertSettings".Translate());
             Widgets_Section.Section(
                 ref position,
                 width,
@@ -224,7 +278,7 @@ public class Settings : ModSettings
             "ColonyManagerRedux.RecordHistoricalData.Tip".Translate(),
             ref _recordHistoricalData, true);
 
-        DrawSliderConfig(
+        DrawIntSliderConfig(
             _maxDesignationsPerJob,
             v => _maxDesignationsPerJob = v,
             150,
@@ -244,7 +298,7 @@ public class Settings : ModSettings
     {
         var start = pos;
 
-        DrawSliderConfig(
+        DrawIntSliderConfig(
             DefaultTargetCount,
             v => DefaultTargetCount = v,
             DefaultMaxUpperThreshold,
@@ -279,6 +333,87 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
+    public float DrawAlertSettings(Vector2 pos, float width)
+    {
+        const float MaxAlertDays = 30f;
+
+        var start = pos;
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert".Translate(),
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip".Translate(),
+            ref _showNoManagerAlert);
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert".Translate(),
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert.Tip".Translate(),
+            ref _showNoTableAlert);
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert".Translate(),
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert.Tip".Translate(),
+            ref _showNoTableNeededAlert);
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert".Translate(),
+            "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert.Tip".Translate(),
+            ref _showJobsNotUpdatingAlert);
+
+        if (_showJobsNotUpdatingAlert)
+        {
+            pos.x += Margin;
+            width -= 2 * Margin;
+
+            DrawSliderConfig(
+                _daysBeforeShowingAlert,
+                v => _daysBeforeShowingAlert = v,
+                MaxAlertDays,
+                ref pos,
+                width,
+                ListEntryHeight,
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert".Translate(_daysBeforeShowingAlert.ToString("F1")),
+                minValue: 0.5f,
+                roundTo: 0.5f);
+
+            if (_daysBeforeShowingHighAlert < _daysBeforeShowingAlert)
+            {
+                _daysBeforeShowingHighAlert = _daysBeforeShowingAlert;
+            }
+
+            DrawSliderConfig(
+                _daysBeforeShowingHighAlert,
+                v => _daysBeforeShowingHighAlert = v,
+                MaxAlertDays,
+                ref pos,
+                width,
+                ListEntryHeight,
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert".Translate(_daysBeforeShowingHighAlert.ToString("F1")),
+                minValue: _daysBeforeShowingAlert,
+                roundTo: 0.5f);
+
+            if (_daysBeforeShowingCriticalAlert < _daysBeforeShowingHighAlert)
+            {
+                _daysBeforeShowingCriticalAlert = _daysBeforeShowingHighAlert;
+            }
+
+            DrawSliderConfig(
+                _daysBeforeShowingCriticalAlert,
+                v => _daysBeforeShowingCriticalAlert = v,
+                MaxAlertDays,
+                ref pos,
+                width,
+                ListEntryHeight,
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert".Translate(_daysBeforeShowingCriticalAlert.ToString("F1")),
+                minValue: _daysBeforeShowingHighAlert,
+                roundTo: 0.5f);
+
+            pos.x -= Margin;
+            width += 2 * Margin;
+        }
+
+        return pos.y - start.y;
+    }
+
     public float DrawDisableManagers(Vector2 pos, float width)
     {
         var start = pos;
@@ -308,6 +443,44 @@ public class Settings : ModSettings
     }
 
     public static void DrawSliderConfig(
+        float value,
+        Action<float> setValue,
+        float maxValue,
+        ref Vector2 cur,
+        float width,
+        float entryHeight,
+        string label,
+        string? tooltip = null,
+        float minValue = 0,
+        float roundTo = -1f)
+    {
+        var sliderRect = new Rect(
+            Margin + cur.x,
+            cur.y,
+            width - 2 * Margin,
+            entryHeight + SliderHeight);
+        cur.y += entryHeight + SliderHeight;
+
+        var newValue = Widgets.HorizontalSlider(
+            sliderRect,
+            value,
+            minValue,
+            maxValue,
+            label: " ",
+            leftAlignedLabel: label,
+            roundTo: roundTo);
+        if (value != newValue)
+        {
+            setValue?.Invoke(newValue);
+        }
+
+        if (!tooltip.NullOrEmpty())
+        {
+            TooltipHandler.TipRegion(sliderRect, tooltip);
+        }
+    }
+
+    public static void DrawIntSliderConfig(
         int value,
         Action<int> setValue,
         int maxValue,
@@ -318,28 +491,17 @@ public class Settings : ModSettings
         string? tooltip = null,
         int minValue = 0)
     {
-        // target threshold
-        var labelRect = new Rect(
-            cur.x,
-            cur.y,
+        DrawSliderConfig(
+            value,
+            v => setValue((int)v),
+            maxValue,
+            ref cur,
             width,
-            entryHeight);
-        cur.y += entryHeight;
-
-        var sliderRect = new Rect(
-            cur.x,
-            cur.y,
-            width,
-            SliderHeight);
-        cur.y += SliderHeight;
-
-        IlyvionWidgets.Label(labelRect, label!, tooltip);
-        var newValue = (int)GUI.HorizontalSlider(
-            sliderRect, value, minValue, maxValue);
-        if (value != newValue)
-        {
-            setValue?.Invoke(newValue);
-        }
+            entryHeight,
+            label,
+            tooltip,
+            minValue,
+            roundTo: 1f);
     }
 
     private static UpdateInterval TicksToInterval(int ticks)
@@ -365,6 +527,14 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
         Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");
+
+        Scribe_Values.Look(ref _showNoManagerAlert, "showNoManagerAlert", true);
+        Scribe_Values.Look(ref _showNoTableAlert, "showNoTableAlert", true);
+        Scribe_Values.Look(ref _showJobsNotUpdatingAlert, "showJobsNotUpdatingAlert", true);
+        Scribe_Values.Look(ref _daysBeforeShowingAlert, "daysBeforeShowingAlert", 0.5f);
+        Scribe_Values.Look(ref _daysBeforeShowingHighAlert, "daysBeforeShowingHighAlert", 1f);
+        Scribe_Values.Look(ref _daysBeforeShowingCriticalAlert, "daysBeforeShowingCriticalAlert", 2f);
+        Scribe_Values.Look(ref _showNoTableNeededAlert, "showNoTableNeededAlert", true);
 
         Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
         Scribe_Collections.Look(ref _disabledManagers, "disabledManagers", LookMode.Def);

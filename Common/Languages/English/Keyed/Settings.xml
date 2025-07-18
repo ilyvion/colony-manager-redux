@@ -13,7 +13,20 @@
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target. Note that not necessarily all types of manager jobs can or will respect this setting.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
 
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
-    <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
+    <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: &lt; {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
     <ColonyManagerRedux.ManagerSettings.DisableManagers>Active managers</ColonyManagerRedux.ManagerSettings.DisableManagers>
     <ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>Removing a manager from this list will make it so that that manager's tab and manager settings will be hidden. Jobs will still show up until manually removed, though. You can turn a manager off if you never use a specific manager's features, e.g., to declutter your UI. Changes here will not take effect until the manager tabs window is closed and re-opened or the mod's settings windows is closed and re-opened.</ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>
+
+    <ColonyManagerRedux.ManagerSettings.AlertSettings>Alert settings</ColonyManagerRedux.ManagerSettings.AlertSettings>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert>Show an alert when no pawn has been assigned to managing</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip>Show an alert when a map has manager tasks configured, but no pawn has been assigned to managing, nor has an AI manager yet been built.</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert>Show an alert when no manager building has been built</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert.Tip>Show an alert when a map has manager tasks configured, but no manager desk or AI manager has been built</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert.Tip>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert>Show an alert when manager desk is no longer needed</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert.Tip>Show an alert when a map has an AI manager, so manager desks are no longer needed</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert.Tip>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert>Show an alert when manager jobs are not updating</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert.Tip>Show an alert when manager jobs are not updating, which can happen if pawns assigned to managing are otherwise occupied with other things for too long or are otherwise incapacitated.</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert.Tip>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert>Days before showing alert: {0}</ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert>Days before showing high alert: {0}</ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert>
+    <ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert>Days before showing critical alert: {0}</ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert>
 </LanguageData>

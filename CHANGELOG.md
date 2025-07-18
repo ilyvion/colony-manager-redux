@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Restored an improved version of the original Colony Manager's threshold filter. You can now enable a setting to filter not only on items directly relevant to the job, but on any item. This lets you set up jobs based on criteria not directly related to the job's outcome, such as enabling jobs when a secondary product runs low instead of when the raw ingredient runs low.
 -   Concurrently with the above, the threshold comparison operator has been restored from the original Colony Manager. You can now enable jobs not just based on having less than a target, but also more than a target, equal to a target or not equal to a target.
+-   Settings for disabling alerts and for configuring the parameters of the outdated jobs alert.
 
 ### Fixed
 

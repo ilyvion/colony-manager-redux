@@ -27,37 +27,15 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
 
     public float DrawLogSettings(Vector2 cur, float width)
     {
-        // target threshold
-        var thresholdLabelRect = new Rect(
-            cur.x,
-            cur.y,
+        Settings.DrawIntSliderConfig(
+            KeepLogCount,
+            v => KeepLogCount = v,
+            DefaultMaxUpperThreshold,
+            ref cur,
             width,
-            ListEntryHeight);
-        cur.y += ListEntryHeight;
-
-        var thresholdRect = new Rect(
-            cur.x,
-            cur.y,
-            width,
-            SliderHeight);
-        cur.y += SliderHeight;
-
-        var rowRect = new Rect(cur.x, cur.y, width, ListEntryHeight);
-        cur.y += ListEntryHeight;
-
-        IlyvionWidgets.Label(
-            thresholdLabelRect,
+            ListEntryHeight,
             "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount".Translate(KeepLogCount),
             "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip".Translate());
-        KeepLogCount = (int)GUI.HorizontalSlider(thresholdRect, KeepLogCount, 1, DefaultMaxUpperThreshold);
-
-        //rowRect.y += ListEntryHeight;
-        Utilities.DrawToggle(rowRect,
-            "ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone".Translate(),
-            "ColonyManagerRedux.Logs.ManagerSettings.ShowLogsWithNoWorkDone.Tip".Translate(
-                "ColonyManagerRedux.Logs.NoWorkDone".Translate()
-            ),
-            ref ShowLogsWithNoWorkDone);
 
         return cur.y;
     }

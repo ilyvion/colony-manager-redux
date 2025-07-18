@@ -30,7 +30,8 @@ internal sealed class Alert_NoManager : Alert
 
     public override AlertReport GetReport()
     {
-        return _noManager.Value;
+        return ColonyManagerReduxMod.Settings.ShowNoManagerAlert
+            && _noManager.Value;
     }
 
     private static bool AnyConsciousManagerPawn()
@@ -50,65 +51,46 @@ internal sealed class Alert_NoManager : Alert
     }
 }
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
 [HotSwappable]
 internal sealed class Alert_JobsNotUpdating : Alert
 {
-    private enum OutdatedJob
-    {
-        No,
-        HalfDay,
-        Day,
-        TwoDays
-    }
-
-    private readonly CachedValue<OutdatedJob> _outdatedJobs;
+    private readonly CachedValue<int> _mostOutdatedJobTicks;
 
     public Alert_JobsNotUpdating()
     {
         defaultLabel = "ColonyManagerRedux.Alerts.JobsNotUpdatingLabel".Translate();
         defaultExplanation = "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate();
 
-        _outdatedJobs = new(() =>
+        _mostOutdatedJobTicks = new(() =>
         {
             var currentMap = Find.CurrentMap;
             if (currentMap == null)
             {
-                return OutdatedJob.No;
+                return 0;
             }
             var manager = Manager.For(currentMap);
-            var mostOudatedJobTickCount = manager.JobTracker.JobList
+            return manager.JobTracker.JobList
                 .Where(j => !j.IsSuspended && j.ShouldDoNow)
-                .Max(j => (int?)(j.TicksSinceLastUpdate - j.UpdateInterval.Ticks));
-
-            if (mostOudatedJobTickCount > GenDate.TicksPerDay * 1.5)
-            {
-                return OutdatedJob.TwoDays;
-            }
-            else if (mostOudatedJobTickCount > GenDate.TicksPerDay)
-            {
-                return OutdatedJob.Day;
-            }
-            else if (mostOudatedJobTickCount > (GenDate.TicksPerDay / 2))
-            {
-                return OutdatedJob.HalfDay;
-            }
-            else
-            {
-                return OutdatedJob.No;
-            }
+                .Max(j => (int?)j.TicksSinceShouldUpdate) ?? 0;
         });
     }
 
-    public override AlertPriority Priority => _outdatedJobs.Value switch
+    public override AlertPriority Priority
     {
-        OutdatedJob.Day => AlertPriority.High,
-        OutdatedJob.TwoDays => AlertPriority.Critical,
-        _ => AlertPriority.Medium,
-    };
+        get
+        {
+            int mostOutdatedJobTicks = _mostOutdatedJobTicks.Value;
+            if (mostOutdatedJobTicks >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingCriticalAlert)
+            {
+                return AlertPriority.Critical;
+            }
+            else if (mostOutdatedJobTicks >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingHighAlert)
+            {
+                return AlertPriority.High;
+            }
+            return AlertPriority.Medium;
+        }
+    }
 
     private const float PulseFreq = 0.5f;
 
@@ -120,11 +102,12 @@ internal sealed class Alert_JobsNotUpdating : Alert
         {
             float num = Pulser.PulseBrightness(0.5f,
                 Pulser.PulseBrightness(PulseFreq, PulseAmpCritical));
-            return new Color(num, num, num) * (_outdatedJobs.Value switch
+            return new Color(num, num, num) * (Priority switch
             {
-                OutdatedJob.Day => Color.yellow.ToTransparent(.5f),
-                OutdatedJob.TwoDays => Color.red.ToTransparent(.5f),
-                _ => Color.clear,
+                AlertPriority.High => Color.yellow.ToTransparent(.5f),
+                AlertPriority.Critical => Color.red.ToTransparent(.5f),
+                AlertPriority.Medium => Color.clear,
+                _ => throw new NotImplementedException(),
             });
         }
     }
@@ -132,19 +115,19 @@ internal sealed class Alert_JobsNotUpdating : Alert
     public override AlertReport GetReport()
     {
         // No need to report jobs not being updated if there's no manager to update them
-        if (Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager))
+        if (!ColonyManagerReduxMod.Settings.ShowJobsNotUpdatingAlert
+            || Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager))
         {
             return false;
         }
 
-        return _outdatedJobs.Value != OutdatedJob.No;
+        return _mostOutdatedJobTicks.Value >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingAlert;
     }
 
     public override TaggedString GetExplanation()
     {
         return "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate(
-            $"ColonyManagerRedux.Alerts.JobsNotUpdating.{_outdatedJobs.Value}"
-                .Translate());
+            _mostOutdatedJobTicks.Value.ToStringTicksToPeriod());
     }
 
     protected override void OnClick()
@@ -169,7 +152,8 @@ internal sealed class Alert_NoTable : Alert
                 return false;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerTable();
+            return manager.JobTracker.JobsOfType<ManagerJob>().Any()
+                && !AnyManagerTable();
         });
     }
 
@@ -177,7 +161,8 @@ internal sealed class Alert_NoTable : Alert
 
     public override AlertReport GetReport()
     {
-        return _noTable.Value;
+        return ColonyManagerReduxMod.Settings.ShowNoManagerAlert
+            && _noTable.Value;
     }
 
     public override TaggedString GetExplanation()
@@ -255,7 +240,8 @@ internal sealed class Alert_TableAndAI : Alert
 
     public override AlertReport GetReport()
     {
-        if (!_hasAIManager.Value)
+        if (!ColonyManagerReduxMod.Settings.ShowNoTableNeededAlert
+            || !_hasAIManager.Value)
         {
             return false;
         }

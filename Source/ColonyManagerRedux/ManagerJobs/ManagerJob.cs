@@ -32,8 +32,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     private bool _shouldCheckReachable;
     public ref bool ShouldCheckReachable { get => ref _shouldCheckReachable; }
 
+    private int _jobCreatedTick = Find.TickManager.TicksGame;
     private int _lastActionTick = -1;
-    public int TicksSinceLastUpdate => Find.TickManager.TicksGame - _lastActionTick;
+    public int TicksSinceLastUpdate => _lastActionTick < 0
+        ? Find.TickManager.TicksGame - _jobCreatedTick
+        : Find.TickManager.TicksGame - _lastActionTick;
+    public int TicksSinceShouldUpdate => TicksSinceLastUpdate - UpdateInterval.Ticks;
     public bool HasBeenUpdated => _lastActionTick != -1;
 
     internal Manager _manager;
@@ -243,6 +247,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             Scribe_Values.Look(ref _loadID, "loadID", 0);
             Scribe_References.Look(ref _manager, "manager");
             Scribe_Values.Look(ref _lastActionTick, "lastActionTick");
+            Scribe_Values.Look(ref _jobCreatedTick, "jobCreatedTick", _lastActionTick < 0 ? Find.TickManager.TicksGame : _lastActionTick);
             Scribe_Values.Look(ref Priority, "priority");
             Scribe_Values.Look(ref _isSuspended, "isSuspended");
             Scribe_Values.Look(ref _jobState, "jobState");
@@ -557,21 +562,23 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     public override string ToString()
     {
-        var s = new StringBuilder();
-        s.AppendLine(Label);
-        s.AppendLine("Load ID:" + GetUniqueLoadID());
-        s.AppendLine("Priority: " + Priority);
-        s.AppendLine("Active: " + IsSuspended);
-        s.AppendLine("LastActionTick: " + _lastActionTick);
-        s.AppendLine("Interval: " + UpdateInterval.Label);
-        s.AppendLine("TicksSinceLastUpdate: " + TicksSinceLastUpdate);
-        s.AppendLine("HasBeenUpdated: " + HasBeenUpdated);
-        s.AppendLine("IsSuspended: " + _isSuspended);
-        s.AppendLine("JobState: " + JobState);
-        s.AppendLine("IsManaged: " + IsManaged);
-        s.AppendLine("ShouldUpdate: " + ShouldUpdate);
-        s.AppendLine("ShouldDoNow: " + ShouldDoNow);
-        return s.ToString();
+        return new StringBuilder()
+            .AppendLine(Label)
+            .AppendLine("Load ID:" + GetUniqueLoadID())
+            .AppendLine("Priority: " + Priority)
+            .AppendLine("Active: " + IsSuspended)
+            .AppendLine("JobCreatedTick: " + _jobCreatedTick)
+            .AppendLine("LastActionTick: " + _lastActionTick)
+            .AppendLine("Interval: " + UpdateInterval.Label)
+            .AppendLine("TicksSinceLastUpdate: " + TicksSinceLastUpdate)
+            .AppendLine("TicksSinceShouldUpdate: " + TicksSinceShouldUpdate)
+            .AppendLine("HasBeenUpdated: " + HasBeenUpdated)
+            .AppendLine("IsSuspended: " + _isSuspended)
+            .AppendLine("JobState: " + JobState)
+            .AppendLine("IsManaged: " + IsManaged)
+            .AppendLine("ShouldUpdate: " + ShouldUpdate)
+            .AppendLine("ShouldDoNow: " + ShouldDoNow)
+            .ToString();
     }
 
     public void Touch()
