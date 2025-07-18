@@ -242,15 +242,18 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         Scribe_Values.Look(ref ShouldCheckReachable, "shouldCheckReachable", true);
         Scribe_Values.Look(ref UsePathBasedDistance, "usePathBasedDistance");
 
-        if (Manager.ScribeGameSpecificData)
+        if (Manager.ScribeSameGameData)
         {
-            Scribe_Values.Look(ref _loadID, "loadID", 0);
-            Scribe_References.Look(ref _manager, "manager");
             Scribe_Values.Look(ref _lastActionTick, "lastActionTick");
             Scribe_Values.Look(ref _jobCreatedTick, "jobCreatedTick", _lastActionTick < 0 ? Find.TickManager.TicksGame : _lastActionTick);
             Scribe_Values.Look(ref Priority, "priority");
             Scribe_Values.Look(ref _isSuspended, "isSuspended");
             Scribe_Values.Look(ref _jobState, "jobState");
+        }
+        if (Manager.ScribeSameMapData)
+        {
+            Scribe_Values.Look(ref _loadID, "loadID", 0);
+            Scribe_References.Look(ref _manager, "manager");
 
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {

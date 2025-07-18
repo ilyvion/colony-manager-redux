@@ -32,7 +32,7 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
         {
             try
             {
-                manager.ScribeGameSpecificData = false;
+                manager.ScribeSameMapData = false;
                 CustomStreamScribeSaver.InitSaving(m, "JobList", false);
                 ScribeMetaHeaderUtility.WriteMetaHeader();
                 var jobList = manager.JobTracker.JobsOfType<ManagerJob>().Where(j => j.IsTransferable).ToList();
@@ -49,10 +49,12 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
             finally
             {
                 Scribe.saver.FinalizeSaving();
-                manager.ScribeGameSpecificData = true;
+                manager.ScribeSameMapData = true;
             }
 
             bytes = m.GetBuffer();
+            ColonyManagerReduxMod.Instance.LogDevMessage("Serialized job data:\n\n"
+                + System.Text.Encoding.UTF8.GetString(bytes));
         }
 
         compManagerDatabase.JobTransferData = bytes;

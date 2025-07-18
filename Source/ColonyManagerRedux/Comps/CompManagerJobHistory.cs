@@ -151,7 +151,7 @@ public class CompManagerJobHistory : ManagerJobComp
     public override void PostExposeData()
     {
         base.PostExposeData();
-        if (Parent.Manager.ScribeGameSpecificData)
+        if (Parent.Manager.ScribeSameGameData)
         {
             Scribe_Deep.Look(ref history, "history");
         }

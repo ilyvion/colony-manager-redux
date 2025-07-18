@@ -541,6 +541,49 @@ public static class Utilities
         }
     }
 
+
+    public static void Scribe_AreaByLabel(ref Area? area, ref string? tmpAreaLabel, string label, AreaManager areaManager)
+    {
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            tmpAreaLabel = area?.Label;
+        }
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"Scribed '{label}' with area label: '{tmpAreaLabel}' before with {Scribe.mode}");
+        Scribe_Values.Look(ref tmpAreaLabel, label);
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"Scribed '{label}' with area label: '{tmpAreaLabel}' after with {Scribe.mode}");
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            ColonyManagerReduxMod.Instance.LogDebug(
+                $"Attempting to load '{label}' by its area label: '{tmpAreaLabel}' from the areaManager");
+            area = areaManager.GetLabeled(tmpAreaLabel);
+            tmpAreaLabel = null;
+        }
+    }
+
+    public static void Scribe_AreasByLabel(ref HashSet<Area> areas, ref List<string>? tmpAreaLabels, string label, AreaManager areaManager)
+    {
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            tmpAreaLabels = areas?.Select(a => a.Label).ToList();
+        }
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"Scribed '{label}' with area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' before with {Scribe.mode}");
+        Scribe_Collections.Look(ref tmpAreaLabels, label, LookMode.Value);
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"Scribed '{label}' with area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' after with {Scribe.mode}");
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            ColonyManagerReduxMod.Instance.LogDebug(
+                $"Attempting to load '{label}' by its area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' from the areaManager");
+            areas = tmpAreaLabels?.Select(areaManager.GetLabeled).ToHashSet() ?? [];
+            tmpAreaLabels = null;
+        }
+    }
+
     public static string TimeString(this int ticks)
     {
         int days = ticks / GenDate.TicksPerDay,

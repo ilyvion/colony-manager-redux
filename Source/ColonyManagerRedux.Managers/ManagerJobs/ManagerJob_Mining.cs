@@ -375,6 +375,7 @@ internal sealed class ManagerJob_Mining
         return string.Empty;
     }
 
+    private string? _tmpMiningAreaLabel = null;
     public override void ExposeData()
     {
         base.ExposeData();
@@ -395,12 +396,15 @@ internal sealed class ManagerJob_Mining
         Scribe_Values.Look(ref MineThickRoofs, "mineThickRoofs", true);
         Scribe_Values.Look(ref TakeOwnershipOfMiningJobs, "takeOwnershipOfMiningJobs", false);
 
-        // don't store history in import/export mode.
-        if (Manager.ScribeGameSpecificData)
+        if (Manager.ScribeSameMapData)
         {
             Scribe_References.Look(ref MiningArea, "miningArea");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
+        }
+        else
+        {
+            Utilities.Scribe_AreaByLabel(ref MiningArea, ref _tmpMiningAreaLabel, "miningArea", Manager.map.areaManager);
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)

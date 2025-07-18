@@ -285,6 +285,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             thing.def.race.meatDef.LabelCap);
     }
 
+    private string? _tmpHuntingGroundsLabel = null;
+
     public override void ExposeData()
     {
         // scribe base things
@@ -298,12 +300,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         Scribe_Values.Look(ref _unforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _unforbidAllCorpses, "unforbidAllCorpses", true);
 
-        if (Manager.ScribeGameSpecificData)
+        if (Manager.ScribeSameMapData)
         {
-            // references first, reasons
             Scribe_References.Look(ref HuntingGrounds, "huntingGrounds");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
+        }
+        else
+        {
+            Utilities.Scribe_AreaByLabel(ref HuntingGrounds, ref _tmpHuntingGroundsLabel, "huntingGrounds", Manager.map.areaManager);
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)

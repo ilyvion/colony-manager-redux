@@ -395,6 +395,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
+    private static readonly string?[] _tmpRestrictAreaLabel
+        = Utilities_Livestock.AgeSexArray.Select(k => (string?)null).ToArray();
+    private string? _tmpTameAreaLabel = null;
+    private string? _tmpCullingAreaLabel = null;
+    private string? _tmpMilkAreaLabel = null;
+    private string? _tmpShearAreaLabel = null;
+    private string? _tmpTrainingAreaLabel = null;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -421,7 +429,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         Scribe_Values.Look(ref Trainers, "trainers");
         Scribe_Values.Look(ref RespectBonds, "respectBonds", true);
 
-        if (Manager.ScribeGameSpecificData)
+        if (Manager.ScribeSameGameData)
+        {
+            Scribe_References.Look(ref Master, "master");
+            Scribe_References.Look(ref Trainer, "trainer");
+
+            Scribe_Deep.Look(ref Training, "training");
+        }
+        if (Manager.ScribeSameMapData)
         {
             foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
             {
@@ -435,10 +450,6 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             Scribe_References.Look(ref MilkArea, "milkArea");
             Scribe_References.Look(ref ShearArea, "shearArea");
             Scribe_References.Look(ref TrainingArea, "trainingArea");
-            Scribe_References.Look(ref Master, "master");
-            Scribe_References.Look(ref Trainer, "trainer");
-
-            Scribe_Deep.Look(ref Training, "training");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
 
@@ -457,7 +468,24 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 JobState = ManagerJobState.Active;
             }
         }
+        else
+        {
+            foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
+            {
+                Utilities.Scribe_AreaByLabel(
+                    ref RestrictArea[(int)ageAndSex],
+                    ref _tmpRestrictAreaLabel[(int)ageAndSex],
+                    $"{ageAndSex.ToString().UncapitalizeFirst()}AreaRestriction",
+                    Manager.map.areaManager);
+            }
+            Utilities.Scribe_AreaByLabel(ref TameArea, ref _tmpTameAreaLabel, "tameArea", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(ref CullingArea, ref _tmpCullingAreaLabel, "slaughterArea", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(ref MilkArea, ref _tmpMilkAreaLabel, "milkArea", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(ref ShearArea, ref _tmpShearAreaLabel, "shearArea", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(ref TrainingArea, ref _tmpTrainingAreaLabel, "trainingArea", Manager.map.areaManager);
+        }
     }
+
 
     public Pawn? GetMaster(Pawn animal, MasterMode mode)
     {

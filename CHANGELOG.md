@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+-   Areas are now saved by name when transferred (import/export and gravship map change). This means that jobs with areas loaded in maps with the same areas present will be re-assigned these new areas by name instead of always being set to "Unrestricted."
+
 ## [0.8.0] - 2025-07-18
 
 ### Added

@@ -263,6 +263,8 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
+    private string? _tmpLoggingAreaLabel = null;
+    private List<string>? _tmpClearAreasLabels = null;
     public override void ExposeData()
     {
         // scribe base things
@@ -274,21 +276,24 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
 
-        if (Manager.ScribeGameSpecificData)
+        // clearing areas list
+        if (Scribe.mode == LoadSaveMode.Saving)
+        {
+            // make sure areas list doesn't contain deleted areas
+            UpdateClearAreas();
+        }
+
+        if (Manager.ScribeSameMapData)
         {
             Scribe_References.Look(ref LoggingArea, "loggingArea");
 
-            // clearing areas list
-            if (Scribe.mode == LoadSaveMode.Saving)
-            {
-                // make sure areas list doesn't contain deleted areas
-                UpdateClearAreas();
-            }
-
-            // scribe that stuff
             Scribe_Collections.Look(ref ClearAreas, "clearAreas", LookMode.Reference);
-
             Utilities.Scribe_Designations(ref _designations, Manager);
+        }
+        else
+        {
+            Utilities.Scribe_AreaByLabel(ref LoggingArea, ref _tmpLoggingAreaLabel, "loggingArea", Manager.map.areaManager);
+            Utilities.Scribe_AreasByLabel(ref ClearAreas, ref _tmpClearAreasLabels, "clearAreas", Manager.map.areaManager);
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)

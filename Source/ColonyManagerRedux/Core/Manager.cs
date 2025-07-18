@@ -27,7 +27,23 @@ public class Manager : MapComponent, ILoadReferenceable
 
     private readonly List<ManagerComp> _comps;
 
-    public bool ScribeGameSpecificData { get; set; } = true;
+    /// <summary>
+    /// Controls whether data specific to the current map (such as references to Things, areas, and per-map state)
+    /// should be serialized (scribed). This is <c>true</c> only during normal gameplay, saving, and loading.
+    /// It is <c>false</c> during import/export or inter-map transfers. This flag implies <see cref="ScribeSameGameData"/> is also <c>true</c>.
+    /// </summary>
+    public bool ScribeSameMapData { get; set; } = true;
+
+    [Obsolete("Use ScribeMapLocalData instead. This will be removed in a future version.")]
+    public bool ScribeGameSpecificData { get => ScribeSameMapData; set => ScribeSameMapData = value; }
+
+    /// <summary>
+    /// Controls whether data that is valid within the same game session but across different maps
+    /// (e.g., timestamps, game-unique identifiers) should be serialized (scribed). This is <c>true</c>
+    /// during gameplay, saving, loading, and inter-map operations, but <c>false</c> during import/export
+    /// between different game instances.
+    /// </summary>
+    public bool ScribeSameGameData { get; set; } = true;
 
     public Manager(Map map) : base(map)
     {

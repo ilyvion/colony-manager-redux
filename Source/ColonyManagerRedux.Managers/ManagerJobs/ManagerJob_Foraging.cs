@@ -201,6 +201,8 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
+    private string? _tmpForagingAreaLabel = null;
+
     public override void ExposeData()
     {
         // scribe base things
@@ -210,11 +212,15 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
 
-        if (Manager.ScribeGameSpecificData)
+        if (Manager.ScribeSameMapData)
         {
             Scribe_References.Look(ref ForagingArea, "foragingArea");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
+        }
+        else
+        {
+            Utilities.Scribe_AreaByLabel(ref ForagingArea, ref _tmpForagingAreaLabel, "foragingArea", Manager.map.areaManager);
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)

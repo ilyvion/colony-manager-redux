@@ -15,7 +15,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
     public virtual void ExposeData()
     {
-        if (_job.Manager.ScribeGameSpecificData)
+        if (_job.Manager.ScribeSameMapData)
         {
             Scribe_References.Look(ref _job, "job");
         }

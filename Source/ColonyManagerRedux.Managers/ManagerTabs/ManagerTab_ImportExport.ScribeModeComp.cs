@@ -15,7 +15,8 @@ partial class ManagerTab_ImportExport
             get => mode; internal set
             {
                 mode = value;
-                Manager.ScribeGameSpecificData = Mode == ScribingMode.Normal;
+                Manager.ScribeSameMapData = Mode == ScribingMode.Normal;
+                Manager.ScribeSameGameData = Mode == ScribingMode.Normal;
             }
         }
     }

@@ -45,7 +45,7 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         CustomStreamReaderScribeLoader.InitLoading(new StreamReader(m));
         try
         {
-            manager.ScribeGameSpecificData = false;
+            manager.ScribeSameMapData = false;
             ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.None, logVersionConflictWarning: true);
             Scribe_Collections.Look(ref jobList, "jobList", LookMode.Deep, manager);
             Scribe.loader.FinalizeLoading();
@@ -58,7 +58,7 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         }
         finally
         {
-            manager.ScribeGameSpecificData = true;
+            manager.ScribeSameMapData = true;
         }
 
         foreach (var job in jobList)
