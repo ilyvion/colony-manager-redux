@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-07-18
+
 ### Added
 
 -   Restored an improved version of the original Colony Manager's threshold filter. You can now enable a setting to filter not only on items directly relevant to the job, but on any item. This lets you set up jobs based on criteria not directly related to the job's outcome, such as enabling jobs when a secondary product runs low instead of when the raw ingredient runs low.
@@ -336,7 +338,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.8.0...HEAD
+[0.8.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.7.0..v0.8.0
 [0.7.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.1..v0.7.0
 [0.6.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.0..v0.6.1
 [0.6.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.5.4..v0.6.0
