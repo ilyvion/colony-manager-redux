@@ -303,6 +303,30 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             "ColonyManagerRedux.Shortcuts.All",
             null);
 
+        // toggle mini
+        rowRect.y += ListEntryHeight;
+        _tmpThings.Clear();
+        _tmpThings.AddRange(
+            allPlants.Where(p => p.plant?.treeCategory == TreeCategory.Mini));
+        DrawShortcutToggle(_tmpThings, allowedTrees, (p, v) => SelectedForestryJob.SetTreeAllowed(p, v), rowRect,
+            "ColonyManagerRedux.Forestry.Mini", null);
+
+        // toggle full
+        rowRect.y += ListEntryHeight;
+        _tmpThings.Clear();
+        _tmpThings.AddRange(
+            allPlants.Where(p => p.plant?.treeCategory == TreeCategory.Full));
+        DrawShortcutToggle(_tmpThings, allowedTrees, (p, v) => SelectedForestryJob.SetTreeAllowed(p, v), rowRect,
+            "ColonyManagerRedux.Forestry.Full", null);
+
+        // toggle super
+        rowRect.y += ListEntryHeight;
+        _tmpThings.Clear();
+        _tmpThings.AddRange(
+            allPlants.Where(p => p.plant?.treeCategory == TreeCategory.Super));
+        DrawShortcutToggle(_tmpThings, allowedTrees, (p, v) => SelectedForestryJob.SetTreeAllowed(p, v), rowRect,
+            "ColonyManagerRedux.Forestry.Super", null);
+
         if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {
             // trees (anything that drops wood, or has the correct harvest tag).

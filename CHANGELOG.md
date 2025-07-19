@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   The forestry tab now has shortcuts that lets you filter trees by their tree category: mini, full and super.
+
 ### Changed
 
 -   Areas are now saved by name when transferred (import/export and gravship map change). This means that jobs with areas loaded in maps with the same areas present will be re-assigned these new areas by name instead of always being set to "Unrestricted."
