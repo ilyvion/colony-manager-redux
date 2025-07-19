@@ -68,11 +68,21 @@
             <PropertyGroup>
                 <DefineConstants>$(DefineConstants);v1_5</DefineConstants>
             </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Lib.Harmony" Version="[2.3.3]">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
         </When>
         <When Condition="'$(RimWorldVersion)' == '1.6'">
             <PropertyGroup>
                 <DefineConstants>$(DefineConstants);v1_6</DefineConstants>
             </PropertyGroup>
+            <ItemGroup>
+                <PackageReference Include="Lib.Harmony" Version="2.3.6">
+                    <ExcludeAssets>runtime</ExcludeAssets>
+                </PackageReference>
+            </ItemGroup>
         </When>
     </Choose>
 
@@ -80,9 +90,6 @@
         <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
-        <PackageReference Include="Lib.Harmony" Version="2.3.3">
-            <ExcludeAssets>runtime</ExcludeAssets>
         </PackageReference>
         <PackageReference Include="PolySharp" Version="1.14.1">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
