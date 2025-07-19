@@ -64,6 +64,19 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             SelectedHuntingJob.RefreshAllAnimals();
         }
 
+        var padlockRect = new Rect(
+            refreshRect.x - (SmallIconSize + 1) - 2 * Margin,
+            position.y + Margin,
+            SmallIconSize + 1,
+            SmallIconSize);
+        if (Widgets.ButtonImage(
+            padlockRect,
+            SelectedHuntingJob.AnimalsLockedToMap ? Resources.PadlockClosed : Resources.PadlockOpen,
+            Color.grey))
+        {
+            SelectedHuntingJob.AnimalsLockedToMap = !SelectedHuntingJob.AnimalsLockedToMap;
+        }
+
         Widgets_Section.Section(ref position, width, DrawAnimalShortcuts, "ColonyManagerRedux.Hunting.Animals".Translate());
         Widgets_Section.Section(ref position, width, DrawAnimalList);
         Widgets_Section.EndSectionColumn("Hunting.Animals", position);

@@ -83,6 +83,19 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             SelectedForestryJob.RefreshAllTrees();
         }
 
+        var padlockRect = new Rect(
+            refreshRect.x - (SmallIconSize + 1) - 2 * Margin,
+            position.y + Margin,
+            SmallIconSize + 1,
+            SmallIconSize);
+        if (Widgets.ButtonImage(
+            padlockRect,
+            SelectedForestryJob.PlantsLockedToMap ? Resources.PadlockClosed : Resources.PadlockOpen,
+            Color.grey))
+        {
+            SelectedForestryJob.PlantsLockedToMap = !SelectedForestryJob.PlantsLockedToMap;
+        }
+
         Widgets_Section.Section(ref position, width, DrawTreeShortcuts, "ColonyManagerRedux.Forestry.Trees".Translate());
         Widgets_Section.Section(ref position, width, DrawTreeList);
         Widgets_Section.EndSectionColumn("Forestry.Trees", position);

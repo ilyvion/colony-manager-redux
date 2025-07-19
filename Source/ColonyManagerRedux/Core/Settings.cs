@@ -67,6 +67,13 @@ public class Settings : ModSettings
         internal set => _recordHistoricalData = value;
     }
 
+    private bool _newJobsShouldBeResourceLocked = true;
+    public bool NewJobsShouldBeResourceLocked
+    {
+        get => _newJobsShouldBeResourceLocked;
+        internal set => _newJobsShouldBeResourceLocked = value;
+    }
+
     private int _maxDesignationsPerJob;
     public int MaxDesignationsPerJob
     {
@@ -290,6 +297,11 @@ public class Settings : ModSettings
             "ColonyManagerRedux.RecordHistoricalData".Translate(),
             "ColonyManagerRedux.RecordHistoricalData.Tip".Translate(),
             ref _recordHistoricalData, true);
+
+        Utilities.DrawToggle(ref pos, width,
+            "ColonyManagerRedux.NewJobsShouldBeResourceLocked".Translate(),
+            "ColonyManagerRedux.NewJobsShouldBeResourceLocked.Tip".Translate(),
+            ref _newJobsShouldBeResourceLocked);
 
         DrawIntSliderConfig(
             _maxDesignationsPerJob,
@@ -629,6 +641,7 @@ public class Settings : ModSettings
         Scribe_Values.Look(ref _defaultCountAllOnMap, "defaultCountAllOnMap", false);
         Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
+        Scribe_Values.Look(ref _newJobsShouldBeResourceLocked, "newJobsShouldBeResourceLocked", true);
         Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");
         Scribe_Collections.Look(ref _customUpdateIntervalTickList, "customUpdateIntervalTickList", LookMode.Value);
         Scribe_Values.Look(ref _showNoManagerAlert, "showNoManagerAlert", true);

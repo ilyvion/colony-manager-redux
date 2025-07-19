@@ -70,13 +70,27 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     internal MultiTickCachedValue<int> CachedCurrentDesignatedCount
         => _cachedCurrentDesignatedCount;
 
+    private bool _plantsLockedToMap = ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked;
+    public bool PlantsLockedToMap
+    {
+        get => _plantsLockedToMap;
+        set
+        {
+            if (_plantsLockedToMap != value)
+            {
+                _plantsLockedToMap = value;
+                _allPlants = null; // reset cached plants
+            }
+        }
+    }
+
     private List<ThingDef>? _allPlants;
     public List<ThingDef> AllPlants
     {
         get
         {
             _allPlants ??= Utilities_Plants
-                .GetForestryPlants(Manager, Type == ForestryJobType.ClearArea).ToList();
+                .GetForestryPlants(_plantsLockedToMap ? Manager.map : null, Type == ForestryJobType.ClearArea).ToList();
             return _allPlants;
         }
     }
@@ -275,6 +289,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref _type, "type", ForestryJobType.Logging);
         Scribe_Values.Look(ref AllowSaplings, "allowSaplings");
+        Scribe_Values.Look(ref _plantsLockedToMap, "plantsLockedToMap", ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked);
 
         // clearing areas list
         if (Scribe.mode == LoadSaveMode.Saving)

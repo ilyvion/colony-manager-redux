@@ -10,10 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 -   The forestry tab now has shortcuts that lets you filter trees by their tree category: mini, full and super.
+-   The foraging, forestry and hunting jobs now allow you to unlock all resources instead of only showing those that are relevant to the map.
 
 ### Changed
 
--   Areas are now saved by name when transferred (import/export and gravship map change). This means that jobs with areas loaded in maps with the same areas present will be re-assigned these new areas by name instead of always being set to "Unrestricted."
+-   Areas are now saved by name when transferred (import/export and gravship map change). This means that jobs with areas loaded in maps with the same areas present will be re-assigned these new areas by name instead of always being set to 'Unrestricted.'
 
 ### Fixed
 

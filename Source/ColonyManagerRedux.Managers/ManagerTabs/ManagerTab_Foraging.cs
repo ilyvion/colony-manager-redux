@@ -52,6 +52,19 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
             SelectedForagingJob.RefreshAllPlants();
         }
 
+        var padlockRect = new Rect(
+            refreshRect.x - (SmallIconSize + 1) - 2 * Margin,
+            position.y + Margin,
+            SmallIconSize + 1,
+            SmallIconSize);
+        if (Widgets.ButtonImage(
+            padlockRect,
+            SelectedForagingJob.PlantsLockedToMap ? Resources.PadlockClosed : Resources.PadlockOpen,
+            Color.grey))
+        {
+            SelectedForagingJob.PlantsLockedToMap = !SelectedForagingJob.PlantsLockedToMap;
+        }
+
         Widgets_Section.Section(ref position, width, DrawPlantShortcuts, "ColonyManagerRedux.Foraging.Plants".Translate());
         Widgets_Section.Section(ref position, width, DrawPlantList);
         Widgets_Section.EndSectionColumn("Foraging.Plants", position);

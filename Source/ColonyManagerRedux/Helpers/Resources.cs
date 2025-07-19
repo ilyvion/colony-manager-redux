@@ -64,6 +64,8 @@ public static class Resources
         ReleaseToTheWild = ContentFinder<Texture2D>.Get("UI/Designators/ReleaseToTheWild"),
         ManagerTab_Gizmo = ContentFinder<Texture2D>.Get("UI/Commands/CMR_ManagerTab_Gizmo"),
         Venerated = ContentFinder<Texture2D>.Get("UI/Icons/CMR_venerated"),
+        PadlockClosed = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_closed"),
+        PadlockOpen = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_open"),
         Nuzzle = ContentFinder<Texture2D>.Get("UI/Icons/CMR_heart");
 
     public static Texture2D GetLifeStageIcon(int lifeStageIndex)

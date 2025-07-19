@@ -9,7 +9,7 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 internal static class Utilities_Plants
 {
-    public static IEnumerable<ThingDef> GetForestryPlants(Map map, bool clearArea)
+    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea)
     {
         return GetAllPlants(map)
 
@@ -22,7 +22,7 @@ internal static class Utilities_Plants
             .OrderBy(pk => pk.label);
     }
 
-    public static IEnumerable<ThingDef> GetForagingPlants(Map map)
+    public static IEnumerable<ThingDef> GetForagingPlants(Map? map)
     {
         return GetAllPlants(map)
 
@@ -34,9 +34,11 @@ internal static class Utilities_Plants
             .OrderBy(pk => pk.label);
     }
 
-    private static IEnumerable<ThingDef> GetAllPlants(Map map)
+    private static IEnumerable<ThingDef> GetAllPlants(Map? map)
     {
-        return map.Biome.AllWildPlants
+        if (map != null)
+        {
+            return map.Biome.AllWildPlants
 
             // cave plants (shrooms)
             .Concat(DefDatabase<ThingDef>.AllDefsListForReading
@@ -52,6 +54,12 @@ internal static class Utilities_Plants
                     map.thingGrid.ThingsAt(p.Position)
                         .FirstOrDefault(t => t is Building_PlantGrower) == null)
                 .Select(p => p.def));
+        }
+        else
+        {
+            return DefDatabase<ThingDef>.AllDefsListForReading
+                .Where(td => td.IsPlant);
+        }
     }
 
     public static bool TrySpecialAllowedSync(

@@ -39,9 +39,13 @@ internal static class Utilities_Hunting
     public static int EstimatedYield(this Corpse c, HuntingTargetResource resource) =>
         EstimatedYield(c.InnerPawn, resource);
 
-    internal static IEnumerable<PawnKindDef> GetMapPawnKindDefs(Map map, bool animalsOnly = true) =>
+    internal static IEnumerable<PawnKindDef> GetMapPawnKindDefs(Map? map, bool animalsOnly = true)
+    {
         // Get all the wild animals on the map
-        map.Biome.AllWildAnimals
+        if (map != null)
+        {
+            // Get all the wild animals on the map
+            return map.Biome.AllWildAnimals
             // and any visible pawns on the map
             .Concat(map.mapPawns.AllPawns
                 .Where(p => (!animalsOnly || (p.RaceProps?.Animal ?? false))
@@ -55,4 +59,11 @@ internal static class Utilities_Hunting
                 .Select(c => c.InnerPawn.kindDef))
             .Distinct()
             .OrderBy(pk => pk.label);
+        }
+        else
+        {
+            return DefDatabase<PawnKindDef>.AllDefsListForReading
+                .Where(pkd => !animalsOnly || (pkd.RaceProps?.Animal ?? false));
+        }
+    }
 }

@@ -92,12 +92,26 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     private List<Designation> _designations = [];
 
+    private bool _animalsLockedToMap = ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked;
+    public bool AnimalsLockedToMap
+    {
+        get => _animalsLockedToMap;
+        set
+        {
+            if (_animalsLockedToMap != value)
+            {
+                _animalsLockedToMap = value;
+                _allAnimals = null; // reset cached animals
+            }
+        }
+    }
+
     private List<PawnKindDef>? _allAnimals;
     public List<PawnKindDef> AllAnimals
     {
         get
         {
-            _allAnimals ??= Utilities_Hunting.GetMapPawnKindDefs(Manager).ToList();
+            _allAnimals ??= Utilities_Hunting.GetMapPawnKindDefs(_animalsLockedToMap ? Manager.map : null).ToList();
             return _allAnimals;
         }
     }
@@ -299,6 +313,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref _unforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _unforbidAllCorpses, "unforbidAllCorpses", true);
+        Scribe_Values.Look(ref _animalsLockedToMap, "animalsLockedToMap", ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked);
 
         if (Manager.ScribeSameMapData)
         {

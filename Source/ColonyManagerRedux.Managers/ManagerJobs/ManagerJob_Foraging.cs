@@ -63,12 +63,26 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     internal MultiTickCachedValue<int> CachedCurrentDesignatedCount
         => _cachedCurrentDesignatedCount;
 
+    private bool _plantsLockedToMap = ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked;
+    public bool PlantsLockedToMap
+    {
+        get => _plantsLockedToMap;
+        set
+        {
+            if (_plantsLockedToMap != value)
+            {
+                _plantsLockedToMap = value;
+                _allPlants = null; // reset cached plants
+            }
+        }
+    }
+
     private List<ThingDef>? _allPlants;
     public List<ThingDef> AllPlants
     {
         get
         {
-            _allPlants ??= Utilities_Plants.GetForagingPlants(Manager).ToList();
+            _allPlants ??= Utilities_Plants.GetForagingPlants(_plantsLockedToMap ? Manager.map : null).ToList();
             return _allPlants;
         }
     }
@@ -205,12 +219,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     public override void ExposeData()
     {
-        // scribe base things
         base.ExposeData();
 
-        // settings, references first!
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
+        Scribe_Values.Look(ref _plantsLockedToMap, "plantsLockedToMap", ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked);
 
         if (Manager.ScribeSameMapData)
         {
