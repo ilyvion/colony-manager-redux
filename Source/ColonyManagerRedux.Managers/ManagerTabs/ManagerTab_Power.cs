@@ -28,22 +28,6 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         MaxPerChapter = true,
     };
 
-    protected override IEnumerable<ManagerJob> ManagerJobs
-    {
-        get
-        {
-            var job = Manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault();
-            if (job == null)
-            {
-                job = Manager.NewJob<ManagerJob_Power>(Def);
-                Manager.JobTracker.Add(job);
-                job.IsManaged = true;
-                Selected = job;
-            }
-            yield return job;
-        }
-    }
-
     public override string DisabledReason
     {
         get
@@ -53,7 +37,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                 return "ColonyManagerRedux.Energy.NotResearched".Translate();
             }
 
-            if (!SelectedJob!.AnyPoweredStationOnline)
+            if (!SelectedJob.AnyPoweredStationOnline)
             {
                 return "ColonyManagerRedux.Energy.NoPoweredStation".Translate();
             }
@@ -67,21 +51,44 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         }
     }
 
-    public override bool Enabled => ResearchedFinished && SelectedJob!.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
+    private new ManagerJob_Power SelectedJob
+    {
+        get
+        {
+            if (base.SelectedJob == null && ResearchedFinished)
+            {
+                var job = Manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault();
+                if (job == null)
+                {
+                    ColonyManagerReduxMod.Instance.LogWarning(
+                        "No power job found, creating a new one.");
+                    job = Manager.NewJob<ManagerJob_Power>(Def);
+                    Manager.JobTracker.Add(job);
+                    job.IsManaged = true;
+                    Selected = job;
+                }
+                else
+                {
+                    Selected = job;
+                }
+            }
+            // We've ensured that SelectedJob is never null by setting Selected above.
+            return base.SelectedJob!;
+        }
+    }
+
+    public override bool Enabled => ResearchedFinished && SelectedJob.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
 
     protected override bool CreateNewSelectedJobOnMake => false;
 
-    public static bool ResearchedFinished
-    {
-        get => ManagerResearchProjectDefOf.PowerManagement.IsFinished;
-    }
+    public static bool ResearchedFinished => ManagerResearchProjectDefOf.PowerManagement.IsFinished;
 
     public static void OnPowerResearchedFinished()
     {
         foreach (var map in Find.Maps)
         {
             ManagerTab_Power tab = Manager.For(map).Tabs.OfType<ManagerTab_Power>().First();
-            tab.Selected ??= tab.ManagerJobs.First();
+            _ = tab.SelectedJob; // Ensure the job is created if it doesn't already exist.
         }
     }
 
@@ -117,10 +124,8 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     {
         base.PreOpen();
 
-        Selected ??= ManagerJobs.First();
-
         // close this tab if it was selected but no longer available
-        if (!SelectedJob!.AnyPoweredStationOnline && MainTabWindow_Manager.CurrentTab == this)
+        if (!SelectedJob.AnyPoweredStationOnline && MainTabWindow_Manager.CurrentTab == this)
         {
             MainTabWindow_Manager.GoTo(MainTabWindow_Manager.DefaultTab);
             return;
@@ -139,7 +144,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         var legendRect = new Rect(canvas.xMin, plotRect.yMax + Margin, canvas.width,
                                    (canvas.height - Margin) / 2f);
 
-        var tradingHistory = SelectedJob!.tradingHistory;
+        var tradingHistory = SelectedJob.tradingHistory;
 
         // draw the plot
         tradingHistory.DrawPlot(plotRect, negativeOnly: true);
@@ -158,8 +163,8 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         var buttonsRect = new Rect(canvas.xMin, legendRect.yMax + Margin,
                                     (canvas.width - Margin) / 2f, ButtonSize.y);
 
-        var overallHistory = SelectedJob!.CompOfType<CompManagerJobHistory>()!.History;
-        var tradingHistory = SelectedJob!.tradingHistory;
+        var overallHistory = SelectedJob.CompOfType<CompManagerJobHistory>()!.History;
+        var tradingHistory = SelectedJob.tradingHistory;
 
         // draw the plot
         overallHistory.DrawOptions = false;
@@ -214,7 +219,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         var legendRect = new Rect(canvas.xMin, plotRect.yMax + Margin, canvas.width,
                                    (canvas.height - Margin) / 2f);
 
-        var tradingHistory = SelectedJob!.tradingHistory;
+        var tradingHistory = SelectedJob.tradingHistory;
 
         // draw the plot
         tradingHistory.DrawPlot(plotRect, positiveOnly: true);

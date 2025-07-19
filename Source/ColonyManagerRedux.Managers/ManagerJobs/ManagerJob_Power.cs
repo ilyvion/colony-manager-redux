@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Runtime.CompilerServices;
 using ilyvion.Laboratory.Extensions;
 
 namespace ColonyManagerRedux.Managers;
@@ -14,13 +15,19 @@ internal sealed class ManagerJob_Power : ManagerJob
     {
         public override bool UpdatesMax => true;
 
-        private readonly CachedValue<(int current, int)[]> cachedTrade = new([]);
+        private readonly ConditionalWeakTable<ManagerJob_Power, CachedValue<(int current, int)[]>> cachedTrades = new();
+        private CachedValue<(int current, int)[]> GetCachedTradeForJob(ManagerJob_Power managerJob)
+        {
+            return cachedTrades.GetValue(managerJob, _ => new([]));
+        }
+
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Power managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
             Boxed<int> count)
         {
+            var cachedTrade = GetCachedTradeForJob(managerJob);
             var trade = cachedTrade.Value;
 
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction)
@@ -72,10 +79,11 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         public override void HistoryUpdateTick(ManagerJob_Power managerJob, int tick)
         {
+            var cachedTrade = GetCachedTradeForJob(managerJob);
             if (!cachedTrade.TryGetValue(out var trade))
             {
                 trade = managerJob.GetCurrentTrade();
-                cachedTrade.Update(trade);
+                _ = cachedTrade.Update(trade);
             }
 
             if (History.IsUpdateTick)
@@ -175,7 +183,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
     }
 
-    public override bool IsTransferable => false;
+    public override bool IsTransferable => Manager.ScribeSameGameData;
 
     public ManagerJob_Power(Manager manager) : base(manager)
     {
@@ -379,8 +387,11 @@ internal sealed class ManagerJob_Power : ManagerJob
     {
         base.ExposeData();
 
-        Scribe_Collections.Look(ref _traderBuildings, "traders", LookMode.Reference);
-        Scribe_Collections.Look(ref _batteryBuildings, "batteries", LookMode.Reference);
+        if (Manager.ScribeSameMapData)
+        {
+            Scribe_Collections.Look(ref _traderBuildings, "traders", LookMode.Reference);
+            Scribe_Collections.Look(ref _batteryBuildings, "batteries", LookMode.Reference);
+        }
         Scribe_Deep.Look(ref tradingHistory, "tradingHistory");
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -390,5 +401,40 @@ internal sealed class ManagerJob_Power : ManagerJob
             _batteryBuildings.RemoveWhere(b => b == null);
             RefreshCompLists().RunImmediatelyToCompletion();
         }
+    }
+
+    public override void PostImport()
+    {
+        base.PostImport();
+
+        ManagerJob_Power remainingJob;
+        if (Manager.JobTracker.JobsOfType<ManagerJob_Power>().Count() > 1)
+        {
+            var otherJob = Manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault(j => j != this);
+            if (otherJob.AnyPoweredStationOnline)
+            {
+                // We got imported to a map that already has a valid power job, so we need to delete our job.
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    $"ManagerJob_Power.PostImport: Deleting {this} because another power job is already present.");
+                Manager.JobTracker.Delete(this, false);
+                remainingJob = otherJob;
+            }
+            else
+            {
+                // We got imported to a map that has a power job, but it has no powered stations online, so we replace that job with our job.
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    $"ManagerJob_Power.PostImport: Replacing {otherJob} with {this} because it has no powered stations online.");
+                Manager.JobTracker.Delete(otherJob, false);
+                remainingJob = this;
+            }
+        }
+        else
+        {
+            remainingJob = this;
+        }
+
+        _cachedAnyPoweredStationOnline.Invalidate();
+        RefreshBuildingLists(new ManagerLog()).RunImmediatelyToCompletion();
+        RefreshCompLists(new ManagerLog()).RunImmediatelyToCompletion();
     }
 }

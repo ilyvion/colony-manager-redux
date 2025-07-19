@@ -63,7 +63,10 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     protected override void Refresh()
     {
+        _ = Manager.SetScribingMode(ScribingMode.Transfer);
         _jobs = Manager.JobTracker.JobsOfType<ManagerJob>().Where(j => j.IsTransferable).ToList();
+        _ = Manager.SetScribingMode(ScribingMode.Normal);
+
         _selectedJobs = _jobs.Select(_ => new MultiCheckboxState()).ToList();
 
         // fetch the list of saved jobs
