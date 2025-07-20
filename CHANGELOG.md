@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2025-07-20
+
 ### Fixed
 
 -    Power tracking history bug fixed; should no longer constantly warn about history being updated with an incorrect number of chapters.
@@ -357,7 +359,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.10.0...HEAD
+[0.10.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.9.0..v0.10.0
 [0.9.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.8.0..v0.9.0
 [0.8.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.7.0..v0.8.0
 [0.7.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.6.1..v0.7.0
