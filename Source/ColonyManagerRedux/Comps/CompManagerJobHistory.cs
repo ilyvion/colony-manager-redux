@@ -10,7 +10,7 @@ public class CompManagerJobHistory : ManagerJobComp
 #pragma warning disable CS8618 // Set in Initialize
     private History history;
 #pragma warning restore CS8618
-    public History History { get => history; }
+    public History History => history;
 
     public override void Initialize()
     {
@@ -63,7 +63,7 @@ public class CompManagerJobHistory : ManagerJobComp
         HistoryWorker worker = Props.Worker;
         worker.HistoryUpdateTick(Parent, tick);
 
-        MultiTickCoroutineManager.StartCoroutine(DoHistoryUpdateCoroutine(),
+        _ = MultiTickCoroutineManager.StartCoroutine(DoHistoryUpdateCoroutine(),
             debugHandle: "DoHistoryUpdateCoroutine");
 
         Coroutine DoHistoryUpdateCoroutine()
@@ -74,7 +74,7 @@ public class CompManagerJobHistory : ManagerJobComp
                 // get scheduled to run at once
                 _queuedToRecord++;
                 ColonyManagerReduxMod.Instance.LogDebug($"Queueing @ {_queuedToRecord}");
-                yield return new ResumeWhenTrue(() => _isRecordingHistory == false);
+                yield return new ResumeWhenTrue(() => !_isRecordingHistory);
                 _queuedToRecord--;
                 ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
             }
@@ -90,13 +90,18 @@ public class CompManagerJobHistory : ManagerJobComp
                 {
                     _reportedSkippedUpdateTick = false;
                     _currentUpdateTick = null;
-                    ColonyManagerReduxMod.Instance.LogDebug($"Reset rSU and cUT");
+                    ColonyManagerReduxMod.Instance.LogDebug($"Reset _reportedSkippedUpdateTick and _currentUpdateTick");
                 }
             });
 
             ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
 
             int coroutineStartTick = Find.TickManager.TicksGame;
+
+            if (Props.Worker.HistoryUpdateCoroutine(Parent, tick) is { } coroutine)
+            {
+                yield return coroutine.ResumeWhenOtherCoroutineIsCompleted();
+            }
 
             int chapterCount = Props.chapters.Count;
             int[] chapterCounts = new int[chapterCount];
@@ -280,63 +285,36 @@ public abstract class HistoryWorker
     public virtual void HistoryUpdateTick(ManagerJob managerJob, int tick)
     {
     }
+
+    public virtual Coroutine? HistoryUpdateCoroutine(ManagerJob managerJob, int tick)
+    {
+        return null;
+    }
 }
 
 public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
 {
-    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
-        "this method will be removed in a future version")]
-    public override sealed int GetCountForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        return GetCountForHistoryChapter((T)managerJob, tick, chapterDef);
-    }
-    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
-        "this method will be removed in a future version")]
-    public override sealed int GetTargetForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        return GetTargetForHistoryChapter((T)managerJob, tick, chapterDef);
-    }
-    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
-        "this method will be removed in a future version")]
-    public override sealed int GetMaxForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        return GetMaxForHistoryChapter((T)managerJob, tick, chapterDef);
-    }
-    public override sealed void HistoryUpdateTick(ManagerJob managerJob, int tick)
+    public sealed override void HistoryUpdateTick(ManagerJob managerJob, int tick)
     {
         HistoryUpdateTick((T)managerJob, tick);
     }
 
-    [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
-        "this method will be removed in a future version")]
-    public virtual int GetCountForHistoryChapter(T managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
+    public sealed override Coroutine? HistoryUpdateCoroutine(ManagerJob managerJob, int tick)
     {
-        throw new NotImplementedException();
-    }
-    [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
-        "this method will be removed in a future version")]
-    public virtual int GetTargetForHistoryChapter(T managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        throw new NotImplementedException();
-    }
-    [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
-        "this method will be removed in a future version")]
-    public virtual int GetMaxForHistoryChapter(T managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        throw new NotImplementedException();
+        return HistoryUpdateCoroutine((T)managerJob, tick);
     }
 
-    public override sealed Coroutine GetCountForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> count)
+    public sealed override Coroutine GetCountForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> count)
     {
         return GetCountForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, count);
     }
 
-    public override sealed Coroutine GetTargetForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> target)
+    public sealed override Coroutine GetTargetForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> target)
     {
         return GetTargetForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, target);
     }
 
-    public override sealed Coroutine GetMaxForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> max)
+    public sealed override Coroutine GetMaxForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> max)
     {
         return GetMaxForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, max);
     }
@@ -435,5 +413,10 @@ public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
 
     public virtual void HistoryUpdateTick(T managerJob, int tick)
     {
+    }
+
+    public virtual Coroutine? HistoryUpdateCoroutine(T managerJob, int tick)
+    {
+        return null;
     }
 }

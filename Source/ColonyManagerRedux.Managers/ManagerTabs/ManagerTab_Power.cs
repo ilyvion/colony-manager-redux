@@ -60,8 +60,8 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                 var job = Manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault();
                 if (job == null)
                 {
-                    ColonyManagerReduxMod.Instance.LogWarning(
-                        "No power job found, creating a new one.");
+                    ColonyManagerReduxMod.Instance.LogMessage(
+                        "No power job found, creating a new one. This is expected if you just researched Power Management.");
                     job = Manager.NewJob<ManagerJob_Power>(Def);
                     Manager.JobTracker.Add(job);
                     job.IsManaged = true;

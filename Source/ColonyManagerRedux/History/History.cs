@@ -307,6 +307,7 @@ public partial class History : IExposable
             }
         }
     }
+
     public void Update(int tick, params (int count, int target)[] counts)
     {
         if (counts == null)
@@ -316,8 +317,8 @@ public partial class History : IExposable
 
         if (counts.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance.LogWarning(
-                "History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance
+                .LogWarning($"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}");
         }
 
         for (var i = 0; i < counts.Length; i++)
@@ -340,7 +341,7 @@ public partial class History : IExposable
         if (counts.Length != _chapters.Count || targets.Length != _chapters.Count)
         {
             ColonyManagerReduxMod.Instance.LogWarning(
-                "History updated with incorrect number of chapters");
+                $"History updated with incorrect number of chapters; got counts={counts.Length} and targets={targets.Length}, expected {_chapters.Count}");
         }
 
         for (var i = 0; i < counts.Length; i++)
@@ -358,8 +359,8 @@ public partial class History : IExposable
 
         if (maxes.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance.LogWarning(
-                "History updated with incorrect number of chapters");
+            ColonyManagerReduxMod.Instance
+                .LogWarning($"History maxes updated with incorrect number of chapters; got {maxes.Length}, expected {_chapters.Count}");
         }
 
         for (var i = 0; i < maxes.Length; i++)
@@ -405,7 +406,7 @@ public partial class History : IExposable
         if (counts.Length != _chapters.Count)
         {
             ColonyManagerReduxMod.Instance
-                .LogWarning("History updated with incorrect number of chapters");
+                .LogWarning($"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}");
         }
 
         for (var i = 0; i < counts.Length; i++)

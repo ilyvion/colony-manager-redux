@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-    Power tracking history bug fixed; should no longer constantly warn about history being updated with an incorrect number of chapters.
+
 ## [0.9.0] - 2025-07-19
 
 ### Added

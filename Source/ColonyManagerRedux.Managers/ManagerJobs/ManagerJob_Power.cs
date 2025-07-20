@@ -77,23 +77,22 @@ internal sealed class ManagerJob_Power : ManagerJob
             yield break;
         }
 
-        public override void HistoryUpdateTick(ManagerJob_Power managerJob, int tick)
+        public override Coroutine HistoryUpdateCoroutine(ManagerJob_Power managerJob, int tick)
         {
+            yield return managerJob.RefreshBuildingLists().ResumeWhenOtherCoroutineIsCompleted();
+            yield return managerJob.RefreshCompLists().ResumeWhenOtherCoroutineIsCompleted();
+
             var cachedTrade = GetCachedTradeForJob(managerJob);
             if (!cachedTrade.TryGetValue(out var trade))
             {
                 trade = managerJob.GetCurrentTrade();
                 _ = cachedTrade.Update(trade);
             }
+            managerJob.tradingHistory.UpdateThingCountAndMax(
+                managerJob._traders.Select(list => list.Count).ToArray(),
+                managerJob._traders.Select(list => 0).ToArray());
 
-            if (History.IsUpdateTick)
-            {
-                managerJob.tradingHistory.UpdateThingCountAndMax(
-                    managerJob._traders.Select(list => list.Count).ToArray(),
-                    managerJob._traders.Select(list => 0).ToArray());
-
-                managerJob.tradingHistory.Update(tick, trade);
-            }
+            managerJob.tradingHistory.Update(tick, trade);
         }
     }
 
@@ -130,13 +129,11 @@ internal sealed class ManagerJob_Power : ManagerJob
             if (!cachedTradeCounts.TryGetValue(out var trade))
             {
                 var producerCount = _traders
-                    .Select(list => list.Where(i => i.PowerOutput > 0).Count())
-                .Sum();
+                    .Sum(list => list.Count(i => i.PowerOutput > 0));
                 var consumerCount = _traders
-                    .Select(list => list.Where(i => i.PowerOutput < 0).Count())
-                .Sum();
+                    .Sum(list => list.Count(i => i.PowerOutput < 0));
                 trade = [producerCount, consumerCount];
-                cachedTradeCounts.Update(trade);
+                _ = cachedTradeCounts.Update(trade);
             }
             return trade;
         }
@@ -258,8 +255,17 @@ internal sealed class ManagerJob_Power : ManagerJob
                select td;
     }
 
-    private Coroutine RefreshBuildingLists(ManagerLog jobLog)
+    private bool _isRefreshingBuildingLists = false;
+    private Coroutine RefreshBuildingLists(ManagerLog? jobLog = null)
     {
+        if (_isRefreshingBuildingLists)
+        {
+            yield return new ResumeWhenTrue(() => !_isRefreshingBuildingLists);
+            yield break;
+        }
+
+        _isRefreshingBuildingLists = true;
+
         int buildingsBefore = _traderBuildings.Count;
         int batteriesBefore = _batteryBuildings.Count;
 
@@ -289,13 +295,24 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         if (buildingsBefore != buildingsAfter || batteriesBefore != batteriesAfter)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildings"
+            jobLog?.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildings"
                 .Translate(buildingsBefore, batteriesBefore, buildingsAfter, batteriesAfter));
         }
+
+        _isRefreshingBuildingLists = false;
     }
 
+    private bool _isRefreshingCompLists = false;
     private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
     {
+        if (_isRefreshingCompLists)
+        {
+            yield return new ResumeWhenTrue(() => !_isRefreshingCompLists);
+            yield break;
+        }
+
+        _isRefreshingCompLists = true;
+
         foreach (var traders in _traders)
         {
             traders.Clear();
@@ -365,6 +382,8 @@ internal sealed class ManagerJob_Power : ManagerJob
             jobLog?.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildingPerType"
                 .Translate(string.Join("\n", tradersPerType), string.Join("\n", batteriesPerType)));
         }
+
+        _isRefreshingCompLists = false;
     }
 
     private (int current, int max)[] GetCurrentBatteries()
@@ -434,7 +453,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
 
         _cachedAnyPoweredStationOnline.Invalidate();
-        RefreshBuildingLists(new ManagerLog()).RunImmediatelyToCompletion();
-        RefreshCompLists(new ManagerLog()).RunImmediatelyToCompletion();
+        RefreshBuildingLists().RunImmediatelyToCompletion();
+        RefreshCompLists().RunImmediatelyToCompletion();
     }
 }
