@@ -50,6 +50,22 @@ partial class ManagerTab_Overview
             def.headerTip = headerTip;
             return newHeaderTip;
         }
+
+        private Rect lastCellRect;
+        public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
+        {
+            lastCellRect = rect;
+            IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
+            {
+                Widgets.DrawRectFast(rect, ColorLibrary.NeonGreen.ToTransparent(.5f));
+            });
+            base.DoCell(rect, pawn, table);
+        }
+
+        public override int GetMinCellHeight(Pawn pawn)
+        {
+            return (int)lastCellRect.height;
+        }
     }
 
     [HotSwappable]
