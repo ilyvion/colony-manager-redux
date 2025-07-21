@@ -4,7 +4,7 @@
     <MainButtonDef>
         <defName>ColonyManagerRedux_Manager</defName>
         <label>manager</label>
-        <description>Choose which colonist does what kinds of work, and in what priority order.</description>
+        <description>Define and modify management jobs for your colonists.</description>
         <tabWindowClass>ColonyManagerRedux.MainTabWindow_Manager</tabWindowClass>
         <order>11</order>
     </MainButtonDef>
