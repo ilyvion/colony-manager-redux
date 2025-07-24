@@ -3,6 +3,7 @@
 
 namespace ColonyManagerRedux;
 
+[CoroutineSettingsType]
 public class CompManagerJobHistory : ManagerJobComp
 {
     public new CompProperties_ManagerJobHistory Props => (CompProperties_ManagerJobHistory)base.Props;
@@ -53,104 +54,107 @@ public class CompManagerJobHistory : ManagerJobComp
         }
 
         _currentUpdateTick = ticksGame;
-        DoHistoryUpdate(ticksGame);
+
+        HistoryWorker worker = Props.Worker;
+        worker.HistoryUpdateTick(Parent, ticksGame);
+
+        _ = MultiTickCoroutineManager.StartCoroutine(DoHistoryUpdateCoroutine(worker, ticksGame),
+            debugHandle: "DoHistoryUpdateCoroutine");
     }
 
     private static bool _isRecordingHistory;
     private static int _queuedToRecord;
-    private void DoHistoryUpdate(int tick)
+    [CoroutineSettingsMethod]
+    private Coroutine DoHistoryUpdateCoroutine(HistoryWorker worker, int tick)
     {
-        HistoryWorker worker = Props.Worker;
-        worker.HistoryUpdateTick(Parent, tick);
-
-        _ = MultiTickCoroutineManager.StartCoroutine(DoHistoryUpdateCoroutine(),
-            debugHandle: "DoHistoryUpdateCoroutine");
-
-        Coroutine DoHistoryUpdateCoroutine()
+        if (_isRecordingHistory)
         {
-            if (_isRecordingHistory)
+            // we only want to run one history update coroutine at any one time, even if many
+            // get scheduled to run at once
+            _queuedToRecord++;
+            ColonyManagerReduxMod.Instance.LogDebug($"Queueing @ {_queuedToRecord}");
+            yield return new ResumeWhenTrue(() => !_isRecordingHistory);
+            _queuedToRecord--;
+            ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
+        }
+        else
+        {
+            ColonyManagerReduxMod.Instance.LogDebug("No queueing");
+        }
+        _isRecordingHistory = true;
+        using var _ = new DoOnDispose(() =>
+        {
+            _isRecordingHistory = false;
+            if (_queuedToRecord == 0)
             {
-                // we only want to run one history update coroutine at any one time, even if many
-                // get scheduled to run at once
-                _queuedToRecord++;
-                ColonyManagerReduxMod.Instance.LogDebug($"Queueing @ {_queuedToRecord}");
-                yield return new ResumeWhenTrue(() => !_isRecordingHistory);
-                _queuedToRecord--;
-                ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
+                _reportedSkippedUpdateTick = false;
+                _currentUpdateTick = null;
+                ColonyManagerReduxMod.Instance.LogDebug($"Reset _reportedSkippedUpdateTick and _currentUpdateTick");
             }
-            else
-            {
-                ColonyManagerReduxMod.Instance.LogDebug("No queueing");
-            }
-            _isRecordingHistory = true;
-            using var _ = new DoOnDispose(() =>
-            {
-                _isRecordingHistory = false;
-                if (_queuedToRecord == 0)
-                {
-                    _reportedSkippedUpdateTick = false;
-                    _currentUpdateTick = null;
-                    ColonyManagerReduxMod.Instance.LogDebug($"Reset _reportedSkippedUpdateTick and _currentUpdateTick");
-                }
-            });
+        });
 
-            ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoHistoryUpdateCoroutine);
 
-            int coroutineStartTick = Find.TickManager.TicksGame;
+        ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
 
-            if (Props.Worker.HistoryUpdateCoroutine(Parent, tick) is { } coroutine)
-            {
-                yield return coroutine.ResumeWhenOtherCoroutineIsCompleted();
-            }
+        int coroutineStartTick = Find.TickManager.TicksGame;
 
-            int chapterCount = Props.chapters.Count;
-            int[] chapterCounts = new int[chapterCount];
+        if (Props.Worker.HistoryUpdateCoroutine(Parent, tick) is { } coroutine)
+        {
+            yield return coroutine.ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
+        }
 
-            Boxed<int> count = new();
-            if (worker.UpdatesMax)
-            {
-                foreach (var (chapterDef, i) in Props.chapters.Select((c, i) => (c, i)))
-                {
-                    yield return Props.Worker.GetMaxForHistoryChapterCoroutine(
-                        Parent, tick, chapterDef, count)
-                        .ResumeWhenOtherCoroutineIsCompleted();
-                    chapterCounts[i] = count.Value;
-                }
+        int chapterCount = Props.chapters.Count;
+        int[] chapterCounts = new int[chapterCount];
 
-                History.UpdateMax(chapterCounts);
-            }
-
-            int[] chapterTargets = new int[chapterCount];
+        Boxed<int> count = new();
+        if (worker.UpdatesMax)
+        {
             foreach (var (chapterDef, i) in Props.chapters.Select((c, i) => (c, i)))
             {
-                var preChapterTick = Find.TickManager.TicksGame;
-                yield return Props.Worker.GetCountForHistoryChapterCoroutine(
+                yield return Props.Worker.GetMaxForHistoryChapterCoroutine(
                     Parent, tick, chapterDef, count)
                     .ResumeWhenOtherCoroutineIsCompleted();
-                ColonyManagerReduxMod.Instance.LogDebug(
-                    $"{nameof(HistoryWorker.GetCountForHistoryChapterCoroutine)} for chapter " +
-                    $"{chapterDef.defName} took " +
-                    $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete");
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 chapterCounts[i] = count.Value;
-
-                preChapterTick = Find.TickManager.TicksGame;
-                yield return Props.Worker.GetTargetForHistoryChapterCoroutine(
-                    Parent, tick, chapterDef, count)
-                    .ResumeWhenOtherCoroutineIsCompleted();
-                ColonyManagerReduxMod.Instance.LogDebug(
-                    $"{nameof(HistoryWorker.GetTargetForHistoryChapterCoroutine)} for chapter " +
-                    $"{chapterDef.defName} took " +
-                    $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete");
-                chapterTargets[i] = count.Value;
             }
 
-            History.Update(tick, chapterCounts, chapterTargets);
-
-            int coroutineEndTick = Find.TickManager.TicksGame;
-            var tickCount = coroutineEndTick - coroutineStartTick;
-            ColonyManagerReduxMod.Instance.LogDebug(
-                $"{nameof(DoHistoryUpdateCoroutine)} took {tickCount} ticks to complete");
+            History.UpdateMax(chapterCounts);
         }
+
+        int[] chapterTargets = new int[chapterCount];
+        foreach (var (chapterDef, i) in Props.chapters.Select((c, i) => (c, i)))
+        {
+            var preChapterTick = Find.TickManager.TicksGame;
+            yield return Props.Worker.GetCountForHistoryChapterCoroutine(
+                Parent, tick, chapterDef, count)
+                .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
+            ColonyManagerReduxMod.Instance.LogDebug(
+                $"{nameof(HistoryWorker.GetCountForHistoryChapterCoroutine)} for chapter " +
+                $"{chapterDef.defName} took " +
+                $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete");
+            chapterCounts[i] = count.Value;
+
+            preChapterTick = Find.TickManager.TicksGame;
+            yield return Props.Worker.GetTargetForHistoryChapterCoroutine(
+                Parent, tick, chapterDef, count)
+                .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
+            ColonyManagerReduxMod.Instance.LogDebug(
+                $"{nameof(HistoryWorker.GetTargetForHistoryChapterCoroutine)} for chapter " +
+                $"{chapterDef.defName} took " +
+                $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete");
+            chapterTargets[i] = count.Value;
+        }
+
+        History.Update(tick, chapterCounts, chapterTargets);
+
+        int coroutineEndTick = Find.TickManager.TicksGame;
+        var tickCount = coroutineEndTick - coroutineStartTick;
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"{nameof(DoHistoryUpdateCoroutine)} took {tickCount} ticks to complete");
     }
 
     public override void PostExposeData()

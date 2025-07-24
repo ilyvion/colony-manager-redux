@@ -22,6 +22,7 @@ public abstract class ManagerJob<TSettings>(Manager manager) : ManagerJob(manage
 }
 
 [HotSwappable]
+[CoroutineSettingsType]
 public abstract class ManagerJob : ILoadReferenceable, IExposable
 {
     internal ManagerDef _def;
@@ -409,6 +410,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         return Mathf.Sqrt(source.DistanceToSquared(target.Position)) * 2;
     }
 
+    [CoroutineSettingsMethod]
     public virtual Coroutine DistancesCoroutine(
         IEnumerable<Thing> targets, IntVec3 source, List<float> distances)
     {
@@ -421,13 +423,16 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             throw new ArgumentNullException(nameof(distances));
         }
 
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DistancesCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DistancesCoroutine);
+
         foreach (var (target, i) in targets.Select((t, i) => (t, i)))
         {
             distances.Add(Distance(target, source));
 
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
@@ -452,26 +457,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             throw new ArgumentNullException(nameof(sortedTargets));
         }
 
-        List<(object thing, int i)> targets;
-        if (_tmpTargets.Count > 0)
-        {
-            targets = _tmpTargets.Dequeue();
-        }
-        else
-        {
-            targets = [];
-        }
-
-        List<float> targetDistances;
-        if (_tmpTargetDistances.Count > 0)
-        {
-            targetDistances = _tmpTargetDistances.Dequeue();
-        }
-        else
-        {
-            targetDistances = [];
-        }
-
+        var targets = _tmpTargets.Count > 0
+            ? _tmpTargets.Dequeue()
+            : [];
+        var targetDistances = _tmpTargetDistances.Count > 0
+            ? _tmpTargetDistances.Dequeue()
+            : [];
         targets.AddRange(unsortedTargets
             .Where(o => predicate(toTThing(o)))
             .Select((t, i) => ((object)t!, i)));

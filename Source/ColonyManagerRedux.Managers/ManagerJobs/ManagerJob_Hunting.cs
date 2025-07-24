@@ -7,27 +7,35 @@ using ilyvion.Laboratory.Extensions;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
+[CoroutineSettingsType]
 internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 {
     [HotSwappable]
+    [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Hunting>
     {
+        [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Hunting managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
             Boxed<int> count)
         {
+            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerJob_Hunting, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
                 yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 var cachedValue = managerJob.GetYieldInDesignationsCache();
                 yield return cachedValue.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = cachedValue.Value;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
@@ -35,6 +43,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 var cachedValue = managerJob.GetYieldInCorpsesCache();
                 yield return cachedValue.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = cachedValue.Value;
             }
             else
@@ -351,14 +360,18 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         return GetResourceInCorpses(count, c => c.EstimatedLeatherCount());
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine GetResourceInCorpses(AnyBoxed<int> count, Func<Corpse, int> resourceCounter)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetResourceInCorpses);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetResourceInCorpses);
+
         // corpses not buried / forbidden
         foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             // make sure it's not forbidden and can be reached.
@@ -391,14 +404,18 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             : _designatedLeatherCachedValue;
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine GetMeatInDesignationsCoroutine(AnyBoxed<int> count)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetMeatInDesignationsCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetMeatInDesignationsCoroutine);
+
         // designated animals
         for (int i = 0; i < _designations.Count; i++)
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             Designation? des = _designations[i];
@@ -409,14 +426,18 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine GetLeatherInDesignationsCoroutine(AnyBoxed<int> count)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetLeatherInDesignationsCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetLeatherInDesignationsCoroutine);
+
         // designated animals
         for (int i = 0; i < _designations.Count; i++)
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             Designation? des = _designations[i];
@@ -460,6 +481,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
+    [CoroutineSettingsMethod]
     public override Coroutine TryDoJobCoroutine(
         ManagerLog jobLog,
         Boxed<bool> workDone)
@@ -480,27 +502,32 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             JobState = ManagerJobState.Active;
         }
 
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(TryDoJobCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+
         // clean dead designations
         CleanDeadDesignations(_designations, DesignationDefOf.Hunt, jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // clean designations not in area
         CleanAreaDesignations(jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // add designations that could have been handed out by us
         AddRelevantGameDesignations(jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // get the total count of meat in storage, expected meat in corpses and
         // expected meat in designations.
         var corpsesCachedValue = GetYieldInCorpsesCache();
         yield return corpsesCachedValue.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         var designationsCachedValue = GetYieldInDesignationsCache();
         yield return designationsCachedValue.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         Boxed<int> totalCount = new(
             TriggerThreshold.GetCurrentCount()
@@ -518,6 +545,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 (p, d) => -p.EstimatedYield(TargetResource) / d,
                 d => (Pawn)d.target.Thing)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             // reduce designations until we're just above target
             for (int i = 0; i < sortedDesignations.Count; i++)
@@ -549,9 +577,9 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                     break;
                 }
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
 
@@ -574,6 +602,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         {
             yield return DoUnforbidCorpses(jobLog, workDone, totalCount)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             if (workDone && TriggerThreshold.DoesCountMeetTarget(totalCount))
             {
@@ -599,6 +628,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             IsValidUndesignatedHuntingTarget,
             (p, d) => p.EstimatedYield(TargetResource) / d)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (huntableAnimals.Count == 0)
         {
@@ -632,9 +662,9 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 huntableAnimal);
             workDone.Value = true;
 
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
@@ -704,11 +734,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     // originally copypasta from autohuntbeacon by Carry
     // https://ludeon.com/forums/index.php?topic=8930.0
+    [CoroutineSettingsMethod]
     private Coroutine DoUnforbidCorpses(
         ManagerLog jobLog,
         Boxed<bool> workDone,
         Boxed<int> totalCount)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoUnforbidCorpses);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoUnforbidCorpses);
+
         foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
             if (TriggerThreshold.DoesCountMeetTarget(totalCount))
@@ -737,9 +771,9 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 }
             }
 
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }

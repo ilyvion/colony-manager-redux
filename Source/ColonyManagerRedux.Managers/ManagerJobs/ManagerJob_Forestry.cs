@@ -5,25 +5,33 @@
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
+[CoroutineSettingsType]
 internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 {
+    [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Forestry>
     {
+        [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Forestry managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
             Boxed<int> count)
         {
+            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerJob_Forestry, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
                 yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob._cachedCurrentDesignatedCount.Value;
             }
             else
@@ -214,8 +222,12 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             plant.def.plant.harvestedThingDef.LabelCap);
     }
 
+    [CoroutineSettingsMethod]
     public Coroutine DoClearAreaDesignations(ManagerLog jobLog, Area area, Boxed<bool> workDone)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoClearAreaDesignations);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoClearAreaDesignations);
+
         var map = Manager.map;
         var designationManager = map.designationManager;
 
@@ -223,9 +235,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         foreach (var (cell, i) in area.ActiveCells.Select((c, i) => (c, i)))
         {
             // This is at the start so that it also includes loops that were `continue`d.
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             // confirm there is a plant here that it is a tree and that it has no current designation
@@ -319,13 +331,17 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine GetCurrentDesignatedCountCoroutine(AnyBoxed<int> count)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCurrentDesignatedCountCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCurrentDesignatedCountCoroutine);
+
         for (int i = 0; i < _designations.Count; i++)
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             Designation? des = _designations[i];
@@ -411,10 +427,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public override Coroutine TryDoJobCoroutine(
         ManagerLog jobLog,
         Boxed<bool> workDone)
     {
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+
         if (Type == ForestryJobType.Logging && !TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -433,7 +452,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
 
         // clean dead designations
         CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         CoroutineHandle? handle = null;
         switch (Type)
@@ -457,6 +476,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         if (handle != null)
         {
             yield return handle.ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
     }
 
@@ -522,24 +542,29 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         }
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine DoLoggingJob(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoLoggingJob);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoLoggingJob);
+
         // remove designations not in zone.
         if (LoggingArea != null)
         {
             CleanAreaDesignations(jobLog);
-            yield return ResumeImmediately.Singleton;
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         // add external designations
         AddRelevantGameDesignations(jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // get current lumber count
         yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
         var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate until we're either out of trees or we have enough designated.
         if (TriggerThreshold.DoesCountMeetTarget(count)
@@ -553,6 +578,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 (p, d) => -p.YieldNow() / d,
                 d => (Plant)d.target.Thing)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             // reduce designations until we're just above target
             for (int i = 0; i < sortedDesignations.Count; i++)
@@ -584,9 +610,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                     break;
                 }
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
 
@@ -619,6 +645,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             IsValidUndesignatedForestryTarget,
             (p, d) => p.YieldNow() / d)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (sortedTrees.Count == 0)
         {
@@ -650,9 +677,9 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                     TriggerThreshold.TargetLabel),
                 tree);
             workDone.Value = true;
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations); ;
             }
         }
     }

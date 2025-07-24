@@ -7,32 +7,41 @@ using System.Buffers;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
+[CoroutineSettingsType]
 internal sealed class ManagerJob_Mining
     : ManagerJob<ManagerSettings_Mining>, INotifyStoneChunkMined
 {
+    [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Mining>
     {
+        [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Mining managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
             Boxed<int> count)
         {
+            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerJob_Mining, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
                 yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 yield return managerJob._designatedCachedValue.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob._designatedCachedValue.Value;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryChunks)
             {
                 yield return managerJob._chunksCachedValue.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob._chunksCachedValue.Value;
             }
             else
@@ -216,8 +225,11 @@ internal sealed class ManagerJob_Mining
         _designations.Add(designation);
     }
 
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public Coroutine AddRelevantGameDesignations(ManagerLog? jobLog = null)
     {
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(AddRelevantGameDesignations);
+
         int addedMineCount = 0;
         int addedDeconstructCount = 0;
         int addedHaulCount = 0;
@@ -232,7 +244,7 @@ internal sealed class ManagerJob_Mining
                 addedMineCount++;
                 AddDesignation(des);
             }
-            yield return ResumeImmediately.Singleton;
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         foreach (var des in Manager.map.designationManager
@@ -243,7 +255,7 @@ internal sealed class ManagerJob_Mining
             addedDeconstructCount++;
             AddDesignation(des);
         }
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         foreach (var des in Manager.map.designationManager
             .SpawnedDesignationsOfDef(DesignationDefOf.Haul)
@@ -505,17 +517,21 @@ internal sealed class ManagerJob_Mining
     }
 
     private List<Thing> _tmpAllThings = [];
+    [CoroutineSettingsMethod]
     private Coroutine GetCountInChunksCoroutine(AnyBoxed<int> count)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCountInChunksCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCountInChunksCoroutine);
+
         _tmpAllThings.AddRange(Manager.map.listerThings.AllThings);
         using var _ = new DoOnDispose(_tmpAllThings.Clear);
 
         foreach (var (chunk, i) in _tmpAllThings
             .Where(t => t.def.IsChunk() && t.IsInAnyStorage()).Select((c, i) => (c, i)))
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             if (chunk.IsForbidden(Faction.OfPlayer))
@@ -527,14 +543,18 @@ internal sealed class ManagerJob_Mining
         }
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine GetCountInDesignationsCoroutine(AnyBoxed<int> count)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCountInDesignationsCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCountInDesignationsCoroutine);
+
         Dictionary<ThingDef, int> mineralCounts = [];
         for (int i = 0; i < _designations.Count; i++)
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             Designation? des = _designations[i];
@@ -562,7 +582,7 @@ internal sealed class ManagerJob_Mining
             }
         }
 
-        count.Value += mineralCounts.Select(kv => GetCountInMineral(kv.Key) * kv.Value).Sum();
+        count.Value += mineralCounts.Sum(kv => GetCountInMineral(kv.Key) * kv.Value);
     }
 
     public int GetCountInMineral(Mineable rock)
@@ -934,6 +954,7 @@ internal sealed class ManagerJob_Mining
         }
     }
 
+    [CoroutineSettingsMethod]
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (!TriggerThreshold.State)
@@ -952,18 +973,24 @@ internal sealed class ManagerJob_Mining
             JobState = ManagerJobState.Active;
         }
 
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(TryDoJobCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // add designations in the game that could have been handled by this job
         yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // update counts
         yield return _chunksCachedValue.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
         yield return _designatedCachedValue.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate work until trigger is met.
         var count = TriggerThreshold.GetCurrentCount()
@@ -984,6 +1011,7 @@ internal sealed class ManagerJob_Mining
                 (m, d) => -GetCountInMineral(m) / d,
                 d => d.target.Cell.GetFirstThing<Mineable>(Manager.map))
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             // reduce designations until we're just above target
             foreach (var designation in sortedMineDesignations)
@@ -1015,9 +1043,9 @@ internal sealed class ManagerJob_Mining
                 }
 
                 if (designationCounter > 0
-                    && designationCounter % Constants.CoroutineBreakAfter == 0)
+                    && designationCounter % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
 
@@ -1033,6 +1061,7 @@ internal sealed class ManagerJob_Mining
                     (b, d) => -GetCountInBuilding(b) / d,
                     d => (Building)d.target.Thing)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
 
                 // reduce designations until we're just above target
                 foreach (var designation in sortedDeconstructDesignations)
@@ -1064,9 +1093,9 @@ internal sealed class ManagerJob_Mining
                     }
 
                     if (designationCounter > 0
-                        && designationCounter % Constants.CoroutineBreakAfter == 0)
+                        && designationCounter % operationsPerTick == 0)
                     {
-                        yield return ResumeImmediately.Singleton;
+                        yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
                 }
             }
@@ -1082,6 +1111,7 @@ internal sealed class ManagerJob_Mining
                     (c, d) => -GetCountInChunk(c) / d,
                     d => d.target.Thing)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
 
                 // reduce designations until we're just above target
                 foreach (var designation in sortedHaulDesignations)
@@ -1113,9 +1143,9 @@ internal sealed class ManagerJob_Mining
                     }
 
                     if (designationCounter > 0
-                        && designationCounter % Constants.CoroutineBreakAfter == 0)
+                        && designationCounter % operationsPerTick == 0)
                     {
-                        yield return ResumeImmediately.Singleton;
+                        yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
                 }
             }
@@ -1143,7 +1173,7 @@ internal sealed class ManagerJob_Mining
             yield break;
         }
 
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // Prioritize chunks; it's the lowest hanging "fruit" in terms of effort
         if (HaulMapChunks)
@@ -1160,6 +1190,7 @@ internal sealed class ManagerJob_Mining
                     && GetCountInChunk(t) > 0,
                 (c, d) => GetCountInChunk(c) / d)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             foreach (var (chunk, i) in sortedChunks.Select((c, i) => (c, i)))
             {
@@ -1185,9 +1216,9 @@ internal sealed class ManagerJob_Mining
 
                 workDone.Value = true;
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }
@@ -1209,6 +1240,7 @@ internal sealed class ManagerJob_Mining
                 b => IsValidDeconstructionTarget(b),
                 (b, d) => GetCountInBuilding(b) / d)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             var ancientDangerRects = Manager.AncientDangerRects;
             List<LocalTargetInfo> skippedAncientDangerTargets = [];
@@ -1262,9 +1294,9 @@ internal sealed class ManagerJob_Mining
                     workDone.Value = true;
                 }
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
             if (skippedAncientDangerTargets.Count > 0)
@@ -1291,6 +1323,7 @@ internal sealed class ManagerJob_Mining
             m => IsValidMiningTarget(m),
             (m, d) => GetCountInMineral(m) / d)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         foreach (var (mineable, i) in sortedMineable.Select((c, i) => (c, i)))
         {
@@ -1318,9 +1351,9 @@ internal sealed class ManagerJob_Mining
                         TriggerThreshold.TargetLabel),
                     mineable);
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }

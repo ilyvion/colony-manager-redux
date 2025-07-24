@@ -102,8 +102,6 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         // zooming in seems to cause Text.Font to start at Tiny, make sure it's set to Small for our panels.
         Text.Font = GameFont.Small;
 
-        //var margin = Margin;
-
         // three areas of icons for tabs, left middle and right.
         var leftIcons = new Rect(0f, 0f,
             ManagerTabsLeft.Count * LargeIconSize
@@ -224,7 +222,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
             GUI.color = Color.grey;
             GUI.DrawTexture(rect, tab.Def.icon);
             GUI.color = Color.white;
-            TooltipHandler.TipRegion(rect, tab.Label +
+            TooltipHandler.TipRegion(rect, tab.Label + " " +
                 "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
         }
     }

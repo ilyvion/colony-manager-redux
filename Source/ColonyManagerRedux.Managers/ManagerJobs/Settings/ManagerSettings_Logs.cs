@@ -33,7 +33,7 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
             DefaultMaxUpperThreshold,
             ref cur,
             width,
-            ListEntryHeight,
+            SliderHeight,
             "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount".Translate(KeepLogCount),
             "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip".Translate());
 

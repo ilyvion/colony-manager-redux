@@ -8,6 +8,7 @@ using Verse.Sound;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
+[CoroutineSettingsType]
 internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_Livestock>
 {
     public sealed class History : HistoryWorker<ManagerJob_Livestock>
@@ -584,18 +585,22 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public override Coroutine TryDoJobCoroutine(
         ManagerLog jobLog,
         Boxed<bool> workDone)
     {
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+
         jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // add designations in the game that could have been handled by this job
         yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // handle culling
         if (CullExcess)
@@ -603,32 +608,39 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             var cullingDesignationDef = CullingDesignationDef;
             yield return DoCullingJobs(jobLog, cullingDesignationDef, workDone)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         // handle training
         yield return DoTrainingJobs(jobLog: jobLog, workDone: workDone)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // area restrictions
         // skip for roamers
         if (!TriggerPawnKind.pawnKind.RaceProps.Roamer)
         {
             yield return DoAreaRestrictions(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         // follow settings
         DoFollowSettings(jobLog, workDone);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // handle taming
         if (TryTameMore)
         {
             yield return DoTamingJobs(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
     }
 
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public Coroutine AddRelevantGameDesignations(ManagerLog jobLog)
     {
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(AddRelevantGameDesignations);
+
         // get list of game designations not managed by this job that could have been assigned by this job.
         int addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
@@ -641,7 +653,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             AddDesignation(des, false);
             newTargets.Add(des.target);
         }
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
         foreach (
             var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
                 .Except(_designations)
@@ -658,8 +670,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     internal Coroutine DoTrainingJobs(Boxed<bool> workDone, ManagerLog? jobLog = null, bool assign = true)
     {
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoTrainingJobs);
+
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // skip juveniles if TrainYoung is not enabled.
@@ -696,13 +711,17 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         workDone.Value = true;
                     }
                 }
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine DoAreaRestrictions(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoAreaRestrictions);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoAreaRestrictions);
+
         int animalCounter = -1;
         for (var i = 0; i < Utilities_Livestock.AgeSexArray.Length; i++)
         {
@@ -784,18 +803,21 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     ), animal);
                 }
 
-                if (++animalCounter > 0 && animalCounter % Constants.CoroutineBreakAfter == 0)
+                if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }
     }
 
     private readonly List<Designation> _tmpDesignations = [];
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     private Coroutine DoCullingJobs(
         ManagerLog jobLog, DesignationDef cullingDesignationDef, Boxed<bool> workDone)
     {
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoCullingJobs);
+
         using var _ = new DoOnDispose(_tmpDesignations.Clear);
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
@@ -851,7 +873,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         animal);
                     workDone.Value = true;
                 }
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             // remove extra designations
@@ -881,13 +903,17 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
             if (didRemove)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine DoTamingJobs(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoTamingJobs);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoTamingJobs);
+
         using var _ = new DoOnDispose(_tmpDesignations.Clear);
 
         int animalCounter = -1;
@@ -939,6 +965,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     TamingPawnSortScore,
                     t => t)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
 
                 foreach (var (animal, i) in sortedAnimals.Select((a, i) => (a, i)))
                 {
@@ -959,9 +986,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         animal);
                     workDone.Value = true;
 
-                    if (++animalCounter > 0 && animalCounter % Constants.CoroutineBreakAfter == 0)
+                    if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
                     {
-                        yield return ResumeImmediately.Singleton;
+                        yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
                 }
             }
@@ -989,9 +1016,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     break;
                 }
 
-                if (++animalCounter > 0 && animalCounter % Constants.CoroutineBreakAfter == 0)
+                if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }

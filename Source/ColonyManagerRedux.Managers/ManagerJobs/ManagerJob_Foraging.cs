@@ -5,25 +5,33 @@
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
+[CoroutineSettingsType]
 internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 {
+    [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Foraging>
     {
+        [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Foraging managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
             Boxed<int> count)
         {
+            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerJob_Foraging, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
                 yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 yield return managerJob._cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob._cachedCurrentDesignatedCount.Value;
             }
             else
@@ -124,13 +132,17 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         AllowedPlants.RemoveWhere(p => !AllPlants.Contains(p));
     }
 
+    [CoroutineSettingsMethod]
     private Coroutine GetCurrentDesignatedCountCoroutine(AnyBoxed<int> count)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCurrentDesignatedCountCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCurrentDesignatedCountCoroutine);
+
         for (int i = 0; i < _designations.Count; i++)
         {
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
             Designation? des = _designations[i];
@@ -317,10 +329,14 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
     }
 
+    [CoroutineSettingsMethod]
     public override Coroutine TryDoJobCoroutine(
         ManagerLog jobLog,
         Boxed<bool> workDone)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(TryDoJobCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+
         if (!TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -339,19 +355,20 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // clean up designations that are (now) in the wrong area.
         CleanAreaDesignations(jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // add designations in the game that could have been handled by this job
         AddRelevantGameDesignations(jobLog);
-        yield return ResumeImmediately.Singleton;
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate plants until trigger is met.
         yield return _cachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
         var count = TriggerThreshold.GetCurrentCount() + _cachedCurrentDesignatedCount.Value;
 
         if (TriggerThreshold.DoesCountMeetTarget(count)
@@ -365,6 +382,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 (p, d) => -p.YieldNow() / d,
                 d => (Plant)d.target.Thing)
                 .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             // reduce designations until we're just above target
             for (int i = 0; i < sortedDesignations.Count; i++)
@@ -396,9 +414,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                     break;
                 }
 
-                if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
 
@@ -431,6 +449,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             IsValidUndesignatedForagingTarget,
             (p, d) => p.YieldNow() / d)
             .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (sortedPlants.Count == 0)
         {
@@ -462,9 +481,9 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                     TriggerThreshold.TargetLabel),
                 plant);
             workDone.Value = true;
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }

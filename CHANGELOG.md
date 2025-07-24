@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Performance settings. Players can now configure how many operations a management job should do each tick, as well as add a number of ticks to pause between each set of operations to reduce the load on the game. In addition to global/default settings, advanced settings can also be accessed where these can be configured on a per-task basis.
+
 ### Fixed
 
 -    Colonists now fill the cell in the manager job overview table.

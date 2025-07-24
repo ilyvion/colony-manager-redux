@@ -8,9 +8,11 @@ using ilyvion.Laboratory.Extensions;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
+[CoroutineSettingsType]
 internal sealed class ManagerJob_Power : ManagerJob
 {
     [HotSwappable]
+    [CoroutineSettingsType]
     public sealed class HistoryWorker : HistoryWorker<ManagerJob_Power>
     {
         public override bool UpdatesMax => true;
@@ -77,10 +79,16 @@ internal sealed class ManagerJob_Power : ManagerJob
             yield break;
         }
 
+        [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
         public override Coroutine HistoryUpdateCoroutine(ManagerJob_Power managerJob, int tick)
         {
+            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerJob_Power, int, Coroutine>)HistoryUpdateCoroutine);
+
             yield return managerJob.RefreshBuildingLists().ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
             yield return managerJob.RefreshCompLists().ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             var cachedTrade = GetCachedTradeForJob(managerJob);
             if (!cachedTrade.TryGetValue(out var trade))
@@ -216,6 +224,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         throw new NotImplementedException();
     }
 
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (!AnyPoweredStationOnline)
@@ -236,8 +245,12 @@ internal sealed class ManagerJob_Power : ManagerJob
             JobState = ManagerJobState.Active;
         }
 
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+
         yield return RefreshBuildingLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
         yield return RefreshCompLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
         workDone.Value = true;
     }
 
@@ -256,6 +269,7 @@ internal sealed class ManagerJob_Power : ManagerJob
     }
 
     private bool _isRefreshingBuildingLists = false;
+    [CoroutineSettingsMethod]
     private Coroutine RefreshBuildingLists(ManagerLog? jobLog = null)
     {
         if (_isRefreshingBuildingLists)
@@ -263,6 +277,9 @@ internal sealed class ManagerJob_Power : ManagerJob
             yield return new ResumeWhenTrue(() => !_isRefreshingBuildingLists);
             yield break;
         }
+
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(RefreshBuildingLists);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshBuildingLists);
 
         _isRefreshingBuildingLists = true;
 
@@ -275,18 +292,18 @@ internal sealed class ManagerJob_Power : ManagerJob
         foreach (var (def, i) in TraderDefs.Select((d, i) => (d, i)))
         {
             _traderBuildings.AddRange(Manager.map.listerBuildings.AllBuildingsColonistOfDef(def));
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
 
         foreach (var (def, i) in BatteryDefs.Select((d, i) => (d, i)))
         {
             _batteryBuildings.AddRange(Manager.map.listerBuildings.AllBuildingsColonistOfDef(def));
-            if (i > 0 && i % Constants.CoroutineBreakAfter == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
 
@@ -303,6 +320,7 @@ internal sealed class ManagerJob_Power : ManagerJob
     }
 
     private bool _isRefreshingCompLists = false;
+    [CoroutineSettingsMethod]
     private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
     {
         if (_isRefreshingCompLists)
@@ -310,6 +328,9 @@ internal sealed class ManagerJob_Power : ManagerJob
             yield return new ResumeWhenTrue(() => !_isRefreshingCompLists);
             yield break;
         }
+
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(RefreshCompLists);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshCompLists);
 
         _isRefreshingCompLists = true;
 
@@ -341,9 +362,9 @@ internal sealed class ManagerJob_Power : ManagerJob
             foreach (var comp in traders)
             {
                 _traders[i].Add(comp);
-                if (++compCounter > 0 && compCounter % Constants.CoroutineBreakAfter == 0)
+                if (++compCounter > 0 && compCounter % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }
@@ -364,9 +385,9 @@ internal sealed class ManagerJob_Power : ManagerJob
             foreach (var comp in batteries)
             {
                 _batteries[i].Add(comp);
-                if (++compCounter > 0 && compCounter % Constants.CoroutineBreakAfter == 0)
+                if (++compCounter > 0 && compCounter % operationsPerTick == 0)
                 {
-                    yield return ResumeImmediately.Singleton;
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }

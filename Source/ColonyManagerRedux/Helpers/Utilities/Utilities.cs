@@ -9,6 +9,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux;
 
 [HotSwappable]
+[CoroutineSettingsType]
 public static class Utilities
 {
     public enum SyncDirection
@@ -62,6 +63,7 @@ public static class Utilities
         return count.Value;
     }
 
+    [CoroutineSettingsMethod]
     public static Coroutine CountProductsCoroutine(
         this Map map,
         ThingFilter filter,
@@ -83,6 +85,9 @@ public static class Utilities
         {
             throw new ArgumentNullException(nameof(count));
         }
+
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(CountProductsCoroutine);
+        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(CountProductsCoroutine);
 
         var loopingIndex = 0;
         foreach (var thingDef in filter.AllowedThingDefs)
@@ -109,9 +114,9 @@ public static class Utilities
 
                 foreach (var t in thingList)
                 {
-                    if (++loopingIndex > 0 && loopingIndex % CoroutineBreakAfter == 0)
+                    if (++loopingIndex > 0 && loopingIndex % operationsPerTick == 0)
                     {
-                        yield return ResumeImmediately.Singleton;
+                        yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
 
                     if (t.IsForbidden(Faction.OfPlayer) || t.Position.Fogged(map))
@@ -141,9 +146,9 @@ public static class Utilities
                 }
             }
 
-            if (++loopingIndex > 0 && loopingIndex % CoroutineBreakAfter == 0)
+            if (++loopingIndex > 0 && loopingIndex % operationsPerTick == 0)
             {
-                yield return ResumeImmediately.Singleton;
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }

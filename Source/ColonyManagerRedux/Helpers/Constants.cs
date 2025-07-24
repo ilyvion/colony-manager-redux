@@ -16,6 +16,11 @@ public static class Constants
     public static readonly Vector2 ButtonSize = new(200f, 40f);
     public const int DefaultMaxUpperThreshold = 3000;
     public const int MaxStackallocSize = 256;
+
+    [Obsolete("This constant is no longer used and will be removed in a future version. "
+        + "Third party jobs currently using this should switch to using the performance attributes "
+        + "CoroutineSettingsType and CoroutineSettingsMethod, and use the `ColonyManagerReduxMod." +
+        "Settings.GetTicksBetweenOperationsForCoroutine` method for getting the value instead.", true)]
     public const int CoroutineBreakAfter = 10;
 
     public const string SurvivalistsAdditionsModId = "mlie.survivalistsadditions";

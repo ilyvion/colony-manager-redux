@@ -77,6 +77,13 @@ public static class Widgets_Section
         }
 
         var hasHeader = !header.NullOrEmpty();
+        if (id == 0 && IsLikelyAnonymous(drawerFunc))
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id " +
+                "may lead to unexpected behavior as these don't have a stable hash value. " +
+                $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}");
+        }
         id = id != 0 ? id : drawerFunc.GetHashCode();
 
         // header
@@ -110,6 +117,19 @@ public static class Widgets_Section
         var height = drawerFunc(position + new Vector2(Margin, Margin), width - 2 * Margin);
         position.y += height + 3 * Margin;
         _heights[id] = height;
+
+        static bool IsLikelyAnonymous(Delegate delegat)
+        {
+            var method = delegat.Method;
+            var declaringType = method.DeclaringType;
+
+            // Lambdas and local functions usually have generated names containing things like:
+            // "<>c__DisplayClass", "<>c", "<SomeMethodName>b__..."
+            return method.Name.Contains('<')
+                || declaringType.GetCustomAttributes(
+                    typeof(System.Runtime.CompilerServices.CompilerGeneratedAttribute),
+                    false).Length != 0;
+        }
     }
 
     private static float GetHeight(string identifier)
