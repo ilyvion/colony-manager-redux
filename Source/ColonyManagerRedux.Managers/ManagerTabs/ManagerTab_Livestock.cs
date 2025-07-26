@@ -84,10 +84,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var keys = TrainingTracker.TrainableDefs;
 
         GUI.BeginGroup(rect);
-        int shownJobs = job.Training.Count;
+        int shownJobs = 0;
         for (var i = 0; i < job.Training.Count; i++)
         {
-            var cell = new Rect(i % cellCount * (cellWidth + Margin), i / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
+            var cell = new Rect(shownJobs % cellCount * (cellWidth + Margin), shownJobs / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
             var report = CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
             if (visible && report.Accepted)
             {
@@ -95,6 +95,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 DrawToggle(cell, keys[i].LabelCap, keys[i].description, ref checkOn, size: SmallIconSize,
                             wrap: false);
                 job.Training[keys[i]] = checkOn;
+                shownJobs++;
             }
             else if (visible)
             {
@@ -105,10 +106,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     TextAnchor.MiddleLeft,
                     color: Color.grey,
                     leftMargin: Margin);
-            }
-            else
-            {
-                shownJobs--;
+                shownJobs++;
             }
         }
 

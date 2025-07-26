@@ -4,6 +4,7 @@
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
+using static ColonyManagerRedux.Managers.ManagerTab_Livestock;
 
 using TabRecord = Verse.TabRecord;
 
@@ -73,7 +74,6 @@ internal sealed class PawnKindSettings : IExposable
 
     public void DoSettingPanelContents(Rect panelRect)
     {
-
         Widgets_Section.BeginSectionColumn(panelRect, "Livestock.Settings", out Vector2 position, out float width);
         Widgets_Section.Section(ref position, width, DrawTargetCounts, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader".Translate());
@@ -242,10 +242,10 @@ internal sealed class PawnKindSettings : IExposable
     private float DrawTrainingSection(Vector2 pos, float width)
     {
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
-        int rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / ManagerTab_Livestock.TrainingJobsPerRow);
+        int rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / TrainingJobsPerRow);
         var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * rowCount);
-        DrawTrainingSelector(trainingRect, rowCount);
-        var height = ListEntryHeight * rowCount;
+        int visibleJobsRowCount = (int)Math.Ceiling((double)DrawTrainingSelector(trainingRect, rowCount) / TrainingJobsPerRow);
+        var height = ListEntryHeight * visibleJobsRowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
         Utilities.DrawToggle(unassignTrainingRect,
@@ -264,19 +264,21 @@ internal sealed class PawnKindSettings : IExposable
         return height;
     }
 
-    public void DrawTrainingSelector(Rect rect, int rowCount)
+    public int DrawTrainingSelector(Rect rect, int rowCount)
     {
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
-        var cellCount = Math.Min(ManagerTab_Livestock.TrainingJobsPerRow, allTrainingTargets.Count);
+
+        var cellCount = Math.Min(TrainingJobsPerRow, allTrainingTargets.Count);
         var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
 
         GUI.BeginGroup(rect);
+        int shownJobs = 0;
         for (var i = 0; i < allTrainingTargets.Count; i++)
         {
-            var cell = new Rect((i % cellCount) * (cellWidth + Margin), (i / cellCount) * ListEntryHeight, cellWidth, rect.height / rowCount);
+            var cell = new Rect(shownJobs % cellCount * (cellWidth + Margin), shownJobs / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
             bool visible = true;
             var report = _def != null
-                ? ManagerJob_Livestock.CanBeTrained(_def, allTrainingTargets[i], out visible)
+                ? CanBeTrained(_def, allTrainingTargets[i], out visible)
                 : AcceptanceReport.WasAccepted;
 
             if (visible && report.Accepted)
@@ -285,10 +287,11 @@ internal sealed class PawnKindSettings : IExposable
                     EnabledTrainingTargets.Contains(allTrainingTargets[i]),
                     () => EnabledTrainingTargets.Add(allTrainingTargets[i]),
                     () => EnabledTrainingTargets.Remove(allTrainingTargets[i]));
+                shownJobs++;
             }
             else
             {
-                EnabledTrainingTargets.Remove(allTrainingTargets[i]);
+                _ = EnabledTrainingTargets.Remove(allTrainingTargets[i]);
                 if (visible)
                 {
                     IlyvionWidgets.Label(
@@ -297,10 +300,13 @@ internal sealed class PawnKindSettings : IExposable
                         report.Reason, TextAnchor.MiddleLeft,
                         color: Color.grey,
                         leftMargin: Margin);
+                    shownJobs++;
                 }
             }
         }
         GUI.EndGroup();
+
+        return shownJobs;
     }
 
     private float DrawFollowSection(Vector2 pos, float width)
@@ -316,7 +322,7 @@ internal sealed class PawnKindSettings : IExposable
 
         // master selection
         var report = _def != null
-            ? ManagerJob_Livestock.CanBeTrained(_def, TrainableDefOf.Obedience, out bool _)
+            ? CanBeTrained(_def, TrainableDefOf.Obedience, out bool _)
             : AcceptanceReport.WasAccepted;
 
         if (report.Accepted)

@@ -293,11 +293,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     public static AcceptanceReport CanBeTrained(PawnKindDef pawnKind, TrainableDef td, out bool visible)
     {
-        if (pawnKind.RaceProps.untrainableTags != null)
+        var raceProps = pawnKind.RaceProps;
+        var untrainableTags = raceProps.untrainableTags;
+
+        if (untrainableTags != null)
         {
-            for (var index = 0; index < pawnKind.RaceProps.untrainableTags.Count; ++index)
+            foreach (string tag in untrainableTags)
             {
-                if (td.MatchesTag(pawnKind.RaceProps.untrainableTags[index]))
+                if (td.MatchesTag(tag))
                 {
                     visible = false;
                     return false;
@@ -305,13 +308,28 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
         }
 
-        if (pawnKind.RaceProps.trainableTags != null)
+#if !v1_5
+        if (ModsConfig.OdysseyActive && td.specialTrainable)
         {
-            for (var index = 0; index < pawnKind.RaceProps.trainableTags.Count; ++index)
+            var specialTrainables = raceProps.specialTrainables;
+            if (specialTrainables == null || !specialTrainables.Contains(td))
             {
-                if (td.MatchesTag(pawnKind.RaceProps.trainableTags[index]))
+                visible = false;
+                return false;
+            }
+        }
+#endif
+
+        var trainableTags = raceProps.trainableTags;
+        var baseBodySize = raceProps.baseBodySize;
+        var minBodySize = td.minBodySize;
+        if (trainableTags != null)
+        {
+            foreach (var tag in trainableTags)
+            {
+                if (td.MatchesTag(tag))
                 {
-                    if (pawnKind.RaceProps.baseBodySize < td.minBodySize)
+                    if (baseBodySize < minBodySize)
                     {
                         visible = true;
                         return new AcceptanceReport(
@@ -324,13 +342,17 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
         }
 
-        if (!td.defaultTrainable)
+        if (!td.defaultTrainable
+#if !v1_5
+            && !td.specialTrainable
+#endif
+        )
         {
             visible = false;
             return false;
         }
 
-        if (pawnKind.RaceProps.baseBodySize < (double)td.minBodySize)
+        if (baseBodySize < (double)td.minBodySize)
         {
             visible = true;
             return new AcceptanceReport(
@@ -338,7 +360,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     pawnKind.GetLabelPlural().CapitalizeFirst()));
         }
 
-        if (pawnKind.RaceProps.trainability.intelligenceOrder < td.requiredTrainability.intelligenceOrder)
+        if (
+#if !v1_5
+            td.requiredTrainability != null &&
+#endif
+            raceProps.trainability.intelligenceOrder < td.requiredTrainability.intelligenceOrder
+        )
         {
             visible = true;
             return
