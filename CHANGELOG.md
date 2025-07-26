@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2025-07-26
+
 ### Added
 
 -   Performance settings. Players can now configure how many operations a management job should do each tick, as well as add a number of ticks to pause between each set of operations to reduce the load on the game. In addition to global/default settings, advanced settings can also be accessed where these can be configured on a per-task basis.
@@ -14,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 -    Colonists now fill the cell in the manager job overview table.
+-    Can be trained logic updated to work with Odyssey's new specialty trainables.
 
 ## [0.10.0] - 2025-07-20
 
@@ -367,7 +370,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.10.0..v0.11.0
 [0.10.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.9.0..v0.10.0
 [0.9.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.8.0..v0.9.0
 [0.8.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.7.0..v0.8.0
