@@ -24,7 +24,7 @@ internal static class Utilities_Mining
     internal static IEnumerable<ThingDef> GetDeconstructibleBuildings(Map map)
     {
         return map.listerThings.AllThings.OfType<Building>()
-            .Where(b => b.Faction != Faction.OfPlayer
+            .Where(b => b != null && b.Faction != Faction.OfPlayer
                 && !b.Position.Fogged(map)
                 && b.def.building.IsDeconstructible
                 && !b.CostListAdjusted().NullOrEmpty()
