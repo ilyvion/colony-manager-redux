@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.0] - 2025-07-29
+
 ### Added
 
 -   Setting and logic for printing verbose information about manager jobs in an attempt to figure out a bug with jobs never finishing.
@@ -384,7 +386,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.11.1...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.11.1..v0.12.0
 [0.11.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.11.0..v0.11.1
 [0.11.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.10.0..v0.11.0
 [0.10.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.9.0..v0.10.0
