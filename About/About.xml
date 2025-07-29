@@ -27,5 +27,6 @@
     <loadAfter>
         <li>brrainz.harmony</li>
         <li>ilyvion.Laboratory</li>
+        <li>ludeon.rimworld.odyssey</li>
     </loadAfter>
 </ModMetaData>
