@@ -3,6 +3,8 @@
     <ColonyManagerRedux.SharedSettingsTabLabel>Shared</ColonyManagerRedux.SharedSettingsTabLabel>
     <ColonyManagerRedux.GeneralSettingsTabLabel>General</ColonyManagerRedux.GeneralSettingsTabLabel>
 
+    <ColonyManagerRedux.DoVerboseLogging>DEV: Enable verbose logging</ColonyManagerRedux.DoVerboseLogging>
+    <ColonyManagerRedux.DoVerboseLogging.Tip>Enables verbose logging for the mod. This will log a lot of information to the log file, which can be useful for debugging issues, but will write a lot to the log relatively quickly. Use only when necessary.</ColonyManagerRedux.DoVerboseLogging.Tip>
     <ColonyManagerRedux.ManagerDefaultUpdateInterval>Default update interval</ColonyManagerRedux.ManagerDefaultUpdateInterval>
     <ColonyManagerRedux.NewJobsAreImmediatelyOutdated>New jobs should be immediately handled</ColonyManagerRedux.NewJobsAreImmediatelyOutdated>
     <ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip>When this setting is enabled, a newly created manager job will immediately require a manager to go deal with it. Otherwise, the job will start out as updated and not be worked on until its update interval elapses for the first time.</ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip>

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Setting and logic for printing verbose information about manager jobs in an attempt to figure out a bug with jobs never finishing.
+
 ### Fixed
 
 -    Add explicit 'loadAfter' rule for Odyssey.

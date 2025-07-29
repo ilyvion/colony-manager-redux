@@ -51,6 +51,16 @@ public class ColonyManagerReduxMod : IlyvionMod
     {
         Settings.DoSettingsWindowContents(inRect);
     }
+
+    public void LogVerboseMessage(string message)
+    {
+        LogDevMessage($"[Verbose] {message}");
+    }
+
+    public override void LogDebug(string message)
+    {
+        base.LogDebug($"[Debug] {message}");
+    }
 }
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]

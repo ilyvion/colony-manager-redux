@@ -22,6 +22,13 @@ public class Settings : ModSettings
     private List<ManagerSettings> _managerSettings = [];
     private Tab _currentManagerSettings;
 
+    private bool _doVerboseLogging = false;
+    public bool DoVerboseLogging
+    {
+        get => _doVerboseLogging;
+        internal set => _doVerboseLogging = value;
+    }
+
     private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
     public int DefaultUpdateIntervalTicks
     {
@@ -394,7 +401,14 @@ public class Settings : ModSettings
     {
         var start = pos;
 
-        // target threshold
+        if (Prefs.DevMode)
+        {
+            Utilities.DrawToggle(ref pos, width,
+                "ColonyManagerRedux.DoVerboseLogging".Translate(),
+                "ColonyManagerRedux.DoVerboseLogging.Tip".Translate(),
+                ref _doVerboseLogging);
+        }
+
         var rect = new Rect(
             pos.x,
             pos.y,
@@ -876,6 +890,7 @@ public class Settings : ModSettings
 
     public override void ExposeData()
     {
+        Scribe_Values.Look(ref _doVerboseLogging, "doVerboseLogging", false);
         Scribe_Values.Look(ref _defaultUpdateIntervalTicks, "defaultUpdateInterval", GenDate.TicksPerDay);
         Scribe_Values.Look(ref _defaultTargetCount, "defaultTargetCount", 500);
         Scribe_Values.Look(ref _defaultShouldCheckReachable, "defaultShouldCheckReachable", true);

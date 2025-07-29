@@ -138,6 +138,8 @@ public class Building_AIManager : Building
                 {
                     if (handle.IsCompleted)
                     {
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                            $"AI Manager completed active job");
                         handle = null;
                         PrimaryColour = Color.red;
                         PowerTrader.PowerOutput = -PowerTrader.Props.idlePowerDraw;
@@ -151,15 +153,18 @@ public class Building_AIManager : Building
                 else
                 {
                     PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage($"Setting up a job due to AI manager seeing there's work to do...");
                     var coroutine = Manager.For(Map).TryDoWork();
                     PrimaryColour = coroutine != null ? Color.green : Color.red;
                     if (coroutine != null)
                     {
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage($"...job started @ game tick {Find.TickManager.TicksGame}.");
                         PrimaryColour = Color.green;
                         handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
                     }
                     else
                     {
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage($"...there was no job to do.");
                         PrimaryColour = Color.red;
                     }
                 }
