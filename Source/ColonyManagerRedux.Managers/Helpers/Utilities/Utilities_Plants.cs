@@ -14,10 +14,13 @@ internal static class Utilities_Plants
         return GetAllPlants(map)
 
             // if !clearArea, remove things that do not yield wood
-            .Where(td => clearArea || (td.plant.harvestTag == "Wood" ||
-                td.plant.harvestedThingDef == ThingDefOf.WoodLog) &&
-                td.plant.harvestedThingDef != null &&
-                td.plant.harvestYield > 0)
+            .Where(td => (
+                    clearArea
+                    || td.plant.harvestTag == "Wood"
+                    || td.plant.harvestedThingDef == ThingDefOf.WoodLog
+                )
+                && td.plant.harvestedThingDef != null
+                && td.plant.harvestYield > 0)
             .Distinct()
             .OrderBy(pk => pk.label);
     }
