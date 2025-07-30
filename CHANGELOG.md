@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-    Make sure that when the power job gets interrupted, its flag for avoiding doing a subtask multiple time gets properly cleared. This should hopefully remedy the jobs-never-finishing bug that's been plaguing us lately.
+
 ## [0.12.0] - 2025-07-29
 
 ### Added

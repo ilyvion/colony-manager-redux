@@ -282,6 +282,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshBuildingLists);
 
         _isRefreshingBuildingLists = true;
+        using var _ = new DoOnDispose(() => _isRefreshingBuildingLists = false);
 
         int buildingsBefore = _traderBuildings.Count;
         int batteriesBefore = _batteryBuildings.Count;
@@ -315,8 +316,6 @@ internal sealed class ManagerJob_Power : ManagerJob
             jobLog?.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildings"
                 .Translate(buildingsBefore, batteriesBefore, buildingsAfter, batteriesAfter));
         }
-
-        _isRefreshingBuildingLists = false;
     }
 
     private bool _isRefreshingCompLists = false;
@@ -333,6 +332,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshCompLists);
 
         _isRefreshingCompLists = true;
+        using var _ = new DoOnDispose(() => _isRefreshingCompLists = false);
 
         foreach (var traders in _traders)
         {
@@ -403,8 +403,6 @@ internal sealed class ManagerJob_Power : ManagerJob
             jobLog?.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildingPerType"
                 .Translate(string.Join("\n", tradersPerType), string.Join("\n", batteriesPerType)));
         }
-
-        _isRefreshingCompLists = false;
     }
 
     private (int current, int max)[] GetCurrentBatteries()
