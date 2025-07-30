@@ -319,6 +319,7 @@ internal sealed class ManagerJob_Power : ManagerJob
     }
 
     private bool _isRefreshingCompLists = false;
+    private readonly List<(IEnumerable<CompPowerTrader> traders, int i)> _refreshCompListTraders = [];
     [CoroutineSettingsMethod]
     private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
     {
@@ -333,6 +334,7 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         _isRefreshingCompLists = true;
         using var _ = new DoOnDispose(() => _isRefreshingCompLists = false);
+        using var _2 = new DoOnDispose(_refreshCompListTraders.Clear);
 
         foreach (var traders in _traders)
         {
@@ -350,10 +352,13 @@ internal sealed class ManagerJob_Power : ManagerJob
         {
             _traders.RemoveRange(TraderDefs.Count - 1, _traders.Count - TraderDefs.Count);
         }
-        foreach (var (traders, i) in TraderDefs
+
+        _refreshCompListTraders.Clear();
+        _refreshCompListTraders.AddRange(TraderDefs
             .Select((def, i) => (_traderBuildings
                 .Where(b => b.def == def)
-                .Select(b => b.GetComp<CompPowerTrader>()), i)))
+                .Select(b => b.GetComp<CompPowerTrader>()), i)));
+        foreach (var (traders, i) in _refreshCompListTraders)
         {
             if (i == _traders.Count)
             {

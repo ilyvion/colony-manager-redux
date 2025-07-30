@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -    Fix logic error in GetForestryPlants.
 -    Check for null ThingDef in CountProductsCoroutine. I don't think it's supposed to happen, but I got a bug report where it did, so it doesn't hurt to add a check against.
+-    Cache the result of the query over CompPowerTraders in RefreshCompLists, so we're not enumerating over it across multiple ticks.
 
 ## [0.12.1] - 2025-07-30
 
