@@ -92,6 +92,13 @@ public static class Utilities
         var loopingIndex = 0;
         foreach (var thingDef in filter.AllowedThingDefs)
         {
+            // Shouldn't happen, but got a report where it did.
+            // So if it does, just skip it.
+            if (thingDef == null)
+            {
+                continue;
+            }
+
             // if it counts as a resource and we're not limited to a single stockpile,
             // use the ingame counter (e.g. only steel in stockpiles.)
             if (!countAllOnMap && thingDef.CountAsResource && stockpile == null)
