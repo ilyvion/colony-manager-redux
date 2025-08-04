@@ -64,7 +64,7 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
         var manager = Manager.For(currentMap);
         foreach (var managerJobLivestock in manager.JobTracker.JobsOfType<ManagerJob_Livestock>())
         {
-            if (managerJobLivestock.CullExcess)
+            if (managerJobLivestock.CullExcess && managerJobLivestock.TriggerPawnKind.pawnKind != null)
             {
                 yield return managerJobLivestock.TriggerPawnKind.pawnKind.race;
             }

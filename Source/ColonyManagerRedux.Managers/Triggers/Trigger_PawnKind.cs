@@ -1,6 +1,8 @@
 ﻿// Trigger_PawnKind.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
+
+using System.Diagnostics.CodeAnalysis;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -11,7 +13,12 @@ internal sealed class Trigger_PawnKind : Trigger
     private readonly CachedValue<bool> _cachedState = new(false);
 
     public int[] CountTargets;
-    public PawnKindDef pawnKind;
+    public PawnKindDef? pawnKind;
+
+    private string? expectedPawnKindName;
+
+    public string ExpectedPawnKindName { get => $"[PawnKindDef was saved as '{expectedPawnKindName ?? "?"}']"; private set => expectedPawnKindName = value; }
+    public string? ExpectedPawnKindNameRaw => expectedPawnKindName;
 
 #pragma warning disable CS8618 // Set by using class
     public Trigger_PawnKind(ManagerJob job) : base(job)
@@ -22,19 +29,13 @@ internal sealed class Trigger_PawnKind : Trigger
         _cachedTooltip = new CachedValue<string>(GetTooltip);
     }
 
-    public int[] Counts
-    {
-        get
-        {
-            return Utilities_Livestock.AgeSexArray
-                .Select(ageSex => pawnKind.GetTame(Job.Manager, ageSex, includeGuests: false).Count())
-                .ToArray();
-        }
-    }
+    public int[] Counts => Utilities_Livestock.AgeSexArray
+        .Select(ageSex => pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0)
+        .ToArray();
 
     public int GetCountFor(AgeAndSex ageAndSex, bool cached = true)
     {
-        return pawnKind.GetTame(Job.Manager, ageAndSex, cached, false).Count();
+        return pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0;
     }
 
     public int GetTargetFor(AgeAndSex ageAndSex)
@@ -64,14 +65,17 @@ internal sealed class Trigger_PawnKind : Trigger
     {
         get
         {
-            if (!_cachedState.TryGetValue(out bool state))
+            if (pawnKind != null && !_cachedState.TryGetValue(out bool state))
             {
-
                 state = Utilities_Livestock.AgeSexArray.All(
                     ageSex => CountTargets[(int)ageSex] ==
                         pawnKind.GetTame(Job.Manager, ageSex).Count())
                      && AllTrainingWantedSet();
-                _cachedState.Update(state);
+                _ = _cachedState.Update(state);
+            }
+            else
+            {
+                state = true;
             }
 
             return state;
@@ -118,7 +122,7 @@ internal sealed class Trigger_PawnKind : Trigger
                 active,
                 GetProgressBarTextureFor(ageAndSex));
 
-            eachRect.y += PawnKindProgressBarHeight + Constants.Margin / 2;
+            eachRect.y += PawnKindProgressBarHeight + (Constants.Margin / 2);
         }
     }
 
@@ -136,11 +140,24 @@ internal sealed class Trigger_PawnKind : Trigger
         {
             Scribe_Values.Look(ref CountTargets[(int)ageAndSex], $"{ageAndSex.ToString().UncapitalizeFirst()}TargetCount");
         }
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            var subNode = Scribe.loader.curXmlParent["pawnKind"];
+            if (subNode != null && subNode.InnerText != null && subNode.InnerText != "null")
+            {
+                ExpectedPawnKindName = BackCompatibility.BackCompatibleDefName(typeof(PawnKindDef), subNode.InnerText, forDefInjections: false, subNode);
+            }
+        }
         Scribe_Defs.Look(ref pawnKind, "pawnKind");
     }
 
     private string GetTooltip()
     {
+        if (pawnKind == null)
+        {
+            return "This job is in an error state because the game could not find the PawnKindDef it expected for this job. " +
+                   "The likeliest causes for this is that the PawnKindDef was renamed by a mod, removed from a mod, or that the mod that added it itself was disabled or removed.";
+        }
         var tooltipArgs = new List<NamedArgument>
         {
             pawnKind.Named("PAWNKIND")

@@ -39,7 +39,7 @@
                 I prefer the old LINQ method chaining over using a collection expression to turn
                 an enumerable into a collection.
         -->
-        <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201;IDE0305</NoWarn>
+        <NoWarn>CA1002;CA1031;CA1305;CA1310;CA1707;CA2201;IDE0305;IDE0061;IDE0022</NoWarn>
 
         <RootNamespace>ColonyManagerRedux.Managers</RootNamespace>
         <AssemblyName>ColonyManagerRedux.Managers</AssemblyName>

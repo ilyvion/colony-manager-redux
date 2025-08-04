@@ -1,8 +1,9 @@
 ﻿// ManagerJob_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Verse.Sound;
 
 namespace ColonyManagerRedux.Managers;
@@ -31,6 +32,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 count.Value = managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileFemale, cached: false);
             }
+#pragma warning disable IDE0045
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
                 count.Value = managerJob.TriggerPawnKind.GetCountFor(AgeAndSex.JuvenileMale, cached: false);
@@ -39,6 +41,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
             }
+#pragma warning restore IDE0045
             yield break;
         }
 
@@ -60,6 +63,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 target.Value = managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileFemale);
             }
+#pragma warning disable IDE0045
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryJuvenileMale)
             {
                 target.Value = managerJob.TriggerPawnKind.GetTargetFor(AgeAndSex.JuvenileMale);
@@ -68,6 +72,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 target.Value = 0;
             }
+#pragma warning restore IDE0045
             yield break;
         }
     }
@@ -183,41 +188,48 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     public override void PostMake()
     {
         var livestockSettings = ManagerSettings;
-        if (livestockSettings != null)
+        if (livestockSettings == null)
         {
-            PawnKindDef pawnKind = TriggerPawnKind.pawnKind;
-            PawnKindSettings pawnKindSettings = livestockSettings.GetSettingsFor(pawnKind);
-            for (int i = 0; i < pawnKindSettings.DefaultCountTargets.Length; i++)
-            {
-                TriggerPawnKind.CountTargets[i] = pawnKindSettings.DefaultCountTargets[i];
-            }
-            TryTameMore = pawnKindSettings.DefaultTryTameMore;
-            TamePastTargets = pawnKindSettings.DefaultTamePastTargets;
-            CullExcess = pawnKindSettings.DefaultCullExcess;
-            CullTrained = pawnKindSettings.DefaultCullTrained;
-            CullPregnant = pawnKindSettings.DefaultCullPregnant;
-            CullBonded = pawnKindSettings.DefaultCullBonded;
-            _cullingStrategy = pawnKindSettings.DefaultCullingStrategy;
-
-            foreach (var def in TrainingTracker.TrainableDefs)
-            {
-                var report = CanBeTrained(pawnKind, def, out bool visible);
-                if (report.Accepted && visible && pawnKindSettings.EnabledTrainingTargets.Contains(def))
-                {
-                    Training[def] = true;
-                }
-            }
-            Training.UnassignTraining = pawnKindSettings.DefaultUnassignTraining;
-            Training.TrainYoung = pawnKindSettings.DefaultTrainYoung;
-
-            Masters = pawnKindSettings.DefaultMasterMode;
-            RespectBonds = pawnKindSettings.DefaultRespectBonds;
-            SetFollow = pawnKindSettings.DefaultSetFollow;
-            FollowDrafted = pawnKindSettings.DefaultFollowDrafted;
-            FollowFieldwork = pawnKindSettings.DefaultFollowFieldwork;
-            FollowTraining = pawnKindSettings.DefaultFollowTraining;
-            Trainers = pawnKindSettings.DefaultTrainerMode;
+            return;
         }
+
+        PawnKindDef? pawnKind = TriggerPawnKind.pawnKind;
+        if (pawnKind == null)
+        {
+            return;
+        }
+
+        PawnKindSettings pawnKindSettings = livestockSettings.GetSettingsFor(pawnKind);
+        for (int i = 0; i < pawnKindSettings.DefaultCountTargets.Length; i++)
+        {
+            TriggerPawnKind.CountTargets[i] = pawnKindSettings.DefaultCountTargets[i];
+        }
+        TryTameMore = pawnKindSettings.DefaultTryTameMore;
+        TamePastTargets = pawnKindSettings.DefaultTamePastTargets;
+        CullExcess = pawnKindSettings.DefaultCullExcess;
+        CullTrained = pawnKindSettings.DefaultCullTrained;
+        CullPregnant = pawnKindSettings.DefaultCullPregnant;
+        CullBonded = pawnKindSettings.DefaultCullBonded;
+        _cullingStrategy = pawnKindSettings.DefaultCullingStrategy;
+
+        foreach (var def in TrainingTracker.TrainableDefs)
+        {
+            var report = CanBeTrained(pawnKind, def, out bool visible);
+            if (report.Accepted && visible && pawnKindSettings.EnabledTrainingTargets.Contains(def))
+            {
+                Training[def] = true;
+            }
+        }
+        Training.UnassignTraining = pawnKindSettings.DefaultUnassignTraining;
+        Training.TrainYoung = pawnKindSettings.DefaultTrainYoung;
+
+        Masters = pawnKindSettings.DefaultMasterMode;
+        RespectBonds = pawnKindSettings.DefaultRespectBonds;
+        SetFollow = pawnKindSettings.DefaultSetFollow;
+        FollowDrafted = pawnKindSettings.DefaultFollowDrafted;
+        FollowFieldwork = pawnKindSettings.DefaultFollowFieldwork;
+        FollowTraining = pawnKindSettings.DefaultFollowTraining;
+        Trainers = pawnKindSettings.DefaultTrainerMode;
     }
 
     public override void PostImport()
@@ -232,7 +244,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         TriggerPawnKind.pawnKind = pawnKindDef;
     }
 
-    public List<Designation> Designations => new(_designations);
+    public List<Designation> Designations => [.. _designations];
 
     public string FullLabel
     {
@@ -241,6 +253,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             if (_cachedLabel != null && _cachedLabel.TryGetValue(out var label))
             {
                 return label;
+            }
+
+            if (TriggerPawnKind.pawnKind == null)
+            {
+                return TriggerPawnKind.ExpectedPawnKindName;
             }
 
             string labelGetter()
@@ -263,19 +280,13 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     public override bool IsValid => base.IsValid && Training != null && Trigger != null;
 
-    public override string Label => TriggerPawnKind.pawnKind.GetLabelPlural().CapitalizeFirst();
+    public override string Label => (TriggerPawnKind.pawnKind?.GetLabelPlural().CapitalizeFirst()) ?? TriggerPawnKind.ExpectedPawnKindName;
 
-    public override IEnumerable<string> Targets
-    {
-        get
-        {
-            return Utilities_Livestock.AgeSexArray
-                .Select(ageSex => $"ColonyManagerRedux.Thresholds.{ageSex}Count".Translate(
-                    TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count(),
-                    TriggerPawnKind.CountTargets[(int)ageSex])
-                .Resolve());
-        }
-    }
+    public override IEnumerable<string> Targets => Utilities_Livestock.AgeSexArray
+        .Select(ageSex => $"ColonyManagerRedux.Thresholds.{ageSex}Count".Translate(
+            TriggerPawnKind.pawnKind?.GetTame(Manager, ageSex, includeGuests: false).Count() ?? 0,
+            TriggerPawnKind.CountTargets[(int)ageSex])
+        .Resolve());
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Handling;
 
@@ -394,6 +405,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     public void DoFollowSettings(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            return;
+        }
+
         foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager))
         {
             if (animal.training.HasLearned(TrainableDefOf.Obedience))
@@ -484,6 +500,27 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             // our current designations
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
+                if (TriggerPawnKind.pawnKind == null)
+                {
+                    var errorText = new StringBuilder(
+                        "Loaded Livestock job without a valid pawn kind. This most likely means "
+                            + "that the mod that added this pawn kind was removed from the game. ");
+                    _ = TriggerPawnKind.ExpectedPawnKindNameRaw != null
+                        ? errorText.Append("The pawn kind was saved as '")
+                            .Append(TriggerPawnKind.ExpectedPawnKindNameRaw)
+                            .Append("'.")
+                        : errorText.Append("The pawn kind was not saved. That usually means ")
+                            .Append("that the game was saved after this error had already ")
+                            .Append("happened, and the information is therefore lost.");
+                    ColonyManagerReduxMod.Instance.LogError(
+                        errorText.Append("Remember to remove jobs that reference other mods' ")
+                        .Append("content before removing them from your game mid-save.")
+                        .ToString());
+
+                    CausedException = new InvalidOperationException(
+                        $"Loaded Livestock job without a valid pawn kind: {TriggerPawnKind.ExpectedPawnKindName}");
+                }
+
                 // populate with all designations.
                 _designations.AddRange(
                     Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
@@ -492,7 +529,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Tame)
                         .Where(des => ((Pawn)des.target.Thing).kindDef == TriggerPawnKind.pawnKind));
 
-                // We no longer mark manager jobs as complete, so set them all back to active
+                // We no longer mark livestock jobs as complete, so set them all back to active
                 JobState = ManagerJobState.Active;
             }
         }
@@ -584,6 +621,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     public void SetMaster(ManagerLog jobLog, Pawn animal, MasterMode mode, Pawn? specificMaster, Boxed<bool> workDone)
     {
+#pragma warning disable IDE0010
         switch (mode)
         {
             case MasterMode.Manual:
@@ -596,6 +634,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 SetMaster(jobLog, animal, master, workDone);
                 break;
         }
+#pragma warning restore IDE0010
     }
 
     public static void SetMaster(ManagerLog jobLog, Pawn animal, Pawn? master, Boxed<bool> workDone)
@@ -617,6 +656,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         ManagerLog jobLog,
         Boxed<bool> workDone)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            throw new InvalidOperationException(
+                $"Loaded Livestock job without a valid pawn kind: {TriggerPawnKind.ExpectedPawnKindName}");
+        }
+
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
 
         jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
@@ -645,7 +690,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         // area restrictions
         // skip for roamers
-        if (!TriggerPawnKind.pawnKind.RaceProps.Roamer)
+        if (!(TriggerPawnKind.pawnKind?.RaceProps.Roamer ?? true))
         {
             yield return DoAreaRestrictions(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
@@ -700,6 +745,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     internal Coroutine DoTrainingJobs(Boxed<bool> workDone, ManagerLog? jobLog = null, bool assign = true)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            yield break;
+        }
+
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoTrainingJobs);
 
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
@@ -746,6 +796,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     [CoroutineSettingsMethod]
     private Coroutine DoAreaRestrictions(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            yield break;
+        }
+
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoAreaRestrictions);
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoAreaRestrictions);
 
@@ -843,6 +898,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     private Coroutine DoCullingJobs(
         ManagerLog jobLog, DesignationDef cullingDesignationDef, Boxed<bool> workDone)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            yield break;
+        }
+
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoCullingJobs);
 
         using var _ = new DoOnDispose(_tmpDesignations.Clear);
@@ -938,6 +998,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     [CoroutineSettingsMethod]
     private Coroutine DoTamingJobs(ManagerLog jobLog, Boxed<bool> workDone)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            yield break;
+        }
+
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoTamingJobs);
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoTamingJobs);
 
@@ -1075,6 +1140,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     private bool RoughlyEquallyDistributed(List<Pawn> masters)
     {
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            return true;
+        }
+
         var followerCounts = masters.Select(p => p.GetFollowers(TriggerPawnKind.pawnKind).EnumerableCount()).ToArray();
         return followerCounts.Max() - followerCounts.Min() <= 1;
     }
@@ -1083,8 +1153,13 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     {
         animal = null;
 
+        if (TriggerPawnKind.pawnKind == null)
+        {
+            return false;
+        }
+
         // get current designations
-        using var _ = new DoOnDispose(_tmpDesignations.Clear);
+        using var _disposeDesignations = new DoOnDispose(_tmpDesignations.Clear);
         DesignationsOfOn(def, ageSex, _tmpDesignations);
 
         // if none, return false
@@ -1096,7 +1171,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         // else, remove one from the game as well as our managed list. (delete last - this should be the youngest/oldest).
         var designation = _tmpDesignations.Last();
         animal = (Pawn)designation.target.Thing;
-        _designations.Remove(designation);
+        _ = _designations.Remove(designation);
         designation.Delete();
         return true;
     }

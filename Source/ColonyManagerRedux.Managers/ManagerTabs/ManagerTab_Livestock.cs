@@ -1,6 +1,6 @@
 ﻿// ManagerTab_Livestock.cs
 // Copyright Karel Kroeze, 2020-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
@@ -80,62 +80,72 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
     public static int DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
     {
         var cellCount = Math.Min(TrainingJobsPerRow, job.Training.Count);
-        var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
+        var cellWidth = (rect.width - (Margin * (cellCount - 1))) / cellCount;
         var keys = TrainingTracker.TrainableDefs;
 
-        GUI.BeginGroup(rect);
         int shownJobs = 0;
-        for (var i = 0; i < job.Training.Count; i++)
+        if (job.TriggerPawnKind.pawnKind != null)
         {
-            var cell = new Rect(shownJobs % cellCount * (cellWidth + Margin), shownJobs / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
-            var report = CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
-            if (visible && report.Accepted)
+            GUI.BeginGroup(rect);
+            for (var i = 0; i < job.Training.Count; i++)
             {
-                var checkOn = job.Training[keys[i]];
-                DrawToggle(cell, keys[i].LabelCap, keys[i].description, ref checkOn, size: SmallIconSize,
-                            wrap: false);
-                job.Training[keys[i]] = checkOn;
-                shownJobs++;
+                var cell = new Rect(shownJobs % cellCount * (cellWidth + Margin), shownJobs / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
+                var report = CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
+                if (visible && report.Accepted)
+                {
+                    var checkOn = job.Training[keys[i]];
+                    DrawToggle(cell, keys[i].LabelCap, keys[i].description, ref checkOn, size: SmallIconSize,
+                                wrap: false);
+                    job.Training[keys[i]] = checkOn;
+                    shownJobs++;
+                }
+                else if (visible)
+                {
+                    IlyvionWidgets.Label(
+                        cell,
+                        keys[i].LabelCap,
+                        report.Reason,
+                        TextAnchor.MiddleLeft,
+                        color: Color.grey,
+                        leftMargin: Margin);
+                    shownJobs++;
+                }
             }
-            else if (visible)
-            {
-                IlyvionWidgets.Label(
-                    cell,
-                    keys[i].LabelCap,
-                    report.Reason,
-                    TextAnchor.MiddleLeft,
-                    color: Color.grey,
-                    leftMargin: Margin);
-                shownJobs++;
-            }
-        }
 
-        GUI.EndGroup();
+            GUI.EndGroup();
+        }
 
         return shownJobs;
     }
 
     public static string GetMasterLabel(ManagerJob_Livestock job)
     {
-        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
-        if (!report.Accepted)
+        if (job.TriggerPawnKind.pawnKind == null)
         {
-            return "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
+            return job.TriggerPawnKind.ExpectedPawnKindName;
         }
-        return job.Masters switch
-        {
-            MasterMode.Specific => job.Master?.LabelShort ?? "ColonyManagerRedux.Common.None".Translate(),
-            _ => (string)$"ColonyManagerRedux.Livestock.MasterMode.{job.Masters}".Translate(),
-        };
+
+        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
+#pragma warning disable IDE0072
+        return !report.Accepted
+            ? (string)"ColonyManagerRedux.Livestock.MasterUnavailable".Translate()
+            : job.Masters switch
+            {
+                MasterMode.Specific => job.Master?.LabelShort ?? "ColonyManagerRedux.Common.None".Translate(),
+                _ => (string)$"ColonyManagerRedux.Livestock.MasterMode.{job.Masters}".Translate(),
+            };
+#pragma warning restore IDE0072
     }
 
     public static string GetTrainerLabel(ManagerJob_Livestock job)
     {
+#pragma warning disable IDE0072
         return job.Trainers switch
         {
             MasterMode.Specific => job.Trainer?.LabelShort ?? "BUG: INVALID",
             _ => (string)$"ColonyManagerRedux.Livestock.MasterMode.{job.Trainers}".Translate(),
         };
+#pragma warning restore IDE0072
     }
 
     public override void PreOpen()
@@ -171,7 +181,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var animalsColumnRect = new Rect(
             optionsColumnRect.xMax,
             rect.yMin,
-            rect.width * 3 / 7f - 1,
+            (rect.width * 3 / 7f) - 1,
             rect.height - Margin - ButtonSize.y);
         var buttonRect = new Rect(
             rect.xMax - ButtonSize.x,
@@ -282,7 +292,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             _currentTab.DoTabContents(rect.AtZero());
         }
 
-        TabDrawer.DrawTabs(rect, TabList);
+        _ = TabDrawer.DrawTabs(rect, TabList);
     }
 
     private sealed class CurrentTab(Action<Rect> doJobList) : Tab
@@ -308,7 +318,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var start = pos;
 
         // skip for animals that can't be restricted
-        if (job.TriggerPawnKind.pawnKind.RaceProps.Roamer)
+        if (job.TriggerPawnKind.pawnKind?.RaceProps.Roamer ?? false)
         {
             var unavailableLabelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             unavailableLabelRect.xMin += Margin;
@@ -439,7 +449,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 color: Color.grey);
         }
 
-        if (job.TriggerPawnKind.pawnKind.Milkable())
+        if (job.TriggerPawnKind.pawnKind?.Milkable() ?? false)
         {
             var sendToMilkingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             pos.y += ListEntryHeight;
@@ -457,7 +467,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             }
         }
 
-        if (job.TriggerPawnKind.pawnKind.Shearable())
+        if (job.TriggerPawnKind.pawnKind?.Shearable() ?? false)
         {
             var sendToShearingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
             pos.y += ListEntryHeight;
@@ -644,14 +654,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 lowerIconRect.x -= Margin + SmallIconSize;
 
                 var color = GUI.color;
-                if (animalDef.RaceProps.manhunterOnTameFailChance > 0.25)
-                {
-                    GUI.color = Color.red;
-                }
-                else
-                {
-                    GUI.color = Resources.Orange;
-                }
+                GUI.color = animalDef.RaceProps.manhunterOnTameFailChance > 0.25
+                    ? Color.red
+                    : Resources.Orange;
 
                 GUI.DrawTexture(lowerIconRect, Resources.ClawIcon);
                 GUI.color = color;
@@ -675,14 +680,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                     lowerIconRect.x -= Margin + SmallIconSize;
 
                     var color = GUI.color;
-                    if (allVenerated)
-                    {
-                        GUI.color = Color.red;
-                    }
-                    else
-                    {
-                        GUI.color = Resources.Orange;
-                    }
+                    GUI.color = allVenerated
+                        ? Color.red
+                        : Resources.Orange;
 
                     GUI.DrawTexture(lowerIconRect, Resources.Venerated);
                     GUI.color = color;
@@ -769,7 +769,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         if (job.CullExcess)
         {
-            cellWidth = (width - Margin * 2) / 3f;
+            cellWidth = (width - (Margin * 2)) / 3f;
             var cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
             DrawToggle(cullingOptionRect,
@@ -804,7 +804,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         parameters = new()
         {
             ShowOrdering = false,
-            StatusHeight = 4 * Trigger_PawnKind.PawnKindProgressBarHeight + 3 * Margin / 2,
+            StatusHeight = (4 * Trigger_PawnKind.PawnKindProgressBarHeight) + (3 * Margin / 2),
         };
 
         base.DrawLocalListEntry(
@@ -826,7 +826,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 .CenteredOnYIn(rowRect);
 
         // master selection
-        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = job.TriggerPawnKind.pawnKind != null
+            ? CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _)
+            : (AcceptanceReport)false;
         if (report.Accepted)
         {
             IlyvionWidgets.Label(rowRect,
@@ -853,17 +855,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             }
 
             // specific pawns
-            foreach (var pawn in job.TriggerPawnKind.pawnKind.GetMasterOptions(Manager, MasterMode.All))
+            if (job.TriggerPawnKind.pawnKind != null)
             {
-                options.Add(new FloatMenuOption(
-                    "ColonyManagerRedux.Livestock.Master".Translate(pawn.LabelShort,
-                        pawn.skills.AverageOfRelevantSkillsFor(
-                            WorkTypeDefOf.Handling)),
-                    () =>
-                    {
-                        job.Master = pawn;
-                        job.Masters = MasterMode.Specific;
-                    }));
+                foreach (var pawn in job.TriggerPawnKind.pawnKind.GetMasterOptions(Manager, MasterMode.All))
+                {
+                    options.Add(new FloatMenuOption(
+                        "ColonyManagerRedux.Livestock.Master".Translate(pawn.LabelShort,
+                            pawn.skills.AverageOfRelevantSkillsFor(
+                                WorkTypeDefOf.Handling)),
+                        () =>
+                        {
+                            job.Master = pawn;
+                            job.Masters = MasterMode.Specific;
+                        }));
+                }
             }
 
             Find.WindowStack.Add(new FloatMenu(options));
@@ -878,7 +883,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 report.Reason,
                 color: Color.grey, leftMargin: Margin);
         }
-        else if (job.Masters != MasterMode.Manual && job.Masters != MasterMode.Specific)
+        else if (job.Masters is not MasterMode.Manual and not MasterMode.Specific)
         {
             DrawToggle(rowRect,
                 "ColonyManagerRedux.Livestock.RespectBonds".Translate(),
@@ -966,17 +971,20 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
                 }
 
                 // specific pawns
-                foreach (var pawn in job.TriggerPawnKind.pawnKind.GetTrainers(Manager, MasterMode.Trainers))
+                if (job.TriggerPawnKind.pawnKind != null)
                 {
-                    options.Add(new FloatMenuOption(
-                        "ColonyManagerRedux.Livestock.Master".Translate(pawn.LabelShort,
-                            pawn.skills.AverageOfRelevantSkillsFor(
-                                WorkTypeDefOf.Handling)),
-                        () =>
-                        {
-                            job.Trainer = pawn;
-                            job.Trainers = MasterMode.Specific;
-                        }));
+                    foreach (var pawn in job.TriggerPawnKind.pawnKind.GetTrainers(Manager, MasterMode.Trainers))
+                    {
+                        options.Add(new FloatMenuOption(
+                            "ColonyManagerRedux.Livestock.Master".Translate(pawn.LabelShort,
+                                pawn.skills.AverageOfRelevantSkillsFor(
+                                    WorkTypeDefOf.Handling)),
+                            () =>
+                            {
+                                job.Trainer = pawn;
+                                job.Trainers = MasterMode.Specific;
+                            }));
+                    }
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));
@@ -1104,7 +1112,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         IlyvionWidgets.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Tame".Translate(),
-                SelectedJob!.TriggerPawnKind.pawnKind.GetLabelPlural())
+                SelectedJob!.TriggerPawnKind.pawnKind?.GetLabelPlural()
+                    ?? SelectedJob!.TriggerPawnKind.ExpectedPawnKindName)
             .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, leftMargin: 3 * Margin);
         animalsColumnRect.yMin += SectionHeaderHeight;
         animalsColumnRect.yMax -= Margin;
@@ -1118,7 +1127,8 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         IlyvionWidgets.Label(headerRect, "ColonyManagerRedux.Livestock.AnimalsHeader"
             .Translate(
                 "ColonyManagerRedux.Livestock.Wild".Translate(),
-                SelectedJob.TriggerPawnKind.pawnKind.GetLabelPlural())
+                SelectedJob.TriggerPawnKind.pawnKind?.GetLabelPlural()
+                    ?? SelectedJob!.TriggerPawnKind.ExpectedPawnKindName)
             .CapitalizeFirst(), TextAnchor.LowerLeft, GameFont.Tiny, leftMargin: 3 * Margin);
         animalsColumnRect2.yMin += SectionHeaderHeight;
         GUI.DrawTexture(animalsColumnRect2, Resources.SlightlyDarkBackground);
@@ -1144,7 +1154,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             pawnTable = CreateAnimalsTable(() =>
             {
                 var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
-                return animalGetter(pawnKind) ?? [];
+                return pawnKind != null ? animalGetter(pawnKind) ?? [] : [];
             }, () => SelectedJob);
             pawnTable.SetFixedSize(new(rect.width, rect.height));
         }
@@ -1154,7 +1164,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         {
             var pawnKind = SelectedJob!.TriggerPawnKind.pawnKind;
             IlyvionWidgets.Label(rect,
-                "ColonyManagerRedux.Livestock.NoAnimals".Translate(type, pawnKind.GetLabelPlural()),
+                "ColonyManagerRedux.Livestock.NoAnimals".Translate(
+                    type,
+                    pawnKind?.GetLabelPlural()
+                        ?? SelectedJob!.TriggerPawnKind.ExpectedPawnKindName),
                 TextAnchor.MiddleCenter, color: Color.grey);
         }
     }

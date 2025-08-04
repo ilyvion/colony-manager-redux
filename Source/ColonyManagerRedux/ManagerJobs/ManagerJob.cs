@@ -1,6 +1,6 @@
 ﻿// ManagerJob.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using System.Buffers;
 using System.Text;
@@ -140,7 +140,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public Exception? CausedException
     {
         get => _causedException;
-        internal set
+        set
         {
             _causedException = value;
             _causedExceptionToStringCache = null;

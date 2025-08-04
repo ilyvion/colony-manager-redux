@@ -1,6 +1,6 @@
 ﻿// Trigger.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 
@@ -10,6 +10,9 @@ public abstract class Trigger(ManagerJob job) : IExposable
     private ManagerJob _job = job;
     public ManagerJob Job { get => _job; protected internal set => _job = value; }
 
+    /// <summary>
+    /// Whether the trigger's condition is met or not.
+    /// </summary>
     public abstract bool State { get; }
     public virtual string StatusTooltip { get; } = string.Empty;
 

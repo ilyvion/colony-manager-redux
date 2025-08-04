@@ -1,0 +1,1 @@
+../LoadingProgress/bump_version.sh

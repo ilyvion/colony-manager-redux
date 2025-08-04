@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-    Improve error handling for removed PawnKindDefs in Livestock jobs.
+
 ## [0.12.2] - 2025-07-30
 
 ### Fixed
