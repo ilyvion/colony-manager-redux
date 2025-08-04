@@ -508,10 +508,10 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                     _ = TriggerPawnKind.ExpectedPawnKindNameRaw != null
                         ? errorText.Append("The pawn kind was saved as '")
                             .Append(TriggerPawnKind.ExpectedPawnKindNameRaw)
-                            .Append("'.")
+                            .Append("'. ")
                         : errorText.Append("The pawn kind was not saved. That usually means ")
                             .Append("that the game was saved after this error had already ")
-                            .Append("happened, and the information is therefore lost.");
+                            .Append("happened, and the information is therefore lost. ");
                     ColonyManagerReduxMod.Instance.LogError(
                         errorText.Append("Remember to remove jobs that reference other mods' ")
                         .Append("content before removing them from your game mid-save.")
