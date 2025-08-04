@@ -1,0 +1,8 @@
+runs:
+    using: "composite"
+    steps:
+        - name: Checkout ilyvion.Laboratory Repository
+          uses: actions/checkout@v4
+          with:
+              repository: "ilyvion/ilyvion-laboratory"
+              path: "ilyvion.Laboratory"

@@ -3,7 +3,6 @@ name: Continuous Integration
 on:
     push:
         branches:
-            - development
             - main
         paths-ignore:
             - "README.md"
@@ -21,6 +20,16 @@ on:
 
 jobs:
     build:
-        uses: ./.github/workflows/build.yml
+        uses: ilyvion/rimworld-utils/.github/workflows/build_mod.yml@main
         with:
-            artifact-suffix: ${{ github.sha }}
+            mod_name: "ColonyManagerRedux"
+            artifact_suffix: ${{ github.sha }}
+            rw_versions: |-
+                1.5
+                1.6
+            extra_files: |-
+                Common_AnimalGenetics
+                1.5_AnimalGenetics
+                1.6_AnimalGenetics
+            project_dependencies_base_path: ..\..
+            steam_workshop_folder_path: ..\..\.deps\refs

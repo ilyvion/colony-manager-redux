@@ -1,1 +1,1 @@
-../LoadingProgress/bump_version.sh
+../rimworld-utils/bump_version.sh
