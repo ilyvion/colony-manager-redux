@@ -7,25 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Respect setting for verbose logging
+
 ## [0.12.3] - 2025-08-04
 
 ### Fixed
 
--    Improve error handling for removed PawnKindDefs in Livestock jobs.
+-   Improve error handling for removed PawnKindDefs in Livestock jobs.
 
 ## [0.12.2] - 2025-07-30
 
 ### Fixed
 
--    Fix logic error in GetForestryPlants.
--    Check for null ThingDef in CountProductsCoroutine. I don't think it's supposed to happen, but I got a bug report where it did, so it doesn't hurt to add a check against.
--    Cache the result of the query over CompPowerTraders in RefreshCompLists, so we're not enumerating over it across multiple ticks.
+-   Fix logic error in GetForestryPlants.
+-   Check for null ThingDef in CountProductsCoroutine. I don't think it's supposed to happen, but I got a bug report where it did, so it doesn't hurt to add a check against.
+-   Cache the result of the query over CompPowerTraders in RefreshCompLists, so we're not enumerating over it across multiple ticks.
 
 ## [0.12.1] - 2025-07-30
 
 ### Fixed
 
--    Make sure that when the power job gets interrupted, its flag for avoiding doing a subtask multiple time gets properly cleared. This should hopefully remedy the jobs-never-finishing bug that's been plaguing us lately.
+-   Make sure that when the power job gets interrupted, its flag for avoiding doing a subtask multiple time gets properly cleared. This should hopefully remedy the jobs-never-finishing bug that's been plaguing us lately.
 
 ## [0.12.0] - 2025-07-29
 
@@ -35,13 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--    Add explicit 'loadAfter' rule for Odyssey.
+-   Add explicit 'loadAfter' rule for Odyssey.
 
 ## [0.11.1] - 2025-07-27
 
 ### Fixed
 
--    Don't throw an exception if the request for 'give me all the buildings on the map' returns a null for whatever reason.
+-   Don't throw an exception if the request for 'give me all the buildings on the map' returns a null for whatever reason.
 
 ## [0.11.0] - 2025-07-26
 
@@ -51,14 +55,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--    Colonists now fill the cell in the manager job overview table.
--    Can be trained logic updated to work with Odyssey's new specialty trainables.
+-   Colonists now fill the cell in the manager job overview table.
+-   Can be trained logic updated to work with Odyssey's new specialty trainables.
 
 ## [0.10.0] - 2025-07-20
 
 ### Fixed
 
--    Power tracking history bug fixed; should no longer constantly warn about history being updated with an incorrect number of chapters.
+-   Power tracking history bug fixed; should no longer constantly warn about history being updated with an incorrect number of chapters.
 
 ## [0.9.0] - 2025-07-19
 
@@ -73,7 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--    Power tracking now works correctly on a per-map basis and also tolerates map changes properly.
+-   Power tracking now works correctly on a per-map basis and also tolerates map changes properly.
 
 ## [0.8.0] - 2025-07-18
 
@@ -90,9 +94,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--    "Any stockpile" is now a localizable string.
--    Mining filter is properly limited now unless the any item mode from above is enabled.
--    Livestock training selector region doesn't have a bunch of empty space anymore.
+-   "Any stockpile" is now a localizable string.
+-   Mining filter is properly limited now unless the any item mode from above is enabled.
+-   Livestock training selector region doesn't have a bunch of empty space anymore.
 
 ## [0.7.0] - 2025-07-15
 
@@ -108,8 +112,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
--    The AI Manager Station would clip through things behind it due to its abnormal size. The building has been changed from a 2x1 to a 2x2 building.
--    Attempt to fix issue with Gathering Resource tab.
+-   The AI Manager Station would clip through things behind it due to its abnormal size. The building has been changed from a 2x1 to a 2x2 building.
+-   Attempt to fix issue with Gathering Resource tab.
 
 ## [0.6.0] - 2025-06-29
 
@@ -147,8 +151,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.13
-> [!IMPORTANT]  
-> This release requires an update to ilyvion's Laboratory!
+    > [!IMPORTANT]  
+    > This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -235,8 +239,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.11
-> [!IMPORTANT]  
-> This release requires an update to ilyvion's Laboratory!
+    > [!IMPORTANT]  
+    > This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -280,8 +284,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 -   ilyvion's Laboratory: v0.6
-> [!IMPORTANT]  
-> This release requires an update to ilyvion's Laboratory!
+    > [!IMPORTANT]  
+    > This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -441,4 +445,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.1.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/ilyvion/colony-manager-redux/compare/pre-redux...v0.1.0
-

@@ -54,7 +54,10 @@ public class ColonyManagerReduxMod : IlyvionMod
 
     public void LogVerboseMessage(string message)
     {
-        LogDevMessage($"[Verbose] {message}");
+        if (Settings.DoVerboseLogging)
+        {
+            LogDevMessage($"[Verbose] {message}");
+        }
     }
 
     public override void LogDebug(string message)
