@@ -4,6 +4,9 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// A window for configuring the details of a threshold trigger, including filter, stockpile, and operator.
+/// </summary>
 [HotSwappable]
 public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 {
@@ -12,8 +15,10 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 
     private readonly ThingFilterUI.UIState _uIState = new();
 
+    /// <inheritdoc/>
     public override Vector2 InitialSize => new(300f, 500);
 
+    /// <inheritdoc/>
     public override void DoWindowContents(Rect inRect)
     {
         var zoneRectRows = Math.Min((int)Math.Ceiling(
@@ -23,7 +28,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 
         // set up rects
         var filterRect = new Rect(inRect.ContractedBy(6f));
-        filterRect.height -= 2 * Margin + zoneRectHeight + Constants.ListEntryHeight;
+        filterRect.height -= (2 * Margin) + zoneRectHeight + Constants.ListEntryHeight;
         var zoneRect = new Rect(filterRect.xMin, filterRect.yMax + Margin, filterRect.width,
             zoneRectHeight);
         var buttonRect = new Rect(filterRect.xMin, zoneRect.yMax + Margin,
@@ -42,7 +47,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw zone selector
-        StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref _trigger.StockpileRef, _trigger.Job.Manager);
+        _ = StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref _trigger.StockpileRef, _trigger.Job.Manager);
 
         // draw operator button
         if (Widgets.ButtonText(buttonRect, _trigger.OpString))
@@ -110,13 +115,14 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
              Event.current.keyCode == KeyCode.Return)
         {
             Event.current.Use();
-            Find.WindowStack.TryRemove(this);
+            _ = Find.WindowStack.TryRemove(this);
         }
     }
 
+    /// <inheritdoc/>
     public override void PreOpen()
     {
         base.PreOpen();
-        _input = _trigger.TargetCount.ToString();
+        _input = _trigger.TargetCount.ToString(CultureInfo.InvariantCulture);
     }
 }

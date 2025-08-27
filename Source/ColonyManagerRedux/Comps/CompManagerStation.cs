@@ -4,11 +4,22 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// A component for manager stations, providing UI gizmos and debug actions for the Colony Manager mod.
+/// </summary>
 public class CompManagerStation : ThingComp
 {
+    /// <summary>
+    /// Gets the properties for this manager station component.
+    /// </summary>
     public CompProperties_ManagerStation Props => (CompProperties_ManagerStation)props;
 
     private CoroutineHandle? _handle;
+
+    /// <summary>
+    /// Returns extra gizmos for the manager station, including the main manager tab and debug actions.
+    /// </summary>
+    /// <returns>An enumerable of additional gizmos.</returns>
     public override IEnumerable<Gizmo> CompGetGizmosExtra()
     {
         yield return new Command_Action
@@ -30,7 +41,7 @@ public class CompManagerStation : ThingComp
                         if (_handle == null || _handle.IsCompleted)
                         {
                             ColonyManagerReduxMod.Instance.LogVerboseMessage($"Manually running a job due to 'DEV: Manage Jobs' command.");
-                            Manager manager = Manager.For(parent.Map);
+                            var manager = Manager.For(parent.Map);
                             var coroutine = manager.TryDoWork();
                             if (coroutine != null)
                             {

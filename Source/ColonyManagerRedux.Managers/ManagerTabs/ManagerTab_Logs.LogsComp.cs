@@ -5,7 +5,7 @@ using ilyvion.Laboratory.Collections;
 
 namespace ColonyManagerRedux.Managers;
 
-partial class ManagerTab_Logs
+internal partial class ManagerTab_Logs
 {
     [HotSwappable]
     public sealed class LogsComp : ManagerComp, IJobLogger
@@ -21,10 +21,7 @@ partial class ManagerTab_Logs
             _logs = new(logSettings.KeepLogCount);
         }
 
-        public void AddLog(ManagerLog log)
-        {
-            _logs.PushBack(log);
-        }
+        public void AddLog(ManagerLog log) => _logs.PushBack(log);
 
         public override void PostExposeData()
         {
@@ -56,12 +53,6 @@ partial class ManagerTab_Logs
 
 internal static class LogsComp_ManagerLogsExtensions
 {
-    public static void AddLog(this Manager manager, ManagerLog log)
-    {
-        manager.CompOfType<ManagerTab_Logs.LogsComp>()!.AddLog(log);
-    }
-    public static IEnumerable<ManagerLog> Logs(this Manager manager)
-    {
-        return manager.CompOfType<ManagerTab_Logs.LogsComp>()!.Logs;
-    }
+    public static void AddLog(this Manager manager, ManagerLog log) => manager.CompOfType<ManagerTab_Logs.LogsComp>()!.AddLog(log);
+    public static IEnumerable<ManagerLog> Logs(this Manager manager) => manager.CompOfType<ManagerTab_Logs.LogsComp>()!.Logs;
 }

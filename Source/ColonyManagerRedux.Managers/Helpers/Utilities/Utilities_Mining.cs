@@ -11,19 +11,14 @@ internal static class Utilities_Mining
     {
         get
         {
-            _chunkCategoryDefs ??= ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs.ToList();
+            _chunkCategoryDefs ??= [.. ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs];
             return _chunkCategoryDefs;
         }
     }
 
-    public static bool IsChunk(this ThingDef def)
-    {
-        return def?.thingCategories?.Any(c => ChunkCategoryDefs.Contains(c)) ?? false;
-    }
+    public static bool IsChunk(this ThingDef def) => def?.thingCategories?.Any(ChunkCategoryDefs.Contains) ?? false;
 
-    internal static IEnumerable<ThingDef> GetDeconstructibleBuildings(Map map)
-    {
-        return map.listerThings.AllThings.OfType<Building>()
+    internal static IEnumerable<ThingDef> GetDeconstructibleBuildings(Map map) => map.listerThings.AllThings.OfType<Building>()
             .Where(b => b != null && b.Faction != Faction.OfPlayer
                 && !b.Position.Fogged(map)
                 && b.def.building.IsDeconstructible
@@ -32,25 +27,20 @@ internal static class Utilities_Mining
             .Select(b => b.def)
             .Distinct()
             .OrderBy(b => b.LabelCap.RawText);
-    }
 
     private static List<ThingDef>? _minerals;
     internal static List<ThingDef> AllMinerals
     {
         get
         {
-            _minerals ??= DefDatabase<ThingDef>.AllDefsListForReading
+            _minerals ??= [.. DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(d => d.building != null
                     && d.building.isNaturalRock && d.building.mineableThing != null)
-                .OrderBy(d => d.LabelCap.RawText)
-                .ToList();
+                .OrderBy(d => d.LabelCap.RawText)];
             return _minerals;
         }
     }
 
-    internal static IEnumerable<ThingDefCountClass> GetChunkProducts(this ThingDef chunk)
-    {
-        return (chunk.butcherProducts ?? Enumerable.Empty<ThingDefCountClass>())
+    internal static IEnumerable<ThingDefCountClass> GetChunkProducts(this ThingDef chunk) => (chunk.butcherProducts ?? Enumerable.Empty<ThingDefCountClass>())
             .Concat(chunk.smeltProducts ?? Enumerable.Empty<ThingDefCountClass>());
-    }
 }

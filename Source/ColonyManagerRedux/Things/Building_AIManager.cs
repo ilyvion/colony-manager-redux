@@ -4,7 +4,9 @@
 
 namespace ColonyManagerRedux;
 
-// special blinking LED texture/glower logic + automagically doing jobs.
+/// <summary>
+/// Special building with blinking LED texture/glower logic and automatic job execution for the AI manager station.
+/// </summary>
 [HotSwappable]
 public class Building_AIManager : Building
 {
@@ -36,18 +38,33 @@ public class Building_AIManager : Building
 
     private int _secondaryColourIndex;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Building_AIManager"/> class.
+    /// </summary>
     public Building_AIManager()
     {
         _powerTrader = (CompPowerTrader)PowerComp;
         _glower = GetComp<CompGlowerAIManager>();
     }
 
+    /// <summary>
+    /// Gets the primary color for drawing (blinker color).
+    /// </summary>
     public override Color DrawColor => PrimaryColourBlinker;
 
+    /// <summary>
+    /// Gets the secondary color for drawing.
+    /// </summary>
     public override Color DrawColorTwo => SecondaryColour;
 
+    /// <summary>
+    /// Gets the glower component for this building.
+    /// </summary>
     public CompGlowerAIManager Glower => _glower ??= GetComp<CompGlowerAIManager>();
 
+    /// <summary>
+    /// Gets or sets whether the building is powered. Updates glower and LED colors accordingly.
+    /// </summary>
     public bool Powered
     {
         get => _powered;
@@ -60,8 +77,14 @@ public class Building_AIManager : Building
         }
     }
 
+    /// <summary>
+    /// Gets the power trader component for this building.
+    /// </summary>
     public CompPowerTrader PowerTrader => _powerTrader ??= (CompPowerTrader)PowerComp;
 
+    /// <summary>
+    /// Gets or sets the primary color for the building's LED and glower.
+    /// </summary>
     public Color PrimaryColour
     {
         get => _primaryColor;
@@ -77,6 +100,9 @@ public class Building_AIManager : Building
         }
     }
 
+    /// <summary>
+    /// Gets or sets the current blinker color for the primary LED.
+    /// </summary>
     public Color PrimaryColourBlinker
     {
         get => _primaryBlinkerColour;
@@ -87,6 +113,9 @@ public class Building_AIManager : Building
         }
     }
 
+    /// <summary>
+    /// Gets or sets the secondary color for the building's LED.
+    /// </summary>
     public Color SecondaryColour
     {
         get => _secondaryColor;
@@ -97,6 +126,9 @@ public class Building_AIManager : Building
         }
     }
 
+    /// <summary>
+    /// Gets or sets the index for the secondary color in the color array.
+    /// </summary>
     public int SecondaryColourIndex
     {
         get => _secondaryColourIndex;
@@ -108,6 +140,7 @@ public class Building_AIManager : Building
     }
 
     private CoroutineHandle? handle;
+    /// <inheritdoc/>
 #if v1_5
     public override void Tick()
 #else

@@ -3,10 +3,19 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Component properties for a manager station, including work speed.
+/// </summary>
 public class CompProperties_ManagerStation : CompProperties
 {
+    /// <summary>
+    /// The work speed provided by the manager station.
+    /// </summary>
     public int speed = 250;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompProperties_ManagerStation"/> class.
+    /// </summary>
     public CompProperties_ManagerStation()
     {
         compClass = typeof(CompManagerStation);

@@ -1,0 +1,2 @@
+[*CompProperties.cs]
+dotnet_diagnostic.CA1051.severity = suggestion

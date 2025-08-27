@@ -4,11 +4,18 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// The main manager component for Colony Manager Redux, responsible for managing jobs,
+/// tabs, and map-specific state.
+/// </summary>
 [HotSwappable]
 public class Manager : MapComponent, ILoadReferenceable
 {
     private readonly List<ManagerTab> _tabs;
-    public List<ManagerTab> Tabs => _tabs;
+    /// <summary>
+    /// Gets the list of manager tabs associated with this manager instance.
+    /// </summary>
+    public IReadOnlyList<ManagerTab> Tabs => _tabs.AsReadOnly();
     internal int id = -1;
 
     private bool _wasLoaded;
@@ -17,12 +24,19 @@ public class Manager : MapComponent, ILoadReferenceable
     private bool _hasCheckedAncientDangerRect;
     private CellRect? _ancientDangerRect;
 
+    /// <summary>
+    /// (Obsolete) Gets the ancient danger rectangle for the map.
+    /// This property is obsolete; use <see cref="AncientDangerRects"/> instead.
+    /// </summary>
     [Obsolete(
         "The logic behind this property was entirely wrong; switch to the AncientDangerRects " +
         "property instead; this property will be removed in a future version", true)]
     public CellRect? AncientDangerRect => _ancientDangerRect;
 
     private List<CellRect> _ancientDangerRects = [];
+    /// <summary>
+    /// Gets the list of ancient danger rectangles for the map.
+    /// </summary>
     public List<CellRect> AncientDangerRects => _ancientDangerRects;
 
     private readonly List<ManagerComp> _comps;
@@ -34,8 +48,15 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     public bool ScribeSameMapData { get; set; } = true;
 
-    [Obsolete("Use ScribeMapLocalData instead. This will be removed in a future version.")]
-    public bool ScribeGameSpecificData { get => ScribeSameMapData; set => ScribeSameMapData = value; }
+    /// <summary>
+    /// (Obsolete) Controls whether data specific to the current map should be serialized (scribed).
+    /// Use <see cref="ScribeSameGameData"/> instead. This property will be removed in a future version.
+    /// </summary>
+    [Obsolete("Use ScribeSameGameData instead. This will be removed in a future version.")]
+    public bool ScribeGameSpecificData
+    {
+        get => ScribeSameMapData; set => ScribeSameMapData = value;
+    }
 
     /// <summary>
     /// Controls whether data that is valid within the same game session but across different maps
@@ -45,6 +66,11 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     public bool ScribeSameGameData { get; set; } = true;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Manager"/> class for the specified map.
+    /// </summary>
+    /// <param name="map">The map to associate with this manager instance.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="map"/> is null.</exception>
     public Manager(Map map) : base(map)
     {
         if (map == null)
@@ -54,10 +80,9 @@ public class Manager : MapComponent, ILoadReferenceable
 
         _jobTracker = new(this);
 
-        _tabs = DefDatabase<ManagerDef>.AllDefs
+        _tabs = [.. DefDatabase<ManagerDef>.AllDefs
             .OrderBy(m => m.order)
-            .Select(m => ManagerDefMaker.MakeManagerTab(m, this))
-            .ToList();
+            .Select(m => ManagerDefMaker.MakeManagerTab(m, this))];
 
         _comps = [];
         var managerComps = DefDatabase<ManagerDef>.AllDefs
@@ -78,7 +103,7 @@ public class Manager : MapComponent, ILoadReferenceable
                     "Could not instantiate or initialize a ManagerComp: " + ex);
                 if (managerComp != null)
                 {
-                    _comps.Remove(managerComp);
+                    _ = _comps.Remove(managerComp);
                 }
             }
         }
@@ -88,34 +113,40 @@ public class Manager : MapComponent, ILoadReferenceable
     }
 
     private JobTracker _jobTracker;
+    /// <summary>
+    /// Gets the job tracker associated with this manager instance.
+    /// </summary>
     public JobTracker JobTracker => _jobTracker ??= new JobTracker(this);
 
-    public string GetUniqueLoadID()
-    {
-        return $"ColonyManagerRedux_{id}";
-    }
+    /// <inheritdoc/>
+    public string GetUniqueLoadID() => $"ColonyManagerRedux_{id}";
 
-    public static Manager For(Map map)
-    {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+    /// <summary>
+    /// Gets the <see cref="Manager"/> instance associated with the specified map.
+    /// </summary>
+    /// <param name="map">The map for which to retrieve the manager.</param>
+    /// <returns>The <see cref="Manager"/> instance for the given map.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="map"/> is null.</exception>
+    public static Manager For(Map map) => map == null ? throw new ArgumentNullException(nameof(map)) : map.GetComponent<Manager>();
 
-        return map.GetComponent<Manager>();
-    }
-
+    /// <summary>
+    /// Implicitly converts a <see cref="Manager"/> instance to its associated <see cref="Map"/>.
+    /// </summary>
+    /// <param name="manager">The <see cref="Manager"/> instance to convert.</param>
+    /// <returns>The <see cref="Map"/> associated with the manager, or <c>null</c> if the manager is <c>null</c>.</returns>
     public static implicit operator Map(Manager manager)
     {
         return manager?.map!;
     }
 
-    public Map ToMap()
-    {
-        return this;
-    }
+    /// <summary>
+    /// Returns the <see cref="Map"/> associated with this <see cref="Manager"/> instance.
+    /// </summary>
+    /// <returns>The associated <see cref="Map"/>.</returns>
+    public Map ToMap() => this;
 
     private List<IExposable> _tmpExposableTabs = [];
+    /// <inheritdoc/>
     public override void ExposeData()
     {
         Scribe_Values.Look(ref id, "id", -1, true);
@@ -126,7 +157,7 @@ public class Manager : MapComponent, ILoadReferenceable
         Scribe_Values.Look(ref _hasCheckedAncientDangerRect, "hasCheckedAncientDangerRect", false);
         Scribe_Collections.Look(ref _ancientDangerRects, "ancientDangerRects", LookMode.Value);
 
-        _tmpExposableTabs.AddRange(_tabs.OfType<IExposable>());
+        _tmpExposableTabs.AddRange(Tabs.OfType<IExposable>());
         using var _ = new DoOnDispose(_tmpExposableTabs.Clear);
         Scribe_Collections.Look(ref _tmpExposableTabs, "tabs", LookMode.Deep, this);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
@@ -135,7 +166,7 @@ public class Manager : MapComponent, ILoadReferenceable
 
             foreach (var exposableTab in _tmpExposableTabs.Where(t => t != null))
             {
-                var oldTab = _tabs.Select((t, i) => (t, i))
+                var oldTab = Tabs.Select((t, i) => (t, i))
                     .SingleOrDefault(v => v.t.GetType() == exposableTab.GetType());
                 if (oldTab.t != null)
                 {
@@ -150,12 +181,13 @@ public class Manager : MapComponent, ILoadReferenceable
 
         _jobTracker ??= new JobTracker(this);
 
-        foreach (ManagerComp comp in _comps)
+        foreach (var comp in _comps)
         {
             comp.PostExposeData();
         }
     }
 
+    /// <inheritdoc/>
     public override void FinalizeInit()
     {
         if (_ancientDangerRects == null)
@@ -182,7 +214,7 @@ public class Manager : MapComponent, ILoadReferenceable
             job.FinalizeInit();
         }
 
-        foreach (ManagerComp comp in _comps)
+        foreach (var comp in _comps)
         {
             comp.FinalizeInit();
         }
@@ -190,6 +222,7 @@ public class Manager : MapComponent, ILoadReferenceable
         _wasLoaded = true;
     }
 
+    /// <inheritdoc/>
     public override void MapComponentTick()
     {
         base.MapComponentTick();
@@ -218,7 +251,7 @@ public class Manager : MapComponent, ILoadReferenceable
         }
 
         // tick tabs
-        foreach (var tab in _tabs)
+        foreach (var tab in Tabs)
         {
             try
             {
@@ -233,7 +266,7 @@ public class Manager : MapComponent, ILoadReferenceable
         }
 
         // tick comps
-        foreach (ManagerComp c in _comps)
+        foreach (var c in _comps)
         {
             try
             {
@@ -251,7 +284,7 @@ public class Manager : MapComponent, ILoadReferenceable
     private void CheckAncientDangerRects()
     {
         _ancientDangerRects.AddRange(map.listerThings.GetThingsOfType<RectTrigger>()
-            .Where(t => t.signalTag.StartsWith("ancientTempleApproached"))
+            .Where(t => t.signalTag.StartsWith("ancientTempleApproached", StringComparison.Ordinal))
             .Select(t => t.Rect));
 
         ColonyManagerReduxMod.Instance.LogDebug(
@@ -261,11 +294,12 @@ public class Manager : MapComponent, ILoadReferenceable
         _hasCheckedAncientDangerRect = true;
     }
 
+    /// <inheritdoc/>
     public override void MapComponentUpdate()
     {
         base.MapComponentUpdate();
 
-        foreach (ManagerComp c in _comps)
+        foreach (var c in _comps)
         {
             try
             {
@@ -281,10 +315,13 @@ public class Manager : MapComponent, ILoadReferenceable
         }
     }
 
-    public Coroutine? TryDoWork()
-    {
-        return JobTracker.TryDoNextJob();
-    }
+    /// <summary>
+    /// Attempts to execute the next available manager job, if any.
+    /// </summary>
+    /// <returns>
+    /// A <see cref="Coroutine"/> representing the job execution, or <c>null</c> if no job was executed.
+    /// </returns>
+    public Coroutine? TryDoWork() => JobTracker.TryDoNextJob();
 
     internal int GetNextManagerJobID()
     {
@@ -299,7 +336,7 @@ public class Manager : MapComponent, ILoadReferenceable
             ColonyManagerReduxMod.Instance
                 .LogWarning("Getting next unique manager job ID during saving. This may cause bugs.");
         }
-        int result = _nextManagerJobID;
+        var result = _nextManagerJobID;
         _nextManagerJobID++;
         if (_nextManagerJobID == int.MaxValue)
         {
@@ -310,13 +347,17 @@ public class Manager : MapComponent, ILoadReferenceable
         return result;
     }
 
-    public T? CompOfType<T>() where T : class
-    {
-        return _comps?.FirstOrDefault(c => c is T) as T;
-    }
+    /// <summary>
+    /// Returns the first manager component of the specified type, or <c>null</c> if none exists.
+    /// </summary>
+    /// <typeparam name="T">The type of the manager component to retrieve.</typeparam>
+    /// <returns>The first component of type <typeparamref name="T"/>, or <c>null</c> if not found.</returns>
+    public T? CompOfType<T>() where T : class => _comps?.FirstOrDefault(c => c is T) as T;
 
-    public IEnumerable<T> CompsOfType<T>() where T : class
-    {
-        return _comps?.Where(c => c is T).Cast<T>() ?? [];
-    }
+    /// <summary>
+    /// Returns all manager components of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of the manager components to retrieve.</typeparam>
+    /// <returns>An enumerable of components of type <typeparamref name="T"/>.</returns>
+    public IEnumerable<T> CompsOfType<T>() where T : class => _comps?.Where(c => c is T).Cast<T>() ?? [];
 }

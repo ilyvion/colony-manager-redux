@@ -9,9 +9,7 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 internal static class Utilities_Plants
 {
-    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea)
-    {
-        return GetAllPlants(map)
+    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea) => GetAllPlants(map)
 
             // if !clearArea, remove things that do not yield wood
             .Where(td => (
@@ -23,11 +21,8 @@ internal static class Utilities_Plants
                 && td.plant.harvestYield > 0)
             .Distinct()
             .OrderBy(pk => pk.label);
-    }
 
-    public static IEnumerable<ThingDef> GetForagingPlants(Map? map)
-    {
-        return GetAllPlants(map)
+    public static IEnumerable<ThingDef> GetForagingPlants(Map? map) => GetAllPlants(map)
 
             // that yield something that is not wood
             .Where(plant => plant.plant.harvestYield > 0 &&
@@ -35,13 +30,9 @@ internal static class Utilities_Plants
                 plant.plant.harvestTag != "Wood")
             .Distinct()
             .OrderBy(pk => pk.label);
-    }
 
-    private static IEnumerable<ThingDef> GetAllPlants(Map? map)
-    {
-        if (map != null)
-        {
-            return map.Biome.AllWildPlants
+    private static IEnumerable<ThingDef> GetAllPlants(Map? map) => map != null
+            ? map.Biome.AllWildPlants
 
             // cave plants (shrooms)
             .Concat(DefDatabase<ThingDef>.AllDefsListForReading
@@ -56,14 +47,9 @@ internal static class Utilities_Plants
                     map.zoneManager.ZoneAt(p.Position) is not IPlantToGrowSettable &&
                     map.thingGrid.ThingsAt(p.Position)
                         .FirstOrDefault(t => t is Building_PlantGrower) == null)
-                .Select(p => p.def));
-        }
-        else
-        {
-            return DefDatabase<ThingDef>.AllDefsListForReading
+                .Select(p => p.def))
+            : DefDatabase<ThingDef>.AllDefsListForReading
                 .Where(td => td.IsPlant);
-        }
-    }
 
     public static bool TrySpecialAllowedSync(
         this ThingDef plantDef, HashSet<ThingDef> allowedPlants, ThingFilter thresholdFilter)

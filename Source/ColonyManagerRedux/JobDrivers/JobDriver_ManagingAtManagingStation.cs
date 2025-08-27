@@ -28,15 +28,12 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
         Scribe_Values.Look(ref hadNoWork, "hadNoWork", false);
     }
 
-    public override bool TryMakePreToilReservations(bool errorOnFailed)
-    {
-        return pawn.Reserve(job.targetA, job);
-    }
+    public override bool TryMakePreToilReservations(bool errorOnFailed) => pawn.Reserve(job.targetA, job);
 
     protected override IEnumerable<Toil> MakeNewToils()
     {
-        this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
-        this.FailOn(() => Manager.For(pawn.Map).JobTracker.NextJob == null && handle == null);
+        _ = this.FailOnDespawnedNullOrForbidden(TargetIndex.A);
+        _ = this.FailOn(() => Manager.For(pawn.Map).JobTracker.NextJob == null && handle == null);
         yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.InteractionCell);
         var manage = Manage(TargetIndex.A);
         if (manage == null)

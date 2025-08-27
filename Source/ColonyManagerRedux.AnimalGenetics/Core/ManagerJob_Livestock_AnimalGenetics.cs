@@ -5,10 +5,10 @@
 
 using ColonyManagerRedux.Managers;
 
-namespace ColonyManagerRedux.AnimalGenetics;
+namespace ColonyManagerRedux.AnimalGenetics.Core;
 
 [HotSwappable]
-public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
+internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
 {
     private bool _useForCulling;
     private bool _useForTaming;
@@ -19,18 +19,18 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     private Func<AgeAndSex, IEnumerable<Pawn>, IEnumerable<Pawn>> OriginalCullingPawnSorter;
 #pragma warning restore CS8618
 
-    private List<StatDef> AffectedStats =>
+    private static List<StatDef> AffectedStats =>
 #if v1_5
             global::AnimalGenetics.Constants.affectedStats;
 #else
             global::AnimalGenetics.Constants.AffectedStats;
 #endif
 
-    public override void Initialize()
+    protected override void Initialize()
     {
         ColonyManagerReduxMod.Instance.LogDevMessage("AnimalGenetics job comp initialized!");
 
-        ManagerJob_Livestock livestockJob = (ManagerJob_Livestock)Parent;
+        var livestockJob = (ManagerJob_Livestock)Parent;
 
         OriginalTamingPawnSortScore = livestockJob.TamingPawnSortScore;
         livestockJob.TamingPawnSortScore = TamingPawnSortScore;
@@ -44,14 +44,14 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
         }
     }
 
-    public override void PostExposeData()
+    protected override void PostExposeData()
     {
         Scribe_Values.Look(ref _useForTaming, "useAnimalGeneticsForTaming");
         Scribe_Values.Look(ref _useForCulling, "useAnimalGeneticsForCulling");
         Scribe_Collections.Look(ref _values, "valuesAnimalGenetics", LookMode.Def);
     }
 
-    public override void PostRenderSection(
+    protected override void PostRenderSection(
         string sectionColumn, string section, ref Vector2 position, float width)
     {
         if (sectionColumn == ManagerTab_Livestock.LivestockOptions && section == "Culling")
@@ -144,14 +144,7 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     }
 
     private IEnumerable<Pawn> CullingPawnSorter(
-        AgeAndSex ageAndSex, IEnumerable<Pawn> pawns)
-    {
-        if (!_useForCulling)
-        {
-            return OriginalCullingPawnSorter(ageAndSex, pawns);
-        }
-        return pawns.OrderBy(CalculatePreferenceScore);
-    }
+        AgeAndSex ageAndSex, IEnumerable<Pawn> pawns) => !_useForCulling ? OriginalCullingPawnSorter(ageAndSex, pawns) : pawns.OrderBy(CalculatePreferenceScore);
 
     private float TamingPawnSortScore(Pawn pawn, float distance)
     {
@@ -160,24 +153,17 @@ public class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
             return OriginalTamingPawnSortScore(pawn, distance);
         }
 
-        float preferenceScore = CalculatePreferenceScore(pawn);
+        var preferenceScore = CalculatePreferenceScore(pawn);
         ColonyManagerReduxMod.Instance.LogDebug(pawn + " preference score: " + preferenceScore);
 
         return preferenceScore;
     }
 
-    private float CalculatePreferenceScore(Pawn pawn)
-    {
-        return AffectedStats
-            .Select(gene => GetGene(pawn, gene) * _values[gene])
-            .Sum();
-    }
+    private float CalculatePreferenceScore(Pawn pawn) => AffectedStats
+            .Sum(gene => GetGene(pawn, gene) * _values[gene]);
 
-    private static float GetGene(Pawn pawn, StatDef gene)
-    {
-        if (gene == global::AnimalGenetics.AnimalGenetics.GatherYield
-            && !global::AnimalGenetics.Genes.Gatherable(pawn))
-            return 0.0f;
-        return global::AnimalGenetics.Genes.GetGene(pawn, gene);
-    }
+    private static float GetGene(Pawn pawn, StatDef gene) => gene == global::AnimalGenetics.AnimalGenetics.GatherYield
+            && !global::AnimalGenetics.Genes.Gatherable(pawn)
+            ? 0.0f
+            : global::AnimalGenetics.Genes.GetGene(pawn, gene);
 }

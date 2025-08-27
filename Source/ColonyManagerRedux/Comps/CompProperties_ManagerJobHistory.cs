@@ -3,20 +3,55 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Properties for a manager job history component, including worker type, chapters, and display options.
+/// </summary>
 public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
 {
+    /// <summary>
+    /// The type of the worker class used for history tracking.
+    /// </summary>
     public Type workerClass = typeof(HistoryWorker);
+
+    /// <summary>
+    /// The list of chapter definitions for the job history.
+    /// </summary>
     public List<ManagerJobHistoryChapterDef> chapters;
 
+    /// <summary>
+    /// Whether the legend can be toggled in the UI.
+    /// </summary>
     public bool allowTogglingLegend = true;
+
+    /// <summary>
+    /// Whether to draw the legend inline with the graph.
+    /// </summary>
     public bool drawInlineLegend = true;
+
+    /// <summary>
+    /// Whether to draw options for the graph.
+    /// </summary>
     public bool drawOptions = true;
+
+    /// <summary>
+    /// Whether to draw a target line on the graph.
+    /// </summary>
     public bool drawTargetLine = true;
+
+    /// <summary>
+    /// The period shown on the graph (e.g., day, week).
+    /// </summary>
     public Period periodShown = Period.Day;
+
+    /// <summary>
+    /// The suffix to display on the Y axis.
+    /// </summary>
     public string yAxisSuffix = string.Empty;
 
-
 #pragma warning disable CS8618
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CompProperties_ManagerJobHistory"/> class.
+    /// </summary>
     public CompProperties_ManagerJobHistory()
 #pragma warning restore CS8618
     {
@@ -24,6 +59,10 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
     }
 
     private HistoryWorker? workerInt;
+
+    /// <summary>
+    /// Gets the history worker instance for this component.
+    /// </summary>
     public HistoryWorker Worker
     {
         get
@@ -33,6 +72,7 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
         }
     }
 
+    /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors(ManagerDef parentDef)
     {
         if (parentDef == null)
@@ -40,7 +80,7 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
             throw new ArgumentNullException(nameof(parentDef));
         }
 
-        foreach (string item in base.ConfigErrors(parentDef))
+        foreach (var item in base.ConfigErrors(parentDef))
         {
             yield return item;
         }

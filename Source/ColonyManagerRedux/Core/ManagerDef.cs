@@ -3,22 +3,53 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Definition for a manager job, including job, tab, settings, and icon configuration.
+/// </summary>
 public class ManagerDef : Def
 {
+    /// <summary>
+    /// The order in which this manager appears in the UI.
+    /// </summary>
     public int order;
+    /// <summary>
+    /// The type of the manager job class.
+    /// </summary>
     public Type? managerJobClass;
+    /// <summary>
+    /// The type of the manager tab class.
+    /// </summary>
     public Type managerTabClass = typeof(ManagerTab);
+    /// <summary>
+    /// The type of the manager settings class.
+    /// </summary>
     public Type? managerSettingsClass;
 
+    /// <summary>
+    /// The list of job component properties for this manager.
+    /// </summary>
     public List<ManagerJobCompProperties> jobComps = [];
+    /// <summary>
+    /// The list of manager component properties for this manager.
+    /// </summary>
     public List<ManagerCompProperties> managerComps = [];
 
+    /// <summary>
+    /// The icon area where this manager's tab appears.
+    /// </summary>
     public IconArea iconArea = IconArea.Middle;
+    /// <summary>
+    /// The icon texture for this manager tab.
+    /// </summary>
     [Unsaved(false)]
     public Texture2D icon = BaseContent.BadTex;
+    /// <summary>
+    /// The path to the icon texture for this manager tab.
+    /// </summary>
     [NoTranslate]
     public string iconPath = "UI/Icons/CMR_Hammer";
 
+    /// <inheritdoc/>
     public override void PostLoad()
     {
         if (!iconPath.NullOrEmpty())
@@ -30,9 +61,10 @@ public class ManagerDef : Def
         }
     }
 
+    /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors()
     {
-        foreach (string item in base.ConfigErrors())
+        foreach (var item in base.ConfigErrors())
         {
             yield return item;
         }
@@ -56,9 +88,17 @@ public class ManagerDef : Def
             yield return $"{nameof(managerSettingsClass)} is not a subclass of {nameof(ManagerSettings)}";
         }
 
-        foreach (ManagerJobCompProperties comp in jobComps)
+        foreach (var comp in jobComps)
         {
-            foreach (string item in comp.ConfigErrors(this))
+            foreach (var item in comp.ConfigErrors(this))
+            {
+                yield return item;
+            }
+        }
+
+        foreach (var comp in managerComps)
+        {
+            foreach (var item in comp.ConfigErrors(this))
             {
                 yield return item;
             }
@@ -66,9 +106,21 @@ public class ManagerDef : Def
     }
 }
 
+/// <summary>
+/// Specifies the area of the UI where a manager tab icon appears.
+/// </summary>
 public enum IconArea
 {
+    /// <summary>
+    /// The left icon area.
+    /// </summary>
     Left = 0,
+    /// <summary>
+    /// The middle icon area.
+    /// </summary>
     Middle = 1,
+    /// <summary>
+    /// The right icon area.
+    /// </summary>
     Right = 2
 }

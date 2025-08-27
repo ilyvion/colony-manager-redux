@@ -28,28 +28,13 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         MaxPerChapter = true,
     };
 
-    public override string DisabledReason
-    {
-        get
-        {
-            if (!ResearchedFinished)
-            {
-                return "ColonyManagerRedux.Energy.NotResearched".Translate();
-            }
-
-            if (!SelectedJob.AnyPoweredStationOnline)
-            {
-                return "ColonyManagerRedux.Energy.NoPoweredStation".Translate();
-            }
-
-            if (!ColonyManagerReduxMod.Settings.RecordHistoricalData)
-            {
-                return "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate();
-            }
-
-            return "Not sure. It should be enabled? Send a bug report.";
-        }
-    }
+    public override string DisabledReason => !ResearchedFinished
+                ? (string)"ColonyManagerRedux.Energy.NotResearched".Translate()
+                : !SelectedJob.AnyPoweredStationOnline
+                ? (string)"ColonyManagerRedux.Energy.NoPoweredStation".Translate()
+                : !ColonyManagerReduxMod.Settings.RecordHistoricalData
+                ? (string)"ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate()
+                : "Not sure. It should be enabled? Send a bug report.";
 
     private new ManagerJob_Power SelectedJob
     {
@@ -87,7 +72,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     {
         foreach (var map in Find.Maps)
         {
-            ManagerTab_Power tab = Manager.For(map).Tabs.OfType<ManagerTab_Power>().First();
+            var tab = Manager.For(map).Tabs.OfType<ManagerTab_Power>().First();
             _ = tab.SelectedJob; // Ensure the job is created if it doesn't already exist.
         }
     }
@@ -132,10 +117,7 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         }
     }
 
-    public override void Tick()
-    {
-        base.Tick();
-    }
+    public override void Tick() => base.Tick();
 
     private void DrawConsumption(Rect canvas)
     {
@@ -231,8 +213,8 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
 
     public override string GetSubLabel(ManagerJob job)
     {
-        ManagerJob_Power powerJob = (ManagerJob_Power)job;
-        return string.Format("{0} producers, {1} consumers, {2} batteries",
+        var powerJob = (ManagerJob_Power)job;
+        return string.Format(CultureInfo.InvariantCulture, "{0} producers, {1} consumers, {2} batteries",
             powerJob.ProducerCount,
             powerJob.ConsumerCount,
             powerJob.BatteryCount);

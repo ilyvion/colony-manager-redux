@@ -22,7 +22,7 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
             rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(
-            panelRect, "Forestry.Settings", out Vector2 position, out float width);
+            panelRect, "Forestry.Settings", out var position, out var width);
         Widgets_Section.Section(
             ref position,
             width,

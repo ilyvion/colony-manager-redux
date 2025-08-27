@@ -4,13 +4,13 @@
 
 namespace ColonyManagerRedux;
 
-public class ClockHandle(float hours, Color? color = null, float length = 1f, float thickness = 1.5f) : HourTick(
+internal sealed class ClockHandle(float hours, Color? color = null, float length = 1f, float thickness = 1.5f) : HourTick(
     color ?? Color.white, length, thickness)
 {
     public float Hours { get; } = hours;
 }
 
-public class HourTick(Color? color = null, float length = .2f, float thickness = 1)
+internal class HourTick(Color? color = null, float length = .2f, float thickness = 1)
 {
     public Color Color { get; } = color ?? Color.grey;
 
@@ -19,12 +19,9 @@ public class HourTick(Color? color = null, float length = .2f, float thickness =
 }
 
 [HotSwappable]
-public static class Clock
+internal static class Clock
 {
-    public static void Draw(Rect canvas, params ClockHandle[] clockHandles)
-    {
-        Draw(canvas, clockHandles, new HourTick(length: .5f), new HourTick(length: .3f));
-    }
+    public static void Draw(Rect canvas, params ClockHandle[] clockHandles) => Draw(canvas, clockHandles, new HourTick(length: .5f), new HourTick(length: .3f));
 
     public static void Draw(Rect canvas, IEnumerable<ClockHandle> clockHandles, HourTick major, HourTick minor)
     {
@@ -71,11 +68,11 @@ public static class Clock
 
     public static void DrawMarker(Rect canvas, float hour, float thickness, Color color, float start, float end)
     {
-        var angle = (hour / 6 - .5f) * Mathf.PI; // should start at top...
+        var angle = ((hour / 6) - .5f) * Mathf.PI; // should start at top...
         var radius = Mathf.Min(canvas.width, canvas.height) / 2f;
         var vector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-        var from = radius * start * vector + canvas.center;
-        var to = radius * end * vector + canvas.center;
+        var from = (radius * start * vector) + canvas.center;
+        var to = (radius * end * vector) + canvas.center;
         Widgets.DrawLine(from, to, color, thickness);
     }
 

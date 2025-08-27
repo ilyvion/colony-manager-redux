@@ -3,47 +3,80 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Abstract base class for manager job components in Colony Manager Redux.
+/// </summary>
 public abstract class ManagerJobComp
 {
 #pragma warning disable CS8618 // Set by ManagerJob.Initialize on creation/scribing
 
-    private ManagerJob _parent;
-    public ManagerJob Parent { get => _parent; internal set => _parent = value; }
-
-    private ManagerJobCompProperties _props;
-    public ManagerJobCompProperties Props { get => _props; set => _props = value; }
+    /// <summary>
+    /// Gets the parent <see cref="ManagerJob"/> for this component.
+    /// </summary>
+    public ManagerJob Parent
+    {
+        get; internal set;
+    }
+    /// <summary>
+    /// Gets the properties for this manager job component.
+    /// </summary>
+    public ManagerJobCompProperties Props
+    {
+        get; private set;
+    }
 
 #pragma warning restore CS8618
 
     internal void InitializeInt(ManagerJobCompProperties props)
     {
-        _props = props;
+        Props = props;
         Initialize();
     }
-    public virtual void Initialize()
+    /// <summary>
+    /// Called when the component is initialized; override to perform custom initialization logic.
+    /// </summary>
+    protected internal virtual void Initialize()
     {
     }
 
-    public virtual void CompTick()
+    /// <summary>
+    /// Called every tick to update the component; override to implement custom ticking logic.
+    /// </summary>
+    protected internal virtual void CompTick()
     {
     }
 
-    public virtual void PostExposeData()
+    /// <summary>
+    /// Called to expose data for saving/loading; override to implement custom serialization logic.
+    /// </summary>
+    protected internal virtual void PostExposeData()
     {
     }
 
-    public virtual void PreRenderSection(
+    /// <summary>
+    /// Called before rendering a section in the UI; override to perform custom pre-render logic.
+    /// </summary>
+    /// <param name="sectionColumn">The column of the section being rendered.</param>
+    /// <param name="section">The name of the section being rendered.</param>
+    /// <param name="position">The position vector for rendering, passed by reference.</param>
+    /// <param name="width">The width available for rendering.</param>
+    protected internal virtual void PreRenderSection(
         string sectionColumn, string section, ref Vector2 position, float width)
     {
     }
 
-    public virtual void PostRenderSection(
+    /// <summary>
+    /// Called after rendering a section in the UI; override to perform custom post-render logic.
+    /// </summary>
+    /// <param name="sectionColumn">The column of the section being rendered.</param>
+    /// <param name="section">The name of the section being rendered.</param>
+    /// <param name="position">The position vector for rendering, passed by reference.</param>
+    /// <param name="width">The width available for rendering.</param>
+    protected internal virtual void PostRenderSection(
         string sectionColumn, string section, ref Vector2 position, float width)
     {
     }
 
-    public override string ToString()
-    {
-        return string.Concat(GetType().Name, "(parent=", _parent, ")");
-    }
+    /// <inheritdoc/>
+    public override string ToString() => string.Concat(GetType().Name, "(parent=", Parent, ")");
 }

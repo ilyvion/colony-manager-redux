@@ -5,14 +5,12 @@ using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
+/// <summary>
+/// Main tab window for the Colony Manager, handling tab navigation and rendering.
+/// </summary>
 [HotSwappable]
 public sealed class MainTabWindow_Manager : MainTabWindow
 {
-
     private Manager? _manager;
     private Manager Manager
     {
@@ -24,6 +22,9 @@ public sealed class MainTabWindow_Manager : MainTabWindow
     }
     private static ManagerTab? currentTab;
 
+    /// <summary>
+    /// Gets or sets the currently selected manager tab.
+    /// </summary>
     public static ManagerTab CurrentTab
     {
         get
@@ -41,9 +42,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         get
         {
             _managerTabsLeft ??=
-                Manager.Tabs
-                .Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show)
-                .ToList();
+                [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show)];
             return _managerTabsLeft;
         }
     }
@@ -54,9 +53,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         get
         {
             _managerTabsMiddle ??=
-                Manager.Tabs
-                .Where(tab => tab.Def.iconArea == IconArea.Middle && tab.Show)
-                .ToList();
+                [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Middle && tab.Show)];
             return _managerTabsMiddle;
         }
     }
@@ -67,15 +64,21 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         get
         {
             _managerTabsRight ??=
-                Manager.Tabs
-                .Where(tab => tab.Def.iconArea == IconArea.Right && tab.Show)
-                .ToList();
+                [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Right && tab.Show)];
             return _managerTabsRight;
         }
     }
 
+    /// <summary>
+    /// Gets the default manager tab for the current map.
+    /// </summary>
     public static ManagerTab DefaultTab => Manager.For(Find.CurrentMap).Tabs[0];
 
+    /// <summary>
+    /// Navigates to the specified manager tab, optionally selecting a job.
+    /// </summary>
+    /// <param name="tab">The tab to navigate to.</param>
+    /// <param name="job">The job to select, if any.</param>
     public static void GoTo(ManagerTab tab, ManagerJob? job = null)
     {
         if (tab == null)
@@ -97,6 +100,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         }
     }
 
+    /// <inheritdoc/>
     public override void DoWindowContents(Rect inRect)
     {
         // zooming in seems to cause Text.Font to start at Tiny, make sure it's set to Small for our panels.
@@ -104,18 +108,18 @@ public sealed class MainTabWindow_Manager : MainTabWindow
 
         // three areas of icons for tabs, left middle and right.
         var leftIcons = new Rect(0f, 0f,
-            ManagerTabsLeft.Count * LargeIconSize
-            + Mathf.Max(0, ManagerTabsLeft.Count - 1) * Margin,
+            (ManagerTabsLeft.Count * LargeIconSize)
+            + (Mathf.Max(0, ManagerTabsLeft.Count - 1) * Margin),
             LargeIconSize);
         var rightIcons = new Rect(0f, 0f,
-            ManagerTabsRight.Count * LargeIconSize
-            + Mathf.Max(0, ManagerTabsRight.Count - 1) * Margin,
+            (ManagerTabsRight.Count * LargeIconSize)
+            + (Mathf.Max(0, ManagerTabsRight.Count - 1) * Margin),
             LargeIconSize);
 
-        var widthRemaining = inRect.width - leftIcons.width - rightIcons.width - 2 * Margin;
+        var widthRemaining = inRect.width - leftIcons.width - rightIcons.width - (2 * Margin);
 
         var middleIcons = new Rect(0f, 0f,
-            Margin + ManagerTabsMiddle.Count * (LargeIconSize + Margin),
+            Margin + (ManagerTabsMiddle.Count * (LargeIconSize + Margin)),
             LargeIconSize);
 
         var middleMargin = Margin;
@@ -195,6 +199,11 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         Text.Anchor = TextAnchor.UpperLeft;
     }
 
+    /// <summary>
+    /// Draws the icon for a manager tab, handling selection and tooltips.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw.</param>
+    /// <param name="tab">The manager tab to draw.</param>
     public static void DrawTabIcon(Rect rect, ManagerTab tab)
     {
         if (tab == null)
@@ -207,7 +216,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
             if (tab == CurrentTab)
             {
                 GUI.color = GenUI.MouseoverColor;
-                Widgets.ButtonImage(rect, tab.Def.icon, GenUI.MouseoverColor);
+                _ = Widgets.ButtonImage(rect, tab.Def.icon, GenUI.MouseoverColor);
                 GUI.color = Color.white;
             }
             else if (Widgets.ButtonImage(rect, tab.Def.icon))
@@ -227,24 +236,28 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         }
     }
 
+    /// <inheritdoc/>
     public override void PostClose()
     {
         base.PostClose();
         CurrentTab.PostClose();
     }
 
+    /// <inheritdoc/>
     public override void PostOpen()
     {
         base.PostOpen();
         CurrentTab.PostOpen();
     }
 
+    /// <inheritdoc/>
     public override void PreClose()
     {
         base.PreClose();
         CurrentTab.PreClose();
     }
 
+    /// <inheritdoc/>
     public override void PreOpen()
     {
         base.PreOpen();

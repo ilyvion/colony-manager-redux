@@ -4,6 +4,7 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 using static ColonyManagerRedux.Utilities;
@@ -41,7 +42,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         if (Selected != null)
         {
             _newCounts =
-                SelectedJob!.TriggerPawnKind.CountTargets.Select(v => v.ToString()).ToArray();
+                [.. SelectedJob!.TriggerPawnKind.CountTargets.Select(v => v.ToString(CultureInfo.InvariantCulture))];
         }
         animalsTameTable?.SetDirty();
         animalsWildTable?.SetDirty();
@@ -62,20 +63,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         ManagerJob job,
         float labelWidth,
         string? subLabel = null,
-        bool drawSubLabel = true)
-    {
-        return base.GetFullLabel(job, labelWidth, subLabel, false);
-    }
+        bool drawSubLabel = true) => base.GetFullLabel(job, labelWidth, subLabel, false);
 
-    public override string GetMainLabel(ManagerJob job)
-    {
-        return ((ManagerJob_Livestock)job).FullLabel;
-    }
+    public override string GetMainLabel(ManagerJob job) => ((ManagerJob_Livestock)job).FullLabel;
 
-    public override string GetSubLabel(ManagerJob job)
-    {
-        return ((ManagerJob_Livestock)job).TriggerPawnKind.StatusTooltip;
-    }
+    public override string GetSubLabel(ManagerJob job) => ((ManagerJob_Livestock)job).TriggerPawnKind.StatusTooltip;
 
     public static int DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
     {
@@ -83,14 +75,14 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         var cellWidth = (rect.width - (Margin * (cellCount - 1))) / cellCount;
         var keys = TrainingTracker.TrainableDefs;
 
-        int shownJobs = 0;
+        var shownJobs = 0;
         if (job.TriggerPawnKind.pawnKind != null)
         {
             GUI.BeginGroup(rect);
             for (var i = 0; i < job.Training.Count; i++)
             {
                 var cell = new Rect(shownJobs % cellCount * (cellWidth + Margin), shownJobs / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
-                var report = CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out bool visible);
+                var report = CanBeTrained(job.TriggerPawnKind.pawnKind, keys[i], out var visible);
                 if (visible && report.Accepted)
                 {
                     var checkOn = job.Training[keys[i]];
@@ -125,7 +117,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             return job.TriggerPawnKind.ExpectedPawnKindName;
         }
 
-        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _);
+        var report = CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out var _);
 #pragma warning disable IDE0072
         return !report.Accepted
             ? (string)"ColonyManagerRedux.Livestock.MasterUnavailable".Translate()
@@ -137,21 +129,17 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 #pragma warning restore IDE0072
     }
 
-    public static string GetTrainerLabel(ManagerJob_Livestock job)
-    {
+    public static string GetTrainerLabel(ManagerJob_Livestock job) =>
 #pragma warning disable IDE0072
-        return job.Trainers switch
+        job.Trainers switch
         {
             MasterMode.Specific => job.Trainer?.LabelShort ?? "BUG: INVALID",
             _ => (string)$"ColonyManagerRedux.Livestock.MasterMode.{job.Trainers}".Translate(),
         };
 #pragma warning restore IDE0072
-    }
 
-    public override void PreOpen()
-    {
-        Refresh();
-    }
+
+    public override void PreOpen() => Refresh();
 
     internal const string LivestockOptions = "Livestock.Options";
 
@@ -190,7 +178,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
             ButtonSize.y - Margin);
 
         Widgets_Section.BeginSectionColumn(
-            optionsColumnRect, LivestockOptions, out Vector2 position, out float width);
+            optionsColumnRect, LivestockOptions, out var position, out var width);
 
         DrawSection(
             LivestockOptions,
@@ -251,7 +239,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     private void DoCountField(ManagerJob_Livestock job, Rect rect, AgeAndSex ageSex)
     {
-        int ageSexIndex = (int)ageSex;
+        var ageSexIndex = (int)ageSex;
 
         if (int.TryParse(_newCounts[ageSexIndex], out var value))
         {
@@ -298,19 +286,13 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
     private sealed class CurrentTab(Action<Rect> doJobList) : Tab
     {
         public override string Title => "ColonyManagerRedux.Thresholds.Current".Translate();
-        public override void DoTabContents(Rect inRect)
-        {
-            doJobList(inRect);
-        }
+        public override void DoTabContents(Rect inRect) => doJobList(inRect);
     }
 
     private sealed class AvailableTab(ManagerTab_Livestock managerTab) : Tab
     {
         public override string Title => "ColonyManagerRedux.Thresholds.Available".Translate();
-        public override void DoTabContents(Rect inRect)
-        {
-            managerTab.DrawAvailableJobList(inRect);
-        }
+        public override void DoTabContents(Rect inRect) => managerTab.DrawAvailableJobList(inRect);
     }
 
     private float DrawAreaRestrictionsSection(ManagerJob_Livestock job, Vector2 pos, float width)
@@ -533,7 +515,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         for (var i = 0; i < _availablePawnKinds.Count; i++)
         {
-            PawnKindDef animalDef = _availablePawnKinds[i];
+            var animalDef = _availablePawnKinds[i];
 
             // set up rect
             var row = new Rect(0f, LargeListEntryHeight * i, viewRect.width, LargeListEntryHeight);
@@ -665,9 +647,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
             if (ModsConfig.IdeologyActive)
             {
-                bool atLeastOneVenerated = false;
-                bool allVenerated = true;
-                foreach (Pawn item in Manager.map.mapPawns.FreeColonistsSpawned)
+                var atLeastOneVenerated = false;
+                var allVenerated = true;
+                foreach (var item in Manager.map.mapPawns.FreeColonistsSpawned)
                 {
                     var isVenerated =
                         item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
@@ -827,7 +809,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
         // master selection
         var report = job.TriggerPawnKind.pawnKind != null
-            ? CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out bool _)
+            ? CanBeTrained(job.TriggerPawnKind.pawnKind, TrainableDefOf.Obedience, out var _)
             : (AcceptanceReport)false;
         if (report.Accepted)
         {
@@ -1073,9 +1055,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
 
     private float DrawTrainingSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
-        int allRowsCount = (int)Math.Ceiling((double)job.Training.Count / TrainingJobsPerRow);
+        var allRowsCount = (int)Math.Ceiling((double)job.Training.Count / TrainingJobsPerRow);
         var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * allRowsCount);
-        int visibleJobsRowCount = (int)Math.Ceiling((double)DrawTrainingSelector(job, trainingRect, allRowsCount) / TrainingJobsPerRow);
+        var visibleJobsRowCount = (int)Math.Ceiling((double)DrawTrainingSelector(job, trainingRect, allRowsCount) / TrainingJobsPerRow);
         var height = ListEntryHeight * visibleJobsRowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
@@ -1137,15 +1119,9 @@ internal sealed partial class ManagerTab_Livestock(Manager manager) : ManagerTab
         GUI.EndGroup();
     }
 
-    private void DrawTamedAnimalTable(Rect rect)
-    {
-        DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(Manager));
-    }
+    private void DrawTamedAnimalTable(Rect rect) => DrawAnimalTable(rect, ref animalsTameTable, "ColonyManagerRedux.Livestock.Tame".Translate(), p => p.GetTame(Manager));
 
-    private void DrawWildAnimalTable(Rect rect)
-    {
-        DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(Manager));
-    }
+    private void DrawWildAnimalTable(Rect rect) => DrawAnimalTable(rect, ref animalsWildTable, "ColonyManagerRedux.Livestock.Wild".Translate(), p => p.GetWild(Manager));
 
     private void DrawAnimalTable(Rect rect, ref PawnTable? pawnTable, string type, Func<PawnKindDef, IEnumerable<Pawn>?> animalGetter)
     {

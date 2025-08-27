@@ -2,25 +2,36 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Reflection;
-
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// The main mod class for Colony Manager Redux.
+/// </summary>
 public class ColonyManagerReduxMod : IlyvionMod
 {
 #pragma warning disable CS8618 // Set by constructor
-    private static ColonyManagerReduxMod _instance;
+    /// <summary>
+    /// Gets the singleton instance of the <see cref="ColonyManagerReduxMod"/> class.
+    /// </summary>
     public static ColonyManagerReduxMod Instance
     {
-        get => _instance;
-        private set => _instance = value;
+        get; private set;
     }
+
 #pragma warning restore CS8618
 
+    /// <inheritdoc/>
     protected override bool HasSettings => true;
 
+    /// <summary>
+    /// Gets the settings for the Colony Manager Redux mod.
+    /// </summary>
     public static Settings Settings => Instance.GetSettings<Settings>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ColonyManagerReduxMod"/> class.
+    /// </summary>
+    /// <param name="content">The mod content pack.</param>
     public ColonyManagerReduxMod(ModContentPack content) : base(content)
     {
         // This is kind of stupid, but also kind of correct. Correct wins.
@@ -47,11 +58,13 @@ public class ColonyManagerReduxMod : IlyvionMod
         });
     }
 
-    public override void DoSettingsWindowContents(Rect inRect)
-    {
-        Settings.DoSettingsWindowContents(inRect);
-    }
+    /// <inheritdoc/>
+    public override void DoSettingsWindowContents(Rect inRect) => Settings.DoSettingsWindowContents(inRect);
 
+    /// <summary>
+    /// Logs a verbose message if verbose logging is enabled in the settings.
+    /// </summary>
+    /// <param name="message">The message to log.</param>
     public void LogVerboseMessage(string message)
     {
         if (Settings.DoVerboseLogging)
@@ -60,12 +73,13 @@ public class ColonyManagerReduxMod : IlyvionMod
         }
     }
 
-    public override void LogDebug(string message)
-    {
-        base.LogDebug($"[Debug] {message}");
-    }
+    /// <inheritdoc/>
+    public override void LogDebug(string message) => base.LogDebug($"[Debug] {message}");
 }
 
+/// <summary>
+/// Indicates that a class or struct supports hot swapping at runtime.
+/// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public sealed class HotSwappableAttribute : Attribute
 {

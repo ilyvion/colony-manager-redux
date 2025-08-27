@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
-partial class ManagerJob_Livestock
+internal partial class ManagerJob_Livestock
 {
     public sealed class LivestockCachesComp : ManagerComp
     {
@@ -36,8 +36,5 @@ partial class ManagerJob_Livestock
 
 internal static class ManagerJob_Livestock_ManagerCacheExtensions
 {
-    public static ManagerJob_Livestock.LivestockCachesComp LivestockCaches(this Manager manager)
-    {
-        return manager.CompOfType<ManagerJob_Livestock.LivestockCachesComp>()!;
-    }
+    public static ManagerJob_Livestock.LivestockCachesComp LivestockCaches(this Manager manager) => manager.CompOfType<ManagerJob_Livestock.LivestockCachesComp>()!;
 }

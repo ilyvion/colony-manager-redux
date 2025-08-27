@@ -3,30 +3,73 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Renders a detailed legend for history graphs, allowing customization of icon, count, info, and max marker display.
+/// </summary>
 [HotSwappable]
 public class DetailedLegendRenderer : IExposable
 {
     // Settings for detailed legend
     private bool _drawCounts = true;
-    public bool DrawCounts { get => _drawCounts; set => _drawCounts = value; }
+    /// <summary>
+    /// Gets or sets whether to draw counts in the legend.
+    /// </summary>
+    public bool DrawCounts
+    {
+        get => _drawCounts; set => _drawCounts = value;
+    }
 
     private bool _drawIcons = true;
-    public bool DrawIcons { get => _drawIcons; set => _drawIcons = value; }
+    /// <summary>
+    /// Gets or sets whether to draw icons in the legend.
+    /// </summary>
+    public bool DrawIcons
+    {
+        get => _drawIcons; set => _drawIcons = value;
+    }
 
     private bool _drawInfoInBar;
-    public bool DrawInfoInBar { get => _drawInfoInBar; set => _drawInfoInBar = value; }
+    /// <summary>
+    /// Gets or sets whether to draw info text inside the bar.
+    /// </summary>
+    public bool DrawInfoInBar
+    {
+        get => _drawInfoInBar; set => _drawInfoInBar = value;
+    }
 
     private bool _drawMaxMarkers;
-    public bool DrawMaxMarkers { get => _drawMaxMarkers; set => _drawMaxMarkers = value; }
+    /// <summary>
+    /// Gets or sets whether to draw max markers in the legend.
+    /// </summary>
+    public bool DrawMaxMarkers
+    {
+        get => _drawMaxMarkers; set => _drawMaxMarkers = value;
+    }
 
     private bool _maxPerChapter;
-    public bool MaxPerChapter { get => _maxPerChapter; set => _maxPerChapter = value; }
+    /// <summary>
+    /// Gets or sets whether to use the max per chapter for bar scaling.
+    /// </summary>
+    public bool MaxPerChapter
+    {
+        get => _maxPerChapter; set => _maxPerChapter = value;
+    }
 
     private readonly List<History.Chapter> _tmpChaptersOrdered = [];
+    /// <summary>
+    /// Draws the detailed legend for the given history, with options for filtering and display.
+    /// </summary>
+    /// <param name="history">The history to render the legend for.</param>
+    /// <param name="canvas">The rectangle in which to draw.</param>
+    /// <param name="scrollPos">Reference to the scroll position.</param>
+    /// <param name="max">Optional maximum value for scaling bars.</param>
+    /// <param name="positiveOnly">Whether to show only positive chapters.</param>
+    /// <param name="negativeOnly">Whether to show only negative chapters.</param>
     public void DrawDetailedLegend(History history, Rect canvas, ref Vector2 scrollPos, int? max, bool positiveOnly = false,
         bool negativeOnly = false)
     {
@@ -42,7 +85,7 @@ public class DetailedLegendRenderer : IExposable
             .Where(chapter => !positiveOnly || chapter.counts[(int)history.PeriodShown].Any(i => i > 0))
             .Where(chapter => !negativeOnly || chapter.counts[(int)history.PeriodShown].Any(i => i < 0))
             .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign));
-        using var _ = new DoOnDispose(_tmpChaptersOrdered.Clear);
+        using var _clear = new DoOnDispose(_tmpChaptersOrdered.Clear);
 
         IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             Widgets.DrawRectFast(canvas, ColorLibrary.NeonGreen.ToTransparent(.5f)));
@@ -83,7 +126,7 @@ public class DetailedLegendRenderer : IExposable
         Widgets.BeginScrollView(canvas, ref scrollPos, viewRect);
         for (var i = 0; i < n; i++)
         {
-            History.Chapter chapter = _tmpChaptersOrdered[i];
+            var chapter = _tmpChaptersOrdered[i];
 
             // set up rects
             var row = new Rect(0f, height * i, viewRect.width, height);
@@ -130,7 +173,7 @@ public class DetailedLegendRenderer : IExposable
                 // draw counts in upper left corner
                 if (DrawCounts)
                 {
-                    Utilities.LabelOutline(icon, chapter.ThingDefCount.count.ToString(), null,
+                    Utilities.LabelOutline(icon, chapter.ThingDefCount.count.ToString(CultureInfo.InvariantCulture), null,
                         TextAnchor.UpperLeft, 0f, GameFont.Tiny, Color.white, Color.black);
                 }
             }
@@ -167,7 +210,7 @@ public class DetailedLegendRenderer : IExposable
                 rowInfoRect.x += Margin * 2;
 
                 // x offset
-                var xOffset = DrawIcons && thing != null ? height + Margin * 2 : Margin * 2;
+                var xOffset = DrawIcons && thing != null ? height + (Margin * 2) : Margin * 2;
 
                 Utilities.LabelOutline(rowInfoRect, info, null, TextAnchor.MiddleLeft, xOffset, GameFont.Tiny,
                     Color.white, Color.black);
@@ -184,7 +227,8 @@ public class DetailedLegendRenderer : IExposable
             catch (Exception ex)
             {
                 labelTooltip = chapter.label.Label + " (error:\n" + ex + "\n)";
-            };
+            }
+            ;
 
             // tooltip on entire row
             var tooltip = $"{chapter.label}: " +
@@ -205,7 +249,7 @@ public class DetailedLegendRenderer : IExposable
                 {
                     if (shown)
                     {
-                        history._chaptersShown.Remove(chapter);
+                        _ = history._chaptersShown.Remove(chapter);
                     }
                     else
                     {
@@ -231,6 +275,7 @@ public class DetailedLegendRenderer : IExposable
         Widgets.EndScrollView();
     }
 
+    /// <inheritdoc/>
     public void ExposeData()
     {
         Scribe_Values.Look(ref _drawIcons, "drawIcons", true);

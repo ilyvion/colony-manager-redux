@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Runtime.CompilerServices;
 using ilyvion.Laboratory.Extensions;
 
 namespace ColonyManagerRedux.Managers;
@@ -17,11 +16,10 @@ internal sealed class ManagerJob_Power : ManagerJob
     {
         public override bool UpdatesMax => true;
 
+#pragma warning disable IDE0028 // Simplify collection initialization
         private readonly ConditionalWeakTable<ManagerJob_Power, CachedValue<(int current, int)[]>> cachedTrades = new();
-        private CachedValue<(int current, int)[]> GetCachedTradeForJob(ManagerJob_Power managerJob)
-        {
-            return cachedTrades.GetValue(managerJob, _ => new([]));
-        }
+#pragma warning restore IDE0028 // Simplify collection initialization
+        private CachedValue<(int current, int)[]> GetCachedTradeForJob(ManagerJob_Power managerJob) => cachedTrades.GetValue(managerJob, _ => new([]));
 
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Power managerJob,
@@ -32,22 +30,13 @@ internal sealed class ManagerJob_Power : ManagerJob
             var cachedTrade = GetCachedTradeForJob(managerJob);
             var trade = cachedTrade.Value;
 
-            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction)
-            {
-                count.Value = trade.Where(i => i.current > 0).Sum(i => i.current);
-            }
-            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryConsumption)
-            {
-                count.Value = trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current));
-            }
-            else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries)
-            {
-                count.Value = managerJob.GetCurrentBatteries().Sum(b => b.current);
-            }
-            else
-            {
-                throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
-            }
+            count.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction
+                ? trade.Where(i => i.current > 0).Sum(i => i.current)
+                : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryConsumption
+                    ? trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current))
+                    : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
+                    ? managerJob.GetCurrentBatteries().Sum(b => b.current)
+                    : throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
             yield break;
         }
 
@@ -67,15 +56,10 @@ internal sealed class ManagerJob_Power : ManagerJob
             ManagerJobHistoryChapterDef chapterDef,
             Boxed<int> max)
         {
-            if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries)
-            {
-                max.Value = (int)managerJob._batteries.Sum(list =>
-                    list.Sum(battery => battery.Props.storedEnergyMax));
-            }
-            else
-            {
-                max.Value = 0;
-            }
+            max.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
+                ? (int)managerJob._batteries.Sum(list =>
+                    list.Sum(battery => battery.Props.storedEnergyMax))
+                : 0;
             yield break;
         }
 
@@ -97,8 +81,8 @@ internal sealed class ManagerJob_Power : ManagerJob
                 _ = cachedTrade.Update(trade);
             }
             managerJob.tradingHistory.UpdateThingCountAndMax(
-                managerJob._traders.Select(list => list.Count).ToArray(),
-                managerJob._traders.Select(list => 0).ToArray());
+                [.. managerJob._traders.Select(list => list.Count)],
+                [.. managerJob._traders.Select(list => 0)]);
 
             managerJob.tradingHistory.Update(tick, trade);
         }
@@ -109,7 +93,7 @@ internal sealed class ManagerJob_Power : ManagerJob
     {
         get
         {
-            _batteryDefs ??= GetBatteryDefs().ToList();
+            _batteryDefs ??= [.. GetBatteryDefs()];
             return _batteryDefs;
         }
     }
@@ -119,7 +103,7 @@ internal sealed class ManagerJob_Power : ManagerJob
     {
         get
         {
-            _traderDefs ??= GetTraderDefs().ToList();
+            _traderDefs ??= [.. GetTraderDefs()];
             return _traderDefs;
         }
     }
@@ -157,7 +141,7 @@ internal sealed class ManagerJob_Power : ManagerJob
             if (!cachedBatteryCount.TryGetValue(out var batteryCount))
             {
                 batteryCount = _batteries?.SelectMany(b => b).Count() ?? 0;
-                cachedBatteryCount.Update(batteryCount);
+                _ = cachedBatteryCount.Update(batteryCount);
             }
             return batteryCount;
         }
@@ -183,7 +167,7 @@ internal sealed class ManagerJob_Power : ManagerJob
                     .AllBuildingsColonistOfClass<Building_AIManager>()
                     .Select(t => t.TryGetComp<CompPowerTrader>()))
                 .Any(c => c != null && c.PowerOn);
-            _cachedAnyPoweredStationOnline.Update(value);
+            _ = _cachedAnyPoweredStationOnline.Update(value);
             return value;
         }
     }
@@ -192,9 +176,8 @@ internal sealed class ManagerJob_Power : ManagerJob
 
     public ManagerJob_Power(Manager manager) : base(manager)
     {
-        if (Scribe.mode == LoadSaveMode.Inactive)
-        {
-            tradingHistory = new History(TraderDefs
+        tradingHistory = Scribe.mode == LoadSaveMode.Inactive
+            ? new History(TraderDefs
                 .Select(def => new ThingDefCount(
                     def,
                     manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count))
@@ -204,12 +187,8 @@ internal sealed class ManagerJob_Power : ManagerJob
                 DrawInlineLegend = false,
                 YAxisSuffix = "W",
                 DrawTargetLine = false,
-            };
-        }
-        else
-        {
-            tradingHistory = null!;
-        }
+            }
+            : null!;
     }
 
     public override string IsCompletedTooltip => "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate().CapitalizeFirst();
@@ -218,11 +197,9 @@ internal sealed class ManagerJob_Power : ManagerJob
 
     public override WorkTypeDef? WorkTypeDef => ManagerWorkTypeDefOf.Managing;
 
-    public override void CleanUp(ManagerLog? jobLog)
-    {
+    public override void CleanUp(ManagerLog? jobLog) =>
         // The power job is never removed/cleaned up
         throw new NotImplementedException();
-    }
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
@@ -254,21 +231,15 @@ internal sealed class ManagerJob_Power : ManagerJob
         workDone.Value = true;
     }
 
-    private static IEnumerable<ThingDef> GetTraderDefs()
-    {
-        return from td in DefDatabase<ThingDef>.AllDefsListForReading
-               where td.HasCompOrChildCompOf(typeof(CompPowerTrader))
-               select td;
-    }
+    private static IEnumerable<ThingDef> GetTraderDefs() => from td in DefDatabase<ThingDef>.AllDefsListForReading
+                                                            where td.HasCompOrChildCompOf(typeof(CompPowerTrader))
+                                                            select td;
 
-    private static IEnumerable<ThingDef> GetBatteryDefs()
-    {
-        return from td in DefDatabase<ThingDef>.AllDefsListForReading
-               where td.HasCompOrChildCompOf(typeof(CompPowerBattery))
-               select td;
-    }
+    private static IEnumerable<ThingDef> GetBatteryDefs() => from td in DefDatabase<ThingDef>.AllDefsListForReading
+                                                             where td.HasCompOrChildCompOf(typeof(CompPowerBattery))
+                                                             select td;
 
-    private bool _isRefreshingBuildingLists = false;
+    private bool _isRefreshingBuildingLists;
     [CoroutineSettingsMethod]
     private Coroutine RefreshBuildingLists(ManagerLog? jobLog = null)
     {
@@ -284,8 +255,8 @@ internal sealed class ManagerJob_Power : ManagerJob
         _isRefreshingBuildingLists = true;
         using var _ = new DoOnDispose(() => _isRefreshingBuildingLists = false);
 
-        int buildingsBefore = _traderBuildings.Count;
-        int batteriesBefore = _batteryBuildings.Count;
+        var buildingsBefore = _traderBuildings.Count;
+        var batteriesBefore = _batteryBuildings.Count;
 
         _traderBuildings.Clear();
         _batteryBuildings.Clear();
@@ -308,8 +279,8 @@ internal sealed class ManagerJob_Power : ManagerJob
             }
         }
 
-        int buildingsAfter = _traderBuildings.Count;
-        int batteriesAfter = _batteryBuildings.Count;
+        var buildingsAfter = _traderBuildings.Count;
+        var batteriesAfter = _batteryBuildings.Count;
 
         if (buildingsBefore != buildingsAfter || batteriesBefore != batteriesAfter)
         {
@@ -318,7 +289,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
     }
 
-    private bool _isRefreshingCompLists = false;
+    private bool _isRefreshingCompLists;
     private readonly List<(IEnumerable<CompPowerTrader> traders, int i)> _refreshCompListTraders = [];
     [CoroutineSettingsMethod]
     private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
@@ -410,21 +381,12 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
     }
 
-    private (int current, int max)[] GetCurrentBatteries()
-    {
-        return _batteries
+    private (int current, int max)[] GetCurrentBatteries() => [.. _batteries
             .Select(list => (
                 (int)list.Sum(battery => battery.StoredEnergy),
-                (int)list.Sum(battery => battery.Props.storedEnergyMax)))
-            .ToArray();
-    }
+                (int)list.Sum(battery => battery.Props.storedEnergyMax)))];
 
-    private (int current, int)[] GetCurrentTrade()
-    {
-        return _traders
-            .Select(list => ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0))
-            .ToArray();
-    }
+    private (int current, int)[] GetCurrentTrade() => [.. _traders.Select(list => ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0))];
 
     public override void ExposeData()
     {

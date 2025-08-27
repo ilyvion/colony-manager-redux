@@ -18,23 +18,17 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
             var autoSlaughterVanillaAnimals = AutoSlaughterVanillaAnimals();
             var autoSlaugherLivestockAnimals = AutoSlaugherLivestockAnimals();
 
-            return autoSlaughterVanillaAnimals.Intersect(autoSlaugherLivestockAnimals).ToList();
+            return [.. autoSlaughterVanillaAnimals.Intersect(autoSlaugherLivestockAnimals)];
         });
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport()
-    {
-        return _overlappingAnimals.Value.Count > 0;
-    }
+    public override AlertReport GetReport() => _overlappingAnimals.Value.Count > 0;
 
-    public override TaggedString GetExplanation()
-    {
-        return "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate(
+    public override TaggedString GetExplanation() => "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate(
             "ColonyManagerRedux.Livestock.CullExcess".Translate(),
             "- " + _overlappingAnimals.Value.Join(a => a.race.AnyPawnKind.GetLabelPlural(), "\n- "));
-    }
 
     private static IEnumerable<ThingDef> AutoSlaughterVanillaAnimals()
     {
@@ -44,7 +38,7 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
             yield break;
         }
 
-        foreach (AutoSlaughterConfig config in currentMap.autoSlaughterManager.configs)
+        foreach (var config in currentMap.autoSlaughterManager.configs)
         {
             if (config.maxTotal != -1 || config.maxFemales != -1 || config.maxFemalesYoung != -1 || config.maxMales != -1 || config.maxMalesYoung != -1)
             {

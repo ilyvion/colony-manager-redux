@@ -39,7 +39,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
         // options
         Widgets_Section.BeginSectionColumn(
-            optionsColumnRect, "Hunting.Options", out Vector2 position, out float width);
+            optionsColumnRect, "Hunting.Options", out var position, out var width);
         Widgets_Section.Section(
             ref position,
             width,
@@ -55,7 +55,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         // animals
         Widgets_Section.BeginSectionColumn(animalsColumnRect, "Hunting.Animals", out position, out width);
         var refreshRect = new Rect(
-            position.x + width - SmallIconSize - 2 * Margin,
+            position.x + width - SmallIconSize - (2 * Margin),
             position.y + Margin,
             SmallIconSize,
             SmallIconSize);
@@ -65,7 +65,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         }
 
         var padlockRect = new Rect(
-            refreshRect.x - (SmallIconSize + 1) - 2 * Margin,
+            refreshRect.x - (SmallIconSize + 1) - (2 * Margin),
             position.y + Margin,
             SmallIconSize + 1,
             SmallIconSize);
@@ -128,9 +128,9 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 () => SelectedHuntingJob
                     .SetAnimalAllowed(animalDef, !allowedAnimals.Contains(animalDef)));
 
-            Rect iconRect = new Rect(
-                rowRect.xMax - 2 * (SmallIconSize + Margin) - Margin,
-                rowRect.yMin + (rowRect.height - SmallIconSize) / 2,
+            var iconRect = new Rect(
+                rowRect.xMax - (2 * (SmallIconSize + Margin)) - Margin,
+                rowRect.yMin + ((rowRect.height - SmallIconSize) / 2),
                 SmallIconSize,
                 SmallIconSize);
 
@@ -138,21 +138,9 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             if (animalDef.RaceProps.manhunterOnDamageChance >= 0.1)
             {
                 var color = GUI.color;
-                if (allowedAnimals.Contains(animalDef))
-                {
-                    if (animalDef.RaceProps.manhunterOnDamageChance > 0.25)
-                    {
-                        GUI.color = Color.red;
-                    }
-                    else
-                    {
-                        GUI.color = Resources.Orange;
-                    }
-                }
-                else
-                {
-                    GUI.color = Color.gray;
-                }
+                GUI.color = allowedAnimals.Contains(animalDef)
+                    ? animalDef.RaceProps.manhunterOnDamageChance > 0.25 ? Color.red : Resources.Orange
+                    : Color.gray;
                 GUI.DrawTexture(iconRect, Resources.ClawIcon);
                 GUI.color = color;
 
@@ -161,9 +149,9 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
             if (ModsConfig.IdeologyActive)
             {
-                bool atLeastOneVenerated = false;
-                bool allVenerated = true;
-                foreach (Pawn item in Manager.map.mapPawns.FreeColonistsSpawned)
+                var atLeastOneVenerated = false;
+                var allVenerated = true;
+                foreach (var item in Manager.map.mapPawns.FreeColonistsSpawned)
                 {
                     var isVenerated =
                         item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
@@ -174,21 +162,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 if (atLeastOneVenerated)
                 {
                     var color = GUI.color;
-                    if (allowedAnimals.Contains(animalDef))
-                    {
-                        if (allVenerated)
-                        {
-                            GUI.color = Color.red;
-                        }
-                        else
-                        {
-                            GUI.color = Resources.Orange;
-                        }
-                    }
-                    else
-                    {
-                        GUI.color = Color.gray;
-                    }
+                    GUI.color = allowedAnimals.Contains(animalDef) ? allVenerated ? Color.red : Resources.Orange : Color.gray;
                     GUI.DrawTexture(iconRect, Resources.Venerated);
                     GUI.color = color;
 
@@ -213,11 +187,11 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     public static string GetAnimalKindTooltip(PawnKindDef kind, HuntingTargetResource targetResource)
     {
         var sb = new StringBuilder();
-        sb.Append(kind.race.description);
+        _ = sb.Append(kind.race.description);
 
         if (kind?.race?.race != null)
         {
-            sb.Append("\n\n");
+            _ = sb.Append("\n\n");
 
             _tmpAnimalKindTooltipYields.Clear();
 
@@ -253,7 +227,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             // butcherBodyPart(s)
             if (!kind.lifeStages.NullOrEmpty())
             {
-                for (int i = 0; i < kind.lifeStages.Count; i++)
+                for (var i = 0; i < kind.lifeStages.Count; i++)
                 {
                     var stage = kind.lifeStages[i];
                     var part = stage?.butcherBodyPart;
@@ -289,25 +263,22 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
             if (_tmpAnimalKindTooltipYields.Count == 1)
             {
-                sb.AppendLine(I18n.YieldOne(_tmpAnimalKindTooltipYields.First()));
-                sb.AppendLine();
+                _ = sb.AppendLine(I18n.YieldOne(_tmpAnimalKindTooltipYields.First()));
+                _ = sb.AppendLine();
             }
             else if (_tmpAnimalKindTooltipYields.Count > 1)
             {
-                sb.AppendLine(I18n.YieldMany(_tmpAnimalKindTooltipYields));
-                sb.AppendLine();
+                _ = sb.AppendLine(I18n.YieldMany(_tmpAnimalKindTooltipYields));
+                _ = sb.AppendLine();
             }
 
-            sb.Append(I18n.Aggressiveness(kind.race.race.manhunterOnDamageChance));
+            _ = sb.Append(I18n.Aggressiveness(kind.race.race.manhunterOnDamageChance));
         }
 
         return sb.ToString();
     }
 
-    public static string YieldLine(int count, string label)
-    {
-        return count > 1 ? $"{count}x {label}" : label;
-    }
+    public static string YieldLine(int count, string label) => count > 1 ? $"{count}x {label}" : label;
 
     private readonly List<PawnKindDef> _tmpPawnKinds = [];
     public float DrawAnimalShortcuts(Vector2 pos, float width)
@@ -431,10 +402,10 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         // target count (1)
         var currentCount = SelectedHuntingJob.TriggerThreshold.GetCurrentCount();
         var corpsesCache = SelectedHuntingJob.GetYieldInCorpsesCache();
-        corpsesCache.DoUpdateIfNeeded();
+        _ = corpsesCache.DoUpdateIfNeeded();
         var corpseCount = corpsesCache.Value;
         var designationsCache = SelectedHuntingJob.GetYieldInDesignationsCache();
-        designationsCache.DoUpdateIfNeeded();
+        _ = designationsCache.DoUpdateIfNeeded();
         var designatedCount = designationsCache.Value;
         var targetLabel = SelectedHuntingJob.TriggerThreshold.TargetLabel;
 
@@ -505,10 +476,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         return pos.y - start.y;
     }
 
-    public override void PreOpen()
-    {
-        Refresh();
-    }
+    public override void PreOpen() => Refresh();
 
     protected override void Refresh()
     {

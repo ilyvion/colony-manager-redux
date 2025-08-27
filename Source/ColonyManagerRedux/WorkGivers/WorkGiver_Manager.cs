@@ -82,13 +82,7 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         return true;
     }
 
-    public override Job JobOnThing(Pawn pawn, Thing t, bool forced)
-    {
-        return new Job(ManagerJobDefOf.ManagingAtManagingStation, t);
-    }
+    public override Job JobOnThing(Pawn pawn, Thing t, bool forced) => new(ManagerJobDefOf.ManagingAtManagingStation, t);
 
-    public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
-    {
-        return pawn.Map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>();
-    }
+    public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn) => pawn.Map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>();
 }

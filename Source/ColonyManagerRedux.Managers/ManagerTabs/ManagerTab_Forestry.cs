@@ -15,22 +15,13 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
     {
         public override void ChangeDrawListEntryParameters(
             ManagerJob_Forestry job,
-            ref DrawOverviewListEntryParameters parameters)
-        {
-            parameters.ShowProgressbar = job.Type == ForestryJobType.Logging;
-        }
-        public override void DrawOverviewListEntry(ManagerJob_Forestry job, ref Vector2 position, float width)
-        {
-            throw new NotImplementedException();
-        }
+            ref DrawOverviewListEntryParameters parameters) => parameters.ShowProgressbar = job.Type == ForestryJobType.Logging;
+        public override void DrawOverviewListEntry(ManagerJob_Forestry job, ref Vector2 position, float width) => throw new NotImplementedException();
     }
 
     public ManagerJob_Forestry SelectedForestryJob => SelectedJob!;
 
-    public static string GetTreeTooltip(ThingDef tree)
-    {
-        return ManagerTab_Foraging.GetPlantTooltip(tree);
-    }
+    public static string GetTreeTooltip(ThingDef tree) => ManagerTab_Foraging.GetPlantTooltip(tree);
 
     protected override void DoMainContent(Rect rect)
     {
@@ -55,7 +46,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Forestry.Options", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawJobType, "ColonyManagerRedux.Forestry.JobType".Translate());
 
         if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
@@ -74,7 +65,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
 
         Widgets_Section.BeginSectionColumn(treesColumnRect, "Forestry.Trees", out position, out width);
         var refreshRect = new Rect(
-            position.x + width - SmallIconSize - 2 * Margin,
+            position.x + width - SmallIconSize - (2 * Margin),
             position.y + Margin,
             SmallIconSize,
             SmallIconSize);
@@ -84,7 +75,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         }
 
         var padlockRect = new Rect(
-            refreshRect.x - (SmallIconSize + 1) - 2 * Margin,
+            refreshRect.x - (SmallIconSize + 1) - (2 * Margin),
             position.y + Margin,
             SmallIconSize + 1,
             SmallIconSize);
@@ -143,15 +134,13 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         base.DrawLocalListEntry(job, ref position, width, parameters);
     }
 
-    public override string GetSubLabel(ManagerJob job)
+    public override string GetSubLabel(ManagerJob job) => ((ManagerJob_Forestry)job).Type switch
     {
-        return ((ManagerJob_Forestry)job).Type switch
-        {
-            ForestryJobType.Logging => base.GetSubLabel(job),
-            _ => "ColonyManagerRedux.Forestry.Clear"
-                .Translate(string.Join(", ", job.Targets)).Resolve(),
-        };
-    }
+        ForestryJobType.Logging => base.GetSubLabel(job),
+        ForestryJobType.ClearArea => "ColonyManagerRedux.Forestry.Clear"
+                    .Translate(string.Join(", ", job.Targets)).Resolve(),
+        _ => throw new NotImplementedException(),
+    };
 
     public float DrawAllowSaplings(Vector2 pos, float width)
     {
@@ -241,7 +230,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
     {
         var start = pos;
         var currentCount = SelectedForestryJob.TriggerThreshold.GetCurrentCount();
-        SelectedForestryJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+        _ = SelectedForestryJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
         var designatedCount = SelectedForestryJob.CachedCurrentDesignatedCount.Value;
         var targetLabel = SelectedForestryJob.TriggerThreshold.TargetLabel;
 
@@ -391,7 +380,7 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
             // provides cover
             _tmpThings.Clear();
             _tmpThings.AddRange(allPlants.Where(tree => tree.Fillage == FillCategory.Full ||
-                tree.Fillage == FillCategory.Partial && tree.fillPercent > 0));
+                (tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)));
             DrawShortcutToggle(
                 _tmpThings,
                 allowedTrees,
@@ -404,15 +393,9 @@ internal sealed class ManagerTab_Forestry(Manager manager) : ManagerTab<ManagerJ
         return rowRect.yMax - start.y;
     }
 
-    public override void PostClose()
-    {
-        Refresh();
-    }
+    public override void PostClose() => Refresh();
 
-    public override void PreOpen()
-    {
-        Refresh();
-    }
+    public override void PreOpen() => Refresh();
 
     protected override void Refresh()
     {

@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.IO;
 using ilyvion.Laboratory.UI;
 
 namespace ColonyManagerRedux.Managers;
@@ -64,10 +63,10 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     protected override void Refresh()
     {
         _ = Manager.SetScribingMode(ScribingMode.Transfer);
-        _jobs = Manager.JobTracker.JobsOfType<ManagerJob>().Where(j => j.IsTransferable).ToList();
+        _jobs = [.. Manager.JobTracker.JobsOfType<ManagerJob>().Where(j => j.IsTransferable)];
         _ = Manager.SetScribingMode(ScribingMode.Normal);
 
-        _selectedJobs = _jobs.Select(_ => new MultiCheckboxState()).ToList();
+        _selectedJobs = [.. _jobs.Select(_ => new MultiCheckboxState())];
 
         // fetch the list of saved jobs
         _saveFiles = GetSavedFilesList();
@@ -80,7 +79,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     {
         // keep adding 1 until we have a new name.
         var i = 1;
-        string name = SaveNameBase + i;
+        var name = SaveNameBase + i;
         while (SaveExists(name))
         {
             i++;
@@ -92,7 +91,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     private void DoExport(string name)
     {
-        Manager.SetScribingMode(ScribingMode.Transfer);
+        _ = Manager.SetScribingMode(ScribingMode.Transfer);
         var exportJobs = SelectedJobs.ToList();
         try
         {
@@ -125,7 +124,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
         finally
         {
-            Manager.SetScribingMode(ScribingMode.Normal);
+            _ = Manager.SetScribingMode(ScribingMode.Normal);
             Scribe.saver.FinalizeSaving();
             Messages.Message("ColonyManagerRedux.ManagerJobsExported".Translate(exportJobs.Count), MessageTypeDefOf.TaskCompletion);
             Refresh();
@@ -134,11 +133,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     private void DoImport(SaveFileInfo file)
     {
-        string filePath = _folder + "/" + file.FileInfo.Name;
+        var filePath = _folder + "/" + file.FileInfo.Name;
         PreLoadUtility.CheckVersionAndLoad(filePath, ScribeMetaHeaderUtility.ScribeHeaderMode.None, () =>
         {
             Scribe.loader.InitLoading(filePath);
-            Manager.SetScribingMode(ScribingMode.Transfer);
+            _ = Manager.SetScribingMode(ScribingMode.Transfer);
             List<ManagerJob> exportedJobs = [];
             try
             {
@@ -153,7 +152,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             }
             finally
             {
-                Manager.SetScribingMode(ScribingMode.Normal);
+                _ = Manager.SetScribingMode(ScribingMode.Normal);
             }
 
             Find.WindowStack.Add(new Dialog_ImportJobs(exportedJobs, (count) =>
@@ -169,8 +168,8 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         GUI.BeginGroup(rect);
 
         // set up rects
-        Rect nameRect = rect.AtZero();
-        nameRect.width -= (Prefs.DisableTinyText ? 250f : 200f) + IconSize + 4 * Constants.Margin;
+        var nameRect = rect.AtZero();
+        nameRect.width -= (Prefs.DisableTinyText ? 250f : 200f) + IconSize + (4 * Constants.Margin);
         nameRect.xMin += 2 * Constants.Margin;
         var timeRect = new Rect(nameRect.xMax + Constants.Margin, 0f, Prefs.DisableTinyText ? 150f : 100f, rect.height);
         var buttonRect = new Rect(timeRect.xMax + Constants.Margin, 1f, 100f, rect.height - 2f);
@@ -231,11 +230,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         else
         {
             GUI.BeginGroup(rect);
-            Vector2 cur = Vector2.zero;
+            var cur = Vector2.zero;
             try
             {
                 var i = 1;
-                foreach (SaveFileInfo file in _saveFiles)
+                foreach (var file in _saveFiles)
                 {
                     var row = new Rect(0f, cur.y, rect.width, RowHeight);
                     if (i++ % 2 == 0)
@@ -258,7 +257,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     {
         var infoRect = new Rect(rect.ContractedBy(Constants.Margin));
         infoRect.height -= 30f + Constants.Margin;
-        var nameRect = new Rect(rect.xMin + Constants.Margin, infoRect.yMax + Constants.Margin, (rect.width - 3 * Constants.Margin) / 2, 30f);
+        var nameRect = new Rect(rect.xMin + Constants.Margin, infoRect.yMax + Constants.Margin, (rect.width - (3 * Constants.Margin)) / 2, 30f);
         var buttonRect = new Rect(nameRect.xMax + Constants.Margin, infoRect.yMax + Constants.Margin, nameRect.width, 30f);
 
         Widgets.Label(infoRect, "ColonyManagerRedux.SelectExportJobs".Translate());
@@ -267,13 +266,13 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         DoJobList(infoRect);
 
         GUI.SetNextControlName("ManagerJobsNameField");
-        string name = Widgets.TextField(nameRect, _saveName);
+        var name = Widgets.TextField(nameRect, _saveName);
         if (GenText.IsValidFilename(name))
         {
             _saveName = name;
         }
 
-        bool anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
+        var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
         if (IlyvionWidgets.DisableableButtonText(
             buttonRect,
             "ColonyManagerRedux.ManagerExport".Translate(),
@@ -291,7 +290,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
         var cur = Vector2.zero;
 
-        for (int i = 0; i < _jobs.Count; i++)
+        for (var i = 0; i < _jobs.Count; i++)
         {
             var job = _jobs[i];
             var state = _selectedJobs[i];
@@ -334,7 +333,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
         var tab = job.Tab;
 
-        float labelWidth = width - Constants.LargeListEntryHeight
+        var labelWidth = width - Constants.LargeListEntryHeight
             - LastUpdateRectWidth;
 
         // create label string
@@ -354,7 +353,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             LastUpdateRectWidth,
             labelRect.height);
 
-        float maxRowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Constants.Margin;
+        var maxRowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Constants.Margin;
         Rect rowRect = new(
             position.x,
             position.y,
@@ -393,24 +392,21 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         position.y += rowRect.height;
     }
 
-    private string FilePath(string name)
-    {
-        return _folder + "/" + name + SaveExtension;
-    }
+    private string FilePath(string name) => _folder + "/" + name + SaveExtension;
 
     private List<SaveFileInfo> GetSavedFilesList()
     {
         var directoryInfo = new DirectoryInfo(_folder);
 
         // raw files
-        IOrderedEnumerable<FileInfo> files = from f in directoryInfo.GetFiles()
+        var files = from f in directoryInfo.GetFiles()
                                              where f.Extension == SaveExtension
                                              orderby f.LastWriteTime descending
                                              select f;
 
         // convert to RW save files - mostly for the headers
         var saves = new List<SaveFileInfo>();
-        foreach (FileInfo current in files)
+        foreach (var current in files)
         {
             try
             {
@@ -429,15 +425,9 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         return saves;
     }
 
-    private static string GetSaveLocation()
-    {
-        return GenFilePaths.FolderUnderSaveData("ManagerJobs");
-    }
+    private static string GetSaveLocation() => GenFilePaths.FolderUnderSaveData("ManagerJobs");
 
-    private bool SaveExists(string name)
-    {
-        return _saveFiles.Any(save => save.FileInfo.Name == name + SaveExtension);
-    }
+    private bool SaveExists(string name) => _saveFiles.Any(save => save.FileInfo.Name == name + SaveExtension);
 
     private void TryExport(string name)
     {
@@ -453,13 +443,10 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
     }
 
-    private void TryImport(SaveFileInfo file)
-    {
-        DoImport(file);
-    }
+    private void TryImport(SaveFileInfo file) => DoImport(file);
 }
 
-public enum ScribingMode
+internal enum ScribingMode
 {
     Transfer,
     Normal

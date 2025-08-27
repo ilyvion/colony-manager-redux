@@ -2,7 +2,6 @@
 // Copyright (c) 2025 Alexander Krivács Schrøder
 
 #if !v1_5
-using System.Reflection;
 using System.Reflection.Emit;
 
 namespace ColonyManagerRedux;
@@ -19,7 +18,7 @@ internal static class RimWorld_GravshipUtility_PreLaunchConfirmation
     private static TaggedString AddColonyManagerReduxLaunchConfirmationText(
         TaggedString text, Building_GravEngine gravEngine)
     {
-        bool hasManagerDatabase = gravEngine.ManagerDatabase() != null;
+        var hasManagerDatabase = gravEngine.ManagerDatabase() != null;
         var manager = Manager.For(gravEngine.Map);
         if (hasManagerDatabase || manager.JobTracker.JobList.Count <= 0)
         {
@@ -37,9 +36,9 @@ internal static class RimWorld_GravshipUtility_PreLaunchConfirmation
 
         var codeMatcher = new CodeMatcher(original, generator);
 
-        codeMatcher.End();
+        _ = codeMatcher.End();
 
-        codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Call && i.operand is MethodInfo m && m == Find_WindowStack_MethodInfo);
+        _ = codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Call && i.operand is MethodInfo m && m == Find_WindowStack_MethodInfo);
         if (!codeMatcher.IsValid)
         {
             ColonyManagerReduxMod.Instance.LogError(
@@ -47,12 +46,12 @@ internal static class RimWorld_GravshipUtility_PreLaunchConfirmation
                 "IL does not match expectations: call to Find.WindowStack not found.");
             return original;
         }
-        codeMatcher.Advance(1);
+        _ = codeMatcher.Advance(1);
 
         // Insert
         //   text = AddColonyManagerReduxLaunchConfirmationText(text);
         // directly before
-        codeMatcher.Insert(
+        _ = codeMatcher.Insert(
             new(OpCodes.Ldloc_0),
             new(OpCodes.Ldarg_0),
             new(OpCodes.Call, _methodAddColonyManagerReduxLaunchConfirmationText),

@@ -4,6 +4,9 @@
 
         <RootNamespace>ColonyManagerRedux.Managers</RootNamespace>
         <AssemblyName>ColonyManagerRedux.Managers</AssemblyName>
+
+        <!-- TODO: Remove and fix -->
+        <NoWarn>CA1502;CA1506</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj" />

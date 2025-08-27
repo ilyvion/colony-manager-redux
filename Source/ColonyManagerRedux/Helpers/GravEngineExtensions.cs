@@ -4,13 +4,13 @@
 #if !v1_5
 namespace ColonyManagerRedux;
 
-public static class GravEngineExtensions
+internal static class GravEngineExtensions
 {
     public static Thing? ManagerDatabase(this Building_GravEngine gravEngine)
     {
-        foreach (IntVec3 item in gravEngine.AllConnectedSubstructure)
+        foreach (var item in gravEngine.AllConnectedSubstructure)
         {
-            foreach (Thing thing in item.GetThingList(gravEngine.Map))
+            foreach (var thing in item.GetThingList(gravEngine.Map))
             {
                 if (thing.def == ManagerThingDefOf.CM_ManagerDatabase)
                 {

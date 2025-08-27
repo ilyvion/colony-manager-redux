@@ -2,17 +2,22 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Reflection;
 using System.Xml;
+
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+
 using Verse.Sound;
+
 using static ColonyManagerRedux.Constants;
 
 using TabRecord = ilyvion.Laboratory.UI.TabRecord;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Stores and manages all mod settings for Colony Manager Redux, including general, threshold, alert, and performance settings.
+/// </summary>
 [HotSwappable]
 [StaticConstructorOnStartup]
 public class Settings : ModSettings
@@ -22,7 +27,10 @@ public class Settings : ModSettings
     private List<ManagerSettings> _managerSettings = [];
     private Tab _currentManagerSettings;
 
-    private bool _doVerboseLogging = false;
+    private bool _doVerboseLogging;
+    /// <summary>
+    /// Gets whether verbose logging is enabled.
+    /// </summary>
     public bool DoVerboseLogging
     {
         get => _doVerboseLogging;
@@ -30,6 +38,9 @@ public class Settings : ModSettings
     }
 
     private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
+    /// <summary>
+    /// Gets the default update interval in ticks.
+    /// </summary>
     public int DefaultUpdateIntervalTicks
     {
         get => _defaultUpdateIntervalTicks;
@@ -37,6 +48,9 @@ public class Settings : ModSettings
     }
 
     private int _defaultTargetCount = 500;
+    /// <summary>
+    /// Gets the default target count for thresholds.
+    /// </summary>
     public int DefaultTargetCount
     {
         get => _defaultTargetCount;
@@ -44,6 +58,9 @@ public class Settings : ModSettings
     }
 
     private bool _defaultCountAllOnMap;
+    /// <summary>
+    /// Gets whether to count all items on the map by default.
+    /// </summary>
     public bool DefaultCountAllOnMap
     {
         get => _defaultCountAllOnMap;
@@ -51,6 +68,9 @@ public class Settings : ModSettings
     }
 
     private bool _defaultShouldCheckReachable = true;
+    /// <summary>
+    /// Gets whether to check reachability by default.
+    /// </summary>
     public bool DefaultShouldCheckReachable
     {
         get => _defaultShouldCheckReachable;
@@ -58,6 +78,9 @@ public class Settings : ModSettings
     }
 
     private bool _defaultUsePathBasedDistance;
+    /// <summary>
+    /// Gets whether to use path-based distance by default.
+    /// </summary>
     public bool DefaultUsePathBasedDistance
     {
         get => _defaultUsePathBasedDistance;
@@ -65,6 +88,9 @@ public class Settings : ModSettings
     }
 
     private bool _newJobsAreImmediatelyOutdated = true;
+    /// <summary>
+    /// Gets whether new jobs are immediately marked as outdated.
+    /// </summary>
     public bool NewJobsAreImmediatelyOutdated
     {
         get => _newJobsAreImmediatelyOutdated;
@@ -72,6 +98,9 @@ public class Settings : ModSettings
     }
 
     private bool _recordHistoricalData = true;
+    /// <summary>
+    /// Gets whether to record historical data.
+    /// </summary>
     public bool RecordHistoricalData
     {
         get => _recordHistoricalData;
@@ -79,6 +108,9 @@ public class Settings : ModSettings
     }
 
     private bool _newJobsShouldBeResourceLocked = true;
+    /// <summary>
+    /// Gets whether new jobs should be resource locked by default.
+    /// </summary>
     public bool NewJobsShouldBeResourceLocked
     {
         get => _newJobsShouldBeResourceLocked;
@@ -86,21 +118,27 @@ public class Settings : ModSettings
     }
 
     private int _maxDesignationsPerJob;
+    /// <summary>
+    /// Gets the maximum number of designations allowed per job.
+    /// </summary>
     public int MaxDesignationsPerJob
     {
         get => _maxDesignationsPerJob * 10;
         internal set => _maxDesignationsPerJob = value / 10;
     }
-    public bool CanAddMoreDesignations(int currentCount)
-    {
-        return MaxDesignationsPerJob == 0 || MaxDesignationsPerJob > currentCount;
-    }
-    public bool ShouldRemoveMoreDesignations(int currentCount)
-    {
-        return MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
-    }
+    /// <summary>
+    /// Determines if more designations can be added to a job.
+    /// </summary>
+    public bool CanAddMoreDesignations(int currentCount) => MaxDesignationsPerJob == 0 || MaxDesignationsPerJob > currentCount;
+    /// <summary>
+    /// Determines if more designations should be removed from a job.
+    /// </summary>
+    public bool ShouldRemoveMoreDesignations(int currentCount) => MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
 
     private List<int> _customUpdateIntervalTickList = [];
+    /// <summary>
+    /// Gets the list of custom update intervals in ticks.
+    /// </summary>
     public List<int> CustomUpdateIntervalTickList
     {
         get => _customUpdateIntervalTickList;
@@ -108,6 +146,9 @@ public class Settings : ModSettings
     }
 
     private bool _showNoManagerAlert = true;
+    /// <summary>
+    /// Gets whether to show the 'No Manager' alert.
+    /// </summary>
     public bool ShowNoManagerAlert
     {
         get => _showNoManagerAlert;
@@ -115,6 +156,9 @@ public class Settings : ModSettings
     }
 
     private bool _showNoTableAlert = true;
+    /// <summary>
+    /// Gets whether to show the 'No Table' alert.
+    /// </summary>
     public bool ShowNoTableAlert
     {
         get => _showNoTableAlert;
@@ -122,6 +166,9 @@ public class Settings : ModSettings
     }
 
     private bool _showJobsNotUpdatingAlert = true;
+    /// <summary>
+    /// Gets whether to show the 'Jobs Not Updating' alert.
+    /// </summary>
     public bool ShowJobsNotUpdatingAlert
     {
         get => _showJobsNotUpdatingAlert;
@@ -129,6 +176,9 @@ public class Settings : ModSettings
     }
 
     private float _daysBeforeShowingAlert = 0.5f;
+    /// <summary>
+    /// Gets the number of days before showing the alert.
+    /// </summary>
     public float DaysBeforeShowingAlert
     {
         get => _daysBeforeShowingAlert;
@@ -136,6 +186,9 @@ public class Settings : ModSettings
     }
 
     private float _daysBeforeShowingHighAlert = 1f;
+    /// <summary>
+    /// Gets the number of days before showing the high alert.
+    /// </summary>
     public float DaysBeforeShowingHighAlert
     {
         get => _daysBeforeShowingHighAlert;
@@ -143,6 +196,9 @@ public class Settings : ModSettings
     }
 
     private float _daysBeforeShowingCriticalAlert = 2f;
+    /// <summary>
+    /// Gets the number of days before showing the critical alert.
+    /// </summary>
     public float DaysBeforeShowingCriticalAlert
     {
         get => _daysBeforeShowingCriticalAlert;
@@ -150,6 +206,9 @@ public class Settings : ModSettings
     }
 
     private bool _showNoTableNeededAlert = true;
+    /// <summary>
+    /// Gets whether to show the 'No Table Needed' alert.
+    /// </summary>
     public bool ShowNoTableNeededAlert
     {
         get => _showNoTableNeededAlert;
@@ -157,8 +216,14 @@ public class Settings : ModSettings
     }
 
     private HashSet<ManagerDef> _disabledManagers = [];
+    /// <summary>
+    /// Gets the set of disabled manager definitions.
+    /// </summary>
     public HashSet<ManagerDef> DisabledManagers => _disabledManagers;
 
+    /// <summary>
+    /// Gets the default update interval as an <see cref="UpdateInterval"/>.
+    /// </summary>
     public UpdateInterval DefaultUpdateInterval
     {
         get => TicksToInterval(DefaultUpdateIntervalTicks);
@@ -166,20 +231,29 @@ public class Settings : ModSettings
     }
 
     private int _operationsPerTick = 10;
+    /// <summary>
+    /// Gets the number of operations performed per tick.
+    /// </summary>
     public int OperationsPerTick
     {
         get => _operationsPerTick;
         internal set => _operationsPerTick = value;
     }
 
-    private int _ticksBetweenOperations = 0;
+    private int _ticksBetweenOperations;
+    /// <summary>
+    /// Gets the number of ticks between operations.
+    /// </summary>
     public int TicksBetweenOperations
     {
         get => _ticksBetweenOperations;
         internal set => _ticksBetweenOperations = value;
     }
 
-    private bool _showAdvancedPerformanceSettings = false;
+    private bool _showAdvancedPerformanceSettings;
+    /// <summary>
+    /// Gets whether to show advanced performance settings.
+    /// </summary>
     public bool ShowAdvancedPerformanceSettings
     {
         get => _showAdvancedPerformanceSettings;
@@ -195,7 +269,7 @@ public class Settings : ModSettings
         ColonyManagerReduxMod.Instance.LogDebug("Finding coroutine settings...");
         foreach (var type in CoroutineSettingsTypeAttribute.AllTypesWithAttribute)
         {
-            MethodInfo[] methods = type
+            var methods = type
                 .GetMethods(
                     BindingFlags.DeclaredOnly
                         | BindingFlags.Public
@@ -237,8 +311,18 @@ public class Settings : ModSettings
         return fullName;
     }
 
+    /// <summary>
+    /// Gets the number of operations per tick for a specific coroutine.
+    /// </summary>
+    /// <param name="coroutine">The coroutine delegate.</param>
+    /// <returns>The number of operations per tick.</returns>
     public int GetOperationsPerTickForCoroutine(Delegate coroutine)
     {
+        if (coroutine == null)
+        {
+            throw new ArgumentNullException(nameof(coroutine));
+        }
+
         var fullName = GetFullName(coroutine);
 
         return !ShowAdvancedPerformanceSettings
@@ -248,8 +332,18 @@ public class Settings : ModSettings
                 : OperationsPerTick);
     }
 
+    /// <summary>
+    /// Gets the number of ticks between operations for a specific coroutine.
+    /// </summary>
+    /// <param name="coroutine">The coroutine delegate.</param>
+    /// <returns>The number of ticks between operations.</returns>
     public int GetTicksBetweenOperationsForCoroutine(Delegate coroutine)
     {
+        if (coroutine == null)
+        {
+            throw new ArgumentNullException(nameof(coroutine));
+        }
+
         var fullName = GetFullName(coroutine);
 
         return !ShowAdvancedPerformanceSettings
@@ -265,11 +359,10 @@ public class Settings : ModSettings
         get
         {
             _tabList ??=
-                Gen.YieldSingle<Tab>(_sharedManagerSettings)
+                [.. Gen.YieldSingle<Tab>(_sharedManagerSettings)
                 .Concat(Gen.YieldSingle<Tab>(_performanceSettings))
                 .Concat(_managerSettings.Where(m => m.Show))
-                .Select(m => new TabRecord(m, () => ref _currentManagerSettings))
-                .ToList();
+                .Select(m => new TabRecord(m, () => ref _currentManagerSettings))];
             return _tabList;
         }
     }
@@ -280,7 +373,7 @@ public class Settings : ModSettings
         public override void DoTabContents(Rect inRect)
         {
             Widgets_Section.BeginSectionColumn(
-                inRect, "Shared.Settings", out Vector2 position, out float width);
+                inRect, "Shared.Settings", out var position, out var width);
 
             Widgets_Section.Section(
                 ref position,
@@ -318,7 +411,7 @@ public class Settings : ModSettings
         public override void DoTabContents(Rect inRect)
         {
             Widgets_Section.BeginSectionColumn(
-                inRect, "Performance.Settings", out Vector2 position, out float width);
+                inRect, "Performance.Settings", out var position, out var width);
 
             Widgets_Section.Section(
                 ref position,
@@ -346,6 +439,9 @@ public class Settings : ModSettings
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Settings"/> class.
+    /// </summary>
     public Settings()
     {
         ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
@@ -377,12 +473,12 @@ public class Settings : ModSettings
         }
     }
 
-    public void DoSettingsWindowContents(Rect rect)
+    internal void DoSettingsWindowContents(Rect rect)
     {
-        int rowCount = (int)Math.Ceiling((double)(_managerSettings.Count + 1) / 5);
-        rect.yMin += rowCount * SectionHeaderHeight + Margin;
+        var rowCount = (int)Math.Ceiling((double)(_managerSettings.Count + 1) / 5);
+        rect.yMin += (rowCount * SectionHeaderHeight) + Margin;
         Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, TabList, rowCount, null);
+        _ = TabDrawer.DrawTabs(rect, TabList, rowCount, null);
 
         try
         {
@@ -467,7 +563,7 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
-    public float DrawThreshold(Vector2 pos, float width)
+    private float DrawThreshold(Vector2 pos, float width)
     {
         var start = pos;
 
@@ -508,12 +604,12 @@ public class Settings : ModSettings
 
     private const int DefaultCustomUpdateIntervalTicks = GenDate.TicksPerDay;
     private int _addCustomUpdateIntervalTicks = DefaultCustomUpdateIntervalTicks;
-    public float DrawCustomUpdateIntervals(Vector2 pos, float width)
+    private float DrawCustomUpdateIntervals(Vector2 pos, float width)
     {
         var start = pos;
 
-        string periodLabel = _addCustomUpdateIntervalTicks.ToStringTicksToPeriodVerbose();
-        Vector2 periodSize = Text.CalcSize(periodLabel);
+        var periodLabel = _addCustomUpdateIntervalTicks.ToStringTicksToPeriodVerbose();
+        var periodSize = Text.CalcSize(periodLabel);
         var periodLabelAreaRect = new Rect(pos.x, pos.y, periodSize.x + Margin, ListEntryHeight);
         var periodWidth = periodSize.x + Margin;
         IlyvionWidgets.Label(periodLabelAreaRect, periodLabel, TextAnchor.MiddleLeft);
@@ -557,13 +653,13 @@ public class Settings : ModSettings
         }
         pos.y += ListEntryHeight + Margin;
 
-        for (int i = 0; i < _customUpdateIntervalTickList.Count; i++)
+        for (var i = 0; i < _customUpdateIntervalTickList.Count; i++)
         {
-            int customUpdateIntervalTicks = _customUpdateIntervalTickList[i];
+            var customUpdateIntervalTicks = _customUpdateIntervalTickList[i];
             var rect = new Rect(
                 Margin + pos.x,
                 pos.y,
-                width - 2 * Margin,
+                width - (2 * Margin),
                 ListEntryHeight);
             pos.y += ListEntryHeight;
             if (i % 2 == 0)
@@ -590,13 +686,13 @@ public class Settings : ModSettings
 
     private static bool RowButton(string buttonLabel, ref Vector2 pos)
     {
-        var buttonWidth = Text.CalcSize(buttonLabel).x + 4 * Margin;
+        var buttonWidth = Text.CalcSize(buttonLabel).x + (4 * Margin);
         Rect buttonRect = new(pos.x, pos.y, buttonWidth, ListEntryHeight);
         pos.x += buttonWidth + Margin;
         return Widgets.ButtonText(buttonRect, buttonLabel);
     }
 
-    public float DrawAlertSettings(Vector2 pos, float width)
+    private float DrawAlertSettings(Vector2 pos, float width)
     {
         const float MaxAlertDays = 30f;
 
@@ -634,7 +730,7 @@ public class Settings : ModSettings
                 ref pos,
                 width,
                 SliderHeight,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert".Translate(_daysBeforeShowingAlert.ToString("F1")),
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert".Translate(_daysBeforeShowingAlert.ToString("F1", CultureInfo.InvariantCulture)),
                 minValue: 0.5f,
                 roundTo: 0.5f);
 
@@ -650,7 +746,7 @@ public class Settings : ModSettings
                 ref pos,
                 width,
                 SliderHeight,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert".Translate(_daysBeforeShowingHighAlert.ToString("F1")),
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert".Translate(_daysBeforeShowingHighAlert.ToString("F1", CultureInfo.InvariantCulture)),
                 minValue: _daysBeforeShowingAlert,
                 roundTo: 0.5f);
 
@@ -666,7 +762,7 @@ public class Settings : ModSettings
                 ref pos,
                 width,
                 SliderHeight,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert".Translate(_daysBeforeShowingCriticalAlert.ToString("F1")),
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert".Translate(_daysBeforeShowingCriticalAlert.ToString("F1", CultureInfo.InvariantCulture)),
                 minValue: _daysBeforeShowingHighAlert,
                 roundTo: 0.5f);
 
@@ -677,7 +773,7 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
-    public float DrawDisableManagers(Vector2 pos, float width)
+    private float DrawDisableManagers(Vector2 pos, float width)
     {
         var start = pos;
 
@@ -707,7 +803,7 @@ public class Settings : ModSettings
 
     private const int MaxOperationsPerTick = 30;
     private const int MaxTicksBetweenOperations = 60;
-    public float DrawPerformanceSettings(Vector2 pos, float width)
+    private float DrawPerformanceSettings(Vector2 pos, float width)
     {
         var start = pos;
 
@@ -718,8 +814,8 @@ public class Settings : ModSettings
             ref pos,
             width,
             SliderHeight,
-            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick".Translate(_operationsPerTick.ToString()),
-            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick.Tip".Translate(_operationsPerTick.ToString()), 1);
+            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick".Translate(_operationsPerTick.ToString(CultureInfo.InvariantCulture)),
+            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick.Tip".Translate(_operationsPerTick.ToString(CultureInfo.InvariantCulture)), 1);
 
         var ticsBetweenOperationsText = $"{_ticksBetweenOperations} ({_ticksBetweenOperations.ToStringSecondsFromTicks()})";
         DrawIntSliderConfig(
@@ -752,15 +848,15 @@ public class Settings : ModSettings
         int globalValue,
         Func<int, string>? valueFormatter = null)
     {
-        bool isGlobal = value == globalValue;
+        var isGlobal = value == globalValue;
         string valueText = labelKey.Translate(
             isGlobal
                 ? globalValueKey.Translate()
-                : (valueFormatter != null ? valueFormatter(value) : value.ToString()));
+                : (valueFormatter != null ? valueFormatter(value) : value.ToString(CultureInfo.InvariantCulture)));
         string valueTip = tipKey.Translate(
             isGlobal
                 ? globalValueKey.Translate()
-                : value.ToString());
+                : value.ToString(CultureInfo.InvariantCulture));
         DrawIntSliderConfig(
             value,
             setValue,
@@ -773,8 +869,13 @@ public class Settings : ModSettings
             globalValue);
     }
 
-    public float DrawCoroutineSettings(CoroutineSettingsMethodAttribute coroutineSettings, Vector2 pos, float width)
+    private float DrawCoroutineSettings(CoroutineSettingsMethodAttribute coroutineSettings, Vector2 pos, float width)
     {
+        if (coroutineSettings == null)
+        {
+            throw new ArgumentNullException(nameof(coroutineSettings));
+        }
+
         var start = pos;
 
         if (coroutineSettings.HasOperationsPerTickSetting)
@@ -813,7 +914,7 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
-    public static void DrawSliderConfig(
+    private static void DrawSliderConfig(
         float value,
         Action<float> setValue,
         float maxValue,
@@ -851,6 +952,18 @@ public class Settings : ModSettings
         }
     }
 
+    /// <summary>
+    /// Draws an integer slider configuration UI element.
+    /// </summary>
+    /// <param name="value">The current value of the slider.</param>
+    /// <param name="setValue">The action to set the new value.</param>
+    /// <param name="maxValue">The maximum value of the slider.</param>
+    /// <param name="cur">The current position vector, passed by reference.</param>
+    /// <param name="width">The width of the slider.</param>
+    /// <param name="entryHeight">The height of the slider entry.</param>
+    /// <param name="label">The label for the slider.</param>
+    /// <param name="tooltip">The tooltip for the slider (optional).</param>
+    /// <param name="minValue">The minimum value of the slider (default is 0).</param>
     public static void DrawIntSliderConfig(
         int value,
         Action<int> setValue,
@@ -860,9 +973,7 @@ public class Settings : ModSettings
         float entryHeight,
         string label,
         string? tooltip = null,
-        int minValue = 0)
-    {
-        DrawSliderConfig(
+        int minValue = 0) => DrawSliderConfig(
             value,
             v => setValue((int)v),
             maxValue,
@@ -873,7 +984,6 @@ public class Settings : ModSettings
             tooltip,
             minValue,
             roundTo: 1f);
-    }
 
     private static UpdateInterval TicksToInterval(int ticks)
     {
@@ -888,6 +998,7 @@ public class Settings : ModSettings
         return UpdateInterval.Daily;
     }
 
+    /// <inheritdoc/>
     public override void ExposeData()
     {
         Scribe_Values.Look(ref _doVerboseLogging, "doVerboseLogging", false);
@@ -920,7 +1031,7 @@ public class Settings : ModSettings
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            _managerSettings ??= MakeManagerSettings().ToList();
+            _managerSettings ??= [.. MakeManagerSettings()];
             EnsureManagerSettingsAreCorrect();
 
             _disabledManagers ??= [];
@@ -938,9 +1049,9 @@ public class Settings : ModSettings
             .ToDictionary(j => j, _ => false);
 
         // remove settings that should no longer be here
-        for (int i = _managerSettings.Count - 1; i >= 0; i--)
+        for (var i = _managerSettings.Count - 1; i >= 0; i--)
         {
-            ManagerSettings item = _managerSettings[i];
+            var item = _managerSettings[i];
             if (item == null)
             {
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i} is null");
@@ -972,40 +1083,72 @@ public class Settings : ModSettings
         _managerSettings.SortBy(j => j.Def.order);
     }
 
-    public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings
-    {
-        return _managerSettings.Find(s => s.Def == def) as T;
-    }
+    /// <summary>
+    /// Gets the manager settings for a specific manager definition.
+    /// </summary>
+    /// <typeparam name="T">The type of manager settings.</typeparam>
+    /// <param name="def">The manager definition.</param>
+    /// <returns>The manager settings instance, or null if not found.</returns>
+    public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings => _managerSettings.Find(s => s.Def == def) as T;
 
-    internal void PreOpen()
-    {
-        _tabList = null;
-    }
+    /// <summary>
+    /// Resets the tab list before opening the settings window.
+    /// </summary>
+    internal void PreOpen() => _tabList = null;
 }
 
+/// <summary>
+/// Attribute to mark a type as containing coroutine settings.
+/// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
 public sealed class CoroutineSettingsTypeAttribute : Attribute
 {
     private static List<Type>? _allTypesWithAttribute;
+    /// <summary>
+    /// Gets all types with the <see cref="CoroutineSettingsTypeAttribute"/> applied.
+    /// </summary>
     public static List<Type> AllTypesWithAttribute
     {
         get
         {
-            _allTypesWithAttribute ??= GenTypes.AllTypesWithAttribute<CoroutineSettingsTypeAttribute>()
-                .ToList();
+            _allTypesWithAttribute ??= [.. GenTypes.AllTypesWithAttribute<CoroutineSettingsTypeAttribute>()];
             return _allTypesWithAttribute;
         }
     }
 }
 
+/// <summary>
+/// Attribute to mark a method as a coroutine settings method.
+/// </summary>
 [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = false)]
 public sealed class CoroutineSettingsMethodAttribute : Attribute
 {
-    public Type? Type { get; set; }
-    public MethodInfo? Method { get; set; }
+    /// <summary>
+    /// Gets or sets the type that declares the coroutine method.
+    /// </summary>
+    public Type? Type
+    {
+        get; set;
+    }
+    /// <summary>
+    /// Gets or sets the coroutine method info.
+    /// </summary>
+    public MethodInfo? Method
+    {
+        get; set;
+    }
 
+    /// <summary>
+    /// Gets the full name of the coroutine method.
+    /// </summary>
     public string FullName => $"{Type?.FullName}.{Method?.Name}";
 
+    /// <summary>
+    /// Gets or sets whether this coroutine method has an operations-per-tick setting.
+    /// </summary>
     public bool HasOperationsPerTickSetting { get; set; } = true;
+    /// <summary>
+    /// Gets or sets whether this coroutine method has a ticks-between-operations setting.
+    /// </summary>
     public bool HasTicksBetweenOperationsSetting { get; set; } = true;
 }

@@ -19,7 +19,7 @@ internal sealed class ManagerSettings_Foraging : ManagerSettings
             rect.width,
             rect.height - Margin);
 
-        Widgets_Section.BeginSectionColumn(panelRect, "Foraging.Settings", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(panelRect, "Foraging.Settings", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
         Widgets_Section.Section(ref position, width, DrawForceFullyMature);
         Widgets_Section.EndSectionColumn("Foraging.Settings", position);

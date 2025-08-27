@@ -7,13 +7,4 @@ namespace ColonyManagerRedux;
 [HarmonyPatch([typeof(Mod)])]
 internal static class RimWorld_Dialog_ModSettings_Ctor
 {
-    [HarmonyPatch(MethodType.Constructor)]
-    private static void Postfix(Mod mod)
-    {
-        if (mod != ColonyManagerReduxMod.Instance)
-        {
-            return;
-        }
-        ColonyManagerReduxMod.Settings.PreOpen();
-    }
 }

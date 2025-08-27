@@ -4,6 +4,9 @@
 
         <RootNamespace>ColonyManagerRedux</RootNamespace>
         <AssemblyName>ColonyManagerRedux</AssemblyName>
+
+        <!-- TODO: Remove and fix -->
+        <NoWarn>CA1502;CA1506</NoWarn>
     </PropertyGroup>
     <ItemGroup>
         <Publicize Include="Assembly-CSharp:Verse.ThingFilterUI.viewHeight" />

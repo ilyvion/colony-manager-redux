@@ -2,6 +2,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 using static ColonyManagerRedux.Managers.ManagerTab_Livestock;
@@ -16,9 +17,7 @@ internal sealed class PawnKindSettings : IExposable
     private PawnKindDef? _def;
     internal ManagerSettings_Livestock settings;
 
-    public int[] DefaultCountTargets = Utilities_Livestock.AgeSexArray
-        .Select(_ => 5)
-        .ToArray();
+    public int[] DefaultCountTargets = [.. Utilities_Livestock.AgeSexArray.Select(_ => 5)];
 
     public bool DefaultTryTameMore;
     public bool DefaultTamePastTargets;
@@ -43,10 +42,12 @@ internal sealed class PawnKindSettings : IExposable
     public HashSet<TrainableDef> EnabledTrainingTargets = [];
 
     private string[] _newCounts =
-        Utilities_Livestock.AgeSexArray.Select(_ => "5").ToArray();
+        [.. Utilities_Livestock.AgeSexArray.Select(_ => "5")];
 
 #pragma warning disable CS8618 // Set by ManagerSettings_Livestock/scribe
-    public PawnKindSettings() { }
+    public PawnKindSettings()
+    {
+    }
 #pragma warning restore CS8618
 
     public PawnKindSettings(PawnKindDef pawnKindDef, PawnKindSettings copyFrom) : this()
@@ -69,12 +70,12 @@ internal sealed class PawnKindSettings : IExposable
         DefaultFollowTraining = copyFrom.DefaultFollowTraining;
         DefaultTrainerMode = copyFrom.DefaultTrainerMode;
 
-        EnabledTrainingTargets = new(copyFrom.EnabledTrainingTargets);
+        EnabledTrainingTargets = [.. copyFrom.EnabledTrainingTargets];
     }
 
     public void DoSettingPanelContents(Rect panelRect)
     {
-        Widgets_Section.BeginSectionColumn(panelRect, "Livestock.Settings", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(panelRect, "Livestock.Settings", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawTargetCounts, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawTamingSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader".Translate());
         Widgets_Section.Section(ref position, width, DrawCullingSection, "ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader".Translate());
@@ -152,7 +153,7 @@ internal sealed class PawnKindSettings : IExposable
 
     private void DoCountField(Rect rect, AgeAndSex ageSex)
     {
-        int ageSexIndex = (int)ageSex;
+        var ageSexIndex = (int)ageSex;
 
         if (int.TryParse(_newCounts[ageSexIndex], out var value))
         {
@@ -214,7 +215,7 @@ internal sealed class PawnKindSettings : IExposable
         }
         pos.y += ListEntryHeight;
 
-        cellWidth = (width - Margin * 2) / 3f;
+        cellWidth = (width - (Margin * 2)) / 3f;
         var cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
         Utilities.DrawToggle(cullingOptionRect,
@@ -242,9 +243,9 @@ internal sealed class PawnKindSettings : IExposable
     private float DrawTrainingSection(Vector2 pos, float width)
     {
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
-        int rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / TrainingJobsPerRow);
+        var rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / TrainingJobsPerRow);
         var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * rowCount);
-        int visibleJobsRowCount = (int)Math.Ceiling((double)DrawTrainingSelector(trainingRect, rowCount) / TrainingJobsPerRow);
+        var visibleJobsRowCount = (int)Math.Ceiling((double)DrawTrainingSelector(trainingRect, rowCount) / TrainingJobsPerRow);
         var height = ListEntryHeight * visibleJobsRowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
@@ -269,14 +270,14 @@ internal sealed class PawnKindSettings : IExposable
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
 
         var cellCount = Math.Min(TrainingJobsPerRow, allTrainingTargets.Count);
-        var cellWidth = (rect.width - Margin * (cellCount - 1)) / cellCount;
+        var cellWidth = (rect.width - (Margin * (cellCount - 1))) / cellCount;
 
         GUI.BeginGroup(rect);
-        int shownJobs = 0;
+        var shownJobs = 0;
         for (var i = 0; i < allTrainingTargets.Count; i++)
         {
             var cell = new Rect(shownJobs % cellCount * (cellWidth + Margin), shownJobs / cellCount * ListEntryHeight, cellWidth, rect.height / rowCount);
-            bool visible = true;
+            var visible = true;
             var report = _def != null
                 ? CanBeTrained(_def, allTrainingTargets[i], out visible)
                 : AcceptanceReport.WasAccepted;
@@ -322,7 +323,7 @@ internal sealed class PawnKindSettings : IExposable
 
         // master selection
         var report = _def != null
-            ? CanBeTrained(_def, TrainableDefOf.Obedience, out bool _)
+            ? CanBeTrained(_def, TrainableDefOf.Obedience, out var _)
             : AcceptanceReport.WasAccepted;
 
         if (report.Accepted)
@@ -342,7 +343,7 @@ internal sealed class PawnKindSettings : IExposable
                 TextAnchor.MiddleLeft, leftMargin: Margin, color: Color.gray);
         }
 
-        TaggedString label = report.Accepted
+        var label = report.Accepted
             ? $"ColonyManagerRedux.Livestock.MasterMode.{DefaultMasterMode}".Translate()
             : "ColonyManagerRedux.Livestock.MasterUnavailable".Translate();
         if (IlyvionWidgets.DisableableButtonText(
@@ -511,7 +512,7 @@ internal sealed class PawnKindSettings : IExposable
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            _newCounts = DefaultCountTargets.Select(v => v.ToString()).ToArray();
+            _newCounts = [.. DefaultCountTargets.Select(v => v.ToString(CultureInfo.InvariantCulture))];
 
             EnabledTrainingTargets ??= [];
         }
@@ -529,10 +530,9 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
     {
         get
         {
-            pawnKindDefs ??= DefDatabase<PawnKindDef>.AllDefs
+            pawnKindDefs ??= [.. DefDatabase<PawnKindDef>.AllDefs
                 .Where(p => p.RaceProps.Animal)
-                .OrderBy(p => p.GetLabelPlural())
-                .ToList();
+                .OrderBy(p => p.GetLabelPlural())];
             return pawnKindDefs;
         }
     }
@@ -540,6 +540,7 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
     private int _currentLivestockSettingsTab = -1;
     private PawnKindSettings? currentOverrideTab;
     private readonly List<TabRecord> _tmpTabRecords = [];
+    private bool _hasLoggedInvalidValue;
     public override void DoTabContents(Rect rect)
     {
         _tmpTabRecords.Add(
@@ -579,13 +580,13 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
 
                 Find.WindowStack.Add(new FloatMenu(options));
             }, false));
-        using var _ = new DoOnDispose(_tmpTabRecords.Clear);
+        using var _clear = new DoOnDispose(_tmpTabRecords.Clear);
 
-        int rowCount = (int)Math.Ceiling((double)_tmpTabRecords.Count / 5);
-        rect.yMin += rowCount * SectionHeaderHeight + rowCount * Margin;
+        var rowCount = (int)Math.Ceiling((double)_tmpTabRecords.Count / 5);
+        rect.yMin += (rowCount * SectionHeaderHeight) + (rowCount * Margin);
         rect = rect.ContractedBy(Margin);
         Widgets.DrawMenuSection(rect);
-        TabDrawer.DrawTabs(rect, _tmpTabRecords, rowCount, null);
+        _ = TabDrawer.DrawTabs(rect, _tmpTabRecords, rowCount, null);
 
         var panelRect = new Rect(
             rect.xMin,
@@ -604,7 +605,8 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
                 break;
 
             default:
-                throw new Exception("Invalid _currentLivestockSettingsTab");
+                ColonyManagerReduxMod.Instance.LogErrorOnce($"Invalid livestock settings tab value encountered: {_currentLivestockSettingsTab}", ref _hasLoggedInvalidValue);
+                break;
         }
     }
     public override void ExposeData()
@@ -624,19 +626,12 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
         }
     }
 
-    public PawnKindSettings GetSettingsFor(PawnKindDef pawnKind)
-    {
-        if (overrides.TryGetValue(pawnKind, out var settings))
-        {
-            return settings;
-        }
-        return defaults;
-    }
+    public PawnKindSettings GetSettingsFor(PawnKindDef pawnKind) => overrides.TryGetValue(pawnKind, out var settings) ? settings : defaults;
 
     internal void RemoveOverride(PawnKindDef pawnKind)
     {
         _currentLivestockSettingsTab = -1;
         currentOverrideTab = null;
-        overrides.Remove(pawnKind);
+        _ = overrides.Remove(pawnKind);
     }
 }

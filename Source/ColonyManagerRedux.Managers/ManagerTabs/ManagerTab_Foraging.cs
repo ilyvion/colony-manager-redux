@@ -35,7 +35,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
             ButtonSize.x - Margin,
             ButtonSize.y - Margin);
 
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Foraging.Options", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Foraging.Options", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawThreshold, "ColonyManagerRedux.Threshold".Translate());
         Widgets_Section.Section(ref position, width, DrawAreaRestriction, "ColonyManagerRedux.Foraging.ForagingArea".Translate());
         Widgets_Section.Section(ref position, width, DrawMaturePlants);
@@ -43,7 +43,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
 
         Widgets_Section.BeginSectionColumn(plantsColumnRect, "Foraging.Plants", out position, out width);
         var refreshRect = new Rect(
-            position.x + width - SmallIconSize - 2 * Margin,
+            position.x + width - SmallIconSize - (2 * Margin),
             position.y + Margin,
             SmallIconSize,
             SmallIconSize);
@@ -53,7 +53,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
         }
 
         var padlockRect = new Rect(
-            refreshRect.x - (SmallIconSize + 1) - 2 * Margin,
+            refreshRect.x - (SmallIconSize + 1) - (2 * Margin),
             position.y + Margin,
             SmallIconSize + 1,
             SmallIconSize);
@@ -147,18 +147,13 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
     public static string GetPlantTooltip(ThingDef plant)
     {
         var sb = new StringBuilder();
-        sb.Append(plant.description);
+        _ = sb.Append(plant.description);
         if (plant.plant != null && plant.plant.harvestYield >= 1f && plant.plant.harvestedThingDef != null)
         {
-            sb.Append("\n\n");
-            if (plant.TrySpecialYieldTooltip(out var tooltip))
-            {
-                sb.Append(tooltip);
-            }
-            else
-            {
-                sb.Append(I18n.YieldOne(plant.plant.harvestYield, plant.plant.harvestedThingDef));
-            }
+            _ = sb.Append("\n\n");
+            _ = plant.TrySpecialYieldTooltip(out var tooltip)
+                ? sb.Append(tooltip)
+                : sb.Append(I18n.YieldOne(plant.plant.harvestYield, plant.plant.harvestedThingDef));
         }
         return sb.ToString();
     }
@@ -203,7 +198,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
     public float DrawThreshold(Vector2 pos, float width)
     {
         var currentCount = SelectedForagingJob.TriggerThreshold.GetCurrentCount();
-        SelectedForagingJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+        _ = SelectedForagingJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
         var designatedCount = SelectedForagingJob.CachedCurrentDesignatedCount.Value;
         var targetLabel = SelectedForagingJob.TriggerThreshold.TargetLabel;
         var start = pos;
@@ -229,10 +224,7 @@ internal sealed class ManagerTab_Foraging(Manager manager) : ManagerTab<ManagerJ
         return pos.y - start.y;
     }
 
-    public override void PreOpen()
-    {
-        Refresh();
-    }
+    public override void PreOpen() => Refresh();
 
     protected override void Refresh()
     {

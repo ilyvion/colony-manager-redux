@@ -2,8 +2,6 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
@@ -15,45 +13,38 @@ internal sealed class Trigger_PawnKind : Trigger
     public int[] CountTargets;
     public PawnKindDef? pawnKind;
 
-    private string? expectedPawnKindName;
-
-    public string ExpectedPawnKindName { get => $"[PawnKindDef was saved as '{expectedPawnKindName ?? "?"}']"; private set => expectedPawnKindName = value; }
-    public string? ExpectedPawnKindNameRaw => expectedPawnKindName;
+    public string ExpectedPawnKindName
+    {
+        get => $"[PawnKindDef was saved as '{ExpectedPawnKindNameRaw ?? "?"}']"; private set => ExpectedPawnKindNameRaw = value;
+    }
+    public string? ExpectedPawnKindNameRaw
+    {
+        get; private set;
+    }
 
 #pragma warning disable CS8618 // Set by using class
     public Trigger_PawnKind(ManagerJob job) : base(job)
 #pragma warning restore CS8618
     {
-        CountTargets = Utilities_Livestock.AgeSexArray.Select(_ => 5).ToArray();
+        CountTargets = [.. Utilities_Livestock.AgeSexArray.Select(_ => 5)];
 
         _cachedTooltip = new CachedValue<string>(GetTooltip);
     }
 
-    public int[] Counts => Utilities_Livestock.AgeSexArray
-        .Select(ageSex => pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0)
-        .ToArray();
+    public int[] Counts => [.. Utilities_Livestock.AgeSexArray.Select(ageSex => pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0)];
 
-    public int GetCountFor(AgeAndSex ageAndSex, bool cached = true)
-    {
-        return pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0;
-    }
+    public int GetCountFor(AgeAndSex ageAndSex, bool cached = true) => pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0;
 
-    public int GetTargetFor(AgeAndSex ageAndSex)
-    {
-        return CountTargets[(int)ageAndSex];
-    }
+    public int GetTargetFor(AgeAndSex ageAndSex) => CountTargets[(int)ageAndSex];
 
-    private static Texture2D GetProgressBarTextureFor(AgeAndSex ageAndSex)
+    private static Texture2D GetProgressBarTextureFor(AgeAndSex ageAndSex) => ageAndSex switch
     {
-        return ageAndSex switch
-        {
-            AgeAndSex.AdultFemale => Resources.AdultFemaleTexture,
-            AgeAndSex.AdultMale => Resources.AdultMaleTexture,
-            AgeAndSex.JuvenileFemale => Resources.JuvenileFemaleTexture,
-            AgeAndSex.JuvenileMale => Resources.JuvenileMaleTexture,
-            _ => throw new Exception($"Unknown AgeAndSex value '{ageAndSex}'"),
-        };
-    }
+        AgeAndSex.AdultFemale => Resources.AdultFemaleTexture,
+        AgeAndSex.AdultMale => Resources.AdultMaleTexture,
+        AgeAndSex.JuvenileFemale => Resources.JuvenileFemaleTexture,
+        AgeAndSex.JuvenileMale => Resources.JuvenileMaleTexture,
+        _ => throw new ArgumentOutOfRangeException(nameof(ageAndSex), ageAndSex, $"Unknown AgeAndSex value '{ageAndSex}'"),
+    };
 
     public new ManagerJob_Livestock Job
     {
@@ -65,7 +56,7 @@ internal sealed class Trigger_PawnKind : Trigger
     {
         get
         {
-            if (pawnKind != null && !_cachedState.TryGetValue(out bool state))
+            if (pawnKind != null && !_cachedState.TryGetValue(out var state))
             {
                 state = Utilities_Livestock.AgeSexArray.All(
                     ageSex => CountTargets[(int)ageSex] ==
@@ -89,8 +80,8 @@ internal sealed class Trigger_PawnKind : Trigger
         progressRect.xMin += progressRect.width - 10;
         foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
         {
-            int c = GetCountFor(ageAndSex);
-            int t = GetTargetFor(ageAndSex);
+            var c = GetCountFor(ageAndSex);
+            var t = GetTargetFor(ageAndSex);
             DrawVerticalProgressBar(
                 progressRect,
                 c,
@@ -111,8 +102,8 @@ internal sealed class Trigger_PawnKind : Trigger
         var eachRect = new Rect(progressRect) { height = PawnKindProgressBarHeight };
         foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
         {
-            int c = GetCountFor(ageAndSex);
-            int t = GetTargetFor(ageAndSex);
+            var c = GetCountFor(ageAndSex);
+            var t = GetTargetFor(ageAndSex);
             DrawHorizontalProgressBar(
                 eachRect,
                 c,

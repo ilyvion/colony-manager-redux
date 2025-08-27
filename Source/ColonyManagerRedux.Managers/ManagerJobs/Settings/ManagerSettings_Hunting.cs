@@ -26,7 +26,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
             rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(
-            panelRect, "Hunting.Settings", out Vector2 position, out float width);
+            panelRect, "Hunting.Settings", out var position, out var width);
         Widgets_Section.Section(
             ref position,
             width,

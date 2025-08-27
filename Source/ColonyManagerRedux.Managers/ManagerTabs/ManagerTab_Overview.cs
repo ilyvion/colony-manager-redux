@@ -35,15 +35,9 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         }
     }
 
-    public override void PreOpen()
-    {
-        RefreshWorkers();
-    }
+    public override void PreOpen() => RefreshWorkers();
 
-    public override void PostOpen()
-    {
-        pawnOverviewTable?.SetDirty();
-    }
+    public override void PostOpen() => pawnOverviewTable?.SetDirty();
 
     protected override void PostSelect()
     {
@@ -61,7 +55,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
     {
         var overviewRect = new Rect(0f, 0f, OverviewWidthRatio * canvas.width, canvas.height).RoundToInt();
         var sideRectUpper = new Rect(overviewRect.xMax + Margin, 0f,
-            (1 - OverviewWidthRatio) * canvas.width - Margin,
+            ((1 - OverviewWidthRatio) * canvas.width) - Margin,
             (canvas.height - Margin) / 2).RoundToInt();
         var sideRectLower = new Rect(overviewRect.xMax + Margin, sideRectUpper.yMax + Margin,
             sideRectUpper.width,
@@ -126,7 +120,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             var cur = Vector2.zero;
 
             var alternate = false;
-            foreach (ManagerJob job in Manager.JobTracker.JobsOfType<ManagerJob>())
+            foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob>())
             {
                 var row = new Rect(cur.x, cur.y, contentRect.width, 0f);
                 DrawOverviewListEntry(job, ref cur, contentRect.width);
@@ -156,14 +150,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
                 if (Widgets.ButtonInvisible(row))
                 {
-                    if (Selected != job)
-                    {
-                        Selected = job;
-                    }
-                    else
-                    {
-                        Selected = null;
-                    }
+                    Selected = Selected != job ? job : null;
                 }
             }
 
@@ -200,9 +187,9 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         var tab = job.Tab;
 
-        float labelWidth = width
-            - (StatusRectWidth + 4 * Margin)
-            - 2 * Margin - LargeIconSize - LargeListEntryHeight;
+        var labelWidth = width
+            - (StatusRectWidth + (4 * Margin))
+            - (2 * Margin) - LargeIconSize - LargeListEntryHeight;
 
         // create label string
         var subLabel = tab.GetSubLabel(job);
@@ -248,7 +235,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             LargeListEntryHeight);
 
         // do the drawing
-        float rowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
+        var rowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
         Rect rowRect = new(
             position.x,
             position.y,

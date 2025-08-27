@@ -4,17 +4,30 @@
 
 using ilyvion.Laboratory.Collections;
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Provides utility methods for the Colony Manager Redux mod.
+/// </summary>
 [HotSwappable]
 [CoroutineSettingsType]
 public static class Utilities
 {
+    /// <summary>
+    /// Specifies the direction for synchronizing filters and allowed lists.
+    /// </summary>
     public enum SyncDirection
     {
+        /// <summary>
+        /// Synchronize from the filter to the allowed list.
+        /// </summary>
         FilterToAllowed,
+        /// <summary>
+        /// Synchronize from the allowed list to the filter.
+        /// </summary>
         AllowedToFilter
     }
 
@@ -28,14 +41,17 @@ public static class Utilities
         new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.UpdateInterval.Yearly".Translate()),
     ];
 
-    public static List<UpdateInterval> UpdateIntervalOptions
+    /// <summary>
+    /// Gets a list of available update interval options, including custom intervals if defined in the settings.
+    /// </summary>
+    public static IEnumerable<UpdateInterval> UpdateIntervalOptions
     {
         get
         {
             if (ColonyManagerReduxMod.Settings.CustomUpdateIntervalTickList.Empty())
             {
                 // if there are no custom update intervals, return the default ones.
-                return _defaultUpdateIntervalOptions;
+                return _defaultUpdateIntervalOptions.AsReadOnly();
             }
             else
             {
@@ -51,6 +67,14 @@ public static class Utilities
     }
 
 
+    /// <summary>
+    /// Counts the number of products on the map that match the specified filter, optionally within a specific stockpile or across the entire map.
+    /// </summary>
+    /// <param name="map">The map to search for products.</param>
+    /// <param name="filter">The filter to apply to products.</param>
+    /// <param name="stockpile">Optional stockpile to restrict the search to.</param>
+    /// <param name="countAllOnMap">If true, counts all matching products on the map; otherwise, only those in storage.</param>
+    /// <returns>The total count of products matching the filter.</returns>
     public static int CountProducts(
         this Map map,
         ThingFilter filter,
@@ -63,6 +87,15 @@ public static class Utilities
         return count.Value;
     }
 
+    /// <summary>
+    /// Coroutine that counts the number of products on the map that match the specified filter, optionally within a specific stockpile or across the entire map.
+    /// </summary>
+    /// <param name="map">The map to search for products.</param>
+    /// <param name="filter">The filter to apply to products.</param>
+    /// <param name="count">A boxed integer to store the total count of products matching the filter.</param>
+    /// <param name="stockpile">Optional stockpile to restrict the search to.</param>
+    /// <param name="countAllOnMap">If true, counts all matching products on the map; otherwise, only those in storage.</param>
+    /// <returns>A coroutine that performs the counting operation.</returns>
     [CoroutineSettingsMethod]
     public static Coroutine CountProductsCoroutine(
         this Map map,
@@ -136,7 +169,7 @@ public static class Utilities
                         continue;
                     }
 
-                    if (t.TryGetQuality(out QualityCategory quality))
+                    if (t.TryGetQuality(out var quality))
                     {
                         if (!filter.AllowedQualityLevels.Includes(quality))
                         {
@@ -160,25 +193,30 @@ public static class Utilities
         }
     }
 
-    public static void DrawReachabilityToggle(ref Vector2 pos, float width, ref bool reachability)
-    {
-        DrawToggle(
+    /// <summary>
+    /// Draws a toggle UI element for reachability, allowing the user to enable or disable reachability checks.
+    /// </summary>
+    /// <param name="pos">The position vector for the toggle UI element (will be updated).</param>
+    /// <param name="width">The width of the toggle UI element.</param>
+    /// <param name="reachability">A reference to the boolean value indicating whether reachability is enabled.</param>
+    public static void DrawReachabilityToggle(ref Vector2 pos, float width, ref bool reachability) => DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.Threshold.CheckReachability".Translate(),
             "ColonyManagerRedux.Threshold.CheckReachability.Tip".Translate(),
             ref reachability,
             expensive: true);
-    }
 
-    public static bool DrawStampButton(Rect stampRect, ManagerJob job)
-    {
-        if (job == null)
-        {
-            throw new ArgumentNullException(nameof(job));
-        }
-
-        return Widgets.ButtonImage(
+    /// <summary>
+    /// Draws a stamp button for the specified ManagerJob, displaying an appropriate icon based on the job's state.
+    /// </summary>
+    /// <param name="stampRect">The rectangle in which to draw the button.</param>
+    /// <param name="job">The ManagerJob for which to draw the stamp button.</param>
+    /// <returns>True if the button was clicked; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="job"/> is null.</exception>
+    public static bool DrawStampButton(Rect stampRect, ManagerJob job) => job == null
+            ? throw new ArgumentNullException(nameof(job))
+            : Widgets.ButtonImage(
             stampRect,
             job.CausedException != null
                 ? Resources.StampException
@@ -187,8 +225,20 @@ public static class Utilities
                     : job.IsCompleted
                         ? Resources.StampCompleted
                         : Resources.StampSuspended);
-    }
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified position, allowing the user to enable or disable a boolean value.
+    /// </summary>
+    /// <param name="pos">The position vector for the toggle UI element (will be updated).</param>
+    /// <param name="width">The width of the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle.</param>
+    /// <param name="checkOn">A reference to the boolean value indicating whether the toggle is enabled.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
+    /// <param name="font">The font to use for the label.</param>
+    /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, ref bool checkOn,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
                                    GameFont font = GameFont.Small,
@@ -203,13 +253,26 @@ public static class Utilities
         DrawToggle(toggleRect, label, tooltip, ref checkOn, expensive, size, margin, font, wrap);
     }
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified rectangle, allowing the user to enable or disable a boolean value.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle.</param>
+    /// <param name="checkOn">A reference to the boolean value indicating whether the toggle is enabled.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
+    /// <param name="font">The font to use for the label.</param>
+    /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
+    /// <param name="leaveRoomForAdditionalIcon">Whether to leave room for an additional icon.</param>
     public static void DrawToggle(Rect rect, string label, TipSignal tooltip, ref bool checkOn,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
                                    GameFont font = GameFont.Small, bool wrap = true, bool leaveRoomForAdditionalIcon = false)
     {
         // set up rects
         var labelRect = rect;
-        labelRect.xMax -= size + margin * 2 + ((expensive || leaveRoomForAdditionalIcon) ? size + margin : 0f);
+        labelRect.xMax -= size + (margin * 2) + ((expensive || leaveRoomForAdditionalIcon) ? size + margin : 0f);
         var iconRect = new Rect(rect.xMax - size - margin, 0f, size, size).CenteredOnYIn(labelRect);
 
         // draw label
@@ -252,10 +315,24 @@ public static class Utilities
         }
     }
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified position, allowing the user to enable or disable a boolean value,
+    /// and invokes the specified actions when toggled on or off.
+    /// </summary>
+    /// <param name="pos">The position vector for the toggle UI element (will be updated).</param>
+    /// <param name="width">The width of the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle.</param>
+    /// <param name="checkOn">Indicates whether the toggle is enabled.</param>
+    /// <param name="on">Action to invoke when toggled on.</param>
+    /// <param name="off">Action to invoke when toggled off.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
+    /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
                                    Action on, Action off,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   //GameFont font = GameFont.Small,
                                    bool wrap = true)
     {
         var toggleRect = new Rect(
@@ -267,10 +344,25 @@ public static class Utilities
         DrawToggle(toggleRect, label, tooltip, checkOn, on, off, expensive, size, margin, wrap);
     }
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified position, allowing the user to enable or disable a boolean value,
+    /// and invokes the specified actions when toggled on or off, with explicit on/off states.
+    /// </summary>
+    /// <param name="pos">The position vector for the toggle UI element (will be updated).</param>
+    /// <param name="width">The width of the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle.</param>
+    /// <param name="checkOn">Indicates whether the toggle is enabled.</param>
+    /// <param name="checkOff">Indicates whether the toggle is disabled.</param>
+    /// <param name="on">Action to invoke when toggled on.</param>
+    /// <param name="off">Action to invoke when toggled off.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
+    /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
     public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
                                    bool checkOff, Action on, Action off,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   //GameFont font = GameFont.Small,
                                    bool wrap = true)
     {
         var toggleRect = new Rect(
@@ -282,14 +374,40 @@ public static class Utilities
         DrawToggle(toggleRect, label, tooltip, checkOn, checkOff, on, off, expensive, size, margin, wrap);
     }
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified rectangle, allowing the user to enable or disable a boolean value,
+    /// and invokes the specified actions when toggled on or off.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle.</param>
+    /// <param name="checkOn">Indicates whether the toggle is enabled.</param>
+    /// <param name="on">Action to invoke when toggled on.</param>
+    /// <param name="off">Action to invoke when toggled off.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
+    /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
     public static void DrawToggle(Rect rect, string label, TipSignal tooltip, bool checkOn, Action on, Action off,
                                    bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   bool wrap = true)
-    {
-        DrawToggle(rect, label, tooltip, checkOn, !checkOn, on, off, expensive, size, margin, wrap);
-    }
+                                   bool wrap = true) => DrawToggle(rect, label, tooltip, checkOn, !checkOn, on, off, expensive, size, margin, wrap);
 
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified rectangle, allowing the user to enable or disable a boolean value,
+    /// and invokes the specified actions when toggled on or off, supporting partial selection state.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle (nullable).</param>
+    /// <param name="allOn">Indicates whether all items are enabled (checked state).</param>
+    /// <param name="allOff">Indicates whether all items are disabled (unchecked state).</param>
+    /// <param name="on">Action to invoke when toggled on.</param>
+    /// <param name="off">Action to invoke when toggled off.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
+    /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
     public static void DrawToggle(Rect rect, string label, TipSignal? tooltip, bool allOn, bool allOff, Action on,
                                    Action off, bool expensive = false, float size = SmallIconSize,
                                    float margin = Margin, bool wrap = true)
@@ -306,7 +424,7 @@ public static class Utilities
         // set up rects
         var labelRect = rect;
         var iconRect = new Rect(rect.xMax - size - margin, 0f, size, size);
-        labelRect.xMax = iconRect.xMin - Margin / 2f;
+        labelRect.xMax = iconRect.xMin - (Margin / 2f);
 
         // finetune rects
         iconRect = iconRect.CenteredOnYIn(labelRect);
@@ -371,14 +489,29 @@ public static class Utilities
         }
     }
 
+    /// <summary>
+    /// Draws a toggle UI element at the specified rectangle, allowing the user to enable or disable a boolean value,
+    /// and invokes the specified action when toggled.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw the toggle UI element.</param>
+    /// <param name="label">The label to display next to the toggle.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the toggle.</param>
+    /// <param name="checkOn">Indicates whether the toggle is enabled.</param>
+    /// <param name="toggle">Action to invoke when toggled.</param>
+    /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
+    /// <param name="size">The size of the toggle icon.</param>
+    /// <param name="margin">The margin around the toggle.</param>
     public static void DrawToggle(Rect rect, string label, TipSignal tooltip, bool checkOn, Action toggle,
                                    bool expensive = false,
-                                   float size = SmallIconSize, float margin = Margin)
-    {
-        DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size);
-    }
+                                   float size = SmallIconSize, float margin = Margin) => DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size, margin);
 
     private static readonly List<IntVec3> _tmpHomeCells = [];
+    /// <summary>
+    /// Gets the base center position for the specified map, using the manager station if available, 
+    /// otherwise the average of the home area or a sensible fallback position.
+    /// </summary>
+    /// <param name="map">The map to determine the base center for.</param>
+    /// <returns>The calculated base center position as an IntVec3.</returns>
     public static IntVec3 GetBaseCenter(this Map map)
     {
         if (map == null)
@@ -429,6 +562,17 @@ public static class Utilities
         }
     }
 
+    /// <summary>
+    /// Draws a label with an outline by rendering the label multiple times with an offset and outline color, then draws the main label on top.
+    /// </summary>
+    /// <param name="icon">The rectangle in which to draw the label.</param>
+    /// <param name="label">The text to display.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the label (nullable).</param>
+    /// <param name="anchor">The text anchor for alignment.</param>
+    /// <param name="margin">The margin around the label.</param>
+    /// <param name="font">The font to use for the label.</param>
+    /// <param name="textColour">The color of the label text.</param>
+    /// <param name="outlineColour">The color of the label outline.</param>
     public static void LabelOutline(Rect icon, string label, string? tooltip, TextAnchor anchor, float margin,
                                      GameFont font, Color textColour, Color outlineColour)
     {
@@ -449,29 +593,21 @@ public static class Utilities
         IlyvionWidgets.Label(icon, label, tooltip, anchor, font, textColour, margin);
     }
 
-    public static int SafeAbs(int value)
-    {
-        if (value >= 0)
-        {
-            return value;
-        }
-
-        if (value == int.MinValue)
-        {
-            return int.MaxValue;
-        }
-
-        return -value;
-    }
+    /// <summary>
+    /// Returns the absolute value of the specified integer, safely handling <see cref="int.MinValue"/>.
+    /// </summary>
+    /// <param name="value">The integer value.</param>
+    /// <returns>The absolute value of <paramref name="value"/>, or <see cref="int.MaxValue"/> if <paramref name="value"/> is <see cref="int.MinValue"/>.</returns>
+    public static int SafeAbs(int value) => value >= 0 ? value : value == int.MinValue ? int.MaxValue : -value;
 
     internal static void Scribe_IntArray(ref CircularBuffer<int> values, string label)
     {
-        int capacity = 0;
+        var capacity = 0;
         string? text = null;
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             capacity = values.Capacity;
-            text = values.Join(i => i.ToString(), ":");
+            text = values.Join(i => i.ToString(CultureInfo.InvariantCulture), ":");
         }
 
         Scribe_Values.Look(ref capacity, $"{label}Capacity", History.EntriesPerInterval);
@@ -488,7 +624,7 @@ public static class Utilities
 
     internal static void Scribe_IntTupleArray(ref CircularBuffer<(int, int)> values, string label)
     {
-        int capacity = 0;
+        var capacity = 0;
         string? text = null;
         if (Scribe.mode == LoadSaveMode.Saving)
         {
@@ -506,14 +642,20 @@ public static class Utilities
                     .Select(v =>
                     {
                         var values = v.Split(',');
-                        var count = int.Parse(values[0]);
-                        var target = int.Parse(values[1]);
+                        var count = int.Parse(values[0], CultureInfo.InvariantCulture);
+                        var target = int.Parse(values[1], CultureInfo.InvariantCulture);
                         return (count, target);
                     })
                     .ToArray() ?? []);
         }
     }
 
+    /// <summary>
+    /// Serializes and deserializes a list of <see cref="Designation"/> objects for the specified map,
+    /// ensuring only valid designations are kept and updating references after loading.
+    /// </summary>
+    /// <param name="designations">The list of designations to be scribed.</param>
+    /// <param name="map">The map associated with the designations.</param>
     public static void Scribe_Designations(ref List<Designation> designations, Map map)
     {
         if (designations == null)
@@ -527,9 +669,9 @@ public static class Utilities
 
         if (Scribe.mode == LoadSaveMode.Saving)
         {
-            for (int i = designations.Count - 1; i >= 0; i--)
+            for (var i = designations.Count - 1; i >= 0; i--)
             {
-                Designation item = designations[i];
+                var item = designations[i];
                 if (!map.designationManager.AllDesignations.Contains(item))
                 {
                     designations.RemoveAt(i);
@@ -538,10 +680,11 @@ public static class Utilities
         }
 
         Scribe_Collections.Look(ref designations, "designations", LookMode.Deep);
+
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            DesignationManager designationManager = map.designationManager;
-            for (int i = 0; i < designations.Count; i++)
+            var designationManager = map.designationManager;
+            for (var i = 0; i < designations.Count; i++)
             {
                 var thing = designations[i].target.Thing;
                 if (thing == null)
@@ -554,12 +697,25 @@ public static class Utilities
     }
 
 
+    /// <summary>
+    /// Serializes and deserializes an <see cref="Area"/> reference by its label using the provided <see cref="AreaManager"/>.
+    /// </summary>
+    /// <param name="area">The area reference to be scribed.</param>
+    /// <param name="tmpAreaLabel">A temporary string to hold the area's label during serialization.</param>
+    /// <param name="label">The label used for scribing.</param>
+    /// <param name="areaManager">The <see cref="AreaManager"/> used to resolve the area by label during deserialization.</param>
     public static void Scribe_AreaByLabel(ref Area? area, ref string? tmpAreaLabel, string label, AreaManager areaManager)
     {
+        if (areaManager == null)
+        {
+            throw new ArgumentNullException(nameof(areaManager));
+        }
+
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             tmpAreaLabel = area?.Label;
         }
+
         ColonyManagerReduxMod.Instance.LogDebug(
             $"Scribed '{label}' with area label: '{tmpAreaLabel}' before with {Scribe.mode}");
         Scribe_Values.Look(ref tmpAreaLabel, label);
@@ -575,8 +731,20 @@ public static class Utilities
         }
     }
 
+    /// <summary>
+    /// Serializes and deserializes a set of <see cref="Area"/> references by their labels using the provided <see cref="AreaManager"/>.
+    /// </summary>
+    /// <param name="areas">The set of areas to be scribed.</param>
+    /// <param name="tmpAreaLabels">A temporary list to hold the area labels during serialization.</param>
+    /// <param name="label">The label used for scribing.</param>
+    /// <param name="areaManager">The <see cref="AreaManager"/> used to resolve areas by label during deserialization.</param>
     public static void Scribe_AreasByLabel(ref HashSet<Area> areas, ref List<string>? tmpAreaLabels, string label, AreaManager areaManager)
     {
+        if (areaManager == null)
+        {
+            throw new ArgumentNullException(nameof(areaManager));
+        }
+
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             tmpAreaLabels = areas?.Select(a => a.Label).ToList();
@@ -596,25 +764,14 @@ public static class Utilities
         }
     }
 
-    public static string TimeString(this int ticks)
-    {
-        int days = ticks / GenDate.TicksPerDay,
-            hours = ticks % GenDate.TicksPerDay / GenDate.TicksPerHour;
-
-        var s = string.Empty;
-
-        if (days > 0)
-        {
-            s += days + "LetterDay".Translate() + " ";
-        }
-
-        s += hours + "LetterHour".Translate();
-
-        return s;
-    }
-
+    /// <summary>
+    /// Determines whether the specified pawn is incapable of performing all tasks in the given work type.
+    /// </summary>
+    /// <param name="pawn">The pawn to check.</param>
+    /// <param name="work">The work type definition to check against.</param>
+    /// <returns>True if the pawn is incapable of all work givers in the work type; otherwise, false.</returns>
     // PawnColumnWorker_WorkPriority.IsIncapableOfWholeWorkType, but static
-    public static bool IsIncapableOfWholeWorkType(Pawn pawn, WorkTypeDef work)
+    public static bool IsIncapableOfWholeWorkType(this Pawn pawn, WorkTypeDef work)
     {
         if (pawn == null)
         {
@@ -625,12 +782,12 @@ public static class Utilities
             throw new ArgumentNullException(nameof(work));
         }
 
-        for (int i = 0; i < work.workGiversByPriority.Count; i++)
+        for (var i = 0; i < work.workGiversByPriority.Count; i++)
         {
-            bool flag = true;
-            for (int j = 0; j < work.workGiversByPriority[i].requiredCapacities.Count; j++)
+            var flag = true;
+            for (var j = 0; j < work.workGiversByPriority[i].requiredCapacities.Count; j++)
             {
-                PawnCapacityDef capacity = work.workGiversByPriority[i].requiredCapacities[j];
+                var capacity = work.workGiversByPriority[i].requiredCapacities[j];
                 if (!pawn.health.capacities.CapableOf(capacity))
                 {
                     flag = false;

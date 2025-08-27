@@ -30,7 +30,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
             rect.width,
             rect.height - Margin);
 
-        Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(panelRect, "Mining.Settings", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
         Widgets_Section.Section(ref position, width, DrawMining, "ColonyManagerRedux.Mining.ManagerSettings.DefaultMining".Translate());
         Widgets_Section.Section(ref position, width, DrawHaulChunks, "ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks".Translate());
@@ -58,8 +58,6 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
 
     public float DrawMining(Vector2 pos, float width)
     {
-        var start = pos;
-
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
             "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),

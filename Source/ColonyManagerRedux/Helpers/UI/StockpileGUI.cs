@@ -3,20 +3,36 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
+
 using ilyvion.Laboratory.Extensions;
+
 using Verse.Sound;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Provides UI helpers for selecting and displaying stockpiles in the manager interface.
+/// </summary>
 [HotSwappable]
 public static class StockpileGUI
 {
+    /// <summary>
+    /// Number of stockpiles displayed per row in the selector UI.
+    /// </summary>
     public const int StockPilesPerRow = 2;
 
     private static List<Texture2D>? textures;
 
     private static Vector2 _scrollPosition;
     private static readonly List<Zone_Stockpile> _tmpStockpiles = [];
+    /// <summary>
+    /// Draws the stockpile selector UI and updates the active stockpile.
+    /// </summary>
+    /// <param name="position">The position to start drawing.</param>
+    /// <param name="width">The width of the selector area.</param>
+    /// <param name="activeStockpile">Reference to the currently active stockpile.</param>
+    /// <param name="map">The map containing the stockpiles.</param>
+    /// <returns>The height of the drawn selector area.</returns>
     public static float DoStockpileSelectors(
         Vector2 position, float width, ref Zone_Stockpile? activeStockpile, Map map)
     {
@@ -31,9 +47,9 @@ public static class StockpileGUI
 
         // count + 1 for all stockpiles
         var stockPileCount = _tmpStockpiles.Count + 1;
-        int rowCount = (int)Math.Ceiling((double)stockPileCount / StockPilesPerRow);
-        bool needsScrollbars = rowCount > 3;
-        float viewWidth = needsScrollbars ? width - 16f : width;
+        var rowCount = (int)Math.Ceiling((double)stockPileCount / StockPilesPerRow);
+        var needsScrollbars = rowCount > 3;
+        var viewWidth = needsScrollbars ? width - 16f : width;
         var widthPerCell = viewWidth / StockPilesPerRow;
 
         // create colour swatch
@@ -64,8 +80,8 @@ public static class StockpileGUI
             else
             {
                 var stockpileRect = new Rect(
-                    position.x + j % StockPilesPerRow * widthPerCell,
-                    position.y + j / StockPilesPerRow * Constants.ListEntryHeight,
+                    position.x + (j % StockPilesPerRow * widthPerCell),
+                    position.y + (j / StockPilesPerRow * Constants.ListEntryHeight),
                     widthPerCell, Constants.ListEntryHeight);
                 DoZoneSelector(
                     stockpileRect, ref activeStockpile, _tmpStockpiles[j - 1], textures[j - 1]);

@@ -9,8 +9,5 @@ namespace ColonyManagerRedux;
 internal static class RimWorld_SelectionDrawer_DrawSelectionOverlays
 {
     public static List<Action> PostDrawSelectionOverlaysActions = [];
-    private static void Postfix()
-    {
-        PostDrawSelectionOverlaysActions.ForEach(a => a());
-    }
+    private static void Postfix() => PostDrawSelectionOverlaysActions.ForEach(a => a());
 }

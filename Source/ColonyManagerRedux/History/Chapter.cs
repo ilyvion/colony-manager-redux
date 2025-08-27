@@ -43,12 +43,8 @@ public partial class History
 
         public Chapter()
         {
-            counts = Periods
-                .Select(_ => new CircularBuffer<int>(entriesPerInterval, [0]))
-                .ToArray();
-            targets = Periods
-                .Select(_ => new CircularBuffer<(int, int)>(entriesPerInterval, [(0, 0)]))
-                .ToArray();
+            counts = [.. Periods.Select(_ => new CircularBuffer<int>(entriesPerInterval, [0]))];
+            targets = [.. Periods.Select(_ => new CircularBuffer<(int, int)>(entriesPerInterval, [(0, 0)]))];
         }
 
         public Chapter(HistoryLabel label, int entriesPerInterval, Color color) : this()
@@ -91,10 +87,7 @@ public partial class History
 
         internal GraphSeries? GraphSeries { get; set; }
 
-        public bool HasTargets(Period period)
-        {
-            return !targets[(int)period].IsEmpty && targets[(int)period].Any(t => t.target != 0);
-        }
+        public bool HasTargets(Period period) => !targets[(int)period].IsEmpty && targets[(int)period].Any(t => t.target != 0);
 
         public void ExposeData()
         {
@@ -142,7 +135,7 @@ public partial class History
                     }
                     if (shiftTargets)
                     {
-                        for (int i = 0; i < pageTarget.Size; i++)
+                        for (var i = 0; i < pageTarget.Size; i++)
                         {
                             pageTarget[i] = (pageTarget[i].position - 1, pageTarget[i].target);
                         }
@@ -165,10 +158,7 @@ public partial class History
             }
         }
 
-        public (int count, int target) Last(Period period)
-        {
-            return (counts[(int)period].Back(), targets[(int)period].Back().target);
-        }
+        public (int count, int target) Last(Period period) => (counts[(int)period].Back(), targets[(int)period].Back().target);
 
         public int Max(Period period, bool positive = true, bool showTargets = true)
         {
@@ -182,7 +172,7 @@ public partial class History
         public int[] ValuesFor(Period period, int sign = 1)
         {
             var page = counts[(int)period];
-            return page.Select(v => v * sign).ToArray();
+            return [.. page.Select(v => v * sign)];
         }
 
         public int[]? TargetsFor(Period period, int sign = 1)
@@ -198,7 +188,7 @@ public partial class History
 
             var currentPage = 0;
             var (_, target) = pageTarget[currentPage];
-            for (int i = 0; i < output.Length; i++)
+            for (var i = 0; i < output.Length; i++)
             {
                 if (currentPage < pageTarget.Size - 1 && pageTarget[currentPage + 1].position <= i)
                 {

@@ -3,12 +3,17 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Extension methods for PawnTable.
+/// </summary>
 public static class PawnTableCurrentExtensions
 {
-    public static bool IsCurrentTable(this PawnTable? pawnTable)
-    {
-        return RimWorld_PawnTable_Columns.CurrentPawnTable == pawnTable;
-    }
+    /// <summary>
+    /// Determines whether the specified <see cref="PawnTable"/> is the current pawn table.
+    /// </summary>
+    /// <param name="pawnTable">The pawn table to check.</param>
+    /// <returns><c>true</c> if the specified pawn table is the current one; otherwise, <c>false</c>.</returns>
+    public static bool IsCurrentTable(this PawnTable? pawnTable) => RimWorld_PawnTable_Columns.CurrentPawnTable == pawnTable;
 }
 
 [HarmonyPatch(typeof(PawnTable), nameof(PawnTable.Columns), MethodType.Getter)]
@@ -24,13 +29,8 @@ internal static class RimWorld_PawnTable_Columns
     // is only used to hide columns based on DLC active status, which is entirely unrelated to the
     // active PawnTable.
     public static PawnTable? CurrentPawnTable;
-    private static void Prefix(PawnTable __instance)
-    {
-        CurrentPawnTable = __instance;
-    }
 
-    private static void Postfix()
-    {
-        CurrentPawnTable = null;
-    }
+    internal static void Prefix(PawnTable __instance) => CurrentPawnTable = __instance;
+
+    internal static void Postfix() => CurrentPawnTable = null;
 }

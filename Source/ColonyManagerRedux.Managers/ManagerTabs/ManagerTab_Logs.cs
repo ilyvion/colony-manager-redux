@@ -3,6 +3,7 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux.Managers;
@@ -32,15 +33,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         }
     }
 
-    public override void PostMake()
-    {
-        base.PostMake();
-    }
-
-    protected override void PostSelect()
-    {
-        selectedLog = null;
-    }
+    protected override void PostSelect() => selectedLog = null;
 
     protected override void DoMainContent(Rect rect)
     {
@@ -52,7 +45,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         var cur = Vector2.zero;
         var i = 0;
 
-        IEnumerable<ManagerLog> logs = Manager.Logs();
+        var logs = Manager.Logs();
         if (Selected != null)
         {
             logs = logs.Where(l => l.IsForJob(Selected));
@@ -62,7 +55,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         foreach (var log in logs.Reverse()
             .Where(l => logSettings.ShowLogsWithNoWorkDone || l.WorkDone))
         {
-            bool isSelectedLog = selectedLog == log;
+            var isSelectedLog = selectedLog == log;
 
             var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 56f);
             if (!scrollView.CanCull(row.height, cur.y))
@@ -181,7 +174,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         var iconRect = new Rect(Margin, Margin,
             LargeIconSize, LargeIconSize);
 
-        var labelWidth = width - LargeIconSize - 3 * Margin;
+        var labelWidth = width - LargeIconSize - (3 * Margin);
         var headerLabel = log.JobLabelCap;
         if (!headerLabel.Fits(labelWidth, out var labelSize))
         {
@@ -204,7 +197,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
             labelWidth,
             Text.LineHeight);
 
-        float rowHeight = Mathf.Max(dateLabelRect.yMax, iconRect.yMax) + Margin;
+        var rowHeight = Mathf.Max(dateLabelRect.yMax, iconRect.yMax) + Margin;
         var rowRect = new Rect(
             position.x,
             position.y,
@@ -272,7 +265,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         ref Vector2 position,
         float width)
     {
-        var labelWidth = width - 2 * Margin;
+        var labelWidth = width - (2 * Margin);
         var labelHeight = Text.CalcHeight(details.Text, labelWidth);
         var labelRect = new Rect(
             Margin + position.x,
@@ -282,7 +275,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
 
         Widgets.Label(labelRect, details.Text);
 
-        position.y += labelHeight + 2 * Margin;
+        position.y += labelHeight + (2 * Margin);
     }
 
     public override void DrawLocalListEntry(
@@ -295,7 +288,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         var iconRect = new Rect(Margin, Margin,
             LargeIconSize, LargeIconSize);
 
-        var labelWidth = width - LargeIconSize - 3 * Margin;
+        var labelWidth = width - LargeIconSize - (3 * Margin);
         var tab = job.Tab;
         var (label, labelSize) = tab.GetFullLabel(job, labelWidth, null);
         var labelRect = new Rect(
@@ -304,7 +297,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
             labelWidth,
             labelSize.y);
 
-        float rowHeight = labelRect.yMax + Margin;
+        var rowHeight = labelRect.yMax + Margin;
         var rowRect = new Rect(
             position.x,
             position.y,

@@ -2,8 +2,6 @@
 // Copyright (c) 2025 Alexander Krivács Schrøder
 
 #if !v1_5
-using System.IO;
-
 namespace ColonyManagerRedux;
 
 [HarmonyPatch(typeof(WorldComponent_GravshipController), nameof(WorldComponent_GravshipController.InitiateTakeoff))]

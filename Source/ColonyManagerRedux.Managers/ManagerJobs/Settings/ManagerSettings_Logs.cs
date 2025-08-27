@@ -1,7 +1,6 @@
 // ManagerSettings_Logs.cs
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux.Managers;
@@ -20,7 +19,7 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
             rect.width,
             rect.height - Margin);
 
-        Widgets_Section.BeginSectionColumn(panelRect, "Logs.Settings", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(panelRect, "Logs.Settings", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawLogSettings);
         Widgets_Section.EndSectionColumn("Logs.Settings", position);
     }

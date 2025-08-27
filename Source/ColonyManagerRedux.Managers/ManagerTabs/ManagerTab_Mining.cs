@@ -11,8 +11,8 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<ManagerJob_Mining>(manager)
 {
-    public static HashSet<ThingDef> _metals = new(DefDatabase<ThingDef>.AllDefsListForReading
-        .Where(td => td.IsStuff && td.stuffProps.categories.Contains(StuffCategoryDefOf.Metallic)));
+    public static HashSet<ThingDef> _metals = [.. DefDatabase<ThingDef>.AllDefsListForReading
+        .Where(td => td.IsStuff && td.stuffProps.categories.Contains(StuffCategoryDefOf.Metallic))];
 
     public ManagerJob_Mining SelectedMiningJob => SelectedJob!;
 
@@ -21,28 +21,23 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
     public static string GetMineralTooltip(ThingDef mineral)
     {
         var sb = new StringBuilder();
-        sb.Append(mineral.description);
+        _ = sb.Append(mineral.description);
 
         var resource = mineral.building?.mineableThing;
         if (resource != null && mineral.building != null)
         {
-            sb.Append("\n\n");
+            _ = sb.Append("\n\n");
             var yield = string.Empty;
             // stone chunks
-            if (resource.IsChunk())
-            {
-                yield = $"\n{resource.label}" +
+            yield = resource.IsChunk()
+                ? $"\n{resource.label}" +
                         $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}" +
-                        $"\n - {resource.butcherProducts.Select(tc => tc.Label).ToCommaList()}";
-            }
-            // other
-            else
-            {
-                yield = $"{resource.label} x{mineral.building.mineableYield * Find.Storyteller.difficulty.mineYieldFactor}" +
+                        $"\n - {resource.butcherProducts.Select(tc => tc.Label).ToCommaList()}"
+                // other
+                : $"{resource.label} x{mineral.building.mineableYield * Find.Storyteller.difficulty.mineYieldFactor}" +
                         $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}";
-            }
 
-            sb.Append(I18n.YieldOne(yield));
+            _ = sb.Append(I18n.YieldOne(yield));
         }
 
         return sb.ToString();
@@ -50,7 +45,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
     public override string GetSubLabel(ManagerJob job)
     {
-        ManagerJob_Mining miningJob = (ManagerJob_Mining)job;
+        var miningJob = (ManagerJob_Mining)job;
         var subLabel = base.GetSubLabel(job);
         if (miningJob.DeconstructBuildings && miningJob.AllowedBuildings.Count > 0)
         {
@@ -193,8 +188,6 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
     public float DrawMining(Vector2 pos, float width)
     {
-        var start = pos;
-
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
             "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
@@ -206,8 +199,6 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
     public float DrawChunks(Vector2 pos, float width)
     {
-        var start = pos;
-
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(rowRect,
             "ColonyManagerRedux.Mining.HaulMapChunks".Translate(),
@@ -318,9 +309,9 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         var start = pos;
 
         var currentCount = SelectedMiningJob.TriggerThreshold.GetCurrentCount();
-        SelectedMiningJob.ChunksCachedValue.DoUpdateIfNeeded();
+        _ = SelectedMiningJob.ChunksCachedValue.DoUpdateIfNeeded();
         var chunkCount = SelectedMiningJob.ChunksCachedValue.Value;
-        SelectedMiningJob.DesignatedCachedValue.DoUpdateIfNeeded();
+        _ = SelectedMiningJob.DesignatedCachedValue.DoUpdateIfNeeded();
         var designatedCount = SelectedMiningJob.DesignatedCachedValue.Value;
         var targetLabel = SelectedMiningJob.TriggerThreshold.TargetLabel;
         var chunkProductKind = SelectedMiningJob.GetChunkProductKind();
@@ -350,10 +341,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         return pos.y - start.y;
     }
 
-    public static bool IsMetal(ThingDef def)
-    {
-        return def != null && _metals.Contains(def);
-    }
+    public static bool IsMetal(ThingDef def) => def != null && _metals.Contains(def);
 
     public override void PreOpen()
     {
@@ -400,7 +388,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
 
 
         // options
-        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out Vector2 position, out float width);
+        Widgets_Section.BeginSectionColumn(optionsColumnRect, "Mining.Options", out var position, out var width);
         Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.Threshold".Translate());
         Widgets_Section.Section(ref position, width, DrawMining, "ColonyManagerRedux.Mining.Mining".Translate());
         Widgets_Section.Section(ref position, width, DrawChunks, "ColonyManagerRedux.Mining.Chunks".Translate());
@@ -412,7 +400,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager) : ManagerTab<Ma
         // minerals
         Widgets_Section.BeginSectionColumn(mineralsColumnRect, "Mining.Minerals", out position, out width);
         var refreshRect = new Rect(
-            position.x + width - SmallIconSize - 2 * Margin,
+            position.x + width - SmallIconSize - (2 * Margin),
             position.y + Margin,
             SmallIconSize,
             SmallIconSize);

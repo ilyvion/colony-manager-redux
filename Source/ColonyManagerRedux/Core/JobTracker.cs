@@ -4,17 +4,27 @@
 
 using System.Buffers;
 using System.Text;
+
 using ilyvion.Laboratory.Extensions;
+
 using LudeonTK;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Tracks and manages all manager jobs for a given manager instance.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="JobTracker"/> class for the specified manager.
+/// </remarks>
+/// <param name="manager">The manager instance this job tracker is associated with.</param>
 [HotSwappable]
 public class JobTracker(Manager manager) : IExposable
 {
     private readonly Manager _manager = manager;
 
     private List<ManagerJob> jobs = [];
+
     internal List<ManagerJob> JobList
     {
         get
@@ -31,13 +41,22 @@ public class JobTracker(Manager manager) : IExposable
         }
     }
 
-    public IEnumerable<ManagerJob> Jobs => JobList;
+    /// <summary>
+    /// Gets a read-only collection of all manager jobs associated with this tracker.
+    /// </summary>
+    public IEnumerable<ManagerJob> Jobs => JobList.AsReadOnly();
 
     private IEnumerable<ManagerJob> JobsInOrderOfPriority =>
         Jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
 
+    /// <summary>
+    /// Gets a value indicating whether there are no jobs in the job tracker.
+    /// </summary>
     public bool HasNoJobs => JobList.Count == 0;
 
+    /// <summary>
+    /// Gets the maximum priority value among the jobs in the job tracker.
+    /// </summary>
     public int MaxPriority => JobList.Count - 1;
 
     /// <summary>
@@ -46,7 +65,9 @@ public class JobTracker(Manager manager) : IExposable
     public ManagerJob? NextJob => JobsInOrderOfPriority.FirstOrDefault();
 
     [DebugOutput("Colony Manager Redux", true)]
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     public static void JobStatuses()
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
         var manager = Manager.For(Find.CurrentMap);
         var jobTracker = manager.JobTracker;
@@ -54,7 +75,7 @@ public class JobTracker(Manager manager) : IExposable
         var stringBuilder = new StringBuilder()
             .AppendLine("Job count: " + jobTracker.JobList.Count)
             .AppendLine("Has no jobs: " + jobTracker.HasNoJobs)
-            .AppendLine("Next job: " + jobTracker.NextJob?.GetUniqueLoadID() ?? "<none>")
+            .AppendLine(("Next job: " + jobTracker.NextJob?.GetUniqueLoadID()) ?? "<none>")
             .AppendLine();
 
         _ = stringBuilder.AppendLine("Next jobs in order of priority: ");
@@ -72,6 +93,7 @@ public class JobTracker(Manager manager) : IExposable
         ColonyManagerReduxMod.Instance.LogDevMessage(stringBuilder.ToString());
     }
 
+    /// <inheritdoc/>
     public void ExposeData()
     {
         Scribe_Collections.Look(ref jobs, "jobs", LookMode.Deep, _manager);
@@ -101,6 +123,11 @@ public class JobTracker(Manager manager) : IExposable
         }
     }
 
+    /// <summary>
+    /// Adds a manager job to the job tracker and assigns it the next available priority.
+    /// </summary>
+    /// <param name="job">The manager job to add.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the job is null.</exception>
     public void Add(ManagerJob job)
     {
         if (job == null)
@@ -115,7 +142,8 @@ public class JobTracker(Manager manager) : IExposable
     /// <summary>
     ///     Cleanup job, delete from stack and update priorities.
     /// </summary>
-    /// <param name="job"></param>
+    /// <param name="job">The manager job to delete.</param>
+    /// <param name="cleanup">Whether to perform cleanup on the job before deleting.</param>
     public void Delete(ManagerJob job, bool cleanup = true)
     {
         if (job == null)
@@ -132,15 +160,29 @@ public class JobTracker(Manager manager) : IExposable
         CleanPriorities();
     }
 
+    /// <summary>
+    /// Returns an ordered enumerable of jobs of the specified type.
+    /// </summary>
+    /// <typeparam name="T">The type of ManagerJob to filter by.</typeparam>
     public IEnumerable<T> JobsOfType<T>() => Jobs.OrderBy(job => job.Priority).OfType<T>();
 
     internal (int lowest, int highest) GetBoundsForJobsOfType<T>()
         where T : ManagerJob => Jobs.OfType<T>().Select(j => j.Priority).MinAndMax();
 
+    /// <summary>
+    /// Determines whether the specified job exists in the job tracker.
+    /// </summary>
+    /// <param name="job">The manager job to check for existence.</param>
+    /// <returns>True if the job exists in the tracker; otherwise, false.</returns>
     public bool HasJob(ManagerJob job) => JobList.Contains(job);
 
-    private bool _isRunningJobs;
-    public bool IsRunningJobs => _isRunningJobs;
+    /// <summary>
+    /// Gets a value indicating whether jobs are currently being executed by the job tracker.
+    /// </summary>
+    public bool IsRunningJobs
+    {
+        get; private set;
+    }
 
     /// <summary>
     ///     Call the worker for the next available job
@@ -155,8 +197,8 @@ public class JobTracker(Manager manager) : IExposable
 
         Coroutine TryDoNextJobInner()
         {
-            bool responsibleForFlag = !_isRunningJobs;
-            _isRunningJobs = true;
+            var responsibleForFlag = !IsRunningJobs;
+            IsRunningJobs = true;
 
             // perform next job if no action was taken
             string jobLogLabel = null!;
@@ -178,7 +220,7 @@ public class JobTracker(Manager manager) : IExposable
                     debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})");
                 if (responsibleForFlag)
                 {
-                    _isRunningJobs = false;
+                    IsRunningJobs = false;
                 }
                 yield break;
             }
@@ -213,13 +255,13 @@ public class JobTracker(Manager manager) : IExposable
                 ColonyManagerReduxMod.Instance.LogVerboseMessage($"Back from the next job after the exception.");
                 if (responsibleForFlag)
                 {
-                    _isRunningJobs = false;
+                    IsRunningJobs = false;
                 }
                 yield break;
             }
 
             ColonyManagerReduxMod.Instance.LogVerboseMessage($"Waiting for job's coroutine to complete.");
-            CoroutineHandle handle = MultiTickCoroutineManager.StartCoroutine(coroutine,
+            var handle = MultiTickCoroutineManager.StartCoroutine(coroutine,
                 debugHandle: $"TryDoNextJob({job.GetUniqueLoadID()})");
             yield return handle.ResumeWhenOtherCoroutineIsCompleted();
             ColonyManagerReduxMod.Instance.LogVerboseMessage($"Job's coroutine completed.");
@@ -238,7 +280,7 @@ public class JobTracker(Manager manager) : IExposable
                 ColonyManagerReduxMod.Instance.LogVerboseMessage($"Back from the next job after the exception.");
                 if (responsibleForFlag)
                 {
-                    _isRunningJobs = false;
+                    IsRunningJobs = false;
                 }
                 yield break;
             }
@@ -270,7 +312,7 @@ public class JobTracker(Manager manager) : IExposable
 
             if (responsibleForFlag)
             {
-                _isRunningJobs = false;
+                IsRunningJobs = false;
             }
         }
 
@@ -291,19 +333,15 @@ public class JobTracker(Manager manager) : IExposable
         }
     }
 
-    private static void SwitchPriorities(ManagerJob a, ManagerJob b)
-    {
-        (b.Priority, a.Priority) = (a.Priority, b.Priority);
-    }
+    private static void SwitchPriorities(ManagerJob a, ManagerJob b) => (b.Priority, a.Priority) = (a.Priority, b.Priority);
 
     private void Reprioritize<T>(T job, int newPriority) where T : ManagerJob
     {
-
         // get list of priorities for this type.
         // Use ArrayPool<T> and stackalloc to reduce GC pressure
         var jobsOfTypeCount = Jobs.OfType<T>().Count();
         using var jobsOfType = ArrayPool<ManagerJob>.Shared.RentWithSelfReturn(jobsOfTypeCount);
-        Span<int> priorities = jobsOfTypeCount < Constants.MaxStackallocSize
+        var priorities = jobsOfTypeCount < Constants.MaxStackallocSize
             ? stackalloc int[jobsOfTypeCount]
             : new int[jobsOfTypeCount];
         foreach (var (j, i) in Jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
@@ -326,15 +364,9 @@ public class JobTracker(Manager manager) : IExposable
         CleanPriorities();
     }
 
-    internal void TopPriority<T>(T job) where T : ManagerJob
-    {
-        Reprioritize(job, -1);
-    }
+    internal void TopPriority<T>(T job) where T : ManagerJob => Reprioritize(job, -1);
 
-    internal void BottomPriority<T>(T job) where T : ManagerJob
-    {
-        Reprioritize(job, MaxPriority + 1);
-    }
+    internal void BottomPriority<T>(T job) where T : ManagerJob => Reprioritize(job, MaxPriority + 1);
 
     internal void IncreasePriority<T>(T job) where T : ManagerJob
     {

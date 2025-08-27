@@ -3,18 +3,27 @@
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Component that manages the history tracking for manager jobs in Colony Manager Redux.
+/// </summary>
 [CoroutineSettingsType]
 public class CompManagerJobHistory : ManagerJobComp
 {
+    /// <summary>
+    /// Gets the component properties specific to ManagerJobHistory.
+    /// </summary>
     public new CompProperties_ManagerJobHistory Props => (CompProperties_ManagerJobHistory)base.Props;
 
 #pragma warning disable CS8618 // Set in Initialize
     private History history;
 #pragma warning restore CS8618
+    /// <summary>
+    /// Gets the <see cref="History"/> instance that tracks historical data for this manager job.
+    /// </summary>
     public History History => history;
 
-    public override void Initialize()
-    {
+    /// <inheritdoc/>
+    protected internal override void Initialize() =>
         // create History tracker
         history = new History(Props.chapters)
         {
@@ -26,11 +35,11 @@ public class CompManagerJobHistory : ManagerJobComp
             PeriodShown = Props.periodShown,
             YAxisSuffix = Props.yAxisSuffix,
         };
-    }
 
     private int? _currentUpdateTick;
     private bool _reportedSkippedUpdateTick;
-    public override void CompTick()
+    /// <inheritdoc/>
+    protected internal override void CompTick()
     {
         if (!ColonyManagerReduxMod.Settings.RecordHistoricalData ||
             !History.IsUpdateTick)
@@ -38,7 +47,7 @@ public class CompManagerJobHistory : ManagerJobComp
             return;
         }
 
-        int ticksGame = Find.TickManager.TicksGame;
+        var ticksGame = Find.TickManager.TicksGame;
 
         if (!_reportedSkippedUpdateTick && _queuedToRecord > 0 && _currentUpdateTick != ticksGame)
         {
@@ -55,7 +64,7 @@ public class CompManagerJobHistory : ManagerJobComp
 
         _currentUpdateTick = ticksGame;
 
-        HistoryWorker worker = Props.Worker;
+        var worker = Props.Worker;
         worker.HistoryUpdateTick(Parent, ticksGame);
 
         _ = MultiTickCoroutineManager.StartCoroutine(DoHistoryUpdateCoroutine(worker, ticksGame),
@@ -97,7 +106,7 @@ public class CompManagerJobHistory : ManagerJobComp
 
         ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
 
-        int coroutineStartTick = Find.TickManager.TicksGame;
+        var coroutineStartTick = Find.TickManager.TicksGame;
 
         if (Props.Worker.HistoryUpdateCoroutine(Parent, tick) is { } coroutine)
         {
@@ -105,8 +114,8 @@ public class CompManagerJobHistory : ManagerJobComp
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
-        int chapterCount = Props.chapters.Count;
-        int[] chapterCounts = new int[chapterCount];
+        var chapterCount = Props.chapters.Count;
+        var chapterCounts = new int[chapterCount];
 
         Boxed<int> count = new();
         if (worker.UpdatesMax)
@@ -123,7 +132,7 @@ public class CompManagerJobHistory : ManagerJobComp
             History.UpdateMax(chapterCounts);
         }
 
-        int[] chapterTargets = new int[chapterCount];
+        var chapterTargets = new int[chapterCount];
         foreach (var (chapterDef, i) in Props.chapters.Select((c, i) => (c, i)))
         {
             var preChapterTick = Find.TickManager.TicksGame;
@@ -151,13 +160,14 @@ public class CompManagerJobHistory : ManagerJobComp
 
         History.Update(tick, chapterCounts, chapterTargets);
 
-        int coroutineEndTick = Find.TickManager.TicksGame;
+        var coroutineEndTick = Find.TickManager.TicksGame;
         var tickCount = coroutineEndTick - coroutineStartTick;
         ColonyManagerReduxMod.Instance.LogDebug(
             $"{nameof(DoHistoryUpdateCoroutine)} took {tickCount} ticks to complete");
     }
 
-    public override void PostExposeData()
+    /// <inheritdoc/>
+    protected internal override void PostExposeData()
     {
         base.PostExposeData();
         if (Parent.Manager.ScribeSameGameData)
@@ -167,29 +177,58 @@ public class CompManagerJobHistory : ManagerJobComp
     }
 }
 
+/// <summary>
+/// Abstract base class for implementing history tracking logic for manager jobs.
+/// </summary>
 public abstract class HistoryWorker
 {
-    public virtual bool UpdatesMax { get; }
+    /// <summary>
+    /// Gets a value indicating whether this worker updates the maximum value for history chapters.
+    /// </summary>
+    public virtual bool UpdatesMax
+    {
+        get;
+    }
 
+    /// <summary>
+    /// Gets the count for a specific history chapter at a given tick.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to get the count.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <returns>The count for the specified chapter at the given tick.</returns>
     [Obsolete("Implement GetCountForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
         "this method will be removed in a future version")]
-    public virtual int GetCountForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        throw new NotImplementedException();
-    }
+    public virtual int GetCountForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef) => throw new NotImplementedException();
+    /// <summary>
+    /// Gets the target value for a specific history chapter at a given tick.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to get the target value.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <returns>The target value for the specified chapter at the given tick.</returns>
     [Obsolete("Implement GetTargetForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
         "this method will be removed in a future version")]
-    public virtual int GetTargetForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        throw new NotImplementedException();
-    }
+    public virtual int GetTargetForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef) => throw new NotImplementedException();
+    /// <summary>
+    /// Gets the maximum value for a specific history chapter at a given tick.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to get the maximum value.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <returns>The maximum value for the specified chapter at the given tick.</returns>
     [Obsolete("Implement GetMaxForHistoryChapterCoroutine; this is only here for backwards compatibility; " +
         "this method will be removed in a future version")]
-    public virtual int GetMaxForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef)
-    {
-        throw new NotImplementedException();
-    }
+    public virtual int GetMaxForHistoryChapter(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef) => throw new NotImplementedException();
 
+    /// <summary>
+    /// Gets the count for a specific history chapter at a given tick as a coroutine.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to get the count.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <param name="count">A boxed integer to store the result.</param>
+    /// <returns>A coroutine that yields the count for the specified chapter at the given tick.</returns>
     public virtual Coroutine GetCountForHistoryChapterCoroutine(
         ManagerJob managerJob,
         int tick,
@@ -222,6 +261,14 @@ public abstract class HistoryWorker
         yield break;
     }
 
+    /// <summary>
+    /// Gets the target value for a specific history chapter at a given tick as a coroutine.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to get the target value.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <param name="target">A boxed integer to store the result.</param>
+    /// <returns>A coroutine that yields the target value for the specified chapter at the given tick.</returns>
     public virtual Coroutine GetTargetForHistoryChapterCoroutine(
         ManagerJob managerJob,
         int tick,
@@ -254,6 +301,14 @@ public abstract class HistoryWorker
         yield break;
     }
 
+    /// <summary>
+    /// Gets the maximum value for a specific history chapter at a given tick as a coroutine.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to get the maximum value.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <param name="max">A boxed integer to store the result.</param>
+    /// <returns>A coroutine that yields the maximum value for the specified chapter at the given tick.</returns>
     public virtual Coroutine GetMaxForHistoryChapterCoroutine(
         ManagerJob managerJob,
         int tick,
@@ -286,43 +341,53 @@ public abstract class HistoryWorker
         yield break;
     }
 
+    /// <summary>
+    /// Performs a history update tick for the specified manager job at the given tick.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to perform the update.</param>
     public virtual void HistoryUpdateTick(ManagerJob managerJob, int tick)
     {
     }
 
-    public virtual Coroutine? HistoryUpdateCoroutine(ManagerJob managerJob, int tick)
-    {
-        return null;
-    }
+    /// <summary>
+    /// Performs a history update for the specified manager job at the given tick as a coroutine.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance.</param>
+    /// <param name="tick">The game tick for which to perform the update.</param>
+    /// <returns>A coroutine that performs the history update, or null if not implemented.</returns>
+    public virtual Coroutine? HistoryUpdateCoroutine(ManagerJob managerJob, int tick) => null;
 }
 
+/// <summary>
+/// Generic abstract base class for implementing history tracking logic for manager jobs of type <typeparamref name="T"/>.
+/// </summary>
+/// <typeparam name="T">The type of ManagerJob this worker operates on.</typeparam>
 public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
 {
-    public sealed override void HistoryUpdateTick(ManagerJob managerJob, int tick)
-    {
-        HistoryUpdateTick((T)managerJob, tick);
-    }
+    /// <inheritdoc/>
+    public sealed override void HistoryUpdateTick(ManagerJob managerJob, int tick) => HistoryUpdateTick((T)managerJob, tick);
 
-    public sealed override Coroutine? HistoryUpdateCoroutine(ManagerJob managerJob, int tick)
-    {
-        return HistoryUpdateCoroutine((T)managerJob, tick);
-    }
+    /// <inheritdoc/>
+    public sealed override Coroutine? HistoryUpdateCoroutine(ManagerJob managerJob, int tick) => HistoryUpdateCoroutine((T)managerJob, tick);
 
-    public sealed override Coroutine GetCountForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> count)
-    {
-        return GetCountForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, count);
-    }
+    /// <inheritdoc/>
+    public sealed override Coroutine GetCountForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> count) => GetCountForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, count);
 
-    public sealed override Coroutine GetTargetForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> target)
-    {
-        return GetTargetForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, target);
-    }
+    /// <inheritdoc/>
+    public sealed override Coroutine GetTargetForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> target) => GetTargetForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, target);
 
-    public sealed override Coroutine GetMaxForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> max)
-    {
-        return GetMaxForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, max);
-    }
+    /// <inheritdoc/>
+    public sealed override Coroutine GetMaxForHistoryChapterCoroutine(ManagerJob managerJob, int tick, ManagerJobHistoryChapterDef chapterDef, Boxed<int> max) => GetMaxForHistoryChapterCoroutine((T)managerJob, tick, chapterDef, max);
 
+    /// <summary>
+    /// Gets the count for a specific history chapter at a given tick as a coroutine for the specified manager job type.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance of type <typeparamref name="T"/>.</param>
+    /// <param name="tick">The game tick for which to get the count.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <param name="count">A boxed integer to store the result.</param>
+    /// <returns>A coroutine that yields the count for the specified chapter at the given tick.</returns>
     public virtual Coroutine GetCountForHistoryChapterCoroutine(
         T managerJob,
         int tick,
@@ -355,6 +420,14 @@ public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
         yield break;
     }
 
+    /// <summary>
+    /// Gets the target value for a specific history chapter at a given tick as a coroutine for the specified manager job type.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance of type <typeparamref name="T"/>.</param>
+    /// <param name="tick">The game tick for which to get the target value.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <param name="target">A boxed integer to store the result.</param>
+    /// <returns>A coroutine that yields the target value for the specified chapter at the given tick.</returns>
     public virtual Coroutine GetTargetForHistoryChapterCoroutine(
         T managerJob,
         int tick,
@@ -387,6 +460,14 @@ public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
         yield break;
     }
 
+    /// <summary>
+    /// Gets the maximum value for a specific history chapter at a given tick as a coroutine for the specified manager job type.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance of type <typeparamref name="T"/>.</param>
+    /// <param name="tick">The game tick for which to get the maximum value.</param>
+    /// <param name="chapterDef">The definition of the history chapter.</param>
+    /// <param name="max">A boxed integer to store the result.</param>
+    /// <returns>A coroutine that yields the maximum value for the specified chapter at the given tick.</returns>
     public virtual Coroutine GetMaxForHistoryChapterCoroutine(
         T managerJob,
         int tick,
@@ -415,12 +496,20 @@ public abstract class HistoryWorker<T> : HistoryWorker where T : ManagerJob
         yield break;
     }
 
+    /// <summary>
+    /// Performs a history update tick for the specified manager job of type <typeparamref name="T"/> at the given tick.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance of type <typeparamref name="T"/>.</param>
+    /// <param name="tick">The game tick for which to perform the update.</param>
     public virtual void HistoryUpdateTick(T managerJob, int tick)
     {
     }
 
-    public virtual Coroutine? HistoryUpdateCoroutine(T managerJob, int tick)
-    {
-        return null;
-    }
+    /// <summary>
+    /// Performs a history update for the specified manager job of type <typeparamref name="T"/> at the given tick as a coroutine.
+    /// </summary>
+    /// <param name="managerJob">The manager job instance of type <typeparamref name="T"/>.</param>
+    /// <param name="tick">The game tick for which to perform the update.</param>
+    /// <returns>A coroutine that performs the history update, or null if not implemented.</returns>
+    public virtual Coroutine? HistoryUpdateCoroutine(T managerJob, int tick) => null;
 }

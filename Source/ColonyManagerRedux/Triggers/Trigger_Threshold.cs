@@ -4,22 +4,44 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Represents a trigger that activates based on a threshold value for a product or resource.
+/// </summary>
 [HotSwappable]
 public sealed class Trigger_Threshold : Trigger
 {
+    /// <summary>
+    /// Supported comparison operations for the threshold trigger.
+    /// </summary>
     public enum Ops
     {
+        /// <summary>
+        /// The current count is less than the target count.
+        /// </summary>
         LowerThan,
+        /// <summary>
+        /// The current count is equal to the target count.
+        /// </summary>
         Equals,
+        /// <summary>
+        /// The current count is greater than the target count.
+        /// </summary>
         HigherThan,
+        /// <summary>
+        /// The current count is not equal to the target count.
+        /// </summary>
         NotEquals,
     }
 
     private bool allowAnyThreshold;
+    /// <summary>
+    /// Gets or sets whether any threshold is allowed (ignores parent filter restrictions).
+    /// </summary>
     public bool AllowAnyThreshold
     {
         get => allowAnyThreshold;
@@ -34,33 +56,95 @@ public sealed class Trigger_Threshold : Trigger
     }
 
     private bool countAllOnMap;
-    public bool CountAllOnMap { get => countAllOnMap; set => countAllOnMap = value; }
+    /// <summary>
+    /// Gets or sets whether to count all matching items on the map, not just in stockpiles.
+    /// </summary>
+    public bool CountAllOnMap
+    {
+        get => countAllOnMap; set => countAllOnMap = value;
+    }
 
     private int maxUpperThreshold;
-    public int MaxUpperThreshold { get => maxUpperThreshold; set => maxUpperThreshold = value; }
+    /// <summary>
+    /// Gets or sets the maximum allowed value for the upper threshold.
+    /// </summary>
+    public int MaxUpperThreshold
+    {
+        get => maxUpperThreshold; set => maxUpperThreshold = value;
+    }
 
     private Ops op;
-    public Ops Op { get => op; set => op = value; }
-    public ThingFilter ParentFilter { get; private set; }
+    /// <summary>
+    /// Gets or sets the comparison operation for the threshold.
+    /// </summary>
+    public Ops Op
+    {
+        get => op; set => op = value;
+    }
+    /// <summary>
+    /// Gets the parent filter used for allowed things.
+    /// </summary>
+    public ThingFilter ParentFilter
+    {
+        get; private set;
+    }
 
     private Zone_Stockpile? stockpile;
-    public Zone_Stockpile? Stockpile { get => stockpile; set => stockpile = value; }
-    public ref Zone_Stockpile? StockpileRef { get => ref stockpile; }
+    /// <summary>
+    /// Gets or sets the stockpile associated with this trigger.
+    /// </summary>
+    public Zone_Stockpile? Stockpile
+    {
+        get => stockpile; set => stockpile = value;
+    }
+    /// <summary>
+    /// Gets a reference to the stockpile associated with this trigger.
+    /// </summary>
+    public ref Zone_Stockpile? StockpileRef => ref stockpile;
 
     private int targetCount;
-    public int TargetCount { get => targetCount; set => targetCount = value; }
+    /// <summary>
+    /// Gets or sets the target count for the threshold.
+    /// </summary>
+    public int TargetCount
+    {
+        get => targetCount; set => targetCount = value;
+    }
+    /// <summary>
+    /// Gets a label representing the operation and target count.
+    /// </summary>
     public string TargetLabel => $"{OpString} {targetCount}";
 
     private ThingFilter thresholdFilter;
-    public ThingFilter ThresholdFilter { get => thresholdFilter; }
+    /// <summary>
+    /// Gets the filter used to determine which things are counted toward the threshold.
+    /// </summary>
+    public ThingFilter ThresholdFilter => thresholdFilter;
     private readonly CachedValue<int> _cachedCurrentCount = new(0);
 
     private string? _stockpile_scribe;
 
-    public Action? SettingsChanged { get; set; }
+    /// <summary>
+    /// Event invoked when settings are changed.
+    /// </summary>
+    public Action? SettingsChanged
+    {
+        get; set;
+    }
 
-    public Action? AllowAnyThresholdChanged { get; set; }
+    /// <summary>
+    /// Event invoked when AllowAnyThreshold is changed.
+    /// </summary>
+    public Action? AllowAnyThresholdChanged
+    {
+        get; set;
+    }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Trigger_Threshold"/> class.
+    /// </summary>
+    /// <param name="job">The manager job associated with this trigger.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="job"/> is null.</exception>
     public Trigger_Threshold(ManagerJob job) : base(job)
     {
         if (job == null)
@@ -68,7 +152,7 @@ public sealed class Trigger_Threshold : Trigger
             throw new ArgumentNullException(nameof(job));
         }
 
-        Settings settings = ColonyManagerReduxMod.Settings;
+        var settings = ColonyManagerReduxMod.Settings;
         countAllOnMap = settings.DefaultCountAllOnMap;
 
         ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
@@ -90,19 +174,26 @@ public sealed class Trigger_Threshold : Trigger
     private int CurrentCountRaw =>
         Job.Manager.map.CountProducts(ThresholdFilter, stockpile, CountAllOnMap);
 
-    public int GetCurrentCount(bool cached = true)
-    {
-        return cached && _cachedCurrentCount.TryGetValue(out var value)
+    /// <summary>
+    /// Gets the current count of items matching the threshold filter.
+    /// </summary>
+    /// <param name="cached">Whether to use the cached value if available.</param>
+    /// <returns>The current count.</returns>
+    public int GetCurrentCount(bool cached = true) => cached && _cachedCurrentCount.TryGetValue(out var value)
             ? value
             : _cachedCurrentCount.Update(CurrentCountRaw);
-    }
 
-    public Coroutine GetCurrentCountCoroutine(Boxed<int> count)
-    {
-        return Job.Manager.map.CountProductsCoroutine(
+    /// <summary>
+    /// Gets a coroutine that updates the count of items matching the threshold filter.
+    /// </summary>
+    /// <param name="count">A boxed integer to store the result.</param>
+    /// <returns>A coroutine for updating the count.</returns>
+    public Coroutine GetCurrentCountCoroutine(Boxed<int> count) => Job.Manager.map.CountProductsCoroutine(
             ThresholdFilter, count, stockpile, CountAllOnMap);
-    }
 
+    /// <summary>
+    /// Gets a window displaying details for this threshold trigger.
+    /// </summary>
     public WindowTriggerThresholdDetails DetailsWindow
     {
         get
@@ -116,8 +207,14 @@ public sealed class Trigger_Threshold : Trigger
         }
     }
 
+    /// <summary>
+    /// Gets whether the trigger is valid (at least one allowed def in the filter).
+    /// </summary>
     public bool IsValid => ThresholdFilter.AllowedDefCount > 0;
 
+    /// <summary>
+    /// Gets the string representation of the current operation.
+    /// </summary>
     public string OpString => op switch
     {
         Ops.LowerThan => "<\u200B",
@@ -127,6 +224,11 @@ public sealed class Trigger_Threshold : Trigger
         _ => "?",
     };
 
+    private bool _hasReportedIncorrectOperator;
+
+    /// <summary>
+    /// Gets the current state of the trigger (whether the threshold condition is met).
+    /// </summary>
     public override bool State
     {
         get
@@ -146,15 +248,18 @@ public sealed class Trigger_Threshold : Trigger
                     return GetCurrentCount() != targetCount;
 
                 default:
-                    ColonyManagerReduxMod.Instance.LogWarning(
-                        "Trigger_ThingThreshold was defined without a correct operator");
+                    ColonyManagerReduxMod.Instance.LogWarningOnce(
+                        "Trigger_ThingThreshold was defined without a correct operator",
+                        ref _hasReportedIncorrectOperator);
                     return true;
             }
         }
     }
 
+    /// <inheritdoc/>
     public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetLabel);
 
+    /// <inheritdoc/>
     public override void DrawVerticalProgressBars(Rect progressRect, bool active)
     {
         progressRect.xMin += progressRect.width - 10;
@@ -167,6 +272,7 @@ public sealed class Trigger_Threshold : Trigger
             Resources.BarBackgroundActiveTexture);
     }
 
+    /// <inheritdoc/>
     public override void DrawHorizontalProgressBars(Rect progressRect, bool active)
     {
         progressRect.height = SmallIconSize;
@@ -179,6 +285,7 @@ public sealed class Trigger_Threshold : Trigger
             Resources.BarBackgroundActiveTexture);
     }
 
+    /// <inheritdoc/>
     public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string? label = null,
         string? tooltip = null, List<Designation>? targets = null,
         Action? onOpenFilterDetails = null,
@@ -195,16 +302,16 @@ public sealed class Trigger_Threshold : Trigger
         var thresholdLabelRect = new Rect(
             cur.x,
             cur.y,
-            width - (hasTargets ? SmallIconSize + Margin * 2 : 0f),
+            width - (hasTargets ? SmallIconSize + (Margin * 2) : 0f),
             entryHeight);
         var detailsWindowButtonRect = new Rect(
             thresholdLabelRect.xMax - SmallIconSize - Margin,
-            cur.y + (entryHeight - SmallIconSize) / 2f,
+            cur.y + ((entryHeight - SmallIconSize) / 2f),
             SmallIconSize,
             SmallIconSize);
         var targetsButtonRect = new Rect(
             thresholdLabelRect.xMax + Margin,
-            cur.y + (entryHeight - SmallIconSize) / 2f,
+            cur.y + ((entryHeight - SmallIconSize) / 2f),
             SmallIconSize,
             SmallIconSize
         );
@@ -354,6 +461,7 @@ public sealed class Trigger_Threshold : Trigger
         targetCount = (int)GUI.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
     }
 
+    /// <inheritdoc />
     public override void ExposeData()
     {
         base.ExposeData();
@@ -379,6 +487,11 @@ public sealed class Trigger_Threshold : Trigger
         }
     }
 
+    /// <summary>
+    /// Determines whether the given count meets the target based on the current operation.
+    /// </summary>
+    /// <param name="count">The count to check.</param>
+    /// <returns>True if the count meets the target; otherwise, false.</returns>
     public bool DoesCountMeetTarget(int count)
     {
         switch (op)

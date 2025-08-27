@@ -28,27 +28,17 @@ internal sealed class Alert_NoManager : Alert
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport()
-    {
-        return ColonyManagerReduxMod.Settings.ShowNoManagerAlert
+    public override AlertReport GetReport() => ColonyManagerReduxMod.Settings.ShowNoManagerAlert
             && _noManager.Value;
-    }
 
-    private static bool AnyConsciousManagerPawn()
-    {
-        return
-            Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(
+    private static bool AnyConsciousManagerPawn() => Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(
                 pawn => !pawn.health.Dead && !pawn.Downed &&
                     pawn.workSettings.WorkIsActive(
                         ManagerWorkTypeDefOf.Managing)) ||
                     Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
                         ManagerThingDefOf.CM_AIManager);
-    }
 
-    protected override void OnClick()
-    {
-        Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
-    }
+    protected override void OnClick() => Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
 }
 
 [HotSwappable]
@@ -79,7 +69,7 @@ internal sealed class Alert_JobsNotUpdating : Alert
     {
         get
         {
-            int mostOutdatedJobTicks = _mostOutdatedJobTicks.Value;
+            var mostOutdatedJobTicks = _mostOutdatedJobTicks.Value;
             if (mostOutdatedJobTicks >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingCriticalAlert)
             {
                 return AlertPriority.Critical;
@@ -100,7 +90,7 @@ internal sealed class Alert_JobsNotUpdating : Alert
     {
         get
         {
-            float num = Pulser.PulseBrightness(0.5f,
+            var num = Pulser.PulseBrightness(0.5f,
                 Pulser.PulseBrightness(PulseFreq, PulseAmpCritical));
             return new Color(num, num, num) * (Priority switch
             {
@@ -112,28 +102,16 @@ internal sealed class Alert_JobsNotUpdating : Alert
         }
     }
 
-    public override AlertReport GetReport()
-    {
+    public override AlertReport GetReport() =>
         // No need to report jobs not being updated if there's no manager to update them
-        if (!ColonyManagerReduxMod.Settings.ShowJobsNotUpdatingAlert
-            || Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager))
-        {
-            return false;
-        }
+        ColonyManagerReduxMod.Settings.ShowJobsNotUpdatingAlert
+            && !Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager)
+            && (_mostOutdatedJobTicks.Value >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingAlert);
 
-        return _mostOutdatedJobTicks.Value >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingAlert;
-    }
-
-    public override TaggedString GetExplanation()
-    {
-        return "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate(
+    public override TaggedString GetExplanation() => "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate(
             _mostOutdatedJobTicks.Value.ToStringTicksToPeriod());
-    }
 
-    protected override void OnClick()
-    {
-        Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
-    }
+    protected override void OnClick() => Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
 }
 
 internal sealed class Alert_NoTable : Alert
@@ -159,21 +137,15 @@ internal sealed class Alert_NoTable : Alert
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport()
-    {
-        return ColonyManagerReduxMod.Settings.ShowNoManagerAlert
+    public override AlertReport GetReport() => ColonyManagerReduxMod.Settings.ShowNoManagerAlert
             && _noTable.Value;
-    }
 
-    public override TaggedString GetExplanation()
-    {
-        return "ColonyManagerRedux.Alerts.NoTable".Translate(
+    public override TaggedString GetExplanation() => "ColonyManagerRedux.Alerts.NoTable".Translate(
             BestBuildingResearchedThatCanBeBuilt.label);
-    }
 
     private static bool AnyManagerTable()
     {
-        ListerBuildings listerBuildings = Find.CurrentMap.listerBuildings;
+        var listerBuildings = Find.CurrentMap.listerBuildings;
         return listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any() ||
             listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
     }
@@ -194,24 +166,11 @@ internal sealed class Alert_NoTable : Alert
                     && build.PlacingDef == bestBuildingDef);
     }
 
-    private static ThingDef BestBuildingResearchedThatCanBeBuilt
-    {
-        get
-        {
-            if (ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished)
-            {
-                return ManagerThingDefOf.CM_AIManager;
-            }
-            else if (ManagerResearchProjectDefOf.ManagingSoftware.IsFinished)
-            {
-                return ManagerThingDefOf.CM_ManagerStation;
-            }
-            else
-            {
-                return ManagerThingDefOf.CM_BasicManagerStation;
-            }
-        }
-    }
+    private static ThingDef BestBuildingResearchedThatCanBeBuilt => ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished
+                ? ManagerThingDefOf.CM_AIManager
+                : ManagerResearchProjectDefOf.ManagingSoftware.IsFinished
+                    ? ManagerThingDefOf.CM_ManagerStation
+                    : ManagerThingDefOf.CM_BasicManagerStation;
 }
 
 internal sealed class Alert_TableAndAI : Alert
@@ -227,33 +186,24 @@ internal sealed class Alert_TableAndAI : Alert
         _hasAIManager = new(updater: () =>
         {
             var currentMap = Find.CurrentMap;
-            if (currentMap == null)
-            {
-                return false;
-            }
-            return currentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
+            return currentMap != null && currentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
         });
         _managerStations = new(() => ManagerStations);
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport()
-    {
-        if (!ColonyManagerReduxMod.Settings.ShowNoTableNeededAlert
-            || !_hasAIManager.Value)
-        {
-            return false;
-        }
-        return AlertReport.CulpritsAre(_managerStations.Value);
-    }
+    public override AlertReport GetReport() => !ColonyManagerReduxMod.Settings.ShowNoTableNeededAlert
+            || !_hasAIManager.Value
+            ? (AlertReport)false
+            : AlertReport.CulpritsAre(_managerStations.Value);
 
     private readonly List<Thing> managerStations = [];
     private List<Thing> ManagerStations
     {
         get
         {
-            ListerBuildings listerBuildings = Find.CurrentMap.listerBuildings;
+            var listerBuildings = Find.CurrentMap.listerBuildings;
 
             managerStations.Clear();
             if (listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager))

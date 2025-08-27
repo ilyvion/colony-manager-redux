@@ -6,11 +6,11 @@ using RimWorld.Planet;
 
 namespace ColonyManagerRedux;
 
-public static class GravShipExtensions
+internal static class GravShipExtensions
 {
     public static Thing? ManagerDatabase(this Gravship gravship)
     {
-        foreach (Thing thing in gravship.Things)
+        foreach (var thing in gravship.Things)
         {
             if (thing.def == ManagerThingDefOf.CM_ManagerDatabase)
             {

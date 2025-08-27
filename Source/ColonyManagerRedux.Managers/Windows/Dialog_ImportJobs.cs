@@ -16,18 +16,12 @@ internal sealed class Dialog_ImportJobs : Window
 
     private static readonly Vector2 ButtonSize = new(175f, 38f);
 
-    private IEnumerable<ManagerJob> SelectedJobs
-    {
-        get
-        {
-            return _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
-        }
-    }
+    private IEnumerable<ManagerJob> SelectedJobs => _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
 
     public Dialog_ImportJobs(List<ManagerJob> jobs, Action<int>? onImport = null)
     {
         _jobs = jobs;
-        _selectedJobs = jobs.Select(_ => MultiCheckboxState.On).ToList();
+        _selectedJobs = [.. jobs.Select(_ => MultiCheckboxState.On)];
 
         _onImport = onImport;
 
@@ -43,7 +37,7 @@ internal sealed class Dialog_ImportJobs : Window
         using var _ = GUIScope.TextAnchor(TextAnchor.MiddleLeft);
 
         var cur = Vector2.zero;
-        for (int i = 0; i < _jobs.Count; i++)
+        for (var i = 0; i < _jobs.Count; i++)
         {
             var job = _jobs[i];
             var state = _selectedJobs[i];
@@ -117,9 +111,9 @@ internal sealed class Dialog_ImportJobs : Window
     {
         Text.Font = GameFont.Small;
 
-        float labelHeight = Text.CalcHeight("ColonyManagerRedux.SelectImportJobs".Translate(), inRect.width);
+        var labelHeight = Text.CalcHeight("ColonyManagerRedux.SelectImportJobs".Translate(), inRect.width);
         Widgets.Label(new Rect(0f, 0f, inRect.width, labelHeight), "ColonyManagerRedux.SelectImportJobs".Translate());
-        float nextY = labelHeight + 5f;
+        var nextY = labelHeight + 5f;
 
         Rect jobsRect = new(inRect)
         {
@@ -141,7 +135,7 @@ internal sealed class Dialog_ImportJobs : Window
             Close();
         }
 
-        bool anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
+        var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
         if (IlyvionWidgets.DisableableButtonText(
             new Rect(inRect.width - ButtonSize.x, inRect.height - ButtonSize.y, ButtonSize.x, ButtonSize.y),
             "ColonyManagerRedux.ManagerImport".Translate(),
@@ -154,7 +148,7 @@ internal sealed class Dialog_ImportJobs : Window
     public override void OnAcceptKeyPressed()
     {
         base.OnAcceptKeyPressed();
-        bool anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
+        var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
         if (anySelected)
         {
             OnAccept();
@@ -169,7 +163,7 @@ internal sealed class Dialog_ImportJobs : Window
             jobCount++;
             job.PreImport();
             Manager.For(Find.CurrentMap).JobTracker.Add(job);
-            job.PostImport();
+            job.PostImportInt();
         }
         _onImport?.Invoke(jobCount);
         Close();

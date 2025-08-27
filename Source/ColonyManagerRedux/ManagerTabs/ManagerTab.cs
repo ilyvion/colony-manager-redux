@@ -4,14 +4,24 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Represents a manager tab for a specific job and settings type.
+/// </summary>
+/// <typeparam name="TJob">The type of manager job.</typeparam>
+/// <typeparam name="TSettings">The type of manager settings.</typeparam>
+/// <param name="manager">The manager instance.</param>
 public abstract class ManagerTab<TJob, TSettings>(Manager manager) : ManagerTab<TJob>(manager)
     where TJob : ManagerJob
     where TSettings : ManagerSettings
 {
+    /// <summary>
+    /// Gets the manager settings for this tab.
+    /// </summary>
     public TSettings ManagerSettings => ColonyManagerReduxMod.Settings
         .ManagerSettingsFor<TSettings>(Def)
             ?? throw new InvalidOperationException($"Type {GetType().Name} claims to have a "
@@ -20,40 +30,46 @@ public abstract class ManagerTab<TJob, TSettings>(Manager manager) : ManagerTab<
             + " managerSettingsClass value?");
 }
 
+/// <summary>
+/// Represents a manager tab for a specific job type.
+/// </summary>
+/// <typeparam name="T">The type of manager job.</typeparam>
+/// <param name="manager">The manager instance.</param>
 public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where T : ManagerJob
 {
+    /// <inheritdoc/>
     protected override IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<T>();
 
+    /// <summary>
+    /// Gets the currently selected job of type <typeparamref name="T"/> in this manager tab, or null if none is selected.
+    /// </summary>
     public T? SelectedJob => (T?)Selected;
 
     internal override (bool top, bool bottom) GetJobOrderBounds(ManagerJob job, JobTracker jobTracker)
     {
         var (lowest, highest) = jobTracker.GetBoundsForJobsOfType<T>();
-        bool top = job.Priority == lowest;
-        bool bottom = job.Priority == highest;
+        var top = job.Priority == lowest;
+        var bottom = job.Priority == highest;
         return (top, bottom);
     }
 
-    internal override void TopPriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.TopPriority((T)job);
-    }
+    internal override void TopPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.TopPriority((T)job);
 
-    internal override void IncreasePriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.IncreasePriority((T)job);
-    }
+    internal override void IncreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.IncreasePriority((T)job);
 
-    internal override void DecreasePriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.DecreasePriority((T)job);
-    }
+    internal override void DecreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.DecreasePriority((T)job);
 
-    internal override void BottomPriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.BottomPriority((T)job);
-    }
+    internal override void BottomPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.BottomPriority((T)job);
 
+    /// <summary>
+    /// Draws a section for the selected job, including pre-render and post-render hooks for job components.
+    /// </summary>
+    /// <param name="sectionColumn">The section column identifier.</param>
+    /// <param name="section">The section identifier.</param>
+    /// <param name="position">The position vector, passed by reference and updated after drawing.</param>
+    /// <param name="width">The width of the section.</param>
+    /// <param name="drawerFunc">A function to draw the section content for the job.</param>
+    /// <param name="header">An optional header for the section.</param>
     protected void DrawSection(
         string sectionColumn,
         string section,
@@ -73,37 +89,80 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where
 }
 
 #pragma warning disable CS8618 // Set by ManagerDefMaker.MakeManagerTab
+/// <summary>
+/// Base class for all manager tabs in the Colony Manager Redux mod.
+/// </summary>
+/// <param name="manager">The manager instance associated with this tab.</param>
 [HotSwappable]
 public abstract class ManagerTab(Manager manager)
 #pragma warning restore CS8618
 {
+    /// <summary>
+    /// The default width of the left row in the manager tab UI.
+    /// </summary>
     public const float DefaultLeftRowSize = 300f;
 
-    public const float
-        StampSize = SmallIconSize,
-        LastUpdateRectWidth = 50f,
-        ProgressRectWidth = 60f,
-        StatusRectWidth = StampSize + LastUpdateRectWidth + ProgressRectWidth + 2 * Margin;
+    /// <summary>
+    /// The size of the stamp icon in the manager tab UI.
+    /// </summary>
+    public const float StampSize = SmallIconSize;
+    /// <summary>
+    /// The width of the last update rectangle in the manager tab UI.
+    /// </summary>
+    public const float LastUpdateRectWidth = 50f;
+    /// <summary>
+    /// The width of the progress rectangle in the manager tab UI.
+    /// </summary>
+    public const float ProgressRectWidth = 60f;
+    /// <summary>
+    /// The width of the status rectangle in the manager tab UI.
+    /// </summary>
+    public const float StatusRectWidth = StampSize + LastUpdateRectWidth + ProgressRectWidth + (2 * Margin);
 
 #pragma warning disable CS8618 // Set externally
-    private ManagerDef _def;
+    /// <summary>
+    /// Gets the manager definition associated with this tab.
+    /// </summary>
+    public ManagerDef Def
+    {
+        get; internal set;
+    }
 #pragma warning restore CS8618
-    public ManagerDef Def { get => _def; internal set => _def = value; }
 
-    public bool Show => !ColonyManagerReduxMod.Settings.DisabledManagers.Contains(_def);
+    /// <summary>
+    /// Gets a value indicating whether this manager tab should be shown, based on whether it is disabled in the settings.
+    /// </summary>
+    public bool Show => !ColonyManagerReduxMod.Settings.DisabledManagers.Contains(Def);
 
-    private Manager _manager = manager;
-    public Manager Manager { get => _manager; private set => _manager = value; }
+    /// <summary>
+    /// Gets the manager instance associated with this tab.
+    /// </summary>
+    public Manager Manager { get; private set; } = manager;
 
+    /// <summary>
+    /// Gets the reason why this manager tab is disabled, if any.
+    /// </summary>
     public virtual string DisabledReason => "";
 
+    /// <summary>
+    /// Gets a value indicating whether this manager tab is enabled.
+    /// </summary>
     public virtual bool Enabled => true;
 
+    /// <summary>
+    /// Gets a value indicating whether a new job should be created and selected when the manager tab is made.
+    /// </summary>
     protected virtual bool CreateNewSelectedJobOnMake => true;
 
-    public virtual string Label => _def.label.CapitalizeFirst();
+    /// <summary>
+    /// Gets the label for this manager tab, with the first letter capitalized.
+    /// </summary>
+    public virtual string Label => Def.label.CapitalizeFirst();
 
     private ManagerJob? _selected;
+    /// <summary>
+    /// Gets or sets the currently selected manager job in this tab.
+    /// </summary>
     public ManagerJob? Selected
     {
         get => _selected;
@@ -115,16 +174,26 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the currently selected job can be deselected in this manager tab.
+    /// </summary>
     protected virtual bool AllowJobDeselect => false;
+    /// <summary>
+    /// Gets a value indicating whether the main content should be drawn when no job is selected.
+    /// </summary>
     protected virtual bool DoMainContentWhenNothingSelected => false;
 
-    internal void RenderTab(Rect rect)
-    {
-        DoTabContents(rect);
-    }
+    internal void RenderTab(Rect rect) => DoTabContents(rect);
 
+    /// <summary>
+    /// Gets a value indicating whether the "New Job" button should be shown in the manager tab UI.
+    /// </summary>
     protected virtual bool ShouldHaveNewJobButton => true;
-    private ScrollViewStatus _exceptionScrollViewStatus = new();
+    private readonly ScrollViewStatus _exceptionScrollViewStatus = new();
+    /// <summary>
+    /// Draws the contents of the manager tab, including the job list and main content area.
+    /// </summary>
+    /// <param name="canvas">The rectangle area in which to draw the tab contents.</param>
     protected virtual void DoTabContents(Rect canvas)
     {
         // set up rects
@@ -158,7 +227,7 @@ public abstract class ManagerTab(Manager manager)
                     contentCanvas.x,
                     contentCanvas.y,
                     contentCanvas.width,
-                    ExceptionBoxHeight + 2 * Margin);
+                    ExceptionBoxHeight + (2 * Margin));
 
                 Widgets.DrawMenuSection(exceptionRect);
                 Widgets.DrawBox(exceptionRect, lineTexture: Resources.Error);
@@ -169,12 +238,12 @@ public abstract class ManagerTab(Manager manager)
                 {
 
                     var textHeight = Text.CalcHeight(
-                        exceptionText, scrollView.ViewRect.width - 2 * Margin);
+                        exceptionText, scrollView.ViewRect.width - (2 * Margin));
 
                     var textRect = exceptionRect.AtZero();
                     //textRect.yMin += Margin;
                     textRect.width = scrollView.ViewRect.width;
-                    textRect.height = Mathf.Max(textHeight + 4 * Margin, exceptionRect.height);
+                    textRect.height = Mathf.Max(textHeight + (4 * Margin), exceptionRect.height);
                     scrollView.Height = textRect.height;
 
                     IlyvionWidgets.Label(
@@ -182,7 +251,7 @@ public abstract class ManagerTab(Manager manager)
                         exceptionText,
                         TextAnchor.MiddleLeft,
                         color: ColorLibrary.LogError);
-                    contentCanvas.yMin += ExceptionBoxHeight + 3 * Margin;
+                    contentCanvas.yMin += ExceptionBoxHeight + (3 * Margin);
                 }
 
                 using var _t = GUIScope.Font(GameFont.Tiny);
@@ -211,15 +280,29 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
-    protected virtual IEnumerable<ManagerJob> ManagerJobs => _manager.JobTracker.JobsOfType<ManagerJob>();
+    /// <summary>
+    /// Gets the collection of manager jobs associated with this tab.
+    /// </summary>
+    protected virtual IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<ManagerJob>();
 
 
+    /// <summary>
+    /// Draws the main content area of the manager tab.
+    /// </summary>
+    /// <param name="rect">The rectangle area in which to draw the main content.</param>
     protected virtual void DoMainContent(Rect rect)
     {
     }
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
+    /// <summary>
+    /// Draws a local list entry for a manager job in the job list UI.
+    /// </summary>
+    /// <param name="job">The manager job to draw.</param>
+    /// <param name="position">The position vector, passed by reference and updated after drawing.</param>
+    /// <param name="width">The width of the entry.</param>
+    /// <param name="parameters">Optional parameters for drawing the entry.</param>
     public virtual void DrawLocalListEntry(
         ManagerJob job,
         ref Vector2 position,
@@ -230,7 +313,7 @@ public abstract class ManagerTab(Manager manager)
 
         var tab = job.Tab;
 
-        float labelWidth = width - 4 * Margin - StampSize
+        var labelWidth = width - (4 * Margin) - StampSize
             - LargeListEntryHeight - LastUpdateRectWidth;
 
         // create label string
@@ -349,7 +432,7 @@ public abstract class ManagerTab(Manager manager)
         if (parameters.ShowOrdering && DrawOrderButtons(
             orderRect,
             job,
-            _manager.JobTracker))
+            Manager.JobTracker))
         {
             Refresh();
         }
@@ -358,6 +441,14 @@ public abstract class ManagerTab(Manager manager)
         position.y += rowRect.height;
     }
 
+    /// <summary>
+    /// Gets the full label and its size for a manager job, optionally including a sublabel.
+    /// </summary>
+    /// <param name="job">The manager job for which to get the label.</param>
+    /// <param name="labelWidth">The maximum width for the label.</param>
+    /// <param name="subLabel">An optional sublabel to include below the main label.</param>
+    /// <param name="drawSubLabel">Whether to include the sublabel in the returned label.</param>
+    /// <returns>A tuple containing the label string and its calculated size.</returns>
     public virtual (string label, Vector2 labelSize) GetFullLabel(
         ManagerJob job,
         float labelWidth,
@@ -381,23 +472,26 @@ public abstract class ManagerTab(Manager manager)
         return (label, Text.CalcSize(label));
     }
 
-    public virtual string GetMainLabel(ManagerJob job)
-    {
-        return Label;
-    }
+    /// <summary>
+    /// Gets the main label for the specified manager job.
+    /// </summary>
+    /// <param name="job">The manager job for which to get the main label.</param>
+    /// <returns>The main label string.</returns>
+    public virtual string GetMainLabel(ManagerJob job) => Label;
 
-    public virtual string GetSubLabel(ManagerJob job)
-    {
-        if (job.Targets.Any())
-        {
-            return string.Join(", ", job.Targets);
-        }
-        else
-        {
-            return "ColonyManagerRedux.Common.None".Translate();
-        }
-    }
+    /// <summary>
+    /// Gets the sublabel for the specified manager job, typically a comma-separated list of targets or a default string if none exist.
+    /// </summary>
+    /// <param name="job">The manager job for which to get the sublabel.</param>
+    /// <returns>A string representing the sublabel for the job.</returns>
+    public virtual string GetSubLabel(ManagerJob job) => job.Targets.Any() ? string.Join(", ", job.Targets) : (string)"ColonyManagerRedux.Common.None".Translate();
 
+    /// <summary>
+    /// Draws the overview details for the specified manager job in the given rectangle.
+    /// </summary>
+    /// <param name="job">The manager job for which to draw the overview details.</param>
+    /// <param name="rect">The rectangle area in which to draw the overview details.</param>
+    /// <returns>True if the overview details were drawn; otherwise, false.</returns>
     public virtual bool DrawOverviewDetails(ManagerJob job, Rect rect)
     {
         if (job.CompOfType<CompManagerJobHistory>() is not CompManagerJobHistory historyComp)
@@ -410,17 +504,24 @@ public abstract class ManagerTab(Manager manager)
         {
             Widgets.DrawRectFast(rect, Color.white.ToTransparent(.2f));
             var bgRect = new Rect(rect);
-            bgRect.yMin += rect.height / 2 - 50f;
-            bgRect.yMax -= rect.height / 2 - 50f;
+            bgRect.yMin += (rect.height / 2) - 50f;
+            bgRect.yMax -= (rect.height / 2) - 50f;
             bgRect = bgRect.ContractedBy(10f);
             Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
             IlyvionWidgets.Label(
-                new(rect) { height = rect.height - 15f },
+                new(rect)
+                {
+                    height = rect.height - 15f
+                },
                 "ColonyManagerRedux.History.JobSuspended".Translate(),
                 TextAnchor.MiddleCenter,
                 GameFont.Medium);
             IlyvionWidgets.Label(
-                new(rect) { y = rect.y + 20, height = rect.height - 15f },
+                new(rect)
+                {
+                    y = rect.y + 20,
+                    height = rect.height - 15f
+                },
                 "(" + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
                     "ColonyManagerRedux.Job.Unsuspend".Translate()) + ")",
                 TextAnchor.MiddleCenter,
@@ -436,7 +537,7 @@ public abstract class ManagerTab(Manager manager)
     }
 #pragma warning restore CA1062 // Validate arguments of public methods
 
-    public virtual void PostMake()
+    internal void PostMakeInt()
     {
         if (CreateNewSelectedJobOnMake)
         {
@@ -454,41 +555,82 @@ public abstract class ManagerTab(Manager manager)
                 Selected = MakeNewJob();
             }
         }
+        PostMake();
     }
 
-    public ManagerJob? MakeNewJob(params object[] args)
-    {
-        return ManagerDefMaker.MakeManagerJob(_def, _manager, args);
-    }
-
-    public virtual void PostClose()
-    {
-    }
-
-    public virtual void PostOpen()
+    /// <summary>
+    /// Called after the manager tab is created; can be overridden to perform additional initialization.
+    /// </summary>
+    public virtual void PostMake()
     {
     }
 
+    /// <summary>
+    /// Creates a new manager job for this tab using the specified arguments.
+    /// </summary>
+    /// <param name="args">Arguments to pass to the job constructor.</param>
+    /// <returns>A new instance of <see cref="ManagerJob"/> or null if creation fails.</returns>
+    public ManagerJob? MakeNewJob(params object[] args) => ManagerDefMaker.MakeManagerJob(Def, Manager, args);
+
+    /// <summary>
+    /// Called before the manager tab is closed.
+    /// </summary>
     public virtual void PreClose()
     {
     }
 
+    /// <summary>
+    /// Called after the manager tab is closed.
+    /// </summary>
+    public virtual void PostClose()
+    {
+    }
+
+    /// <summary>
+    /// Called before the manager tab is opened.
+    /// </summary>
     public virtual void PreOpen()
     {
     }
 
+    /// <summary>
+    /// Called after the manager tab is opened.
+    /// </summary>
+    public virtual void PostOpen()
+    {
+    }
+
+    /// <summary>
+    /// Called every tick to update the manager tab.
+    /// </summary>
     public virtual void Tick()
     {
     }
 
+    /// <summary>
+    /// Called before a new job is selected in this manager tab.
+    /// </summary>
     protected virtual void PreSelect()
     {
     }
 
+    /// <summary>
+    /// Called after a new job is selected in this manager tab.
+    /// </summary>
     protected virtual void PostSelect()
     {
     }
 
+    /// <summary>
+    /// Draws a shortcut toggle UI element that allows selecting or deselecting all options in a list.
+    /// </summary>
+    /// <typeparam name="T">The type of the options.</typeparam>
+    /// <param name="options">The list of all available options.</param>
+    /// <param name="selected">The set of currently selected options.</param>
+    /// <param name="setAllowed">The action called to set whether an option is allowed (selected).</param>
+    /// <param name="rect">The rectangle area in which to draw the toggle.</param>
+    /// <param name="labelKey">The translation key for the toggle label.</param>
+    /// <param name="toolTipKey">The translation key for the tooltip, or null if none.</param>
     protected static void DrawShortcutToggle<T>(List<T> options, HashSet<T> selected, Action<T, bool> setAllowed, Rect rect, string labelKey, string? toolTipKey)
     {
         if (options == null)
@@ -514,6 +656,10 @@ public abstract class ManagerTab(Manager manager)
     }
 
     private readonly ScrollViewStatus _jobListScrollViewStatus = new();
+    /// <summary>
+    /// Draws the job list UI for the manager tab.
+    /// </summary>
+    /// <param name="rect">The rectangle area in which to draw the job list.</param>
     protected virtual void DoJobList(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
@@ -570,6 +716,10 @@ public abstract class ManagerTab(Manager manager)
         scrollView.Height = cur.y;
     }
 
+    /// <summary>
+    /// Draws the "New Job" button in the manager tab UI.
+    /// </summary>
+    /// <param name="rect">The rectangle area in which to draw the button.</param>
     protected virtual void DrawNewJobButton(Rect rect)
     {
         if (Widgets.ButtonText(rect, "ColonyManagerRedux.Job.New".Translate().Resolve()))
@@ -578,6 +728,9 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
+    /// <summary>
+    /// Called to refresh the manager tab UI or data.
+    /// </summary>
     protected virtual void Refresh()
     {
     }
@@ -586,31 +739,19 @@ public abstract class ManagerTab(Manager manager)
         ManagerJob job,
         JobTracker jobTracker)
     {
-        bool top = job.Priority == 0;
-        bool bottom = job.Priority == jobTracker.MaxPriority;
+        var top = job.Priority == 0;
+        var bottom = job.Priority == jobTracker.MaxPriority;
 
         return (top, bottom);
     }
 
-    internal virtual void TopPriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.TopPriority(job);
-    }
+    internal virtual void TopPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.TopPriority(job);
 
-    internal virtual void IncreasePriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.IncreasePriority(job);
-    }
+    internal virtual void IncreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.IncreasePriority(job);
 
-    internal virtual void DecreasePriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.DecreasePriority(job);
-    }
+    internal virtual void DecreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.DecreasePriority(job);
 
-    internal virtual void BottomPriority(JobTracker jobTracker, ManagerJob job)
-    {
-        jobTracker.BottomPriority(job);
-    }
+    internal virtual void BottomPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.BottomPriority(job);
 
     /// <summary>
     ///     Draw a square group of ordering buttons for a job in rect.
@@ -647,7 +788,7 @@ public abstract class ManagerTab(Manager manager)
             Widgets.DrawRectFast(downRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(topRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(bottomRect, ColorLibrary.Indigo.ToTransparent(.5f));
-            IlyvionWidgets.Label(rect, job.Priority.ToString(), TextAnchor.MiddleCenter);
+            IlyvionWidgets.Label(rect, job.Priority.ToString(CultureInfo.InvariantCulture), TextAnchor.MiddleCenter);
         });
 
         if (!top)
@@ -699,14 +840,28 @@ public abstract class ManagerTab(Manager manager)
         }
     }
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     protected internal virtual void Notify_PawnsChanged()
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
     {
     }
 }
 
+/// <summary>
+/// Parameters for drawing a local list entry in the manager tab UI.
+/// </summary>
 public class DrawLocalListEntryParameters
 {
+    /// <summary>
+    /// Gets or sets a value indicating whether ordering controls should be shown in the local list entry.
+    /// </summary>
     public bool ShowOrdering { get; set; } = true;
+    /// <summary>
+    /// Gets or sets a value indicating whether the progress bar should be shown in the local list entry.
+    /// </summary>
     public bool ShowProgressbar { get; set; } = true;
+    /// <summary>
+    /// Gets or sets the height of the status area in the local list entry.
+    /// </summary>
     public float StatusHeight { get; set; } = SmallIconSize;
 }

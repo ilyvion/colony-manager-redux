@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
-partial class ManagerTab_Mining
+internal partial class ManagerTab_Mining
 {
     [HotSwappable]
     public sealed class DebugComp : ManagerComp

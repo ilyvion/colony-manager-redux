@@ -4,7 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
-partial class ManagerTab_ImportExport
+internal partial class ManagerTab_ImportExport
 {
     public sealed class ScribeModeComp : ManagerComp
     {
@@ -22,14 +22,9 @@ partial class ManagerTab_ImportExport
     }
 }
 
-public static class ScribeModeCompManagerExtensions
+internal static class ScribeModeCompManagerExtensions
 {
-    internal static ScribingMode SetScribingMode(this Manager manager, ScribingMode mode)
-    {
-        if (manager == null)
-        {
-            throw new ArgumentNullException(nameof(manager));
-        }
-        return manager.CompOfType<ManagerTab_ImportExport.ScribeModeComp>()!.Mode = mode;
-    }
+    internal static ScribingMode SetScribingMode(this Manager manager, ScribingMode mode) => manager == null
+            ? throw new ArgumentNullException(nameof(manager))
+            : (manager.CompOfType<ManagerTab_ImportExport.ScribeModeComp>()!.Mode = mode);
 }

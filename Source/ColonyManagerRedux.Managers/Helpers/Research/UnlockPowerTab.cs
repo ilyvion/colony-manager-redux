@@ -4,10 +4,7 @@
 
 namespace ColonyManagerRedux.Managers;
 
-public class UnlockPowerTab : ResearchMod
+internal class UnlockPowerTab : ResearchMod
 {
-    public override void Apply()
-    {
-        ManagerTab_Power.OnPowerResearchedFinished();
-    }
+    public override void Apply() => ManagerTab_Power.OnPowerResearchedFinished();
 }

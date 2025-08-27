@@ -6,17 +6,26 @@ using ilyvion.Laboratory.Extensions;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Represents an update interval for manager jobs, including its tick value and display label.
+/// </summary>
 [HotSwappable]
 public class UpdateInterval(int ticks, string label)
 {
     private static UpdateInterval? _daily;
 
-    private readonly string _label = label;
-    public string Label { get => _label; }
+    /// <summary>
+    /// Gets the display label for this update interval.
+    /// </summary>
+    public string Label { get; } = label;
+    /// <summary>
+    /// Gets the number of ticks for this update interval.
+    /// </summary>
+    public int Ticks { get; } = ticks;
 
-    private readonly int _ticks = ticks;
-    public int Ticks { get => _ticks; }
-
+    /// <summary>
+    /// Gets a daily update interval instance.
+    /// </summary>
     public static UpdateInterval Daily
     {
         get
@@ -28,6 +37,13 @@ public class UpdateInterval(int ticks, string label)
     }
 
 
+    /// <summary>
+    /// Draws the update interval UI for a manager job, including tooltips and interaction.
+    /// </summary>
+    /// <param name="canvas">The rectangle in which to draw.</param>
+    /// <param name="job">The manager job to display the interval for.</param>
+    /// <param name="exporting">Whether the UI is being exported (non-interactive).</param>
+    /// <param name="suspended">Whether the job is suspended.</param>
     public static void Draw(Rect canvas, ManagerJob job, bool exporting, bool suspended)
     {
         if (job == null)
@@ -35,10 +51,10 @@ public class UpdateInterval(int ticks, string label)
             throw new ArgumentNullException(nameof(job));
         }
 
-        Color nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
+        var nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
 
         string lastUpdateTooltip;
-        var nextUpdate = (float)job.UpdateInterval._ticks / GenDate.TicksPerHour;
+        var nextUpdate = (float)job.UpdateInterval.Ticks / GenDate.TicksPerHour;
         if (exporting)
         {
             if (nextUpdate < 12)
@@ -103,12 +119,12 @@ public class UpdateInterval(int ticks, string label)
         if (suspended)
         {
             lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip".Translate(
-                job.UpdateInterval._ticks.ToStringTicksToPeriod());
+                job.UpdateInterval.Ticks.ToStringTicksToPeriod());
         }
         else
         {
             lastUpdateTooltip += "ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip".Translate(
-                job.UpdateInterval._ticks.ToStringTicksToPeriod());
+                job.UpdateInterval.Ticks.ToStringTicksToPeriod());
         }
 
         if (!exporting)
@@ -134,7 +150,7 @@ public class UpdateInterval(int ticks, string label)
                 }
                 foreach (var interval in Utilities.UpdateIntervalOptions)
                 {
-                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.Update".Translate(interval._label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
+                    options.Add(new FloatMenuOption("ColonyManagerRedux.Job.Update".Translate(interval.Label.UncapitalizeFirst()), () => job.UpdateInterval = interval));
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));

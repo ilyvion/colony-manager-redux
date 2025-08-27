@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+
 using Verse.Sound;
 
 namespace ColonyManagerRedux.Managers;
@@ -142,7 +143,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         // set areas for restriction and taming to unrestricted
         TameArea = null;
         RestrictToArea = false;
-        RestrictArea = Utilities_Livestock.AgeSexArray.Select(k => (Area?)null).ToArray();
+        RestrictArea = [.. Utilities_Livestock.AgeSexArray.Select(k => (Area?)null)];
 
         // set up sending animals designated for slaughter to an area (freezer)
         SendToCullingArea = false;
@@ -193,14 +194,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             return;
         }
 
-        PawnKindDef? pawnKind = TriggerPawnKind.pawnKind;
+        var pawnKind = TriggerPawnKind.pawnKind;
         if (pawnKind == null)
         {
             return;
         }
 
-        PawnKindSettings pawnKindSettings = livestockSettings.GetSettingsFor(pawnKind);
-        for (int i = 0; i < pawnKindSettings.DefaultCountTargets.Length; i++)
+        var pawnKindSettings = livestockSettings.GetSettingsFor(pawnKind);
+        for (var i = 0; i < pawnKindSettings.DefaultCountTargets.Length; i++)
         {
             TriggerPawnKind.CountTargets[i] = pawnKindSettings.DefaultCountTargets[i];
         }
@@ -214,7 +215,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         foreach (var def in TrainingTracker.TrainableDefs)
         {
-            var report = CanBeTrained(pawnKind, def, out bool visible);
+            var report = CanBeTrained(pawnKind, def, out var visible);
             if (report.Accepted && visible && pawnKindSettings.EnabledTrainingTargets.Contains(def))
             {
                 Training[def] = true;
@@ -309,7 +310,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         if (untrainableTags != null)
         {
-            foreach (string tag in untrainableTags)
+            foreach (var tag in untrainableTags)
             {
                 if (td.MatchesTag(tag))
                 {
@@ -440,12 +441,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     }
 
     private static readonly string?[] _tmpRestrictAreaLabel
-        = Utilities_Livestock.AgeSexArray.Select(k => (string?)null).ToArray();
-    private string? _tmpTameAreaLabel = null;
-    private string? _tmpCullingAreaLabel = null;
-    private string? _tmpMilkAreaLabel = null;
-    private string? _tmpShearAreaLabel = null;
-    private string? _tmpTrainingAreaLabel = null;
+        = [.. Utilities_Livestock.AgeSexArray.Select(k => (string?)null)];
+    private string? _tmpTameAreaLabel;
+    private string? _tmpCullingAreaLabel;
+    private string? _tmpMilkAreaLabel;
+    private string? _tmpShearAreaLabel;
+    private string? _tmpTrainingAreaLabel;
 
     public override void ExposeData()
     {
@@ -664,7 +665,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
 
+#if v1_5
         jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
+#else
+        jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (", StringComparison.Ordinal) + ")";
+#endif
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);
@@ -714,7 +719,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(AddRelevantGameDesignations);
 
         // get list of game designations not managed by this job that could have been assigned by this job.
-        int addedCount = 0;
+        var addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
         foreach (
             var des in Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Slaughter)
@@ -764,7 +769,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             {
                 foreach (var def in TrainingTracker.TrainableDefs)
                 {
-                    bool trainingDef = Training[def];
+                    var trainingDef = Training[def];
 
                     if ( // only train if allowed.
                         animal.training.CanAssignToTrain(def, out _).Accepted &&
@@ -804,15 +809,17 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoAreaRestrictions);
         var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoAreaRestrictions);
 
-        int animalCounter = -1;
+        var animalCounter = -1;
         for (var i = 0; i < Utilities_Livestock.AgeSexArray.Length; i++)
         {
             foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager,
                 Utilities_Livestock.AgeSexArray[i]))
             {
                 var currentArea = animal.playerSettings.AreaRestrictionInPawnCurrentMap;
-                void SetArea(Area? area) =>
+                void SetArea(Area? area)
+                {
                     animal.playerSettings.AreaRestrictionInPawnCurrentMap = area;
+                }
 
                 // slaughter
                 if (SendToCullingArea &&
@@ -909,11 +916,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
-            int animalCount = TriggerPawnKind.pawnKind
+            var animalCount = TriggerPawnKind.pawnKind
                 .GetTame(Manager, ageSex, includeGuests: false).Count();
             DesignationsOfOn(cullingDesignationDef, ageSex, _tmpDesignations);
-            int alreadyCulling = _tmpDesignations.Count;
-            int target = TriggerPawnKind.CountTargets[(int)ageSex];
+            var alreadyCulling = _tmpDesignations.Count;
+            var target = TriggerPawnKind.CountTargets[(int)ageSex];
             var targetDifference = animalCount - alreadyCulling - target;
 
             jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.CurrentCountCulling".Translate(
@@ -947,7 +954,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
                 for (var i = 0; i < targetDifference && animalsEnumerator.MoveNext(); i++)
                 {
-                    Pawn animal = animalsEnumerator.Current;
+                    var animal = animalsEnumerator.Current;
                     AddDesignation(new(animal, cullingDesignationDef));
                     animalCount--;
                     jobLog.AddDetail("ColonyManagerRedux.Livestock.Logs.AddDesignation"
@@ -964,7 +971,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             }
 
             // remove extra designations
-            bool didRemove = false;
+            var didRemove = false;
             while (targetDifference < 0)
             {
                 if (TryRemoveDesignation(ageSex, cullingDesignationDef, out var animal))
@@ -1008,14 +1015,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         using var _ = new DoOnDispose(_tmpDesignations.Clear);
 
-        int animalCounter = -1;
+        var animalCounter = -1;
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // not enough animals?
-            int target = TriggerPawnKind.CountTargets[(int)ageSex];
-            int animalCount = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count();
+            var target = TriggerPawnKind.CountTargets[(int)ageSex];
+            var animalCount = TriggerPawnKind.pawnKind.GetTame(Manager, ageSex, includeGuests: false).Count();
             DesignationsOfOn(DesignationDefOf.Tame, ageSex, _tmpDesignations);
-            int alreadyTaming = _tmpDesignations.Count;
+            var alreadyTaming = _tmpDesignations.Count;
             var targetDifference = target
                 - animalCount
                 - alreadyTaming;
@@ -1274,7 +1281,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         {
             TrainingArea = null;
         }
-        for (int i = 0; i < RestrictArea.Length; i++)
+        for (var i = 0; i < RestrictArea.Length; i++)
         {
             if (RestrictArea[i] == area)
             {

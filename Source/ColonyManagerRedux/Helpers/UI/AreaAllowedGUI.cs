@@ -6,9 +6,21 @@ using Verse.Sound;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Provides UI helpers for selecting and displaying allowed areas in the manager interface.
+/// </summary>
 [HotSwappable]
 public static class AreaAllowedGUI
 {
+    /// <summary>
+    /// Draws the allowed area selector UI and returns the selected area.
+    /// </summary>
+    /// <param name="rect">Reference to the rectangle in which to draw.</param>
+    /// <param name="currentArea">The currently selected area.</param>
+    /// <param name="countPerRow">Number of areas per row.</param>
+    /// <param name="map">The map containing the areas.</param>
+    /// <param name="margin">Optional margin for the selector area.</param>
+    /// <returns>The newly selected area, or the current area if unchanged.</returns>
     public static Area? DoAllowedAreaSelectors(ref Rect rect,
         Area? currentArea,
         int countPerRow,
@@ -21,6 +33,15 @@ public static class AreaAllowedGUI
     }
 
     // RimWorld.AreaAllowedGUI
+    /// <summary>
+    /// Draws the allowed area selector UI at the specified position and width.
+    /// </summary>
+    /// <param name="pos">Reference to the position to start drawing.</param>
+    /// <param name="width">The width of the selector area.</param>
+    /// <param name="area">Reference to the currently selected area.</param>
+    /// <param name="countPerRow">Number of areas per row.</param>
+    /// <param name="map">The map containing the areas.</param>
+    /// <param name="margin">Optional margin for the selector area.</param>
     public static void DoAllowedAreaSelectors(
         ref Vector2 pos,
         float width,
@@ -38,6 +59,14 @@ public static class AreaAllowedGUI
         pos.y += rect.height;
     }
 
+    /// <summary>
+    /// Draws the allowed area selector UI in the specified rectangle.
+    /// </summary>
+    /// <param name="rect">Reference to the rectangle in which to draw.</param>
+    /// <param name="allowedArea">Reference to the currently allowed area.</param>
+    /// <param name="countPerRow">Number of areas per row.</param>
+    /// <param name="map">The map containing the areas.</param>
+    /// <param name="lrMargin">Optional left/right margin for the selector area.</param>
     public static void DoAllowedAreaSelectors(
         ref Rect rect,
         ref Area? allowedArea,
@@ -57,7 +86,7 @@ public static class AreaAllowedGUI
         }
 
         var allAreas = map.areaManager.AllAreas;
-        var areaCount = 1 + allAreas.Where(a => a.AssignableAsAllowed()).Count();
+        var areaCount = 1 + allAreas.Count(a => a.AssignableAsAllowed());
 
         if (areaCount < countPerRow)
         {
@@ -73,10 +102,10 @@ public static class AreaAllowedGUI
         var nullAreaRect = new Rect(rect.x, rect.y, widthPerArea, rect.height / areaRows);
         DoAreaSelector(nullAreaRect, ref allowedArea, null);
         var areaIndex = 1;
-        foreach (Area area in allAreas.Where(a => a.AssignableAsAllowed()))
+        foreach (var area in allAreas.Where(a => a.AssignableAsAllowed()))
         {
-            var xOffset = (areaIndex % countPerRow) * widthPerArea;
-            var yOffset = (areaIndex / countPerRow) * Constants.ListEntryHeight;
+            var xOffset = areaIndex % countPerRow * widthPerArea;
+            var yOffset = areaIndex / countPerRow * Constants.ListEntryHeight;
             var areaRect = new Rect(rect.x + xOffset, rect.y + yOffset, widthPerArea, rect.height / areaRows);
             DoAreaSelector(areaRect, ref allowedArea, area);
             areaIndex++;
@@ -86,6 +115,13 @@ public static class AreaAllowedGUI
         Text.Font = GameFont.Small;
     }
 
+    /// <summary>
+    /// Draws the multi-select allowed area selector UI.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw.</param>
+    /// <param name="allowedAreas">Reference to the set of allowed areas.</param>
+    /// <param name="map">The map containing the areas.</param>
+    /// <param name="lrMargin">Optional left/right margin for the selector area.</param>
     public static void DoAllowedAreaSelectorsMC(
         Rect rect,
         ref HashSet<Area> allowedAreas,
@@ -108,30 +144,30 @@ public static class AreaAllowedGUI
         }
 
         var allAreas = map.areaManager.AllAreas;
-        var areaCount = allAreas.Where(a => a.AssignableAsAllowed()).Count();
+        var areaCount = allAreas.Count(a => a.AssignableAsAllowed());
 
         var widthPerArea = rect.width / areaCount;
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
         var areaIndex = 0;
-        foreach (Area area in allAreas.Where(a => a.AssignableAsAllowed()))
+        foreach (var area in allAreas.Where(a => a.AssignableAsAllowed()))
         {
             var xOffset = areaIndex * widthPerArea;
             var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);
-            bool status = allowedAreas.Contains(area);
-            bool newStatus = DoAreaSelector(areaRect, area, status);
+            var status = allowedAreas.Contains(area);
+            var newStatus = DoAreaSelector(areaRect, area, status);
             if (status != newStatus)
             {
                 // Selection changed
                 if (newStatus)
                 {
                     // Area should be added
-                    allowedAreas.Add(area);
+                    _ = allowedAreas.Add(area);
                 }
                 else
                 {
                     // Area should be removed
-                    allowedAreas.Remove(area);
+                    _ = allowedAreas.Remove(area);
                 }
             }
             areaIndex++;

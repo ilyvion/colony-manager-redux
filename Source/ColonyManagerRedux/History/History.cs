@@ -3,14 +3,24 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
+
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
 
+/// <summary>
+/// Stores and manages historical data for manager jobs, including plotting and update logic.
+/// </summary>
 [HotSwappable]
 public partial class History : IExposable
 {
+    /// <summary>
+    /// The default color used for history plot lines.
+    /// </summary>
     public static readonly Color DefaultLineColor = Color.white;
+    /// <summary>
+    /// Gets an array of all possible <see cref="Period"/> values.
+    /// </summary>
     public static readonly Period[] Periods = (Period[])Enum.GetValues(typeof(Period));
 
     internal const int EntriesPerInterval = 100;
@@ -24,24 +34,63 @@ public partial class History : IExposable
 
     // Settings for plot
     private bool _allowTogglingLegend = true;
-    public bool AllowTogglingLegend { get => _allowTogglingLegend; set => _allowTogglingLegend = value; }
+    /// <summary>
+    /// Gets or sets whether the legend can be toggled in the plot.
+    /// </summary>
+    public bool AllowTogglingLegend
+    {
+        get => _allowTogglingLegend; set => _allowTogglingLegend = value;
+    }
     private bool _drawInlineLegend = true;
-    public bool DrawInlineLegend { get => _drawInlineLegend; set => _drawInlineLegend = value; }
+    /// <summary>
+    /// Gets or sets whether to draw the legend inline with the plot.
+    /// </summary>
+    public bool DrawInlineLegend
+    {
+        get => _drawInlineLegend; set => _drawInlineLegend = value;
+    }
     private bool _drawOptions = true;
-    public bool DrawOptions { get => _drawOptions; set => _drawOptions = value; }
+    /// <summary>
+    /// Gets or sets whether to draw options for the plot.
+    /// </summary>
+    public bool DrawOptions
+    {
+        get => _drawOptions; set => _drawOptions = value;
+    }
     private bool _drawTargetLine = true;
-    public bool DrawTargetLine { get => _drawTargetLine; set => _drawTargetLine = value; }
+    /// <summary>
+    /// Gets or sets whether to draw the target line in the plot.
+    /// </summary>
+    public bool DrawTargetLine
+    {
+        get => _drawTargetLine; set => _drawTargetLine = value;
+    }
 
     // Shared settings
     private Period _periodShown = Period.Day;
-    public Period PeriodShown { get => _periodShown; set => _periodShown = value; }
+    /// <summary>
+    /// Gets or sets the period currently shown in the plot.
+    /// </summary>
+    public Period PeriodShown
+    {
+        get => _periodShown; set => _periodShown = value;
+    }
     private string _yAxisSuffix = string.Empty;
-    public string YAxisSuffix { get => _yAxisSuffix; set => _yAxisSuffix = value; }
+    /// <summary>
+    /// Gets or sets the suffix for the Y axis label.
+    /// </summary>
+    public string YAxisSuffix
+    {
+        get => _yAxisSuffix; set => _yAxisSuffix = value;
+    }
 
     // each chapter holds the history for all periods.
     internal List<Chapter> _chapters = [];
 
     // for scribe.
+    /// <summary>
+    /// Default constructor for scribing only.
+    /// </summary>
     public History()
     {
     }
@@ -65,6 +114,11 @@ public partial class History : IExposable
         _chaptersShown.AddRange(_chapters);
     }
 
+    /// <summary>
+    /// Creates a new history with the specified labels and optional colors.
+    /// </summary>
+    /// <param name="labels">The labels for each chapter.</param>
+    /// <param name="colors">Optional colors for each chapter.</param>
     public History(HistoryLabel[] labels, Color[]? colors = null)
     {
         if (labels == null)
@@ -76,20 +130,12 @@ public partial class History : IExposable
         Log.Message( "History created" + string.Join( ", ", labels ) );
 #endif
         // get range of colors if not set
-        if (colors == null)
-        {
-            // default to white for single line
-            if (labels.Length == 1)
-            {
-                colors = [DefaultLineColor];
-            }
+        // default to white for single line
+        colors ??= labels.Length == 1
+            ? [DefaultLineColor]
 
             // rainbow!
-            else
-            {
-                colors = HSV_Helper.Range(labels.Length);
-            }
-        }
+            : HSV_Helper.Range(labels.Length);
 
         // create a chapter for each label
         for (var i = 0; i < labels.Length; i++)
@@ -101,6 +147,11 @@ public partial class History : IExposable
         _chaptersShown.AddRange(_chapters);
     }
 
+    /// <summary>
+    /// Creates a new history with the specified thing counts and optional colors.
+    /// </summary>
+    /// <param name="thingCounts">The thing counts for each chapter.</param>
+    /// <param name="colors">Optional colors for each chapter.</param>
     public History(ThingDefCount[] thingCounts, Color[]? colors = null)
     {
         if (thingCounts == null)
@@ -109,20 +160,12 @@ public partial class History : IExposable
         }
 
         // get range of colors if not set
-        if (colors == null)
-        {
-            // default to white for single line
-            if (thingCounts.Length == 1)
-            {
-                colors = [Color.white];
-            }
+        // default to white for single line
+        colors ??= thingCounts.Length == 1
+            ? [Color.white]
 
             // rainbow!
-            else
-            {
-                colors = HSV_Helper.Range(thingCounts.Length);
-            }
-        }
+            : HSV_Helper.Range(thingCounts.Length);
 
         // create a chapter for each label
         for (var i = 0; i < thingCounts.Length; i++)
@@ -136,6 +179,9 @@ public partial class History : IExposable
         _chaptersShown.AddRange(_chapters);
     }
 
+    /// <summary>
+    /// Gets whether the current tick is an update tick for any period.
+    /// </summary>
     public static bool IsUpdateTick
     {
         get
@@ -145,6 +191,7 @@ public partial class History : IExposable
         }
     }
 
+    /// <inheritdoc/>
     public void ExposeData()
     {
         // settings
@@ -167,25 +214,34 @@ public partial class History : IExposable
         }
     }
 
-    public static int PeriodTickInterval(Period period)
+    /// <summary>
+    /// Gets the tick interval for the specified period.
+    /// </summary>
+    /// <param name="period">The period to get the interval for.</param>
+    /// <returns>The tick interval for the period.</returns>
+    public static int PeriodTickInterval(Period period) => period switch
     {
-        return period switch
-        {
-            Period.Month => IntervalPerMonth,
-            Period.Year => IntervalPerYear,
-            _ => IntervalPerDay,
-        };
-    }
+        Period.Month => IntervalPerMonth,
+        Period.Year => IntervalPerYear,
+        Period.Day => IntervalPerDay,
+        _ => throw new NotImplementedException(),
+    };
 
     private GraphRenderer? graphRenderer;
     private readonly List<Chapter> _tmpChapters = [];
+    /// <summary>
+    /// Draws the plot for the history, including legend and options.
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw.</param>
+    /// <param name="positiveOnly">Whether to show only positive chapters.</param>
+    /// <param name="negativeOnly">Whether to show only negative chapters.</param>
     public void DrawPlot(in Rect rect, bool positiveOnly = false, bool negativeOnly = false)
     {
-        bool recordHistoricalData = ColonyManagerReduxMod.Settings.RecordHistoricalData;
+        var recordHistoricalData = ColonyManagerReduxMod.Settings.RecordHistoricalData;
 
         var sign = negativeOnly ? -1 : 1;
 
-        graphRenderer ??= new(_chapters.Select(c =>
+        graphRenderer ??= new([.. _chapters.Select(c =>
         {
             c.GraphSeries ??= new GraphSeries()
             {
@@ -194,7 +250,7 @@ public partial class History : IExposable
                 UnitLabel = c.ChapterSuffix ?? "",
             };
             return c.GraphSeries;
-        }).ToArray())
+        })])
         {
             LegendLabel = "ColonyManagerRedux.History.Legend".Translate(),
             NoDataLabel = "ColonyManagerRedux.History.NoChapters".Translate(),
@@ -226,8 +282,8 @@ public partial class History : IExposable
 
         graphRenderer.DrawGraph(
             rect,
-            _tmpChapters.Select(c => c.ValuesFor(PeriodShown, sign)).ToArray(),
-            _tmpChapters.Select(c => c.TargetsFor(PeriodShown, sign)).ToArray());
+            [.. _tmpChapters.Select(c => c.ValuesFor(PeriodShown, sign))],
+            [.. _tmpChapters.Select(c => c.TargetsFor(PeriodShown, sign))]);
 
         // period / variables picker
         if (DrawOptions)
@@ -250,7 +306,10 @@ public partial class History : IExposable
                     {
                         options.Add(new FloatMenuOption(
                             "ColonyManagerRedux.History.ShowHideLegend".Translate(),
-                            delegate { DrawInlineLegend = !DrawInlineLegend; }));
+                            delegate
+                            {
+                                DrawInlineLegend = !DrawInlineLegend;
+                            }));
                     }
 
                     Find.WindowStack.Add(new FloatMenu(options));
@@ -285,17 +344,24 @@ public partial class History : IExposable
         {
             Widgets.DrawRectFast(rect, Color.white.ToTransparent(.2f));
             var bgRect = new Rect(rect);
-            bgRect.yMin += rect.height / 2 - 50f;
-            bgRect.yMax -= rect.height / 2 - 50f;
+            bgRect.yMin += (rect.height / 2) - 50f;
+            bgRect.yMax -= (rect.height / 2) - 50f;
             bgRect = bgRect.ContractedBy(10f);
             Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
             IlyvionWidgets.Label(
-                new(rect) { height = rect.height - 15f },
+                new(rect)
+                {
+                    height = rect.height - 15f
+                },
                 "ColonyManagerRedux.History.HistoryRecordingDisabled".Translate(),
                 TextAnchor.MiddleCenter,
                 GameFont.Medium);
             IlyvionWidgets.Label(
-                new(rect) { y = rect.y + 20, height = rect.height - 15f },
+                new(rect)
+                {
+                    y = rect.y + 20,
+                    height = rect.height - 15f
+                },
                 "(" + "ColonyManagerRedux.History.ClickToEnableHistoryRecording".Translate() + ")",
                 TextAnchor.MiddleCenter,
                 GameFont.Small);
@@ -308,6 +374,11 @@ public partial class History : IExposable
         }
     }
 
+    /// <summary>
+    /// Updates the history with new counts and targets for each chapter.
+    /// </summary>
+    /// <param name="tick">The current tick.</param>
+    /// <param name="counts">The counts and targets for each chapter.</param>
     public void Update(int tick, params (int count, int target)[] counts)
     {
         if (counts == null)
@@ -327,6 +398,12 @@ public partial class History : IExposable
         }
     }
 
+    /// <summary>
+    /// Updates the history with new counts and targets for each chapter.
+    /// </summary>
+    /// <param name="tick">The current tick.</param>
+    /// <param name="counts">The counts for each chapter.</param>
+    /// <param name="targets">The targets for each chapter.</param>
     public void Update(int tick, int[] counts, int[] targets)
     {
         if (counts == null)
@@ -350,6 +427,10 @@ public partial class History : IExposable
         }
     }
 
+    /// <summary>
+    /// Updates the maximum values for each chapter.
+    /// </summary>
+    /// <param name="maxes">The maximum values for each chapter.</param>
     public void UpdateMax(params int[] maxes)
     {
         if (maxes == null)
@@ -369,6 +450,11 @@ public partial class History : IExposable
         }
     }
 
+    /// <summary>
+    /// Updates the thing counts and maximums for each chapter.
+    /// </summary>
+    /// <param name="counts">The thing counts for each chapter.</param>
+    /// <param name="maxes">The maximum values for each chapter.</param>
     public void UpdateThingCountAndMax(int[] counts, int[] maxes)
     {
         if (counts == null)
@@ -396,6 +482,10 @@ public partial class History : IExposable
         }
     }
 
+    /// <summary>
+    /// Updates the thing counts for each chapter.
+    /// </summary>
+    /// <param name="counts">The thing counts for each chapter.</param>
     public void UpdateThingCounts(params int[] counts)
     {
         if (counts == null)
@@ -415,30 +505,27 @@ public partial class History : IExposable
         }
     }
 
+    /// <summary>
+    /// Updates the thing definitions and colors for each chapter.
+    /// </summary>
+    /// <param name="newTraderDefs">The new thing definitions.</param>
+    /// <param name="colors">Optional colors for each chapter.</param>
     public void UpdateThingDefs(in List<ThingDef> newTraderDefs, Color[]? colors = null)
     {
         // So we don't modify a list passed to us
-        List<ThingDef> traderDefs = new(newTraderDefs);
+        List<ThingDef> traderDefs = [.. newTraderDefs];
 
         // get range of colors if not set
-        if (colors == null)
-        {
-            // default to white for single line
-            if (traderDefs.Count == 1)
-            {
-                colors = [Color.white];
-            }
+        // default to white for single line
+        colors ??= traderDefs.Count == 1
+            ? [Color.white]
 
             // rainbow!
-            else
-            {
-                colors = HSV_Helper.Range(traderDefs.Count);
-            }
-        }
+            : HSV_Helper.Range(traderDefs.Count);
 
-        for (int i = _chapters.Count - 1; i >= 0; i--)
+        for (var i = _chapters.Count - 1; i >= 0; i--)
         {
-            Chapter? chapter = _chapters[i];
+            var chapter = _chapters[i];
             if (!traderDefs.Remove(chapter.ThingDefCount.thingDef))
             {
                 // Attempted to remove a def we don't actually have. This most likely means it's a
@@ -476,9 +563,21 @@ public partial class History : IExposable
     }
 }
 
+/// <summary>
+/// Represents the period for which history is tracked (day, month, year).
+/// </summary>
 public enum Period
 {
+    /// <summary>
+    /// Daily period.
+    /// </summary>
     Day = 0,
+    /// <summary>
+    /// Monthly period.
+    /// </summary>
     Month = 1,
+    /// <summary>
+    /// Yearly period.
+    /// </summary>
     Year = 2
 }

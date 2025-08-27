@@ -3,7 +3,7 @@
 
 namespace ColonyManagerRedux;
 
-public class CalendarMarker(float days, Color color, bool fill, bool debug = false)
+internal sealed class CalendarMarker(float days, Color color, bool fill, bool debug = false)
 {
     public Color Color { get; } = color;
 
@@ -13,14 +13,11 @@ public class CalendarMarker(float days, Color color, bool fill, bool debug = fal
     public bool Fill { get; } = fill;
 }
 
-public static class Calendar
+internal static class Calendar
 {
     private static readonly Dictionary<string, int> _sizeCache = [];
 
-    public static void Draw(Rect canvas, params CalendarMarker[] markers)
-    {
-        Draw(canvas, Resources.SlightlyDarkBackgroundColour, markers);
-    }
+    public static void Draw(Rect canvas, params CalendarMarker[] markers) => Draw(canvas, Resources.SlightlyDarkBackgroundColour, markers);
 
     public static void Draw(Rect canvas, Color color, CalendarMarker[] markers)
     {
@@ -63,8 +60,8 @@ public static class Calendar
 
     private static void DrawDay(int col, int row, int size, Vector2 pos, float progress, Color color)
     {
-        var canvas = new Rect((int)(col * size + pos.x),
-                               (int)(row * size + pos.y),
+        var canvas = new Rect((int)((col * size) + pos.x),
+                               (int)((row * size) + pos.y),
                                Mathf.Clamp01(progress) * (size - 1),
                                size - 1);
         Widgets.DrawBoxSolid(canvas, color);
@@ -72,8 +69,8 @@ public static class Calendar
 
     private static void DrawMarker(int col, int row, int size, Vector2 pos, float progress, Color color)
     {
-        var start = new Vector2((col + Mathf.Clamp01(progress)) * size, row * size - 2) + pos;
-        var end = new Vector2((col + Mathf.Clamp01(progress)) * size, (row + 1) * size + 1) + pos;
+        var start = new Vector2((col + Mathf.Clamp01(progress)) * size, (row * size) - 2) + pos;
+        var end = new Vector2((col + Mathf.Clamp01(progress)) * size, ((row + 1) * size) + 1) + pos;
         Widgets.DrawLine(start, end, color, 1);
     }
 
@@ -89,24 +86,10 @@ public static class Calendar
         float sx, sy;
 
         var px = Mathf.CeilToInt(Mathf.Sqrt(n * x / y));
-        if (Mathf.Floor(px * y / x) * px < n)
-        {
-            sx = y / Mathf.CeilToInt(px * y / x);
-        }
-        else
-        {
-            sx = x / px;
-        }
+        sx = Mathf.Floor(px * y / x) * px < n ? y / Mathf.CeilToInt(px * y / x) : x / px;
 
         var py = Mathf.Ceil(Mathf.Sqrt(n * y / x));
-        if (Mathf.Floor(py * x / y) * py < n)
-        {
-            sy = x / Mathf.CeilToInt(x * py / y);
-        }
-        else
-        {
-            sy = y / py;
-        }
+        sy = Mathf.Floor(py * x / y) * py < n ? x / Mathf.CeilToInt(x * py / y) : y / py;
 
         size = (int)Mathf.Max(sx, sy);
         _sizeCache.Add(key, size);
