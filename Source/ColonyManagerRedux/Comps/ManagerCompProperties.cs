@@ -34,9 +34,12 @@ public class ManagerCompProperties
         {
             yield return $"{nameof(compClass)} is not a subclass of {nameof(ManagerComp)}";
         }
-        for (var i = 0; i < parentDef.jobComps.Count; i++)
+        for (var i = 0; i < parentDef.managerComps.Count; i++)
         {
-            if (parentDef.managerComps[i] != this && parentDef.jobComps[i].compClass == compClass)
+            if (
+                parentDef.managerComps[i] != this
+                && parentDef.managerComps[i].compClass == compClass
+            )
             {
                 yield return "two manager comps with same compClass: " + compClass;
             }
