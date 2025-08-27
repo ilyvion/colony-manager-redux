@@ -21,23 +21,44 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
     /// <inheritdoc/>
     public override void DoWindowContents(Rect inRect)
     {
-        var zoneRectRows = Math.Min((int)Math.Ceiling(
-            (double)(_trigger.Job.Manager.map.zoneManager.AllZones.OfType<Zone_Stockpile>().Count() + 1) /
-            StockpileGUI.StockPilesPerRow), 3);
+        var zoneRectRows = Math.Min(
+            (int)
+                Math.Ceiling(
+                    (double)(
+                        _trigger
+                            .Job.Manager.map.zoneManager.AllZones.OfType<Zone_Stockpile>()
+                            .Count() + 1
+                    ) / StockpileGUI.StockPilesPerRow
+                ),
+            3
+        );
         var zoneRectHeight = zoneRectRows * Constants.ListEntryHeight;
 
         // set up rects
         var filterRect = new Rect(inRect.ContractedBy(6f));
         filterRect.height -= (2 * Margin) + zoneRectHeight + Constants.ListEntryHeight;
-        var zoneRect = new Rect(filterRect.xMin, filterRect.yMax + Margin, filterRect.width,
-            zoneRectHeight);
-        var buttonRect = new Rect(filterRect.xMin, zoneRect.yMax + Margin,
-            (filterRect.width - Margin) / 2f, Constants.ListEntryHeight);
+        var zoneRect = new Rect(
+            filterRect.xMin,
+            filterRect.yMax + Margin,
+            filterRect.width,
+            zoneRectHeight
+        );
+        var buttonRect = new Rect(
+            filterRect.xMin,
+            zoneRect.yMax + Margin,
+            (filterRect.width - Margin) / 2f,
+            Constants.ListEntryHeight
+        );
 
         buttonRect.x -= Constants.SmallIconSize + Constants.Margin;
 
         // draw thingfilter
-        ThingFilterUI.DoThingFilterConfigWindow(filterRect, _uIState, _trigger.ThresholdFilter, _trigger.ParentFilter);
+        ThingFilterUI.DoThingFilterConfigWindow(
+            filterRect,
+            _uIState,
+            _trigger.ThresholdFilter,
+            _trigger.ParentFilter
+        );
         if (Event.current.type == EventType.Layout)
         {
             // For whatever reason, Rimworld adds a 90 pixel margin to the bottom of the filter
@@ -47,27 +68,48 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw zone selector
-        _ = StockpileGUI.DoStockpileSelectors(zoneRect.position, zoneRect.width, ref _trigger.StockpileRef, _trigger.Job.Manager);
+        _ = StockpileGUI.DoStockpileSelectors(
+            zoneRect.position,
+            zoneRect.width,
+            ref _trigger.StockpileRef,
+            _trigger.Job.Manager
+        );
 
         // draw operator button
         if (Widgets.ButtonText(buttonRect, _trigger.OpString))
         {
             var list = new List<FloatMenuOption>
             {
-                new("ColonyManagerRedux.Threshold.LowerThan".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.LowerThan),
-                new("ColonyManagerRedux.Threshold.EqualTo".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.Equals),
-                new("ColonyManagerRedux.Threshold.NotEqualTo".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.NotEquals),
-                new("ColonyManagerRedux.Threshold.GreaterThan".Translate(), () => _trigger.Op = Trigger_Threshold.Ops.HigherThan)
+                new(
+                    "ColonyManagerRedux.Threshold.LowerThan".Translate(),
+                    () => _trigger.Op = Trigger_Threshold.Ops.LowerThan
+                ),
+                new(
+                    "ColonyManagerRedux.Threshold.EqualTo".Translate(),
+                    () => _trigger.Op = Trigger_Threshold.Ops.Equals
+                ),
+                new(
+                    "ColonyManagerRedux.Threshold.NotEqualTo".Translate(),
+                    () => _trigger.Op = Trigger_Threshold.Ops.NotEquals
+                ),
+                new(
+                    "ColonyManagerRedux.Threshold.GreaterThan".Translate(),
+                    () => _trigger.Op = Trigger_Threshold.Ops.HigherThan
+                ),
             };
             Find.WindowStack.Add(new FloatMenu(list));
         }
         string? opTooltip = null;
         opTooltip = _trigger.Op switch
         {
-            Trigger_Threshold.Ops.LowerThan => (string)"ColonyManagerRedux.Threshold.LowerThan.Tip".Translate(_trigger.TargetCount),
-            Trigger_Threshold.Ops.Equals => (string)"ColonyManagerRedux.Threshold.EqualTo.Tip".Translate(_trigger.TargetCount),
-            Trigger_Threshold.Ops.NotEquals => (string)"ColonyManagerRedux.Threshold.NotEqualTo.Tip".Translate(_trigger.TargetCount),
-            Trigger_Threshold.Ops.HigherThan => (string)"ColonyManagerRedux.Threshold.GreaterThan.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.LowerThan => (string)
+                "ColonyManagerRedux.Threshold.LowerThan.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.Equals => (string)
+                "ColonyManagerRedux.Threshold.EqualTo.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.NotEquals => (string)
+                "ColonyManagerRedux.Threshold.NotEqualTo.Tip".Translate(_trigger.TargetCount),
+            Trigger_Threshold.Ops.HigherThan => (string)
+                "ColonyManagerRedux.Threshold.GreaterThan.Tip".Translate(_trigger.TargetCount),
             _ => "Unknown operator",
         };
         TooltipHandler.TipRegion(buttonRect, opTooltip);
@@ -76,13 +118,10 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
             buttonRect.xMax + Constants.Margin,
             0f,
             Constants.SmallIconSize,
-            Constants.SmallIconSize).CenteredOnYIn(buttonRect);
-        TooltipHandler.TipRegion(
-            iconRect,
-            "ColonyManagerRedux.Threshold.Op.Warning".Translate());
-        GUI.color = _trigger.Op != Trigger_Threshold.Ops.LowerThan
-            ? Resources.Orange
-            : Color.grey;
+            Constants.SmallIconSize
+        ).CenteredOnYIn(buttonRect);
+        TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.Threshold.Op.Warning".Translate());
+        GUI.color = _trigger.Op != Trigger_Threshold.Ops.LowerThan ? Resources.Orange : Color.grey;
         GUI.DrawTexture(iconRect, Resources.Warning);
         GUI.color = Color.white;
 
@@ -111,8 +150,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         GUI.color = oldColor;
 
         // close on enter
-        if (Event.current.type == EventType.KeyDown &&
-             Event.current.keyCode == KeyCode.Return)
+        if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
         {
             Event.current.Use();
             _ = Find.WindowStack.TryRemove(this);

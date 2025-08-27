@@ -3,7 +3,6 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -18,6 +17,7 @@ public partial class History : IExposable
     /// The default color used for history plot lines.
     /// </summary>
     public static readonly Color DefaultLineColor = Color.white;
+
     /// <summary>
     /// Gets an array of all possible <see cref="Period"/> values.
     /// </summary>
@@ -34,54 +34,66 @@ public partial class History : IExposable
 
     // Settings for plot
     private bool _allowTogglingLegend = true;
+
     /// <summary>
     /// Gets or sets whether the legend can be toggled in the plot.
     /// </summary>
     public bool AllowTogglingLegend
     {
-        get => _allowTogglingLegend; set => _allowTogglingLegend = value;
+        get => _allowTogglingLegend;
+        set => _allowTogglingLegend = value;
     }
     private bool _drawInlineLegend = true;
+
     /// <summary>
     /// Gets or sets whether to draw the legend inline with the plot.
     /// </summary>
     public bool DrawInlineLegend
     {
-        get => _drawInlineLegend; set => _drawInlineLegend = value;
+        get => _drawInlineLegend;
+        set => _drawInlineLegend = value;
     }
     private bool _drawOptions = true;
+
     /// <summary>
     /// Gets or sets whether to draw options for the plot.
     /// </summary>
     public bool DrawOptions
     {
-        get => _drawOptions; set => _drawOptions = value;
+        get => _drawOptions;
+        set => _drawOptions = value;
     }
     private bool _drawTargetLine = true;
+
     /// <summary>
     /// Gets or sets whether to draw the target line in the plot.
     /// </summary>
     public bool DrawTargetLine
     {
-        get => _drawTargetLine; set => _drawTargetLine = value;
+        get => _drawTargetLine;
+        set => _drawTargetLine = value;
     }
 
     // Shared settings
     private Period _periodShown = Period.Day;
+
     /// <summary>
     /// Gets or sets the period currently shown in the plot.
     /// </summary>
     public Period PeriodShown
     {
-        get => _periodShown; set => _periodShown = value;
+        get => _periodShown;
+        set => _periodShown = value;
     }
     private string _yAxisSuffix = string.Empty;
+
     /// <summary>
     /// Gets or sets the suffix for the Y axis label.
     /// </summary>
     public string YAxisSuffix
     {
-        get => _yAxisSuffix; set => _yAxisSuffix = value;
+        get => _yAxisSuffix;
+        set => _yAxisSuffix = value;
     }
 
     // each chapter holds the history for all periods.
@@ -91,9 +103,7 @@ public partial class History : IExposable
     /// <summary>
     /// Default constructor for scribing only.
     /// </summary>
-    public History()
-    {
-    }
+    public History() { }
 
     internal History(List<ManagerJobHistoryChapterDef> chapters)
     {
@@ -104,10 +114,12 @@ public partial class History : IExposable
                 new Chapter(
                     new ManagerJobHistoryChapterDefLabel(chapters[i]),
                     EntriesPerInterval,
-                    chapters[i].color)
+                    chapters[i].color
+                )
                 {
-                    def = chapters[i]
-                });
+                    def = chapters[i],
+                }
+            );
         }
 
         // show all by default
@@ -127,15 +139,15 @@ public partial class History : IExposable
         }
 
 #if DEBUG_HISTORY
-        Log.Message( "History created" + string.Join( ", ", labels ) );
+        Log.Message("History created" + string.Join(", ", labels));
 #endif
         // get range of colors if not set
         // default to white for single line
-        colors ??= labels.Length == 1
-            ? [DefaultLineColor]
-
-            // rainbow!
-            : HSV_Helper.Range(labels.Length);
+        colors ??=
+            labels.Length == 1
+                ? [DefaultLineColor]
+                // rainbow!
+                : HSV_Helper.Range(labels.Length);
 
         // create a chapter for each label
         for (var i = 0; i < labels.Length; i++)
@@ -161,18 +173,22 @@ public partial class History : IExposable
 
         // get range of colors if not set
         // default to white for single line
-        colors ??= thingCounts.Length == 1
-            ? [Color.white]
-
-            // rainbow!
-            : HSV_Helper.Range(thingCounts.Length);
+        colors ??=
+            thingCounts.Length == 1
+                ? [Color.white]
+                // rainbow!
+                : HSV_Helper.Range(thingCounts.Length);
 
         // create a chapter for each label
         for (var i = 0; i < thingCounts.Length; i++)
         {
-            _chapters.Add(new Chapter(new ThingDefCountClass(thingCounts[i].ThingDef, thingCounts[i].Count),
-                EntriesPerInterval,
-                colors[i % colors.Length]));
+            _chapters.Add(
+                new Chapter(
+                    new ThingDefCountClass(thingCounts[i].ThingDef, thingCounts[i].Count),
+                    EntriesPerInterval,
+                    colors[i % colors.Length]
+                )
+            );
         }
 
         // show all by default
@@ -219,16 +235,18 @@ public partial class History : IExposable
     /// </summary>
     /// <param name="period">The period to get the interval for.</param>
     /// <returns>The tick interval for the period.</returns>
-    public static int PeriodTickInterval(Period period) => period switch
-    {
-        Period.Month => IntervalPerMonth,
-        Period.Year => IntervalPerYear,
-        Period.Day => IntervalPerDay,
-        _ => throw new NotImplementedException(),
-    };
+    public static int PeriodTickInterval(Period period) =>
+        period switch
+        {
+            Period.Month => IntervalPerMonth,
+            Period.Year => IntervalPerYear,
+            Period.Day => IntervalPerDay,
+            _ => throw new NotImplementedException(),
+        };
 
     private GraphRenderer? graphRenderer;
     private readonly List<Chapter> _tmpChapters = [];
+
     /// <summary>
     /// Draws the plot for the history, including legend and options.
     /// </summary>
@@ -241,16 +259,20 @@ public partial class History : IExposable
 
         var sign = negativeOnly ? -1 : 1;
 
-        graphRenderer ??= new([.. _chapters.Select(c =>
-        {
-            c.GraphSeries ??= new GraphSeries()
-            {
-                Color = c.LineColor,
-                Label = c.label.Label,
-                UnitLabel = c.ChapterSuffix ?? "",
-            };
-            return c.GraphSeries;
-        })])
+        graphRenderer ??= new(
+            [
+                .. _chapters.Select(c =>
+                {
+                    c.GraphSeries ??= new GraphSeries()
+                    {
+                        Color = c.LineColor,
+                        Label = c.label.Label,
+                        UnitLabel = c.ChapterSuffix ?? "",
+                    };
+                    return c.GraphSeries;
+                }),
+            ]
+        )
         {
             LegendLabel = "ColonyManagerRedux.History.Legend".Translate(),
             NoDataLabel = "ColonyManagerRedux.History.NoChapters".Translate(),
@@ -269,10 +291,11 @@ public partial class History : IExposable
 
         // subset chapters
         _tmpChapters.AddRange(
-            _chaptersShown.Where(chapter =>
-                !positiveOnly || chapter.counts[(int)PeriodShown].Any(i => i > 0))
+            _chaptersShown
+                .Where(chapter => !positiveOnly || chapter.counts[(int)PeriodShown].Any(i => i > 0))
                 .Where(chapter => !negativeOnly || chapter.counts[(int)PeriodShown].Any(i => i < 0))
-                .OrderBy(_chapters.IndexOf));
+                .OrderBy(_chapters.IndexOf)
+        );
         using var _ = new DoOnDispose(_tmpChapters.Clear);
 
         foreach (var chapter in _tmpChapters)
@@ -283,33 +306,45 @@ public partial class History : IExposable
         graphRenderer.DrawGraph(
             rect,
             [.. _tmpChapters.Select(c => c.ValuesFor(PeriodShown, sign))],
-            [.. _tmpChapters.Select(c => c.TargetsFor(PeriodShown, sign))]);
+            [.. _tmpChapters.Select(c => c.TargetsFor(PeriodShown, sign))]
+        );
 
         // period / variables picker
         if (DrawOptions)
         {
-            var switchRect = new Rect(rect.xMax - SmallIconSize - Margin,
-                rect.yMin + Margin, SmallIconSize,
-                SmallIconSize);
+            var switchRect = new Rect(
+                rect.xMax - SmallIconSize - Margin,
+                rect.yMin + Margin,
+                SmallIconSize,
+                SmallIconSize
+            );
             if (recordHistoricalData)
             {
                 Widgets.DrawHighlightIfMouseover(switchRect);
                 if (Widgets.ButtonImage(switchRect, Resources.Cog))
                 {
-                    var options = Periods.Select(p =>
-                        new FloatMenuOption("ColonyManagerRedux.History.Period".Translate() +
-                            ": " + $"ColonyManagerRedux.History.PeriodShown.{p}"
-                                .Translate().CapitalizeFirst(),
-                            () => PeriodShown = p)).ToList();
+                    var options = Periods
+                        .Select(p => new FloatMenuOption(
+                            "ColonyManagerRedux.History.Period".Translate()
+                                + ": "
+                                + $"ColonyManagerRedux.History.PeriodShown.{p}"
+                                    .Translate()
+                                    .CapitalizeFirst(),
+                            () => PeriodShown = p
+                        ))
+                        .ToList();
                     // add option to show/hide legend if appropriate.
                     if (AllowTogglingLegend && _chapters.Count > 1)
                     {
-                        options.Add(new FloatMenuOption(
-                            "ColonyManagerRedux.History.ShowHideLegend".Translate(),
-                            delegate
-                            {
-                                DrawInlineLegend = !DrawInlineLegend;
-                            }));
+                        options.Add(
+                            new FloatMenuOption(
+                                "ColonyManagerRedux.History.ShowHideLegend".Translate(),
+                                delegate
+                                {
+                                    DrawInlineLegend = !DrawInlineLegend;
+                                }
+                            )
+                        );
                     }
 
                     Find.WindowStack.Add(new FloatMenu(options));
@@ -322,8 +357,9 @@ public partial class History : IExposable
 
             using var _f = GUIScope.Font(GameFont.Tiny);
             var periodShown =
-                "ColonyManagerRedux.History.Period".Translate() + ": " +
-                $"ColonyManagerRedux.History.PeriodShown.{PeriodShown}".Translate();
+                "ColonyManagerRedux.History.Period".Translate()
+                + ": "
+                + $"ColonyManagerRedux.History.PeriodShown.{PeriodShown}".Translate();
             var labelSize = Text.CalcSize(periodShown);
 
             var labelRect = switchRect;
@@ -349,22 +385,17 @@ public partial class History : IExposable
             bgRect = bgRect.ContractedBy(10f);
             Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
             IlyvionWidgets.Label(
-                new(rect)
-                {
-                    height = rect.height - 15f
-                },
+                new(rect) { height = rect.height - 15f },
                 "ColonyManagerRedux.History.HistoryRecordingDisabled".Translate(),
                 TextAnchor.MiddleCenter,
-                GameFont.Medium);
+                GameFont.Medium
+            );
             IlyvionWidgets.Label(
-                new(rect)
-                {
-                    y = rect.y + 20,
-                    height = rect.height - 15f
-                },
+                new(rect) { y = rect.y + 20, height = rect.height - 15f },
                 "(" + "ColonyManagerRedux.History.ClickToEnableHistoryRecording".Translate() + ")",
                 TextAnchor.MiddleCenter,
-                GameFont.Small);
+                GameFont.Small
+            );
 
             if (Widgets.ButtonInvisible(rect, false))
             {
@@ -388,8 +419,9 @@ public partial class History : IExposable
 
         if (counts.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning($"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}"
+            );
         }
 
         for (var i = 0; i < counts.Length; i++)
@@ -418,7 +450,8 @@ public partial class History : IExposable
         if (counts.Length != _chapters.Count || targets.Length != _chapters.Count)
         {
             ColonyManagerReduxMod.Instance.LogWarning(
-                $"History updated with incorrect number of chapters; got counts={counts.Length} and targets={targets.Length}, expected {_chapters.Count}");
+                $"History updated with incorrect number of chapters; got counts={counts.Length} and targets={targets.Length}, expected {_chapters.Count}"
+            );
         }
 
         for (var i = 0; i < counts.Length; i++)
@@ -440,8 +473,9 @@ public partial class History : IExposable
 
         if (maxes.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning($"History maxes updated with incorrect number of chapters; got {maxes.Length}, expected {_chapters.Count}");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"History maxes updated with incorrect number of chapters; got {maxes.Length}, expected {_chapters.Count}"
+            );
         }
 
         for (var i = 0; i < maxes.Length; i++)
@@ -468,8 +502,9 @@ public partial class History : IExposable
 
         if (counts.Length != _chapters.Count || maxes.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning($"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}"
+            );
         }
 
         for (var i = 0; i < maxes.Length; i++)
@@ -495,8 +530,9 @@ public partial class History : IExposable
 
         if (counts.Length != _chapters.Count)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning($"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}"
+            );
         }
 
         for (var i = 0; i < counts.Length; i++)
@@ -517,11 +553,11 @@ public partial class History : IExposable
 
         // get range of colors if not set
         // default to white for single line
-        colors ??= traderDefs.Count == 1
-            ? [Color.white]
-
-            // rainbow!
-            : HSV_Helper.Range(traderDefs.Count);
+        colors ??=
+            traderDefs.Count == 1
+                ? [Color.white]
+                // rainbow!
+                : HSV_Helper.Range(traderDefs.Count);
 
         for (var i = _chapters.Count - 1; i >= 0; i--)
         {
@@ -530,10 +566,13 @@ public partial class History : IExposable
             {
                 // Attempted to remove a def we don't actually have. This most likely means it's a
                 // building that no longer exists. Let's remove it.
-                ColonyManagerReduxMod.Instance.LogWarning("Removing thingDef chapter "
-                    + chapter.ThingDefCount.thingDef + " because it no longer exists. "
-                    + "(Most likely cause: a mod with a building consuming/producing power "
-                    + "was removed.)");
+                ColonyManagerReduxMod.Instance.LogWarning(
+                    "Removing thingDef chapter "
+                        + chapter.ThingDefCount.thingDef
+                        + " because it no longer exists. "
+                        + "(Most likely cause: a mod with a building consuming/producing power "
+                        + "was removed.)"
+                );
                 _chapters.RemoveAt(i);
             }
         }
@@ -546,9 +585,11 @@ public partial class History : IExposable
             var currentChapterCountCounts = _chapters.First().counts.Select(c => c.Size).ToArray();
             for (var i = 0; i < traderDefs.Count; i++)
             {
-                Chapter chapter = new(new ThingDefCountClass(traderDefs[i], 0),
+                Chapter chapter = new(
+                    new ThingDefCountClass(traderDefs[i], 0),
                     EntriesPerInterval,
-                    colors[(currentChapterCount + i) % colors.Length]);
+                    colors[(currentChapterCount + i) % colors.Length]
+                );
                 for (var j = 0; j < currentChapterCountCounts.Length; j++)
                 {
                     for (var k = 0; k < currentChapterCountCounts[j]; k++)
@@ -572,12 +613,14 @@ public enum Period
     /// Daily period.
     /// </summary>
     Day = 0,
+
     /// <summary>
     /// Monthly period.
     /// </summary>
     Month = 1,
+
     /// <summary>
     /// Yearly period.
     /// </summary>
-    Year = 2
+    Year = 2,
 }

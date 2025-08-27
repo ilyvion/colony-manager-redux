@@ -16,18 +16,25 @@ public class ManagerLog : IExposable
     private string? _label;
 
     internal bool _workDone;
+
     /// <summary>
     /// Gets whether any work was done for this log entry.
     /// </summary>
     public bool WorkDone => _workDone;
     private int _mapTile;
     private int _logTick;
+
     /// <summary>
     /// Gets the date and time of the log entry as a formatted string.
     /// </summary>
-    public string LogDate => GenDate.DateFullStringWithHourAt(GenDate.TickGameToAbs(_logTick), Find.WorldGrid.LongLatOf(_mapTile));
+    public string LogDate =>
+        GenDate.DateFullStringWithHourAt(
+            GenDate.TickGameToAbs(_logTick),
+            Find.WorldGrid.LongLatOf(_mapTile)
+        );
 
     private List<LogDetails> _details = [];
+
     /// <summary>
     /// Gets the details associated with this log entry.
     /// </summary>
@@ -50,6 +57,7 @@ public class ManagerLog : IExposable
     /// Gets the icon associated with the originating manager definition.
     /// </summary>
     public Texture2D Icon => _originatingDef.icon;
+
     /// <summary>
     /// Gets or sets the label for this log entry.
     /// </summary>
@@ -63,15 +71,21 @@ public class ManagerLog : IExposable
     /// Gets the job label (uncapitalized) for this log entry.
     /// </summary>
     public string JobLabel => _originatingJob?.Label.UncapitalizeFirst() ?? _originatingDef.label;
+
     /// <summary>
     /// Gets the capitalized job label for this log entry.
     /// </summary>
-    public string JobLabelCap => _label.CapitalizeFirst() ?? _originatingJob?.Label.CapitalizeFirst() ?? _originatingDef.LabelCap;
+    public string JobLabelCap =>
+        _label.CapitalizeFirst()
+        ?? _originatingJob?.Label.CapitalizeFirst()
+        ?? _originatingDef.LabelCap;
 
     /// <summary>
     /// Gets whether this log entry is associated with a valid job.
     /// </summary>
-    public bool HasJob => _originatingJob != null && _originatingJob.Manager.JobTracker.HasJob(_originatingJob);
+    public bool HasJob =>
+        _originatingJob != null && _originatingJob.Manager.JobTracker.HasJob(_originatingJob);
+
     /// <summary>
     /// Gets the manager tab associated with the originating job, if any.
     /// </summary>
@@ -101,8 +115,7 @@ public class ManagerLog : IExposable
     /// </summary>
     public ManagerLog()
 #pragma warning restore CS8618
-    {
-    }
+    { }
 
     /// <summary>
     /// Creates a new log entry for the specified originating job.
@@ -139,14 +152,16 @@ public class ManagerLog : IExposable
     /// </summary>
     /// <param name="detailText">The detail text.</param>
     /// <param name="targets">The associated targets.</param>
-    public void AddDetail(string detailText, IEnumerable<LocalTargetInfo> targets) => _details.Add(new LogDetails(detailText, targets));
+    public void AddDetail(string detailText, IEnumerable<LocalTargetInfo> targets) =>
+        _details.Add(new LogDetails(detailText, targets));
 
     /// <summary>
     /// Adds a detail entry to the log with the specified text and targets.
     /// </summary>
     /// <param name="detailText">The detail text.</param>
     /// <param name="targets">The associated targets.</param>
-    public void AddDetail(string detailText, params LocalTargetInfo[] targets) => _details.Add(new LogDetails(detailText, targets));
+    public void AddDetail(string detailText, params LocalTargetInfo[] targets) =>
+        _details.Add(new LogDetails(detailText, targets));
 }
 
 /// <summary>
@@ -155,6 +170,7 @@ public class ManagerLog : IExposable
 public sealed class LogDetails : IExposable
 {
     private int jumpToTargetCycleIndex = -1;
+
     /// <summary>
     /// Gets the next target index for cycling through targets.
     /// </summary>
@@ -180,17 +196,16 @@ public sealed class LogDetails : IExposable
     public string Text
     {
         get => _text;
-
         [MemberNotNull([nameof(_text)])]
         set => _text = value;
     }
 
     private List<LocalTargetInfo> _targets;
+
     /// <summary>
     /// Gets the list of associated targets for this log detail entry.
     /// </summary>
     public List<LocalTargetInfo> Targets => _targets;
-
 
     /// <summary>
     /// Creates a new log detail entry with the specified text and targets.
@@ -209,9 +224,7 @@ public sealed class LogDetails : IExposable
     /// <param name="detailText">The detail text.</param>
     /// <param name="targets">The associated targets.</param>
     public LogDetails(string detailText, params LocalTargetInfo[] targets)
-        : this(detailText, (IEnumerable<LocalTargetInfo>)targets)
-    {
-    }
+        : this(detailText, (IEnumerable<LocalTargetInfo>)targets) { }
 
 #pragma warning disable CS8618 // For scribing only
     /// <summary>
@@ -219,9 +232,7 @@ public sealed class LogDetails : IExposable
     /// </summary>
     public LogDetails()
 #pragma warning restore CS8618
-    {
-
-    }
+    { }
 
     /// <inheritdoc/>
     public void ExposeData()

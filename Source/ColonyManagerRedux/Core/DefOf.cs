@@ -9,6 +9,7 @@ internal static class ManagerThingDefOf
     public static ThingDef CM_AIManager;
     public static ThingDef CM_BasicManagerStation;
     public static ThingDef CM_ManagerStation;
+
 #if !v1_5
     [MayRequireOdyssey]
     public static ThingDef CM_ManagerDatabase;

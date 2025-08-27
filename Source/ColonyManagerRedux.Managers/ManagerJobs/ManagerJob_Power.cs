@@ -17,26 +17,34 @@ internal sealed class ManagerJob_Power : ManagerJob
         public override bool UpdatesMax => true;
 
 #pragma warning disable IDE0028 // Simplify collection initialization
-        private readonly ConditionalWeakTable<ManagerJob_Power, CachedValue<(int current, int)[]>> cachedTrades = new();
+        private readonly ConditionalWeakTable<
+            ManagerJob_Power,
+            CachedValue<(int current, int)[]>
+        > cachedTrades = new();
 #pragma warning restore IDE0028 // Simplify collection initialization
-        private CachedValue<(int current, int)[]> GetCachedTradeForJob(ManagerJob_Power managerJob) => cachedTrades.GetValue(managerJob, _ => new([]));
+
+        private CachedValue<(int current, int)[]> GetCachedTradeForJob(
+            ManagerJob_Power managerJob
+        ) => cachedTrades.GetValue(managerJob, _ => new([]));
 
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Power managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> count)
+            Boxed<int> count
+        )
         {
             var cachedTrade = GetCachedTradeForJob(managerJob);
             var trade = cachedTrade.Value;
 
-            count.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction
-                ? trade.Where(i => i.current > 0).Sum(i => i.current)
+            count.Value =
+                chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction
+                    ? trade.Where(i => i.current > 0).Sum(i => i.current)
                 : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryConsumption
                     ? trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current))
-                    : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
+                : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
                     ? managerJob.GetCurrentBatteries().Sum(b => b.current)
-                    : throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+                : throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
             yield break;
         }
 
@@ -44,7 +52,8 @@ internal sealed class ManagerJob_Power : ManagerJob
             ManagerJob_Power managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> target)
+            Boxed<int> target
+        )
         {
             target.Value = 0;
             yield break;
@@ -54,20 +63,26 @@ internal sealed class ManagerJob_Power : ManagerJob
             ManagerJob_Power managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> max)
+            Boxed<int> max
+        )
         {
-            max.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
-                ? (int)managerJob._batteries.Sum(list =>
-                    list.Sum(battery => battery.Props.storedEnergyMax))
-                : 0;
+            max.Value =
+                chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
+                    ? (int)
+                        managerJob._batteries.Sum(list =>
+                            list.Sum(battery => battery.Props.storedEnergyMax)
+                        )
+                    : 0;
             yield break;
         }
 
         [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
         public override Coroutine HistoryUpdateCoroutine(ManagerJob_Power managerJob, int tick)
         {
-            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
-                (Func<ManagerJob_Power, int, Coroutine>)HistoryUpdateCoroutine);
+            var ticksBetweenOperations =
+                ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                    (Func<ManagerJob_Power, int, Coroutine>)HistoryUpdateCoroutine
+                );
 
             yield return managerJob.RefreshBuildingLists().ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
@@ -82,7 +97,8 @@ internal sealed class ManagerJob_Power : ManagerJob
             }
             managerJob.tradingHistory.UpdateThingCountAndMax(
                 [.. managerJob._traders.Select(list => list.Count)],
-                [.. managerJob._traders.Select(list => 0)]);
+                [.. managerJob._traders.Select(list => 0)]
+            );
 
             managerJob.tradingHistory.Update(tick, trade);
         }
@@ -120,10 +136,8 @@ internal sealed class ManagerJob_Power : ManagerJob
         {
             if (!cachedTradeCounts.TryGetValue(out var trade))
             {
-                var producerCount = _traders
-                    .Sum(list => list.Count(i => i.PowerOutput > 0));
-                var consumerCount = _traders
-                    .Sum(list => list.Count(i => i.PowerOutput < 0));
+                var producerCount = _traders.Sum(list => list.Count(i => i.PowerOutput > 0));
+                var consumerCount = _traders.Sum(list => list.Count(i => i.PowerOutput < 0));
                 trade = [producerCount, consumerCount];
                 _ = cachedTradeCounts.Update(trade);
             }
@@ -160,12 +174,14 @@ internal sealed class ManagerJob_Power : ManagerJob
                 return value;
             }
 
-            value = Manager.map.listerBuildings
-                .AllBuildingsColonistOfClass<Building_ManagerStation>()
+            value = Manager
+                .map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
                 .Select(t => t.TryGetComp<CompPowerTrader>())
-                .Concat(Manager.map.listerBuildings
-                    .AllBuildingsColonistOfClass<Building_AIManager>()
-                    .Select(t => t.TryGetComp<CompPowerTrader>()))
+                .Concat(
+                    Manager
+                        .map.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
+                        .Select(t => t.TryGetComp<CompPowerTrader>())
+                )
                 .Any(c => c != null && c.PowerOn);
             _ = _cachedAnyPoweredStationOnline.Update(value);
             return value;
@@ -174,24 +190,30 @@ internal sealed class ManagerJob_Power : ManagerJob
 
     public override bool IsTransferable => Manager.ScribeSameGameData;
 
-    public ManagerJob_Power(Manager manager) : base(manager)
+    public ManagerJob_Power(Manager manager)
+        : base(manager)
     {
-        tradingHistory = Scribe.mode == LoadSaveMode.Inactive
-            ? new History(TraderDefs
-                .Select(def => new ThingDefCount(
-                    def,
-                    manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count))
-                .ToArray())
-            {
-                DrawOptions = false,
-                DrawInlineLegend = false,
-                YAxisSuffix = "W",
-                DrawTargetLine = false,
-            }
-            : null!;
+        tradingHistory =
+            Scribe.mode == LoadSaveMode.Inactive
+                ? new History(
+                    TraderDefs
+                        .Select(def => new ThingDefCount(
+                            def,
+                            manager.map.listerBuildings.AllBuildingsColonistOfDef(def).Count
+                        ))
+                        .ToArray()
+                )
+                {
+                    DrawOptions = false,
+                    DrawInlineLegend = false,
+                    YAxisSuffix = "W",
+                    DrawTargetLine = false,
+                }
+                : null!;
     }
 
-    public override string IsCompletedTooltip => "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate().CapitalizeFirst();
+    public override string IsCompletedTooltip =>
+        "ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate().CapitalizeFirst();
 
     public override IEnumerable<string> Targets => [];
 
@@ -222,7 +244,8 @@ internal sealed class ManagerJob_Power : ManagerJob
             JobState = ManagerJobState.Active;
         }
 
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
 
         yield return RefreshBuildingLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
@@ -231,15 +254,18 @@ internal sealed class ManagerJob_Power : ManagerJob
         workDone.Value = true;
     }
 
-    private static IEnumerable<ThingDef> GetTraderDefs() => from td in DefDatabase<ThingDef>.AllDefsListForReading
-                                                            where td.HasCompOrChildCompOf(typeof(CompPowerTrader))
-                                                            select td;
+    private static IEnumerable<ThingDef> GetTraderDefs() =>
+        from td in DefDatabase<ThingDef>.AllDefsListForReading
+        where td.HasCompOrChildCompOf(typeof(CompPowerTrader))
+        select td;
 
-    private static IEnumerable<ThingDef> GetBatteryDefs() => from td in DefDatabase<ThingDef>.AllDefsListForReading
-                                                             where td.HasCompOrChildCompOf(typeof(CompPowerBattery))
-                                                             select td;
+    private static IEnumerable<ThingDef> GetBatteryDefs() =>
+        from td in DefDatabase<ThingDef>.AllDefsListForReading
+        where td.HasCompOrChildCompOf(typeof(CompPowerBattery))
+        select td;
 
     private bool _isRefreshingBuildingLists;
+
     [CoroutineSettingsMethod]
     private Coroutine RefreshBuildingLists(ManagerLog? jobLog = null)
     {
@@ -249,8 +275,13 @@ internal sealed class ManagerJob_Power : ManagerJob
             yield break;
         }
 
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(RefreshBuildingLists);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshBuildingLists);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            RefreshBuildingLists
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                RefreshBuildingLists
+            );
 
         _isRefreshingBuildingLists = true;
         using var _ = new DoOnDispose(() => _isRefreshingBuildingLists = false);
@@ -284,13 +315,21 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         if (buildingsBefore != buildingsAfter || batteriesBefore != batteriesAfter)
         {
-            jobLog?.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildings"
-                .Translate(buildingsBefore, batteriesBefore, buildingsAfter, batteriesAfter));
+            jobLog?.AddDetail(
+                "ColonyManagerRedux.Energy.Logs.InventoriedBuildings".Translate(
+                    buildingsBefore,
+                    batteriesBefore,
+                    buildingsAfter,
+                    batteriesAfter
+                )
+            );
         }
     }
 
     private bool _isRefreshingCompLists;
-    private readonly List<(IEnumerable<CompPowerTrader> traders, int i)> _refreshCompListTraders = [];
+    private readonly List<(IEnumerable<CompPowerTrader> traders, int i)> _refreshCompListTraders =
+    [];
+
     [CoroutineSettingsMethod]
     private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
     {
@@ -300,8 +339,11 @@ internal sealed class ManagerJob_Power : ManagerJob
             yield break;
         }
 
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(RefreshCompLists);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshCompLists);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            RefreshCompLists
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(RefreshCompLists);
 
         _isRefreshingCompLists = true;
         using var _ = new DoOnDispose(() => _isRefreshingCompLists = false);
@@ -325,10 +367,17 @@ internal sealed class ManagerJob_Power : ManagerJob
         }
 
         _refreshCompListTraders.Clear();
-        _refreshCompListTraders.AddRange(TraderDefs
-            .Select((def, i) => (_traderBuildings
-                .Where(b => b.def == def)
-                .Select(b => b.GetComp<CompPowerTrader>()), i)));
+        _refreshCompListTraders.AddRange(
+            TraderDefs.Select(
+                (def, i) =>
+                    (
+                        _traderBuildings
+                            .Where(b => b.def == def)
+                            .Select(b => b.GetComp<CompPowerTrader>()),
+                        i
+                    )
+            )
+        );
         foreach (var (traders, i) in _refreshCompListTraders)
         {
             if (i == _traders.Count)
@@ -349,10 +398,17 @@ internal sealed class ManagerJob_Power : ManagerJob
         {
             _batteries.RemoveRange(BatteryDefs.Count - 1, _batteries.Count - BatteryDefs.Count);
         }
-        foreach (var (batteries, i) in BatteryDefs
-            .Select((def, i) => (_batteryBuildings
-                .Where(b => b.def == def)
-                .Select(b => b.GetComp<CompPowerBattery>()), i)))
+        foreach (
+            var (batteries, i) in BatteryDefs.Select(
+                (def, i) =>
+                    (
+                        _batteryBuildings
+                            .Where(b => b.def == def)
+                            .Select(b => b.GetComp<CompPowerBattery>()),
+                        i
+                    )
+            )
+        )
         {
             if (i == _batteries.Count)
             {
@@ -376,17 +432,31 @@ internal sealed class ManagerJob_Power : ManagerJob
             var batteriesPerType = _batteries
                 .Where(cl => cl.Count > 0)
                 .Select(cl => $" - {cl[0].parent.def.LabelCap}: {cl.Count}");
-            jobLog?.AddDetail("ColonyManagerRedux.Energy.Logs.InventoriedBuildingPerType"
-                .Translate(string.Join("\n", tradersPerType), string.Join("\n", batteriesPerType)));
+            jobLog?.AddDetail(
+                "ColonyManagerRedux.Energy.Logs.InventoriedBuildingPerType".Translate(
+                    string.Join("\n", tradersPerType),
+                    string.Join("\n", batteriesPerType)
+                )
+            );
         }
     }
 
-    private (int current, int max)[] GetCurrentBatteries() => [.. _batteries
-            .Select(list => (
-                (int)list.Sum(battery => battery.StoredEnergy),
-                (int)list.Sum(battery => battery.Props.storedEnergyMax)))];
+    private (int current, int max)[] GetCurrentBatteries() =>
+        [
+            .. _batteries.Select(list =>
+                (
+                    (int)list.Sum(battery => battery.StoredEnergy),
+                    (int)list.Sum(battery => battery.Props.storedEnergyMax)
+                )
+            ),
+        ];
 
-    private (int current, int)[] GetCurrentTrade() => [.. _traders.Select(list => ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0))];
+    private (int current, int)[] GetCurrentTrade() =>
+        [
+            .. _traders.Select(list =>
+                ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0)
+            ),
+        ];
 
     public override void ExposeData()
     {
@@ -415,12 +485,15 @@ internal sealed class ManagerJob_Power : ManagerJob
         ManagerJob_Power remainingJob;
         if (Manager.JobTracker.JobsOfType<ManagerJob_Power>().Count() > 1)
         {
-            var otherJob = Manager.JobTracker.JobsOfType<ManagerJob_Power>().SingleOrDefault(j => j != this);
+            var otherJob = Manager
+                .JobTracker.JobsOfType<ManagerJob_Power>()
+                .SingleOrDefault(j => j != this);
             if (otherJob.AnyPoweredStationOnline)
             {
                 // We got imported to a map that already has a valid power job, so we need to delete our job.
                 ColonyManagerReduxMod.Instance.LogDebug(
-                    $"ManagerJob_Power.PostImport: Deleting {this} because another power job is already present.");
+                    $"ManagerJob_Power.PostImport: Deleting {this} because another power job is already present."
+                );
                 Manager.JobTracker.Delete(this, false);
                 remainingJob = otherJob;
             }
@@ -428,7 +501,8 @@ internal sealed class ManagerJob_Power : ManagerJob
             {
                 // We got imported to a map that has a power job, but it has no powered stations online, so we replace that job with our job.
                 ColonyManagerReduxMod.Instance.LogDebug(
-                    $"ManagerJob_Power.PostImport: Replacing {otherJob} with {this} because it has no powered stations online.");
+                    $"ManagerJob_Power.PostImport: Replacing {otherJob} with {this} because it has no powered stations online."
+                );
                 Manager.JobTracker.Delete(otherJob, false);
                 remainingJob = this;
             }

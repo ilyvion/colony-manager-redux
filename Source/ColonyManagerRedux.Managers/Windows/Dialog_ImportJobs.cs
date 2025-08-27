@@ -16,7 +16,8 @@ internal sealed class Dialog_ImportJobs : Window
 
     private static readonly Vector2 ButtonSize = new(175f, 38f);
 
-    private IEnumerable<ManagerJob> SelectedJobs => _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
+    private IEnumerable<ManagerJob> SelectedJobs =>
+        _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
 
     public Dialog_ImportJobs(List<ManagerJob> jobs, Action<int>? onImport = null)
     {
@@ -31,6 +32,7 @@ internal sealed class Dialog_ImportJobs : Window
     }
 
     private readonly ScrollViewStatus _scrollViewStatus = new();
+
     private void DoJobListGUI(Rect jobsRect)
     {
         using var scrollView = GUIScope.ScrollView(jobsRect, _scrollViewStatus);
@@ -54,7 +56,8 @@ internal sealed class Dialog_ImportJobs : Window
                 ManagerTab_ImportExport.DrawExportListEntry(
                     job,
                     ref cur,
-                    scrollView.ViewRect.width);
+                    scrollView.ViewRect.width
+                );
             }
             catch (Exception e)
             {
@@ -71,7 +74,11 @@ internal sealed class Dialog_ImportJobs : Window
             {
                 Widgets.DrawAltRect(row);
             }
-            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(scrollView.ViewRect.width - 20f - Constants.Margin, row.y + 15f, 20f, 20f), state, paintable: true);
+            _selectedJobs[i] = Widgets.CheckboxMulti(
+                new Rect(scrollView.ViewRect.width - 20f - Constants.Margin, row.y + 15f, 20f, 20f),
+                state,
+                paintable: true
+            );
         }
 
         if (Event.current.type == EventType.Layout)
@@ -79,9 +86,19 @@ internal sealed class Dialog_ImportJobs : Window
             scrollView.Height = cur.y;
         }
 
-        static Vector2 DrawInvalidJob(ScrollViewScope scrollView, Vector2 cur, ManagerJob job, string reason)
+        static Vector2 DrawInvalidJob(
+            ScrollViewScope scrollView,
+            Vector2 cur,
+            ManagerJob job,
+            string reason
+        )
         {
-            Rect jobRowRect = new(0f, cur.y, scrollView.ViewRect.width, Constants.LargeListEntryHeight);
+            Rect jobRowRect = new(
+                0f,
+                cur.y,
+                scrollView.ViewRect.width,
+                Constants.LargeListEntryHeight
+            );
             GUI.color = Color.gray;
             Text.Anchor = TextAnchor.MiddleCenter;
             Widgets.DrawBox(jobRowRect);
@@ -111,35 +128,47 @@ internal sealed class Dialog_ImportJobs : Window
     {
         Text.Font = GameFont.Small;
 
-        var labelHeight = Text.CalcHeight("ColonyManagerRedux.SelectImportJobs".Translate(), inRect.width);
-        Widgets.Label(new Rect(0f, 0f, inRect.width, labelHeight), "ColonyManagerRedux.SelectImportJobs".Translate());
+        var labelHeight = Text.CalcHeight(
+            "ColonyManagerRedux.SelectImportJobs".Translate(),
+            inRect.width
+        );
+        Widgets.Label(
+            new Rect(0f, 0f, inRect.width, labelHeight),
+            "ColonyManagerRedux.SelectImportJobs".Translate()
+        );
         var nextY = labelHeight + 5f;
 
-        Rect jobsRect = new(inRect)
-        {
-            y = nextY
-        };
+        Rect jobsRect = new(inRect) { y = nextY };
         jobsRect.height -= nextY + ButtonSize.y + 5f;
         Widgets.BeginGroup(jobsRect);
         DoJobListGUI(jobsRect.AtZero());
         Widgets.EndGroup();
 
-        Rect buttonsRect = new(inRect)
-        {
-            y = jobsRect.yMax + 5f,
-            height = ButtonSize.y
-        };
+        Rect buttonsRect = new(inRect) { y = jobsRect.yMax + 5f, height = ButtonSize.y };
 
-        if (Widgets.ButtonText(new Rect(0f, inRect.height - ButtonSize.y, ButtonSize.x, ButtonSize.y), "Close".Translate()))
+        if (
+            Widgets.ButtonText(
+                new Rect(0f, inRect.height - ButtonSize.y, ButtonSize.x, ButtonSize.y),
+                "Close".Translate()
+            )
+        )
         {
             Close();
         }
 
         var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
-        if (IlyvionWidgets.DisableableButtonText(
-            new Rect(inRect.width - ButtonSize.x, inRect.height - ButtonSize.y, ButtonSize.x, ButtonSize.y),
-            "ColonyManagerRedux.ManagerImport".Translate(),
-            enabled: anySelected))
+        if (
+            IlyvionWidgets.DisableableButtonText(
+                new Rect(
+                    inRect.width - ButtonSize.x,
+                    inRect.height - ButtonSize.y,
+                    ButtonSize.x,
+                    ButtonSize.y
+                ),
+                "ColonyManagerRedux.ManagerImport".Translate(),
+                enabled: anySelected
+            )
+        )
         {
             OnAccept();
         }

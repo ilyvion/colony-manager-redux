@@ -4,7 +4,6 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 using static ColonyManagerRedux.Managers.ManagerJob_Livestock;
 
@@ -49,23 +48,35 @@ internal partial class ManagerTab_Livestock
     [HotSwappable]
     public sealed class PawnColumnWorker_LifeStage : RimWorld.PawnColumnWorker_LifeStage
     {
-        public override void DoHeader(Rect rect, PawnTable table) => this.CustomIconDoHeader(rect, table, (rect, _, _, _) => DrawHeader(rect));
+        public override void DoHeader(Rect rect, PawnTable table) =>
+            this.CustomIconDoHeader(rect, table, (rect, _, _, _) => DrawHeader(rect));
 
         protected override string GetIconTip(Pawn pawn) => pawn.ageTracker.AgeTooltipString;
 
         private static void DrawHeader(Rect rect)
         {
-            var ageRectC = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(rect, (rect.width / 2) - (SmallIconSize / 2));
-            var ageRectB = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(rect, -SmallIconSize / 4);
-            var ageRectA = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(rect, -rect.width / 2);
+            var ageRectC = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(
+                rect,
+                (rect.width / 2) - (SmallIconSize / 2)
+            );
+            var ageRectB = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(
+                rect,
+                -SmallIconSize / 4
+            );
+            var ageRectA = new Rect(0f, 0f, SmallIconSize, SmallIconSize).CenteredIn(
+                rect,
+                -rect.width / 2
+            );
 
             GUI.DrawTexture(ageRectC, Resources.GetLifeStageIcon(2));
             GUI.DrawTexture(ageRectB, Resources.GetLifeStageIcon(1));
             GUI.DrawTexture(ageRectA, Resources.GetLifeStageIcon(0));
         }
 
-        protected override string GetHeaderTip(PawnTable table) => "ColonyManagerRedux.Livestock.AgeHeader".Translate() + "\n\n" +
-                base.GetHeaderTip(table);
+        protected override string GetHeaderTip(PawnTable table) =>
+            "ColonyManagerRedux.Livestock.AgeHeader".Translate()
+            + "\n\n"
+            + base.GetHeaderTip(table);
     }
 
     [HotSwappable]
@@ -74,14 +85,23 @@ internal partial class ManagerTab_Livestock
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var estimatedMeatCount = pawn.EstimatedMeatCount();
-            IlyvionWidgets.Label(rect, estimatedMeatCount.ToString(CultureInfo.InvariantCulture),
-                "ColonyManagerRedux.Livestock.Yields".Translate(pawn.RaceProps.meatDef.LabelCap,
-                    estimatedMeatCount),
-                TextAnchor.MiddleCenter, GameFont.Tiny, leftMargin: Margin);
+            IlyvionWidgets.Label(
+                rect,
+                estimatedMeatCount.ToString(CultureInfo.InvariantCulture),
+                "ColonyManagerRedux.Livestock.Yields".Translate(
+                    pawn.RaceProps.meatDef.LabelCap,
+                    estimatedMeatCount
+                ),
+                TextAnchor.MiddleCenter,
+                GameFont.Tiny,
+                leftMargin: Margin
+            );
         }
 
-        protected override string GetHeaderTip(PawnTable table) => "ColonyManagerRedux.Livestock.MeatHeader".Translate() + "\n\n" +
-                base.GetHeaderTip(table);
+        protected override string GetHeaderTip(PawnTable table) =>
+            "ColonyManagerRedux.Livestock.MeatHeader".Translate()
+            + "\n\n"
+            + base.GetHeaderTip(table);
 
         public override int Compare(Pawn a, Pawn b)
         {
@@ -100,14 +120,23 @@ internal partial class ManagerTab_Livestock
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var milkableComp = pawn.TryGetComp<CompMilkable>();
-            IlyvionWidgets.Label(rect, milkableComp.Fullness.ToString("0%", CultureInfo.InvariantCulture),
-                "ColonyManagerRedux.Livestock.Yields".Translate(milkableComp.Props.milkDef.LabelCap,
-                    milkableComp.Props.milkAmount),
-                TextAnchor.MiddleCenter, GameFont.Tiny, leftMargin: Margin);
+            IlyvionWidgets.Label(
+                rect,
+                milkableComp.Fullness.ToString("0%", CultureInfo.InvariantCulture),
+                "ColonyManagerRedux.Livestock.Yields".Translate(
+                    milkableComp.Props.milkDef.LabelCap,
+                    milkableComp.Props.milkAmount
+                ),
+                TextAnchor.MiddleCenter,
+                GameFont.Tiny,
+                leftMargin: Margin
+            );
         }
 
-        protected override string GetHeaderTip(PawnTable table) => "ColonyManagerRedux.Livestock.MilkHeader".Translate() + "\n\n" +
-                base.GetHeaderTip(table);
+        protected override string GetHeaderTip(PawnTable table) =>
+            "ColonyManagerRedux.Livestock.MilkHeader".Translate()
+            + "\n\n"
+            + base.GetHeaderTip(table);
 
         public override int Compare(Pawn a, Pawn b)
         {
@@ -117,10 +146,15 @@ internal partial class ManagerTab_Livestock
             return (int)(milkFullnessA - milkFullnessB);
         }
 
-        public override bool VisibleCurrently => !IsCurrentTableWildTable &&
-            instance.SelectedJob!.TriggerPawnKind.pawnKind?.Milkable() == true;
+        public override bool VisibleCurrently =>
+            !IsCurrentTableWildTable
+            && instance.SelectedJob!.TriggerPawnKind.pawnKind?.Milkable() == true;
 
-        public override int GetMinWidth(PawnTable table) => Math.Max(base.GetMinWidth(table), (int)Text.CalcSize(100.ToString("0%", CultureInfo.InvariantCulture)).x);
+        public override int GetMinWidth(PawnTable table) =>
+            Math.Max(
+                base.GetMinWidth(table),
+                (int)Text.CalcSize(100.ToString("0%", CultureInfo.InvariantCulture)).x
+            );
     }
 
     [HotSwappable]
@@ -129,14 +163,23 @@ internal partial class ManagerTab_Livestock
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var shearableComp = pawn.TryGetComp<CompShearable>();
-            IlyvionWidgets.Label(rect, shearableComp.Fullness.ToString("0%", CultureInfo.InvariantCulture),
-                "ColonyManagerRedux.Livestock.Yields".Translate(shearableComp.Props.woolDef.LabelCap,
-                    shearableComp.Props.woolAmount),
-                TextAnchor.MiddleCenter, GameFont.Tiny, leftMargin: Margin);
+            IlyvionWidgets.Label(
+                rect,
+                shearableComp.Fullness.ToString("0%", CultureInfo.InvariantCulture),
+                "ColonyManagerRedux.Livestock.Yields".Translate(
+                    shearableComp.Props.woolDef.LabelCap,
+                    shearableComp.Props.woolAmount
+                ),
+                TextAnchor.MiddleCenter,
+                GameFont.Tiny,
+                leftMargin: Margin
+            );
         }
 
-        protected override string GetHeaderTip(PawnTable table) => "ColonyManagerRedux.Livestock.WoolHeader".Translate() + "\n\n" +
-                base.GetHeaderTip(table);
+        protected override string GetHeaderTip(PawnTable table) =>
+            "ColonyManagerRedux.Livestock.WoolHeader".Translate()
+            + "\n\n"
+            + base.GetHeaderTip(table);
 
         public override int Compare(Pawn a, Pawn b)
         {
@@ -146,10 +189,15 @@ internal partial class ManagerTab_Livestock
             return (int)(woolFullnessA - woolFullnessB);
         }
 
-        public override bool VisibleCurrently => !IsCurrentTableWildTable &&
-            instance.SelectedJob!.TriggerPawnKind.pawnKind?.Shearable() == true;
+        public override bool VisibleCurrently =>
+            !IsCurrentTableWildTable
+            && instance.SelectedJob!.TriggerPawnKind.pawnKind?.Shearable() == true;
 
-        public override int GetMinWidth(PawnTable table) => Math.Max(base.GetMinWidth(table), (int)Text.CalcSize(100.ToString("0%", CultureInfo.InvariantCulture)).x);
+        public override int GetMinWidth(PawnTable table) =>
+            Math.Max(
+                base.GetMinWidth(table),
+                (int)Text.CalcSize(100.ToString("0%", CultureInfo.InvariantCulture)).x
+            );
     }
 
     [HotSwappable]
@@ -157,16 +205,23 @@ internal partial class ManagerTab_Livestock
     {
         public override bool VisibleCurrently => IsCurrentTableWildTable;
 
-        protected override string GetHeaderTip(PawnTable table) => "ColonyManagerRedux.Livestock.TamingHeader".Translate();
+        protected override string GetHeaderTip(PawnTable table) =>
+            "ColonyManagerRedux.Livestock.TamingHeader".Translate();
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             if (pawn.Map.designationManager.DesignationOn(pawn, DesignationDefOf.Tame) != null)
             {
                 GUI.DrawTexture(rect, Resources.Tame);
-                TooltipHandler.TipRegion(rect, "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
-                    "ColonyManagerRedux.Livestock.TamingHeader".Translate().ToString().UncapitalizeFirst()
-                ));
+                TooltipHandler.TipRegion(
+                    rect,
+                    "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
+                        "ColonyManagerRedux.Livestock.TamingHeader"
+                            .Translate()
+                            .ToString()
+                            .UncapitalizeFirst()
+                    )
+                );
             }
         }
     }
@@ -174,8 +229,8 @@ internal partial class ManagerTab_Livestock
     [HotSwappable]
     public sealed class PawnColumnWorker_Cull : PawnColumnWorker_Livestock
     {
-        public override bool VisibleCurrently => !IsCurrentTableWildTable
-            && jobGetter()!.CullExcess;
+        public override bool VisibleCurrently =>
+            !IsCurrentTableWildTable && jobGetter()!.CullExcess;
 
         public override void DoHeader(Rect rect, PawnTable table)
         {
@@ -192,22 +247,22 @@ internal partial class ManagerTab_Livestock
             var iconRect = new Rect(0f, 0f, 26, 26).CenteredIn(rect);
 
             GUI.DrawTexture(iconRect, texture);
-
         }
 
-        private static Texture2D GetCullingStrategyTexture(ManagerJob_Livestock job) => job.CullingStrategy switch
-        {
-            LivestockCullingStrategy.Butcher => Resources.Slaughter,
-            LivestockCullingStrategy.Release => Resources.ReleaseToTheWild,
-            _ => throw new NotImplementedException()
-        };
+        private static Texture2D GetCullingStrategyTexture(ManagerJob_Livestock job) =>
+            job.CullingStrategy switch
+            {
+                LivestockCullingStrategy.Butcher => Resources.Slaughter,
+                LivestockCullingStrategy.Release => Resources.ReleaseToTheWild,
+                _ => throw new NotImplementedException(),
+            };
 
         protected override string GetHeaderTip(PawnTable table)
         {
             var job = jobGetter()!;
             return "ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor".Translate(
-                    $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action"
-                        .Translate());
+                $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action".Translate()
+            );
         }
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
@@ -219,40 +274,50 @@ internal partial class ManagerTab_Livestock
                 TooltipHandler.TipRegion(
                     rect,
                     "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
-                    $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action"
-                        .Translate()
-                ));
+                        $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action".Translate()
+                    )
+                );
             }
         }
     }
 
     private PawnTable? animalsTameTable;
     private PawnTable? animalsWildTable;
-    private PawnTable CreateAnimalsTable(Func<IEnumerable<Pawn>> animalGetter, Func<ManagerJob_Livestock?> jobGetter)
+
+    private PawnTable CreateAnimalsTable(
+        Func<IEnumerable<Pawn>> animalGetter,
+        Func<ManagerJob_Livestock?> jobGetter
+    )
     {
         PawnTable table = null!;
-        table = (PawnTable)Activator.CreateInstance(
-            ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable.workerClass,
-            ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable,
+        table = (PawnTable)
+            Activator.CreateInstance(
+                ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable.workerClass,
+                ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable,
 #pragma warning disable IDE0004
-            (Func<IEnumerable<Pawn>>)(() =>
-            {
-                // PawnTables aren't very customizable, so we'll hijack this function to inject our
-                // instance into the columns, since we need it there
-                foreach (var item in table.def.columns
-                    .Where(c => c.workerClass.IsSubclassOf(
-                        typeof(PawnColumnWorker_Livestock))))
-                {
-                    var worker = (PawnColumnWorker_Livestock)item.Worker;
-                    worker.instance = this;
-                    worker.jobGetter = jobGetter;
-                }
+                (Func<IEnumerable<Pawn>>)(
+                    () =>
+                    {
+                        // PawnTables aren't very customizable, so we'll hijack this function to inject our
+                        // instance into the columns, since we need it there
+                        foreach (
+                            var item in table.def.columns.Where(c =>
+                                c.workerClass.IsSubclassOf(typeof(PawnColumnWorker_Livestock))
+                            )
+                        )
+                        {
+                            var worker = (PawnColumnWorker_Livestock)item.Worker;
+                            worker.instance = this;
+                            worker.jobGetter = jobGetter;
+                        }
 
-                return animalGetter();
-            }),
+                        return animalGetter();
+                    }
+                ),
 #pragma warning restore IDE0004
-            UI.screenWidth - (int)(Margin * 2f),
-            (int)(UI.screenHeight - 35 - (Margin * 2f)));
+                UI.screenWidth - (int)(Margin * 2f),
+                (int)(UI.screenHeight - 35 - (Margin * 2f))
+            );
 
         return table;
     }

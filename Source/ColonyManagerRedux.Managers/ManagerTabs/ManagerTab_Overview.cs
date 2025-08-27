@@ -53,13 +53,24 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     protected override void DoTabContents(Rect canvas)
     {
-        var overviewRect = new Rect(0f, 0f, OverviewWidthRatio * canvas.width, canvas.height).RoundToInt();
-        var sideRectUpper = new Rect(overviewRect.xMax + Margin, 0f,
+        var overviewRect = new Rect(
+            0f,
+            0f,
+            OverviewWidthRatio * canvas.width,
+            canvas.height
+        ).RoundToInt();
+        var sideRectUpper = new Rect(
+            overviewRect.xMax + Margin,
+            0f,
             ((1 - OverviewWidthRatio) * canvas.width) - Margin,
-            (canvas.height - Margin) / 2).RoundToInt();
-        var sideRectLower = new Rect(overviewRect.xMax + Margin, sideRectUpper.yMax + Margin,
+            (canvas.height - Margin) / 2
+        ).RoundToInt();
+        var sideRectLower = new Rect(
+            overviewRect.xMax + Margin,
+            sideRectUpper.yMax + Margin,
             sideRectUpper.width,
-            canvas.height - sideRectUpper.height - Margin).RoundToInt();
+            canvas.height - sideRectUpper.height - Margin
+        ).RoundToInt();
 
         // draw the listing of current jobs.
         Widgets.DrawMenuSection(overviewRect);
@@ -73,7 +84,10 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             {
                 Text.Anchor = TextAnchor.MiddleCenter;
                 GUI.color = Color.gray;
-                Widgets.Label(sideRectUpper, "ColonyManagerRedux.Overview.NoJobDetails".Translate());
+                Widgets.Label(
+                    sideRectUpper,
+                    "ColonyManagerRedux.Overview.NoJobDetails".Translate()
+                );
                 GUI.color = Color.white;
                 Text.Anchor = TextAnchor.LowerLeft;
             }
@@ -144,8 +158,14 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                 {
                     Widgets.DrawBox(row, 2, Resources.Error);
 
-                    TooltipHandler.TipRegion(row, new TipSignal(
-                        "ColonyManagerRedux.Job.CausedException".Translate(job.CausedExceptionText)));
+                    TooltipHandler.TipRegion(
+                        row,
+                        new TipSignal(
+                            "ColonyManagerRedux.Job.CausedException".Translate(
+                                job.CausedExceptionText
+                            )
+                        )
+                    );
                 }
 
                 if (Widgets.ButtonInvisible(row))
@@ -161,14 +181,13 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         }
     }
 
-    private void DrawOverviewListEntry(
-        ManagerJob job,
-        ref Vector2 position,
-        float width)
+    private void DrawOverviewListEntry(ManagerJob job, ref Vector2 position, float width)
     {
         DrawOverviewListEntryParameters? parameters = null;
-        if (job.CompOfType<CompDrawOverviewListEntry>() is
-            CompDrawOverviewListEntry drawExportListEntry)
+        if (
+            job.CompOfType<CompDrawOverviewListEntry>()
+            is CompDrawOverviewListEntry drawExportListEntry
+        )
         {
             var props = drawExportListEntry.Props;
             var worker = props.Worker;
@@ -187,60 +206,59 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         var tab = job.Tab;
 
-        var labelWidth = width
+        var labelWidth =
+            width
             - (StatusRectWidth + (4 * Margin))
-            - (2 * Margin) - LargeIconSize - LargeListEntryHeight;
+            - (2 * Margin)
+            - LargeIconSize
+            - LargeListEntryHeight;
 
         // create label string
         var subLabel = tab.GetSubLabel(job);
         var (label, labelSize) = tab.GetFullLabel(job, labelWidth, subLabel);
 
         // set up rects
-        Rect iconRect = new(Margin, Margin,
-            LargeIconSize, LargeIconSize);
+        Rect iconRect = new(Margin, Margin, LargeIconSize, LargeIconSize);
 
-        Rect labelRect = new(
-            iconRect.xMax + Margin,
-            iconRect.y,
-            labelWidth,
-            labelSize.y);
+        Rect labelRect = new(iconRect.xMax + Margin, iconRect.y, labelWidth, labelSize.y);
         Rect statusRect = new(
             labelRect.xMax + Margin,
             Margin,
             StatusRectWidth + Margin,
-            LargeListEntryHeight);
+            LargeListEntryHeight
+        );
 
         Rect stampRegionRect = new(
             statusRect.xMax - StampSize,
             statusRect.y,
             StampSize,
-            statusRect.height);
+            statusRect.height
+        );
 
         Rect lastUpdateRect = new(
             stampRegionRect.xMin - Margin - LastUpdateRectWidth,
             statusRect.y,
             LastUpdateRectWidth,
-            statusRect.height);
+            statusRect.height
+        );
 
         Rect progressRect = new(
             lastUpdateRect.xMin - Margin - ProgressRectWidth,
             statusRect.yMin,
             ProgressRectWidth,
-            statusRect.height);
+            statusRect.height
+        );
 
         Rect orderRect = new(
             statusRect.xMax + Margin,
             statusRect.y,
             LargeListEntryHeight,
-            LargeListEntryHeight);
+            LargeListEntryHeight
+        );
 
         // do the drawing
         var rowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin;
-        Rect rowRect = new(
-            position.x,
-            position.y,
-            width,
-            rowHeight);
+        Rect rowRect = new(position.x, position.y, width, rowHeight);
         GUI.BeginGroup(rowRect);
         rowRect = rowRect.AtZero();
 
@@ -259,11 +277,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         });
 
         // draw label
-        IlyvionWidgets.Label(
-            labelRect,
-            label,
-            subLabel,
-            TextAnchor.MiddleLeft);
+        IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);
 
         // if the bill has a manager job, give some more info.
         if (tab.Enabled)
@@ -272,19 +286,23 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             {
                 MainTabWindow_Manager.GoTo(tab, job);
             }
-            TooltipHandler.TipRegion(iconRect,
-                "ColonyManagerRedux.Common.GoToJob".Translate(job.Label.UncapitalizeFirst()));
+            TooltipHandler.TipRegion(
+                iconRect,
+                "ColonyManagerRedux.Common.GoToJob".Translate(job.Label.UncapitalizeFirst())
+            );
         }
         else
         {
             using var color = GUIScope.Color(Color.gray);
             GUI.DrawTexture(iconRect, tab.Def.icon);
-            TooltipHandler.TipRegion(iconRect, tab.Label +
-                "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
+            TooltipHandler.TipRegion(
+                iconRect,
+                tab.Label
+                    + "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason)
+            );
         }
 
-        var stampRect = new Rect(0, 0, StampSize, StampSize)
-            .CenteredIn(stampRegionRect);
+        var stampRect = new Rect(0, 0, StampSize, StampSize).CenteredIn(stampRegionRect);
         if (Utilities.DrawStampButton(stampRect, job))
         {
             job.IsSuspended = !job.IsSuspended;
@@ -294,35 +312,52 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         {
             if (job.CausedException != null)
             {
-                TooltipHandler.TipRegion(stampRect, new TipSignal(
-                    job.IsSuspendedDueToExceptionTooltip + "\n\n" +
-                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Job.Unsuspend".Translate()))
-                {
-                    // We do this so the exception is shown after
-                    priority = TooltipPriority.Pawn
-                });
+                TooltipHandler.TipRegion(
+                    stampRect,
+                    new TipSignal(
+                        job.IsSuspendedDueToExceptionTooltip
+                            + "\n\n"
+                            + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                                "ColonyManagerRedux.Job.Unsuspend".Translate()
+                            )
+                    )
+                    {
+                        // We do this so the exception is shown after
+                        priority = TooltipPriority.Pawn,
+                    }
+                );
             }
             else
             {
-                TooltipHandler.TipRegion(stampRect,
-                    job.IsSuspendedTooltip + "\n\n" +
-                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Job.Unsuspend".Translate()));
+                TooltipHandler.TipRegion(
+                    stampRect,
+                    job.IsSuspendedTooltip
+                        + "\n\n"
+                        + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                            "ColonyManagerRedux.Job.Unsuspend".Translate()
+                        )
+                );
             }
         }
         else if (job.IsCompleted)
         {
-            TooltipHandler.TipRegion(stampRect,
-                job.IsCompletedTooltip + "\n\n" +
-                "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                    "ColonyManagerRedux.Job.Suspend".Translate()));
+            TooltipHandler.TipRegion(
+                stampRect,
+                job.IsCompletedTooltip
+                    + "\n\n"
+                    + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Suspend".Translate()
+                    )
+            );
         }
         else
         {
-            TooltipHandler.TipRegion(stampRect,
+            TooltipHandler.TipRegion(
+                stampRect,
                 "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                    "ColonyManagerRedux.Job.Suspend".Translate()));
+                    "ColonyManagerRedux.Job.Suspend".Translate()
+                )
+            );
         }
 
         if (parameters.ShowProgressbar && job.Trigger != null)
@@ -330,15 +365,12 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             // draw progress bar
             job.Trigger.DrawVerticalProgressBars(
                 progressRect,
-                !job.IsSuspended && !job.IsCompleted);
+                !job.IsSuspended && !job.IsCompleted
+            );
         }
 
         // draw update interval
-        UpdateInterval.Draw(
-            lastUpdateRect,
-            job,
-            false,
-            job.IsSuspended);
+        UpdateInterval.Draw(lastUpdateRect, job, false, job.IsSuspended);
 
         if (DrawOrderButtons(orderRect, job, Manager.JobTracker))
         {
@@ -347,7 +379,6 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         GUI.EndGroup();
         position.y += rowRect.height;
-
     }
 
     public void DrawPawnOverview(Rect rect)
@@ -363,13 +394,17 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     private void RefreshWorkers()
     {
-        var temp = Manager.map.mapPawns.FreeColonistsSpawned.Where(
-            pawn => !pawn.WorkTypeIsDisabled(WorkTypeDef));
+        var temp = Manager.map.mapPawns.FreeColonistsSpawned.Where(pawn =>
+            !pawn.WorkTypeIsDisabled(WorkTypeDef)
+        );
 
         // sort by either specific skill def or average over job - depending on which is known.
-        temp = SkillDef != null
-            ? temp.OrderByDescending(pawn => pawn.skills.GetSkill(SkillDef).Level)
-            : temp.OrderByDescending(pawn => pawn.skills.AverageOfRelevantSkillsFor(WorkTypeDef));
+        temp =
+            SkillDef != null
+                ? temp.OrderByDescending(pawn => pawn.skills.GetSkill(SkillDef).Level)
+                : temp.OrderByDescending(pawn =>
+                    pawn.skills.AverageOfRelevantSkillsFor(WorkTypeDef)
+                );
 
         _workers.Clear();
         _workers.AddRange(temp);

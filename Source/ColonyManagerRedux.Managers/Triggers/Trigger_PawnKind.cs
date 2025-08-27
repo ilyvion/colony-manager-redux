@@ -15,15 +15,14 @@ internal sealed class Trigger_PawnKind : Trigger
 
     public string ExpectedPawnKindName
     {
-        get => $"[PawnKindDef was saved as '{ExpectedPawnKindNameRaw ?? "?"}']"; private set => ExpectedPawnKindNameRaw = value;
+        get => $"[PawnKindDef was saved as '{ExpectedPawnKindNameRaw ?? "?"}']";
+        private set => ExpectedPawnKindNameRaw = value;
     }
-    public string? ExpectedPawnKindNameRaw
-    {
-        get; private set;
-    }
+    public string? ExpectedPawnKindNameRaw { get; private set; }
 
 #pragma warning disable CS8618 // Set by using class
-    public Trigger_PawnKind(ManagerJob job) : base(job)
+    public Trigger_PawnKind(ManagerJob job)
+        : base(job)
 #pragma warning restore CS8618
     {
         CountTargets = [.. Utilities_Livestock.AgeSexArray.Select(_ => 5)];
@@ -31,20 +30,31 @@ internal sealed class Trigger_PawnKind : Trigger
         _cachedTooltip = new CachedValue<string>(GetTooltip);
     }
 
-    public int[] Counts => [.. Utilities_Livestock.AgeSexArray.Select(ageSex => pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0)];
+    public int[] Counts =>
+        [
+            .. Utilities_Livestock.AgeSexArray.Select(ageSex =>
+                pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0
+            ),
+        ];
 
-    public int GetCountFor(AgeAndSex ageAndSex, bool cached = true) => pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0;
+    public int GetCountFor(AgeAndSex ageAndSex, bool cached = true) =>
+        pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0;
 
     public int GetTargetFor(AgeAndSex ageAndSex) => CountTargets[(int)ageAndSex];
 
-    private static Texture2D GetProgressBarTextureFor(AgeAndSex ageAndSex) => ageAndSex switch
-    {
-        AgeAndSex.AdultFemale => Resources.AdultFemaleTexture,
-        AgeAndSex.AdultMale => Resources.AdultMaleTexture,
-        AgeAndSex.JuvenileFemale => Resources.JuvenileFemaleTexture,
-        AgeAndSex.JuvenileMale => Resources.JuvenileMaleTexture,
-        _ => throw new ArgumentOutOfRangeException(nameof(ageAndSex), ageAndSex, $"Unknown AgeAndSex value '{ageAndSex}'"),
-    };
+    private static Texture2D GetProgressBarTextureFor(AgeAndSex ageAndSex) =>
+        ageAndSex switch
+        {
+            AgeAndSex.AdultFemale => Resources.AdultFemaleTexture,
+            AgeAndSex.AdultMale => Resources.AdultMaleTexture,
+            AgeAndSex.JuvenileFemale => Resources.JuvenileFemaleTexture,
+            AgeAndSex.JuvenileMale => Resources.JuvenileMaleTexture,
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(ageAndSex),
+                ageAndSex,
+                $"Unknown AgeAndSex value '{ageAndSex}'"
+            ),
+        };
 
     public new ManagerJob_Livestock Job
     {
@@ -58,10 +68,10 @@ internal sealed class Trigger_PawnKind : Trigger
         {
             if (pawnKind != null && !_cachedState.TryGetValue(out var state))
             {
-                state = Utilities_Livestock.AgeSexArray.All(
-                    ageSex => CountTargets[(int)ageSex] ==
-                        pawnKind.GetTame(Job.Manager, ageSex).Count())
-                     && AllTrainingWantedSet();
+                state =
+                    Utilities_Livestock.AgeSexArray.All(ageSex =>
+                        CountTargets[(int)ageSex] == pawnKind.GetTame(Job.Manager, ageSex).Count()
+                    ) && AllTrainingWantedSet();
                 _ = _cachedState.Update(state);
             }
             else
@@ -86,16 +96,21 @@ internal sealed class Trigger_PawnKind : Trigger
                 progressRect,
                 c,
                 t,
-                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
-                    ageAndSex.GetLabel(true)),
+                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
+                    c,
+                    t,
+                    ageAndSex.GetLabel(true)
+                ),
                 active,
-                GetProgressBarTextureFor(ageAndSex));
+                GetProgressBarTextureFor(ageAndSex)
+            );
 
             progressRect.x -= Constants.Margin + 10;
         }
     }
 
     public const float PawnKindProgressBarHeight = 10f;
+
     public override void DrawHorizontalProgressBars(Rect progressRect, bool active)
     {
         //var eachHeight = progressRect.height / Utilities_Livestock.AgeSexArray.Length;
@@ -108,35 +123,51 @@ internal sealed class Trigger_PawnKind : Trigger
                 eachRect,
                 c,
                 t,
-                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(c, t,
-                    ageAndSex.GetLabel(true)),
+                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
+                    c,
+                    t,
+                    ageAndSex.GetLabel(true)
+                ),
                 active,
-                GetProgressBarTextureFor(ageAndSex));
+                GetProgressBarTextureFor(ageAndSex)
+            );
 
             eachRect.y += PawnKindProgressBarHeight + (Constants.Margin / 2);
         }
     }
 
-    public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight,
-        string? label = null, string? tooltip = null,
-        List<Designation>? targets = null, Action? onOpenFilterDetails = null,
-        Func<Designation, string>? designationLabelGetter = null)
-    {
-    }
+    public override void DrawTriggerConfig(
+        ref Vector2 cur,
+        float width,
+        float entryHeight,
+        string? label = null,
+        string? tooltip = null,
+        List<Designation>? targets = null,
+        Action? onOpenFilterDetails = null,
+        Func<Designation, string>? designationLabelGetter = null
+    ) { }
 
     public override void ExposeData()
     {
         base.ExposeData();
         foreach (var ageAndSex in Utilities_Livestock.AgeSexArray)
         {
-            Scribe_Values.Look(ref CountTargets[(int)ageAndSex], $"{ageAndSex.ToString().UncapitalizeFirst()}TargetCount");
+            Scribe_Values.Look(
+                ref CountTargets[(int)ageAndSex],
+                $"{ageAndSex.ToString().UncapitalizeFirst()}TargetCount"
+            );
         }
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             var subNode = Scribe.loader.curXmlParent["pawnKind"];
             if (subNode != null && subNode.InnerText != null && subNode.InnerText != "null")
             {
-                ExpectedPawnKindName = BackCompatibility.BackCompatibleDefName(typeof(PawnKindDef), subNode.InnerText, forDefInjections: false, subNode);
+                ExpectedPawnKindName = BackCompatibility.BackCompatibleDefName(
+                    typeof(PawnKindDef),
+                    subNode.InnerText,
+                    forDefInjections: false,
+                    subNode
+                );
             }
         }
         Scribe_Defs.Look(ref pawnKind, "pawnKind");
@@ -146,23 +177,35 @@ internal sealed class Trigger_PawnKind : Trigger
     {
         if (pawnKind == null)
         {
-            return "This job is in an error state because the game could not find the PawnKindDef it expected for this job. " +
-                   "The likeliest causes for this is that the PawnKindDef was renamed by a mod, removed from a mod, or that the mod that added it itself was disabled or removed.";
+            return "This job is in an error state because the game could not find the PawnKindDef it expected for this job. "
+                + "The likeliest causes for this is that the PawnKindDef was renamed by a mod, removed from a mod, or that the mod that added it itself was disabled or removed.";
         }
-        var tooltipArgs = new List<NamedArgument>
-        {
-            pawnKind.Named("PAWNKIND")
-        };
+        var tooltipArgs = new List<NamedArgument> { pawnKind.Named("PAWNKIND") };
         tooltipArgs.AddRange(
-            Counts.Zip(CountTargets, (c, t) => (c, t))
-            .Zip(Utilities_Livestock.AgeSexArray, (v, ageAndSex) => new NamedArgument(
-                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(v.c, v.t,
-                    ageAndSex.GetLabel(true)), null)));
+            Counts
+                .Zip(CountTargets, (c, t) => (c, t))
+                .Zip(
+                    Utilities_Livestock.AgeSexArray,
+                    (v, ageAndSex) =>
+                        new NamedArgument(
+                            "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
+                                v.c,
+                                v.t,
+                                ageAndSex.GetLabel(true)
+                            ),
+                            null
+                        )
+                )
+        );
         tooltipArgs.Add(
             "ColonyManagerRedux.Livestock.WildCount".Translate(
-                pawnKind.GetWild(Job.Manager).Count())
+                pawnKind.GetWild(Job.Manager).Count()
+            )
         );
-        return "ColonyManagerRedux.Livestock.ListEntryTooltip".Translate(tooltipArgs.ToArray()).Resolve().CapitalizeFirst();
+        return "ColonyManagerRedux.Livestock.ListEntryTooltip"
+            .Translate(tooltipArgs.ToArray())
+            .Resolve()
+            .CapitalizeFirst();
     }
 
     private bool AllTrainingWantedSet()

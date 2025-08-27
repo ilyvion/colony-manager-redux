@@ -57,9 +57,11 @@ public static class ManagerDefMakerManagerExtensions
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="def"/> is null.</exception>
     /// <exception cref="ArgumentException">Thrown if the manager job created is not of type <typeparamref name="T"/>.</exception>
     public static T NewJob<T>(this Manager manager, ManagerDef def, params object[] args)
-        where T : ManagerJob => def == null
-            ? throw new ArgumentNullException(nameof(def))
-            : ManagerDefMaker.MakeManagerJob(def, manager, args) is not T managerJob
-            ? throw new ArgumentException($"ManagerDef provided ({def}) does not produce a {typeof(T).Name}")
-            : managerJob;
+        where T : ManagerJob =>
+        def == null ? throw new ArgumentNullException(nameof(def))
+        : ManagerDefMaker.MakeManagerJob(def, manager, args) is not T managerJob
+            ? throw new ArgumentException(
+                $"ManagerDef provided ({def}) does not produce a {typeof(T).Name}"
+            )
+        : managerJob;
 }

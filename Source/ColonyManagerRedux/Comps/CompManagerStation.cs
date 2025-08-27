@@ -24,8 +24,8 @@ public class CompManagerStation : ThingComp
     {
         yield return new Command_Action
         {
-            action = () => Find.MainTabsRoot.SetCurrentTab(
-                ManagerMainButtonDefOf.ColonyManagerRedux_Manager),
+            action = () =>
+                Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.ColonyManagerRedux_Manager),
             defaultLabel = "ColonyManagerRedux.ManagerStation.OpenManagerTab".Translate(),
             defaultDesc = "ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip".Translate(),
             icon = Resources.ManagerTab_Gizmo,
@@ -35,25 +35,34 @@ public class CompManagerStation : ThingComp
         {
             yield return new Command_Action
             {
-                defaultLabel = _handle == null || _handle.IsCompleted ? "DEV: Run manager job" : "DEV: Running manager job...",
+                defaultLabel =
+                    _handle == null || _handle.IsCompleted
+                        ? "DEV: Run manager job"
+                        : "DEV: Running manager job...",
                 action = () =>
+                {
+                    if (_handle == null || _handle.IsCompleted)
                     {
-                        if (_handle == null || _handle.IsCompleted)
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                            $"Manually running a job due to 'DEV: Manage Jobs' command."
+                        );
+                        var manager = Manager.For(parent.Map);
+                        var coroutine = manager.TryDoWork();
+                        if (coroutine != null)
                         {
-                            ColonyManagerReduxMod.Instance.LogVerboseMessage($"Manually running a job due to 'DEV: Manage Jobs' command.");
-                            var manager = Manager.For(parent.Map);
-                            var coroutine = manager.TryDoWork();
-                            if (coroutine != null)
-                            {
-                                _handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
-                            }
-                            else
-                            {
-                                Messages.Message("No manager jobs currently need to run.", MessageTypeDefOf.RejectInput, false);
-                            }
+                            _handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
                         }
-                    },
-                Disabled = _handle != null && !_handle.IsCompleted
+                        else
+                        {
+                            Messages.Message(
+                                "No manager jobs currently need to run.",
+                                MessageTypeDefOf.RejectInput,
+                                false
+                            );
+                        }
+                    }
+                },
+                Disabled = _handle != null && !_handle.IsCompleted,
             };
         }
     }

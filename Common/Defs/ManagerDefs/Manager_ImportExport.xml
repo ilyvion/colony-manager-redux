@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-
     <ColonyManagerRedux.ManagerDef>
         <defName>CM_ImportExportManager</defName>
         <order>1000</order>
@@ -14,5 +13,4 @@
             </li>
         </managerComps>
     </ColonyManagerRedux.ManagerDef>
-
 </Defs>

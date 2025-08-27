@@ -15,7 +15,8 @@ public class CompManagerDatabase : ThingComp
     /// </summary>
     public byte[]? JobTransferData
     {
-        get => jobTransferData; set => jobTransferData = value;
+        get => jobTransferData;
+        set => jobTransferData = value;
     }
 #pragma warning restore CA1819 // Properties should not return arrays
 

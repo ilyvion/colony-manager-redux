@@ -6,6 +6,4 @@ namespace ColonyManagerRedux;
 /// <summary>
 /// Represents a manager station building in the Colony Manager Redux mod.
 /// </summary>
-public class Building_ManagerStation : Building_WorkTable
-{
-}
+public class Building_ManagerStation : Building_WorkTable { }

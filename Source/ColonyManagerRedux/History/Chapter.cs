@@ -33,7 +33,6 @@ public partial class History
         private int _observedMax = -1;
         private int _specificMax = -1;
 
-
         private Color _lineColor = DefaultLineColor;
         public Color LineColor
         {
@@ -44,17 +43,25 @@ public partial class History
         public Chapter()
         {
             counts = [.. Periods.Select(_ => new CircularBuffer<int>(entriesPerInterval, [0]))];
-            targets = [.. Periods.Select(_ => new CircularBuffer<(int, int)>(entriesPerInterval, [(0, 0)]))];
+            targets =
+            [
+                .. Periods.Select(_ => new CircularBuffer<(int, int)>(
+                    entriesPerInterval,
+                    [(0, 0)]
+                )),
+            ];
         }
 
-        public Chapter(HistoryLabel label, int entriesPerInterval, Color color) : this()
+        public Chapter(HistoryLabel label, int entriesPerInterval, Color color)
+            : this()
         {
             this.label = label;
             this.entriesPerInterval = entriesPerInterval;
             LineColor = color;
         }
 
-        public Chapter(ThingDefCountClass thingDefCount, int entriesPerInterval, Color color) : this()
+        public Chapter(ThingDefCountClass thingDefCount, int entriesPerInterval, Color color)
+            : this()
         {
             label = new DefHistoryLabel<ThingDef>(thingDefCount.thingDef);
             ThingDefCount = thingDefCount;
@@ -87,7 +94,8 @@ public partial class History
 
         internal GraphSeries? GraphSeries { get; set; }
 
-        public bool HasTargets(Period period) => !targets[(int)period].IsEmpty && targets[(int)period].Any(t => t.target != 0);
+        public bool HasTargets(Period period) =>
+            !targets[(int)period].IsEmpty && targets[(int)period].Any(t => t.target != 0);
 
         public void ExposeData()
         {
@@ -106,10 +114,15 @@ public partial class History
                 var count = counts[(int)period];
                 var target = targets[(int)period];
                 Utilities.Scribe_IntArray(ref count, period.ToString().UncapitalizeFirst());
-                Utilities.Scribe_IntTupleArray(ref target, period.ToString().UncapitalizeFirst() + "Targets");
+                Utilities.Scribe_IntTupleArray(
+                    ref target,
+                    period.ToString().UncapitalizeFirst() + "Targets"
+                );
 
 #if DEBUG_SCRIBE
-                Log.Message( Scribe.mode + " for " + label + ", daycount: " + pages[Period.Day].Count );
+                Log.Message(
+                    Scribe.mode + " for " + label + ", daycount: " + pages[Period.Day].Count
+                );
 #endif
 
                 counts[(int)period] = count;
@@ -158,7 +171,8 @@ public partial class History
             }
         }
 
-        public (int count, int target) Last(Period period) => (counts[(int)period].Back(), targets[(int)period].Back().target);
+        public (int count, int target) Last(Period period) =>
+            (counts[(int)period].Back(), targets[(int)period].Back().target);
 
         public int Max(Period period, bool positive = true, bool showTargets = true)
         {

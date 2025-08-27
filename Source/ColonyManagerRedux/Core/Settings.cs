@@ -3,14 +3,10 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Xml;
-
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
-
 using Verse.Sound;
-
 using static ColonyManagerRedux.Constants;
-
 using TabRecord = ilyvion.Laboratory.UI.TabRecord;
 
 namespace ColonyManagerRedux;
@@ -28,6 +24,7 @@ public class Settings : ModSettings
     private Tab _currentManagerSettings;
 
     private bool _doVerboseLogging;
+
     /// <summary>
     /// Gets whether verbose logging is enabled.
     /// </summary>
@@ -38,6 +35,7 @@ public class Settings : ModSettings
     }
 
     private int _defaultUpdateIntervalTicks = GenDate.TicksPerDay;
+
     /// <summary>
     /// Gets the default update interval in ticks.
     /// </summary>
@@ -48,6 +46,7 @@ public class Settings : ModSettings
     }
 
     private int _defaultTargetCount = 500;
+
     /// <summary>
     /// Gets the default target count for thresholds.
     /// </summary>
@@ -58,6 +57,7 @@ public class Settings : ModSettings
     }
 
     private bool _defaultCountAllOnMap;
+
     /// <summary>
     /// Gets whether to count all items on the map by default.
     /// </summary>
@@ -68,6 +68,7 @@ public class Settings : ModSettings
     }
 
     private bool _defaultShouldCheckReachable = true;
+
     /// <summary>
     /// Gets whether to check reachability by default.
     /// </summary>
@@ -78,6 +79,7 @@ public class Settings : ModSettings
     }
 
     private bool _defaultUsePathBasedDistance;
+
     /// <summary>
     /// Gets whether to use path-based distance by default.
     /// </summary>
@@ -88,6 +90,7 @@ public class Settings : ModSettings
     }
 
     private bool _newJobsAreImmediatelyOutdated = true;
+
     /// <summary>
     /// Gets whether new jobs are immediately marked as outdated.
     /// </summary>
@@ -98,6 +101,7 @@ public class Settings : ModSettings
     }
 
     private bool _recordHistoricalData = true;
+
     /// <summary>
     /// Gets whether to record historical data.
     /// </summary>
@@ -108,6 +112,7 @@ public class Settings : ModSettings
     }
 
     private bool _newJobsShouldBeResourceLocked = true;
+
     /// <summary>
     /// Gets whether new jobs should be resource locked by default.
     /// </summary>
@@ -118,6 +123,7 @@ public class Settings : ModSettings
     }
 
     private int _maxDesignationsPerJob;
+
     /// <summary>
     /// Gets the maximum number of designations allowed per job.
     /// </summary>
@@ -126,16 +132,21 @@ public class Settings : ModSettings
         get => _maxDesignationsPerJob * 10;
         internal set => _maxDesignationsPerJob = value / 10;
     }
+
     /// <summary>
     /// Determines if more designations can be added to a job.
     /// </summary>
-    public bool CanAddMoreDesignations(int currentCount) => MaxDesignationsPerJob == 0 || MaxDesignationsPerJob > currentCount;
+    public bool CanAddMoreDesignations(int currentCount) =>
+        MaxDesignationsPerJob == 0 || MaxDesignationsPerJob > currentCount;
+
     /// <summary>
     /// Determines if more designations should be removed from a job.
     /// </summary>
-    public bool ShouldRemoveMoreDesignations(int currentCount) => MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
+    public bool ShouldRemoveMoreDesignations(int currentCount) =>
+        MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
 
     private List<int> _customUpdateIntervalTickList = [];
+
     /// <summary>
     /// Gets the list of custom update intervals in ticks.
     /// </summary>
@@ -146,6 +157,7 @@ public class Settings : ModSettings
     }
 
     private bool _showNoManagerAlert = true;
+
     /// <summary>
     /// Gets whether to show the 'No Manager' alert.
     /// </summary>
@@ -156,6 +168,7 @@ public class Settings : ModSettings
     }
 
     private bool _showNoTableAlert = true;
+
     /// <summary>
     /// Gets whether to show the 'No Table' alert.
     /// </summary>
@@ -166,6 +179,7 @@ public class Settings : ModSettings
     }
 
     private bool _showJobsNotUpdatingAlert = true;
+
     /// <summary>
     /// Gets whether to show the 'Jobs Not Updating' alert.
     /// </summary>
@@ -176,6 +190,7 @@ public class Settings : ModSettings
     }
 
     private float _daysBeforeShowingAlert = 0.5f;
+
     /// <summary>
     /// Gets the number of days before showing the alert.
     /// </summary>
@@ -186,6 +201,7 @@ public class Settings : ModSettings
     }
 
     private float _daysBeforeShowingHighAlert = 1f;
+
     /// <summary>
     /// Gets the number of days before showing the high alert.
     /// </summary>
@@ -196,6 +212,7 @@ public class Settings : ModSettings
     }
 
     private float _daysBeforeShowingCriticalAlert = 2f;
+
     /// <summary>
     /// Gets the number of days before showing the critical alert.
     /// </summary>
@@ -206,6 +223,7 @@ public class Settings : ModSettings
     }
 
     private bool _showNoTableNeededAlert = true;
+
     /// <summary>
     /// Gets whether to show the 'No Table Needed' alert.
     /// </summary>
@@ -216,6 +234,7 @@ public class Settings : ModSettings
     }
 
     private HashSet<ManagerDef> _disabledManagers = [];
+
     /// <summary>
     /// Gets the set of disabled manager definitions.
     /// </summary>
@@ -231,6 +250,7 @@ public class Settings : ModSettings
     }
 
     private int _operationsPerTick = 10;
+
     /// <summary>
     /// Gets the number of operations performed per tick.
     /// </summary>
@@ -241,6 +261,7 @@ public class Settings : ModSettings
     }
 
     private int _ticksBetweenOperations;
+
     /// <summary>
     /// Gets the number of ticks between operations.
     /// </summary>
@@ -251,6 +272,7 @@ public class Settings : ModSettings
     }
 
     private bool _showAdvancedPerformanceSettings;
+
     /// <summary>
     /// Gets whether to show advanced performance settings.
     /// </summary>
@@ -264,21 +286,23 @@ public class Settings : ModSettings
     private Dictionary<string, int> _coroutineTicksBetweenOperations = [];
 
     private static readonly List<CoroutineSettingsMethodAttribute> _coroutineMethods = [];
+
     static Settings()
     {
         ColonyManagerReduxMod.Instance.LogDebug("Finding coroutine settings...");
         foreach (var type in CoroutineSettingsTypeAttribute.AllTypesWithAttribute)
         {
-            var methods = type
-                .GetMethods(
-                    BindingFlags.DeclaredOnly
-                        | BindingFlags.Public
-                        | BindingFlags.NonPublic
-                        | BindingFlags.Instance
-                        | BindingFlags.Static);
+            var methods = type.GetMethods(
+                BindingFlags.DeclaredOnly
+                    | BindingFlags.Public
+                    | BindingFlags.NonPublic
+                    | BindingFlags.Instance
+                    | BindingFlags.Static
+            );
             ColonyManagerReduxMod.Instance.LogDebug(
                 $"Found coroutine settings type {type.FullName} with "
-                    + $"{methods.Count(m => m.HasAttribute<CoroutineSettingsMethodAttribute>())} methods");
+                    + $"{methods.Count(m => m.HasAttribute<CoroutineSettingsMethodAttribute>())} methods"
+            );
             foreach (var method in methods)
             {
                 var coroutineMethod = method.GetCustomAttribute<CoroutineSettingsMethodAttribute>();
@@ -291,13 +315,17 @@ public class Settings : ModSettings
                 coroutineMethod.Method = method;
                 _coroutineMethods.Add(coroutineMethod);
                 ColonyManagerReduxMod.Instance.LogDebug(
-                    $"- {method.Name} ({coroutineMethod.FullName})");
+                    $"- {method.Name} ({coroutineMethod.FullName})"
+                );
             }
         }
-        ColonyManagerReduxMod.Instance.LogDebug($"Finished finding coroutine settings; found {_coroutineMethods.Count}.");
+        ColonyManagerReduxMod.Instance.LogDebug(
+            $"Finished finding coroutine settings; found {_coroutineMethods.Count}."
+        );
     }
 
     private static readonly Dictionary<MethodInfo, string> _fullNameCache = [];
+
     private static string GetFullName(Delegate del)
     {
         var method = del.Method;
@@ -327,9 +355,14 @@ public class Settings : ModSettings
 
         return !ShowAdvancedPerformanceSettings
             ? OperationsPerTick
-            : ((_coroutineOperationsPerTick.TryGetValue(fullName, out var operationsPerTick) && operationsPerTick > 0)
-                ? operationsPerTick
-                : OperationsPerTick);
+            : (
+                (
+                    _coroutineOperationsPerTick.TryGetValue(fullName, out var operationsPerTick)
+                    && operationsPerTick > 0
+                )
+                    ? operationsPerTick
+                    : OperationsPerTick
+            );
     }
 
     /// <summary>
@@ -348,9 +381,17 @@ public class Settings : ModSettings
 
         return !ShowAdvancedPerformanceSettings
             ? TicksBetweenOperations
-            : ((_coroutineTicksBetweenOperations.TryGetValue(fullName, out var ticksBetweenOperations) && ticksBetweenOperations > -1)
-                ? ticksBetweenOperations
-                : TicksBetweenOperations);
+            : (
+                (
+                    _coroutineTicksBetweenOperations.TryGetValue(
+                        fullName,
+                        out var ticksBetweenOperations
+                    )
+                    && ticksBetweenOperations > -1
+                )
+                    ? ticksBetweenOperations
+                    : TicksBetweenOperations
+            );
     }
 
     private List<TabRecord>? _tabList;
@@ -359,10 +400,12 @@ public class Settings : ModSettings
         get
         {
             _tabList ??=
-                [.. Gen.YieldSingle<Tab>(_sharedManagerSettings)
-                .Concat(Gen.YieldSingle<Tab>(_performanceSettings))
-                .Concat(_managerSettings.Where(m => m.Show))
-                .Select(m => new TabRecord(m, () => ref _currentManagerSettings))];
+            [
+                .. Gen.YieldSingle<Tab>(_sharedManagerSettings)
+                    .Concat(Gen.YieldSingle<Tab>(_performanceSettings))
+                    .Concat(_managerSettings.Where(m => m.Show))
+                    .Select(m => new TabRecord(m, () => ref _currentManagerSettings)),
+            ];
             return _tabList;
         }
     }
@@ -370,36 +413,46 @@ public class Settings : ModSettings
     private sealed class SharedManagerSettings(Settings settings) : Tab
     {
         public override string Title => "ColonyManagerRedux.SharedSettingsTabLabel".Translate();
+
         public override void DoTabContents(Rect inRect)
         {
             Widgets_Section.BeginSectionColumn(
-                inRect, "Shared.Settings", out var position, out var width);
+                inRect,
+                "Shared.Settings",
+                out var position,
+                out var width
+            );
 
             Widgets_Section.Section(
                 ref position,
                 width,
                 settings.DrawGeneralSettings,
-                "ColonyManagerRedux.GeneralSettingsTabLabel".Translate());
+                "ColonyManagerRedux.GeneralSettingsTabLabel".Translate()
+            );
             Widgets_Section.Section(
                 ref position,
                 width,
                 settings.DrawThreshold,
-                "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+                "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+            );
             Widgets_Section.Section(
                 ref position,
                 width,
                 settings.DrawCustomUpdateIntervals,
-                "ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals".Translate());
+                "ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals".Translate()
+            );
             Widgets_Section.Section(
                 ref position,
                 width,
                 settings.DrawAlertSettings,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings".Translate());
+                "ColonyManagerRedux.ManagerSettings.AlertSettings".Translate()
+            );
             Widgets_Section.Section(
                 ref position,
                 width,
                 settings.DrawDisableManagers,
-                "ColonyManagerRedux.ManagerSettings.DisableManagers".Translate());
+                "ColonyManagerRedux.ManagerSettings.DisableManagers".Translate()
+            );
 
             Widgets_Section.EndSectionColumn("Shared.Settings", position);
         }
@@ -407,31 +460,46 @@ public class Settings : ModSettings
 
     private sealed class PerformanceSettings(Settings settings) : Tab
     {
-        public override string Title => "ColonyManagerRedux.PerformanceSettingsTabLabel".Translate();
+        public override string Title =>
+            "ColonyManagerRedux.PerformanceSettingsTabLabel".Translate();
+
         public override void DoTabContents(Rect inRect)
         {
             Widgets_Section.BeginSectionColumn(
-                inRect, "Performance.Settings", out var position, out var width);
+                inRect,
+                "Performance.Settings",
+                out var position,
+                out var width
+            );
 
             Widgets_Section.Section(
                 ref position,
                 width,
                 settings.DrawPerformanceSettings,
-                "ColonyManagerRedux.PerformanceSettingsTabLabel".Translate());
+                "ColonyManagerRedux.PerformanceSettingsTabLabel".Translate()
+            );
 
             if (settings._showAdvancedPerformanceSettings)
             {
                 var method = 0;
-                foreach (var (coroutineMethod, header) in _coroutineMethods
-                    .Select(m => (m, $"ColonyManagerRedux.PerformanceSettings.{XmlConvert.EncodeName(m.FullName)}".Translate()))
-                    .OrderBy(m => m.Item2.RawText))
+                foreach (
+                    var (coroutineMethod, header) in _coroutineMethods
+                        .Select(m =>
+                            (
+                                m,
+                                $"ColonyManagerRedux.PerformanceSettings.{XmlConvert.EncodeName(m.FullName)}".Translate()
+                            )
+                        )
+                        .OrderBy(m => m.Item2.RawText)
+                )
                 {
                     Widgets_Section.Section(
                         ref position,
                         width,
                         (pos, width) => settings.DrawCoroutineSettings(coroutineMethod, pos, width),
                         header,
-                        (_coroutineMethods.GetHashCode() + method++).GetHashCode());
+                        (_coroutineMethods.GetHashCode() + method++).GetHashCode()
+                    );
                 }
             }
 
@@ -453,9 +521,11 @@ public class Settings : ModSettings
 
     private static IEnumerable<ManagerSettings> MakeManagerSettings()
     {
-        foreach (var managerDef in DefDatabase<ManagerDef>.AllDefs
-            .Where(m => m.managerSettingsClass != null)
-            .OrderBy(m => m.order))
+        foreach (
+            var managerDef in DefDatabase<ManagerDef>
+                .AllDefs.Where(m => m.managerSettingsClass != null)
+                .OrderBy(m => m.order)
+        )
         {
             ManagerSettings? managerSettings = null;
             try
@@ -465,8 +535,9 @@ public class Settings : ModSettings
             catch (Exception err)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    $"Could not create {nameof(ManagerSettings)} instance for " +
-                    $"{managerDef.defName} because it threw an exception: \n{err}");
+                    $"Could not create {nameof(ManagerSettings)} instance for "
+                        + $"{managerDef.defName} because it threw an exception: \n{err}"
+                );
                 continue;
             }
             yield return managerSettings;
@@ -488,8 +559,9 @@ public class Settings : ModSettings
         catch (Exception err)
         {
             ColonyManagerReduxMod.Instance.LogError(
-                $"Exception while calling DoTabContents for {_currentManagerSettings.Title}:\n" +
-                err);
+                $"Exception while calling DoTabContents for {_currentManagerSettings.Title}:\n"
+                    + err
+            );
         }
     }
 
@@ -499,22 +571,24 @@ public class Settings : ModSettings
 
         if (Prefs.DevMode)
         {
-            Utilities.DrawToggle(ref pos, width,
+            Utilities.DrawToggle(
+                ref pos,
+                width,
                 "ColonyManagerRedux.DoVerboseLogging".Translate(),
                 "ColonyManagerRedux.DoVerboseLogging.Tip".Translate(),
-                ref _doVerboseLogging);
+                ref _doVerboseLogging
+            );
         }
 
-        var rect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var rect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
 
         // labels
         Text.Anchor = TextAnchor.MiddleLeft;
-        Widgets.Label(rect.TrimLeft(Margin), "ColonyManagerRedux.ManagerDefaultUpdateInterval".Translate());
+        Widgets.Label(
+            rect.TrimLeft(Margin),
+            "ColonyManagerRedux.ManagerDefaultUpdateInterval".Translate()
+        );
         Text.Anchor = TextAnchor.MiddleRight;
         Widgets.Label(rect.TrimRight(Margin), DefaultUpdateInterval.Label);
         Text.Anchor = TextAnchor.UpperLeft;
@@ -526,26 +600,38 @@ public class Settings : ModSettings
             var options = new List<FloatMenuOption>();
             foreach (var interval in Utilities.UpdateIntervalOptions)
             {
-                options.Add(new FloatMenuOption(interval.Label, () => DefaultUpdateInterval = interval));
+                options.Add(
+                    new FloatMenuOption(interval.Label, () => DefaultUpdateInterval = interval)
+                );
             }
 
             Find.WindowStack.Add(new FloatMenu(options));
         }
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.NewJobsAreImmediatelyOutdated".Translate(),
             "ColonyManagerRedux.NewJobsAreImmediatelyOutdated.Tip".Translate(),
-            ref _newJobsAreImmediatelyOutdated);
+            ref _newJobsAreImmediatelyOutdated
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.RecordHistoricalData".Translate(),
             "ColonyManagerRedux.RecordHistoricalData.Tip".Translate(),
-            ref _recordHistoricalData, true);
+            ref _recordHistoricalData,
+            true
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.NewJobsShouldBeResourceLocked".Translate(),
             "ColonyManagerRedux.NewJobsShouldBeResourceLocked.Tip".Translate(),
-            ref _newJobsShouldBeResourceLocked);
+            ref _newJobsShouldBeResourceLocked
+        );
 
         DrawIntSliderConfig(
             _maxDesignationsPerJob,
@@ -556,9 +642,11 @@ public class Settings : ModSettings
             SliderHeight,
             MaxDesignationsPerJob > 0
                 ? "ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob".Translate(
-                    MaxDesignationsPerJob)
+                    MaxDesignationsPerJob
+                )
                 : "ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob".Translate(),
-            "ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip".Translate());
+            "ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip".Translate()
+        );
 
         return pos.y - start.y;
     }
@@ -574,21 +662,18 @@ public class Settings : ModSettings
             ref pos,
             width,
             SliderHeight,
-            "ColonyManagerRedux.ManagerSettings.TargetCount".Translate(
-                DefaultTargetCount));
+            "ColonyManagerRedux.ManagerSettings.TargetCount".Translate(DefaultTargetCount)
+        );
 
-        var countAllOnMapToggleRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var countAllOnMapToggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
         Utilities.DrawToggle(
             countAllOnMapToggleRect,
             "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
             "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(),
             ref _defaultCountAllOnMap,
-            true);
+            true
+        );
 
         Utilities.DrawReachabilityToggle(ref pos, width, ref _defaultShouldCheckReachable);
         Utilities.DrawToggle(
@@ -597,13 +682,15 @@ public class Settings : ModSettings
             "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
             "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(),
             ref _defaultUsePathBasedDistance,
-            true);
+            true
+        );
 
         return pos.y - start.y;
     }
 
     private const int DefaultCustomUpdateIntervalTicks = GenDate.TicksPerDay;
     private int _addCustomUpdateIntervalTicks = DefaultCustomUpdateIntervalTicks;
+
     private float DrawCustomUpdateIntervals(Vector2 pos, float width)
     {
         var start = pos;
@@ -620,32 +707,76 @@ public class Settings : ModSettings
         {
             _addCustomUpdateIntervalTicks = 0;
         }
-        if (RowButton("ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour".Translate(),
+                ref rowPos
+            )
+        )
         {
-            _addCustomUpdateIntervalTicks = Mathf.Max(0, _addCustomUpdateIntervalTicks - GenDate.TicksPerHour);
+            _addCustomUpdateIntervalTicks = Mathf.Max(
+                0,
+                _addCustomUpdateIntervalTicks - GenDate.TicksPerHour
+            );
         }
-        if (RowButton("ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour".Translate(),
+                ref rowPos
+            )
+        )
         {
             _addCustomUpdateIntervalTicks += GenDate.TicksPerHour;
         }
-        if (RowButton("ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByDay".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByDay".Translate(),
+                ref rowPos
+            )
+        )
         {
-            _addCustomUpdateIntervalTicks = Mathf.Max(0, _addCustomUpdateIntervalTicks - GenDate.TicksPerDay);
+            _addCustomUpdateIntervalTicks = Mathf.Max(
+                0,
+                _addCustomUpdateIntervalTicks - GenDate.TicksPerDay
+            );
         }
-        if (RowButton("ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByDay".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByDay".Translate(),
+                ref rowPos
+            )
+        )
         {
             _addCustomUpdateIntervalTicks += GenDate.TicksPerDay;
         }
-        if (RowButton("ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear".Translate(),
+                ref rowPos
+            )
+        )
         {
-            _addCustomUpdateIntervalTicks = Mathf.Max(0, _addCustomUpdateIntervalTicks - GenDate.TicksPerYear);
+            _addCustomUpdateIntervalTicks = Mathf.Max(
+                0,
+                _addCustomUpdateIntervalTicks - GenDate.TicksPerYear
+            );
         }
-        if (RowButton("ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear".Translate(),
+                ref rowPos
+            )
+        )
         {
             _addCustomUpdateIntervalTicks += GenDate.TicksPerYear;
         }
         rowPos.x += Margin;
-        if (RowButton("ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals".Translate(), ref rowPos))
+        if (
+            RowButton(
+                "ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals".Translate(),
+                ref rowPos
+            )
+        )
         {
             _customUpdateIntervalTickList.Add(_addCustomUpdateIntervalTicks);
             _customUpdateIntervalTickList.Sort();
@@ -656,11 +787,7 @@ public class Settings : ModSettings
         for (var i = 0; i < _customUpdateIntervalTickList.Count; i++)
         {
             var customUpdateIntervalTicks = _customUpdateIntervalTickList[i];
-            var rect = new Rect(
-                Margin + pos.x,
-                pos.y,
-                width - (2 * Margin),
-                ListEntryHeight);
+            var rect = new Rect(Margin + pos.x, pos.y, width - (2 * Margin), ListEntryHeight);
             pos.y += ListEntryHeight;
             if (i % 2 == 0)
             {
@@ -669,12 +796,16 @@ public class Settings : ModSettings
             IlyvionWidgets.Label(
                 new Rect(rect.x + 4f, rect.y, rect.width - 4f, rect.height),
                 customUpdateIntervalTicks.ToStringTicksToPeriodVerbose(),
-                TextAnchor.MiddleLeft);
-            if (Widgets.ButtonImage(
-                new Rect(rect.xMax - ListEntryHeight, rect.y, ListEntryHeight, ListEntryHeight),
-                TexButton.Delete,
-                Color.white,
-                GenUI.SubtleMouseoverColor))
+                TextAnchor.MiddleLeft
+            );
+            if (
+                Widgets.ButtonImage(
+                    new Rect(rect.xMax - ListEntryHeight, rect.y, ListEntryHeight, ListEntryHeight),
+                    TexButton.Delete,
+                    Color.white,
+                    GenUI.SubtleMouseoverColor
+                )
+            )
             {
                 _customUpdateIntervalTickList.RemoveAt(i);
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
@@ -698,25 +829,37 @@ public class Settings : ModSettings
 
         var start = pos;
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert".Translate(),
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip".Translate(),
-            ref _showNoManagerAlert);
+            ref _showNoManagerAlert
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert".Translate(),
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableAlert.Tip".Translate(),
-            ref _showNoTableAlert);
+            ref _showNoTableAlert
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert".Translate(),
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoTableNeededAlert.Tip".Translate(),
-            ref _showNoTableNeededAlert);
+            ref _showNoTableNeededAlert
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert".Translate(),
             "ColonyManagerRedux.ManagerSettings.AlertSettings.ShowJobsNotUpdatingAlert.Tip".Translate(),
-            ref _showJobsNotUpdatingAlert);
+            ref _showJobsNotUpdatingAlert
+        );
 
         if (_showJobsNotUpdatingAlert)
         {
@@ -730,9 +873,12 @@ public class Settings : ModSettings
                 ref pos,
                 width,
                 SliderHeight,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert".Translate(_daysBeforeShowingAlert.ToString("F1", CultureInfo.InvariantCulture)),
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert".Translate(
+                    _daysBeforeShowingAlert.ToString("F1", CultureInfo.InvariantCulture)
+                ),
                 minValue: 0.5f,
-                roundTo: 0.5f);
+                roundTo: 0.5f
+            );
 
             if (_daysBeforeShowingHighAlert < _daysBeforeShowingAlert)
             {
@@ -746,9 +892,12 @@ public class Settings : ModSettings
                 ref pos,
                 width,
                 SliderHeight,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert".Translate(_daysBeforeShowingHighAlert.ToString("F1", CultureInfo.InvariantCulture)),
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert".Translate(
+                    _daysBeforeShowingHighAlert.ToString("F1", CultureInfo.InvariantCulture)
+                ),
                 minValue: _daysBeforeShowingAlert,
-                roundTo: 0.5f);
+                roundTo: 0.5f
+            );
 
             if (_daysBeforeShowingCriticalAlert < _daysBeforeShowingHighAlert)
             {
@@ -762,9 +911,12 @@ public class Settings : ModSettings
                 ref pos,
                 width,
                 SliderHeight,
-                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert".Translate(_daysBeforeShowingCriticalAlert.ToString("F1", CultureInfo.InvariantCulture)),
+                "ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert".Translate(
+                    _daysBeforeShowingCriticalAlert.ToString("F1", CultureInfo.InvariantCulture)
+                ),
                 minValue: _daysBeforeShowingHighAlert,
-                roundTo: 0.5f);
+                roundTo: 0.5f
+            );
 
             pos.x -= Margin;
             width += 2 * Margin;
@@ -795,7 +947,8 @@ public class Settings : ModSettings
                 !_disabledManagers.Contains(managerDef),
                 () => _disabledManagers.Remove(managerDef),
                 () => _disabledManagers.Add(managerDef),
-                wrap: false);
+                wrap: false
+            );
         }
 
         return pos.y - start.y;
@@ -803,6 +956,7 @@ public class Settings : ModSettings
 
     private const int MaxOperationsPerTick = 30;
     private const int MaxTicksBetweenOperations = 60;
+
     private float DrawPerformanceSettings(Vector2 pos, float width)
     {
         var start = pos;
@@ -814,10 +968,17 @@ public class Settings : ModSettings
             ref pos,
             width,
             SliderHeight,
-            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick".Translate(_operationsPerTick.ToString(CultureInfo.InvariantCulture)),
-            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick.Tip".Translate(_operationsPerTick.ToString(CultureInfo.InvariantCulture)), 1);
+            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick".Translate(
+                _operationsPerTick.ToString(CultureInfo.InvariantCulture)
+            ),
+            "ColonyManagerRedux.PerformanceSettings.OperationsPerTick.Tip".Translate(
+                _operationsPerTick.ToString(CultureInfo.InvariantCulture)
+            ),
+            1
+        );
 
-        var ticsBetweenOperationsText = $"{_ticksBetweenOperations} ({_ticksBetweenOperations.ToStringSecondsFromTicks()})";
+        var ticsBetweenOperationsText =
+            $"{_ticksBetweenOperations} ({_ticksBetweenOperations.ToStringSecondsFromTicks()})";
         DrawIntSliderConfig(
             _ticksBetweenOperations,
             v => _ticksBetweenOperations = v,
@@ -825,13 +986,21 @@ public class Settings : ModSettings
             ref pos,
             width,
             SliderHeight,
-            "ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations".Translate(ticsBetweenOperationsText),
-            "ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations.Tip".Translate(ticsBetweenOperationsText));
+            "ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations".Translate(
+                ticsBetweenOperationsText
+            ),
+            "ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations.Tip".Translate(
+                ticsBetweenOperationsText
+            )
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.PerformanceSettings.AdvancedPerformanceSettings".Translate(),
             "ColonyManagerRedux.PerformanceSettings.AdvancedPerformanceSettings.Tip".Translate(),
-            ref _showAdvancedPerformanceSettings);
+            ref _showAdvancedPerformanceSettings
+        );
 
         return pos.y - start.y;
     }
@@ -846,17 +1015,22 @@ public class Settings : ModSettings
         string tipKey,
         string globalValueKey,
         int globalValue,
-        Func<int, string>? valueFormatter = null)
+        Func<int, string>? valueFormatter = null
+    )
     {
         var isGlobal = value == globalValue;
         string valueText = labelKey.Translate(
             isGlobal
                 ? globalValueKey.Translate()
-                : (valueFormatter != null ? valueFormatter(value) : value.ToString(CultureInfo.InvariantCulture)));
+                : (
+                    valueFormatter != null
+                        ? valueFormatter(value)
+                        : value.ToString(CultureInfo.InvariantCulture)
+                )
+        );
         string valueTip = tipKey.Translate(
-            isGlobal
-                ? globalValueKey.Translate()
-                : value.ToString(CultureInfo.InvariantCulture));
+            isGlobal ? globalValueKey.Translate() : value.ToString(CultureInfo.InvariantCulture)
+        );
         DrawIntSliderConfig(
             value,
             setValue,
@@ -866,10 +1040,15 @@ public class Settings : ModSettings
             SliderHeight,
             valueText,
             valueTip,
-            globalValue);
+            globalValue
+        );
     }
 
-    private float DrawCoroutineSettings(CoroutineSettingsMethodAttribute coroutineSettings, Vector2 pos, float width)
+    private float DrawCoroutineSettings(
+        CoroutineSettingsMethodAttribute coroutineSettings,
+        Vector2 pos,
+        float width
+    )
     {
         if (coroutineSettings == null)
         {
@@ -896,7 +1075,10 @@ public class Settings : ModSettings
 
         if (coroutineSettings.HasTicksBetweenOperationsSetting)
         {
-            var value = _coroutineTicksBetweenOperations.TryGetValue(coroutineSettings.FullName, -1);
+            var value = _coroutineTicksBetweenOperations.TryGetValue(
+                coroutineSettings.FullName,
+                -1
+            );
             DrawCoroutineSlider(
                 value,
                 v => _coroutineTicksBetweenOperations[coroutineSettings.FullName] = v,
@@ -924,13 +1106,15 @@ public class Settings : ModSettings
         string label,
         string? tooltip = null,
         float minValue = 0,
-        float roundTo = -1f)
+        float roundTo = -1f
+    )
     {
         var sliderRect = new Rect(
             Margin + cur.x,
             cur.y + (2 * Margin),
             width - (2 * Margin),
-            entryHeight);
+            entryHeight
+        );
         cur.y += entryHeight + (3 * Margin);
 
         var newValue = Widgets.HorizontalSlider(
@@ -940,7 +1124,8 @@ public class Settings : ModSettings
             maxValue,
             label: " ",
             leftAlignedLabel: label,
-            roundTo: roundTo);
+            roundTo: roundTo
+        );
         if (value != newValue)
         {
             setValue?.Invoke(newValue);
@@ -973,7 +1158,9 @@ public class Settings : ModSettings
         float entryHeight,
         string label,
         string? tooltip = null,
-        int minValue = 0) => DrawSliderConfig(
+        int minValue = 0
+    ) =>
+        DrawSliderConfig(
             value,
             v => setValue((int)v),
             maxValue,
@@ -983,7 +1170,8 @@ public class Settings : ModSettings
             label,
             tooltip,
             minValue,
-            roundTo: 1f);
+            roundTo: 1f
+        );
 
     private static UpdateInterval TicksToInterval(int ticks)
     {
@@ -1002,22 +1190,42 @@ public class Settings : ModSettings
     public override void ExposeData()
     {
         Scribe_Values.Look(ref _doVerboseLogging, "doVerboseLogging", false);
-        Scribe_Values.Look(ref _defaultUpdateIntervalTicks, "defaultUpdateInterval", GenDate.TicksPerDay);
+        Scribe_Values.Look(
+            ref _defaultUpdateIntervalTicks,
+            "defaultUpdateInterval",
+            GenDate.TicksPerDay
+        );
         Scribe_Values.Look(ref _defaultTargetCount, "defaultTargetCount", 500);
         Scribe_Values.Look(ref _defaultShouldCheckReachable, "defaultShouldCheckReachable", true);
         Scribe_Values.Look(ref _defaultUsePathBasedDistance, "defaultUsePathBasedDistance", false);
         Scribe_Values.Look(ref _defaultCountAllOnMap, "defaultCountAllOnMap", false);
-        Scribe_Values.Look(ref _newJobsAreImmediatelyOutdated, "newJobsAreImmediatelyOutdated", true);
+        Scribe_Values.Look(
+            ref _newJobsAreImmediatelyOutdated,
+            "newJobsAreImmediatelyOutdated",
+            true
+        );
         Scribe_Values.Look(ref _recordHistoricalData, "recordHistoricalData", true);
-        Scribe_Values.Look(ref _newJobsShouldBeResourceLocked, "newJobsShouldBeResourceLocked", true);
+        Scribe_Values.Look(
+            ref _newJobsShouldBeResourceLocked,
+            "newJobsShouldBeResourceLocked",
+            true
+        );
         Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");
-        Scribe_Collections.Look(ref _customUpdateIntervalTickList, "customUpdateIntervalTickList", LookMode.Value);
+        Scribe_Collections.Look(
+            ref _customUpdateIntervalTickList,
+            "customUpdateIntervalTickList",
+            LookMode.Value
+        );
         Scribe_Values.Look(ref _showNoManagerAlert, "showNoManagerAlert", true);
         Scribe_Values.Look(ref _showNoTableAlert, "showNoTableAlert", true);
         Scribe_Values.Look(ref _showJobsNotUpdatingAlert, "showJobsNotUpdatingAlert", true);
         Scribe_Values.Look(ref _daysBeforeShowingAlert, "daysBeforeShowingAlert", 0.5f);
         Scribe_Values.Look(ref _daysBeforeShowingHighAlert, "daysBeforeShowingHighAlert", 1f);
-        Scribe_Values.Look(ref _daysBeforeShowingCriticalAlert, "daysBeforeShowingCriticalAlert", 2f);
+        Scribe_Values.Look(
+            ref _daysBeforeShowingCriticalAlert,
+            "daysBeforeShowingCriticalAlert",
+            2f
+        );
         Scribe_Values.Look(ref _showNoTableNeededAlert, "showNoTableNeededAlert", true);
 
         Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
@@ -1025,9 +1233,23 @@ public class Settings : ModSettings
 
         Scribe_Values.Look(ref _operationsPerTick, "operationsPerTick", 10);
         Scribe_Values.Look(ref _ticksBetweenOperations, "ticksBetweenOperations", 0);
-        Scribe_Values.Look(ref _showAdvancedPerformanceSettings, "showAdvancedPerformanceSettings", false);
-        Scribe_Collections.Look(ref _coroutineOperationsPerTick, "coroutineOperationsPerTick", LookMode.Value, LookMode.Value);
-        Scribe_Collections.Look(ref _coroutineTicksBetweenOperations, "coroutineTicksBetweenOperations", LookMode.Value, LookMode.Value);
+        Scribe_Values.Look(
+            ref _showAdvancedPerformanceSettings,
+            "showAdvancedPerformanceSettings",
+            false
+        );
+        Scribe_Collections.Look(
+            ref _coroutineOperationsPerTick,
+            "coroutineOperationsPerTick",
+            LookMode.Value,
+            LookMode.Value
+        );
+        Scribe_Collections.Look(
+            ref _coroutineTicksBetweenOperations,
+            "coroutineTicksBetweenOperations",
+            LookMode.Value,
+            LookMode.Value
+        );
 
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
@@ -1044,8 +1266,8 @@ public class Settings : ModSettings
 
     private void EnsureManagerSettingsAreCorrect()
     {
-        var allManagerDefs = DefDatabase<ManagerDef>.AllDefs
-            .Where(m => m.managerSettingsClass != null)
+        var allManagerDefs = DefDatabase<ManagerDef>
+            .AllDefs.Where(m => m.managerSettingsClass != null)
             .ToDictionary(j => j, _ => false);
 
         // remove settings that should no longer be here
@@ -1064,7 +1286,9 @@ public class Settings : ModSettings
             }
             else if (!allManagerDefs.ContainsKey(item.Def))
             {
-                ColonyManagerReduxMod.Instance.LogWarning($"Job settings exist for {item.Def} but no such ManagerDef was found");
+                ColonyManagerReduxMod.Instance.LogWarning(
+                    $"Job settings exist for {item.Def} but no such ManagerDef was found"
+                );
                 _managerSettings.RemoveAt(i);
             }
         }
@@ -1076,7 +1300,9 @@ public class Settings : ModSettings
         }
         foreach (var missingDef in allManagerDefs.Where(kv => !kv.Value).Select(kv => kv.Key))
         {
-            ColonyManagerReduxMod.Instance.LogMessage($"Creating new settings instance for {missingDef} since it was missing");
+            ColonyManagerReduxMod.Instance.LogMessage(
+                $"Creating new settings instance for {missingDef} since it was missing"
+            );
             _managerSettings.Add(ManagerDefMaker.MakeManagerSettings(missingDef)!);
         }
 
@@ -1089,7 +1315,8 @@ public class Settings : ModSettings
     /// <typeparam name="T">The type of manager settings.</typeparam>
     /// <param name="def">The manager definition.</param>
     /// <returns>The manager settings instance, or null if not found.</returns>
-    public T? ManagerSettingsFor<T>(ManagerDef def) where T : ManagerSettings => _managerSettings.Find(s => s.Def == def) as T;
+    public T? ManagerSettingsFor<T>(ManagerDef def)
+        where T : ManagerSettings => _managerSettings.Find(s => s.Def == def) as T;
 
     /// <summary>
     /// Resets the tab list before opening the settings window.
@@ -1100,10 +1327,15 @@ public class Settings : ModSettings
 /// <summary>
 /// Attribute to mark a type as containing coroutine settings.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, Inherited = false, AllowMultiple = false)]
+[AttributeUsage(
+    AttributeTargets.Class | AttributeTargets.Struct,
+    Inherited = false,
+    AllowMultiple = false
+)]
 public sealed class CoroutineSettingsTypeAttribute : Attribute
 {
     private static List<Type>? _allTypesWithAttribute;
+
     /// <summary>
     /// Gets all types with the <see cref="CoroutineSettingsTypeAttribute"/> applied.
     /// </summary>
@@ -1111,7 +1343,10 @@ public sealed class CoroutineSettingsTypeAttribute : Attribute
     {
         get
         {
-            _allTypesWithAttribute ??= [.. GenTypes.AllTypesWithAttribute<CoroutineSettingsTypeAttribute>()];
+            _allTypesWithAttribute ??=
+            [
+                .. GenTypes.AllTypesWithAttribute<CoroutineSettingsTypeAttribute>(),
+            ];
             return _allTypesWithAttribute;
         }
     }
@@ -1126,17 +1361,12 @@ public sealed class CoroutineSettingsMethodAttribute : Attribute
     /// <summary>
     /// Gets or sets the type that declares the coroutine method.
     /// </summary>
-    public Type? Type
-    {
-        get; set;
-    }
+    public Type? Type { get; set; }
+
     /// <summary>
     /// Gets or sets the coroutine method info.
     /// </summary>
-    public MethodInfo? Method
-    {
-        get; set;
-    }
+    public MethodInfo? Method { get; set; }
 
     /// <summary>
     /// Gets the full name of the coroutine method.
@@ -1147,6 +1377,7 @@ public sealed class CoroutineSettingsMethodAttribute : Attribute
     /// Gets or sets whether this coroutine method has an operations-per-tick setting.
     /// </summary>
     public bool HasOperationsPerTickSetting { get; set; } = true;
+
     /// <summary>
     /// Gets or sets whether this coroutine method has a ticks-between-operations setting.
     /// </summary>

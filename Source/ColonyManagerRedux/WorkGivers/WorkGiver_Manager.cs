@@ -8,7 +8,8 @@ namespace ColonyManagerRedux;
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Microsoft.Performance",
     "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
+    Justification = "Class is instantiated via reflection"
+)]
 internal sealed class WorkGiver_Manage : WorkGiver_Scanner
 {
     public override PathEndMode PathEndMode => PathEndMode.InteractionCell;
@@ -19,14 +20,14 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
     public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced)
     {
 #if DEBUG_WORKGIVER
-        Log.Message( "Checking " + t.LabelCap + " for job." );
-        Log.Message( "ManagerStation" + ( t as Building_ManagerStation != null ) );
-        Log.Message( "Comp" + ( t.TryGetComp<CompManagerStation>() != null ) );
-        Log.Message( "Incap" + ( !pawn.Dead && !pawn.Downed && !pawn.IsBurning() && !t.IsBurning() ) );
-        Log.Message( "CanReserve and reach" + pawn.CanReserveAndReach( t, PathEndMode, Danger.Some ) );
+        Log.Message("Checking " + t.LabelCap + " for job.");
+        Log.Message("ManagerStation" + (t as Building_ManagerStation != null));
+        Log.Message("Comp" + (t.TryGetComp<CompManagerStation>() != null));
+        Log.Message("Incap" + (!pawn.Dead && !pawn.Downed && !pawn.IsBurning() && !t.IsBurning()));
+        Log.Message("CanReserve and reach" + pawn.CanReserveAndReach(t, PathEndMode, Danger.Some));
         var powera = t.TryGetComp<CompPowerTrader>();
-        Log.Message( "Power" + ( powera == null || powera.PowerOn ) );
-        Log.Message( "Job" + ( Manager.For( pawn.Map ).JobStack.NextJob != null ) );
+        Log.Message("Power" + (powera == null || powera.PowerOn));
+        Log.Message("Job" + (Manager.For(pawn.Map).JobStack.NextJob != null));
 #endif
 
         if (t is not Building_ManagerStation)
@@ -40,17 +41,17 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         }
 
         // Don't issue manager work when there's an active AI manager.
-        if (Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
-            .Any(b => b.Powered))
+        if (
+            Find
+                .CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
+                .Any(b => b.Powered)
+        )
         {
             JobFailReason.Is("ColonyManagerRedux.CannotManage.AIManager".Translate());
             return false;
         }
 
-        if (pawn.Dead ||
-            pawn.Downed ||
-            pawn.IsBurning() ||
-            t.IsBurning())
+        if (pawn.Dead || pawn.Downed || pawn.IsBurning() || t.IsBurning())
         {
             return false;
         }
@@ -82,7 +83,9 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         return true;
     }
 
-    public override Job JobOnThing(Pawn pawn, Thing t, bool forced) => new(ManagerJobDefOf.ManagingAtManagingStation, t);
+    public override Job JobOnThing(Pawn pawn, Thing t, bool forced) =>
+        new(ManagerJobDefOf.ManagingAtManagingStation, t);
 
-    public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn) => pawn.Map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>();
+    public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn) =>
+        pawn.Map.listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>();
 }

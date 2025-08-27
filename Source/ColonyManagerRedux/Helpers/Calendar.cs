@@ -17,7 +17,8 @@ internal static class Calendar
 {
     private static readonly Dictionary<string, int> _sizeCache = [];
 
-    public static void Draw(Rect canvas, params CalendarMarker[] markers) => Draw(canvas, Resources.SlightlyDarkBackgroundColour, markers);
+    public static void Draw(Rect canvas, params CalendarMarker[] markers) =>
+        Draw(canvas, Resources.SlightlyDarkBackgroundColour, markers);
 
     public static void Draw(Rect canvas, Color color, CalendarMarker[] markers)
     {
@@ -28,14 +29,15 @@ internal static class Calendar
 
         var days = markers.NullOrEmpty()
             ? GenDate.DaysPerTwelfth
-            : Mathf.CeilToInt(markers.Max(m => m.Days) / GenDate.DaysPerTwelfth) * GenDate.DaysPerTwelfth;
+            : Mathf.CeilToInt(markers.Max(m => m.Days) / GenDate.DaysPerTwelfth)
+                * GenDate.DaysPerTwelfth;
 
         var size = SquareSize(canvas.width, canvas.height, days);
         var cols = Mathf.FloorToInt(canvas.width / size);
 
         for (var d = 0; d < days; d++)
         {
-            // draw day background 
+            // draw day background
             DrawDay(d % cols, d / cols, size, canvas.min, 1f, color);
 
             foreach (var marker in markers)
@@ -58,16 +60,32 @@ internal static class Calendar
         }
     }
 
-    private static void DrawDay(int col, int row, int size, Vector2 pos, float progress, Color color)
+    private static void DrawDay(
+        int col,
+        int row,
+        int size,
+        Vector2 pos,
+        float progress,
+        Color color
+    )
     {
-        var canvas = new Rect((int)((col * size) + pos.x),
-                               (int)((row * size) + pos.y),
-                               Mathf.Clamp01(progress) * (size - 1),
-                               size - 1);
+        var canvas = new Rect(
+            (int)((col * size) + pos.x),
+            (int)((row * size) + pos.y),
+            Mathf.Clamp01(progress) * (size - 1),
+            size - 1
+        );
         Widgets.DrawBoxSolid(canvas, color);
     }
 
-    private static void DrawMarker(int col, int row, int size, Vector2 pos, float progress, Color color)
+    private static void DrawMarker(
+        int col,
+        int row,
+        int size,
+        Vector2 pos,
+        float progress,
+        Color color
+    )
     {
         var start = new Vector2((col + Mathf.Clamp01(progress)) * size, (row * size) - 2) + pos;
         var end = new Vector2((col + Mathf.Clamp01(progress)) * size, ((row + 1) * size) + 1) + pos;
@@ -83,7 +101,8 @@ internal static class Calendar
             return size;
         }
 
-        float sx, sy;
+        float sx,
+            sy;
 
         var px = Mathf.CeilToInt(Mathf.Sqrt(n * x / y));
         sx = Mathf.Floor(px * y / x) * px < n ? y / Mathf.CeilToInt(px * y / x) : x / px;

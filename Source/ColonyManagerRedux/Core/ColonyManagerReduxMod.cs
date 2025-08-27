@@ -13,10 +13,7 @@ public class ColonyManagerReduxMod : IlyvionMod
     /// <summary>
     /// Gets the singleton instance of the <see cref="ColonyManagerReduxMod"/> class.
     /// </summary>
-    public static ColonyManagerReduxMod Instance
-    {
-        get; private set;
-    }
+    public static ColonyManagerReduxMod Instance { get; private set; }
 
 #pragma warning restore CS8618
 
@@ -32,7 +29,8 @@ public class ColonyManagerReduxMod : IlyvionMod
     /// Initializes a new instance of the <see cref="ColonyManagerReduxMod"/> class.
     /// </summary>
     /// <param name="content">The mod content pack.</param>
-    public ColonyManagerReduxMod(ModContentPack content) : base(content)
+    public ColonyManagerReduxMod(ModContentPack content)
+        : base(content)
     {
         // This is kind of stupid, but also kind of correct. Correct wins.
         if (content == null)
@@ -59,7 +57,8 @@ public class ColonyManagerReduxMod : IlyvionMod
     }
 
     /// <inheritdoc/>
-    public override void DoSettingsWindowContents(Rect inRect) => Settings.DoSettingsWindowContents(inRect);
+    public override void DoSettingsWindowContents(Rect inRect) =>
+        Settings.DoSettingsWindowContents(inRect);
 
     /// <summary>
     /// Logs a verbose message if verbose logging is enabled in the settings.
@@ -81,6 +80,4 @@ public class ColonyManagerReduxMod : IlyvionMod
 /// Indicates that a class or struct supports hot swapping at runtime.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-public sealed class HotSwappableAttribute : Attribute
-{
-}
+public sealed class HotSwappableAttribute : Attribute { }

@@ -21,9 +21,9 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
 
     private static List<StatDef> AffectedStats =>
 #if v1_5
-            global::AnimalGenetics.Constants.affectedStats;
+        global::AnimalGenetics.Constants.affectedStats;
 #else
-            global::AnimalGenetics.Constants.AffectedStats;
+        global::AnimalGenetics.Constants.AffectedStats;
 #endif
 
     protected override void Initialize()
@@ -52,19 +52,28 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     }
 
     protected override void PostRenderSection(
-        string sectionColumn, string section, ref Vector2 position, float width)
+        string sectionColumn,
+        string section,
+        ref Vector2 position,
+        float width
+    )
     {
         if (sectionColumn == ManagerTab_Livestock.LivestockOptions && section == "Culling")
         {
-            Widgets_Section.Section(ref position, width, DrawAnimalGeneticsOverridesSection,
-                "ColonyManagerRedux.Livestock.AnimalGenetics.Use".Translate());
+            Widgets_Section.Section(
+                ref position,
+                width,
+                DrawAnimalGeneticsOverridesSection,
+                "ColonyManagerRedux.Livestock.AnimalGenetics.Use".Translate()
+            );
             if (_useForTaming || _useForCulling)
             {
                 Widgets_Section.Section(
                     ref position,
                     width,
                     DrawAnimalGeneticsGeneBiasSection,
-                    "ColonyManagerRedux.Livestock.AnimalGenetics.GeneBias".Translate());
+                    "ColonyManagerRedux.Livestock.AnimalGenetics.GeneBias".Translate()
+                );
             }
         }
     }
@@ -132,19 +141,23 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
             width,
             "ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTaming".Translate(),
             "ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTamingTip".Translate(),
-            ref _useForTaming);
+            ref _useForTaming
+        );
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCulling".Translate(),
             "ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCullingTip".Translate(),
-            ref _useForCulling);
+            ref _useForCulling
+        );
 
         return pos.y - start.y;
     }
 
-    private IEnumerable<Pawn> CullingPawnSorter(
-        AgeAndSex ageAndSex, IEnumerable<Pawn> pawns) => !_useForCulling ? OriginalCullingPawnSorter(ageAndSex, pawns) : pawns.OrderBy(CalculatePreferenceScore);
+    private IEnumerable<Pawn> CullingPawnSorter(AgeAndSex ageAndSex, IEnumerable<Pawn> pawns) =>
+        !_useForCulling
+            ? OriginalCullingPawnSorter(ageAndSex, pawns)
+            : pawns.OrderBy(CalculatePreferenceScore);
 
     private float TamingPawnSortScore(Pawn pawn, float distance)
     {
@@ -159,11 +172,12 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
         return preferenceScore;
     }
 
-    private float CalculatePreferenceScore(Pawn pawn) => AffectedStats
-            .Sum(gene => GetGene(pawn, gene) * _values[gene]);
+    private float CalculatePreferenceScore(Pawn pawn) =>
+        AffectedStats.Sum(gene => GetGene(pawn, gene) * _values[gene]);
 
-    private static float GetGene(Pawn pawn, StatDef gene) => gene == global::AnimalGenetics.AnimalGenetics.GatherYield
-            && !global::AnimalGenetics.Genes.Gatherable(pawn)
+    private static float GetGene(Pawn pawn, StatDef gene) =>
+        gene == global::AnimalGenetics.AnimalGenetics.GatherYield
+        && !global::AnimalGenetics.Genes.Gatherable(pawn)
             ? 0.0f
             : global::AnimalGenetics.Genes.GetGene(pawn, gene);
 }

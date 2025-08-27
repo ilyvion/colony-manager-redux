@@ -169,13 +169,11 @@
             </buildingTags>
         </building>
     </ThingDef>
-
     <GravshipComponentTypeDef MayRequire="Ludeon.RimWorld.Odyssey">
         <defName>ManagerDatabase</defName>
         <label>manager database</label>
         <requiredForLaunch>false</requiredForLaunch>
     </GravshipComponentTypeDef>
-
     <ThingDef ParentName="GravshipComponentBase" MayRequire="Ludeon.RimWorld.Odyssey">
         <defName>CM_ManagerDatabase</defName>
         <label>manager database</label>
@@ -222,5 +220,4 @@
             <li Class="ColonyManagerRedux.CompProperties_ManagerDatabase" />
         </comps>
     </ThingDef>
-
 </Defs>

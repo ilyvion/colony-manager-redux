@@ -5,7 +5,5 @@
 namespace ColonyManagerRedux;
 
 [HarmonyPatch(typeof(WorldComponent_GravshipController), "LandingEnded")]
-internal static class Verse_WorldComponent_GravshipController_LandingEnded
-{
-}
+internal static class Verse_WorldComponent_GravshipController_LandingEnded { }
 #endif // !v1_5

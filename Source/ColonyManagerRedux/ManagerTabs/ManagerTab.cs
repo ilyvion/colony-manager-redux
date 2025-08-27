@@ -4,7 +4,6 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -22,12 +21,14 @@ public abstract class ManagerTab<TJob, TSettings>(Manager manager) : ManagerTab<
     /// <summary>
     /// Gets the manager settings for this tab.
     /// </summary>
-    public TSettings ManagerSettings => ColonyManagerReduxMod.Settings
-        .ManagerSettingsFor<TSettings>(Def)
-            ?? throw new InvalidOperationException($"Type {GetType().Name} claims to have a "
-            + $"manager settings type of {typeof(TSettings).Name}, but no such type has been "
-            + "registered. Did you remember to add your settings type to your ManagerDef with a "
-            + " managerSettingsClass value?");
+    public TSettings ManagerSettings =>
+        ColonyManagerReduxMod.Settings.ManagerSettingsFor<TSettings>(Def)
+        ?? throw new InvalidOperationException(
+            $"Type {GetType().Name} claims to have a "
+                + $"manager settings type of {typeof(TSettings).Name}, but no such type has been "
+                + "registered. Did you remember to add your settings type to your ManagerDef with a "
+                + " managerSettingsClass value?"
+        );
 }
 
 /// <summary>
@@ -35,7 +36,8 @@ public abstract class ManagerTab<TJob, TSettings>(Manager manager) : ManagerTab<
 /// </summary>
 /// <typeparam name="T">The type of manager job.</typeparam>
 /// <param name="manager">The manager instance.</param>
-public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where T : ManagerJob
+public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager)
+    where T : ManagerJob
 {
     /// <inheritdoc/>
     protected override IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<T>();
@@ -45,7 +47,10 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where
     /// </summary>
     public T? SelectedJob => (T?)Selected;
 
-    internal override (bool top, bool bottom) GetJobOrderBounds(ManagerJob job, JobTracker jobTracker)
+    internal override (bool top, bool bottom) GetJobOrderBounds(
+        ManagerJob job,
+        JobTracker jobTracker
+    )
     {
         var (lowest, highest) = jobTracker.GetBoundsForJobsOfType<T>();
         var top = job.Priority == lowest;
@@ -53,13 +58,17 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where
         return (top, bottom);
     }
 
-    internal override void TopPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.TopPriority((T)job);
+    internal override void TopPriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.TopPriority((T)job);
 
-    internal override void IncreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.IncreasePriority((T)job);
+    internal override void IncreasePriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.IncreasePriority((T)job);
 
-    internal override void DecreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.DecreasePriority((T)job);
+    internal override void DecreasePriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.DecreasePriority((T)job);
 
-    internal override void BottomPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.BottomPriority((T)job);
+    internal override void BottomPriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.BottomPriority((T)job);
 
     /// <summary>
     /// Draws a section for the selected job, including pre-render and post-render hooks for job components.
@@ -76,14 +85,17 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager) where
         ref Vector2 position,
         float width,
         Func<T, Vector2, float, float> drawerFunc,
-        string header = "")
+        string header = ""
+    )
     {
         var localPosition = position;
-        SelectedJob!.ForAllCompsOfType<ManagerJobComp>(
-            c => c.PreRenderSection(sectionColumn, section, ref localPosition, width));
+        SelectedJob!.ForAllCompsOfType<ManagerJobComp>(c =>
+            c.PreRenderSection(sectionColumn, section, ref localPosition, width)
+        );
         Widgets_Section.Section(SelectedJob, ref localPosition, width, drawerFunc, header);
-        SelectedJob.ForAllCompsOfType<ManagerJobComp>(
-            c => c.PostRenderSection(sectionColumn, section, ref localPosition, width));
+        SelectedJob.ForAllCompsOfType<ManagerJobComp>(c =>
+            c.PostRenderSection(sectionColumn, section, ref localPosition, width)
+        );
         position = localPosition;
     }
 }
@@ -106,27 +118,28 @@ public abstract class ManagerTab(Manager manager)
     /// The size of the stamp icon in the manager tab UI.
     /// </summary>
     public const float StampSize = SmallIconSize;
+
     /// <summary>
     /// The width of the last update rectangle in the manager tab UI.
     /// </summary>
     public const float LastUpdateRectWidth = 50f;
+
     /// <summary>
     /// The width of the progress rectangle in the manager tab UI.
     /// </summary>
     public const float ProgressRectWidth = 60f;
+
     /// <summary>
     /// The width of the status rectangle in the manager tab UI.
     /// </summary>
-    public const float StatusRectWidth = StampSize + LastUpdateRectWidth + ProgressRectWidth + (2 * Margin);
+    public const float StatusRectWidth =
+        StampSize + LastUpdateRectWidth + ProgressRectWidth + (2 * Margin);
 
 #pragma warning disable CS8618 // Set externally
     /// <summary>
     /// Gets the manager definition associated with this tab.
     /// </summary>
-    public ManagerDef Def
-    {
-        get; internal set;
-    }
+    public ManagerDef Def { get; internal set; }
 #pragma warning restore CS8618
 
     /// <summary>
@@ -160,6 +173,7 @@ public abstract class ManagerTab(Manager manager)
     public virtual string Label => Def.label.CapitalizeFirst();
 
     private ManagerJob? _selected;
+
     /// <summary>
     /// Gets or sets the currently selected manager job in this tab.
     /// </summary>
@@ -178,6 +192,7 @@ public abstract class ManagerTab(Manager manager)
     /// Gets a value indicating whether the currently selected job can be deselected in this manager tab.
     /// </summary>
     protected virtual bool AllowJobDeselect => false;
+
     /// <summary>
     /// Gets a value indicating whether the main content should be drawn when no job is selected.
     /// </summary>
@@ -190,6 +205,7 @@ public abstract class ManagerTab(Manager manager)
     /// </summary>
     protected virtual bool ShouldHaveNewJobButton => true;
     private readonly ScrollViewStatus _exceptionScrollViewStatus = new();
+
     /// <summary>
     /// Draws the contents of the manager tab, including the job list and main content area.
     /// </summary>
@@ -198,17 +214,17 @@ public abstract class ManagerTab(Manager manager)
     {
         // set up rects
         var leftRow = new Rect(0f, 0f, DefaultLeftRowSize, canvas.height);
-        var contentCanvas = new Rect(leftRow.xMax + Margin, 0f, canvas.width - leftRow.width - Margin,
-                                      canvas.height);
+        var contentCanvas = new Rect(
+            leftRow.xMax + Margin,
+            0f,
+            canvas.width - leftRow.width - Margin,
+            canvas.height
+        );
 
         if (ShouldHaveNewJobButton)
         {
             leftRow.yMin += ButtonSize.y + Margin;
-            var newJobButtonRect = new Rect(leftRow)
-            {
-                y = 0f,
-                height = ButtonSize.y
-            };
+            var newJobButtonRect = new Rect(leftRow) { y = 0f, height = ButtonSize.y };
             DrawNewJobButton(newJobButtonRect);
         }
 
@@ -227,18 +243,20 @@ public abstract class ManagerTab(Manager manager)
                     contentCanvas.x,
                     contentCanvas.y,
                     contentCanvas.width,
-                    ExceptionBoxHeight + (2 * Margin));
+                    ExceptionBoxHeight + (2 * Margin)
+                );
 
                 Widgets.DrawMenuSection(exceptionRect);
                 Widgets.DrawBox(exceptionRect, lineTexture: Resources.Error);
 
-                using (var scrollView = GUIScope.ScrollView(
-                    exceptionRect,
-                    _exceptionScrollViewStatus))
+                using (
+                    var scrollView = GUIScope.ScrollView(exceptionRect, _exceptionScrollViewStatus)
+                )
                 {
-
                     var textHeight = Text.CalcHeight(
-                        exceptionText, scrollView.ViewRect.width - (2 * Margin));
+                        exceptionText,
+                        scrollView.ViewRect.width - (2 * Margin)
+                    );
 
                     var textRect = exceptionRect.AtZero();
                     //textRect.yMin += Margin;
@@ -250,7 +268,8 @@ public abstract class ManagerTab(Manager manager)
                         textRect.TrimLeft(Margin).TrimRight(Margin),
                         exceptionText,
                         TextAnchor.MiddleLeft,
-                        color: ColorLibrary.LogError);
+                        color: ColorLibrary.LogError
+                    );
                     contentCanvas.yMin += ExceptionBoxHeight + (3 * Margin);
                 }
 
@@ -260,14 +279,16 @@ public abstract class ManagerTab(Manager manager)
                     contentCanvas.xMax - ButtonWidth - Margin,
                     Margin,
                     ButtonWidth,
-                    Text.LineHeight);
+                    Text.LineHeight
+                );
                 if (Widgets.ButtonText(buttonRect, "Copy to clipboard"))
                 {
                     GUIUtility.systemCopyBuffer = exceptionText;
                     Messages.Message(
                         "Exception copied to clipboard.",
                         MessageTypeDefOf.NeutralEvent,
-                        historical: false);
+                        historical: false
+                    );
                 }
             }
             using var _g = GUIScope.WidgetGroup(contentCanvas);
@@ -283,16 +304,14 @@ public abstract class ManagerTab(Manager manager)
     /// <summary>
     /// Gets the collection of manager jobs associated with this tab.
     /// </summary>
-    protected virtual IEnumerable<ManagerJob> ManagerJobs => Manager.JobTracker.JobsOfType<ManagerJob>();
-
+    protected virtual IEnumerable<ManagerJob> ManagerJobs =>
+        Manager.JobTracker.JobsOfType<ManagerJob>();
 
     /// <summary>
     /// Draws the main content area of the manager tab.
     /// </summary>
     /// <param name="rect">The rectangle area in which to draw the main content.</param>
-    protected virtual void DoMainContent(Rect rect)
-    {
-    }
+    protected virtual void DoMainContent(Rect rect) { }
 
 #pragma warning disable CA1062 // Validate arguments of public methods
 
@@ -307,14 +326,15 @@ public abstract class ManagerTab(Manager manager)
         ManagerJob job,
         ref Vector2 position,
         float width,
-        DrawLocalListEntryParameters? parameters = null)
+        DrawLocalListEntryParameters? parameters = null
+    )
     {
         parameters ??= new();
 
         var tab = job.Tab;
 
-        var labelWidth = width - (4 * Margin) - StampSize
-            - LargeListEntryHeight - LastUpdateRectWidth;
+        var labelWidth =
+            width - (4 * Margin) - StampSize - LargeListEntryHeight - LastUpdateRectWidth;
 
         // create label string
         var subLabel = tab.GetSubLabel(job);
@@ -326,37 +346,38 @@ public abstract class ManagerTab(Manager manager)
             0,
             labelRect.yMax + Margin,
             width - (parameters.ShowOrdering ? LargeListEntryHeight : Margin),
-            parameters.StatusHeight);
+            parameters.StatusHeight
+        );
 
         Rect rowRect = new(
             position.x,
             position.y,
             width,
-            Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin);
+            Mathf.Max(labelRect.yMax, statusRect.yMax) + Margin
+        );
 
         Rect lastUpdateRect = new(
             labelRect.xMax + Margin,
             labelRect.y,
             LastUpdateRectWidth,
-            labelRect.height);
+            labelRect.height
+        );
 
         Rect stampRegionRect = new(
             lastUpdateRect.xMax + Margin,
             labelRect.y,
             StampSize,
-            labelRect.height);
+            labelRect.height
+        );
 
-        Rect progressRect = new(
-            Margin,
-            statusRect.y,
-            statusRect.width - Margin,
-            statusRect.height);
+        Rect progressRect = new(Margin, statusRect.y, statusRect.width - Margin, statusRect.height);
 
         Rect orderRect = new(
             stampRegionRect.xMax + Margin,
             stampRegionRect.y,
             LargeListEntryHeight,
-            progressRect.yMax - Margin);
+            progressRect.yMax - Margin
+        );
 
         // do the drawing
         GUI.BeginGroup(rowRect);
@@ -385,54 +406,65 @@ public abstract class ManagerTab(Manager manager)
         {
             if (job.CausedException != null)
             {
-                TooltipHandler.TipRegion(stampRect, new TipSignal(
-                    job.IsSuspendedDueToExceptionTooltip + "\n\n" +
-                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Job.Unsuspend".Translate()))
-                {
-                    // We do this so the exception is shown after
-                    priority = TooltipPriority.Pawn
-                });
+                TooltipHandler.TipRegion(
+                    stampRect,
+                    new TipSignal(
+                        job.IsSuspendedDueToExceptionTooltip
+                            + "\n\n"
+                            + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                                "ColonyManagerRedux.Job.Unsuspend".Translate()
+                            )
+                    )
+                    {
+                        // We do this so the exception is shown after
+                        priority = TooltipPriority.Pawn,
+                    }
+                );
             }
             else
             {
-                TooltipHandler.TipRegion(stampRect,
-                    job.IsSuspendedTooltip + "\n\n" +
-                    "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                        "ColonyManagerRedux.Job.Unsuspend".Translate()));
+                TooltipHandler.TipRegion(
+                    stampRect,
+                    job.IsSuspendedTooltip
+                        + "\n\n"
+                        + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                            "ColonyManagerRedux.Job.Unsuspend".Translate()
+                        )
+                );
             }
         }
         else if (job.IsCompleted)
         {
-            TooltipHandler.TipRegion(stampRect,
-                job.IsCompletedTooltip + "\n\n" +
-                "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                    "ColonyManagerRedux.Job.Suspend".Translate()));
+            TooltipHandler.TipRegion(
+                stampRect,
+                job.IsCompletedTooltip
+                    + "\n\n"
+                    + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Suspend".Translate()
+                    )
+            );
         }
         else
         {
-            TooltipHandler.TipRegion(stampRect,
+            TooltipHandler.TipRegion(
+                stampRect,
                 "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                    "ColonyManagerRedux.Job.Suspend".Translate()));
+                    "ColonyManagerRedux.Job.Suspend".Translate()
+                )
+            );
         }
 
         if (parameters.ShowProgressbar && job.Trigger != null)
         {
             job.Trigger.DrawHorizontalProgressBars(
                 progressRect,
-                !job.IsSuspended && !job.IsCompleted);
+                !job.IsSuspended && !job.IsCompleted
+            );
         }
 
-        UpdateInterval.Draw(
-            lastUpdateRect,
-            job,
-            false,
-            job.IsSuspended);
+        UpdateInterval.Draw(lastUpdateRect, job, false, job.IsSuspended);
 
-        if (parameters.ShowOrdering && DrawOrderButtons(
-            orderRect,
-            job,
-            Manager.JobTracker))
+        if (parameters.ShowOrdering && DrawOrderButtons(orderRect, job, Manager.JobTracker))
         {
             Refresh();
         }
@@ -453,7 +485,8 @@ public abstract class ManagerTab(Manager manager)
         ManagerJob job,
         float labelWidth,
         string? subLabel = null,
-        bool drawSubLabel = true)
+        bool drawSubLabel = true
+    )
     {
         if (drawSubLabel)
         {
@@ -484,7 +517,10 @@ public abstract class ManagerTab(Manager manager)
     /// </summary>
     /// <param name="job">The manager job for which to get the sublabel.</param>
     /// <returns>A string representing the sublabel for the job.</returns>
-    public virtual string GetSubLabel(ManagerJob job) => job.Targets.Any() ? string.Join(", ", job.Targets) : (string)"ColonyManagerRedux.Common.None".Translate();
+    public virtual string GetSubLabel(ManagerJob job) =>
+        job.Targets.Any()
+            ? string.Join(", ", job.Targets)
+            : (string)"ColonyManagerRedux.Common.None".Translate();
 
     /// <summary>
     /// Draws the overview details for the specified manager job in the given rectangle.
@@ -509,23 +545,21 @@ public abstract class ManagerTab(Manager manager)
             bgRect = bgRect.ContractedBy(10f);
             Widgets.DrawRectFast(bgRect, Color.black.ToTransparent(.8f));
             IlyvionWidgets.Label(
-                new(rect)
-                {
-                    height = rect.height - 15f
-                },
+                new(rect) { height = rect.height - 15f },
                 "ColonyManagerRedux.History.JobSuspended".Translate(),
                 TextAnchor.MiddleCenter,
-                GameFont.Medium);
+                GameFont.Medium
+            );
             IlyvionWidgets.Label(
-                new(rect)
-                {
-                    y = rect.y + 20,
-                    height = rect.height - 15f
-                },
-                "(" + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
-                    "ColonyManagerRedux.Job.Unsuspend".Translate()) + ")",
+                new(rect) { y = rect.y + 20, height = rect.height - 15f },
+                "("
+                    + "ColonyManagerRedux.Job.ClickToChangeJob".Translate(
+                        "ColonyManagerRedux.Job.Unsuspend".Translate()
+                    )
+                    + ")",
                 TextAnchor.MiddleCenter,
-                GameFont.Small);
+                GameFont.Small
+            );
 
             if (Widgets.ButtonInvisible(rect, false))
             {
@@ -561,65 +595,50 @@ public abstract class ManagerTab(Manager manager)
     /// <summary>
     /// Called after the manager tab is created; can be overridden to perform additional initialization.
     /// </summary>
-    public virtual void PostMake()
-    {
-    }
+    public virtual void PostMake() { }
 
     /// <summary>
     /// Creates a new manager job for this tab using the specified arguments.
     /// </summary>
     /// <param name="args">Arguments to pass to the job constructor.</param>
     /// <returns>A new instance of <see cref="ManagerJob"/> or null if creation fails.</returns>
-    public ManagerJob? MakeNewJob(params object[] args) => ManagerDefMaker.MakeManagerJob(Def, Manager, args);
+    public ManagerJob? MakeNewJob(params object[] args) =>
+        ManagerDefMaker.MakeManagerJob(Def, Manager, args);
 
     /// <summary>
     /// Called before the manager tab is closed.
     /// </summary>
-    public virtual void PreClose()
-    {
-    }
+    public virtual void PreClose() { }
 
     /// <summary>
     /// Called after the manager tab is closed.
     /// </summary>
-    public virtual void PostClose()
-    {
-    }
+    public virtual void PostClose() { }
 
     /// <summary>
     /// Called before the manager tab is opened.
     /// </summary>
-    public virtual void PreOpen()
-    {
-    }
+    public virtual void PreOpen() { }
 
     /// <summary>
     /// Called after the manager tab is opened.
     /// </summary>
-    public virtual void PostOpen()
-    {
-    }
+    public virtual void PostOpen() { }
 
     /// <summary>
     /// Called every tick to update the manager tab.
     /// </summary>
-    public virtual void Tick()
-    {
-    }
+    public virtual void Tick() { }
 
     /// <summary>
     /// Called before a new job is selected in this manager tab.
     /// </summary>
-    protected virtual void PreSelect()
-    {
-    }
+    protected virtual void PreSelect() { }
 
     /// <summary>
     /// Called after a new job is selected in this manager tab.
     /// </summary>
-    protected virtual void PostSelect()
-    {
-    }
+    protected virtual void PostSelect() { }
 
     /// <summary>
     /// Draws a shortcut toggle UI element that allows selecting or deselecting all options in a list.
@@ -631,7 +650,14 @@ public abstract class ManagerTab(Manager manager)
     /// <param name="rect">The rectangle area in which to draw the toggle.</param>
     /// <param name="labelKey">The translation key for the toggle label.</param>
     /// <param name="toolTipKey">The translation key for the tooltip, or null if none.</param>
-    protected static void DrawShortcutToggle<T>(List<T> options, HashSet<T> selected, Action<T, bool> setAllowed, Rect rect, string labelKey, string? toolTipKey)
+    protected static void DrawShortcutToggle<T>(
+        List<T> options,
+        HashSet<T> selected,
+        Action<T, bool> setAllowed,
+        Rect rect,
+        string labelKey,
+        string? toolTipKey
+    )
     {
         if (options == null)
         {
@@ -652,10 +678,12 @@ public abstract class ManagerTab(Manager manager)
             allSelected,
             noneSelected,
             () => options.ForEach(p => setAllowed(p, true)),
-            () => options.ForEach(p => setAllowed(p, false)));
+            () => options.ForEach(p => setAllowed(p, false))
+        );
     }
 
     private readonly ScrollViewStatus _jobListScrollViewStatus = new();
+
     /// <summary>
     /// Draws the job list UI for the manager tab.
     /// </summary>
@@ -673,11 +701,7 @@ public abstract class ManagerTab(Manager manager)
         foreach (var job in ManagerJobs)
         {
             var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
-            DrawLocalListEntry(
-                job,
-                ref cur,
-                scrollView.ViewRect.width,
-                null);
+            DrawLocalListEntry(job, ref cur, scrollView.ViewRect.width, null);
 
             row.height = cur.y - row.y;
 
@@ -696,8 +720,12 @@ public abstract class ManagerTab(Manager manager)
             {
                 Widgets.DrawBox(row, 2, Resources.Error);
 
-                TooltipHandler.TipRegion(row, new TipSignal(
-                    "ColonyManagerRedux.Job.CausedException".Translate(job.CausedExceptionText)));
+                TooltipHandler.TipRegion(
+                    row,
+                    new TipSignal(
+                        "ColonyManagerRedux.Job.CausedException".Translate(job.CausedExceptionText)
+                    )
+                );
             }
 
             if (Widgets.ButtonInvisible(row))
@@ -731,13 +759,12 @@ public abstract class ManagerTab(Manager manager)
     /// <summary>
     /// Called to refresh the manager tab UI or data.
     /// </summary>
-    protected virtual void Refresh()
-    {
-    }
+    protected virtual void Refresh() { }
 
     internal virtual (bool top, bool bottom) GetJobOrderBounds(
         ManagerJob job,
-        JobTracker jobTracker)
+        JobTracker jobTracker
+    )
     {
         var top = job.Priority == 0;
         var bottom = job.Priority == jobTracker.MaxPriority;
@@ -745,21 +772,22 @@ public abstract class ManagerTab(Manager manager)
         return (top, bottom);
     }
 
-    internal virtual void TopPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.TopPriority(job);
+    internal virtual void TopPriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.TopPriority(job);
 
-    internal virtual void IncreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.IncreasePriority(job);
+    internal virtual void IncreasePriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.IncreasePriority(job);
 
-    internal virtual void DecreasePriority(JobTracker jobTracker, ManagerJob job) => jobTracker.DecreasePriority(job);
+    internal virtual void DecreasePriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.DecreasePriority(job);
 
-    internal virtual void BottomPriority(JobTracker jobTracker, ManagerJob job) => jobTracker.BottomPriority(job);
+    internal virtual void BottomPriority(JobTracker jobTracker, ManagerJob job) =>
+        jobTracker.BottomPriority(job);
 
     /// <summary>
     ///     Draw a square group of ordering buttons for a job in rect.
     /// </summary>
-    public bool DrawOrderButtons(
-        Rect rect,
-        ManagerJob job,
-        JobTracker jobTracker)
+    public bool DrawOrderButtons(Rect rect, ManagerJob job, JobTracker jobTracker)
     {
         if (job == null)
         {
@@ -788,7 +816,11 @@ public abstract class ManagerTab(Manager manager)
             Widgets.DrawRectFast(downRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(topRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(bottomRect, ColorLibrary.Indigo.ToTransparent(.5f));
-            IlyvionWidgets.Label(rect, job.Priority.ToString(CultureInfo.InvariantCulture), TextAnchor.MiddleCenter);
+            IlyvionWidgets.Label(
+                rect,
+                job.Priority.ToString(CultureInfo.InvariantCulture),
+                TextAnchor.MiddleCenter
+            );
         });
 
         if (!top)
@@ -843,8 +875,7 @@ public abstract class ManagerTab(Manager manager)
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
     protected internal virtual void Notify_PawnsChanged()
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
-    {
-    }
+    { }
 }
 
 /// <summary>
@@ -856,10 +887,12 @@ public class DrawLocalListEntryParameters
     /// Gets or sets a value indicating whether ordering controls should be shown in the local list entry.
     /// </summary>
     public bool ShowOrdering { get; set; } = true;
+
     /// <summary>
     /// Gets or sets a value indicating whether the progress bar should be shown in the local list entry.
     /// </summary>
     public bool ShowProgressbar { get; set; } = true;
+
     /// <summary>
     /// Gets or sets the height of the status area in the local list entry.
     /// </summary>

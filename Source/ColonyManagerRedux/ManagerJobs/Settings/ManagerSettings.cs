@@ -13,12 +13,14 @@ public abstract class ManagerSettings : Tab, IExposable
 {
 #pragma warning disable CS8618 // Set by ManagerDefMaker
     private ManagerDef def;
+
     /// <summary>
     /// Gets the manager definition associated with these settings.
     /// </summary>
     public ManagerDef Def
     {
-        get => def; internal set => def = value;
+        get => def;
+        internal set => def = value;
     }
 #pragma warning restore CS8618
 
@@ -30,9 +32,7 @@ public abstract class ManagerSettings : Tab, IExposable
     /// <summary>
     /// Called after the settings object is created.
     /// </summary>
-    public virtual void PostMake()
-    {
-    }
+    public virtual void PostMake() { }
 
     /// <inheritdoc/>
     public virtual void ExposeData() => Scribe_Defs.Look(ref def, "def");
@@ -41,10 +41,10 @@ public abstract class ManagerSettings : Tab, IExposable
     /// (Obsolete) Draws the panel contents for this settings tab. Use <see cref="DoTabContents"/> instead.
     /// </summary>
     /// <param name="rect">The rectangle in which to draw.</param>
-    [Obsolete("Move to overriding DoTabContents instead; this method will be removed in a future version")]
-    public virtual void DoPanelContents(Rect rect)
-    {
-    }
+    [Obsolete(
+        "Move to overriding DoTabContents instead; this method will be removed in a future version"
+    )]
+    public virtual void DoPanelContents(Rect rect) { }
 
     /// <summary>
     /// Draws the tab contents for this settings tab.
@@ -54,7 +54,6 @@ public abstract class ManagerSettings : Tab, IExposable
 #pragma warning disable CS0618
         DoPanelContents(inRect);
 #pragma warning restore CS0618
-
 
     /// <summary>
     /// Gets the title for this settings tab.

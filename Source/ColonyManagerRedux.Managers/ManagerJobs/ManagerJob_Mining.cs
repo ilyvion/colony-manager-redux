@@ -8,8 +8,7 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 [CoroutineSettingsType]
-internal sealed class ManagerJob_Mining
-    : ManagerJob<ManagerSettings_Mining>, INotifyStoneChunkMined
+internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, INotifyStoneChunkMined
 {
     [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Mining>
@@ -19,27 +18,40 @@ internal sealed class ManagerJob_Mining
             ManagerJob_Mining managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> count)
+            Boxed<int> count
+        )
         {
-            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
-                (Func<ManagerJob_Mining, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+            var ticksBetweenOperations =
+                ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                    (Func<
+                        ManagerJob_Mining,
+                        int,
+                        ManagerJobHistoryChapterDef,
+                        Boxed<int>,
+                        Coroutine
+                    >)
+                        GetCountForHistoryChapterCoroutine
+                );
 
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
+                yield return managerJob
+                    .TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                yield return managerJob.DesignatedCachedValue.DoUpdateIfNeeded(force: true)
+                yield return managerJob
+                    .DesignatedCachedValue.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob.DesignatedCachedValue.Value;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryChunks)
             {
-                yield return managerJob.ChunksCachedValue.DoUpdateIfNeeded(force: true)
+                yield return managerJob
+                    .ChunksCachedValue.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob.ChunksCachedValue.Value;
@@ -54,26 +66,25 @@ internal sealed class ManagerJob_Mining
             ManagerJob_Mining managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> target)
+            Boxed<int> target
+        )
         {
-            target.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock ? managerJob.TriggerThreshold.TargetCount : 0;
+            target.Value =
+                chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock
+                    ? managerJob.TriggerThreshold.TargetCount
+                    : 0;
             yield break;
         }
     }
 
     private const int RoofSupportGridSpacing = 5;
 
-    internal MultiTickCachedValue<int> ChunksCachedValue
-    {
-        get;
-    }
-    private readonly CachedValue<ChunkProcessingKind> _chunkProductKindCachedValue
-        = new(ChunkProcessingKind.Neither);
+    internal MultiTickCachedValue<int> ChunksCachedValue { get; }
+    private readonly CachedValue<ChunkProcessingKind> _chunkProductKindCachedValue = new(
+        ChunkProcessingKind.Neither
+    );
 
-    internal MultiTickCachedValue<int> DesignatedCachedValue
-    {
-        get;
-    }
+    internal MultiTickCachedValue<int> DesignatedCachedValue { get; }
     public HashSet<ThingDef> AllowedBuildings = [];
 
     public HashSet<ThingDef> AllowedMinerals = [];
@@ -98,21 +109,25 @@ internal sealed class ManagerJob_Mining
         get
         {
             _allDeconstructibleBuildings ??=
-                [.. Utilities_Mining.GetDeconstructibleBuildings(Manager)];
+            [
+                .. Utilities_Mining.GetDeconstructibleBuildings(Manager),
+            ];
             return _allDeconstructibleBuildings;
         }
     }
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
-
-
-    public ManagerJob_Mining(Manager manager) : base(manager)
+    public ManagerJob_Mining(Manager manager)
+        : base(manager)
     {
         ChunksCachedValue = new(0, GetCountInChunksCoroutine);
         DesignatedCachedValue = new(0, GetCountInDesignationsCoroutine);
         // populate the trigger field
-        Trigger = new Trigger_Threshold(this) { AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter };
+        Trigger = new Trigger_Threshold(this)
+        {
+            AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter,
+        };
         ConfigureThresholdTriggerParentFilter();
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
@@ -146,11 +161,10 @@ internal sealed class ManagerJob_Mining
 
     public List<Designation> Designations => [.. _designations];
 
-
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override IEnumerable<string> Targets => AllowedMinerals
-        .Select(pk => pk.LabelCap.Resolve());
+    public override IEnumerable<string> Targets =>
+        AllowedMinerals.Select(pk => pk.LabelCap.Resolve());
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Mining;
 
@@ -158,8 +172,11 @@ internal sealed class ManagerJob_Mining
     {
         var designation = map.designationManager.DesignationOn(building);
 
-        return designation != null && (designation.def == DesignationDefOf.Mine ||
-            designation.def == DesignationDefOf.Deconstruct);
+        return designation != null
+            && (
+                designation.def == DesignationDefOf.Mine
+                || designation.def == DesignationDefOf.Deconstruct
+            );
     }
 
     // largely copypasta from RoofCollapseUtility.WithinRangeOfRoofHolder
@@ -183,15 +200,31 @@ internal sealed class ManagerJob_Mining
                 var building = innerArray[cellIndices.CellToIndex(candidate)];
 #if DEBUG
                 map.debugDrawer.FlashCell(
-                    candidate, DebugSolidColorMats.MaterialOf(new Color(0f, 0f, 1f, .1f)), ".", 500);
+                    candidate,
+                    DebugSolidColorMats.MaterialOf(new Color(0f, 0f, 1f, .1f)),
+                    ".",
+                    500
+                );
 #endif
-                if (building != null && building.def.holdsRoof && !IsDesignatedForRemoval(building, map))
+                if (
+                    building != null
+                    && building.def.holdsRoof
+                    && !IsDesignatedForRemoval(building, map)
+                )
                 {
 #if DEBUG
                     map.debugDrawer.FlashCell(
-                        candidate, DebugSolidColorMats.MaterialOf(new Color(0f, 1f, 0f, .1f)), "!", 500);
+                        candidate,
+                        DebugSolidColorMats.MaterialOf(new Color(0f, 1f, 0f, .1f)),
+                        "!",
+                        500
+                    );
                     map.debugDrawer.FlashCell(
-                        position, DebugSolidColorMats.MaterialOf(new Color(0f, 1f, 0f, .1f)), "V", 500);
+                        position,
+                        DebugSolidColorMats.MaterialOf(new Color(0f, 1f, 0f, .1f)),
+                        "V",
+                        500
+                    );
 #endif
                     return false;
                 }
@@ -203,16 +236,23 @@ internal sealed class ManagerJob_Mining
         return true;
     }
 
-    private void AddDesignation(Thing target, DesignationDef designationDef) => AddDesignation(new Designation(target, designationDef));
+    private void AddDesignation(Thing target, DesignationDef designationDef) =>
+        AddDesignation(new Designation(target, designationDef));
 
     private void AddDesignation(Designation designation)
     {
         var designationManager = Manager.map.designationManager;
-        if (designation.def.targetType == TargetType.Thing && !designationManager.HasMapDesignationOn(designation.target.Thing))
+        if (
+            designation.def.targetType == TargetType.Thing
+            && !designationManager.HasMapDesignationOn(designation.target.Thing)
+        )
         {
             designationManager.AddDesignation(designation);
         }
-        else if (designation.def.targetType == TargetType.Cell && !designationManager.HasMapDesignationAt(designation.target.Cell))
+        else if (
+            designation.def.targetType == TargetType.Cell
+            && !designationManager.HasMapDesignationAt(designation.target.Cell)
+        )
         {
             designationManager.AddDesignation(designation);
         }
@@ -222,7 +262,10 @@ internal sealed class ManagerJob_Mining
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public Coroutine AddRelevantGameDesignations(ManagerLog? jobLog = null)
     {
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(AddRelevantGameDesignations);
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                AddRelevantGameDesignations
+            );
 
         var addedMineCount = 0;
         var addedDeconstructCount = 0;
@@ -230,10 +273,12 @@ internal sealed class ManagerJob_Mining
 
         if (TakeOwnershipOfMiningJobs)
         {
-            foreach (var des in Manager.map.designationManager
-                .SpawnedDesignationsOfDef(DesignationDefOf.Mine)
-                .Except(_designations)
-                .Where(des => IsValidMiningTarget(des.target, true)))
+            foreach (
+                var des in Manager
+                    .map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Mine)
+                    .Except(_designations)
+                    .Where(des => IsValidMiningTarget(des.target, true))
+            )
             {
                 addedMineCount++;
                 AddDesignation(des);
@@ -241,21 +286,26 @@ internal sealed class ManagerJob_Mining
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
-        foreach (var des in Manager.map.designationManager
-            .SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
-            .Except(_designations)
-            .Where(des => IsValidDeconstructionTarget(des.target, true)))
+        foreach (
+            var des in Manager
+                .map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Deconstruct)
+                .Except(_designations)
+                .Where(des => IsValidDeconstructionTarget(des.target, true))
+        )
         {
             addedDeconstructCount++;
             AddDesignation(des);
         }
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        foreach (var des in Manager.map.designationManager
-            .SpawnedDesignationsOfDef(DesignationDefOf.Haul)
-            .Except(_designations)
-            .Where(des => des.target.HasThing &&
-                des.target.Thing.def.GetChunkProducts().Any(Counted)))
+        foreach (
+            var des in Manager
+                .map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Haul)
+                .Except(_designations)
+                .Where(des =>
+                    des.target.HasThing && des.target.Thing.def.GetChunkProducts().Any(Counted)
+                )
+        )
         {
             addedHaulCount++;
             AddDesignation(des);
@@ -263,16 +313,24 @@ internal sealed class ManagerJob_Mining
 
         if (addedMineCount > 0 || addedDeconstructCount > 0 || addedHaulCount > 0)
         {
-            jobLog?.AddDetail("ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations"
-                .Translate(addedMineCount, addedDeconstructCount, addedHaulCount));
+            jobLog?.AddDetail(
+                "ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations".Translate(
+                    addedMineCount,
+                    addedDeconstructCount,
+                    addedHaulCount
+                )
+            );
         }
     }
 
-    public bool Allowed(ThingDef? thingDef) => thingDef != null && (AllowedMineral(thingDef) || AllowedBuilding(thingDef));
+    public bool Allowed(ThingDef? thingDef) =>
+        thingDef != null && (AllowedMineral(thingDef) || AllowedBuilding(thingDef));
 
-    public bool AllowedBuilding(ThingDef? thingDef) => thingDef != null && AllowedBuildings.Contains(thingDef);
+    public bool AllowedBuilding(ThingDef? thingDef) =>
+        thingDef != null && AllowedBuildings.Contains(thingDef);
 
-    public bool AllowedMineral(ThingDef? thingDef) => thingDef != null && AllowedMinerals.Contains(thingDef);
+    public bool AllowedMineral(ThingDef? thingDef) =>
+        thingDef != null && AllowedMinerals.Contains(thingDef);
 
     public override void CleanUp(ManagerLog? jobLog)
     {
@@ -292,8 +350,13 @@ internal sealed class ManagerJob_Mining
         var newCount = _designations.Count;
         if (originalCount != newCount)
         {
-            jobLog?.AddDetail("ColonyManagerRedux.Logs.CleanJobCompletedDesignations"
-                .Translate(originalCount - newCount, originalCount, newCount));
+            jobLog?.AddDetail(
+                "ColonyManagerRedux.Logs.CleanJobCompletedDesignations".Translate(
+                    originalCount - newCount,
+                    originalCount,
+                    newCount
+                )
+            );
         }
     }
 
@@ -311,20 +374,21 @@ internal sealed class ManagerJob_Mining
             {
                 return "ColonyManagerRedux.Job.DesignationLabelMulti".Translate(
                     building.LabelCap,
-                    Distance(building, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
-                    buildingCounts.Join(
-                        tc => $"{tc.count}x {tc.thingDef.LabelCap}",
-                        "\n- "
-                    ));
+                    Distance(building, Manager.map.GetBaseCenter())
+                        .ToString("F0", CultureInfo.InvariantCulture),
+                    buildingCounts.Join(tc => $"{tc.count}x {tc.thingDef.LabelCap}", "\n- ")
+                );
             }
             else
             {
                 var buildingCount = buildingCounts[0];
                 return "ColonyManagerRedux.Job.DesignationLabel".Translate(
                     building.LabelCap,
-                    Distance(building, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
+                    Distance(building, Manager.map.GetBaseCenter())
+                        .ToString("F0", CultureInfo.InvariantCulture),
                     buildingCount.count,
-                    buildingCount.thingDef.LabelCap);
+                    buildingCount.thingDef.LabelCap
+                );
             }
         }
 
@@ -333,9 +397,11 @@ internal sealed class ManagerJob_Mining
             var mineable = designation.target.Cell.GetFirstMineable(Manager.map);
             return "ColonyManagerRedux.Job.DesignationLabel".Translate(
                 mineable.LabelCap,
-                Distance(mineable, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
+                Distance(mineable, Manager.map.GetBaseCenter())
+                    .ToString("F0", CultureInfo.InvariantCulture),
                 GetCountInMineral(mineable),
-                GetMaterialsInMineral(mineable.def)?.First().LabelCap ?? "?");
+                GetMaterialsInMineral(mineable.def)?.First().LabelCap ?? "?"
+            );
         }
 
         if (designation.def == DesignationDefOf.Haul && designation.target.HasThing)
@@ -343,15 +409,18 @@ internal sealed class ManagerJob_Mining
             var thing = designation.target.Thing;
             return "ColonyManagerRedux.Job.DesignationLabel".Translate(
                 thing.LabelCap,
-                Distance(thing, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
+                Distance(thing, Manager.map.GetBaseCenter())
+                    .ToString("F0", CultureInfo.InvariantCulture),
                 GetCountInChunk(thing),
-                thing.def.GetChunkProducts().First().thingDef.LabelCap);
+                thing.def.GetChunkProducts().First().thingDef.LabelCap
+            );
         }
 
         return string.Empty;
     }
 
     private string? _tmpMiningAreaLabel;
+
     public override void ExposeData()
     {
         base.ExposeData();
@@ -365,7 +434,8 @@ internal sealed class ManagerJob_Mining
         Scribe_Values.Look(
             ref DeconstructAncientDangerWhenFogged,
             "deconstructAncientDangerWhenFogged",
-            false);
+            false
+        );
         Scribe_Values.Look(ref CheckRoofSupport, "checkRoofSupport", true);
         Scribe_Values.Look(ref CheckRoofSupportAdvanced, "checkRoofSupportAdvanced");
         Scribe_Values.Look(ref CheckRoomDivision, "checkRoomDivision", true);
@@ -380,7 +450,12 @@ internal sealed class ManagerJob_Mining
         }
         else
         {
-            Utilities.Scribe_AreaByLabel(ref MiningArea, ref _tmpMiningAreaLabel, "miningArea", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(
+                ref MiningArea,
+                ref _tmpMiningAreaLabel,
+                "miningArea",
+                Manager.map.areaManager
+            );
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -392,6 +467,7 @@ internal sealed class ManagerJob_Mining
     }
 
     private static readonly List<ThingDefCountClass> _tmpBuildingCounts = [];
+
     public static List<ThingDefCountClass> GetCountsInBuilding(Building? building)
     {
         _tmpBuildingCounts.Clear();
@@ -407,7 +483,8 @@ internal sealed class ManagerJob_Mining
             var item2 = new ThingDefCountClass(item.thingDef, item.count);
             item2.count = Mathf.Min(
                 GenMath.RoundRandom(item2.count * def.resourcesFractionWhenDeconstructed),
-                item2.count);
+                item2.count
+            );
 
             if (item2.count != 0)
             {
@@ -434,11 +511,10 @@ internal sealed class ManagerJob_Mining
 
     public int GetCountInChunk(Thing chunk) => GetCountInChunk(chunk.def);
 
-    public int GetCountInChunk(ThingDef chunk) => chunk.butcherProducts.NullOrEmpty() && chunk.smeltProducts.NullOrEmpty()
+    public int GetCountInChunk(ThingDef chunk) =>
+        chunk.butcherProducts.NullOrEmpty() && chunk.smeltProducts.NullOrEmpty()
             ? 0
-            : chunk.GetChunkProducts()
-            .Where(Counted)
-            .Sum(tc => tc.count);
+            : chunk.GetChunkProducts().Where(Counted).Sum(tc => tc.count);
 
     public ChunkProcessingKind GetChunkProductKind()
     {
@@ -448,9 +524,15 @@ internal sealed class ManagerJob_Mining
         }
 
         chunkProductKind = ChunkProcessingKind.Neither;
-        foreach (var chunk in DefDatabase<ThingDef>.AllDefs.Where(t => t.IsChunk() &&
-            ((t.butcherProducts?.Any(Counted) ?? false) ||
-                (t.smeltProducts?.Any(Counted) ?? false))))
+        foreach (
+            var chunk in DefDatabase<ThingDef>.AllDefs.Where(t =>
+                t.IsChunk()
+                && (
+                    (t.butcherProducts?.Any(Counted) ?? false)
+                    || (t.smeltProducts?.Any(Counted) ?? false)
+                )
+            )
+        )
         {
             if (chunk.butcherProducts != null)
             {
@@ -472,17 +554,26 @@ internal sealed class ManagerJob_Mining
     }
 
     private readonly List<Thing> _tmpAllThings = [];
+
     [CoroutineSettingsMethod]
     private Coroutine GetCountInChunksCoroutine(AnyBoxed<int> count)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCountInChunksCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCountInChunksCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            GetCountInChunksCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                GetCountInChunksCoroutine
+            );
 
         _tmpAllThings.AddRange(Manager.map.listerThings.AllThings);
         using var _ = new DoOnDispose(_tmpAllThings.Clear);
 
-        foreach (var (chunk, i) in _tmpAllThings
-            .Where(t => t.def.IsChunk() && t.IsInAnyStorage()).Select((c, i) => (c, i)))
+        foreach (
+            var (chunk, i) in _tmpAllThings
+                .Where(t => t.def.IsChunk() && t.IsInAnyStorage())
+                .Select((c, i) => (c, i))
+        )
         {
             if (i > 0 && i % operationsPerTick == 0)
             {
@@ -501,8 +592,13 @@ internal sealed class ManagerJob_Mining
     [CoroutineSettingsMethod]
     private Coroutine GetCountInDesignationsCoroutine(AnyBoxed<int> count)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCountInDesignationsCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCountInDesignationsCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            GetCountInDesignationsCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                GetCountInDesignationsCoroutine
+            );
 
         Dictionary<ThingDef, int> mineralCounts = [];
         for (var i = 0; i < _designations.Count; i++)
@@ -520,8 +616,10 @@ internal sealed class ManagerJob_Mining
             }
             else if (des.def == DesignationDefOf.Mine && des.target.Cell.IsValid)
             {
-                var mineralDef =
-                    Manager.map.thingGrid.ThingsListAtFast(des.target.Cell).FirstOrDefault()?.def;
+                var mineralDef = Manager
+                    .map.thingGrid.ThingsListAtFast(des.target.Cell)
+                    .FirstOrDefault()
+                    ?.def;
                 if (mineralDef == null || !Allowed(mineralDef))
                 {
                     continue;
@@ -558,8 +656,11 @@ internal sealed class ManagerJob_Mining
 
         // metals
         return Counted(resource)
-            ? (int)(rock.building.mineableYield * Find.Storyteller.difficulty.mineYieldFactor *
-                rock.building.mineableDropChance)
+            ? (int)(
+                rock.building.mineableYield
+                * Find.Storyteller.difficulty.mineYieldFactor
+                * rock.building.mineableDropChance
+            )
             : 0;
     }
 
@@ -573,18 +674,21 @@ internal sealed class ManagerJob_Mining
         var baseCosts = building.costList.NullOrEmpty()
             ? []
             : building.costList.Select(tc => tc.thingDef);
-        var possibleStuffs = DefDatabase<ThingDef>.AllDefsListForReading
-            .Where(td => td.IsStuff
-                && !td.stuffProps.categories.NullOrEmpty()
-                && !building.stuffCategories.NullOrEmpty()
-                && td.stuffProps.categories.Intersect(building.stuffCategories).Any());
+        var possibleStuffs = DefDatabase<ThingDef>.AllDefsListForReading.Where(td =>
+            td.IsStuff
+            && !td.stuffProps.categories.NullOrEmpty()
+            && !building.stuffCategories.NullOrEmpty()
+            && td.stuffProps.categories.Intersect(building.stuffCategories).Any()
+        );
 
         return baseCosts.Concat(possibleStuffs);
     }
 
-    public static IEnumerable<ThingDef> GetMaterialsInChunk(ThingDef chunk) => chunk.GetChunkProducts().Select(tc => tc.thingDef);
+    public static IEnumerable<ThingDef> GetMaterialsInChunk(ThingDef chunk) =>
+        chunk.GetChunkProducts().Select(tc => tc.thingDef);
 
     private readonly CachedValues<ThingDef, List<ThingDef>> _materialsInMineralCache = new();
+
     public List<ThingDef> GetMaterialsInMineral(ThingDef mineral)
     {
         if (!_materialsInMineralCache.TryGetValue(mineral, out var materials))
@@ -624,8 +728,13 @@ internal sealed class ManagerJob_Mining
         // check if any cell in roofing range would collapse if this cell were to be removed
         for (var i = RoofCollapseUtility.RoofSupportRadialCellsCount - 1; i >= 0; i--)
         {
-            if (WouldCollapseIfSupportDestroyed(GenRadial.RadialPattern[i] + building.Position, building.Position,
-                Manager.map))
+            if (
+                WouldCollapseIfSupportDestroyed(
+                    GenRadial.RadialPattern[i] + building.Position,
+                    building.Position,
+                    Manager.map
+                )
+            )
             {
                 return true;
             }
@@ -645,9 +754,11 @@ internal sealed class ManagerJob_Mining
         return IsARoofSupport_Basic(building.Position);
     }
 
-    public static bool IsARoofSupport_Basic(IntVec3 cell) => cell.x % RoofSupportGridSpacing == 0 && cell.z % RoofSupportGridSpacing == 0;
+    public static bool IsARoofSupport_Basic(IntVec3 cell) =>
+        cell.x % RoofSupportGridSpacing == 0 && cell.z % RoofSupportGridSpacing == 0;
 
     private const float MaxPathCost = 500f;
+
     public bool IsARoomDivider(Thing target)
     {
         if (!CheckRoomDivision)
@@ -655,16 +766,15 @@ internal sealed class ManagerJob_Mining
             return false;
         }
 
-        var adjacent = GenAdjFast.AdjacentCells8Way(target.Position)
-            .Where(c => c.InBounds(Manager.map)
-                && !c.Fogged(Manager.map)
-                && !c.Impassable(Manager.map))
+        var adjacent = GenAdjFast
+            .AdjacentCells8Way(target.Position)
+            .Where(c =>
+                c.InBounds(Manager.map) && !c.Fogged(Manager.map) && !c.Impassable(Manager.map)
+            )
             .ToArray();
 
         // check if there are more than two rooms in the surrounding cells.
-        var rooms = adjacent.Select(c => c.GetRoom(Manager.map))
-            .Where(r => r != null)
-            .Distinct();
+        var rooms = adjacent.Select(c => c.GetRoom(Manager.map)).Where(r => r != null).Distinct();
 
         if (rooms.Count() >= 2)
         {
@@ -676,8 +786,11 @@ internal sealed class ManagerJob_Mining
         {
             for (var j = i + 1; j < adjacent.Length; j++)
             {
-                var path = Manager.map.pathFinder.FindPathCmr(adjacent[i], adjacent[j],
-                    TraverseParms.For(TraverseMode.NoPassClosedDoors, Danger.Some));
+                var path = Manager.map.pathFinder.FindPathCmr(
+                    adjacent[i],
+                    adjacent[j],
+                    TraverseParms.For(TraverseMode.NoPassClosedDoors, Danger.Some)
+                );
                 var cost = path.TotalCost;
                 path.ReleaseToPool();
 
@@ -691,14 +804,18 @@ internal sealed class ManagerJob_Mining
         return false;
     }
 
-    public bool IsAllowedToMineRoofAt(Thing target) => MineThickRoofs || (!target.Map.roofGrid.RoofAt(target.Position)?.isThickRoof ?? true);
+    public bool IsAllowedToMineRoofAt(Thing target) =>
+        MineThickRoofs || (!target.Map.roofGrid.RoofAt(target.Position)?.isThickRoof ?? true);
 
-    public bool IsInAllowedArea(Thing target) => MiningArea == null || MiningArea.ActiveCells.Contains(target.Position);
+    public bool IsInAllowedArea(Thing target) =>
+        MiningArea == null || MiningArea.ActiveCells.Contains(target.Position);
 
-    public bool IsRelevantDeconstructionTarget(Building target) => target.def.building.IsDeconstructible
-            && target.def.resourcesFractionWhenDeconstructed > 0
-            && target.def.CostListAdjusted(target.Stuff)
-                .Any(tc => TriggerThreshold.ThresholdFilter.Allows(tc.thingDef));
+    public bool IsRelevantDeconstructionTarget(Building target) =>
+        target.def.building.IsDeconstructible
+        && target.def.resourcesFractionWhenDeconstructed > 0
+        && target
+            .def.CostListAdjusted(target.Stuff)
+            .Any(tc => TriggerThreshold.ThresholdFilter.Allows(tc.thingDef));
 
     public bool IsRelevantMiningTarget(Mineable target) => GetCountInMineral(target) > 0;
 
@@ -712,38 +829,39 @@ internal sealed class ManagerJob_Mining
         var designation = Manager.map.designationManager.DesignationOn(target);
 
         return target.Spawned
-
             // not ours
             && target.Faction != Faction.OfPlayer
-
-            && (includeDesignated
-                ? (designation == null || designation.def == DesignationDefOf.Deconstruct)
-                : designation == null)
-
+            && (
+                includeDesignated
+                    ? (designation == null || designation.def == DesignationDefOf.Deconstruct)
+                    : designation == null
+            )
             // allowed
             && !target.IsForbidden(Faction.OfPlayer)
             && AllowedBuilding(target.def)
-
             // drops things we want
             && IsRelevantDeconstructionTarget(target)
-
             // in allowed area & reachable
             && IsInAllowedArea(target)
             && IsReachable(target)
-
             // doesn't create safety hazards
             && !IsARoofSupport_Basic(target)
             && !IsARoomDivider(target);
     }
 
-    public bool IsValidDeconstructionTarget(LocalTargetInfo target, bool includeDesignated = false) => target.HasThing
-            && target.IsValid
-            && target.Thing is Building building
-            && IsValidDeconstructionTarget(building, includeDesignated);
+    public bool IsValidDeconstructionTarget(
+        LocalTargetInfo target,
+        bool includeDesignated = false
+    ) =>
+        target.HasThing
+        && target.IsValid
+        && target.Thing is Building building
+        && IsValidDeconstructionTarget(building, includeDesignated);
 
-    public bool IsValidMiningTarget(LocalTargetInfo target, bool includeDesignated = false) => target.IsValid
-            && target.Cell.GetFirstThing<Mineable>(Manager.map) is Mineable mineable
-            && IsValidMiningTarget(mineable, includeDesignated);
+    public bool IsValidMiningTarget(LocalTargetInfo target, bool includeDesignated = false) =>
+        target.IsValid
+        && target.Cell.GetFirstThing<Mineable>(Manager.map) is Mineable mineable
+        && IsValidMiningTarget(mineable, includeDesignated);
 
     public bool IsValidMiningTarget(Mineable? target, bool includeDesignated = false)
     {
@@ -752,21 +870,20 @@ internal sealed class ManagerJob_Mining
             return false;
         }
 
-        var designation = Manager.map.designationManager.DesignationOn(target) ??
-            Manager.map.designationManager.DesignationAt(target.Position, DesignationDefOf.Mine);
+        var designation =
+            Manager.map.designationManager.DesignationOn(target)
+            ?? Manager.map.designationManager.DesignationAt(target.Position, DesignationDefOf.Mine);
         return target.def.mineable
-
             // allowed
             && AllowedMineral(target.def)
-
-            // discovered 
+            // discovered
             // NOTE: also in IsReachable, but we expect a lot of fogged tiles, so move this check up a bit.
             && !target.Position.Fogged(Manager.map)
-
-            && (includeDesignated
-                ? (designation == null || designation.def == DesignationDefOf.Mine)
-                : designation == null)
-
+            && (
+                includeDesignated
+                    ? (designation == null || designation.def == DesignationDefOf.Mine)
+                    : designation == null
+            )
             // matches settings
             && IsInAllowedArea(target)
             && IsRelevantMiningTarget(target)
@@ -774,7 +891,6 @@ internal sealed class ManagerJob_Mining
             // note, is true if advanced checking is enabled - checks will then be done before designating
             && !IsARoofSupport_Basic(target)
             && IsAllowedToMineRoofAt(target)
-
             // can be reached
             && IsReachable(target);
     }
@@ -825,8 +941,8 @@ internal sealed class ManagerJob_Mining
             foreach (var material in GetMaterialsInBuilding(building))
             {
                 var setAllow =
-                    AllowedBuildings.Any(b => GetMaterialsInBuilding(b).Contains(material)) ||
-                    AllowedMinerals.Any(m => GetMaterialsInMineral(m).Contains(material));
+                    AllowedBuildings.Any(b => GetMaterialsInBuilding(b).Contains(material))
+                    || AllowedMinerals.Any(m => GetMaterialsInMineral(m).Contains(material));
                 TriggerThreshold.ThresholdFilter.SetAllow(material, setAllow);
             }
         }
@@ -843,8 +959,8 @@ internal sealed class ManagerJob_Mining
             foreach (var material in GetMaterialsInMineral(mineral))
             {
                 var setAllow =
-                    AllowedBuildings.Any(b => GetMaterialsInBuilding(b).Contains(material)) ||
-                    AllowedMinerals.Any(m => GetMaterialsInMineral(m).Contains(material));
+                    AllowedBuildings.Any(b => GetMaterialsInBuilding(b).Contains(material))
+                    || AllowedMinerals.Any(m => GetMaterialsInMineral(m).Contains(material));
                 TriggerThreshold.ThresholdFilter.SetAllow(material, setAllow);
             }
         }
@@ -869,8 +985,11 @@ internal sealed class ManagerJob_Mining
             JobState = ManagerJobState.Active;
         }
 
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(TryDoJobCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            TryDoJobCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
 
         // clean up designations that were completed.
         CleanDeadDesignations(_designations, null, jobLog);
@@ -881,31 +1000,39 @@ internal sealed class ManagerJob_Mining
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // update counts
-        yield return ChunksCachedValue.DoUpdateIfNeeded(force: true)
+        yield return ChunksCachedValue
+            .DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
-        yield return DesignatedCachedValue.DoUpdateIfNeeded(force: true)
+        yield return DesignatedCachedValue
+            .DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate work until trigger is met.
-        var count = TriggerThreshold.GetCurrentCount()
+        var count =
+            TriggerThreshold.GetCurrentCount()
             + ChunksCachedValue.Value
             + DesignatedCachedValue.Value;
 
-        if (TriggerThreshold.DoesCountMeetTarget(count)
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
+        if (
+            TriggerThreshold.DoesCountMeetTarget(count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+        )
         {
             var designationCounter = 0;
             List<Designation> sortedMineDesignations = [];
             yield return GetThingsSorted(
-                _designations.Where(d => d.def == DesignationDefOf.Mine
-                    && d.target.IsValid
-                    && d.target.Cell.GetFirstThing<Mineable>(Manager.map) is not null),
-                sortedMineDesignations,
-                _ => true,
-                (m, d) => -GetCountInMineral(m) / d,
-                d => d.target.Cell.GetFirstThing<Mineable>(Manager.map))
+                    _designations.Where(d =>
+                        d.def == DesignationDefOf.Mine
+                        && d.target.IsValid
+                        && d.target.Cell.GetFirstThing<Mineable>(Manager.map) is not null
+                    ),
+                    sortedMineDesignations,
+                    _ => true,
+                    (m, d) => -GetCountInMineral(m) / d,
+                    d => d.target.Cell.GetFirstThing<Mineable>(Manager.map)
+                )
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -915,21 +1042,26 @@ internal sealed class ManagerJob_Mining
                 var mineable = designation.target.Cell.GetFirstThing<Mineable>(Manager.map);
                 var yield = GetCountInMineral(mineable);
                 count -= yield;
-                if (TriggerThreshold.DoesCountMeetTarget(count)
-                    || ColonyManagerReduxMod.Settings
-                        .ShouldRemoveMoreDesignations(_designations.Count))
+                if (
+                    TriggerThreshold.DoesCountMeetTarget(count)
+                    || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                        _designations.Count
+                    )
+                )
                 {
                     designation.Delete();
                     _ = _designations.Remove(designation);
-                    jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
-                        .Translate(
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
                             DesignationDefOf.Mine.ActionText(),
                             "ColonyManagerRedux.Mining.Logs.Rock".Translate(),
                             mineable.Label,
                             yield,
                             count,
-                            TriggerThreshold.TargetLabel),
-                        mineable);
+                            TriggerThreshold.TargetLabel
+                        ),
+                        mineable
+                    );
                     workDone.Value = true;
                     designationCounter++;
                 }
@@ -938,24 +1070,27 @@ internal sealed class ManagerJob_Mining
                     break;
                 }
 
-                if (designationCounter > 0
-                    && designationCounter % operationsPerTick == 0)
+                if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
                 {
                     yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
 
-            if (TriggerThreshold.DoesCountMeetTarget(count)
-                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
+            if (
+                TriggerThreshold.DoesCountMeetTarget(count)
+                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            )
             {
                 List<Designation> sortedDeconstructDesignations = [];
                 yield return GetThingsSorted(
-                    _designations.Where(d => d.target.HasThing &&
-                        d.def == DesignationDefOf.Deconstruct),
-                    sortedDeconstructDesignations,
-                    _ => true,
-                    (b, d) => -GetCountInBuilding(b) / d,
-                    d => (Building)d.target.Thing)
+                        _designations.Where(d =>
+                            d.target.HasThing && d.def == DesignationDefOf.Deconstruct
+                        ),
+                        sortedDeconstructDesignations,
+                        _ => true,
+                        (b, d) => -GetCountInBuilding(b) / d,
+                        d => (Building)d.target.Thing
+                    )
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -965,21 +1100,26 @@ internal sealed class ManagerJob_Mining
                     var building = (Building)designation.target.Thing;
                     var yield = GetCountInBuilding(building);
                     count -= yield;
-                    if (TriggerThreshold.DoesCountMeetTarget(count)
-                        || ColonyManagerReduxMod.Settings
-                            .ShouldRemoveMoreDesignations(_designations.Count))
+                    if (
+                        TriggerThreshold.DoesCountMeetTarget(count)
+                        || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                            _designations.Count
+                        )
+                    )
                     {
                         designation.Delete();
                         _ = _designations.Remove(designation);
-                        jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
-                            .Translate(
+                        jobLog.AddDetail(
+                            "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
                                 DesignationDefOf.Deconstruct.ActionText(),
                                 "ColonyManagerRedux.Mining.Logs.Building".Translate(),
                                 building.Label,
                                 yield,
                                 count,
-                                TriggerThreshold.TargetLabel),
-                            building);
+                                TriggerThreshold.TargetLabel
+                            ),
+                            building
+                        );
                         workDone.Value = true;
                         designationCounter++;
                     }
@@ -988,24 +1128,28 @@ internal sealed class ManagerJob_Mining
                         break;
                     }
 
-                    if (designationCounter > 0
-                        && designationCounter % operationsPerTick == 0)
+                    if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
                     {
                         yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
                 }
             }
 
-            if (TriggerThreshold.DoesCountMeetTarget(count)
-                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
+            if (
+                TriggerThreshold.DoesCountMeetTarget(count)
+                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            )
             {
                 List<Designation> sortedHaulDesignations = [];
                 yield return GetThingsSorted(
-                    _designations.Where(d => d.target.HasThing && d.def == DesignationDefOf.Haul),
-                    sortedHaulDesignations,
-                    _ => true,
-                    (c, d) => -GetCountInChunk(c) / d,
-                    d => d.target.Thing)
+                        _designations.Where(d =>
+                            d.target.HasThing && d.def == DesignationDefOf.Haul
+                        ),
+                        sortedHaulDesignations,
+                        _ => true,
+                        (c, d) => -GetCountInChunk(c) / d,
+                        d => d.target.Thing
+                    )
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -1015,21 +1159,26 @@ internal sealed class ManagerJob_Mining
                     var chunk = designation.target.Thing;
                     var chunkCount = GetCountInChunk(chunk);
                     count -= chunkCount;
-                    if (count >= TriggerThreshold.TargetCount
-                        || ColonyManagerReduxMod.Settings
-                            .ShouldRemoveMoreDesignations(_designations.Count))
+                    if (
+                        count >= TriggerThreshold.TargetCount
+                        || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                            _designations.Count
+                        )
+                    )
                     {
                         designation.Delete();
                         _ = _designations.Remove(designation);
-                        jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
-                            .Translate(
+                        jobLog.AddDetail(
+                            "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
                                 DesignationDefOf.Haul.ActionText(),
                                 "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
                                 chunk.Label,
                                 chunkCount,
                                 count,
-                                TriggerThreshold.TargetLabel),
-                            chunk);
+                                TriggerThreshold.TargetLabel
+                            ),
+                            chunk
+                        );
                         workDone.Value = true;
                         designationCounter++;
                     }
@@ -1038,8 +1187,7 @@ internal sealed class ManagerJob_Mining
                         break;
                     }
 
-                    if (designationCounter > 0
-                        && designationCounter % operationsPerTick == 0)
+                    if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
                     {
                         yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
@@ -1048,24 +1196,29 @@ internal sealed class ManagerJob_Mining
 
             if (!workDone)
             {
-                jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
-                    "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
-                    Def.label
-                ));
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                        "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                        Def.label
+                    )
+                );
             }
 
             yield break;
         }
 
-        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount"
-            .Translate(count, TriggerThreshold.TargetCount));
+        jobLog.AddDetail(
+            "ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount)
+        );
 
         if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                    "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
@@ -1077,21 +1230,25 @@ internal sealed class ManagerJob_Mining
             var map = Manager.map;
             List<Thing> sortedChunks = [];
             yield return GetTargetsSorted(
-                sortedChunks,
-                t => t.def.IsChunk()
-                    && !t.IsInAnyStorage()
-                    && !t.IsForbidden(Faction.OfPlayer)
-                    && !map.reservationManager.IsReserved(t)
-                    && Manager.map.designationManager.DesignationOn(t) == null
-                    && GetCountInChunk(t) > 0,
-                (c, d) => GetCountInChunk(c) / d)
+                    sortedChunks,
+                    t =>
+                        t.def.IsChunk()
+                        && !t.IsInAnyStorage()
+                        && !t.IsForbidden(Faction.OfPlayer)
+                        && !map.reservationManager.IsReserved(t)
+                        && Manager.map.designationManager.DesignationOn(t) == null
+                        && GetCountInChunk(t) > 0,
+                    (c, d) => GetCountInChunk(c) / d
+                )
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             foreach (var (chunk, i) in sortedChunks.Select((c, i) => (c, i)))
             {
-                if (TriggerThreshold.DoesCountMeetTarget(count)
-                    || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+                if (
+                    TriggerThreshold.DoesCountMeetTarget(count)
+                    || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+                )
                 {
                     break;
                 }
@@ -1100,15 +1257,17 @@ internal sealed class ManagerJob_Mining
                 AddDesignation(chunk, DesignationDefOf.Haul);
                 count += chunkCount;
 
-                jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
-                    .Translate(
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.AddDesignation".Translate(
                         DesignationDefOf.Haul.ActionText(),
                         "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
                         chunk.Label,
                         chunkCount,
                         count,
-                        TriggerThreshold.TargetLabel),
-                    chunk);
+                        TriggerThreshold.TargetLabel
+                    ),
+                    chunk
+                );
 
                 workDone.Value = true;
 
@@ -1121,10 +1280,12 @@ internal sealed class ManagerJob_Mining
 
         if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                    "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
@@ -1132,9 +1293,10 @@ internal sealed class ManagerJob_Mining
         {
             List<Building> sortedBuildings = [];
             yield return GetTargetsSorted(
-                sortedBuildings,
-                b => IsValidDeconstructionTarget(b),
-                (b, d) => GetCountInBuilding(b) / d)
+                    sortedBuildings,
+                    b => IsValidDeconstructionTarget(b),
+                    (b, d) => GetCountInBuilding(b) / d
+                )
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -1143,8 +1305,10 @@ internal sealed class ManagerJob_Mining
 
             foreach (var (building, i) in sortedBuildings.Select((c, i) => (c, i)))
             {
-                if (TriggerThreshold.DoesCountMeetTarget(count)
-                    || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+                if (
+                    TriggerThreshold.DoesCountMeetTarget(count)
+                    || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+                )
                 {
                     break;
                 }
@@ -1177,15 +1341,17 @@ internal sealed class ManagerJob_Mining
                     AddDesignation(building, DesignationDefOf.Deconstruct);
                     count += buildingCount;
 
-                    jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
-                        .Translate(
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Logs.AddDesignation".Translate(
                             DesignationDefOf.Deconstruct.ActionText(),
                             "ColonyManagerRedux.Mining.Logs.Building".Translate(),
                             building.Label,
                             buildingCount,
                             count,
-                            TriggerThreshold.TargetLabel),
-                        building);
+                            TriggerThreshold.TargetLabel
+                        ),
+                        building
+                    );
 
                     workDone.Value = true;
                 }
@@ -1197,34 +1363,41 @@ internal sealed class ManagerJob_Mining
             }
             if (skippedAncientDangerTargets.Count > 0)
             {
-                jobLog.AddDetail("ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings"
-                    .Translate(
-                        skippedAncientDangerTargets.Count),
-                    skippedAncientDangerTargets);
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings".Translate(
+                        skippedAncientDangerTargets.Count
+                    ),
+                    skippedAncientDangerTargets
+                );
             }
         }
 
         if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                    "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
         List<Mineable> sortedMineable = [];
         yield return GetTargetsSorted(
-            sortedMineable,
-            m => IsValidMiningTarget(m),
-            (m, d) => GetCountInMineral(m) / d)
+                sortedMineable,
+                m => IsValidMiningTarget(m),
+                (m, d) => GetCountInMineral(m) / d
+            )
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         foreach (var (mineable, i) in sortedMineable.Select((c, i) => (c, i)))
         {
-            if (TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+            if (
+                TriggerThreshold.DoesCountMeetTarget(count)
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+            )
             {
                 break;
             }
@@ -1237,15 +1410,17 @@ internal sealed class ManagerJob_Mining
                 AddDesignation(mineable, DesignationDefOf.Mine);
                 count += mineableCount;
 
-                jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
-                    .Translate(
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.AddDesignation".Translate(
                         DesignationDefOf.Mine.ActionText(),
                         "ColonyManagerRedux.Mining.Logs.Rock".Translate(),
                         mineable.Label,
                         mineableCount,
                         count,
-                        TriggerThreshold.TargetLabel),
-                    mineable);
+                        TriggerThreshold.TargetLabel
+                    ),
+                    mineable
+                );
 
                 if (i > 0 && i % operationsPerTick == 0)
                 {
@@ -1256,6 +1431,7 @@ internal sealed class ManagerJob_Mining
     }
 
     private const int MaxRegionDistance = 4;
+
     private static bool RegionsAreClose(Region start, Region end, int depth = 0)
     {
         if (depth > MaxRegionDistance)
@@ -1267,12 +1443,16 @@ internal sealed class ManagerJob_Mining
         return neighbours.Contains(end) || neighbours.Any(n => RegionsAreClose(n, end, depth + 1));
     }
 
-    protected override IEnumerable<Designation> GetIntersectionDesignations(DesignationDef? designationDef) => Manager.map.designationManager.AllDesignations
-            .Where(d =>
-                (d.def == DesignationDefOf.Mine ||
-                    d.def == DesignationDefOf.Deconstruct ||
-                    d.def == DesignationDefOf.Haul) &&
-                (!d.target.HasThing || d.target.Thing.Map == Manager.map));
+    protected override IEnumerable<Designation> GetIntersectionDesignations(
+        DesignationDef? designationDef
+    ) =>
+        Manager.map.designationManager.AllDesignations.Where(d =>
+            (
+                d.def == DesignationDefOf.Mine
+                || d.def == DesignationDefOf.Deconstruct
+                || d.def == DesignationDefOf.Haul
+            ) && (!d.target.HasThing || d.target.Thing.Map == Manager.map)
+        );
 
     private void ConfigureThresholdTriggerParentFilter()
     {
@@ -1283,9 +1463,11 @@ internal sealed class ManagerJob_Mining
             {
                 TriggerThreshold.ParentFilter.SetAllow(mineral.building.mineableThing, true);
             }
-            foreach (var material in AllDeconstructibleBuildings
-                .SelectMany(GetMaterialsInBuilding)
-                .Distinct())
+            foreach (
+                var material in AllDeconstructibleBuildings
+                    .SelectMany(GetMaterialsInBuilding)
+                    .Distinct()
+            )
             {
                 TriggerThreshold.ParentFilter.SetAllow(material, true);
             }
@@ -1300,8 +1482,11 @@ internal sealed class ManagerJob_Mining
             return;
         }
 
-        if (thing.def.designateHaulable && thing.def.GetChunkProducts().Any(Counted) &&
-            _designations.Any(d => d.target.Cell == thing.Position))
+        if (
+            thing.def.designateHaulable
+            && thing.def.GetChunkProducts().Any(Counted)
+            && _designations.Any(d => d.target.Cell == thing.Position)
+        )
         {
             AddDesignation(thing, DesignationDefOf.Haul);
         }
@@ -1322,5 +1507,5 @@ internal enum ChunkProcessingKind
     Neither = 0x0,
     Stonecutting = 0x1,
     Smelting = 0x2,
-    Both = Stonecutting | Smelting
+    Both = Stonecutting | Smelting,
 }

@@ -16,8 +16,10 @@ internal partial class ManagerTab_Logs
 
         public override void Initialize()
         {
-            var logSettings = ColonyManagerReduxMod.Settings
-                .ManagerSettingsFor<ManagerSettings_Logs>(ManagerDefOf.CM_LogsManager)!;
+            var logSettings =
+                ColonyManagerReduxMod.Settings.ManagerSettingsFor<ManagerSettings_Logs>(
+                    ManagerDefOf.CM_LogsManager
+                )!;
             _logs = new(logSettings.KeepLogCount);
         }
 
@@ -30,8 +32,10 @@ internal partial class ManagerTab_Logs
             Scribe_CircularBuffer.Look(ref _logs!, "logs");
             if (Scribe.mode == LoadSaveMode.PostLoadInit)
             {
-                var logSettings = ColonyManagerReduxMod.Settings
-                    .ManagerSettingsFor<ManagerSettings_Logs>(ManagerDefOf.CM_LogsManager)!;
+                var logSettings =
+                    ColonyManagerReduxMod.Settings.ManagerSettingsFor<ManagerSettings_Logs>(
+                        ManagerDefOf.CM_LogsManager
+                    )!;
                 if (_logs == null)
                 {
                     _logs = new(logSettings.KeepLogCount);
@@ -53,6 +57,9 @@ internal partial class ManagerTab_Logs
 
 internal static class LogsComp_ManagerLogsExtensions
 {
-    public static void AddLog(this Manager manager, ManagerLog log) => manager.CompOfType<ManagerTab_Logs.LogsComp>()!.AddLog(log);
-    public static IEnumerable<ManagerLog> Logs(this Manager manager) => manager.CompOfType<ManagerTab_Logs.LogsComp>()!.Logs;
+    public static void AddLog(this Manager manager, ManagerLog log) =>
+        manager.CompOfType<ManagerTab_Logs.LogsComp>()!.AddLog(log);
+
+    public static IEnumerable<ManagerLog> Logs(this Manager manager) =>
+        manager.CompOfType<ManagerTab_Logs.LogsComp>()!.Logs;
 }

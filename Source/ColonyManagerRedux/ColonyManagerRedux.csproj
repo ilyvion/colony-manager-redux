@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <UseLaboratory>true</UseLaboratory>
-
         <RootNamespace>ColonyManagerRedux</RootNamespace>
         <AssemblyName>ColonyManagerRedux</AssemblyName>
-
         <!-- TODO: Remove and fix -->
         <NoWarn>CA1502;CA1506</NoWarn>
     </PropertyGroup>
@@ -12,9 +10,7 @@
         <Publicize Include="Assembly-CSharp:Verse.ThingFilterUI.viewHeight" />
         <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.desPanelsCached" />
         <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.forceActivatedCommand" />
-
         <Publicize Include="Assembly-CSharp:RimWorld.AlertsReadout.activeAlerts" />
-
         <Publicize Include="Assembly-CSharp:Verse.Designation.Map" />
     </ItemGroup>
 </Project>

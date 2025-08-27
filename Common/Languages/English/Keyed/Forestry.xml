@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LanguageData>
     <ColonyManagerRedux.Forestry.NewForestryJob>New job</ColonyManagerRedux.Forestry.NewForestryJob>
     <ColonyManagerRedux.Forestry.NewForestryJobTooltip>Create a new forestry job</ColonyManagerRedux.Forestry.NewForestryJobTooltip>
@@ -20,9 +19,7 @@
     <ColonyManagerRedux.Forestry.Full>Full trees</ColonyManagerRedux.Forestry.Full>
     <ColonyManagerRedux.Forestry.Super>Super trees</ColonyManagerRedux.Forestry.Super>
     <ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the trees allowed for chopping, and vice versa.</ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip>
-
     <ColonyManagerRedux.Forestry.Clear>Clear {0}</ColonyManagerRedux.Forestry.Clear>
-
     <ColonyManagerRedux.Forestry.Trees>Trees</ColonyManagerRedux.Forestry.Trees>
     <ColonyManagerRedux.Forestry.Trees.Tip>Select all trees</ColonyManagerRedux.Forestry.Trees.Tip>
     <ColonyManagerRedux.Forestry.Flammable>Flammable</ColonyManagerRedux.Forestry.Flammable>
@@ -31,12 +28,9 @@
     <ColonyManagerRedux.Forestry.Ugly.Tip>Select all ugly plants</ColonyManagerRedux.Forestry.Ugly.Tip>
     <ColonyManagerRedux.Forestry.ProvidesCover>Cover</ColonyManagerRedux.Forestry.ProvidesCover>
     <ColonyManagerRedux.Forestry.ProvidesCover.Tip>Select all plants that provide cover</ColonyManagerRedux.Forestry.ProvidesCover.Tip>
-
     <ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType>Default job type</ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType>
-
     <!-- Logging -->
     <ColonyManagerRedux.Forestry.Logs.Tree>tree</ColonyManagerRedux.Forestry.Logs.Tree>
     <ColonyManagerRedux.Forestry.Logs.Trees>trees</ColonyManagerRedux.Forestry.Logs.Trees>
-
     <ColonyManagerRedux.Forestry.Logs.AddClearingDesignation>Added new {0} designation for {1} {2} for clearing area {3}</ColonyManagerRedux.Forestry.Logs.AddClearingDesignation>
 </LanguageData>

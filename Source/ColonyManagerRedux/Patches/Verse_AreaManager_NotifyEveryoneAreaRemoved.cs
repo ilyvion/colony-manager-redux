@@ -4,6 +4,4 @@
 namespace ColonyManagerRedux;
 
 [HarmonyPatch(typeof(AreaManager), "NotifyEveryoneAreaRemoved")]
-internal static class Verse_AreaManager_NotifyEveryoneAreaRemoved
-{
-}
+internal static class Verse_AreaManager_NotifyEveryoneAreaRemoved { }

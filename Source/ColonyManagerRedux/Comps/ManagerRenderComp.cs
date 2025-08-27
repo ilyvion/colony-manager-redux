@@ -45,6 +45,7 @@ public abstract class ManagerRenderCompProperties<TComp, TWorker> : ManagerJobCo
     }
 
     private TWorker? workerInt;
+
     /// <summary>
     /// Gets the instance of the worker associated with this render component.
     /// </summary>
@@ -76,8 +77,7 @@ public abstract class ManagerRenderCompProperties<TComp, TWorker> : ManagerJobCo
         }
         if (!typeof(TWorker).IsAssignableFrom(workerClass))
         {
-            yield return
-                $"{nameof(workerClass)} is not a subclass of {typeof(TWorker).Name}";
+            yield return $"{nameof(workerClass)} is not a subclass of {typeof(TWorker).Name}";
         }
     }
 }

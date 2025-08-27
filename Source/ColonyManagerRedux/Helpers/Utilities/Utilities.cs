@@ -4,7 +4,6 @@
 
 using ilyvion.Laboratory.Collections;
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -25,20 +24,40 @@ public static class Utilities
         /// Synchronize from the filter to the allowed list.
         /// </summary>
         FilterToAllowed,
+
         /// <summary>
         /// Synchronize from the allowed list to the filter.
         /// </summary>
-        AllowedToFilter
+        AllowedToFilter,
     }
 
-    private static readonly List<UpdateInterval> _defaultUpdateIntervalOptions = [
-        new UpdateInterval(GenDate.TicksPerHour, "ColonyManagerRedux.UpdateInterval.Hourly".Translate()),
-        new UpdateInterval(GenDate.TicksPerHour * 2, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(2)),
-        new UpdateInterval(GenDate.TicksPerHour * 4, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(4)),
-        new UpdateInterval(GenDate.TicksPerHour * 8, "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(8)),
+    private static readonly List<UpdateInterval> _defaultUpdateIntervalOptions =
+    [
+        new UpdateInterval(
+            GenDate.TicksPerHour,
+            "ColonyManagerRedux.UpdateInterval.Hourly".Translate()
+        ),
+        new UpdateInterval(
+            GenDate.TicksPerHour * 2,
+            "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(2)
+        ),
+        new UpdateInterval(
+            GenDate.TicksPerHour * 4,
+            "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(4)
+        ),
+        new UpdateInterval(
+            GenDate.TicksPerHour * 8,
+            "ColonyManagerRedux.UpdateInterval.MultipleHourly".Translate(8)
+        ),
         UpdateInterval.Daily,
-        new UpdateInterval(GenDate.TicksPerTwelfth, "ColonyManagerRedux.UpdateInterval.Monthly".Translate()),
-        new UpdateInterval(GenDate.TicksPerYear, "ColonyManagerRedux.UpdateInterval.Yearly".Translate()),
+        new UpdateInterval(
+            GenDate.TicksPerTwelfth,
+            "ColonyManagerRedux.UpdateInterval.Monthly".Translate()
+        ),
+        new UpdateInterval(
+            GenDate.TicksPerYear,
+            "ColonyManagerRedux.UpdateInterval.Yearly".Translate()
+        ),
     ];
 
     /// <summary>
@@ -57,15 +76,21 @@ public static class Utilities
             {
                 // if there are custom update intervals, add them to the list.
                 var value = _defaultUpdateIntervalOptions.ToList();
-                value.AddRange(ColonyManagerReduxMod.Settings.CustomUpdateIntervalTickList
-                    .Select(ticks => new UpdateInterval(ticks,
-                        "ColonyManagerRedux.UpdateInterval.Custom".Translate(ticks.ToStringTicksToPeriodVerbose()))));
+                value.AddRange(
+                    ColonyManagerReduxMod.Settings.CustomUpdateIntervalTickList.Select(
+                        ticks => new UpdateInterval(
+                            ticks,
+                            "ColonyManagerRedux.UpdateInterval.Custom".Translate(
+                                ticks.ToStringTicksToPeriodVerbose()
+                            )
+                        )
+                    )
+                );
                 value.SortBy(i => i.Ticks);
                 return value;
             }
         }
     }
-
 
     /// <summary>
     /// Counts the number of products on the map that match the specified filter, optionally within a specific stockpile or across the entire map.
@@ -79,7 +104,8 @@ public static class Utilities
         this Map map,
         ThingFilter filter,
         Zone_Stockpile? stockpile = null,
-        bool countAllOnMap = false)
+        bool countAllOnMap = false
+    )
     {
         Boxed<int> count = new();
         CountProductsCoroutine(map, filter, count, stockpile, countAllOnMap)
@@ -102,7 +128,8 @@ public static class Utilities
         ThingFilter filter,
         Boxed<int> count,
         Zone_Stockpile? stockpile = null,
-        bool countAllOnMap = false)
+        bool countAllOnMap = false
+    )
     {
         if (map == null)
         {
@@ -119,8 +146,13 @@ public static class Utilities
             throw new ArgumentNullException(nameof(count));
         }
 
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(CountProductsCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(CountProductsCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            CountProductsCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                CountProductsCoroutine
+            );
 
         var loopingIndex = 0;
         foreach (var thingDef in filter.AllowedThingDefs)
@@ -199,13 +231,19 @@ public static class Utilities
     /// <param name="pos">The position vector for the toggle UI element (will be updated).</param>
     /// <param name="width">The width of the toggle UI element.</param>
     /// <param name="reachability">A reference to the boolean value indicating whether reachability is enabled.</param>
-    public static void DrawReachabilityToggle(ref Vector2 pos, float width, ref bool reachability) => DrawToggle(
+    public static void DrawReachabilityToggle(
+        ref Vector2 pos,
+        float width,
+        ref bool reachability
+    ) =>
+        DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.Threshold.CheckReachability".Translate(),
             "ColonyManagerRedux.Threshold.CheckReachability.Tip".Translate(),
             ref reachability,
-            expensive: true);
+            expensive: true
+        );
 
     /// <summary>
     /// Draws a stamp button for the specified ManagerJob, displaying an appropriate icon based on the job's state.
@@ -214,17 +252,16 @@ public static class Utilities
     /// <param name="job">The ManagerJob for which to draw the stamp button.</param>
     /// <returns>True if the button was clicked; otherwise, false.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="job"/> is null.</exception>
-    public static bool DrawStampButton(Rect stampRect, ManagerJob job) => job == null
+    public static bool DrawStampButton(Rect stampRect, ManagerJob job) =>
+        job == null
             ? throw new ArgumentNullException(nameof(job))
             : Widgets.ButtonImage(
-            stampRect,
-            job.CausedException != null
-                ? Resources.StampException
-                : job.IsSuspended
-                    ? Resources.StampStart
-                    : job.IsCompleted
-                        ? Resources.StampCompleted
-                        : Resources.StampSuspended);
+                stampRect,
+                job.CausedException != null ? Resources.StampException
+                    : job.IsSuspended ? Resources.StampStart
+                    : job.IsCompleted ? Resources.StampCompleted
+                    : Resources.StampSuspended
+            );
 
     /// <summary>
     /// Draws a toggle UI element at the specified position, allowing the user to enable or disable a boolean value.
@@ -239,16 +276,20 @@ public static class Utilities
     /// <param name="margin">The margin around the toggle.</param>
     /// <param name="font">The font to use for the label.</param>
     /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
-    public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, ref bool checkOn,
-                                   bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   GameFont font = GameFont.Small,
-                                   bool wrap = true)
+    public static void DrawToggle(
+        ref Vector2 pos,
+        float width,
+        string label,
+        TipSignal tooltip,
+        ref bool checkOn,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin,
+        GameFont font = GameFont.Small,
+        bool wrap = true
+    )
     {
-        var toggleRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var toggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
         DrawToggle(toggleRect, label, tooltip, ref checkOn, expensive, size, margin, font, wrap);
     }
@@ -266,13 +307,23 @@ public static class Utilities
     /// <param name="font">The font to use for the label.</param>
     /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
     /// <param name="leaveRoomForAdditionalIcon">Whether to leave room for an additional icon.</param>
-    public static void DrawToggle(Rect rect, string label, TipSignal tooltip, ref bool checkOn,
-                                   bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   GameFont font = GameFont.Small, bool wrap = true, bool leaveRoomForAdditionalIcon = false)
+    public static void DrawToggle(
+        Rect rect,
+        string label,
+        TipSignal tooltip,
+        ref bool checkOn,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin,
+        GameFont font = GameFont.Small,
+        bool wrap = true,
+        bool leaveRoomForAdditionalIcon = false
+    )
     {
         // set up rects
         var labelRect = rect;
-        labelRect.xMax -= size + (margin * 2) + ((expensive || leaveRoomForAdditionalIcon) ? size + margin : 0f);
+        labelRect.xMax -=
+            size + (margin * 2) + ((expensive || leaveRoomForAdditionalIcon) ? size + margin : 0f);
         var iconRect = new Rect(rect.xMax - size - margin, 0f, size, size).CenteredOnYIn(labelRect);
 
         // draw label
@@ -282,7 +333,8 @@ public static class Utilities
             TextAnchor.MiddleLeft,
             font,
             leftMargin: margin,
-            wordWrap: wrap);
+            wordWrap: wrap
+        );
 
         // tooltip
         TooltipHandler.TipRegion(rect, tooltip);
@@ -301,7 +353,10 @@ public static class Utilities
         if (expensive)
         {
             iconRect.x -= size + margin;
-            TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.Common.Expensive.Tip".Translate());
+            TooltipHandler.TipRegion(
+                iconRect,
+                "ColonyManagerRedux.Common.Expensive.Tip".Translate()
+            );
             GUI.color = checkOn ? Resources.Orange : Color.grey;
             GUI.DrawTexture(iconRect, Resources.Stopwatch);
             GUI.color = Color.white;
@@ -330,16 +385,21 @@ public static class Utilities
     /// <param name="size">The size of the toggle icon.</param>
     /// <param name="margin">The margin around the toggle.</param>
     /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
-    public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
-                                   Action on, Action off,
-                                   bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   bool wrap = true)
+    public static void DrawToggle(
+        ref Vector2 pos,
+        float width,
+        string label,
+        TipSignal tooltip,
+        bool checkOn,
+        Action on,
+        Action off,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin,
+        bool wrap = true
+    )
     {
-        var toggleRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var toggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
         DrawToggle(toggleRect, label, tooltip, checkOn, on, off, expensive, size, margin, wrap);
     }
@@ -360,18 +420,36 @@ public static class Utilities
     /// <param name="size">The size of the toggle icon.</param>
     /// <param name="margin">The margin around the toggle.</param>
     /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
-    public static void DrawToggle(ref Vector2 pos, float width, string label, TipSignal tooltip, bool checkOn,
-                                   bool checkOff, Action on, Action off,
-                                   bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   bool wrap = true)
+    public static void DrawToggle(
+        ref Vector2 pos,
+        float width,
+        string label,
+        TipSignal tooltip,
+        bool checkOn,
+        bool checkOff,
+        Action on,
+        Action off,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin,
+        bool wrap = true
+    )
     {
-        var toggleRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var toggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
-        DrawToggle(toggleRect, label, tooltip, checkOn, checkOff, on, off, expensive, size, margin, wrap);
+        DrawToggle(
+            toggleRect,
+            label,
+            tooltip,
+            checkOn,
+            checkOff,
+            on,
+            off,
+            expensive,
+            size,
+            margin,
+            wrap
+        );
     }
 
     /// <summary>
@@ -388,10 +466,19 @@ public static class Utilities
     /// <param name="size">The size of the toggle icon.</param>
     /// <param name="margin">The margin around the toggle.</param>
     /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
-    public static void DrawToggle(Rect rect, string label, TipSignal tooltip, bool checkOn, Action on, Action off,
-                                   bool expensive = false, float size = SmallIconSize, float margin = Margin,
-                                   bool wrap = true) => DrawToggle(rect, label, tooltip, checkOn, !checkOn, on, off, expensive, size, margin, wrap);
-
+    public static void DrawToggle(
+        Rect rect,
+        string label,
+        TipSignal tooltip,
+        bool checkOn,
+        Action on,
+        Action off,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin,
+        bool wrap = true
+    ) =>
+        DrawToggle(rect, label, tooltip, checkOn, !checkOn, on, off, expensive, size, margin, wrap);
 
     /// <summary>
     /// Draws a toggle UI element at the specified rectangle, allowing the user to enable or disable a boolean value,
@@ -408,9 +495,19 @@ public static class Utilities
     /// <param name="size">The size of the toggle icon.</param>
     /// <param name="margin">The margin around the toggle.</param>
     /// <param name="wrap">Whether the label should wrap to multiple lines.</param>
-    public static void DrawToggle(Rect rect, string label, TipSignal? tooltip, bool allOn, bool allOff, Action on,
-                                   Action off, bool expensive = false, float size = SmallIconSize,
-                                   float margin = Margin, bool wrap = true)
+    public static void DrawToggle(
+        Rect rect,
+        string label,
+        TipSignal? tooltip,
+        bool allOn,
+        bool allOff,
+        Action on,
+        Action off,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin,
+        bool wrap = true
+    )
     {
         if (on == null)
         {
@@ -442,7 +539,8 @@ public static class Utilities
             TextAnchor.MiddleLeft,
             GameFont.Small,
             leftMargin: margin,
-            wordWrap: wrap);
+            wordWrap: wrap
+        );
 
         // tooltip
         if (tooltip.HasValue)
@@ -468,7 +566,10 @@ public static class Utilities
         if (expensive)
         {
             iconRect.x -= size + margin;
-            TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.Common.Expensive.Tip".Translate());
+            TooltipHandler.TipRegion(
+                iconRect,
+                "ColonyManagerRedux.Common.Expensive.Tip".Translate()
+            );
             GUI.color = allOn ? Resources.Orange : Color.grey;
             GUI.DrawTexture(iconRect, Resources.Stopwatch);
             GUI.color = Color.white;
@@ -501,13 +602,21 @@ public static class Utilities
     /// <param name="expensive">Whether to display an icon indicating the toggle is expensive.</param>
     /// <param name="size">The size of the toggle icon.</param>
     /// <param name="margin">The margin around the toggle.</param>
-    public static void DrawToggle(Rect rect, string label, TipSignal tooltip, bool checkOn, Action toggle,
-                                   bool expensive = false,
-                                   float size = SmallIconSize, float margin = Margin) => DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size, margin);
+    public static void DrawToggle(
+        Rect rect,
+        string label,
+        TipSignal tooltip,
+        bool checkOn,
+        Action toggle,
+        bool expensive = false,
+        float size = SmallIconSize,
+        float margin = Margin
+    ) => DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size, margin);
 
     private static readonly List<IntVec3> _tmpHomeCells = [];
+
     /// <summary>
-    /// Gets the base center position for the specified map, using the manager station if available, 
+    /// Gets the base center position for the specified map, using the manager station if available,
     /// otherwise the average of the home area or a sensible fallback position.
     /// </summary>
     /// <param name="map">The map to determine the base center for.</param>
@@ -523,8 +632,8 @@ public static class Utilities
         // Try to find a managerstation (in all non-debug cases this method will only fire if there
         // is such a station).
         var position = IntVec3.Zero;
-        Building managerStation = map.listerBuildings
-            .AllBuildingsColonistOfClass<Building_ManagerStation>()
+        Building managerStation = map
+            .listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
             .FirstOrDefault();
         if (managerStation != null)
         {
@@ -557,8 +666,8 @@ public static class Utilities
         else
         {
             // Just return the position of a pawn (or, if nobody is alive, the map center)
-            return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement()
-                .Position ?? map.Center;
+            return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement().Position
+                ?? map.Center;
         }
     }
 
@@ -573,8 +682,16 @@ public static class Utilities
     /// <param name="font">The font to use for the label.</param>
     /// <param name="textColour">The color of the label text.</param>
     /// <param name="outlineColour">The color of the label outline.</param>
-    public static void LabelOutline(Rect icon, string label, string? tooltip, TextAnchor anchor, float margin,
-                                     GameFont font, Color textColour, Color outlineColour)
+    public static void LabelOutline(
+        Rect icon,
+        string label,
+        string? tooltip,
+        TextAnchor anchor,
+        float margin,
+        GameFont font,
+        Color textColour,
+        Color outlineColour
+    )
     {
         // horribly inefficient way of getting an outline to show - draw 4 background coloured labels with a 1px offset, then draw the foreground on top.
         int[] offsets = [-1, 0, 1];
@@ -598,7 +715,10 @@ public static class Utilities
     /// </summary>
     /// <param name="value">The integer value.</param>
     /// <returns>The absolute value of <paramref name="value"/>, or <see cref="int.MaxValue"/> if <paramref name="value"/> is <see cref="int.MinValue"/>.</returns>
-    public static int SafeAbs(int value) => value >= 0 ? value : value == int.MinValue ? int.MaxValue : -value;
+    public static int SafeAbs(int value) =>
+        value >= 0 ? value
+        : value == int.MinValue ? int.MaxValue
+        : -value;
 
     internal static void Scribe_IntArray(ref CircularBuffer<int> values, string label)
     {
@@ -616,9 +736,8 @@ public static class Utilities
         {
             values = new CircularBuffer<int>(
                 capacity,
-                text?.Split(':')
-                    .Select(int.Parse)
-                    .ToArray() ?? []);
+                text?.Split(':').Select(int.Parse).ToArray() ?? []
+            );
         }
     }
 
@@ -646,7 +765,8 @@ public static class Utilities
                         var target = int.Parse(values[1], CultureInfo.InvariantCulture);
                         return (count, target);
                     })
-                    .ToArray() ?? []);
+                    .ToArray() ?? []
+            );
         }
     }
 
@@ -696,7 +816,6 @@ public static class Utilities
         }
     }
 
-
     /// <summary>
     /// Serializes and deserializes an <see cref="Area"/> reference by its label using the provided <see cref="AreaManager"/>.
     /// </summary>
@@ -704,7 +823,12 @@ public static class Utilities
     /// <param name="tmpAreaLabel">A temporary string to hold the area's label during serialization.</param>
     /// <param name="label">The label used for scribing.</param>
     /// <param name="areaManager">The <see cref="AreaManager"/> used to resolve the area by label during deserialization.</param>
-    public static void Scribe_AreaByLabel(ref Area? area, ref string? tmpAreaLabel, string label, AreaManager areaManager)
+    public static void Scribe_AreaByLabel(
+        ref Area? area,
+        ref string? tmpAreaLabel,
+        string label,
+        AreaManager areaManager
+    )
     {
         if (areaManager == null)
         {
@@ -717,15 +841,18 @@ public static class Utilities
         }
 
         ColonyManagerReduxMod.Instance.LogDebug(
-            $"Scribed '{label}' with area label: '{tmpAreaLabel}' before with {Scribe.mode}");
+            $"Scribed '{label}' with area label: '{tmpAreaLabel}' before with {Scribe.mode}"
+        );
         Scribe_Values.Look(ref tmpAreaLabel, label);
         ColonyManagerReduxMod.Instance.LogDebug(
-            $"Scribed '{label}' with area label: '{tmpAreaLabel}' after with {Scribe.mode}");
+            $"Scribed '{label}' with area label: '{tmpAreaLabel}' after with {Scribe.mode}"
+        );
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             ColonyManagerReduxMod.Instance.LogDebug(
-                $"Attempting to load '{label}' by its area label: '{tmpAreaLabel}' from the areaManager");
+                $"Attempting to load '{label}' by its area label: '{tmpAreaLabel}' from the areaManager"
+            );
             area = areaManager.GetLabeled(tmpAreaLabel);
             tmpAreaLabel = null;
         }
@@ -738,7 +865,12 @@ public static class Utilities
     /// <param name="tmpAreaLabels">A temporary list to hold the area labels during serialization.</param>
     /// <param name="label">The label used for scribing.</param>
     /// <param name="areaManager">The <see cref="AreaManager"/> used to resolve areas by label during deserialization.</param>
-    public static void Scribe_AreasByLabel(ref HashSet<Area> areas, ref List<string>? tmpAreaLabels, string label, AreaManager areaManager)
+    public static void Scribe_AreasByLabel(
+        ref HashSet<Area> areas,
+        ref List<string>? tmpAreaLabels,
+        string label,
+        AreaManager areaManager
+    )
     {
         if (areaManager == null)
         {
@@ -750,15 +882,18 @@ public static class Utilities
             tmpAreaLabels = areas?.Select(a => a.Label).ToList();
         }
         ColonyManagerReduxMod.Instance.LogDebug(
-            $"Scribed '{label}' with area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' before with {Scribe.mode}");
+            $"Scribed '{label}' with area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' before with {Scribe.mode}"
+        );
         Scribe_Collections.Look(ref tmpAreaLabels, label, LookMode.Value);
         ColonyManagerReduxMod.Instance.LogDebug(
-            $"Scribed '{label}' with area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' after with {Scribe.mode}");
+            $"Scribed '{label}' with area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' after with {Scribe.mode}"
+        );
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             ColonyManagerReduxMod.Instance.LogDebug(
-                $"Attempting to load '{label}' by its area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' from the areaManager");
+                $"Attempting to load '{label}' by its area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' from the areaManager"
+            );
             areas = tmpAreaLabels?.Select(areaManager.GetLabeled).ToHashSet() ?? [];
             tmpAreaLabels = null;
         }

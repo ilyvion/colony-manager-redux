@@ -8,13 +8,24 @@ internal static class RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary
 {
     public static MethodBase TargetMethod()
     {
-        var type = AccessTools.FirstInner(typeof(Mineable),
+        var type = AccessTools.FirstInner(
+            typeof(Mineable),
+            t =>
+                t.GetMethodNames()
 #if v1_5
-            t => t.GetMethodNames().Any(n => n.Contains("ForbidIfNecessary")));
-        return AccessTools.FirstMethod(type, method => method.Name.Contains("ForbidIfNecessary"));
+                    .Any(n => n.Contains("ForbidIfNecessary"))
+        );
+        return AccessTools.FirstMethod(
+            type,
+            method => method.Name.Contains("ForbidIfNecessary")
+        );
 #else
-            t => t.GetMethodNames().Any(n => n.Contains("ForbidIfNecessary", StringComparison.Ordinal)));
-        return AccessTools.FirstMethod(type, method => method.Name.Contains("ForbidIfNecessary", StringComparison.Ordinal));
+                    .Any(n => n.Contains("ForbidIfNecessary", StringComparison.Ordinal))
+        );
+        return AccessTools.FirstMethod(
+            type,
+            method => method.Name.Contains("ForbidIfNecessary", StringComparison.Ordinal)
+        );
 #endif
     }
 }

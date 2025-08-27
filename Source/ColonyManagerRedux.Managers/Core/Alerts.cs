@@ -26,9 +26,11 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
 
     public override AlertReport GetReport() => _overlappingAnimals.Value.Count > 0;
 
-    public override TaggedString GetExplanation() => "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate(
+    public override TaggedString GetExplanation() =>
+        "ColonyManagerRedux.Alerts.AutoslaughterOverlap".Translate(
             "ColonyManagerRedux.Livestock.CullExcess".Translate(),
-            "- " + _overlappingAnimals.Value.Join(a => a.race.AnyPawnKind.GetLabelPlural(), "\n- "));
+            "- " + _overlappingAnimals.Value.Join(a => a.race.AnyPawnKind.GetLabelPlural(), "\n- ")
+        );
 
     private static IEnumerable<ThingDef> AutoSlaughterVanillaAnimals()
     {
@@ -40,7 +42,13 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
 
         foreach (var config in currentMap.autoSlaughterManager.configs)
         {
-            if (config.maxTotal != -1 || config.maxFemales != -1 || config.maxFemalesYoung != -1 || config.maxMales != -1 || config.maxMalesYoung != -1)
+            if (
+                config.maxTotal != -1
+                || config.maxFemales != -1
+                || config.maxFemalesYoung != -1
+                || config.maxMales != -1
+                || config.maxMalesYoung != -1
+            )
             {
                 yield return config.animal;
             }
@@ -58,7 +66,10 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
         var manager = Manager.For(currentMap);
         foreach (var managerJobLivestock in manager.JobTracker.JobsOfType<ManagerJob_Livestock>())
         {
-            if (managerJobLivestock.CullExcess && managerJobLivestock.TriggerPawnKind.pawnKind != null)
+            if (
+                managerJobLivestock.CullExcess
+                && managerJobLivestock.TriggerPawnKind.pawnKind != null
+            )
             {
                 yield return managerJobLivestock.TriggerPawnKind.pawnKind.race;
             }

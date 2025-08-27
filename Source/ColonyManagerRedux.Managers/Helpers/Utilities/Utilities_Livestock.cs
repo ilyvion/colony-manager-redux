@@ -11,27 +11,32 @@ internal enum AgeAndSex
     AdultFemale = 0,
     AdultMale = 1,
     JuvenileFemale = 2,
-    JuvenileMale = 3
+    JuvenileMale = 3,
 }
 
 internal static class AgeAndSexExtensions
 {
-    public static string GetLabel(this AgeAndSex ageAndSex, bool plural = false) => $"ColonyManagerRedux.AgeAndSex.Order".Translate(
-            GetAgeLabel(ageAndSex), GetSexLabel(ageAndSex, plural));
+    public static string GetLabel(this AgeAndSex ageAndSex, bool plural = false) =>
+        $"ColonyManagerRedux.AgeAndSex.Order".Translate(
+            GetAgeLabel(ageAndSex),
+            GetSexLabel(ageAndSex, plural)
+        );
 
-    public static string GetAgeLabel(this AgeAndSex ageAndSex) => ageAndSex.IsAdult()
+    public static string GetAgeLabel(this AgeAndSex ageAndSex) =>
+        ageAndSex.IsAdult()
             ? "ColonyManagerRedux.AgeAndSex.Adult".Translate()
             : "ColonyManagerRedux.AgeAndSex.Juvenile".Translate();
 
-    public static string GetSexLabel(this AgeAndSex ageAndSex, bool plural = false) => ageAndSex.IsMale()
+    public static string GetSexLabel(this AgeAndSex ageAndSex, bool plural = false) =>
+        ageAndSex.IsMale()
             ? $"ColonyManagerRedux.AgeAndSex.Male{(plural ? ".Plural" : "")}".Translate()
             : $"ColonyManagerRedux.AgeAndSex.Female{(plural ? ".Plural" : "")}".Translate();
 
-    public static bool IsAdult(this AgeAndSex ageAndSex) => ageAndSex is AgeAndSex.AdultFemale or
-            AgeAndSex.AdultMale;
+    public static bool IsAdult(this AgeAndSex ageAndSex) =>
+        ageAndSex is AgeAndSex.AdultFemale or AgeAndSex.AdultMale;
 
-    public static bool IsMale(this AgeAndSex ageAndSex) => ageAndSex is AgeAndSex.JuvenileMale or
-            AgeAndSex.AdultMale;
+    public static bool IsMale(this AgeAndSex ageAndSex) =>
+        ageAndSex is AgeAndSex.JuvenileMale or AgeAndSex.AdultMale;
 }
 
 [Flags]
@@ -45,7 +50,7 @@ internal enum MasterMode
     Violent = 16,
     NonViolent = 32,
     All = Hunters | Trainers | Melee | Ranged | Violent | NonViolent,
-    Specific = 64
+    Specific = 64,
 }
 
 [HotSwappable]
@@ -58,9 +63,12 @@ internal static class Utilities_Livestock
 
     private static readonly Dictionary<PawnKindDef, CachedValue<bool>> ShearablePawnKindCache = [];
 
-    public static bool BondedWithColonist(this Pawn pawn) => pawn?.relations?.GetFirstDirectRelationPawn(PawnRelationDefOf.Bond, p => p.IsColonist) != null;
+    public static bool BondedWithColonist(this Pawn pawn) =>
+        pawn?.relations?.GetFirstDirectRelationPawn(PawnRelationDefOf.Bond, p => p.IsColonist)
+        != null;
 
-    public static bool IsGuest(this Pawn pawn) => pawn?.Faction == Faction.OfPlayer && pawn.HasExtraHomeFaction();
+    public static bool IsGuest(this Pawn pawn) =>
+        pawn?.Faction == Faction.OfPlayer && pawn.HasExtraHomeFaction();
 
     public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map)
     {
@@ -75,19 +83,21 @@ internal static class Utilities_Livestock
         // if not, set up a cache
         List<Pawn> getter()
         {
-            return [.. map.mapPawns.AllPawnsSpawned
-            .Where(p => p.RaceProps.Animal      // is animal
-                && !p.Dead                      // is alive
-                && p.kindDef == pawnKind        // is our managed pawnkind
-                && !p.IsHiddenFromPlayer()      // is not hidden from us
-                && !p.Position.Fogged(map)      // is somewhere we can see
-            )];
+            return
+            [
+                .. map.mapPawns.AllPawnsSpawned.Where(p =>
+                    p.RaceProps.Animal // is animal
+                    && !p.Dead // is alive
+                    && p.kindDef == pawnKind // is our managed pawnkind
+                    && !p.IsHiddenFromPlayer() // is not hidden from us
+                    && !p.Position.Fogged(map) // is somewhere we can see
+                ),
+            ];
         }
 
         allCache.Add(key, getter);
         return getter();
     }
-
 
     public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
     {
@@ -123,14 +133,18 @@ internal static class Utilities_Livestock
         }
 
         // if not, get a new list.
-        cached = [.. pawn.MapHeld.mapPawns.PawnsInFaction(pawn.Faction).Where(p => !p.Dead && p.RaceProps.Animal && p.playerSettings.Master == pawn)];
+        cached =
+        [
+            .. pawn
+                .MapHeld.mapPawns.PawnsInFaction(pawn.Faction)
+                .Where(p => !p.Dead && p.RaceProps.Animal && p.playerSettings.Master == pawn),
+        ];
 
         // update if key exists
         if (cacheExists)
         {
             _ = followerCache[pawn].Update(cached);
         }
-
         // else add it
         else
         {
@@ -141,7 +155,8 @@ internal static class Utilities_Livestock
         return cached;
     }
 
-    public static IEnumerable<Pawn> GetFollowers(this Pawn pawn, PawnKindDef pawnKind) => GetFollowers(pawn).Where(f => f.kindDef == pawnKind);
+    public static IEnumerable<Pawn> GetFollowers(this Pawn pawn, PawnKindDef pawnKind) =>
+        GetFollowers(pawn).Where(f => f.kindDef == pawnKind);
 
     public static MasterMode GetMasterMode(this Pawn pawn)
     {
@@ -157,7 +172,7 @@ internal static class Utilities_Livestock
             mode |= MasterMode.Trainers;
         }
 
-        if (pawn.equipment.Primary?.def.IsMeleeWeapon ?? true) // no weapon = melee 
+        if (pawn.equipment.Primary?.def.IsMeleeWeapon ?? true) // no weapon = melee
         {
             mode |= MasterMode.Melee;
         }
@@ -189,25 +204,27 @@ internal static class Utilities_Livestock
         var cacheExists = masterCache.ContainsKey(key);
 
         // is it up to date?
-        if (cacheExists &&
-            masterCache[key].TryGetValue(out var cached) && cached != null)
+        if (cacheExists && masterCache[key].TryGetValue(out var cached) && cached != null)
         {
             return cached;
         }
 
         // if not, get a new list.
-        cached = [.. map.mapPawns.FreeColonistsSpawned
-            .Where(p => !p.Dead &&
+        cached =
+        [
+            .. map.mapPawns.FreeColonistsSpawned.Where(p =>
+                !p.Dead
+                &&
                 // matches mode
                 (p.GetMasterMode() & mode) != MasterMode.Manual
-            )];
+            ),
+        ];
 
         // update if key exists
         if (cacheExists)
         {
             _ = masterCache[key].Update(cached);
         }
-
         // else add it
         else
         {
@@ -218,7 +235,11 @@ internal static class Utilities_Livestock
         return cached;
     }
 
-    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, bool includeGuests = true)
+    public static IEnumerable<Pawn> GetTame(
+        this PawnKindDef pawnKind,
+        Map map,
+        bool includeGuests = true
+    )
     {
         var tameCache = Manager.For(map).LivestockCaches().TameCache;
 
@@ -230,14 +251,25 @@ internal static class Utilities_Livestock
 
         List<Pawn> getter()
         {
-            return [.. pawnKind.GetAll(map).Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest()))];
+            return
+            [
+                .. pawnKind
+                    .GetAll(map)
+                    .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest())),
+            ];
         }
 
         tameCache.Add(key, getter);
         return getter();
     }
 
-    public static IEnumerable<Pawn> GetTame(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex, bool cached = true, bool includeGuests = true)
+    public static IEnumerable<Pawn> GetTame(
+        this PawnKindDef pawnKind,
+        Map map,
+        AgeAndSex ageSex,
+        bool cached = true,
+        bool includeGuests = true
+    )
     {
         var tameSexedCache = Manager.For(map).LivestockCaches().TameSexedCache;
 
@@ -253,28 +285,42 @@ internal static class Utilities_Livestock
 
         List<Pawn> getter()
         {
-            return [.. pawnKind.GetAll(map, ageSex).Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest()))];
+            return
+            [
+                .. pawnKind
+                    .GetAll(map, ageSex)
+                    .Where(p => p.Faction == Faction.OfPlayer && (includeGuests || !p.IsGuest())),
+            ];
         }
 
         tameSexedCache.Add(key, getter);
         return getter();
     }
 
-    public static IEnumerable<Pawn> GetTrainers(this PawnKindDef pawnkind, Map map, MasterMode mode) => pawnkind.GetMasterOptions(map, mode)
+    public static IEnumerable<Pawn> GetTrainers(
+        this PawnKindDef pawnkind,
+        Map map,
+        MasterMode mode
+    ) =>
+        pawnkind
+            .GetMasterOptions(map, mode)
             .Where(p =>
                 // skill high enough to handle (copied from StatWorker_MinimumHandlingSkill)
                 // NOTE: This does NOT apply postprocessing, so scenario and other offsets DO NOT apply.
                 // we can't actually use StatRequests because they're hardcoded for either Things or BuildableDefs.
-                p.skills.GetSkill(SkillDefOf.Animals).Level >=
-                Mathf.Clamp(
-                    GenMath.LerpDouble(
-                        0.3f, 1f, 0f, 9f,
+                p.skills.GetSkill(SkillDefOf.Animals).Level
+                >= Mathf.Clamp(
+                    GenMath.LerpDouble(0.3f, 1f, 0f, 9f,
 #if v1_5
                         pawnkind.RaceProps.wildness
 #else
                         pawnkind.race.statBases.GetStatValueFromList(StatDefOf.Wildness, 0f)
 #endif
-                        ), 0f, 20f));
+                    ),
+                    0f,
+                    20f
+                )
+            );
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
     {
@@ -314,8 +360,8 @@ internal static class Utilities_Livestock
         return getter();
     }
 
-
-    public static bool Juvenile(this AgeAndSex ageSex) => ageSex is AgeAndSex.JuvenileFemale or AgeAndSex.JuvenileMale;
+    public static bool Juvenile(this AgeAndSex ageSex) =>
+        ageSex is AgeAndSex.JuvenileFemale or AgeAndSex.JuvenileMale;
 
     public static bool Milkable(this PawnKindDef pawnKind)
     {
@@ -332,7 +378,9 @@ internal static class Utilities_Livestock
                 return ret;
             }
 
-            ret = pawnKind.race.comps.OfType<CompProperties_Milkable>().Any(cp => cp.milkDef != null);
+            ret = pawnKind
+                .race.comps.OfType<CompProperties_Milkable>()
+                .Any(cp => cp.milkDef != null);
             _ = cachedValue.Update(ret);
             return ret;
         }
@@ -374,7 +422,8 @@ internal static class Utilities_Livestock
         {
             AgeAndSex.AdultFemale => p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex >= 2,
             AgeAndSex.AdultMale => p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex >= 2,
-            AgeAndSex.JuvenileFemale => p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex < 2,
+            AgeAndSex.JuvenileFemale => p.gender != Gender.Male
+                && p.ageTracker.CurLifeStageIndex < 2,
             AgeAndSex.JuvenileMale => p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex < 2,
             _ => throw new ArgumentOutOfRangeException(nameof(ageSex), ageSex, null),
         };
@@ -394,7 +443,9 @@ internal static class Utilities_Livestock
                 return ret;
             }
 
-            ret = pawnKind.race.comps.OfType<CompProperties_Shearable>().Any(cp => cp.woolDef != null);
+            ret = pawnKind
+                .race.comps.OfType<CompProperties_Shearable>()
+                .Any(cp => cp.woolDef != null);
             _ = cachedValue.Update(ret);
             return ret;
         }

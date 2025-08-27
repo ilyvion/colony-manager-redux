@@ -10,7 +10,8 @@ namespace ColonyManagerRedux;
 /// <param name="tooltip">The tooltip to display for the tab.</param>
 /// <param name="clickedAction">The action to perform when the tab is clicked.</param>
 /// <param name="selected">Whether the tab is selected.</param>
-public class TabRecordWithTip(string label, string tooltip, Action clickedAction, bool selected) : TabRecord(label, clickedAction, selected)
+public class TabRecordWithTip(string label, string tooltip, Action clickedAction, bool selected)
+    : TabRecord(label, clickedAction, selected)
 {
     private readonly string _tooltip = tooltip;
 

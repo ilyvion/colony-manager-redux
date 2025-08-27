@@ -13,13 +13,14 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
 
     public override void DoTabContents(Rect rect)
     {
-        var panelRect = new Rect(
-            rect.xMin,
-            rect.yMin,
-            rect.width,
-            rect.height - Margin);
+        var panelRect = new Rect(rect.xMin, rect.yMin, rect.width, rect.height - Margin);
 
-        Widgets_Section.BeginSectionColumn(panelRect, "Logs.Settings", out var position, out var width);
+        Widgets_Section.BeginSectionColumn(
+            panelRect,
+            "Logs.Settings",
+            out var position,
+            out var width
+        );
         Widgets_Section.Section(ref position, width, DrawLogSettings);
         Widgets_Section.EndSectionColumn("Logs.Settings", position);
     }
@@ -34,7 +35,8 @@ internal sealed class ManagerSettings_Logs : ManagerSettings
             width,
             SliderHeight,
             "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount".Translate(KeepLogCount),
-            "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip".Translate());
+            "ColonyManagerRedux.Logs.ManagerSettings.KeepLogCount.Tip".Translate()
+        );
 
         return cur.y;
     }

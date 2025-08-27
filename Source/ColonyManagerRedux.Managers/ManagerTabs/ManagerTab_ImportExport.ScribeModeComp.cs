@@ -12,7 +12,8 @@ internal partial class ManagerTab_ImportExport
 
         public ScribingMode Mode
         {
-            get => mode; internal set
+            get => mode;
+            internal set
             {
                 mode = value;
                 Manager.ScribeSameMapData = Mode == ScribingMode.Normal;
@@ -24,7 +25,8 @@ internal partial class ManagerTab_ImportExport
 
 internal static class ScribeModeCompManagerExtensions
 {
-    internal static ScribingMode SetScribingMode(this Manager manager, ScribingMode mode) => manager == null
+    internal static ScribingMode SetScribingMode(this Manager manager, ScribingMode mode) =>
+        manager == null
             ? throw new ArgumentNullException(nameof(manager))
             : (manager.CompOfType<ManagerTab_ImportExport.ScribeModeComp>()!.Mode = mode);
 }

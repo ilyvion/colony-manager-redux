@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LanguageData>
     <ColonyManagerRedux.Foraging.NewForagingJob>New job</ColonyManagerRedux.Foraging.NewForagingJob>
     <ColonyManagerRedux.Foraging.NewForagingJobTooltip>Create a new foraging job</ColonyManagerRedux.Foraging.NewForagingJobTooltip>
@@ -14,7 +13,6 @@
     <ColonyManagerRedux.Foraging.Mushrooms>Mushrooms</ColonyManagerRedux.Foraging.Mushrooms>
     <ColonyManagerRedux.Foraging.Mushrooms.Tip>Select all mushrooms</ColonyManagerRedux.Foraging.Mushrooms.Tip>
     <ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the plants allowed for foraging, and vice versa.</ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip>
-
     <!-- Logging -->
     <ColonyManagerRedux.Foraging.Logs.Plant>plant</ColonyManagerRedux.Foraging.Logs.Plant>
     <ColonyManagerRedux.Foraging.Logs.Plants>plants</ColonyManagerRedux.Foraging.Logs.Plants>

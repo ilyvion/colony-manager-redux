@@ -17,21 +17,33 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             ManagerJob_Hunting managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> count)
+            Boxed<int> count
+        )
         {
-            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
-                (Func<ManagerJob_Hunting, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+            var ticksBetweenOperations =
+                ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                    (Func<
+                        ManagerJob_Hunting,
+                        int,
+                        ManagerJobHistoryChapterDef,
+                        Boxed<int>,
+                        Coroutine
+                    >)
+                        GetCountForHistoryChapterCoroutine
+                );
 
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
+                yield return managerJob
+                    .TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 var cachedValue = managerJob.GetYieldInDesignationsCache();
-                yield return cachedValue.DoUpdateIfNeeded(force: true)
+                yield return cachedValue
+                    .DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = cachedValue.Value;
@@ -39,7 +51,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
             {
                 var cachedValue = managerJob.GetYieldInCorpsesCache();
-                yield return cachedValue.DoUpdateIfNeeded(force: true)
+                yield return cachedValue
+                    .DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = cachedValue.Value;
@@ -54,9 +67,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             ManagerJob_Hunting managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> target)
+            Boxed<int> target
+        )
         {
-            target.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock ? managerJob.TriggerThreshold.TargetCount : 0;
+            target.Value =
+                chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock
+                    ? managerJob.TriggerThreshold.TargetCount
+                    : 0;
             yield break;
         }
     }
@@ -64,7 +81,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     public enum HuntingTargetResource
     {
         Leather,
-        Meat
+        Meat,
     }
 
     private readonly MultiTickCachedValue<int> _corpseMeatCachedValue;
@@ -76,9 +93,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     public HashSet<PawnKindDef> _allowedAnimalsLeather = [];
 
     public HashSet<PawnKindDef> AllowedAnimals =>
-        TargetResource == HuntingTargetResource.Meat
-            ? _allowedAnimalsMeat
-            : _allowedAnimalsLeather;
+        TargetResource == HuntingTargetResource.Meat ? _allowedAnimalsMeat : _allowedAnimalsLeather;
 
     public Area? HuntingGrounds;
 
@@ -111,7 +126,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         get
         {
-            _allAnimals ??= [.. Utilities_Hunting.GetMapPawnKindDefs(_animalsLockedToMap ? Manager.map : null)];
+            _allAnimals ??=
+            [
+                .. Utilities_Hunting.GetMapPawnKindDefs(_animalsLockedToMap ? Manager.map : null),
+            ];
             return _allAnimals;
         }
     }
@@ -120,7 +138,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
-    public ManagerJob_Hunting(Manager manager) : base(manager)
+    public ManagerJob_Hunting(Manager manager)
+        : base(manager)
     {
         _corpseMeatCachedValue = new(0, GetMeatInCorpsesCoroutine);
         _corpseLeatherCachedValue = new(0, GetLeatherInCorpsesCoroutine);
@@ -128,7 +147,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         _designatedLeatherCachedValue = new(0, GetLeatherInDesignationsCoroutine);
 
         // populate the trigger field
-        Trigger = new Trigger_Threshold(this) { AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter };
+        Trigger = new Trigger_Threshold(this)
+        {
+            AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter,
+        };
 
         TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
@@ -149,16 +171,22 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             foreach (var def in HumanLikeMeatDefs)
             {
                 TriggerThreshold.ThresholdFilter.SetAllow(
-                    def, huntingSettings.DefaultAllowHumanLikeMeat);
+                    def,
+                    huntingSettings.DefaultAllowHumanLikeMeat
+                );
             }
 
             TriggerThreshold.ThresholdFilter.SetAllow(
-                ManagerThingDefOf.Meat_Megaspider, huntingSettings.DefaultAllowInsectMeat);
+                ManagerThingDefOf.Meat_Megaspider,
+                huntingSettings.DefaultAllowInsectMeat
+            );
 
             if (ModsConfig.AnomalyActive)
             {
                 TriggerThreshold.ThresholdFilter.SetAllow(
-                    ManagerThingDefOf.Meat_Twisted, huntingSettings.DefaultAllowTwistedMeat);
+                    ManagerThingDefOf.Meat_Twisted,
+                    huntingSettings.DefaultAllowTwistedMeat
+                );
             }
         }
     }
@@ -171,10 +199,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         _ = _allowedAnimalsLeather.RemoveWhere(a => !AllAnimals.Contains(a));
     }
 
-    public bool AllowAllHumanLikeMeat
-        => HumanLikeMeatDefs.All(TriggerThreshold.ThresholdFilter.Allows);
-    public bool AllowNoneHumanLikeMeat
-        => !HumanLikeMeatDefs.Any(TriggerThreshold.ThresholdFilter.Allows);
+    public bool AllowAllHumanLikeMeat =>
+        HumanLikeMeatDefs.All(TriggerThreshold.ThresholdFilter.Allows);
+    public bool AllowNoneHumanLikeMeat =>
+        !HumanLikeMeatDefs.Any(TriggerThreshold.ThresholdFilter.Allows);
     public bool AllowHumanLikeMeat
     {
         set
@@ -212,14 +240,14 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         get
         {
-            var corpses =
-                Manager.map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
-                    .ConvertAll(thing => (Corpse)thing);
-            return corpses.Where(
-                thing => thing?.InnerPawn != null &&
-                    (HuntingGrounds == null ||
-                    HuntingGrounds.ActiveCells.Contains(thing.Position)) &&
-                    (_unforbidAllCorpses || AllowedAnimals.Contains(thing.InnerPawn.kindDef)));
+            var corpses = Manager
+                .map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
+                .ConvertAll(thing => (Corpse)thing);
+            return corpses.Where(thing =>
+                thing?.InnerPawn != null
+                && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(thing.Position))
+                && (_unforbidAllCorpses || AllowedAnimals.Contains(thing.InnerPawn.kindDef))
+            );
         }
     }
 
@@ -230,15 +258,20 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     {
         get
         {
-            _humanLikeMeatDefs ??= [.. DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(def => def.category == ThingCategory.Pawn &&
-                    def.race != null &&
-                    def.race.hasMeat &&
-                    def.race.Humanlike &&
-                    def.race.IsFlesh &&
-                    CheckAndReportIfInvalidMeatDef(def))
-                .Select(pk => pk.race.meatDef)
-                .Distinct()];
+            _humanLikeMeatDefs ??=
+            [
+                .. DefDatabase<ThingDef>
+                    .AllDefsListForReading.Where(def =>
+                        def.category == ThingCategory.Pawn
+                        && def.race != null
+                        && def.race.hasMeat
+                        && def.race.Humanlike
+                        && def.race.IsFlesh
+                        && CheckAndReportIfInvalidMeatDef(def)
+                    )
+                    .Select(pk => pk.race.meatDef)
+                    .Distinct(),
+            ];
 
             return _humanLikeMeatDefs;
 
@@ -251,8 +284,9 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
                 ColonyManagerReduxMod.Instance.LogWarning(
                     $"The race of {def} (from {def.modContentPack.Name}) claims to have "
-                    + "humanlike meat, but its meatDef is null. This race is probably missing "
-                    + "having the property `hasMeat` set to `false`.");
+                        + "humanlike meat, but its meatDef is null. This race is probably missing "
+                        + "having the property `hasMeat` set to `false`."
+                );
                 return false;
             }
         }
@@ -260,8 +294,8 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override IEnumerable<string> Targets => AllowedAnimals
-        .Select(pk => pk.LabelCap.Resolve());
+    public override IEnumerable<string> Targets =>
+        AllowedAnimals.Select(pk => pk.LabelCap.Resolve());
 
     public HuntingTargetResource TargetResource
     {
@@ -293,9 +327,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         var thing = designation.target.Thing;
         return "ColonyManagerRedux.Job.DesignationLabel".Translate(
             thing.LabelCap,
-            Distance(thing, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
+            Distance(thing, Manager.map.GetBaseCenter())
+                .ToString("F0", CultureInfo.InvariantCulture),
             thing.GetStatValue(StatDefOf.MeatAmount).ToString("F0", CultureInfo.InvariantCulture),
-            thing.def.race.meatDef.LabelCap);
+            thing.def.race.meatDef.LabelCap
+        );
     }
 
     private string? _tmpHuntingGroundsLabel;
@@ -312,7 +348,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref _unforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _unforbidAllCorpses, "unforbidAllCorpses", true);
-        Scribe_Values.Look(ref _animalsLockedToMap, "animalsLockedToMap", ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked);
+        Scribe_Values.Look(
+            ref _animalsLockedToMap,
+            "animalsLockedToMap",
+            ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
+        );
 
         if (Manager.ScribeSameMapData)
         {
@@ -322,7 +362,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
         else
         {
-            Utilities.Scribe_AreaByLabel(ref HuntingGrounds, ref _tmpHuntingGroundsLabel, "huntingGrounds", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(
+                ref HuntingGrounds,
+                ref _tmpHuntingGroundsLabel,
+                "huntingGrounds",
+                Manager.map.areaManager
+            );
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -333,19 +378,27 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    public MultiTickCachedValue<int> GetYieldInCorpsesCache() => TargetResource == HuntingTargetResource.Meat
+    public MultiTickCachedValue<int> GetYieldInCorpsesCache() =>
+        TargetResource == HuntingTargetResource.Meat
             ? _corpseMeatCachedValue
             : _corpseLeatherCachedValue;
 
-    private Coroutine GetMeatInCorpsesCoroutine(AnyBoxed<int> count) => GetResourceInCorpses(count, c => c.EstimatedMeatCount());
+    private Coroutine GetMeatInCorpsesCoroutine(AnyBoxed<int> count) =>
+        GetResourceInCorpses(count, c => c.EstimatedMeatCount());
 
-    private Coroutine GetLeatherInCorpsesCoroutine(AnyBoxed<int> count) => GetResourceInCorpses(count, c => c.EstimatedLeatherCount());
+    private Coroutine GetLeatherInCorpsesCoroutine(AnyBoxed<int> count) =>
+        GetResourceInCorpses(count, c => c.EstimatedLeatherCount());
 
     [CoroutineSettingsMethod]
     private Coroutine GetResourceInCorpses(AnyBoxed<int> count, Func<Corpse, int> resourceCounter)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetResourceInCorpses);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetResourceInCorpses);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            GetResourceInCorpses
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                GetResourceInCorpses
+            );
 
         // corpses not buried / forbidden
         foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
@@ -356,15 +409,19 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
 
             // make sure it's not forbidden and can be reached.
-            if (IsCountedResource(corpse) &&
-                !corpse.IsForbidden(Faction.OfPlayer) &&
-                 Manager.map.reachability.CanReachColony(corpse.Position))
+            if (
+                IsCountedResource(corpse)
+                && !corpse.IsForbidden(Faction.OfPlayer)
+                && Manager.map.reachability.CanReachColony(corpse.Position)
+            )
             {
                 // check to see if it's buried.
                 // Sarcophagus inherits grave, so we don't have to check for it separately.
                 var slotGroup = Manager.map.haulDestinationManager.SlotGroupAt(corpse.Position);
-                if (slotGroup?.parent is Building_Storage building_Storage &&
-                     building_Storage.def == ThingDefOf.Grave)
+                if (
+                    slotGroup?.parent is Building_Storage building_Storage
+                    && building_Storage.def == ThingDefOf.Grave
+                )
                 {
                     continue;
                 }
@@ -378,15 +435,21 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    public MultiTickCachedValue<int> GetYieldInDesignationsCache() => TargetResource == HuntingTargetResource.Meat
+    public MultiTickCachedValue<int> GetYieldInDesignationsCache() =>
+        TargetResource == HuntingTargetResource.Meat
             ? _designatedMeatCachedValue
             : _designatedLeatherCachedValue;
 
     [CoroutineSettingsMethod]
     private Coroutine GetMeatInDesignationsCoroutine(AnyBoxed<int> count)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetMeatInDesignationsCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetMeatInDesignationsCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            GetMeatInDesignationsCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                GetMeatInDesignationsCoroutine
+            );
 
         // designated animals
         for (var i = 0; i < _designations.Count; i++)
@@ -407,8 +470,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     [CoroutineSettingsMethod]
     private Coroutine GetLeatherInDesignationsCoroutine(AnyBoxed<int> count)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetLeatherInDesignationsCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetLeatherInDesignationsCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            GetLeatherInDesignationsCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                GetLeatherInDesignationsCoroutine
+            );
 
         // designated animals
         for (var i = 0; i < _designations.Count; i++)
@@ -455,9 +523,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     }
 
     [CoroutineSettingsMethod]
-    public override Coroutine TryDoJobCoroutine(
-        ManagerLog jobLog,
-        Boxed<bool> workDone)
+    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (!TriggerThreshold.State)
         {
@@ -475,8 +541,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             JobState = ManagerJobState.Active;
         }
 
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(TryDoJobCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            TryDoJobCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
 
         // clean dead designations
         CleanDeadDesignations(_designations, DesignationDefOf.Hunt, jobLog);
@@ -493,30 +562,36 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // get the total count of meat in storage, expected meat in corpses and
         // expected meat in designations.
         var corpsesCachedValue = GetYieldInCorpsesCache();
-        yield return corpsesCachedValue.DoUpdateIfNeeded(force: true)
+        yield return corpsesCachedValue
+            .DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         var designationsCachedValue = GetYieldInDesignationsCache();
-        yield return designationsCachedValue.DoUpdateIfNeeded(force: true)
+        yield return designationsCachedValue
+            .DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         Boxed<int> totalCount = new(
             TriggerThreshold.GetCurrentCount()
-            + corpsesCachedValue.Value
-            + designationsCachedValue.Value);
+                + corpsesCachedValue.Value
+                + designationsCachedValue.Value
+        );
 
-        if (TriggerThreshold.DoesCountMeetTarget(totalCount)
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
+        if (
+            TriggerThreshold.DoesCountMeetTarget(totalCount)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+        )
         {
             List<Designation> sortedDesignations = [];
             yield return GetThingsSorted(
-                _designations.Where(d => d.target.HasThing),
-                sortedDesignations,
-                _ => true,
-                (p, d) => -p.EstimatedYield(TargetResource) / d,
-                d => (Pawn)d.target.Thing)
+                    _designations.Where(d => d.target.HasThing),
+                    sortedDesignations,
+                    _ => true,
+                    (p, d) => -p.EstimatedYield(TargetResource) / d,
+                    d => (Pawn)d.target.Thing
+                )
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -528,21 +603,26 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 var plant = (Pawn)designation.target.Thing;
                 var yield = plant.EstimatedYield(TargetResource);
                 totalCount.Value -= yield;
-                if (TriggerThreshold.DoesCountMeetTarget(totalCount)
-                    || ColonyManagerReduxMod.Settings
-                        .ShouldRemoveMoreDesignations(_designations.Count))
+                if (
+                    TriggerThreshold.DoesCountMeetTarget(totalCount)
+                    || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                        _designations.Count
+                    )
+                )
                 {
                     designation.Delete();
                     _ = _designations.Remove(designation);
-                    jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
-                        .Translate(
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
                             DesignationDefOf.Hunt.ActionText(),
                             "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
                             plant.Label,
                             yield,
                             totalCount.Value,
-                            TriggerThreshold.TargetLabel),
-                        plant);
+                            TriggerThreshold.TargetLabel
+                        ),
+                        plant
+                    );
                     workDone.Value = true;
                 }
                 else
@@ -558,17 +638,23 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
             if (!workDone)
             {
-                jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
-                    "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                    Def.label
-                ));
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                        "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                        Def.label
+                    )
+                );
             }
 
             yield break;
         }
 
-        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount".Translate(
-            totalCount.Value, TriggerThreshold.TargetCount));
+        jobLog.AddDetail(
+            "ColonyManagerRedux.Logs.CurrentCount".Translate(
+                totalCount.Value,
+                TriggerThreshold.TargetCount
+            )
+        );
 
         // unforbid if allowed
         if (_unforbidCorpses)
@@ -585,10 +671,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                    "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
@@ -597,26 +685,31 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // value = meat / ( distance ^ 2)
         List<Pawn> huntableAnimals = [];
         yield return GetTargetsSorted(
-            huntableAnimals,
-            IsValidUndesignatedHuntingTarget,
-            (p, d) => p.EstimatedYield(TargetResource) / d)
+                huntableAnimals,
+                IsValidUndesignatedHuntingTarget,
+                (p, d) => p.EstimatedYield(TargetResource) / d
+            )
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (huntableAnimals.Count == 0)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
-                "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                    "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
         // while totalCount < count AND we have animals that can be designated, designate animal.
         foreach (var (huntableAnimal, i) in huntableAnimals.Select((h, i) => (h, i)))
         {
-            if (TriggerThreshold.DoesCountMeetTarget(totalCount)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+            if (
+                TriggerThreshold.DoesCountMeetTarget(totalCount)
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+            )
             {
                 break;
             }
@@ -624,15 +717,17 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             AddDesignation(new(huntableAnimal, DesignationDefOf.Hunt));
             var yield = huntableAnimal.EstimatedYield(TargetResource);
             totalCount.Value += yield;
-            jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
-                .Translate(
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddDesignation".Translate(
                     DesignationDefOf.Hunt.ActionText(),
                     "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
                     huntableAnimal.Label,
                     yield,
                     totalCount.Value,
-                    TriggerThreshold.TargetLabel),
-                huntableAnimal);
+                    TriggerThreshold.TargetLabel
+                ),
+                huntableAnimal
+            );
             workDone.Value = true;
 
             if (i > 0 && i % operationsPerTick == 0)
@@ -660,10 +755,12 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // by this job.
         var addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
-        foreach (var des in
-            Manager.map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
+        foreach (
+            var des in Manager
+                .map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Hunt)
                 .Except(_designations)
-                .Where(des => IsValidDesignatedHuntingTarget(des.target)))
+                .Where(des => IsValidDesignatedHuntingTarget(des.target))
+        )
         {
             addedCount++;
             AddDesignation(des, false);
@@ -671,8 +768,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
         if (addedCount > 0)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.AddRelevantGameDesignations"
-                .Translate(addedCount, Def.label), newTargets);
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddRelevantGameDesignations".Translate(
+                    addedCount,
+                    Def.label
+                ),
+                newTargets
+            );
         }
     }
 
@@ -696,12 +798,14 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
         if (missingThingCount != 0 || incorrectAreaCount != 0)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CleanAreaDesignations"
-                .Translate(
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CleanAreaDesignations".Translate(
                     missingThingCount + incorrectAreaCount,
                     missingThingCount,
                     incorrectAreaCount,
-                    Def.label));
+                    Def.label
+                )
+            );
         }
     }
 
@@ -711,10 +815,14 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     private Coroutine DoUnforbidCorpses(
         ManagerLog jobLog,
         Boxed<bool> workDone,
-        Boxed<int> totalCount)
+        Boxed<int> totalCount
+    )
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(DoUnforbidCorpses);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoUnforbidCorpses);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            DoUnforbidCorpses
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoUnforbidCorpses);
 
         foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
@@ -734,13 +842,15 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
                     var yield = corpse.EstimatedYield(TargetResource);
                     totalCount.Value += yield;
-                    jobLog.AddDetail("ColonyManagerRedux.Hunting.Logs.UnforbidCorpse"
-                        .Translate(
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Hunting.Logs.UnforbidCorpse".Translate(
                             corpse.Label,
                             yield,
                             totalCount.Value,
-                            TriggerThreshold.TargetCount),
-                        corpse);
+                            TriggerThreshold.TargetCount
+                        ),
+                        corpse
+                    );
                 }
             }
 
@@ -751,52 +861,48 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
     }
 
-    private bool IsValidUndesignatedHuntingTarget(Pawn target) => target.RaceProps.Animal
-            && target.Map == Manager.map
-            && !target.health.Dead
+    private bool IsValidUndesignatedHuntingTarget(Pawn target) =>
+        target.RaceProps.Animal
+        && target.Map == Manager.map
+        && !target.health.Dead
+        && AllowedAnimals.Contains(target.kindDef)
+        && target.Spawned
+        && Manager.map.designationManager.DesignationOn(target) == null
+        // wild animals only
+        && target.Faction == null
+        // non-biome animals won't be on the list
+        && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position))
+        && IsReachable(target);
 
-            && AllowedAnimals.Contains(target.kindDef)
-            && target.Spawned
-            && Manager.map.designationManager.DesignationOn(target) == null
+    private bool IsValidDesignatedHuntingTarget(LocalTargetInfo t) =>
+        t.HasThing && t.Thing is Pawn pawn && IsValidDesignatedHuntingTarget(pawn);
 
-            // wild animals only
-            && target.Faction == null
-
-            // non-biome animals won't be on the list
-            && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position))
-
-            && IsReachable(target);
-
-    private bool IsValidDesignatedHuntingTarget(LocalTargetInfo t) => t.HasThing
-            && t.Thing is Pawn pawn
-            && IsValidDesignatedHuntingTarget(pawn);
-
-    private bool IsValidDesignatedHuntingTarget(Pawn target) => target.RaceProps.Animal
-            && target.Map == Manager.map
-            && !target.health.Dead
-
-            && AllowedAnimals.Contains(target.kindDef)
-            && target.Spawned
-
-            // wild animals only
-            && target.Faction == null
-
-            // non-biome animals won't be on the list
-            && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position));
+    private bool IsValidDesignatedHuntingTarget(Pawn target) =>
+        target.RaceProps.Animal
+        && target.Map == Manager.map
+        && !target.health.Dead
+        && AllowedAnimals.Contains(target.kindDef)
+        && target.Spawned
+        // wild animals only
+        && target.Faction == null
+        // non-biome animals won't be on the list
+        && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position));
 
     private bool IsCountedResource(PawnKindDef pawnKindDef)
     {
-        var resourceDef = TargetResource == HuntingTargetResource.Meat
-            ? pawnKindDef.RaceProps.meatDef
-            : pawnKindDef.RaceProps.leatherDef;
+        var resourceDef =
+            TargetResource == HuntingTargetResource.Meat
+                ? pawnKindDef.RaceProps.meatDef
+                : pawnKindDef.RaceProps.leatherDef;
         return resourceDef != null && TriggerThreshold.ThresholdFilter.Allows(resourceDef);
     }
 
     private bool IsValidResource(PawnKindDef pawnKindDef)
     {
-        var resourceDef = TargetResource == HuntingTargetResource.Meat
-            ? pawnKindDef.RaceProps.meatDef
-            : pawnKindDef.RaceProps.leatherDef;
+        var resourceDef =
+            TargetResource == HuntingTargetResource.Meat
+                ? pawnKindDef.RaceProps.meatDef
+                : pawnKindDef.RaceProps.leatherDef;
         return resourceDef != null;
     }
 
@@ -811,8 +917,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             TriggerThreshold.ParentFilter.SetDisallowAll();
             if (TargetResource == HuntingTargetResource.Meat)
             {
-                foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
-                    .Where(IsValidResource))
+                foreach (
+                    var item in Utilities_Hunting
+                        .GetMapPawnKindDefs(Manager, false)
+                        .Where(IsValidResource)
+                )
                 {
                     TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
                 }
@@ -832,8 +941,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
             else
             {
-                foreach (var item in Utilities_Hunting.GetMapPawnKindDefs(Manager, false)
-                    .Where(IsValidResource))
+                foreach (
+                    var item in Utilities_Hunting
+                        .GetMapPawnKindDefs(Manager, false)
+                        .Where(IsValidResource)
+                )
                 {
                     TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.leatherDef, true);
                 }
@@ -852,7 +964,9 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
         foreach (var pawnKindDef in AllAnimals)
         {
-            _ = IsCountedResource(pawnKindDef) ? AllowedAnimals.Add(pawnKindDef) : AllowedAnimals.Remove(pawnKindDef);
+            _ = IsCountedResource(pawnKindDef)
+                ? AllowedAnimals.Add(pawnKindDef)
+                : AllowedAnimals.Remove(pawnKindDef);
         }
     }
 

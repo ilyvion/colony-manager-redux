@@ -2,7 +2,6 @@
 <LanguageData>
     <ColonyManagerRedux.SharedSettingsTabLabel>Shared</ColonyManagerRedux.SharedSettingsTabLabel>
     <ColonyManagerRedux.GeneralSettingsTabLabel>General</ColonyManagerRedux.GeneralSettingsTabLabel>
-
     <ColonyManagerRedux.DoVerboseLogging>DEV: Enable verbose logging</ColonyManagerRedux.DoVerboseLogging>
     <ColonyManagerRedux.DoVerboseLogging.Tip>Enables verbose logging for the mod. This will log a lot of information to the log file, which can be useful for debugging issues, but will write a lot to the log relatively quickly. Use only when necessary.</ColonyManagerRedux.DoVerboseLogging.Tip>
     <ColonyManagerRedux.ManagerDefaultUpdateInterval>Default update interval</ColonyManagerRedux.ManagerDefaultUpdateInterval>
@@ -15,10 +14,8 @@
     <ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob>Jobs can manage as many designations as they need to meet targets</ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob>
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob>Jobs can only manage up to {0} designations at any time</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob>
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target. Note that not necessarily all types of manager jobs can or will respect this setting.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
-
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
     <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: &lt; {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
-
     <ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals>Custom update intervals</ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals>
     <ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour>- hour</ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour>
     <ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour>+ hour</ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour>
@@ -27,10 +24,8 @@
     <ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear>- year</ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear>
     <ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear>+ year</ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear>
     <ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals>Add new</ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals>
-
     <ColonyManagerRedux.ManagerSettings.DisableManagers>Active managers</ColonyManagerRedux.ManagerSettings.DisableManagers>
     <ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>Removing a manager from this list will make it so that that manager's tab and manager settings will be hidden. Jobs will still show up until manually removed, though. You can turn a manager off if you never use a specific manager's features, e.g., to declutter your UI. Changes here will not take effect until the manager tabs window is closed and re-opened or the mod's settings windows is closed and re-opened.</ColonyManagerRedux.ManagerSettings.DisableManagers.Tip>
-
     <ColonyManagerRedux.ManagerSettings.AlertSettings>Alert settings</ColonyManagerRedux.ManagerSettings.AlertSettings>
     <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert>Show an alert when no pawn has been assigned to managing</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert>
     <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip>Show an alert when a map has manager tasks configured, but no pawn has been assigned to managing, nor has an AI manager yet been built.</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip>
@@ -43,56 +38,43 @@
     <ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert>Days before showing alert: {0}</ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingAlert>
     <ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert>Days before showing high alert: {0}</ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingHighAlert>
     <ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert>Days before showing critical alert: {0}</ColonyManagerRedux.ManagerSettings.AlertSettings.DaysBeforeShowingCriticalAlert>
-
     <ColonyManagerRedux.PerformanceSettingsTabLabel>Performance</ColonyManagerRedux.PerformanceSettingsTabLabel>
-
     <ColonyManagerRedux.PerformanceSettings.OperationsPerTick>Operations per tick: {0}</ColonyManagerRedux.PerformanceSettings.OperationsPerTick>
     <ColonyManagerRedux.PerformanceSettings.OperationsPerTick.Tip>Controls how many operations can be performed per game tick. What exactly counts as an operation is decided on a case-by-case basis. Lower values may help improve performance but also increases the time it takes for jobs to complete. Very low values can make jobs take extremely long to complete.</ColonyManagerRedux.PerformanceSettings.OperationsPerTick.Tip>
     <ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations>Ticks between operations: {0}</ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations>
     <ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations.Tip>Controls how many ticks must pass between doing operations. Higher values may help improve performance but also increases the time it takes for jobs to complete. Very high values can make jobs take extremely long to complete.</ColonyManagerRedux.PerformanceSettings.TicksBetweenOperations.Tip>
     <ColonyManagerRedux.PerformanceSettings.AdvancedPerformanceSettings>Advanced: Enable per-operation performance settings</ColonyManagerRedux.PerformanceSettings.AdvancedPerformanceSettings>
     <ColonyManagerRedux.PerformanceSettings.AdvancedPerformanceSettings.Tip>This allows you to configure performance options on a per-operation basis instead of using a single value globally for fine tuning.</ColonyManagerRedux.PerformanceSettings.AdvancedPerformanceSettings.Tip>
-
     <ColonyManagerRedux.PerformanceSettings.UseGlobalValue>Use default value</ColonyManagerRedux.PerformanceSettings.UseGlobalValue>
     <ColonyManagerRedux.PerformanceSettings.UseGlobalValue.Tip>Use the default value for this coroutine instead of a custom value.</ColonyManagerRedux.PerformanceSettings.UseGlobalValue.Tip>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Utilities.CountProductsCoroutine>Counting products on map and in storage</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Utilities.CountProductsCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.ManagerJob.DistancesCoroutine>Calculating distances to targets</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.ManagerJob.DistancesCoroutine>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Foraging.GetCurrentDesignatedCountCoroutine>Foraging: Get current designated count</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Foraging.GetCurrentDesignatedCountCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Foraging.TryDoJobCoroutine>Foraging: Job orchestration</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Foraging.TryDoJobCoroutine>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.DoClearAreaDesignations>Forestry: Clear area designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.DoClearAreaDesignations>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.GetCurrentDesignatedCountCoroutine>Forestry: Get current designated count</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.GetCurrentDesignatedCountCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.TryDoJobCoroutine>Forestry: Job orchestration</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.TryDoJobCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.DoLoggingJob>Forestry: Logging job designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry.DoLoggingJob>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.GetResourceInCorpses>Hunting: Get resources in corpses</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.GetResourceInCorpses>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.GetMeatInDesignationsCoroutine>Hunting: Get meat in designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.GetMeatInDesignationsCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.GetLeatherInDesignationsCoroutine>Hunting: Get leather in designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.GetLeatherInDesignationsCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.TryDoJobCoroutine>Hunting: Job orchestration</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.TryDoJobCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.DoUnforbidCorpses>Hunting: Unforbid corpses</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting.DoUnforbidCorpses>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.TryDoJobCoroutine>Livestock: Job orchestration</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.TryDoJobCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.AddRelevantGameDesignations>Livestock: Add relevant game designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.AddRelevantGameDesignations>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoTrainingJobs>Livestock: Do training jobs</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoTrainingJobs>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoAreaRestrictions>Livestock: Do area restrictions</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoAreaRestrictions>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoCullingJobs>Livestock: Do culling jobs</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoCullingJobs>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoTamingJobs>Livestock: Do taming jobs</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Livestock.DoTamingJobs>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.AddRelevantGameDesignations>Mining: Add relevant game designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.AddRelevantGameDesignations>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.GetCountInChunksCoroutine>Mining: Get count in chunks</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.GetCountInChunksCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.GetCountInDesignationsCoroutine>Mining: Get count in designations</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.GetCountInDesignationsCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.TryDoJobCoroutine>Mining: Job orchestration</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Mining.TryDoJobCoroutine>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power.RefreshBuildingLists>Power: Refresh building lists</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power.RefreshBuildingLists>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power.RefreshCompLists>Power: Refresh comp lists</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power.RefreshCompLists>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power.TryDoJobCoroutine>Power: Job orchestration</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power.TryDoJobCoroutine>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.CompManagerJobHistory.DoHistoryUpdateCoroutine>Job history: Update</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.CompManagerJobHistory.DoHistoryUpdateCoroutine>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power_x002B_HistoryWorker.HistoryUpdateCoroutine>Power job history: update</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Power_x002B_HistoryWorker.HistoryUpdateCoroutine>
-
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Foraging_x002B_History.GetCountForHistoryChapterCoroutine>Foraging: Get count for history chapter</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Foraging_x002B_History.GetCountForHistoryChapterCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry_x002B_History.GetCountForHistoryChapterCoroutine>Forestry: Get count for history chapter</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Forestry_x002B_History.GetCountForHistoryChapterCoroutine>
     <ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting_x002B_History.GetCountForHistoryChapterCoroutine>Hunting: Get count for history chapter</ColonyManagerRedux.PerformanceSettings.ColonyManagerRedux.Managers.ManagerJob_Hunting_x002B_History.GetCountForHistoryChapterCoroutine>

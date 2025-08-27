@@ -18,6 +18,7 @@ public class ManagerJobHistoryChapterDef : Def
     /// The color used for this history chapter.
     /// </summary>
     public Color color;
+
     /// <summary>
     /// The optional suffix for this history chapter.
     /// </summary>

@@ -12,14 +12,17 @@ public class ManagerDef : Def
     /// The order in which this manager appears in the UI.
     /// </summary>
     public int order;
+
     /// <summary>
     /// The type of the manager job class.
     /// </summary>
     public Type? managerJobClass;
+
     /// <summary>
     /// The type of the manager tab class.
     /// </summary>
     public Type managerTabClass = typeof(ManagerTab);
+
     /// <summary>
     /// The type of the manager settings class.
     /// </summary>
@@ -29,6 +32,7 @@ public class ManagerDef : Def
     /// The list of job component properties for this manager.
     /// </summary>
     public List<ManagerJobCompProperties> jobComps = [];
+
     /// <summary>
     /// The list of manager component properties for this manager.
     /// </summary>
@@ -38,11 +42,13 @@ public class ManagerDef : Def
     /// The icon area where this manager's tab appears.
     /// </summary>
     public IconArea iconArea = IconArea.Middle;
+
     /// <summary>
     /// The icon texture for this manager tab.
     /// </summary>
     [Unsaved(false)]
     public Texture2D icon = BaseContent.BadTex;
+
     /// <summary>
     /// The path to the icon texture for this manager tab.
     /// </summary>
@@ -83,7 +89,10 @@ public class ManagerDef : Def
             yield return $"{nameof(managerTabClass)} is not {nameof(ManagerTab)} or a subclass thereof";
         }
 
-        if (managerSettingsClass != null && !typeof(ManagerSettings).IsAssignableFrom(managerSettingsClass))
+        if (
+            managerSettingsClass != null
+            && !typeof(ManagerSettings).IsAssignableFrom(managerSettingsClass)
+        )
         {
             yield return $"{nameof(managerSettingsClass)} is not a subclass of {nameof(ManagerSettings)}";
         }
@@ -115,12 +124,14 @@ public enum IconArea
     /// The left icon area.
     /// </summary>
     Left = 0,
+
     /// <summary>
     /// The middle icon area.
     /// </summary>
     Middle = 1,
+
     /// <summary>
     /// The right icon area.
     /// </summary>
-    Right = 2
+    Right = 2,
 }

@@ -21,11 +21,13 @@ public static class AreaAllowedGUI
     /// <param name="map">The map containing the areas.</param>
     /// <param name="margin">Optional margin for the selector area.</param>
     /// <returns>The newly selected area, or the current area if unchanged.</returns>
-    public static Area? DoAllowedAreaSelectors(ref Rect rect,
+    public static Area? DoAllowedAreaSelectors(
+        ref Rect rect,
         Area? currentArea,
         int countPerRow,
         Map map,
-        float margin = 0)
+        float margin = 0
+    )
     {
         var newArea = currentArea;
         DoAllowedAreaSelectors(ref rect, ref newArea, countPerRow, map, margin);
@@ -48,13 +50,10 @@ public static class AreaAllowedGUI
         ref Area? area,
         int countPerRow,
         Map map,
-        float margin = 0)
+        float margin = 0
+    )
     {
-        var rect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            Constants.ListEntryHeight);
+        var rect = new Rect(pos.x, pos.y, width, Constants.ListEntryHeight);
         DoAllowedAreaSelectors(ref rect, ref area, countPerRow, map, margin);
         pos.y += rect.height;
     }
@@ -72,7 +71,8 @@ public static class AreaAllowedGUI
         ref Area? allowedArea,
         int countPerRow,
         Map map,
-        float lrMargin = 0)
+        float lrMargin = 0
+    )
     {
         if (map == null)
         {
@@ -106,7 +106,12 @@ public static class AreaAllowedGUI
         {
             var xOffset = areaIndex % countPerRow * widthPerArea;
             var yOffset = areaIndex / countPerRow * Constants.ListEntryHeight;
-            var areaRect = new Rect(rect.x + xOffset, rect.y + yOffset, widthPerArea, rect.height / areaRows);
+            var areaRect = new Rect(
+                rect.x + xOffset,
+                rect.y + yOffset,
+                widthPerArea,
+                rect.height / areaRows
+            );
             DoAreaSelector(areaRect, ref allowedArea, area);
             areaIndex++;
         }
@@ -126,7 +131,8 @@ public static class AreaAllowedGUI
         Rect rect,
         ref HashSet<Area> allowedAreas,
         Map map,
-        float lrMargin = 0)
+        float lrMargin = 0
+    )
     {
         if (map == null)
         {
@@ -227,8 +233,7 @@ public static class AreaAllowedGUI
         {
             area?.MarkForDraw();
 
-            if (Input.GetMouseButton(0) &&
-                 areaAllowed != area)
+            if (Input.GetMouseButton(0) && areaAllowed != area)
             {
                 areaAllowed = area;
                 SoundDefOf.Designate_DragStandard_Changed.PlayOneShotOnCamera();

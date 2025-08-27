@@ -3,7 +3,6 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -16,51 +15,62 @@ public class DetailedLegendRenderer : IExposable
 {
     // Settings for detailed legend
     private bool _drawCounts = true;
+
     /// <summary>
     /// Gets or sets whether to draw counts in the legend.
     /// </summary>
     public bool DrawCounts
     {
-        get => _drawCounts; set => _drawCounts = value;
+        get => _drawCounts;
+        set => _drawCounts = value;
     }
 
     private bool _drawIcons = true;
+
     /// <summary>
     /// Gets or sets whether to draw icons in the legend.
     /// </summary>
     public bool DrawIcons
     {
-        get => _drawIcons; set => _drawIcons = value;
+        get => _drawIcons;
+        set => _drawIcons = value;
     }
 
     private bool _drawInfoInBar;
+
     /// <summary>
     /// Gets or sets whether to draw info text inside the bar.
     /// </summary>
     public bool DrawInfoInBar
     {
-        get => _drawInfoInBar; set => _drawInfoInBar = value;
+        get => _drawInfoInBar;
+        set => _drawInfoInBar = value;
     }
 
     private bool _drawMaxMarkers;
+
     /// <summary>
     /// Gets or sets whether to draw max markers in the legend.
     /// </summary>
     public bool DrawMaxMarkers
     {
-        get => _drawMaxMarkers; set => _drawMaxMarkers = value;
+        get => _drawMaxMarkers;
+        set => _drawMaxMarkers = value;
     }
 
     private bool _maxPerChapter;
+
     /// <summary>
     /// Gets or sets whether to use the max per chapter for bar scaling.
     /// </summary>
     public bool MaxPerChapter
     {
-        get => _maxPerChapter; set => _maxPerChapter = value;
+        get => _maxPerChapter;
+        set => _maxPerChapter = value;
     }
 
     private readonly List<History.Chapter> _tmpChaptersOrdered = [];
+
     /// <summary>
     /// Draws the detailed legend for the given history, with options for filtering and display.
     /// </summary>
@@ -70,8 +80,14 @@ public class DetailedLegendRenderer : IExposable
     /// <param name="max">Optional maximum value for scaling bars.</param>
     /// <param name="positiveOnly">Whether to show only positive chapters.</param>
     /// <param name="negativeOnly">Whether to show only negative chapters.</param>
-    public void DrawDetailedLegend(History history, Rect canvas, ref Vector2 scrollPos, int? max, bool positiveOnly = false,
-        bool negativeOnly = false)
+    public void DrawDetailedLegend(
+        History history,
+        Rect canvas,
+        ref Vector2 scrollPos,
+        int? max,
+        bool positiveOnly = false,
+        bool negativeOnly = false
+    )
     {
         if (history == null)
         {
@@ -81,29 +97,43 @@ public class DetailedLegendRenderer : IExposable
         // set sign
         var sign = negativeOnly ? -1 : 1;
 
-        _tmpChaptersOrdered.AddRange(history._chapters
-            .Where(chapter => !positiveOnly || chapter.counts[(int)history.PeriodShown].Any(i => i > 0))
-            .Where(chapter => !negativeOnly || chapter.counts[(int)history.PeriodShown].Any(i => i < 0))
-            .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign));
+        _tmpChaptersOrdered.AddRange(
+            history
+                ._chapters.Where(chapter =>
+                    !positiveOnly || chapter.counts[(int)history.PeriodShown].Any(i => i > 0)
+                )
+                .Where(chapter =>
+                    !negativeOnly || chapter.counts[(int)history.PeriodShown].Any(i => i < 0)
+                )
+                .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign)
+        );
         using var _clear = new DoOnDispose(_tmpChaptersOrdered.Clear);
 
         IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
-            Widgets.DrawRectFast(canvas, ColorLibrary.NeonGreen.ToTransparent(.5f)));
+            Widgets.DrawRectFast(canvas, ColorLibrary.NeonGreen.ToTransparent(.5f))
+        );
 
         // get out early if no chapters.
         if (_tmpChaptersOrdered.Count == 0)
         {
             GUI.DrawTexture(canvas.ContractedBy(Margin), Resources.SlightlyDarkBackground);
-            IlyvionWidgets.Label(canvas, "ColonyManagerRedux.History.NoChapters".Translate(), TextAnchor.MiddleCenter,
-                color: Color.grey);
+            IlyvionWidgets.Label(
+                canvas,
+                "ColonyManagerRedux.History.NoChapters".Translate(),
+                TextAnchor.MiddleCenter,
+                color: Color.grey
+            );
             return;
         }
 
         // max
-        float _max = max
-            ?? (DrawMaxMarkers
-                ? _tmpChaptersOrdered.Max(chapter => chapter.TrueMax)
-                : _tmpChaptersOrdered.FirstOrDefault()?.Last(history.PeriodShown).count * sign)
+        float _max =
+            max
+            ?? (
+                DrawMaxMarkers
+                    ? _tmpChaptersOrdered.Max(chapter => chapter.TrueMax)
+                    : _tmpChaptersOrdered.FirstOrDefault()?.Last(history.PeriodShown).count * sign
+            )
             ?? 0;
 
         // cell height
@@ -132,7 +162,12 @@ public class DetailedLegendRenderer : IExposable
             var row = new Rect(0f, height * i, viewRect.width, height);
             var icon = new Rect(Margin, height * i, height, height).ContractedBy(Margin / 2f);
             // icon is square, size defined by height.
-            var bar = new Rect(Margin + height, height * i, viewRect.width - height - Margin, height);
+            var bar = new Rect(
+                Margin + height,
+                height * i,
+                viewRect.width - height - Margin,
+                height
+            );
 
             IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             {
@@ -153,7 +188,8 @@ public class DetailedLegendRenderer : IExposable
             var maxWidth = barFill.width;
             if (MaxPerChapter)
             {
-                barFill.width *= chapter.Last(history.PeriodShown).count * sign / (float)chapter.TrueMax;
+                barFill.width *=
+                    chapter.Last(history.PeriodShown).count * sign / (float)chapter.TrueMax;
             }
             else
             {
@@ -173,8 +209,16 @@ public class DetailedLegendRenderer : IExposable
                 // draw counts in upper left corner
                 if (DrawCounts)
                 {
-                    Utilities.LabelOutline(icon, chapter.ThingDefCount.count.ToString(CultureInfo.InvariantCulture), null,
-                        TextAnchor.UpperLeft, 0f, GameFont.Tiny, Color.white, Color.black);
+                    Utilities.LabelOutline(
+                        icon,
+                        chapter.ThingDefCount.count.ToString(CultureInfo.InvariantCulture),
+                        null,
+                        TextAnchor.UpperLeft,
+                        0f,
+                        GameFont.Tiny,
+                        Color.white,
+                        Color.black
+                    );
                 }
             }
 
@@ -191,17 +235,27 @@ public class DetailedLegendRenderer : IExposable
             // draw the main bar.
             GUI.DrawTexture(barBox, Resources.SlightlyDarkBackground);
             GUI.DrawTexture(barFill, chapter.Texture); // coloured texture
-            GUI.DrawTexture(barFill, Resources.BarShader);        // slightly fancy overlay (emboss).
+            GUI.DrawTexture(barFill, Resources.BarShader); // slightly fancy overlay (emboss).
 
             // draw on bar info
             if (DrawInfoInBar)
             {
-                var info = chapter.label + ": " +
-                    Utils.FormatCount(chapter.Last(history.PeriodShown).count * sign, chapter.ChapterSuffix ?? history.YAxisSuffix);
+                var info =
+                    chapter.label
+                    + ": "
+                    + Utils.FormatCount(
+                        chapter.Last(history.PeriodShown).count * sign,
+                        chapter.ChapterSuffix ?? history.YAxisSuffix
+                    );
 
                 if (DrawMaxMarkers)
                 {
-                    info += " / " + Utils.FormatCount(chapter.TrueMax, chapter.ChapterSuffix ?? history.YAxisSuffix);
+                    info +=
+                        " / "
+                        + Utils.FormatCount(
+                            chapter.TrueMax,
+                            chapter.ChapterSuffix ?? history.YAxisSuffix
+                        );
                 }
 
                 // offset label a bit downwards and to the right
@@ -212,8 +266,16 @@ public class DetailedLegendRenderer : IExposable
                 // x offset
                 var xOffset = DrawIcons && thing != null ? height + (Margin * 2) : Margin * 2;
 
-                Utilities.LabelOutline(rowInfoRect, info, null, TextAnchor.MiddleLeft, xOffset, GameFont.Tiny,
-                    Color.white, Color.black);
+                Utilities.LabelOutline(
+                    rowInfoRect,
+                    info,
+                    null,
+                    TextAnchor.MiddleLeft,
+                    xOffset,
+                    GameFont.Tiny,
+                    Color.white,
+                    Color.black
+                );
             }
 
             // are we currently showing this line?
@@ -231,15 +293,19 @@ public class DetailedLegendRenderer : IExposable
             ;
 
             // tooltip on entire row
-            var tooltip = $"{chapter.label}: " +
-                Utils.FormatCount(
+            var tooltip =
+                $"{chapter.label}: "
+                + Utils.FormatCount(
                     Mathf.Abs(chapter.Last(history.PeriodShown).count),
-                    chapter.ChapterSuffix ?? history.YAxisSuffix) + "\n\n" +
-                "ColonyManagerRedux.History.ClickToEnable"
-                    .Translate(shown
+                    chapter.ChapterSuffix ?? history.YAxisSuffix
+                )
+                + "\n\n"
+                + "ColonyManagerRedux.History.ClickToEnable".Translate(
+                    shown
                         ? "ColonyManagerRedux.History.Hide".Translate()
                         : "ColonyManagerRedux.History.Show".Translate(),
-                        labelTooltip);
+                    labelTooltip
+                );
             TooltipHandler.TipRegion(row, tooltip);
 
             // handle input

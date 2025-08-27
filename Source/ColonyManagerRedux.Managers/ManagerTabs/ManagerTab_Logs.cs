@@ -3,7 +3,6 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux.Managers;
@@ -21,15 +20,17 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
     private readonly ScrollViewStatus _logListScrollViewStatus = new();
 
     private readonly List<LookTargets[]> cachedLookTargets = [];
+
     private void RecacheLookTargets()
     {
         cachedLookTargets.Clear();
         if (selectedLog != null)
         {
-            cachedLookTargets.AddRange(selectedLog.Details
-                .Select((d) => d.Targets
-                    .Select(t => new LookTargets(t.ToTargetInfo(Manager)))
-                    .ToArray()));
+            cachedLookTargets.AddRange(
+                selectedLog.Details.Select(
+                    (d) => d.Targets.Select(t => new LookTargets(t.ToTargetInfo(Manager))).ToArray()
+                )
+            );
         }
     }
 
@@ -52,8 +53,9 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         }
 
         var logSettings = ManagerSettings;
-        foreach (var log in logs.Reverse()
-            .Where(l => logSettings.ShowLogsWithNoWorkDone || l.WorkDone))
+        foreach (
+            var log in logs.Reverse().Where(l => logSettings.ShowLogsWithNoWorkDone || l.WorkDone)
+        )
         {
             var isSelectedLog = selectedLog == log;
 
@@ -102,11 +104,13 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
                         curDetail.x,
                         curDetail.y,
                         scrollView.ViewRect.width - LargeIconSize,
-                        0f);
+                        0f
+                    );
                     DrawLogDetailsEntry(
                         details,
                         ref curDetail,
-                        scrollView.ViewRect.width - LargeIconSize);
+                        scrollView.ViewRect.width - LargeIconSize
+                    );
                     detailRow.height = curDetail.y - detailRow.y;
 
                     if (j % 2 == 1)
@@ -127,8 +131,8 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
                         if (Widgets.ButtonInvisible(detailRow))
                         {
                             CameraJumper.TryJumpAndSelect(
-                                details.Targets[details.NextTargetIndex]
-                                    .ToGlobalTargetInfo(Manager));
+                                details.Targets[details.NextTargetIndex].ToGlobalTargetInfo(Manager)
+                            );
                             if (Event.current.button == 0)
                             {
                                 Find.MainTabsRoot.EscapeCurrentTab(playSound: false);
@@ -149,7 +153,8 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
                     LargeIconSize,
                     cur.y,
                     row.width - LargeIconSize,
-                    Color.gray);
+                    Color.gray
+                );
             }
         }
         if (i == 0)
@@ -158,7 +163,8 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
                 rect,
                 "ColonyManagerRedux.Logs.NoLogs".Translate(),
                 TextAnchor.MiddleCenter,
-                color: Color.gray);
+                color: Color.gray
+            );
         }
 
         scrollView.Height = cur.y;
@@ -168,11 +174,11 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         ManagerLog log,
         ref Vector2 position,
         float width,
-        bool isSelectedLog)
+        bool isSelectedLog
+    )
     {
         // set up rects
-        var iconRect = new Rect(Margin, Margin,
-            LargeIconSize, LargeIconSize);
+        var iconRect = new Rect(Margin, Margin, LargeIconSize, LargeIconSize);
 
         var labelWidth = width - LargeIconSize - (3 * Margin);
         var headerLabel = log.JobLabelCap;
@@ -184,26 +190,18 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         {
             headerLabel = $"<color=#7f7f7f>{headerLabel}</color>";
         }
-        var headerLabelRect = new Rect(
-            iconRect.xMax + Margin,
-            iconRect.y,
-            labelWidth,
-            labelSize.y);
+        var headerLabelRect = new Rect(iconRect.xMax + Margin, iconRect.y, labelWidth, labelSize.y);
 
         var dateLabel = $"<color=#7f7f7f>{log.LogDate}</color>";
         var dateLabelRect = new Rect(
             iconRect.xMax + Margin,
             headerLabelRect.yMax,
             labelWidth,
-            Text.LineHeight);
+            Text.LineHeight
+        );
 
         var rowHeight = Mathf.Max(dateLabelRect.yMax, iconRect.yMax) + Margin;
-        var rowRect = new Rect(
-            position.x,
-            position.y,
-            width,
-            rowHeight
-        );
+        var rowRect = new Rect(position.x, position.y, width, rowHeight);
 
         using var _g = GUIScope.WidgetGroup(rowRect);
 
@@ -223,55 +221,67 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
                 {
                     log.GoToJobTab();
                 }
-                TooltipHandler.TipRegion(iconRect,
-                    "ColonyManagerRedux.Common.GoToJob".Translate(log.JobLabel));
+                TooltipHandler.TipRegion(
+                    iconRect,
+                    "ColonyManagerRedux.Common.GoToJob".Translate(log.JobLabel)
+                );
             }
             else
             {
                 using var color = GUIScope.Color(Color.gray);
                 GUI.DrawTexture(iconRect, tab.Def.icon);
-                TooltipHandler.TipRegion(iconRect, tab.Label +
-                    "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
+                TooltipHandler.TipRegion(
+                    iconRect,
+                    tab.Label
+                        + "ColonyManagerRedux.Common.TabDisabledBecause".Translate(
+                            tab.DisabledReason
+                        )
+                );
             }
         }
         else
         {
             using var color = GUIScope.Color(Color.gray);
             GUI.DrawTexture(iconRect, log.Icon);
-            TooltipHandler.TipRegion(iconRect,
-                "ColonyManagerRedux.Logs.JobDoesNotExist".Translate());
+            TooltipHandler.TipRegion(
+                iconRect,
+                "ColonyManagerRedux.Logs.JobDoesNotExist".Translate()
+            );
         }
 
         // draw label
         IlyvionWidgets.Label(headerLabelRect, headerLabel, null, TextAnchor.UpperLeft);
-        TooltipHandler.TipRegion(headerLabelRect,
-        "ColonyManagerRedux.Logs.ClickToExpandCollapse".Translate(
-            (isSelectedLog
-                ? "ColonyManagerRedux.Logs.Collapse"
-                : "ColonyManagerRedux.Logs.Expand").Translate()));
+        TooltipHandler.TipRegion(
+            headerLabelRect,
+            "ColonyManagerRedux.Logs.ClickToExpandCollapse".Translate(
+                (
+                    isSelectedLog
+                        ? "ColonyManagerRedux.Logs.Collapse"
+                        : "ColonyManagerRedux.Logs.Expand"
+                ).Translate()
+            )
+        );
 
         IlyvionWidgets.Label(dateLabelRect, dateLabel, null, TextAnchor.UpperLeft);
-        TooltipHandler.TipRegion(dateLabelRect,
-        "ColonyManagerRedux.Logs.ClickToExpandCollapse".Translate(
-            (isSelectedLog
-                ? "ColonyManagerRedux.Logs.Collapse"
-                : "ColonyManagerRedux.Logs.Expand").Translate()));
+        TooltipHandler.TipRegion(
+            dateLabelRect,
+            "ColonyManagerRedux.Logs.ClickToExpandCollapse".Translate(
+                (
+                    isSelectedLog
+                        ? "ColonyManagerRedux.Logs.Collapse"
+                        : "ColonyManagerRedux.Logs.Expand"
+                ).Translate()
+            )
+        );
 
         position.y += rowRect.height;
     }
 
-    private static void DrawLogDetailsEntry(
-        LogDetails details,
-        ref Vector2 position,
-        float width)
+    private static void DrawLogDetailsEntry(LogDetails details, ref Vector2 position, float width)
     {
         var labelWidth = width - (2 * Margin);
         var labelHeight = Text.CalcHeight(details.Text, labelWidth);
-        var labelRect = new Rect(
-            Margin + position.x,
-            Margin + position.y,
-            labelWidth,
-            labelHeight);
+        var labelRect = new Rect(Margin + position.x, Margin + position.y, labelWidth, labelHeight);
 
         Widgets.Label(labelRect, details.Text);
 
@@ -282,28 +292,19 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         ManagerJob job,
         ref Vector2 position,
         float width,
-        DrawLocalListEntryParameters? parameters)
+        DrawLocalListEntryParameters? parameters
+    )
     {
         // set up rects
-        var iconRect = new Rect(Margin, Margin,
-            LargeIconSize, LargeIconSize);
+        var iconRect = new Rect(Margin, Margin, LargeIconSize, LargeIconSize);
 
         var labelWidth = width - LargeIconSize - (3 * Margin);
         var tab = job.Tab;
         var (label, labelSize) = tab.GetFullLabel(job, labelWidth, null);
-        var labelRect = new Rect(
-            iconRect.xMax + Margin,
-            iconRect.y,
-            labelWidth,
-            labelSize.y);
+        var labelRect = new Rect(iconRect.xMax + Margin, iconRect.y, labelWidth, labelSize.y);
 
         var rowHeight = labelRect.yMax + Margin;
-        var rowRect = new Rect(
-            position.x,
-            position.y,
-            width,
-            rowHeight
-        );
+        var rowRect = new Rect(position.x, position.y, width, rowHeight);
 
         using var _g = GUIScope.WidgetGroup(rowRect);
 
@@ -328,8 +329,11 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         {
             using var color = GUIScope.Color(Color.gray);
             GUI.DrawTexture(iconRect, tab.Def.icon);
-            TooltipHandler.TipRegion(iconRect, tab.Label +
-                "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
+            TooltipHandler.TipRegion(
+                iconRect,
+                tab.Label
+                    + "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason)
+            );
         }
 
         position.y += rowRect.height;

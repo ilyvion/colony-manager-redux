@@ -4,7 +4,6 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -27,7 +26,12 @@ public static class Widgets_Section
     /// <param name="identifier">A unique identifier for the column.</param>
     /// <param name="position">Outputs the starting position for drawing.</param>
     /// <param name="width">Outputs the width of the column.</param>
-    public static void BeginSectionColumn(Rect canvas, string identifier, out Vector2 position, out float width)
+    public static void BeginSectionColumn(
+        Rect canvas,
+        string identifier,
+        out Vector2 position,
+        out float width
+    )
     {
         var height = GetHeight(identifier);
         var scrollPosition = GetScrollPosition(identifier);
@@ -79,7 +83,8 @@ public static class Widgets_Section
         float width,
         Func<T, Vector2, float, float> drawerFunc,
         string header = "",
-        int id = 0)
+        int id = 0
+    )
     {
         if (drawerFunc == null)
         {
@@ -103,7 +108,8 @@ public static class Widgets_Section
         float width,
         Func<Vector2, float, float> drawerFunc,
         string header = "",
-        int id = 0)
+        int id = 0
+    )
     {
         if (drawerFunc == null)
         {
@@ -114,9 +120,10 @@ public static class Widgets_Section
         if (id == 0 && IsLikelyAnonymous(drawerFunc))
         {
             ColonyManagerReduxMod.Instance.LogWarning(
-                $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id " +
-                "may lead to unexpected behavior as these don't have a stable hash value. " +
-                $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}");
+                $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id "
+                    + "may lead to unexpected behavior as these don't have a stable hash value. "
+                    + $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}"
+            );
         }
         id = id != 0 ? id : drawerFunc.GetHashCode();
 
@@ -129,13 +136,15 @@ public static class Widgets_Section
                 position.x,
                 position.y,
                 headerSize.x + Margin,
-                SectionHeaderHeight).RoundToInt();
+                SectionHeaderHeight
+            ).RoundToInt();
             IlyvionWidgets.Label(
                 headerRect,
                 header,
                 TextAnchor.LowerLeft,
                 GameFont.Tiny,
-                leftMargin: Margin);
+                leftMargin: Margin
+            );
             position.y += SectionHeaderHeight;
         }
 
@@ -144,7 +153,8 @@ public static class Widgets_Section
             position.x,
             position.y,
             width,
-            GetHeight(id) + (2 * Margin)).RoundToInt();
+            GetHeight(id) + (2 * Margin)
+        ).RoundToInt();
 
         // NOTE: we're updating height _after_ drawing, so the background is technically always one frame behind.
         GUI.DrawTexture(contentRect, Resources.SlightlyDarkBackground);
@@ -164,9 +174,9 @@ public static class Widgets_Section
 #else
             return method.Name.Contains('<', StringComparison.Ordinal)
 #endif
-                || declaringType.GetCustomAttributes(
-                    typeof(CompilerGeneratedAttribute),
-                    false).Length != 0;
+                || declaringType
+                    .GetCustomAttributes(typeof(CompilerGeneratedAttribute), false)
+                    .Length != 0;
         }
     }
 

@@ -12,10 +12,7 @@ public abstract class HistoryLabel : IExposable
     /// <summary>
     /// Gets the label string for this history label.
     /// </summary>
-    public abstract string Label
-    {
-        get;
-    }
+    public abstract string Label { get; }
 
     /// <summary>
     /// Exposes data for saving and loading the label.
@@ -55,8 +52,7 @@ public class DirectHistoryLabel : HistoryLabel
     /// </summary>
     public DirectHistoryLabel()
 #pragma warning restore CS8618
-    {
-    }
+    { }
 
     /// <summary>
     /// Exposes data for saving and loading the direct label.
@@ -84,7 +80,8 @@ public class DirectHistoryLabel : HistoryLabel
 /// A history label that uses a Def instance for its label.
 /// </summary>
 /// <typeparam name="T">The type of Def.</typeparam>
-public class DefHistoryLabel<T> : HistoryLabel where T : Def, new()
+public class DefHistoryLabel<T> : HistoryLabel
+    where T : Def, new()
 {
     private T def;
 
@@ -103,15 +100,13 @@ public class DefHistoryLabel<T> : HistoryLabel where T : Def, new()
     /// </summary>
     public DefHistoryLabel()
 #pragma warning restore CS8618
-    {
-    }
+    { }
 
     /// <summary>
     /// Gets the label string from the Def instance.
     /// </summary>
-    public override string Label => ((string?)def?.LabelCap)
-        ?? def?.defName.CapitalizeFirst()
-        ?? "<null>";
+    public override string Label =>
+        ((string?)def?.LabelCap) ?? def?.defName.CapitalizeFirst() ?? "<null>";
 
     /// <summary>
     /// Exposes data for saving and loading the Def label.
@@ -152,8 +147,7 @@ public class ManagerJobHistoryChapterDefLabel : HistoryLabel
     /// </summary>
     public ManagerJobHistoryChapterDefLabel()
 #pragma warning restore CS8618
-    {
-    }
+    { }
 
     /// <summary>
     /// Gets the label string from the ManagerJobHistoryChapterDef.
@@ -163,13 +157,16 @@ public class ManagerJobHistoryChapterDefLabel : HistoryLabel
     /// <summary>
     /// Exposes data for saving and loading the ManagerJobHistoryChapterDef label.
     /// </summary>
-    public override void ExposeData() => Scribe_Defs.Look(ref historyChapterDef, "historyChapterDef");
+    public override void ExposeData() =>
+        Scribe_Defs.Look(ref historyChapterDef, "historyChapterDef");
 }
 
 /// <summary>
 /// (Obsolete) A history label that uses a translation key for its label.
 /// </summary>
-[Obsolete("Use ManagerJobHistoryChapterDefs instead of this directly; this method will be removed in a future version")]
+[Obsolete(
+    "Use ManagerJobHistoryChapterDefs instead of this directly; this method will be removed in a future version"
+)]
 public class TranslationHistoryLabel : HistoryLabel
 {
     private string translationKey;
@@ -189,8 +186,7 @@ public class TranslationHistoryLabel : HistoryLabel
     /// </summary>
     public TranslationHistoryLabel()
 #pragma warning restore CS8618
-    {
-    }
+    { }
 
     /// <summary>
     /// Gets the label string by translating the translation key.
@@ -200,7 +196,8 @@ public class TranslationHistoryLabel : HistoryLabel
     /// <summary>
     /// Exposes data for saving and loading the translation key label.
     /// </summary>
-    public override void ExposeData() => Scribe_Values.Look(ref translationKey, "translationKey", string.Empty);
+    public override void ExposeData() =>
+        Scribe_Values.Look(ref translationKey, "translationKey", string.Empty);
 
     /// <summary>
     /// Implicitly converts a string to a TranslationHistoryLabel.

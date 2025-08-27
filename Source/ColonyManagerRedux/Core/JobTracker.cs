@@ -4,9 +4,7 @@
 
 using System.Buffers;
 using System.Text;
-
 using ilyvion.Laboratory.Extensions;
-
 using LudeonTK;
 
 namespace ColonyManagerRedux;
@@ -31,10 +29,12 @@ public class JobTracker(Manager manager) : IExposable
         {
             if (jobs == null)
             {
-                ColonyManagerReduxMod.Instance.LogError("The jobs collection was null. This " +
-                    "should never happen, but it means that any configured jobs you had will " +
-                    "have been lost. If this happens repeatedly, there's something seriously " +
-                    "wrong with your game somewhere.");
+                ColonyManagerReduxMod.Instance.LogError(
+                    "The jobs collection was null. This "
+                        + "should never happen, but it means that any configured jobs you had will "
+                        + "have been lost. If this happens repeatedly, there's something seriously "
+                        + "wrong with your game somewhere."
+                );
                 jobs = [];
             }
             return jobs;
@@ -103,10 +103,12 @@ public class JobTracker(Manager manager) : IExposable
             if (jobs == null)
             {
                 jobs = [];
-                ColonyManagerReduxMod.Instance.LogError("The jobs collection was null on load. " +
-                    "This means it wasn't saved properly and any configured jobs you had will " +
-                    "have been lost. If this happens repeatedly, there's something seriously " +
-                    "wrong with your game somewhere.");
+                ColonyManagerReduxMod.Instance.LogError(
+                    "The jobs collection was null on load. "
+                        + "This means it wasn't saved properly and any configured jobs you had will "
+                        + "have been lost. If this happens repeatedly, there's something seriously "
+                        + "wrong with your game somewhere."
+                );
             }
         }
 
@@ -115,8 +117,9 @@ public class JobTracker(Manager manager) : IExposable
             if (jobs.Any(job => job == null || !job.IsValid))
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    $"Removing {jobs.Count(j => j == null || !j.IsValid)} invalid manager jobs. " +
-                    "If this keeps happening, please report it.");
+                    $"Removing {jobs.Count(j => j == null || !j.IsValid)} invalid manager jobs. "
+                        + "If this keeps happening, please report it."
+                );
                 jobs.RemoveWhere(job => job == null || !job.IsValid);
             }
             CleanPriorities();
@@ -179,10 +182,7 @@ public class JobTracker(Manager manager) : IExposable
     /// <summary>
     /// Gets a value indicating whether jobs are currently being executed by the job tracker.
     /// </summary>
-    public bool IsRunningJobs
-    {
-        get; private set;
-    }
+    public bool IsRunningJobs { get; private set; }
 
     /// <summary>
     ///     Call the worker for the next available job
@@ -190,10 +190,10 @@ public class JobTracker(Manager manager) : IExposable
     internal Coroutine? TryDoNextJob()
     {
         var job = NextJob;
-        ColonyManagerReduxMod.Instance.LogVerboseMessage($"Manager.TryDoWork called with {job} as next job.");
-        return job == null
-            ? null
-            : TryDoNextJobInner();
+        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+            $"Manager.TryDoWork called with {job} as next job."
+        );
+        return job == null ? null : TryDoNextJobInner();
 
         Coroutine TryDoNextJobInner()
         {
@@ -209,15 +209,17 @@ public class JobTracker(Manager manager) : IExposable
             catch (Exception err)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    "Suspending manager job because it errored on " +
-                    $"{nameof(TryDoNextJob)}: \n{err}");
+                    "Suspending manager job because it errored on "
+                        + $"{nameof(TryDoNextJob)}: \n{err}"
+                );
                 job.IsSuspended = true;
                 job.CausedException = err;
             }
             if (job.CausedException != null)
             {
                 yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})");
+                    debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})"
+                );
                 if (responsibleForFlag)
                 {
                     IsRunningJobs = false;
@@ -225,10 +227,7 @@ public class JobTracker(Manager manager) : IExposable
                 yield break;
             }
 
-            ManagerLog log = new(job)
-            {
-                LogLabel = jobLogLabel
-            };
+            ManagerLog log = new(job) { LogLabel = jobLogLabel };
             Boxed<bool> workDone = new(false);
 
             var wasCompleted = job.JobState == ManagerJobState.Completed;
@@ -236,23 +235,29 @@ public class JobTracker(Manager manager) : IExposable
             try
             {
                 ColonyManagerReduxMod.Instance.LogVerboseMessage($"Setting up job's coroutine.");
-                coroutine = job.TryDoJobCoroutine(log, workDone)
-                    ?? TryDoJobTheOldWay(job, log, workDone);
+                coroutine =
+                    job.TryDoJobCoroutine(log, workDone) ?? TryDoJobTheOldWay(job, log, workDone);
             }
             catch (Exception err)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    "Suspending manager job because it errored on setting up " +
-                    $"{nameof(TryDoNextJob)}: \n{err}");
+                    "Suspending manager job because it errored on setting up "
+                        + $"{nameof(TryDoNextJob)}: \n{err}"
+                );
                 job.IsSuspended = true;
                 job.CausedException = err;
             }
             if (job.CausedException != null)
             {
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Since setting up the job caused an exception, let's try to do the next job.");
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Since setting up the job caused an exception, let's try to do the next job."
+                );
                 yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterException2({job.GetUniqueLoadID()})");
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Back from the next job after the exception.");
+                    debugHandle: $"TryDoNextJobAfterException2({job.GetUniqueLoadID()})"
+                );
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Back from the next job after the exception."
+                );
                 if (responsibleForFlag)
                 {
                     IsRunningJobs = false;
@@ -260,24 +265,34 @@ public class JobTracker(Manager manager) : IExposable
                 yield break;
             }
 
-            ColonyManagerReduxMod.Instance.LogVerboseMessage($"Waiting for job's coroutine to complete.");
-            var handle = MultiTickCoroutineManager.StartCoroutine(coroutine,
-                debugHandle: $"TryDoNextJob({job.GetUniqueLoadID()})");
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Waiting for job's coroutine to complete."
+            );
+            var handle = MultiTickCoroutineManager.StartCoroutine(
+                coroutine,
+                debugHandle: $"TryDoNextJob({job.GetUniqueLoadID()})"
+            );
             yield return handle.ResumeWhenOtherCoroutineIsCompleted();
             ColonyManagerReduxMod.Instance.LogVerboseMessage($"Job's coroutine completed.");
 
             if (handle.Exception is Exception err2)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    "Suspending manager job because it errored on running " +
-                    $"{nameof(TryDoNextJob)}: \n{err2}");
+                    "Suspending manager job because it errored on running "
+                        + $"{nameof(TryDoNextJob)}: \n{err2}"
+                );
                 job.IsSuspended = true;
                 job.CausedException = err2;
 
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Since running the job caused an exception, let's try to do the next job.");
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Since running the job caused an exception, let's try to do the next job."
+                );
                 yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterException3({job.GetUniqueLoadID()})");
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Back from the next job after the exception.");
+                    debugHandle: $"TryDoNextJobAfterException3({job.GetUniqueLoadID()})"
+                );
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Back from the next job after the exception."
+                );
                 if (responsibleForFlag)
                 {
                     IsRunningJobs = false;
@@ -290,7 +305,9 @@ public class JobTracker(Manager manager) : IExposable
                 // Don't log jobs where the state is Completed both before and after TryDoJob;
                 // those TryDoJobs are only for checking whether a job should be resumed again, and
                 // it was decided we weren't about to resume yet.
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Since the job did something, let's log it.");
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Since the job did something, let's log it."
+                );
                 log._workDone = workDone;
                 foreach (var jobLogger in _manager.CompsOfType<IJobLogger>())
                 {
@@ -299,15 +316,22 @@ public class JobTracker(Manager manager) : IExposable
             }
 
             // mark job as dealt with
-            ColonyManagerReduxMod.Instance.LogVerboseMessage($"Mark the job as having been updated.");
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Mark the job as having been updated."
+            );
             job.Touch();
 
             if (!workDone)
             {
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Since the job did not do any work, let's try to do the next job.");
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Since the job did not do any work, let's try to do the next job."
+                );
                 yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterNoWorkDone({job.GetUniqueLoadID()})");
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Back from the next job after the one with no work done.");
+                    debugHandle: $"TryDoNextJobAfterNoWorkDone({job.GetUniqueLoadID()})"
+                );
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Back from the next job after the one with no work done."
+                );
             }
 
             if (responsibleForFlag)
@@ -333,17 +357,20 @@ public class JobTracker(Manager manager) : IExposable
         }
     }
 
-    private static void SwitchPriorities(ManagerJob a, ManagerJob b) => (b.Priority, a.Priority) = (a.Priority, b.Priority);
+    private static void SwitchPriorities(ManagerJob a, ManagerJob b) =>
+        (b.Priority, a.Priority) = (a.Priority, b.Priority);
 
-    private void Reprioritize<T>(T job, int newPriority) where T : ManagerJob
+    private void Reprioritize<T>(T job, int newPriority)
+        where T : ManagerJob
     {
         // get list of priorities for this type.
         // Use ArrayPool<T> and stackalloc to reduce GC pressure
         var jobsOfTypeCount = Jobs.OfType<T>().Count();
         using var jobsOfType = ArrayPool<ManagerJob>.Shared.RentWithSelfReturn(jobsOfTypeCount);
-        var priorities = jobsOfTypeCount < Constants.MaxStackallocSize
-            ? stackalloc int[jobsOfTypeCount]
-            : new int[jobsOfTypeCount];
+        var priorities =
+            jobsOfTypeCount < Constants.MaxStackallocSize
+                ? stackalloc int[jobsOfTypeCount]
+                : new int[jobsOfTypeCount];
         foreach (var (j, i) in Jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
         {
             jobsOfType[i] = j;
@@ -364,24 +391,26 @@ public class JobTracker(Manager manager) : IExposable
         CleanPriorities();
     }
 
-    internal void TopPriority<T>(T job) where T : ManagerJob => Reprioritize(job, -1);
+    internal void TopPriority<T>(T job)
+        where T : ManagerJob => Reprioritize(job, -1);
 
-    internal void BottomPriority<T>(T job) where T : ManagerJob => Reprioritize(job, MaxPriority + 1);
+    internal void BottomPriority<T>(T job)
+        where T : ManagerJob => Reprioritize(job, MaxPriority + 1);
 
-    internal void IncreasePriority<T>(T job) where T : ManagerJob
+    internal void IncreasePriority<T>(T job)
+        where T : ManagerJob
     {
-        ManagerJob jobB = Jobs
-            .OfType<T>()
+        ManagerJob jobB = Jobs.OfType<T>()
             .OrderByDescending(mj => mj.Priority)
             .First(mj => mj.Priority < job.Priority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
 
-    internal void DecreasePriority<T>(T job) where T : ManagerJob
+    internal void DecreasePriority<T>(T job)
+        where T : ManagerJob
     {
-        ManagerJob jobB = Jobs
-            .OfType<T>()
+        ManagerJob jobB = Jobs.OfType<T>()
             .OrderBy(mj => mj.Priority)
             .First(mj => mj.Priority > job.Priority);
         SwitchPriorities(job, jobB);

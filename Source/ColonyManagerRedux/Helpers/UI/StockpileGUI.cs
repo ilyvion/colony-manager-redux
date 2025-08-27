@@ -3,9 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
-
 using ilyvion.Laboratory.Extensions;
-
 using Verse.Sound;
 
 namespace ColonyManagerRedux;
@@ -25,6 +23,7 @@ public static class StockpileGUI
 
     private static Vector2 _scrollPosition;
     private static readonly List<Zone_Stockpile> _tmpStockpiles = [];
+
     /// <summary>
     /// Draws the stockpile selector UI and updates the active stockpile.
     /// </summary>
@@ -34,7 +33,11 @@ public static class StockpileGUI
     /// <param name="map">The map containing the stockpiles.</param>
     /// <returns>The height of the drawn selector area.</returns>
     public static float DoStockpileSelectors(
-        Vector2 position, float width, ref Zone_Stockpile? activeStockpile, Map map)
+        Vector2 position,
+        float width,
+        ref Zone_Stockpile? activeStockpile,
+        Map map
+    )
     {
         if (map == null)
         {
@@ -67,14 +70,19 @@ public static class StockpileGUI
             new Rect(position.x, position.y, width, 3 * Constants.ListEntryHeight),
             ref _scrollPosition,
             new Rect(position.x, position.y, viewWidth, rowCount * Constants.ListEntryHeight),
-            needsScrollbars);
+            needsScrollbars
+        );
 
         for (var j = 0; j < stockPileCount; j++)
         {
             if (j == 0)
             {
                 var nullAreaRect = new Rect(
-                    position.x, position.y, widthPerCell, Constants.ListEntryHeight);
+                    position.x,
+                    position.y,
+                    widthPerCell,
+                    Constants.ListEntryHeight
+                );
                 DoZoneSelector(nullAreaRect, ref activeStockpile, null, BaseContent.GreyTex);
             }
             else
@@ -82,9 +90,15 @@ public static class StockpileGUI
                 var stockpileRect = new Rect(
                     position.x + (j % StockPilesPerRow * widthPerCell),
                     position.y + (j / StockPilesPerRow * Constants.ListEntryHeight),
-                    widthPerCell, Constants.ListEntryHeight);
+                    widthPerCell,
+                    Constants.ListEntryHeight
+                );
                 DoZoneSelector(
-                    stockpileRect, ref activeStockpile, _tmpStockpiles[j - 1], textures[j - 1]);
+                    stockpileRect,
+                    ref activeStockpile,
+                    _tmpStockpiles[j - 1],
+                    textures[j - 1]
+                );
             }
         }
 
@@ -96,11 +110,11 @@ public static class StockpileGUI
         return rowCount * Constants.ListEntryHeight;
     }
 
-
     private static bool addedPostDrawSelectionOverlaysAction;
     private static Zone? mouseOverZone;
 
     private static readonly Color MouseOverColor = new(.75f, .75f, .75f);
+
     private static void PostDrawSelectionOverlays()
     {
         if (mouseOverZone != null && !Find.Selector.IsSelected(mouseOverZone))
@@ -133,12 +147,18 @@ public static class StockpileGUI
     }
 
     // RimWorld.AreaAllowedGUI
-    private static void DoZoneSelector(Rect rect, ref Zone_Stockpile? activeStockpile, Zone_Stockpile? zone,
-                                        Texture2D tex)
+    private static void DoZoneSelector(
+        Rect rect,
+        ref Zone_Stockpile? activeStockpile,
+        Zone_Stockpile? zone,
+        Texture2D tex
+    )
     {
         if (!addedPostDrawSelectionOverlaysAction)
         {
-            RimWorld_SelectionDrawer_DrawSelectionOverlays.PostDrawSelectionOverlaysActions.Add(PostDrawSelectionOverlays);
+            RimWorld_SelectionDrawer_DrawSelectionOverlays.PostDrawSelectionOverlaysActions.Add(
+                PostDrawSelectionOverlays
+            );
             addedPostDrawSelectionOverlaysAction = true;
         }
 
@@ -170,8 +190,7 @@ public static class StockpileGUI
                 }
             }
 
-            if (Input.GetMouseButton(0) &&
-                 activeStockpile != zone)
+            if (Input.GetMouseButton(0) && activeStockpile != zone)
             {
                 activeStockpile = zone;
                 SoundDefOf.Designate_DragStandard_Changed.PlayOneShotOnCamera();

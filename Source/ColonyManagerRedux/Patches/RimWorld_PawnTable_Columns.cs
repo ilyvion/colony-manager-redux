@@ -13,7 +13,8 @@ public static class PawnTableCurrentExtensions
     /// </summary>
     /// <param name="pawnTable">The pawn table to check.</param>
     /// <returns><c>true</c> if the specified pawn table is the current one; otherwise, <c>false</c>.</returns>
-    public static bool IsCurrentTable(this PawnTable? pawnTable) => RimWorld_PawnTable_Columns.CurrentPawnTable == pawnTable;
+    public static bool IsCurrentTable(this PawnTable? pawnTable) =>
+        RimWorld_PawnTable_Columns.CurrentPawnTable == pawnTable;
 }
 
 [HarmonyPatch(typeof(PawnTable), nameof(PawnTable.Columns), MethodType.Getter)]

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-
     <ResearchTabDef>
         <defName>CMR_ResearchTab</defName>
         <label>Colony Manager Redux</label>
         <generalTitle>Colony Manager Redux research projects</generalTitle>
         <generalDescription>Research ways to more effectively manage your colony.</generalDescription>
     </ResearchTabDef>
-
 </Defs>

@@ -9,53 +9,67 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 internal static class Utilities_Plants
 {
-    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea) => GetAllPlants(map)
-
+    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea) =>
+        GetAllPlants(map)
             // if !clearArea, remove things that do not yield wood
-            .Where(td => (
+            .Where(td =>
+                (
                     clearArea
                     || td.plant.harvestTag == "Wood"
                     || td.plant.harvestedThingDef == ThingDefOf.WoodLog
                 )
                 && td.plant.harvestedThingDef != null
-                && td.plant.harvestYield > 0)
+                && td.plant.harvestYield > 0
+            )
             .Distinct()
             .OrderBy(pk => pk.label);
 
-    public static IEnumerable<ThingDef> GetForagingPlants(Map? map) => GetAllPlants(map)
-
+    public static IEnumerable<ThingDef> GetForagingPlants(Map? map) =>
+        GetAllPlants(map)
             // that yield something that is not wood
-            .Where(plant => plant.plant.harvestYield > 0 &&
-                plant.plant.harvestedThingDef != null &&
-                plant.plant.harvestTag != "Wood")
+            .Where(plant =>
+                plant.plant.harvestYield > 0
+                && plant.plant.harvestedThingDef != null
+                && plant.plant.harvestTag != "Wood"
+            )
             .Distinct()
             .OrderBy(pk => pk.label);
 
-    private static IEnumerable<ThingDef> GetAllPlants(Map? map) => map != null
-            ? map.Biome.AllWildPlants
-
-            // cave plants (shrooms)
-            .Concat(DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(td => td.plant?.cavePlant ?? false))
-
-            // ambrosia
-            .Concat(ThingDefOf.Plant_Ambrosia)
-
-            // and anything on the map that is not in a plant zone/planter
-            .Concat(map.listerThings.AllThings.OfType<Plant>()
-                .Where(p => p.Spawned &&
-                    map.zoneManager.ZoneAt(p.Position) is not IPlantToGrowSettable &&
-                    map.thingGrid.ThingsAt(p.Position)
-                        .FirstOrDefault(t => t is Building_PlantGrower) == null)
-                .Select(p => p.def))
-            : DefDatabase<ThingDef>.AllDefsListForReading
-                .Where(td => td.IsPlant);
+    private static IEnumerable<ThingDef> GetAllPlants(Map? map) =>
+        map != null
+            ? map
+                .Biome.AllWildPlants
+                // cave plants (shrooms)
+                .Concat(
+                    DefDatabase<ThingDef>.AllDefsListForReading.Where(td =>
+                        td.plant?.cavePlant ?? false
+                    )
+                )
+                // ambrosia
+                .Concat(ThingDefOf.Plant_Ambrosia)
+                // and anything on the map that is not in a plant zone/planter
+                .Concat(
+                    map.listerThings.AllThings.OfType<Plant>()
+                        .Where(p =>
+                            p.Spawned
+                            && map.zoneManager.ZoneAt(p.Position) is not IPlantToGrowSettable
+                            && map.thingGrid.ThingsAt(p.Position)
+                                .FirstOrDefault(t => t is Building_PlantGrower) == null
+                        )
+                        .Select(p => p.def)
+                )
+            : DefDatabase<ThingDef>.AllDefsListForReading.Where(td => td.IsPlant);
 
     public static bool TrySpecialAllowedSync(
-        this ThingDef plantDef, HashSet<ThingDef> allowedPlants, ThingFilter thresholdFilter)
+        this ThingDef plantDef,
+        HashSet<ThingDef> allowedPlants,
+        ThingFilter thresholdFilter
+    )
     {
-        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
-            && plantDef == ManagerThingDefOf.SRV_PlantTurnip)
+        if (
+            ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
+            && plantDef == ManagerThingDefOf.SRV_PlantTurnip
+        )
         {
             var setAllow = allowedPlants.Contains(ManagerThingDefOf.SRV_PlantTurnip);
             thresholdFilter.SetAllow(ManagerThingDefOf.SRV_Turnip, setAllow);
@@ -68,10 +82,15 @@ internal static class Utilities_Plants
     }
 
     public static bool TrySpecialFilterSync(
-        this ThingDef plantDef, ThingFilter thresholdFilter, ref bool shouldAllowPlant)
+        this ThingDef plantDef,
+        ThingFilter thresholdFilter,
+        ref bool shouldAllowPlant
+    )
     {
-        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
-            && plantDef == ManagerThingDefOf.SRV_PlantTurnip)
+        if (
+            ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
+            && plantDef == ManagerThingDefOf.SRV_PlantTurnip
+        )
         {
             shouldAllowPlant =
                 thresholdFilter.Allows(ManagerThingDefOf.SRV_Turnip)
@@ -85,8 +104,10 @@ internal static class Utilities_Plants
 
     public static bool TrySpecialDesigationCount(this ThingDef plantDef, AnyBoxed<int> count)
     {
-        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
-                && plantDef == ManagerThingDefOf.SRV_PlantTurnip)
+        if (
+            ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
+            && plantDef == ManagerThingDefOf.SRV_PlantTurnip
+        )
         {
             var yield = plantDef.plant.harvestYield * 1.5;
             var yield2 = plantDef.plant.harvestYield * 2.5;
@@ -99,17 +120,25 @@ internal static class Utilities_Plants
     }
 
     public static bool TrySpecialYieldTooltip(
-        this ThingDef plantDef, [NotNullWhen(true)] out string? tooltip)
+        this ThingDef plantDef,
+        [NotNullWhen(true)] out string? tooltip
+    )
     {
-        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
-                && plantDef == ManagerThingDefOf.SRV_PlantTurnip)
+        if (
+            ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
+            && plantDef == ManagerThingDefOf.SRV_PlantTurnip
+        )
         {
             var yield = plantDef.plant.harvestYield * 1.5;
             var yield2 = plantDef.plant.harvestYield * 2.5;
             tooltip = I18n.YieldMany(
-                Gen.YieldSingle($"{ManagerThingDefOf.SRV_Turnip.LabelCap} x{yield:F0}").Concat(
-                    Gen.YieldSingle($"{ManagerThingDefOf.SRV_Turnip_Green.LabelCap} x{yield2:F0}")
-                ));
+                Gen.YieldSingle($"{ManagerThingDefOf.SRV_Turnip.LabelCap} x{yield:F0}")
+                    .Concat(
+                        Gen.YieldSingle(
+                            $"{ManagerThingDefOf.SRV_Turnip_Green.LabelCap} x{yield2:F0}"
+                        )
+                    )
+            );
 
             return true;
         }
@@ -119,17 +148,22 @@ internal static class Utilities_Plants
     }
 
     public static bool TrySpecialDesignationYieldTooltip(
-        this ThingDef plantDef, [NotNullWhen(true)] out string? tooltip)
+        this ThingDef plantDef,
+        [NotNullWhen(true)] out string? tooltip
+    )
     {
-        if (ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
-                && plantDef == ManagerThingDefOf.SRV_PlantTurnip)
+        if (
+            ModsConfig.IsActive(Constants.SurvivalistsAdditionsModId)
+            && plantDef == ManagerThingDefOf.SRV_PlantTurnip
+        )
         {
             var yield = plantDef.plant.harvestYield * 1.5;
             var yield2 = plantDef.plant.harvestYield * 2.5;
-            tooltip =
-                Gen.YieldSingle($"{ManagerThingDefOf.SRV_Turnip.LabelCap} x{yield:F0}").Concat(
+            tooltip = Gen.YieldSingle($"{ManagerThingDefOf.SRV_Turnip.LabelCap} x{yield:F0}")
+                .Concat(
                     Gen.YieldSingle($"{ManagerThingDefOf.SRV_Turnip_Green.LabelCap} x{yield2:F0}")
-                ).Join(null, "\n- ");
+                )
+                .Join(null, "\n- ");
 
             return true;
         }

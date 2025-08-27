@@ -24,41 +24,63 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             rect.xMin,
             rect.yMin,
             rect.width * 3 / 5f,
-            rect.height - Margin - ButtonSize.y);
+            rect.height - Margin - ButtonSize.y
+        );
         var animalsColumnRect = new Rect(
             optionsColumnRect.xMax,
             rect.yMin,
             rect.width * 2 / 5f,
-            rect.height - Margin - ButtonSize.y);
+            rect.height - Margin - ButtonSize.y
+        );
         var buttonRect = new Rect(
             rect.xMax - ButtonSize.x,
             rect.yMax - ButtonSize.y,
             ButtonSize.x - Margin,
-            ButtonSize.y - Margin);
-
+            ButtonSize.y - Margin
+        );
 
         // options
         Widgets_Section.BeginSectionColumn(
-            optionsColumnRect, "Hunting.Options", out var position, out var width);
+            optionsColumnRect,
+            "Hunting.Options",
+            out var position,
+            out var width
+        );
         Widgets_Section.Section(
             ref position,
             width,
             DrawTargetResource,
-            "ColonyManagerRedux.Hunting.TargetResource".Translate());
+            "ColonyManagerRedux.Hunting.TargetResource".Translate()
+        );
 
-        Widgets_Section.Section(ref position, width, DrawThresholdSettings, "ColonyManagerRedux.Threshold".Translate());
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawThresholdSettings,
+            "ColonyManagerRedux.Threshold".Translate()
+        );
         Widgets_Section.Section(ref position, width, DrawUnforbidCorpses);
-        Widgets_Section.Section(ref position, width, DrawHuntingGrounds,
-            "ColonyManagerRedux.Hunting.AreaRestriction".Translate());
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawHuntingGrounds,
+            "ColonyManagerRedux.Hunting.AreaRestriction".Translate()
+        );
         Widgets_Section.EndSectionColumn("Hunting.Options", position);
 
         // animals
-        Widgets_Section.BeginSectionColumn(animalsColumnRect, "Hunting.Animals", out position, out width);
+        Widgets_Section.BeginSectionColumn(
+            animalsColumnRect,
+            "Hunting.Animals",
+            out position,
+            out width
+        );
         var refreshRect = new Rect(
             position.x + width - SmallIconSize - (2 * Margin),
             position.y + Margin,
             SmallIconSize,
-            SmallIconSize);
+            SmallIconSize
+        );
         if (Widgets.ButtonImage(refreshRect, Resources.Refresh, Color.grey))
         {
             SelectedHuntingJob.RefreshAllAnimals();
@@ -68,16 +90,27 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             refreshRect.x - (SmallIconSize + 1) - (2 * Margin),
             position.y + Margin,
             SmallIconSize + 1,
-            SmallIconSize);
-        if (Widgets.ButtonImage(
-            padlockRect,
-            SelectedHuntingJob.AnimalsLockedToMap ? Resources.PadlockClosed : Resources.PadlockOpen,
-            Color.grey))
+            SmallIconSize
+        );
+        if (
+            Widgets.ButtonImage(
+                padlockRect,
+                SelectedHuntingJob.AnimalsLockedToMap
+                    ? Resources.PadlockClosed
+                    : Resources.PadlockOpen,
+                Color.grey
+            )
+        )
         {
             SelectedHuntingJob.AnimalsLockedToMap = !SelectedHuntingJob.AnimalsLockedToMap;
         }
 
-        Widgets_Section.Section(ref position, width, DrawAnimalShortcuts, "ColonyManagerRedux.Hunting.Animals".Translate());
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawAnimalShortcuts,
+            "ColonyManagerRedux.Hunting.Animals".Translate()
+        );
         Widgets_Section.Section(ref position, width, DrawAnimalList);
         Widgets_Section.EndSectionColumn("Hunting.Animals", position);
 
@@ -122,24 +155,36 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         foreach (var animalDef in allAnimals)
         {
             // draw the toggle
-            Utilities.DrawToggle(rowRect, animalDef.LabelCap,
-                new TipSignal(GetAnimalKindTooltip(animalDef, SelectedHuntingJob.TargetResource),
-                    animalDef.GetHashCode()), allowedAnimals.Contains(animalDef),
-                () => SelectedHuntingJob
-                    .SetAnimalAllowed(animalDef, !allowedAnimals.Contains(animalDef)));
+            Utilities.DrawToggle(
+                rowRect,
+                animalDef.LabelCap,
+                new TipSignal(
+                    GetAnimalKindTooltip(animalDef, SelectedHuntingJob.TargetResource),
+                    animalDef.GetHashCode()
+                ),
+                allowedAnimals.Contains(animalDef),
+                () =>
+                    SelectedHuntingJob.SetAnimalAllowed(
+                        animalDef,
+                        !allowedAnimals.Contains(animalDef)
+                    )
+            );
 
             var iconRect = new Rect(
                 rowRect.xMax - (2 * (SmallIconSize + Margin)) - Margin,
                 rowRect.yMin + ((rowRect.height - SmallIconSize) / 2),
                 SmallIconSize,
-                SmallIconSize);
+                SmallIconSize
+            );
 
             // if aggressive, draw warning icon
             if (animalDef.RaceProps.manhunterOnDamageChance >= 0.1)
             {
                 var color = GUI.color;
                 GUI.color = allowedAnimals.Contains(animalDef)
-                    ? animalDef.RaceProps.manhunterOnDamageChance > 0.25 ? Color.red : Resources.Orange
+                    ? animalDef.RaceProps.manhunterOnDamageChance > 0.25
+                        ? Color.red
+                        : Resources.Orange
                     : Color.gray;
                 GUI.DrawTexture(iconRect, Resources.ClawIcon);
                 GUI.color = color;
@@ -162,16 +207,22 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 if (atLeastOneVenerated)
                 {
                     var color = GUI.color;
-                    GUI.color = allowedAnimals.Contains(animalDef) ? allVenerated ? Color.red : Resources.Orange : Color.gray;
+                    GUI.color = allowedAnimals.Contains(animalDef)
+                        ? allVenerated
+                            ? Color.red
+                            : Resources.Orange
+                        : Color.gray;
                     GUI.DrawTexture(iconRect, Resources.Venerated);
                     GUI.color = color;
 
-                    TooltipHandler.TipRegion(iconRect,
+                    TooltipHandler.TipRegion(
+                        iconRect,
                         "ColonyManagerRedux.Hunting.VeneratedAnimal.Tip".Translate(
                             allVenerated
                                 ? "ColonyManagerRedux.Misc.All".Translate()
                                 : "ColonyManagerRedux.Misc.Some".Translate()
-                        ));
+                        )
+                    );
 
                     iconRect.x -= Margin + SmallIconSize;
                 }
@@ -184,7 +235,11 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     }
 
     private static readonly List<string> _tmpAnimalKindTooltipYields = [];
-    public static string GetAnimalKindTooltip(PawnKindDef kind, HuntingTargetResource targetResource)
+
+    public static string GetAnimalKindTooltip(
+        PawnKindDef kind,
+        HuntingTargetResource targetResource
+    )
     {
         var sb = new StringBuilder();
         _ = sb.Append(kind.race.description);
@@ -195,13 +250,15 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
             _tmpAnimalKindTooltipYields.Clear();
 
-            var resourceDef = targetResource == HuntingTargetResource.Meat
-                ? kind.race.race.meatDef
-                : kind.race.race.leatherDef;
+            var resourceDef =
+                targetResource == HuntingTargetResource.Meat
+                    ? kind.race.race.meatDef
+                    : kind.race.race.leatherDef;
             if (resourceDef != null)
             {
                 _tmpAnimalKindTooltipYields.Add(
-                    YieldLine(kind.EstimatedYield(targetResource), resourceDef.label));
+                    YieldLine(kind.EstimatedYield(targetResource), resourceDef.label)
+                );
             }
 
             // butcherProducts (only used for buildings in vanilla)
@@ -210,7 +267,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 foreach (var product in kind.race.butcherProducts)
                 {
                     _tmpAnimalKindTooltipYields.Add(
-                        YieldLine(product.count, product.thingDef.label));
+                        YieldLine(product.count, product.thingDef.label)
+                    );
                 }
             }
 
@@ -220,7 +278,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 foreach (var leaving in kind.race.killedLeavings)
                 {
                     _tmpAnimalKindTooltipYields.Add(
-                        YieldLine(leaving.count, leaving.thingDef.label));
+                        YieldLine(leaving.count, leaving.thingDef.label)
+                    );
                 }
             }
 
@@ -278,9 +337,11 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         return sb.ToString();
     }
 
-    public static string YieldLine(int count, string label) => count > 1 ? $"{count}x {label}" : label;
+    public static string YieldLine(int count, string label) =>
+        count > 1 ? $"{count}x {label}" : label;
 
     private readonly List<PawnKindDef> _tmpPawnKinds = [];
+
     public float DrawAnimalShortcuts(Vector2 pos, float width)
     {
         using var _ = new DoOnDispose(_tmpPawnKinds.Clear);
@@ -299,7 +360,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
             rowRect,
             "ColonyManagerRedux.Shortcuts.All",
-            null);
+            null
+        );
 
         // toggle predators
         rowRect.y += ListEntryHeight;
@@ -311,7 +373,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
             rowRect,
             "ColonyManagerRedux.Hunting.Predators",
-            "ColonyManagerRedux.Hunting.Predators.Tip");
+            "ColonyManagerRedux.Hunting.Predators.Tip"
+        );
 
         // aggressive animals
         rowRect.y += ListEntryHeight;
@@ -323,7 +386,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
             rowRect,
             "ColonyManagerRedux.Hunting.Aggressive",
-            "ColonyManagerRedux.Hunting.Aggressive.Tip");
+            "ColonyManagerRedux.Hunting.Aggressive.Tip"
+        );
 
         // toggle herd animals
         rowRect.y += ListEntryHeight;
@@ -335,13 +399,17 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
             rowRect,
             "ColonyManagerRedux.Hunting.HerdAnimals",
-            "ColonyManagerRedux.Hunting.HerdAnimals.Tip");
+            "ColonyManagerRedux.Hunting.HerdAnimals.Tip"
+        );
 
         // exploding animals
         _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(
-            a => a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
-                || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion)));
+        _tmpPawnKinds.AddRange(
+            allAnimals.Where(a =>
+                a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
+                || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion)
+            )
+        );
 
         if (_tmpPawnKinds.Count > 0)
         {
@@ -352,7 +420,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
                 rowRect,
                 "ColonyManagerRedux.Hunting.Exploding",
-                "ColonyManagerRedux.Hunting.Exploding.Tip");
+                "ColonyManagerRedux.Hunting.Exploding.Tip"
+            );
         }
 
         return rowRect.yMax - start.y;
@@ -361,23 +430,23 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     public float DrawHuntingGrounds(Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref SelectedHuntingJob.HuntingGrounds, 5, Manager);
+        AreaAllowedGUI.DoAllowedAreaSelectors(
+            ref pos,
+            width,
+            ref SelectedHuntingJob.HuntingGrounds,
+            5,
+            Manager
+        );
         return pos.y - start.y;
     }
 
     public float DrawTargetResource(Vector2 pos, float width)
     {
-        var targetResource =
-            (HuntingTargetResource[])
-            Enum.GetValues(typeof(HuntingTargetResource));
+        var targetResource = (HuntingTargetResource[])Enum.GetValues(typeof(HuntingTargetResource));
 
         var cellWidth = width / targetResource.Length;
 
-        var cellRect = new Rect(
-            pos.x,
-            pos.y,
-            cellWidth,
-            ListEntryHeight);
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
         foreach (var type in targetResource)
         {
@@ -388,7 +457,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 SelectedHuntingJob.TargetResource == type,
                 () => SelectedHuntingJob.TargetResource = type,
                 () => { },
-                wrap: false);
+                wrap: false
+            );
             cellRect.x += cellWidth;
         }
 
@@ -409,47 +479,91 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         var designatedCount = designationsCache.Value;
         var targetLabel = SelectedHuntingJob.TriggerThreshold.TargetLabel;
 
-        SelectedHuntingJob.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight,
+        SelectedHuntingJob.TriggerThreshold.DrawTriggerConfig(
+            ref pos,
+            width,
+            ListEntryHeight,
             "ColonyManagerRedux.Hunting.TargetCount".Translate(
-                currentCount, corpseCount, designatedCount, targetLabel),
+                currentCount,
+                corpseCount,
+                designatedCount,
+                targetLabel
+            ),
             "ColonyManagerRedux.Hunting.TargetCountTooltip".Translate(
-                currentCount, corpseCount, designatedCount, targetLabel),
+                currentCount,
+                corpseCount,
+                designatedCount,
+                targetLabel
+            ),
             SelectedHuntingJob.Designations,
-            delegate { SelectedHuntingJob.Sync = Utilities.SyncDirection.FilterToAllowed; },
-            SelectedHuntingJob.DesignationLabel);
+            delegate
+            {
+                SelectedHuntingJob.Sync = Utilities.SyncDirection.FilterToAllowed;
+            },
+            SelectedHuntingJob.DesignationLabel
+        );
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Hunting.SyncFilterAndAllowed.Tip".Translate(),
-            ref SelectedHuntingJob.SyncFilterAndAllowed);
+            ref SelectedHuntingJob.SyncFilterAndAllowed
+        );
 
-        Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
-            "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(), ref SelectedHuntingJob.UsePathBasedDistance, true);
-        Utilities.DrawReachabilityToggle(ref pos, width, ref SelectedHuntingJob.ShouldCheckReachable);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
+            "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(),
+            ref SelectedHuntingJob.UsePathBasedDistance,
+            true
+        );
+        Utilities.DrawReachabilityToggle(
+            ref pos,
+            width,
+            ref SelectedHuntingJob.ShouldCheckReachable
+        );
 
         if (SelectedHuntingJob.TargetResource == HuntingTargetResource.Meat)
         {
             // allow human & insect meat (2)
-            Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
                 "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
                 SelectedHuntingJob.AllowAllHumanLikeMeat,
                 SelectedHuntingJob.AllowNoneHumanLikeMeat,
                 () => SelectedHuntingJob.AllowHumanLikeMeat = true,
-                () => SelectedHuntingJob.AllowHumanLikeMeat = false);
+                () => SelectedHuntingJob.AllowHumanLikeMeat = false
+            );
 
-            Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
                 "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
-                SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Megaspider),
+                SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(
+                    ManagerThingDefOf.Meat_Megaspider
+                ),
                 () => SelectedHuntingJob.AllowInsectMeat = true,
-                () => SelectedHuntingJob.AllowInsectMeat = false);
+                () => SelectedHuntingJob.AllowInsectMeat = false
+            );
 
             if (ModsConfig.AnomalyActive)
             {
-                Utilities.DrawToggle(ref pos, width, "ColonyManagerRedux.Hunting.AllowTwistedMeat".Translate(),
+                Utilities.DrawToggle(
+                    ref pos,
+                    width,
+                    "ColonyManagerRedux.Hunting.AllowTwistedMeat".Translate(),
                     "ColonyManagerRedux.Hunting.AllowTwistedMeat.Tip".Translate(),
-                    SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(ManagerThingDefOf.Meat_Twisted),
+                    SelectedHuntingJob.TriggerThreshold.ThresholdFilter.Allows(
+                        ManagerThingDefOf.Meat_Twisted
+                    ),
                     () => SelectedHuntingJob.AllowTwistedMeat = true,
-                    () => SelectedHuntingJob.AllowTwistedMeat = false);
+                    () => SelectedHuntingJob.AllowTwistedMeat = false
+                );
             }
         }
 
@@ -460,17 +574,23 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     {
         var start = pos;
 
-        Utilities.DrawToggle(ref pos, width,
+        Utilities.DrawToggle(
+            ref pos,
+            width,
             "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(),
             "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
-            ref SelectedHuntingJob.UnforbidCorpses);
+            ref SelectedHuntingJob.UnforbidCorpses
+        );
 
         if (SelectedHuntingJob.UnforbidCorpses)
         {
-            Utilities.DrawToggle(ref pos, width,
+            Utilities.DrawToggle(
+                ref pos,
+                width,
                 "ColonyManagerRedux.Hunting.UnforbidAllCorpses".Translate(),
                 "ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip".Translate(),
-                ref SelectedHuntingJob.UnforbidAllCorpses);
+                ref SelectedHuntingJob.UnforbidAllCorpses
+            );
         }
 
         return pos.y - start.y;

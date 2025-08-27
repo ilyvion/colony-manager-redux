@@ -3,7 +3,10 @@
 
 namespace ColonyManagerRedux;
 
-[HarmonyPatch(typeof(MainTabWindowUtility), nameof(MainTabWindowUtility.NotifyAllPawnTables_PawnsChanged))]
+[HarmonyPatch(
+    typeof(MainTabWindowUtility),
+    nameof(MainTabWindowUtility.NotifyAllPawnTables_PawnsChanged)
+)]
 internal static class RimWorld_MainTabWindowUtility_NotifyAllPawnTables_PawnsChanged
 {
     private static void Postfix()

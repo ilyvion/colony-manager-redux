@@ -8,7 +8,8 @@ namespace ColonyManagerRedux;
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Microsoft.Performance",
     "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection")]
+    Justification = "Class is instantiated via reflection"
+)]
 internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
 {
     private float workDone;
@@ -28,7 +29,8 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
         Scribe_Values.Look(ref hadNoWork, "hadNoWork", false);
     }
 
-    public override bool TryMakePreToilReservations(bool errorOnFailed) => pawn.Reserve(job.targetA, job);
+    public override bool TryMakePreToilReservations(bool errorOnFailed) =>
+        pawn.Reserve(job.targetA, job);
 
     protected override IEnumerable<Toil> MakeNewToils()
     {
@@ -44,24 +46,31 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
 
         // if made to by player, keep doing that untill we're out of jobs
         yield return Toils_Jump.JumpIf(
-            manage, () => GetActor().CurJob.playerForced && Manager.For(Map).JobTracker.NextJob != null);
+            manage,
+            () => GetActor().CurJob.playerForced && Manager.For(Map).JobTracker.NextJob != null
+        );
     }
 
     private Toil? Manage(TargetIndex targetIndex)
     {
-        if (GetActor().jobs.curJob.GetTarget(targetIndex).Thing is not Building_ManagerStation station)
+        if (
+            GetActor().jobs.curJob.GetTarget(targetIndex).Thing
+            is not Building_ManagerStation station
+        )
         {
-            ColonyManagerReduxMod.Instance
-                .LogError("Target of manager job was not a manager station.");
+            ColonyManagerReduxMod.Instance.LogError(
+                "Target of manager job was not a manager station."
+            );
             return null;
         }
 
         var comp = station.GetComp<CompManagerStation>();
         if (comp == null)
         {
-            ColonyManagerReduxMod.Instance
-                .LogError("Target of manager job does not have manager station comp. " +
-                    "This should never happen.");
+            ColonyManagerReduxMod.Instance.LogError(
+                "Target of manager job does not have manager station comp. "
+                    + "This should never happen."
+            );
             return null;
         }
 
@@ -72,7 +81,9 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
             defaultCompleteMode = ToilCompleteMode.Never,
             initAction = () =>
             {
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Pawn {pawn.Name} began toiling with managing at {station.Label}.");
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Pawn {pawn.Name} began toiling with managing at {station.Label}."
+                );
 
                 workDone = 0;
                 workNeeded = comp.Props.speed;
@@ -86,21 +97,28 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
             {
                 if (!hadNoWork && workDone > workNeeded / 2 && handle == null)
                 {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage($"Setting up a job due to pawn {pawn.Name} toiling with managing at {station.Label} having managing speed {managingSpeed}...");
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                        $"Setting up a job due to pawn {pawn.Name} toiling with managing at {station.Label} having managing speed {managingSpeed}..."
+                    );
                     var coroutine = Manager.For(pawn.Map).TryDoWork();
                     if (coroutine == null)
                     {
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage($"...there was no job to do.");
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                            $"...there was no job to do."
+                        );
                         hadNoWork = true;
                     }
                     else
                     {
                         coroutineStartTick = Find.TickManager.TicksGame;
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage($"...job started @ game tick {coroutineStartTick.Value}.");
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                            $"...job started @ game tick {coroutineStartTick.Value}."
+                        );
                         handle = MultiTickCoroutineManager.StartCoroutine(
                             coroutine,
                             () => coroutineEndTick = Find.TickManager.TicksGame,
-                            debugHandle: "JobDriver_ManagingAtManagingStation.Manage");
+                            debugHandle: "JobDriver_ManagingAtManagingStation.Manage"
+                        );
                     }
                 }
                 if (workDone < workNeeded)
@@ -115,7 +133,8 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
                 {
                     var tickCount = coroutineEndTick!.Value - coroutineStartTick!.Value;
                     ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Pawn {pawn.Name} toiling with managing at {station.Label} having managing speed {managingSpeed} took {tickCount} ticks to complete");
+                        $"Pawn {pawn.Name} toiling with managing at {station.Label} having managing speed {managingSpeed} took {tickCount} ticks to complete"
+                    );
 
                     ReadyForNextToil();
                 }
@@ -124,20 +143,19 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
                     ReadyForNextToil();
                 }
             },
-
         };
         toil.AddFinishAction(() =>
         {
             if (handle != null && !handle.IsCompleted)
             {
                 ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Cancelling managing job because pawn {pawn.Name} toiling with managing at {station.Label} was interrupted.");
+                    $"Cancelling managing job because pawn {pawn.Name} toiling with managing at {station.Label} was interrupted."
+                );
                 handle.Cancel();
             }
         });
 
-        return toil
-            .WithEffect(EffecterDefOf.Research, TargetIndex.A)
+        return toil.WithEffect(EffecterDefOf.Research, TargetIndex.A)
             .WithProgressBar(TargetIndex.A, () => workDone / workNeeded);
     }
 }

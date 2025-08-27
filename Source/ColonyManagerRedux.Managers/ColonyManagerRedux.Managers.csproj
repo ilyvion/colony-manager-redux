@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <UseLaboratory>true</UseLaboratory>
-
         <RootNamespace>ColonyManagerRedux.Managers</RootNamespace>
         <AssemblyName>ColonyManagerRedux.Managers</AssemblyName>
-
         <!-- TODO: Remove and fix -->
         <NoWarn>CA1502;CA1506</NoWarn>
     </PropertyGroup>
@@ -14,10 +12,8 @@
     <ItemGroup>
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.learned" />
         <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.def" />
-
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_TrainingTracker.SetWanted" />
         <Publicize Include="Assembly-CSharp:Verse.GenFilePaths.FolderUnderSaveData" />
-
         <Publicize Include="Assembly-CSharp:RimWorld.CompMilkable.Active" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompShearable.Active" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />

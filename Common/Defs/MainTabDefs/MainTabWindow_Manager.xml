@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-
     <MainButtonDef>
         <defName>ColonyManagerRedux_Manager</defName>
         <label>manager</label>
@@ -8,5 +7,4 @@
         <tabWindowClass>ColonyManagerRedux.MainTabWindow_Manager</tabWindowClass>
         <order>11</order>
     </MainButtonDef>
-
 </Defs>

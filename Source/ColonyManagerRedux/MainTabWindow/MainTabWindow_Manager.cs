@@ -35,14 +35,15 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         set => currentTab = value;
     }
 
-
     private List<ManagerTab>? _managerTabsLeft;
     private List<ManagerTab> ManagerTabsLeft
     {
         get
         {
             _managerTabsLeft ??=
-                [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show)];
+            [
+                .. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show),
+            ];
             return _managerTabsLeft;
         }
     }
@@ -53,7 +54,9 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         get
         {
             _managerTabsMiddle ??=
-                [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Middle && tab.Show)];
+            [
+                .. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Middle && tab.Show),
+            ];
             return _managerTabsMiddle;
         }
     }
@@ -64,7 +67,9 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         get
         {
             _managerTabsRight ??=
-                [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Right && tab.Show)];
+            [
+                .. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Right && tab.Show),
+            ];
             return _managerTabsRight;
         }
     }
@@ -107,27 +112,39 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         Text.Font = GameFont.Small;
 
         // three areas of icons for tabs, left middle and right.
-        var leftIcons = new Rect(0f, 0f,
+        var leftIcons = new Rect(
+            0f,
+            0f,
             (ManagerTabsLeft.Count * LargeIconSize)
-            + (Mathf.Max(0, ManagerTabsLeft.Count - 1) * Margin),
-            LargeIconSize);
-        var rightIcons = new Rect(0f, 0f,
+                + (Mathf.Max(0, ManagerTabsLeft.Count - 1) * Margin),
+            LargeIconSize
+        );
+        var rightIcons = new Rect(
+            0f,
+            0f,
             (ManagerTabsRight.Count * LargeIconSize)
-            + (Mathf.Max(0, ManagerTabsRight.Count - 1) * Margin),
-            LargeIconSize);
+                + (Mathf.Max(0, ManagerTabsRight.Count - 1) * Margin),
+            LargeIconSize
+        );
 
         var widthRemaining = inRect.width - leftIcons.width - rightIcons.width - (2 * Margin);
 
-        var middleIcons = new Rect(0f, 0f,
+        var middleIcons = new Rect(
+            0f,
+            0f,
             Margin + (ManagerTabsMiddle.Count * (LargeIconSize + Margin)),
-            LargeIconSize);
+            LargeIconSize
+        );
 
         var middleMargin = Margin;
         if (middleIcons.width > widthRemaining)
         {
             middleMargin -= (middleIcons.width - widthRemaining) / (ManagerTabsMiddle.Count + 1);
             middleIcons.width -= middleIcons.width - widthRemaining;
-            middleIcons.width = Mathf.Max(middleIcons.width, ManagerTabsMiddle.Count * LargeIconSize);
+            middleIcons.width = Mathf.Max(
+                middleIcons.width,
+                ManagerTabsMiddle.Count * LargeIconSize
+            );
         }
 
         var outerMargin = Margin;
@@ -189,8 +206,12 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         GUI.EndGroup();
 
         // delegate actual content to the specific manager tab.
-        var contentCanvas = new Rect(0f, LargeIconSize + Margin, inRect.width,
-                                      inRect.height - LargeIconSize - Margin);
+        var contentCanvas = new Rect(
+            0f,
+            LargeIconSize + Margin,
+            inRect.width,
+            inRect.height - LargeIconSize - Margin
+        );
         GUI.BeginGroup(contentCanvas);
         CurrentTab.RenderTab(contentCanvas.AtZero());
         GUI.EndGroup();
@@ -231,8 +252,12 @@ public sealed class MainTabWindow_Manager : MainTabWindow
             GUI.color = Color.grey;
             GUI.DrawTexture(rect, tab.Def.icon);
             GUI.color = Color.white;
-            TooltipHandler.TipRegion(rect, tab.Label + " " +
-                "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason));
+            TooltipHandler.TipRegion(
+                rect,
+                tab.Label
+                    + " "
+                    + "ColonyManagerRedux.Common.TabDisabledBecause".Translate(tab.DisabledReason)
+            );
         }
     }
 

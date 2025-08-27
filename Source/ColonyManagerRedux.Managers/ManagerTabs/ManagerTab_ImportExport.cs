@@ -34,9 +34,18 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     protected override void DoTabContents(Rect canvas)
     {
-        var loadRect = new Rect(0f, 0f, (canvas.width - Constants.Margin) * LoadAreaRatio, canvas.height);
-        var saveRect = new Rect(loadRect.xMax + Constants.Margin, 0f, canvas.width - Constants.Margin - loadRect.width,
-                                 canvas.height);
+        var loadRect = new Rect(
+            0f,
+            0f,
+            (canvas.width - Constants.Margin) * LoadAreaRatio,
+            canvas.height
+        );
+        var saveRect = new Rect(
+            loadRect.xMax + Constants.Margin,
+            0f,
+            canvas.width - Constants.Margin - loadRect.width,
+            canvas.height
+        );
         Widgets.DrawMenuSection(loadRect);
         Widgets.DrawMenuSection(saveRect);
 
@@ -119,14 +128,16 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
         catch (Exception ex)
         {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Exception while exporting jobs: " + ex);
+            ColonyManagerReduxMod.Instance.LogError("Exception while exporting jobs: " + ex);
         }
         finally
         {
             _ = Manager.SetScribingMode(ScribingMode.Normal);
             Scribe.saver.FinalizeSaving();
-            Messages.Message("ColonyManagerRedux.ManagerJobsExported".Translate(exportJobs.Count), MessageTypeDefOf.TaskCompletion);
+            Messages.Message(
+                "ColonyManagerRedux.ManagerJobsExported".Translate(exportJobs.Count),
+                MessageTypeDefOf.TaskCompletion
+            );
             Refresh();
         }
     }
@@ -134,33 +145,48 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     private void DoImport(SaveFileInfo file)
     {
         var filePath = _folder + "/" + file.FileInfo.Name;
-        PreLoadUtility.CheckVersionAndLoad(filePath, ScribeMetaHeaderUtility.ScribeHeaderMode.None, () =>
-        {
-            Scribe.loader.InitLoading(filePath);
-            _ = Manager.SetScribingMode(ScribingMode.Transfer);
-            List<ManagerJob> exportedJobs = [];
-            try
+        PreLoadUtility.CheckVersionAndLoad(
+            filePath,
+            ScribeMetaHeaderUtility.ScribeHeaderMode.None,
+            () =>
             {
-                ScribeMetaHeaderUtility.LoadGameDataHeader(ScribeMetaHeaderUtility.ScribeHeaderMode.None, logVersionConflictWarning: true);
-                Scribe_Collections.Look(ref exportedJobs, "jobs", LookMode.Deep, Manager);
-                Scribe.loader.FinalizeLoading();
-            }
-            catch
-            {
-                Scribe.ForceStop();
-                return;
-            }
-            finally
-            {
-                _ = Manager.SetScribingMode(ScribingMode.Normal);
-            }
+                Scribe.loader.InitLoading(filePath);
+                _ = Manager.SetScribingMode(ScribingMode.Transfer);
+                List<ManagerJob> exportedJobs = [];
+                try
+                {
+                    ScribeMetaHeaderUtility.LoadGameDataHeader(
+                        ScribeMetaHeaderUtility.ScribeHeaderMode.None,
+                        logVersionConflictWarning: true
+                    );
+                    Scribe_Collections.Look(ref exportedJobs, "jobs", LookMode.Deep, Manager);
+                    Scribe.loader.FinalizeLoading();
+                }
+                catch
+                {
+                    Scribe.ForceStop();
+                    return;
+                }
+                finally
+                {
+                    _ = Manager.SetScribingMode(ScribingMode.Normal);
+                }
 
-            Find.WindowStack.Add(new Dialog_ImportJobs(exportedJobs, (count) =>
-            {
-                Messages.Message("ColonyManagerRedux.ManagerJobsImported".Translate(count), MessageTypeDefOf.TaskCompletion);
-                Refresh();
-            }));
-        });
+                Find.WindowStack.Add(
+                    new Dialog_ImportJobs(
+                        exportedJobs,
+                        (count) =>
+                        {
+                            Messages.Message(
+                                "ColonyManagerRedux.ManagerJobsImported".Translate(count),
+                                MessageTypeDefOf.TaskCompletion
+                            );
+                            Refresh();
+                        }
+                    )
+                );
+            }
+        );
     }
 
     private void DrawFileEntry(Rect rect, SaveFileInfo file)
@@ -171,9 +197,19 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         var nameRect = rect.AtZero();
         nameRect.width -= (Prefs.DisableTinyText ? 250f : 200f) + IconSize + (4 * Constants.Margin);
         nameRect.xMin += 2 * Constants.Margin;
-        var timeRect = new Rect(nameRect.xMax + Constants.Margin, 0f, Prefs.DisableTinyText ? 150f : 100f, rect.height);
+        var timeRect = new Rect(
+            nameRect.xMax + Constants.Margin,
+            0f,
+            Prefs.DisableTinyText ? 150f : 100f,
+            rect.height
+        );
         var buttonRect = new Rect(timeRect.xMax + Constants.Margin, 1f, 100f, rect.height - 2f);
-        var deleteRect = new Rect(buttonRect.xMax + Constants.Margin, (rect.height - IconSize) / 2, IconSize, IconSize);
+        var deleteRect = new Rect(
+            buttonRect.xMax + Constants.Margin,
+            (rect.height - IconSize) / 2,
+            IconSize,
+            IconSize
+        );
 
         IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
@@ -203,13 +239,25 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
 
         // delete button
-        if (Widgets.ButtonImage(deleteRect, TexButton.Delete, Color.white, GenUI.SubtleMouseoverColor))
+        if (
+            Widgets.ButtonImage(
+                deleteRect,
+                TexButton.Delete,
+                Color.white,
+                GenUI.SubtleMouseoverColor
+            )
+        )
         {
-            Find.WindowStack.Add(new Dialog_Confirm("ConfirmDelete".Translate(file.FileInfo.Name), delegate
-            {
-                file.FileInfo.Delete();
-                Refresh();
-            }));
+            Find.WindowStack.Add(
+                new Dialog_Confirm(
+                    "ConfirmDelete".Translate(file.FileInfo.Name),
+                    delegate
+                    {
+                        file.FileInfo.Delete();
+                        Refresh();
+                    }
+                )
+            );
         }
         TooltipHandler.TipRegionByKey(deleteRect, "ColonyManagerRedux.DeleteThisManagerFile");
 
@@ -257,8 +305,18 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     {
         var infoRect = new Rect(rect.ContractedBy(Constants.Margin));
         infoRect.height -= 30f + Constants.Margin;
-        var nameRect = new Rect(rect.xMin + Constants.Margin, infoRect.yMax + Constants.Margin, (rect.width - (3 * Constants.Margin)) / 2, 30f);
-        var buttonRect = new Rect(nameRect.xMax + Constants.Margin, infoRect.yMax + Constants.Margin, nameRect.width, 30f);
+        var nameRect = new Rect(
+            rect.xMin + Constants.Margin,
+            infoRect.yMax + Constants.Margin,
+            (rect.width - (3 * Constants.Margin)) / 2,
+            30f
+        );
+        var buttonRect = new Rect(
+            nameRect.xMax + Constants.Margin,
+            infoRect.yMax + Constants.Margin,
+            nameRect.width,
+            30f
+        );
 
         Widgets.Label(infoRect, "ColonyManagerRedux.SelectExportJobs".Translate());
         infoRect.yMin += Constants.ListEntryHeight;
@@ -273,16 +331,20 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
 
         var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
-        if (IlyvionWidgets.DisableableButtonText(
-            buttonRect,
-            "ColonyManagerRedux.ManagerExport".Translate(),
-            enabled: anySelected))
+        if (
+            IlyvionWidgets.DisableableButtonText(
+                buttonRect,
+                "ColonyManagerRedux.ManagerExport".Translate(),
+                enabled: anySelected
+            )
+        )
         {
             TryExport(_saveName);
         }
     }
 
     private readonly ScrollViewStatus _scrollViewStatus = new();
+
     protected override void DoJobList(Rect jobsRect)
     {
         using var scrollView = GUIScope.ScrollView(jobsRect, _scrollViewStatus);
@@ -306,7 +368,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
                 Widgets.DrawAltRect(row);
             }
 
-            _selectedJobs[i] = Widgets.CheckboxMulti(new Rect(row.width - 24f, row.y + 15f, 20f, 20f), state, paintable: true);
+            _selectedJobs[i] = Widgets.CheckboxMulti(
+                new Rect(row.width - 24f, row.y + 15f, 20f, 20f),
+                state,
+                paintable: true
+            );
         }
 
         if (Event.current.type == EventType.Layout)
@@ -315,13 +381,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         }
     }
 
-    internal static void DrawExportListEntry(
-        ManagerJob job,
-        ref Vector2 position,
-        float width)
+    internal static void DrawExportListEntry(ManagerJob job, ref Vector2 position, float width)
     {
-        if (job.CompOfType<CompDrawExportListEntry>() is
-            CompDrawExportListEntry drawExportListEntry)
+        if (
+            job.CompOfType<CompDrawExportListEntry>() is CompDrawExportListEntry drawExportListEntry
+        )
         {
             var props = drawExportListEntry.Props;
             if (props.takeOverRendering)
@@ -333,38 +397,31 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
         var tab = job.Tab;
 
-        var labelWidth = width - Constants.LargeListEntryHeight
-            - LastUpdateRectWidth;
+        var labelWidth = width - Constants.LargeListEntryHeight - LastUpdateRectWidth;
 
         // create label string
         var subLabel = tab.GetSubLabel(job);
         var (label, labelSize) = tab.GetFullLabel(job, labelWidth, subLabel);
 
         // set up rects
-        Rect labelRect = new(
-            Constants.Margin,
-            0f,
-            labelWidth,
-            labelSize.y);
+        Rect labelRect = new(Constants.Margin, 0f, labelWidth, labelSize.y);
 
         Rect statusRect = new(
             labelRect.xMax + Constants.Margin,
             Constants.Margin,
             LastUpdateRectWidth,
-            labelRect.height);
+            labelRect.height
+        );
 
         var maxRowHeight = Mathf.Max(labelRect.yMax, statusRect.yMax) + Constants.Margin;
-        Rect rowRect = new(
-            position.x,
-            position.y,
-            width,
-            maxRowHeight);
+        Rect rowRect = new(position.x, position.y, width, maxRowHeight);
 
         Rect lastUpdateRect = new(
             statusRect.xMin,
             statusRect.y,
             LastUpdateRectWidth,
-            statusRect.height);
+            statusRect.height
+        );
 
         // do the drawing
         GUI.BeginGroup(rowRect);
@@ -382,11 +439,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);
 
         // draw update interval
-        UpdateInterval.Draw(
-            lastUpdateRect,
-            job,
-            true,
-            false);
+        UpdateInterval.Draw(lastUpdateRect, job, true, false);
 
         GUI.EndGroup();
         position.y += rowRect.height;
@@ -399,10 +452,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         var directoryInfo = new DirectoryInfo(_folder);
 
         // raw files
-        var files = from f in directoryInfo.GetFiles()
-                                             where f.Extension == SaveExtension
-                                             orderby f.LastWriteTime descending
-                                             select f;
+        var files =
+            from f in directoryInfo.GetFiles()
+            where f.Extension == SaveExtension
+            orderby f.LastWriteTime descending
+            select f;
 
         // convert to RW save files - mostly for the headers
         var saves = new List<SaveFileInfo>();
@@ -417,7 +471,8 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             catch (Exception ex)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    "Exception loading " + current.Name + ": " + ex);
+                    "Exception loading " + current.Name + ": " + ex
+                );
                 continue;
             }
         }
@@ -427,15 +482,23 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     private static string GetSaveLocation() => GenFilePaths.FolderUnderSaveData("ManagerJobs");
 
-    private bool SaveExists(string name) => _saveFiles.Any(save => save.FileInfo.Name == name + SaveExtension);
+    private bool SaveExists(string name) =>
+        _saveFiles.Any(save => save.FileInfo.Name == name + SaveExtension);
 
     private void TryExport(string name)
     {
         // if it exists, confirm overwrite
         if (SaveExists(name))
         {
-            Find.WindowStack.Add(new Dialog_Confirm("ColonyManagerRedux.ManagerConfirmOverwrite".Translate(name),
-                delegate { DoExport(name); }));
+            Find.WindowStack.Add(
+                new Dialog_Confirm(
+                    "ColonyManagerRedux.ManagerConfirmOverwrite".Translate(name),
+                    delegate
+                    {
+                        DoExport(name);
+                    }
+                )
+            );
         }
         else
         {
@@ -449,5 +512,5 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 internal enum ScribingMode
 {
     Transfer,
-    Normal
+    Normal,
 }

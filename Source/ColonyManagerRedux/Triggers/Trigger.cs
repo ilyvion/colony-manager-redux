@@ -11,21 +11,21 @@ namespace ColonyManagerRedux;
 public abstract class Trigger(ManagerJob job) : IExposable
 {
     private ManagerJob _job = job;
+
     /// <summary>
     /// Gets or sets the manager job associated with this trigger.
     /// </summary>
     public ManagerJob Job
     {
-        get => _job; protected internal set => _job = value;
+        get => _job;
+        protected internal set => _job = value;
     }
 
     /// <summary>
     /// Whether the trigger's condition is met or not.
     /// </summary>
-    public abstract bool State
-    {
-        get;
-    }
+    public abstract bool State { get; }
+
     /// <summary>
     /// Gets the tooltip describing the current status of the trigger.
     /// </summary>
@@ -47,9 +47,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
     /// </summary>
     /// <param name="progressRect">The rectangle in which to draw.</param>
     /// <param name="active">Whether the trigger is active.</param>
-    public virtual void DrawVerticalProgressBars(Rect progressRect, bool active)
-    {
-    }
+    public virtual void DrawVerticalProgressBars(Rect progressRect, bool active) { }
 
     /// <summary>
     /// Draws a vertical progress bar for the trigger's progress.
@@ -66,7 +64,8 @@ public abstract class Trigger(ManagerJob job) : IExposable
         float maxValue,
         string tooltip,
         bool active,
-        Texture2D progressBarTexture)
+        Texture2D progressBarTexture
+    )
     {
         // bar always goes a little beyond the actual target
         var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
@@ -84,9 +83,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
         // draw the bar
         // if the job is active and pending, make the bar blueish green - otherwise white.
-        var barTex = active
-            ? progressBarTexture
-            : Resources.BarBackgroundInactiveTexture;
+        var barTex = active ? progressBarTexture : Resources.BarBackgroundInactiveTexture;
         GUI.DrawTexture(barRect, barTex);
 
         // draw a mark at the treshold
@@ -100,9 +97,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
     /// </summary>
     /// <param name="progressRect">The rectangle in which to draw.</param>
     /// <param name="active">Whether the trigger is active.</param>
-    public virtual void DrawHorizontalProgressBars(Rect progressRect, bool active)
-    {
-    }
+    public virtual void DrawHorizontalProgressBars(Rect progressRect, bool active) { }
 
     /// <summary>
     /// Draws a horizontal progress bar for the trigger's progress.
@@ -119,7 +114,8 @@ public abstract class Trigger(ManagerJob job) : IExposable
         float maxValue,
         string tooltip,
         bool active,
-        Texture2D progressBarTexture)
+        Texture2D progressBarTexture
+    )
     {
         // bar always goes a little beyond the actual target
         var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
@@ -137,9 +133,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
         // draw the bar
         // if the job is active and pending, make the bar blueish green - otherwise white.
-        var barTex = active
-            ? progressBarTexture
-            : Resources.BarBackgroundInactiveTexture;
+        var barTex = active ? progressBarTexture : Resources.BarBackgroundInactiveTexture;
         GUI.DrawTexture(barRect, barTex);
 
         // draw a mark at the treshold
@@ -159,8 +153,14 @@ public abstract class Trigger(ManagerJob job) : IExposable
     /// <param name="targets">Optional list of designations to display.</param>
     /// <param name="onOpenFilterDetails">Optional action to invoke when filter details are opened.</param>
     /// <param name="designationLabelGetter">Optional function to get a label for a designation.</param>
-    public abstract void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight,
-        string? label = null, string? tooltip = null,
-        List<Designation>? targets = null, Action? onOpenFilterDetails = null,
-        Func<Designation, string>? designationLabelGetter = null);
+    public abstract void DrawTriggerConfig(
+        ref Vector2 cur,
+        float width,
+        float entryHeight,
+        string? label = null,
+        string? tooltip = null,
+        List<Designation>? targets = null,
+        Action? onOpenFilterDetails = null,
+        Func<Designation, string>? designationLabelGetter = null
+    );
 }

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-
     <JobDef>
         <defName>ManagingAtManagingStation</defName>
         <driverClass>ColonyManagerRedux.JobDriver_ManagingAtManagingStation</driverClass>
         <reportString>Updating colony management jobs at TargetA.</reportString>
         <alwaysShowWeapon>false</alwaysShowWeapon>
     </JobDef>
-
 </Defs>

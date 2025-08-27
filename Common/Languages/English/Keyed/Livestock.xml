@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LanguageData>
     <ColonyManagerRedux.Livestock.TargetCounts>Target counts</ColonyManagerRedux.Livestock.TargetCounts>
     <ColonyManagerRedux.Livestock.Adult>Adult</ColonyManagerRedux.Livestock.Adult>
@@ -67,7 +66,6 @@
     <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>{0} cannot be restricted</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>
     <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip>{0} cannot be restricted to an area because they are a roaming animal. Try penning them in an enclosure instead.</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimalTip>
     <ColonyManagerRedux.Livestock.VeneratedAnimal.Tip>Animal is venerated by {0} of your colonists. Colonists who venerate the animal will be upset if the animal is slaughtered, upset if they eat the animal, and upset if the tame animal dies.</ColonyManagerRedux.Livestock.VeneratedAnimal.Tip>
-
     <!-- following -->
     <ColonyManagerRedux.Livestock.FollowHeader>Following</ColonyManagerRedux.Livestock.FollowHeader>
     <ColonyManagerRedux.Livestock.MasterDefault>Assign master(s)</ColonyManagerRedux.Livestock.MasterDefault>
@@ -88,7 +86,6 @@
     <ColonyManagerRedux.Livestock.Master>{0} ({1})</ColonyManagerRedux.Livestock.Master>
     <ColonyManagerRedux.Livestock.MasterUnavailable>Unavailable</ColonyManagerRedux.Livestock.MasterUnavailable>
     <!-- 0; pawn name, 1; skill level -->
-
     <!-- MasterMode enum -->
     <ColonyManagerRedux.Livestock.MasterMode.Manual>Manual</ColonyManagerRedux.Livestock.MasterMode.Manual>
     <ColonyManagerRedux.Livestock.MasterMode.Hunters>Hunters</ColonyManagerRedux.Livestock.MasterMode.Hunters>
@@ -98,7 +95,6 @@
     <ColonyManagerRedux.Livestock.MasterMode.Violent>Violent</ColonyManagerRedux.Livestock.MasterMode.Violent>
     <ColonyManagerRedux.Livestock.MasterMode.NonViolent>Non-violent</ColonyManagerRedux.Livestock.MasterMode.NonViolent>
     <ColonyManagerRedux.Livestock.MasterMode.All>All</ColonyManagerRedux.Livestock.MasterMode.All>
-
     <!-- Age and sex classifications -->
     <ColonyManagerRedux.AgeAndSex.Order>{0} {1}</ColonyManagerRedux.AgeAndSex.Order>
     <ColonyManagerRedux.AgeAndSex.Adult>adult</ColonyManagerRedux.AgeAndSex.Adult>
@@ -107,7 +103,6 @@
     <ColonyManagerRedux.AgeAndSex.Female.Plural>females</ColonyManagerRedux.AgeAndSex.Female.Plural>
     <ColonyManagerRedux.AgeAndSex.Male>male</ColonyManagerRedux.AgeAndSex.Male>
     <ColonyManagerRedux.AgeAndSex.Male.Plural>males</ColonyManagerRedux.AgeAndSex.Male.Plural>
-
     <!-- Animal Genetics interop -->
     <ColonyManagerRedux.Livestock.AnimalGenetics.Use>Selection overrides using Animal Genetics</ColonyManagerRedux.Livestock.AnimalGenetics.Use>
     <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTaming>Taming</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideTaming>
@@ -115,7 +110,6 @@
     <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCulling>Culling</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCulling>
     <ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCullingTip>Instead of the usual way an animal is selected for culling by Colony Manager, use Animal Genetics parameters to select an animal for culling. The animals will be chosen in the order of fitting the desired genetic bias the least.</ColonyManagerRedux.Livestock.AnimalGenetics.OverrideCullingTip>
     <ColonyManagerRedux.Livestock.AnimalGenetics.GeneBias>Animal Genetics gene bias</ColonyManagerRedux.Livestock.AnimalGenetics.GeneBias>
-
     <!-- Settings -->
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>
@@ -125,7 +119,6 @@
     <ColonyManagerRedux.Livestock.ManagerSettings.Default>Defaults</ColonyManagerRedux.Livestock.ManagerSettings.Default>
     <ColonyManagerRedux.Livestock.ManagerSettings.AddOverride>Add override settings for specific animal</ColonyManagerRedux.Livestock.ManagerSettings.AddOverride>
     <ColonyManagerRedux.Livestock.ManagerSettings.DeleteOverrideFor>Delete override settings for {0}</ColonyManagerRedux.Livestock.ManagerSettings.DeleteOverrideFor>
-
     <!-- Logging -->
     <ColonyManagerRedux.Livestock.Logs.TooMany>{0} too many</ColonyManagerRedux.Livestock.Logs.TooMany>
     <ColonyManagerRedux.Livestock.Logs.TooFew>{0} too few</ColonyManagerRedux.Livestock.Logs.TooFew>
@@ -133,7 +126,6 @@
     <ColonyManagerRedux.Livestock.Logs.Not>not</ColonyManagerRedux.Livestock.Logs.Not>
     <ColonyManagerRedux.Livestock.Logs.Drafted>drafted</ColonyManagerRedux.Livestock.Logs.Drafted>
     <ColonyManagerRedux.Livestock.Logs.FieldWork>field work</ColonyManagerRedux.Livestock.Logs.FieldWork>
-
     <ColonyManagerRedux.Livestock.Logs.CurrentCountCulling>Checking if we should {0} any {1} {2}: count / target is {3} / {4} with {5} already being marked for {6}, leaving us with {7}</ColonyManagerRedux.Livestock.Logs.CurrentCountCulling>
     <ColonyManagerRedux.Livestock.Logs.Slaughter>butcher</ColonyManagerRedux.Livestock.Logs.Slaughter>
     <ColonyManagerRedux.Livestock.Logs.Slaughter.Action>slaughter</ColonyManagerRedux.Livestock.Logs.Slaughter.Action>

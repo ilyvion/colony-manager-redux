@@ -24,21 +24,27 @@ public static class PathFinderExtensions
         IntVec3 source,
         LocalTargetInfo target,
         TraverseParms traverseParams,
-        PathEndMode peMode = PathEndMode.Touch)
+        PathEndMode peMode = PathEndMode.Touch
+    )
     {
         if (pathFinder == null)
         {
             throw new ArgumentNullException(nameof(pathFinder));
         }
 #if v1_5
-        return pathFinder.FindPath(source, target,
+        return pathFinder.FindPath(
+            source,
+            target,
             TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
-                PathEndMode.Touch);
+            PathEndMode.Touch
+        );
 #else
-        return pathFinder.FindPathNow(source, target,
+        return pathFinder.FindPathNow(
+            source,
+            target,
             TraverseParms.For(TraverseMode.PassDoors, Danger.Some),
-                peMode: PathEndMode.Touch);
+            peMode: PathEndMode.Touch
+        );
 #endif
     }
-
 }

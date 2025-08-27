@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <LanguageData>
     <!-- Main Manager Tab -->
     <ColonyManagerRedux.Common.TabDisabledBecause>(disabled: {0})</ColonyManagerRedux.Common.TabDisabledBecause>
-
     <!-- Alert messages -->
     <ColonyManagerRedux.Alerts.NoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.Alerts.NoTableLabel>
     <ColonyManagerRedux.Alerts.NoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed.\n\n(Click to build {0})</ColonyManagerRedux.Alerts.NoTable>
@@ -15,14 +13,12 @@
     <ColonyManagerRedux.Alerts.AutoslaughterOverlap>You have configured both a Colony Manager livestock job and RimWorld's auto-slaughter to be responsible for maintaining animal count targets for one or more animals. These two systems will likely be in conflict, and you should either turn off the '{0}' setting for the manager job(s), or turn off auto-slaughter for the given animal(s). The animals that have an overlap are:\n\n{1}</ColonyManagerRedux.Alerts.AutoslaughterOverlap>
     <ColonyManagerRedux.Alerts.JobsNotUpdatingLabel>Manager jobs are not updating</ColonyManagerRedux.Alerts.JobsNotUpdatingLabel>
     <ColonyManagerRedux.Alerts.JobsNotUpdating>You have manager jobs configured that haven't been updated in {0} since they were due for an update. Make sure your managers aren't so busy with other tasks that they don't have time to update your manager jobs.\n\n(Click to open work window)</ColonyManagerRedux.Alerts.JobsNotUpdating>
-
     <!-- Common -->
     <ColonyManagerRedux.Common.Manage>Manage!</ColonyManagerRedux.Common.Manage>
     <ColonyManagerRedux.Common.Delete>Delete</ColonyManagerRedux.Common.Delete>
     <ColonyManagerRedux.Common.None>None</ColonyManagerRedux.Common.None>
     <ColonyManagerRedux.Common.Expensive.Tip>Enabling this setting may decrease performance, particularly on large maps, mountainous maps, jobs with many potential targets, and colonies with high numbers of colonists.</ColonyManagerRedux.Common.Expensive.Tip>
     <ColonyManagerRedux.Common.GoToJob>Go to {0} job</ColonyManagerRedux.Common.GoToJob>
-
     <!-- Jobs -->
     <ColonyManagerRedux.Job.New>New job</ColonyManagerRedux.Job.New>
     <ColonyManagerRedux.Job.NeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.Job.NeverUpdatedTooltip>
@@ -46,7 +42,6 @@
     <ColonyManagerRedux.Job.Suspend>suspend</ColonyManagerRedux.Job.Suspend>
     <ColonyManagerRedux.Job.Unsuspend>unsuspend</ColonyManagerRedux.Job.Unsuspend>
     <ColonyManagerRedux.Job.CausedException>This job has been suspended because it caused an exception:\n\n{0}.</ColonyManagerRedux.Job.CausedException>
-
     <ColonyManagerRedux.Threshold>Threshold</ColonyManagerRedux.Threshold>
     <ColonyManagerRedux.Threshold.CheckReachability>Check if targets are reachable</ColonyManagerRedux.Threshold.CheckReachability>
     <ColonyManagerRedux.Threshold.CheckReachability.Tip>Calculate if a path to the target exists (for any pawn) before creating a designation.</ColonyManagerRedux.Threshold.CheckReachability.Tip>
@@ -57,7 +52,6 @@
     <ColonyManagerRedux.Threshold.AllowAnyThreshold>Allow using any item for determining the threshold</ColonyManagerRedux.Threshold.AllowAnyThreshold>
     <ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip>If enabled, any item can be used to determine the threshold, not just those directly relevant to the job.\n\nWarning: Disabling this setting will have the effect of resetting the threshold filter to only include items directly relevant to the job again.</ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip>
     <ColonyManagerRedux.Threshold.AllowAnyThreshold.Warning>&lt;b&gt;WARNING&lt;/b&gt;: If the filtering is on something else than the items relevant to the job itself will almost certainly lead to odd behavior with the job's designation calculations, as the assumed expected resources from designations won't actually affect the threshold count as expected.</ColonyManagerRedux.Threshold.AllowAnyThreshold.Warning>
-
     <ColonyManagerRedux.Threshold.LowerThan>Lower than</ColonyManagerRedux.Threshold.LowerThan>
     <ColonyManagerRedux.Threshold.LowerThan.Tip>The job will be active as long as the count of selected items is lower than {0}.</ColonyManagerRedux.Threshold.LowerThan.Tip>
     <ColonyManagerRedux.Threshold.EqualTo>Equal to</ColonyManagerRedux.Threshold.EqualTo>
@@ -67,10 +61,8 @@
     <ColonyManagerRedux.Threshold.GreaterThan>Greater than</ColonyManagerRedux.Threshold.GreaterThan>
     <ColonyManagerRedux.Threshold.GreaterThan.Tip>The job will be active as long as the count of selected items is greater than {0}.</ColonyManagerRedux.Threshold.GreaterThan.Tip>
     <ColonyManagerRedux.Threshold.Op.Warning>&lt;b&gt;WARNING&lt;/b&gt;: Using an operator other than 'lower than' may lead to unexpected behavior as far as the job trying to meet its target is concerned — most jobs are striving to do something to increase the count until it meets the threshold.</ColonyManagerRedux.Threshold.Op.Warning>
-
     <ColonyManagerRedux.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.SyncFilterAndAllowed>
     <ColonyManagerRedux.AnyStockpile>Any stockpile</ColonyManagerRedux.AnyStockpile>
-
     <!-- time periods for update interval -->
     <ColonyManagerRedux.UpdateInterval.Hourly>Every hour</ColonyManagerRedux.UpdateInterval.Hourly>
     <ColonyManagerRedux.UpdateInterval.MultipleHourly>Every {0} hours</ColonyManagerRedux.UpdateInterval.MultipleHourly>
@@ -78,21 +70,17 @@
     <ColonyManagerRedux.UpdateInterval.Monthly>Monthly</ColonyManagerRedux.UpdateInterval.Monthly>
     <ColonyManagerRedux.UpdateInterval.Yearly>Yearly</ColonyManagerRedux.UpdateInterval.Yearly>
     <ColonyManagerRedux.UpdateInterval.Custom>Every {0}</ColonyManagerRedux.UpdateInterval.Custom>
-
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Active if: {0} {1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Click to open threshold details.\n\nTarget: {1}\nIn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
-
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Current</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Available</ColonyManagerRedux.Thresholds.Available>
-
     <!-- Right click job fail reasons -->
     <ColonyManagerRedux.CannotManage.NoPower>desk has no power</ColonyManagerRedux.CannotManage.NoPower>
     <ColonyManagerRedux.CannotManage.NoJobs>no jobs have been set</ColonyManagerRedux.CannotManage.NoJobs>
     <ColonyManagerRedux.CannotManage.NoActiveJobs>no jobs require updates right now</ColonyManagerRedux.CannotManage.NoActiveJobs>
     <ColonyManagerRedux.CannotManage.AIManager>managers won't do manual managing work when an AI manager is active</ColonyManagerRedux.CannotManage.AIManager>
-
     <!-- History chapter labels -->
     <ColonyManagerRedux.History.Stock>stock</ColonyManagerRedux.History.Stock>
     <ColonyManagerRedux.History.Designated>designated</ColonyManagerRedux.History.Designated>
@@ -101,17 +89,14 @@
     <ColonyManagerRedux.History.Production>production</ColonyManagerRedux.History.Production>
     <ColonyManagerRedux.History.Consumption>consumption</ColonyManagerRedux.History.Consumption>
     <ColonyManagerRedux.History.Batteries>batteries</ColonyManagerRedux.History.Batteries>
-
     <!-- Extra info labels -->
     <ColonyManagerRedux.Info.Yield>Expected yield:</ColonyManagerRedux.Info.Yield>
     <ColonyManagerRedux.Info.Aggressiveness>Aggressiveness: {0}</ColonyManagerRedux.Info.Aggressiveness>
     <ColonyManagerRedux.Info.Gender.Male>male</ColonyManagerRedux.Info.Gender.Male>
     <ColonyManagerRedux.Info.Gender.Female>female</ColonyManagerRedux.Info.Gender.Female>
     <ColonyManagerRedux.Info.ChanceToDrop>chance to drop: {0}</ColonyManagerRedux.Info.ChanceToDrop>
-
     <!-- Shortcuts -->
     <ColonyManagerRedux.Shortcuts.All>All</ColonyManagerRedux.Shortcuts.All>
-
     <!-- Designations -->
     <ColonyManagerRedux.Designations.CutPlant>cut</ColonyManagerRedux.Designations.CutPlant>
     <ColonyManagerRedux.Designations.HarvestPlant>harvest</ColonyManagerRedux.Designations.HarvestPlant>
@@ -121,7 +106,6 @@
     <ColonyManagerRedux.Designations.Haul>haul</ColonyManagerRedux.Designations.Haul>
     <ColonyManagerRedux.Designations.Deconstruct>deconstruct</ColonyManagerRedux.Designations.Deconstruct>
     <ColonyManagerRedux.Designations.Mine>mine</ColonyManagerRedux.Designations.Mine>
-
     <!-- Logs -->
     <ColonyManagerRedux.Logs.JobCompleted>Job entered its completed state</ColonyManagerRedux.Logs.JobCompleted>
     <ColonyManagerRedux.Logs.CleanJobCompletedDesignations>Removed {0} in-progress designations due to the job being completed ({1} before / {2} after)</ColonyManagerRedux.Logs.CleanJobCompletedDesignations>
@@ -135,7 +119,6 @@
     <ColonyManagerRedux.Logs.AddDesignation>Added new {0} designation for {1} of type {2} with expected yield {3}, bringing expected target to {4} {5}</ColonyManagerRedux.Logs.AddDesignation>
     <ColonyManagerRedux.Logs.RemoveDesignation>Removed extraneous {0} designation for {1} of type {2} with expected yield {3}, bringing expected target to {4} {5}</ColonyManagerRedux.Logs.RemoveDesignation>
     <ColonyManagerRedux.Logs.CantAddMoreDesignations>Can't designate any more {0} for {1} due to the configured designation limit.</ColonyManagerRedux.Logs.CantAddMoreDesignations>
-
     <!-- Misc. -->
     <ColonyManagerRedux.ManagerStation.OpenManagerTab>Manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab>
     <ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>Opens the manager tab</ColonyManagerRedux.ManagerStation.OpenManagerTab.Tip>

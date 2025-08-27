@@ -13,31 +13,34 @@ internal sealed class ManagerSettings_Foraging : ManagerSettings
 
     public override void DoTabContents(Rect rect)
     {
-        var panelRect = new Rect(
-            rect.xMin,
-            rect.yMin,
-            rect.width,
-            rect.height - Margin);
+        var panelRect = new Rect(rect.xMin, rect.yMin, rect.width, rect.height - Margin);
 
-        Widgets_Section.BeginSectionColumn(panelRect, "Foraging.Settings", out var position, out var width);
-        Widgets_Section.Section(ref position, width, DrawSyncFilterAndAllowed, "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+        Widgets_Section.BeginSectionColumn(
+            panelRect,
+            "Foraging.Settings",
+            out var position,
+            out var width
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawSyncFilterAndAllowed,
+            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+        );
         Widgets_Section.Section(ref position, width, DrawForceFullyMature);
         Widgets_Section.EndSectionColumn("Foraging.Settings", position);
     }
 
     public float DrawSyncFilterAndAllowed(Vector2 pos, float width)
     {
-        var rowRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
-            ref DefaultSyncFilterAndAllowed);
+            ref DefaultSyncFilterAndAllowed
+        );
 
         return ListEntryHeight;
     }
@@ -49,7 +52,8 @@ internal sealed class ManagerSettings_Foraging : ManagerSettings
             rowRect,
             "ColonyManagerRedux.Foraging.ForceFullyMature".Translate(),
             "ColonyManagerRedux.Foraging.ForceFullyMature.Tip".Translate(),
-            ref DefaultForceFullyMature);
+            ref DefaultForceFullyMature
+        );
 
         return ListEntryHeight;
     }

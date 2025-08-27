@@ -6,17 +6,13 @@ namespace ColonyManagerRedux;
 /// <summary>
 /// A render component for drawing export list entries in the Colony Manager Redux mod.
 /// </summary>
-public class CompDrawExportListEntry : ManagerRenderComp<CompProperties_DrawExportListEntry>
-{
-}
+public class CompDrawExportListEntry : ManagerRenderComp<CompProperties_DrawExportListEntry> { }
 
 /// <summary>
 /// Properties for the CompDrawExportListEntry render component.
 /// </summary>
 public class CompProperties_DrawExportListEntry
-    : ManagerRenderCompProperties<CompDrawExportListEntry, DrawExportListEntryWorker>
-{
-}
+    : ManagerRenderCompProperties<CompDrawExportListEntry, DrawExportListEntryWorker> { }
 
 /// <summary>
 /// Abstract base class for workers that handle drawing export list entries.
@@ -36,13 +32,15 @@ public abstract class DrawExportListEntryWorker
 /// Generic abstract base class for workers that handle drawing export list entries for a specific ManagerJob type.
 /// </summary>
 /// <typeparam name="T">The type of ManagerJob this worker handles.</typeparam>
-public abstract class DrawExportListEntryWorker<T> : DrawExportListEntryWorker where T : ManagerJob
+public abstract class DrawExportListEntryWorker<T> : DrawExportListEntryWorker
+    where T : ManagerJob
 {
     /// <inheritdoc/>
     public sealed override void DrawExportListEntry(
         ManagerJob job,
         ref Vector2 position,
-        float width) => DrawExportListEntry((T)job, ref position, width);
+        float width
+    ) => DrawExportListEntry((T)job, ref position, width);
 
     /// <summary>
     /// Draws an export list entry for the specified job of type <typeparamref name="T"/> at the given position and width.

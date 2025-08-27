@@ -29,19 +29,24 @@ internal partial class ManagerTab_Overview
             IlyvionWidgets.Label(
                 rect,
                 @this.instance.WorkTypeDef.gerundLabel.CapitalizeFirst().Truncate(rect.width),
-                TextAnchor.MiddleCenter);
+                TextAnchor.MiddleCenter
+            );
         }
 
-
-        public override void DoHeader(Rect rect, PawnTable table) => this.CustomLabelDoHeader(rect, table,
-                (rect, _, _, pawnColumnWorker)
-                    => DrawHeader(rect, (PawnColumnWorker_Label)pawnColumnWorker));
+        public override void DoHeader(Rect rect, PawnTable table) =>
+            this.CustomLabelDoHeader(
+                rect,
+                table,
+                (rect, _, _, pawnColumnWorker) =>
+                    DrawHeader(rect, (PawnColumnWorker_Label)pawnColumnWorker)
+            );
 
         protected override string GetHeaderTip(PawnTable table)
         {
             var headerTip = def.headerTip;
             def.headerTip = "";
-            var newHeaderTip = instance.WorkTypeDef.gerundLabel.CapitalizeFirst()
+            var newHeaderTip =
+                instance.WorkTypeDef.gerundLabel.CapitalizeFirst()
                 + "\n\n"
                 + base.GetHeaderTip(table);
             def.headerTip = headerTip;
@@ -49,6 +54,7 @@ internal partial class ManagerTab_Overview
         }
 
         private Rect lastCellRect;
+
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             lastCellRect = rect;
@@ -68,19 +74,30 @@ internal partial class ManagerTab_Overview
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var activityString = GetPawnActivityString(pawn);
-            IlyvionWidgets.Label(rect, activityString, activityString,
-                TextAnchor.MiddleCenter, leftMargin: Constants.Margin, gameFont: GameFont.Tiny);
+            IlyvionWidgets.Label(
+                rect,
+                activityString,
+                activityString,
+                TextAnchor.MiddleCenter,
+                leftMargin: Constants.Margin,
+                gameFont: GameFont.Tiny
+            );
         }
 
-        private static string GetPawnActivityString(Pawn pawn) => pawn.jobs.curDriver?.GetReport() ?? "ColonyManagerRedux.Overview.NoCurrentJob".Translate();
+        private static string GetPawnActivityString(Pawn pawn) =>
+            pawn.jobs.curDriver?.GetReport()
+            ?? "ColonyManagerRedux.Overview.NoCurrentJob".Translate();
 
         public override int GetOptimalWidth(PawnTable table)
         {
             var pawnsListForReading = table.PawnsListForReading;
-            var maxActivityWidth = pawnsListForReading.Count > 0
-                ? (int)pawnsListForReading
-                    .Max(pawn => Text.CalcSize(GetPawnActivityString(pawn)).x)
-                : (int)table.Size.x;
+            var maxActivityWidth =
+                pawnsListForReading.Count > 0
+                    ? (int)
+                        pawnsListForReading.Max(pawn =>
+                            Text.CalcSize(GetPawnActivityString(pawn)).x
+                        )
+                    : (int)table.Size.x;
             return maxActivityWidth;
         }
 
@@ -101,7 +118,13 @@ internal partial class ManagerTab_Overview
             var incapable = pawn.IsIncapableOfWholeWorkType(instance.WorkTypeDef);
             var priority = pawn.workSettings.GetPriority(instance.WorkTypeDef);
             Text.Font = GameFont.Medium;
-            WidgetsWork.DrawWorkBoxFor(workBoxRect.xMin, workBoxRect.yMin, pawn, instance.WorkTypeDef, incapable);
+            WidgetsWork.DrawWorkBoxFor(
+                workBoxRect.xMin,
+                workBoxRect.yMin,
+                pawn,
+                instance.WorkTypeDef,
+                incapable
+            );
             var priorityAfter = pawn.workSettings.GetPriority(instance.WorkTypeDef);
             if (priority != priorityAfter)
             {
@@ -109,12 +132,11 @@ internal partial class ManagerTab_Overview
             }
             if (Mouse.IsOver(workBoxRect))
             {
-                TooltipHandler.TipRegion(workBoxRect,
-                    () => WidgetsWork.TipForPawnWorker(
-                        pawn,
-                        instance.WorkTypeDef,
-                        incapable),
-                        pawn.thingIDNumber ^ instance.WorkTypeDef.GetHashCode());
+                TooltipHandler.TipRegion(
+                    workBoxRect,
+                    () => WidgetsWork.TipForPawnWorker(pawn, instance.WorkTypeDef, incapable),
+                    pawn.thingIDNumber ^ instance.WorkTypeDef.GetHashCode()
+                );
             }
         }
 
@@ -133,17 +155,19 @@ internal partial class ManagerTab_Overview
             Text.Font = GameFont.Small;
         }
 
-        protected override string GetHeaderTip(PawnTable table) => GetLabel()
-                + "\n\n"
-                + base.GetHeaderTip(table);
+        protected override string GetHeaderTip(PawnTable table) =>
+            GetLabel() + "\n\n" + base.GetHeaderTip(table);
 
-        private static TaggedString GetLabel() => Find.PlaySettings.useWorkPriorities
+        private static TaggedString GetLabel() =>
+            Find.PlaySettings.useWorkPriorities
                 ? "ColonyManagerRedux.Overview.WorkPriority".Translate()
                 : "ColonyManagerRedux.Overview.WorkEnabled".Translate();
 
-        public override int GetMinWidth(PawnTable table) => Math.Min((int)(24 + (2 * Constants.Margin)), (int)Text.CalcSize(GetHeaderTip(table)).x);
+        public override int GetMinWidth(PawnTable table) =>
+            Math.Min((int)(24 + (2 * Constants.Margin)), (int)Text.CalcSize(GetHeaderTip(table)).x);
 
-        public override int GetMaxWidth(PawnTable table) => Math.Max(24, (int)Text.CalcSize(GetHeaderTip(table)).x);
+        public override int GetMaxWidth(PawnTable table) =>
+            Math.Max(24, (int)Text.CalcSize(GetHeaderTip(table)).x);
 
         public override int GetOptimalWidth(PawnTable table) => GetMaxWidth(table);
 
@@ -152,7 +176,9 @@ internal partial class ManagerTab_Overview
             var aValues = PawnComparisonValue(a);
             var bValues = PawnComparisonValue(b);
 
-            return aValues.priority != bValues.priority ? aValues.priority - bValues.priority : (int)(bValues.skill - aValues.skill);
+            return aValues.priority != bValues.priority
+                ? aValues.priority - bValues.priority
+                : (int)(bValues.skill - aValues.skill);
 
             (int priority, float skill) PawnComparisonValue(Pawn pawn)
             {
@@ -173,27 +199,38 @@ internal partial class ManagerTab_Overview
     }
 
     private PawnTable? pawnOverviewTable;
-    private PawnTable CreatePawnOverviewTable() => (PawnTable)Activator.CreateInstance(
-            ManagerPawnTableDefOf.CM_ManagerJobWorkTable.workerClass,
-            ManagerPawnTableDefOf.CM_ManagerJobWorkTable,
-            (Func<IEnumerable<Pawn>>)(() =>
-            {
-                // PawnTables aren't very customizable, so we'll hijack this function to inject our
-                // instance into the columns, since we need it there
-                foreach (var item in pawnOverviewTable!.def.columns
-                    .Where(c => c.workerClass.IsSubclassOf(
-                        typeof(PawnColumnWorker_Overview))))
-                {
-                    ((PawnColumnWorker_Overview)item.Worker).instance = this;
-                }
-                foreach (var item in pawnOverviewTable!.Columns
-                    .Where(c => c.workerClass == typeof(PawnColumnWorker_Label)))
-                {
-                    ((PawnColumnWorker_Label)item.Worker).instance = this;
-                }
 
-                return _workers;
-            }),
-            UI.screenWidth - (int)(Constants.Margin * 2f),
-            (int)(UI.screenHeight - 35 - (Constants.Margin * 2f)));
+    private PawnTable CreatePawnOverviewTable() =>
+        (PawnTable)
+            Activator.CreateInstance(
+                ManagerPawnTableDefOf.CM_ManagerJobWorkTable.workerClass,
+                ManagerPawnTableDefOf.CM_ManagerJobWorkTable,
+                (Func<IEnumerable<Pawn>>)(
+                    () =>
+                    {
+                        // PawnTables aren't very customizable, so we'll hijack this function to inject our
+                        // instance into the columns, since we need it there
+                        foreach (
+                            var item in pawnOverviewTable!.def.columns.Where(c =>
+                                c.workerClass.IsSubclassOf(typeof(PawnColumnWorker_Overview))
+                            )
+                        )
+                        {
+                            ((PawnColumnWorker_Overview)item.Worker).instance = this;
+                        }
+                        foreach (
+                            var item in pawnOverviewTable!.Columns.Where(c =>
+                                c.workerClass == typeof(PawnColumnWorker_Label)
+                            )
+                        )
+                        {
+                            ((PawnColumnWorker_Label)item.Worker).instance = this;
+                        }
+
+                        return _workers;
+                    }
+                ),
+                UI.screenWidth - (int)(Constants.Margin * 2f),
+                (int)(UI.screenHeight - 35 - (Constants.Margin * 2f))
+            );
 }

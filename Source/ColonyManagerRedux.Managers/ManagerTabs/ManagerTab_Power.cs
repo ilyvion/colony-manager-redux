@@ -28,13 +28,13 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         MaxPerChapter = true,
     };
 
-    public override string DisabledReason => !ResearchedFinished
-                ? (string)"ColonyManagerRedux.Energy.NotResearched".Translate()
-                : !SelectedJob.AnyPoweredStationOnline
-                ? (string)"ColonyManagerRedux.Energy.NoPoweredStation".Translate()
-                : !ColonyManagerReduxMod.Settings.RecordHistoricalData
-                ? (string)"ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate()
-                : "Not sure. It should be enabled? Send a bug report.";
+    public override string DisabledReason =>
+        !ResearchedFinished ? (string)"ColonyManagerRedux.Energy.NotResearched".Translate()
+        : !SelectedJob.AnyPoweredStationOnline
+            ? (string)"ColonyManagerRedux.Energy.NoPoweredStation".Translate()
+        : !ColonyManagerReduxMod.Settings.RecordHistoricalData
+            ? (string)"ColonyManagerRedux.Energy.RecordHistoricalDataDisabled".Translate()
+        : "Not sure. It should be enabled? Send a bug report.";
 
     private new ManagerJob_Power SelectedJob
     {
@@ -46,7 +46,8 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                 if (job == null)
                 {
                     ColonyManagerReduxMod.Instance.LogMessage(
-                        "No power job found, creating a new one. This is expected if you just researched Power Management.");
+                        "No power job found, creating a new one. This is expected if you just researched Power Management."
+                    );
                     job = Manager.NewJob<ManagerJob_Power>(Def);
                     Manager.JobTracker.Add(job);
                     job.IsManaged = true;
@@ -62,7 +63,10 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         }
     }
 
-    public override bool Enabled => ResearchedFinished && SelectedJob.AnyPoweredStationOnline && ColonyManagerReduxMod.Settings.RecordHistoricalData;
+    public override bool Enabled =>
+        ResearchedFinished
+        && SelectedJob.AnyPoweredStationOnline
+        && ColonyManagerReduxMod.Settings.RecordHistoricalData;
 
     protected override bool CreateNewSelectedJobOnMake => false;
 
@@ -86,13 +90,18 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
 
         // set up rects
         var overviewRect = new Rect(0f, 0f, canvas.width, 150f);
-        var consumtionRect = new Rect(0f, overviewRect.height + Margin,
-                                       (canvas.width - Margin) / 2f,
-                                       canvas.height - overviewRect.height - Margin);
-        var productionRect = new Rect(consumtionRect.xMax + Margin,
-                                       overviewRect.height + Margin,
-                                       (canvas.width - Margin) / 2f,
-                                       canvas.height - overviewRect.height - Margin);
+        var consumtionRect = new Rect(
+            0f,
+            overviewRect.height + Margin,
+            (canvas.width - Margin) / 2f,
+            canvas.height - overviewRect.height - Margin
+        );
+        var productionRect = new Rect(
+            consumtionRect.xMax + Margin,
+            overviewRect.height + Margin,
+            (canvas.width - Margin) / 2f,
+            canvas.height - overviewRect.height - Margin
+        );
 
         // draw area BG's
         Widgets.DrawMenuSection(overviewRect);
@@ -122,9 +131,18 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     private void DrawConsumption(Rect canvas)
     {
         // setup rects
-        var plotRect = new Rect(canvas.xMin, canvas.yMin, canvas.width, (canvas.height - Margin) / 2f);
-        var legendRect = new Rect(canvas.xMin, plotRect.yMax + Margin, canvas.width,
-                                   (canvas.height - Margin) / 2f);
+        var plotRect = new Rect(
+            canvas.xMin,
+            canvas.yMin,
+            canvas.width,
+            (canvas.height - Margin) / 2f
+        );
+        var legendRect = new Rect(
+            canvas.xMin,
+            plotRect.yMax + Margin,
+            canvas.width,
+            (canvas.height - Margin) / 2f
+        );
 
         var tradingHistory = SelectedJob.tradingHistory;
 
@@ -132,18 +150,37 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         tradingHistory.DrawPlot(plotRect, negativeOnly: true);
 
         // draw the detailed legend
-        _detailedLegendRendererTrading.DrawDetailedLegend(tradingHistory, legendRect, ref _consumptionScrollPos, null, false, true);
+        _detailedLegendRendererTrading.DrawDetailedLegend(
+            tradingHistory,
+            legendRect,
+            ref _consumptionScrollPos,
+            null,
+            false,
+            true
+        );
     }
 
     private void DrawOverview(Rect canvas)
     {
         // setup rects
-        var legendRect = new Rect(canvas.xMin, canvas.yMin, (canvas.width - Margin) / 2f,
-                                   canvas.height - ButtonSize.y - Margin);
-        var plotRect = new Rect(legendRect.xMax + Margin, canvas.yMin,
-                                 (canvas.width - Margin) / 2f, canvas.height);
-        var buttonsRect = new Rect(canvas.xMin, legendRect.yMax + Margin,
-                                    (canvas.width - Margin) / 2f, ButtonSize.y);
+        var legendRect = new Rect(
+            canvas.xMin,
+            canvas.yMin,
+            (canvas.width - Margin) / 2f,
+            canvas.height - ButtonSize.y - Margin
+        );
+        var plotRect = new Rect(
+            legendRect.xMax + Margin,
+            canvas.yMin,
+            (canvas.width - Margin) / 2f,
+            canvas.height
+        );
+        var buttonsRect = new Rect(
+            canvas.xMin,
+            legendRect.yMax + Margin,
+            (canvas.width - Margin) / 2f,
+            ButtonSize.y
+        );
 
         var overallHistory = SelectedJob.CompOfType<CompManagerJobHistory>()!.History;
         var tradingHistory = SelectedJob.tradingHistory;
@@ -156,38 +193,62 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
         overallHistory.DrawInlineLegend = true;
 
         // draw the detailed legend
-        _detailedLegendRendererOverall.DrawDetailedLegend(overallHistory, legendRect, ref _overallScrollPos, null);
+        _detailedLegendRendererOverall.DrawDetailedLegend(
+            overallHistory,
+            legendRect,
+            ref _overallScrollPos,
+            null
+        );
 
         var periodRect = buttonsRect;
         periodRect.xMin += Margin;
 
         // label
         Text.Anchor = TextAnchor.MiddleLeft;
-        var labelTextSize = Text.CalcSize("ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
+        var labelTextSize = Text.CalcSize(
+            "ColonyManagerRedux.Energy.PeriodShown".Translate() + ":"
+        );
         Widgets.Label(periodRect, "ColonyManagerRedux.Energy.PeriodShown".Translate() + ":");
 
-        var buttonTextSize = Text.CalcSize($"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate().CapitalizeFirst());
+        var buttonTextSize = Text.CalcSize(
+            $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}"
+                .Translate()
+                .CapitalizeFirst()
+        );
         periodRect.xMin += Margin + labelTextSize.x;
         periodRect.yMin += (periodRect.height - 30f) / 2;
         periodRect.width = buttonTextSize.x + LargeIconSize;
         periodRect.height = 30f;
 
         var tooltip = "ColonyManagerRedux.Energy.PeriodShownTooltip".Translate(
-            $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate());
+            $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate()
+        );
         TooltipHandler.TipRegion(periodRect, tooltip);
-        if (Widgets.ButtonText(periodRect, $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}".Translate().CapitalizeFirst()))
+        if (
+            Widgets.ButtonText(
+                periodRect,
+                $"ColonyManagerRedux.History.PeriodShown.{overallHistory.PeriodShown}"
+                    .Translate()
+                    .CapitalizeFirst()
+            )
+        )
         {
             var periodOptions = new List<FloatMenuOption>();
             for (var i = 0; i < History.Periods.Length; i++)
             {
                 var period = History.Periods[i];
-                periodOptions.Add(new FloatMenuOption(
-                    $"ColonyManagerRedux.History.PeriodShown.{period}".Translate().CapitalizeFirst(),
-                    delegate
-                    {
-                        overallHistory.PeriodShown = period;
-                        tradingHistory.PeriodShown = period;
-                    }));
+                periodOptions.Add(
+                    new FloatMenuOption(
+                        $"ColonyManagerRedux.History.PeriodShown.{period}"
+                            .Translate()
+                            .CapitalizeFirst(),
+                        delegate
+                        {
+                            overallHistory.PeriodShown = period;
+                            tradingHistory.PeriodShown = period;
+                        }
+                    )
+                );
             }
 
             Find.WindowStack.Add(new FloatMenu(periodOptions));
@@ -197,9 +258,18 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     private void DrawProduction(Rect canvas)
     {
         // setup rects
-        var plotRect = new Rect(canvas.xMin, canvas.yMin, canvas.width, (canvas.height - Margin) / 2f);
-        var legendRect = new Rect(canvas.xMin, plotRect.yMax + Margin, canvas.width,
-                                   (canvas.height - Margin) / 2f);
+        var plotRect = new Rect(
+            canvas.xMin,
+            canvas.yMin,
+            canvas.width,
+            (canvas.height - Margin) / 2f
+        );
+        var legendRect = new Rect(
+            canvas.xMin,
+            plotRect.yMax + Margin,
+            canvas.width,
+            (canvas.height - Margin) / 2f
+        );
 
         var tradingHistory = SelectedJob.tradingHistory;
 
@@ -208,15 +278,24 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
 
         // draw the detailed legend
         _detailedLegendRendererTrading.MaxPerChapter = false;
-        _detailedLegendRendererTrading.DrawDetailedLegend(tradingHistory, legendRect, ref _productionScrollPos, null, true);
+        _detailedLegendRendererTrading.DrawDetailedLegend(
+            tradingHistory,
+            legendRect,
+            ref _productionScrollPos,
+            null,
+            true
+        );
     }
 
     public override string GetSubLabel(ManagerJob job)
     {
         var powerJob = (ManagerJob_Power)job;
-        return string.Format(CultureInfo.InvariantCulture, "{0} producers, {1} consumers, {2} batteries",
+        return string.Format(
+            CultureInfo.InvariantCulture,
+            "{0} producers, {1} consumers, {2} batteries",
             powerJob.ProducerCount,
             powerJob.ConsumerCount,
-            powerJob.BatteryCount);
+            powerJob.BatteryCount
+        );
     }
 }

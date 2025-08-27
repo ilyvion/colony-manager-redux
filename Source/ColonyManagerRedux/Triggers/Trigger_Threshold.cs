@@ -4,7 +4,6 @@
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
-
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -24,14 +23,17 @@ public sealed class Trigger_Threshold : Trigger
         /// The current count is less than the target count.
         /// </summary>
         LowerThan,
+
         /// <summary>
         /// The current count is equal to the target count.
         /// </summary>
         Equals,
+
         /// <summary>
         /// The current count is greater than the target count.
         /// </summary>
         HigherThan,
+
         /// <summary>
         /// The current count is not equal to the target count.
         /// </summary>
@@ -39,6 +41,7 @@ public sealed class Trigger_Threshold : Trigger
     }
 
     private bool allowAnyThreshold;
+
     /// <summary>
     /// Gets or sets whether any threshold is allowed (ignores parent filter restrictions).
     /// </summary>
@@ -56,66 +59,77 @@ public sealed class Trigger_Threshold : Trigger
     }
 
     private bool countAllOnMap;
+
     /// <summary>
     /// Gets or sets whether to count all matching items on the map, not just in stockpiles.
     /// </summary>
     public bool CountAllOnMap
     {
-        get => countAllOnMap; set => countAllOnMap = value;
+        get => countAllOnMap;
+        set => countAllOnMap = value;
     }
 
     private int maxUpperThreshold;
+
     /// <summary>
     /// Gets or sets the maximum allowed value for the upper threshold.
     /// </summary>
     public int MaxUpperThreshold
     {
-        get => maxUpperThreshold; set => maxUpperThreshold = value;
+        get => maxUpperThreshold;
+        set => maxUpperThreshold = value;
     }
 
     private Ops op;
+
     /// <summary>
     /// Gets or sets the comparison operation for the threshold.
     /// </summary>
     public Ops Op
     {
-        get => op; set => op = value;
+        get => op;
+        set => op = value;
     }
+
     /// <summary>
     /// Gets the parent filter used for allowed things.
     /// </summary>
-    public ThingFilter ParentFilter
-    {
-        get; private set;
-    }
+    public ThingFilter ParentFilter { get; private set; }
 
     private Zone_Stockpile? stockpile;
+
     /// <summary>
     /// Gets or sets the stockpile associated with this trigger.
     /// </summary>
     public Zone_Stockpile? Stockpile
     {
-        get => stockpile; set => stockpile = value;
+        get => stockpile;
+        set => stockpile = value;
     }
+
     /// <summary>
     /// Gets a reference to the stockpile associated with this trigger.
     /// </summary>
     public ref Zone_Stockpile? StockpileRef => ref stockpile;
 
     private int targetCount;
+
     /// <summary>
     /// Gets or sets the target count for the threshold.
     /// </summary>
     public int TargetCount
     {
-        get => targetCount; set => targetCount = value;
+        get => targetCount;
+        set => targetCount = value;
     }
+
     /// <summary>
     /// Gets a label representing the operation and target count.
     /// </summary>
     public string TargetLabel => $"{OpString} {targetCount}";
 
     private ThingFilter thresholdFilter;
+
     /// <summary>
     /// Gets the filter used to determine which things are counted toward the threshold.
     /// </summary>
@@ -127,25 +141,20 @@ public sealed class Trigger_Threshold : Trigger
     /// <summary>
     /// Event invoked when settings are changed.
     /// </summary>
-    public Action? SettingsChanged
-    {
-        get; set;
-    }
+    public Action? SettingsChanged { get; set; }
 
     /// <summary>
     /// Event invoked when AllowAnyThreshold is changed.
     /// </summary>
-    public Action? AllowAnyThresholdChanged
-    {
-        get; set;
-    }
+    public Action? AllowAnyThresholdChanged { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Trigger_Threshold"/> class.
     /// </summary>
     /// <param name="job">The manager job associated with this trigger.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="job"/> is null.</exception>
-    public Trigger_Threshold(ManagerJob job) : base(job)
+    public Trigger_Threshold(ManagerJob job)
+        : base(job)
     {
         if (job == null)
         {
@@ -179,7 +188,8 @@ public sealed class Trigger_Threshold : Trigger
     /// </summary>
     /// <param name="cached">Whether to use the cached value if available.</param>
     /// <returns>The current count.</returns>
-    public int GetCurrentCount(bool cached = true) => cached && _cachedCurrentCount.TryGetValue(out var value)
+    public int GetCurrentCount(bool cached = true) =>
+        cached && _cachedCurrentCount.TryGetValue(out var value)
             ? value
             : _cachedCurrentCount.Update(CurrentCountRaw);
 
@@ -188,8 +198,8 @@ public sealed class Trigger_Threshold : Trigger
     /// </summary>
     /// <param name="count">A boxed integer to store the result.</param>
     /// <returns>A coroutine for updating the count.</returns>
-    public Coroutine GetCurrentCountCoroutine(Boxed<int> count) => Job.Manager.map.CountProductsCoroutine(
-            ThresholdFilter, count, stockpile, CountAllOnMap);
+    public Coroutine GetCurrentCountCoroutine(Boxed<int> count) =>
+        Job.Manager.map.CountProductsCoroutine(ThresholdFilter, count, stockpile, CountAllOnMap);
 
     /// <summary>
     /// Gets a window displaying details for this threshold trigger.
@@ -201,7 +211,7 @@ public sealed class Trigger_Threshold : Trigger
             var window = new WindowTriggerThresholdDetails(this)
             {
                 closeOnClickedOutside = true,
-                draggable = true
+                draggable = true,
             };
             return window;
         }
@@ -215,14 +225,15 @@ public sealed class Trigger_Threshold : Trigger
     /// <summary>
     /// Gets the string representation of the current operation.
     /// </summary>
-    public string OpString => op switch
-    {
-        Ops.LowerThan => "<\u200B",
-        Ops.Equals => "=",
-        Ops.HigherThan => ">",
-        Ops.NotEquals => "!=",
-        _ => "?",
-    };
+    public string OpString =>
+        op switch
+        {
+            Ops.LowerThan => "<\u200B",
+            Ops.Equals => "=",
+            Ops.HigherThan => ">",
+            Ops.NotEquals => "!=",
+            _ => "?",
+        };
 
     private bool _hasReportedIncorrectOperator;
 
@@ -250,14 +261,16 @@ public sealed class Trigger_Threshold : Trigger
                 default:
                     ColonyManagerReduxMod.Instance.LogWarningOnce(
                         "Trigger_ThingThreshold was defined without a correct operator",
-                        ref _hasReportedIncorrectOperator);
+                        ref _hasReportedIncorrectOperator
+                    );
                     return true;
             }
         }
     }
 
     /// <inheritdoc/>
-    public override string StatusTooltip => "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetLabel);
+    public override string StatusTooltip =>
+        "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetLabel);
 
     /// <inheritdoc/>
     public override void DrawVerticalProgressBars(Rect progressRect, bool active)
@@ -269,7 +282,8 @@ public sealed class Trigger_Threshold : Trigger
             targetCount,
             StatusTooltip,
             active,
-            Resources.BarBackgroundActiveTexture);
+            Resources.BarBackgroundActiveTexture
+        );
     }
 
     /// <inheritdoc/>
@@ -282,14 +296,21 @@ public sealed class Trigger_Threshold : Trigger
             targetCount,
             StatusTooltip,
             active,
-            Resources.BarBackgroundActiveTexture);
+            Resources.BarBackgroundActiveTexture
+        );
     }
 
     /// <inheritdoc/>
-    public override void DrawTriggerConfig(ref Vector2 cur, float width, float entryHeight, string? label = null,
-        string? tooltip = null, List<Designation>? targets = null,
+    public override void DrawTriggerConfig(
+        ref Vector2 cur,
+        float width,
+        float entryHeight,
+        string? label = null,
+        string? tooltip = null,
+        List<Designation>? targets = null,
         Action? onOpenFilterDetails = null,
-        Func<Designation, string?>? designationLabelGetter = null)
+        Func<Designation, string?>? designationLabelGetter = null
+    )
     {
         if (targets == null)
         {
@@ -303,12 +324,14 @@ public sealed class Trigger_Threshold : Trigger
             cur.x,
             cur.y,
             width - (hasTargets ? SmallIconSize + (Margin * 2) : 0f),
-            entryHeight);
+            entryHeight
+        );
         var detailsWindowButtonRect = new Rect(
             thresholdLabelRect.xMax - SmallIconSize - Margin,
             cur.y + ((entryHeight - SmallIconSize) / 2f),
             SmallIconSize,
-            SmallIconSize);
+            SmallIconSize
+        );
         var targetsButtonRect = new Rect(
             thresholdLabelRect.xMax + Margin,
             cur.y + ((entryHeight - SmallIconSize) / 2f),
@@ -317,23 +340,25 @@ public sealed class Trigger_Threshold : Trigger
         );
         cur.y += entryHeight;
 
-        var thresholdRect = new Rect(
-            cur.x,
-            cur.y,
-            width,
-            SliderHeight);
+        var thresholdRect = new Rect(cur.x, cur.y, width, SliderHeight);
         cur.y += SliderHeight;
-
 
         Widgets.DrawHighlightIfMouseover(thresholdLabelRect);
         if (label.NullOrEmpty())
         {
-            label = "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), targetCount) + ":";
+            label =
+                "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(
+                    GetCurrentCount(),
+                    targetCount
+                ) + ":";
         }
 
         if (tooltip.NullOrEmpty())
         {
-            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(GetCurrentCount(), targetCount);
+            tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(
+                GetCurrentCount(),
+                targetCount
+            );
         }
 
         IlyvionWidgets.Label(thresholdLabelRect, label!, tooltip, TextAnchor.MiddleLeft);
@@ -357,7 +382,8 @@ public sealed class Trigger_Threshold : Trigger
                 foreach (var designation in targets!)
                 {
                     var option = string.Empty;
-                    Action? onClick = () => Find.WindowStack.TryRemove(typeof(MainTabWindow_Manager), false);
+                    Action? onClick = () =>
+                        Find.WindowStack.TryRemove(typeof(MainTabWindow_Manager), false);
                     Action<Rect>? onHover = null;
                     if (designation.target.HasThing)
                     {
@@ -378,7 +404,9 @@ public sealed class Trigger_Threshold : Trigger
                         if (cell.IsValid)
                         {
                             var map = designation.Map;
-                            option = designationLabelGetter?.Invoke(designation) ?? cell.GetTerrain(map).LabelCap;
+                            option =
+                                designationLabelGetter?.Invoke(designation)
+                                ?? cell.GetTerrain(map).LabelCap;
                             onClick += () => CameraJumper.TryJump(cell, map);
                             onHover += (c) =>
                             {
@@ -395,7 +423,9 @@ public sealed class Trigger_Threshold : Trigger
                         }
                     }
 
-                    options.Add(new FloatMenuOption(option, onClick, MenuOptionPriority.Default, onHover));
+                    options.Add(
+                        new FloatMenuOption(option, onClick, MenuOptionPriority.Default, onHover)
+                    );
                 }
 
                 Find.WindowStack.Add(new FloatMenu(options));
@@ -411,14 +441,19 @@ public sealed class Trigger_Threshold : Trigger
             cur.y,
             width,
             //allowAnyThresholdLabelHeight
-            entryHeight);
+            entryHeight
+        );
         cur.y += entryHeight; //allowAnyThresholdLabelHeight;
 
         var currentAllowAnyThreshold = allowAnyThreshold;
         //allowAnyThresholdRect.height = allowAnyThresholdLabelHeight;
-        Utilities.DrawToggle(allowAnyThresholdRect, "ColonyManagerRedux.Threshold.AllowAnyThreshold".Translate(),
-            "ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip".Translate(), ref allowAnyThreshold,
-            leaveRoomForAdditionalIcon: false);
+        Utilities.DrawToggle(
+            allowAnyThresholdRect,
+            "ColonyManagerRedux.Threshold.AllowAnyThreshold".Translate(),
+            "ColonyManagerRedux.Threshold.AllowAnyThreshold.Tip".Translate(),
+            ref allowAnyThreshold,
+            leaveRoomForAdditionalIcon: false
+        );
         if (currentAllowAnyThreshold != allowAnyThreshold)
         {
             if (allowAnyThreshold)
@@ -449,15 +484,16 @@ public sealed class Trigger_Threshold : Trigger
         // GUI.DrawTexture(iconRect, Resources.Warning);
         // GUI.color = Color.white;
 
-        var countAllOnMapRect = new Rect(
-            cur.x,
-            cur.y,
-            width,
-            entryHeight);
+        var countAllOnMapRect = new Rect(cur.x, cur.y, width, entryHeight);
         cur.y += entryHeight;
 
-        Utilities.DrawToggle(countAllOnMapRect, "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
-            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(), ref countAllOnMap, true);
+        Utilities.DrawToggle(
+            countAllOnMapRect,
+            "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
+            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(),
+            ref countAllOnMap,
+            true
+        );
         targetCount = (int)GUI.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
     }
 
@@ -468,7 +504,11 @@ public sealed class Trigger_Threshold : Trigger
         Scribe_Values.Look(ref targetCount, "count");
         Scribe_Values.Look(ref maxUpperThreshold, "maxUpperThreshold");
         Scribe_Values.Look(ref op, "operator");
-        Scribe_Deep.Look(ref thresholdFilter, "thresholdFilter", (object)ThresholdFilter_SettingsChanged);
+        Scribe_Deep.Look(
+            ref thresholdFilter,
+            "thresholdFilter",
+            (object)ThresholdFilter_SettingsChanged
+        );
         Scribe_Values.Look(ref allowAnyThreshold, "allowAnyThreshold");
         Scribe_Values.Look(ref countAllOnMap, "countAllOnMap");
 
@@ -482,8 +522,9 @@ public sealed class Trigger_Threshold : Trigger
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             stockpile =
-                Job.Manager.map.zoneManager.AllZones.FirstOrDefault(z => z is Zone_Stockpile &&
-                    z.label == _stockpile_scribe) as Zone_Stockpile;
+                Job.Manager.map.zoneManager.AllZones.FirstOrDefault(z =>
+                    z is Zone_Stockpile && z.label == _stockpile_scribe
+                ) as Zone_Stockpile;
         }
     }
 
@@ -510,7 +551,8 @@ public sealed class Trigger_Threshold : Trigger
 
             default:
                 ColonyManagerReduxMod.Instance.LogWarning(
-                    "Trigger_Threshold was defined without a correct operator");
+                    "Trigger_Threshold was defined without a correct operator"
+                );
                 return true;
         }
     }

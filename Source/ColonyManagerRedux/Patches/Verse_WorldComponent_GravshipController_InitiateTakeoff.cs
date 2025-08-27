@@ -4,7 +4,10 @@
 #if !v1_5
 namespace ColonyManagerRedux;
 
-[HarmonyPatch(typeof(WorldComponent_GravshipController), nameof(WorldComponent_GravshipController.InitiateTakeoff))]
+[HarmonyPatch(
+    typeof(WorldComponent_GravshipController),
+    nameof(WorldComponent_GravshipController.InitiateTakeoff)
+)]
 internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
 {
     private static void Prefix(Building_GravEngine engine)
@@ -18,7 +21,8 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
         if (compManagerDatabase == null)
         {
             ColonyManagerReduxMod.Instance.LogError(
-                "GravshipController.InitiateTakeoff: CompManagerDatabase not found on grav engine's manager database.");
+                "GravshipController.InitiateTakeoff: CompManagerDatabase not found on grav engine's manager database."
+            );
             return;
         }
 
@@ -33,7 +37,10 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
                 manager.ScribeSameMapData = false;
                 CustomStreamScribeSaver.InitSaving(m, "JobList", false);
                 ScribeMetaHeaderUtility.WriteMetaHeader();
-                var jobList = manager.JobTracker.JobsOfType<ManagerJob>().Where(j => j.IsTransferable).ToList();
+                var jobList = manager
+                    .JobTracker.JobsOfType<ManagerJob>()
+                    .Where(j => j.IsTransferable)
+                    .ToList();
                 foreach (var job in jobList)
                 {
                     job.PreExport();
@@ -51,8 +58,9 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
             }
 
             bytes = m.GetBuffer();
-            ColonyManagerReduxMod.Instance.LogDevMessage("Serialized job data:\n\n"
-                + System.Text.Encoding.UTF8.GetString(bytes));
+            ColonyManagerReduxMod.Instance.LogDevMessage(
+                "Serialized job data:\n\n" + System.Text.Encoding.UTF8.GetString(bytes)
+            );
         }
 
         compManagerDatabase.JobTransferData = bytes;

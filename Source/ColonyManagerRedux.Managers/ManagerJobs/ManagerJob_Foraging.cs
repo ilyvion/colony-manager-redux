@@ -16,20 +16,32 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             ManagerJob_Foraging managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> count)
+            Boxed<int> count
+        )
         {
-            var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
-                (Func<ManagerJob_Foraging, int, ManagerJobHistoryChapterDef, Boxed<int>, Coroutine>)GetCountForHistoryChapterCoroutine);
+            var ticksBetweenOperations =
+                ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                    (Func<
+                        ManagerJob_Foraging,
+                        int,
+                        ManagerJobHistoryChapterDef,
+                        Boxed<int>,
+                        Coroutine
+                    >)
+                        GetCountForHistoryChapterCoroutine
+                );
 
             if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock)
             {
-                yield return managerJob.TriggerThreshold.GetCurrentCountCoroutine(count)
+                yield return managerJob
+                    .TriggerThreshold.GetCurrentCountCoroutine(count)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
-                yield return managerJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
+                yield return managerJob
+                    .CachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob.CachedCurrentDesignatedCount.Value;
@@ -44,13 +56,16 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             ManagerJob_Foraging managerJob,
             int tick,
             ManagerJobHistoryChapterDef chapterDef,
-            Boxed<int> target)
+            Boxed<int> target
+        )
         {
-            target.Value = chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock ? managerJob.TriggerThreshold.TargetCount : 0;
+            target.Value =
+                chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryStock
+                    ? managerJob.TriggerThreshold.TargetCount
+                    : 0;
             yield break;
         }
     }
-
 
     public HashSet<ThingDef> AllowedPlants = [];
     public Area? ForagingArea;
@@ -60,10 +75,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     private List<Designation> _designations = [];
 
-    internal MultiTickCachedValue<int> CachedCurrentDesignatedCount
-    {
-        get;
-    }
+    internal MultiTickCachedValue<int> CachedCurrentDesignatedCount { get; }
 
     private bool _plantsLockedToMap = ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked;
     public bool PlantsLockedToMap
@@ -84,7 +96,10 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     {
         get
         {
-            _allPlants ??= [.. Utilities_Plants.GetForagingPlants(_plantsLockedToMap ? Manager.map : null)];
+            _allPlants ??=
+            [
+                .. Utilities_Plants.GetForagingPlants(_plantsLockedToMap ? Manager.map : null),
+            ];
             return _allPlants;
         }
     }
@@ -95,12 +110,13 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
 
-    public override IEnumerable<string> Targets => AllowedPlants
-        .Select(plant => plant.LabelCap.Resolve());
+    public override IEnumerable<string> Targets =>
+        AllowedPlants.Select(plant => plant.LabelCap.Resolve());
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Growing;
 
-    public ManagerJob_Foraging(Manager manager) : base(manager)
+    public ManagerJob_Foraging(Manager manager)
+        : base(manager)
     {
         CachedCurrentDesignatedCount = new(0, GetCurrentDesignatedCountCoroutine);
 
@@ -129,8 +145,13 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     [CoroutineSettingsMethod]
     private Coroutine GetCurrentDesignatedCountCoroutine(AnyBoxed<int> count)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(GetCurrentDesignatedCountCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(GetCurrentDesignatedCountCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            GetCurrentDesignatedCountCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                GetCurrentDesignatedCountCoroutine
+            );
 
         for (var i = 0; i < _designations.Count; i++)
         {
@@ -170,10 +191,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         var addedCount = 0;
         List<LocalTargetInfo> newTargets = [];
         foreach (
-            var des in Manager.map.designationManager
-                .SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
+            var des in Manager
+                .map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.HarvestPlant)
                 .Except(_designations)
-                .Where(des => IsValidDesignatedForagingTarget(des.target)))
+                .Where(des => IsValidDesignatedForagingTarget(des.target))
+        )
         {
             addedCount++;
             AddDesignation(des, false);
@@ -181,8 +203,13 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
         if (addedCount > 0)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.AddRelevantGameDesignations"
-                .Translate(addedCount, Def.label), newTargets);
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddRelevantGameDesignations".Translate(
+                    addedCount,
+                    Def.label
+                ),
+                newTargets
+            );
         }
     }
 
@@ -205,15 +232,21 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         // label, dist, yield.
         var plant = (Plant)designation.target.Thing;
         return plant.def.TrySpecialDesignationYieldTooltip(out var tooltip)
-            ? (string)"ColonyManagerRedux.Job.DesignationLabelMulti".Translate(
-                plant.LabelCap,
-                Distance(plant, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
-                tooltip)
-            : (string)"ColonyManagerRedux.Job.DesignationLabel".Translate(
-                plant.LabelCap,
-                Distance(plant, Manager.map.GetBaseCenter()).ToString("F0", CultureInfo.InvariantCulture),
-                plant.YieldNow(),
-                plant.def.plant.harvestedThingDef.LabelCap);
+            ? (string)
+                "ColonyManagerRedux.Job.DesignationLabelMulti".Translate(
+                    plant.LabelCap,
+                    Distance(plant, Manager.map.GetBaseCenter())
+                        .ToString("F0", CultureInfo.InvariantCulture),
+                    tooltip
+                )
+            : (string)
+                "ColonyManagerRedux.Job.DesignationLabel".Translate(
+                    plant.LabelCap,
+                    Distance(plant, Manager.map.GetBaseCenter())
+                        .ToString("F0", CultureInfo.InvariantCulture),
+                    plant.YieldNow(),
+                    plant.def.plant.harvestedThingDef.LabelCap
+                );
     }
 
     private string? _tmpForagingAreaLabel;
@@ -224,7 +257,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         Scribe_Collections.Look(ref AllowedPlants, "allowedPlants", LookMode.Def);
         Scribe_Values.Look(ref ForceFullyMature, "forceFullyMature");
-        Scribe_Values.Look(ref _plantsLockedToMap, "plantsLockedToMap", ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked);
+        Scribe_Values.Look(
+            ref _plantsLockedToMap,
+            "plantsLockedToMap",
+            ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
+        );
 
         if (Manager.ScribeSameMapData)
         {
@@ -234,7 +271,12 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
         else
         {
-            Utilities.Scribe_AreaByLabel(ref ForagingArea, ref _tmpForagingAreaLabel, "foragingArea", Manager.map.areaManager);
+            Utilities.Scribe_AreaByLabel(
+                ref ForagingArea,
+                ref _tmpForagingAreaLabel,
+                "foragingArea",
+                Manager.map.areaManager
+            );
         }
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
@@ -256,11 +298,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         foreach (var plant in AllPlants)
         {
             var shouldAllowPlant = false;
-            if (!plant.TrySpecialFilterSync(
-                TriggerThreshold.ThresholdFilter, ref shouldAllowPlant))
+            if (!plant.TrySpecialFilterSync(TriggerThreshold.ThresholdFilter, ref shouldAllowPlant))
             {
-                shouldAllowPlant
-                    = TriggerThreshold.ThresholdFilter.Allows(plant.plant.harvestedThingDef);
+                shouldAllowPlant = TriggerThreshold.ThresholdFilter.Allows(
+                    plant.plant.harvestedThingDef
+                );
             }
 
             _ = shouldAllowPlant ? AllowedPlants.Add(plant) : AllowedPlants.Remove(plant);
@@ -297,20 +339,22 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             if (!plant.TrySpecialAllowedSync(AllowedPlants, TriggerThreshold.ThresholdFilter))
             {
                 var harvestedThingDef = plant.plant.harvestedThingDef;
-                var setAllow = AllowedPlants
-                    .Any(p => p.plant.harvestedThingDef == harvestedThingDef);
+                var setAllow = AllowedPlants.Any(p =>
+                    p.plant.harvestedThingDef == harvestedThingDef
+                );
                 TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
             }
         }
     }
 
     [CoroutineSettingsMethod]
-    public override Coroutine TryDoJobCoroutine(
-        ManagerLog jobLog,
-        Boxed<bool> workDone)
+    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(TryDoJobCoroutine);
-        var ticksBetweenOperations = ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            TryDoJobCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
 
         if (!TriggerThreshold.State)
         {
@@ -341,21 +385,25 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate plants until trigger is met.
-        yield return CachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
+        yield return CachedCurrentDesignatedCount
+            .DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
         var count = TriggerThreshold.GetCurrentCount() + CachedCurrentDesignatedCount.Value;
 
-        if (TriggerThreshold.DoesCountMeetTarget(count)
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count))
+        if (
+            TriggerThreshold.DoesCountMeetTarget(count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+        )
         {
             List<Designation> sortedDesignations = [];
             yield return GetThingsSorted(
-                _designations.Where(d => d.target.HasThing),
-                sortedDesignations,
-                _ => true,
-                (p, d) => -p.YieldNow() / d,
-                d => (Plant)d.target.Thing)
+                    _designations.Where(d => d.target.HasThing),
+                    sortedDesignations,
+                    _ => true,
+                    (p, d) => -p.YieldNow() / d,
+                    d => (Plant)d.target.Thing
+                )
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -367,21 +415,26 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 var plant = (Plant)designation.target.Thing;
                 var yield = plant.YieldNow();
                 count -= yield;
-                if (TriggerThreshold.DoesCountMeetTarget(count)
-                    || ColonyManagerReduxMod.Settings
-                        .ShouldRemoveMoreDesignations(_designations.Count))
+                if (
+                    TriggerThreshold.DoesCountMeetTarget(count)
+                    || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                        _designations.Count
+                    )
+                )
                 {
                     designation.Delete();
                     _ = _designations.Remove(designation);
-                    jobLog.AddDetail("ColonyManagerRedux.Logs.RemoveDesignation"
-                        .Translate(
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
                             DesignationDefOf.HarvestPlant.ActionText(),
                             "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
                             plant.Label,
                             yield,
                             count,
-                            TriggerThreshold.TargetLabel),
-                        plant);
+                            TriggerThreshold.TargetLabel
+                        ),
+                        plant
+                    );
                     workDone.Value = true;
                 }
                 else
@@ -397,48 +450,58 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
             if (!workDone)
             {
-                jobLog.AddDetail("ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
-                    "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
-                    Def.label
-                ));
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                        "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                        Def.label
+                    )
+                );
             }
 
             yield break;
         }
 
-        jobLog.AddDetail("ColonyManagerRedux.Logs.CurrentCount"
-            .Translate(count, TriggerThreshold.TargetCount));
+        jobLog.AddDetail(
+            "ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount)
+        );
 
         if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                    "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
         List<Plant> sortedPlants = [];
         yield return GetTargetsSorted(
-            sortedPlants,
-            IsValidUndesignatedForagingTarget,
-            (p, d) => p.YieldNow() / d)
+                sortedPlants,
+                IsValidUndesignatedForagingTarget,
+                (p, d) => p.YieldNow() / d
+            )
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (sortedPlants.Count == 0)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.NoValidTargets".Translate(
-                "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
-                Def.label
-            ));
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.NoValidTargets".Translate(
+                    "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                    Def.label
+                )
+            );
             yield break;
         }
 
         foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
         {
-            if (TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+            if (
+                TriggerThreshold.DoesCountMeetTarget(count)
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+            )
             {
                 break;
             }
@@ -446,15 +509,17 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             var yield = plant.YieldNow();
             count += yield;
             AddDesignation(new(plant, DesignationDefOf.HarvestPlant));
-            jobLog.AddDetail("ColonyManagerRedux.Logs.AddDesignation"
-                .Translate(
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddDesignation".Translate(
                     DesignationDefOf.HarvestPlant.ActionText(),
                     "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
                     plant.Label,
                     yield,
                     count,
-                    TriggerThreshold.TargetLabel),
-                plant);
+                    TriggerThreshold.TargetLabel
+                ),
+                plant
+            );
             workDone.Value = true;
             if (i > 0 && i % operationsPerTick == 0)
             {
@@ -486,7 +551,6 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 missingThingCount++;
                 des.Delete();
             }
-
             // if area is not null and does not contain designate location, remove designation.
             else if (!ForagingArea?.ActiveCells.Contains(des.target.Thing.Position) ?? false)
             {
@@ -496,42 +560,43 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         }
         if (missingThingCount != 0 || incorrectAreaCount != 0)
         {
-            jobLog.AddDetail("ColonyManagerRedux.Logs.CleanAreaDesignations"
-                .Translate(
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CleanAreaDesignations".Translate(
                     missingThingCount + incorrectAreaCount,
                     missingThingCount,
                     incorrectAreaCount,
-                    Def.label));
+                    Def.label
+                )
+            );
         }
     }
 
-    private bool IsValidUndesignatedForagingTarget(Plant target) => target.def.plant != null
-            && target.Map == Manager.map
+    private bool IsValidUndesignatedForagingTarget(Plant target) =>
+        target.def.plant != null
+        && target.Map == Manager.map
+        && AllowedPlants.Contains(target.def)
+        && target.Spawned
+        && Manager.map.designationManager.DesignationOn(target) == null
+        // cut only mature plants, or non-mature that yield something right now.
+        && (
+            (!ForceFullyMature && target.YieldNow() > 1)
+            || target.LifeStage == PlantLifeStage.Mature
+        )
+        && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position))
+        && IsReachable(target);
 
-            && AllowedPlants.Contains(target.def)
-            && target.Spawned
-            && Manager.map.designationManager.DesignationOn(target) == null
+    private bool IsValidDesignatedForagingTarget(LocalTargetInfo t) =>
+        t.HasThing && IsValidDesignatedForagingTarget(t.Thing);
 
-            // cut only mature plants, or non-mature that yield something right now.
-            && ((!ForceFullyMature && target.YieldNow() > 1)
-                || target.LifeStage == PlantLifeStage.Mature)
+    private bool IsValidDesignatedForagingTarget(Thing t) =>
+        t is Plant plant && IsValidDesignatedForagingTarget(plant);
 
-            && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position))
-
-            && IsReachable(target);
-
-    private bool IsValidDesignatedForagingTarget(LocalTargetInfo t) => t.HasThing
-            && IsValidDesignatedForagingTarget(t.Thing);
-
-    private bool IsValidDesignatedForagingTarget(Thing t) => t is Plant plant && IsValidDesignatedForagingTarget(plant);
-
-    private bool IsValidDesignatedForagingTarget(Plant target) => target.def.plant != null
-            && target.Map == Manager.map
-
-            && AllowedPlants.Contains(target.def)
-            && target.Spawned
-
-            && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position));
+    private bool IsValidDesignatedForagingTarget(Plant target) =>
+        target.def.plant != null
+        && target.Map == Manager.map
+        && AllowedPlants.Contains(target.def)
+        && target.Spawned
+        && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position));
 
     private void ConfigureThresholdTrigger()
     {
@@ -550,7 +615,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         {
             var parentFilter = TriggerThreshold.ParentFilter;
             parentFilter.SetDisallowAll();
-            foreach (var harvestedThingDef in Utilities_Plants.GetForagingPlants(Manager).Select(p => p.plant.harvestedThingDef))
+            foreach (
+                var harvestedThingDef in Utilities_Plants
+                    .GetForagingPlants(Manager)
+                    .Select(p => p.plant.harvestedThingDef)
+            )
             {
                 parentFilter.SetAllow(harvestedThingDef, true);
             }

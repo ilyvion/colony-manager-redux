@@ -9,47 +9,47 @@ namespace ColonyManagerRedux.Managers;
 internal sealed class ManagerSettings_Forestry : ManagerSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
-    public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType =
-        ManagerJob_Forestry.ForestryJobType.Logging;
+    public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType = ManagerJob_Forestry
+        .ForestryJobType
+        .Logging;
     public bool DefaultAllowSaplings;
 
     public override void DoTabContents(Rect rect)
     {
-        var panelRect = new Rect(
-            rect.xMin,
-            rect.yMin,
-            rect.width,
-            rect.height - Margin);
+        var panelRect = new Rect(rect.xMin, rect.yMin, rect.width, rect.height - Margin);
 
         Widgets_Section.BeginSectionColumn(
-            panelRect, "Forestry.Settings", out var position, out var width);
+            panelRect,
+            "Forestry.Settings",
+            out var position,
+            out var width
+        );
         Widgets_Section.Section(
             ref position,
             width,
             DrawJobType,
-            "ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType".Translate());
+            "ColonyManagerRedux.Forestry.ManagerSettings.DefaultJobType".Translate()
+        );
         Widgets_Section.Section(
             ref position,
             width,
             DrawSyncFilterAndAllowed,
-            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate());
+            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+        );
         Widgets_Section.Section(ref position, width, DrawAllowSaplings);
         Widgets_Section.EndSectionColumn("Forestry.Settings", position);
     }
 
     public float DrawSyncFilterAndAllowed(Vector2 pos, float width)
     {
-        var rowRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip".Translate(),
-            ref DefaultSyncFilterAndAllowed);
+            ref DefaultSyncFilterAndAllowed
+        );
 
         return ListEntryHeight;
     }
@@ -58,18 +58,12 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
     {
         // type of job;
         // clear clear area | logging
-        var types =
-            (ManagerJob_Forestry.ForestryJobType[])
+        var types = (ManagerJob_Forestry.ForestryJobType[])
             Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType));
-
 
         var cellWidth = width / types.Length;
 
-        var cellRect = new Rect(
-            pos.x,
-            pos.y,
-            cellWidth,
-            ListEntryHeight);
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
         foreach (var type in types)
         {
@@ -80,7 +74,8 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
                 DefaultForestryJobType == type,
                 () => DefaultForestryJobType = type,
                 () => { },
-                wrap: false);
+                wrap: false
+            );
             cellRect.x += cellWidth;
         }
 
@@ -89,11 +84,7 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
 
     public float DrawAllowSaplings(Vector2 pos, float width)
     {
-        var rowRect = new Rect(
-            pos.x,
-            pos.y,
-            width,
-            ListEntryHeight);
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
         // NOTE: AllowSaplings logic is the reverse from the label that is shown to the user.
         Utilities.DrawToggle(
@@ -102,7 +93,8 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
             "ColonyManagerRedux.Forestry.AllowSaplings.Tip".Translate(),
             !DefaultAllowSaplings,
             () => DefaultAllowSaplings = false,
-            () => DefaultAllowSaplings = true);
+            () => DefaultAllowSaplings = true
+        );
         return ListEntryHeight;
     }
 
@@ -111,8 +103,11 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
         base.ExposeData();
 
         Scribe_Values.Look(ref DefaultSyncFilterAndAllowed, "defaultSyncFilterAndAllowed", true);
-        Scribe_Values.Look(ref DefaultForestryJobType, "defaultForestryJobType",
-            ManagerJob_Forestry.ForestryJobType.Logging);
+        Scribe_Values.Look(
+            ref DefaultForestryJobType,
+            "defaultForestryJobType",
+            ManagerJob_Forestry.ForestryJobType.Logging
+        );
         Scribe_Values.Look(ref DefaultAllowSaplings, "defaultAllowSaplings", false);
     }
 }

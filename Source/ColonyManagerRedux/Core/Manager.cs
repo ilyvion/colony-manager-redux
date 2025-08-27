@@ -12,6 +12,7 @@ namespace ColonyManagerRedux;
 public class Manager : MapComponent, ILoadReferenceable
 {
     private readonly List<ManagerTab> _tabs;
+
     /// <summary>
     /// Gets the list of manager tabs associated with this manager instance.
     /// </summary>
@@ -29,11 +30,14 @@ public class Manager : MapComponent, ILoadReferenceable
     /// This property is obsolete; use <see cref="AncientDangerRects"/> instead.
     /// </summary>
     [Obsolete(
-        "The logic behind this property was entirely wrong; switch to the AncientDangerRects " +
-        "property instead; this property will be removed in a future version", true)]
+        "The logic behind this property was entirely wrong; switch to the AncientDangerRects "
+            + "property instead; this property will be removed in a future version",
+        true
+    )]
     public CellRect? AncientDangerRect => _ancientDangerRect;
 
     private List<CellRect> _ancientDangerRects = [];
+
     /// <summary>
     /// Gets the list of ancient danger rectangles for the map.
     /// </summary>
@@ -55,7 +59,8 @@ public class Manager : MapComponent, ILoadReferenceable
     [Obsolete("Use ScribeSameGameData instead. This will be removed in a future version.")]
     public bool ScribeGameSpecificData
     {
-        get => ScribeSameMapData; set => ScribeSameMapData = value;
+        get => ScribeSameMapData;
+        set => ScribeSameMapData = value;
     }
 
     /// <summary>
@@ -71,7 +76,8 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     /// <param name="map">The map to associate with this manager instance.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="map"/> is null.</exception>
-    public Manager(Map map) : base(map)
+    public Manager(Map map)
+        : base(map)
     {
         if (map == null)
         {
@@ -80,13 +86,15 @@ public class Manager : MapComponent, ILoadReferenceable
 
         _jobTracker = new(this);
 
-        _tabs = [.. DefDatabase<ManagerDef>.AllDefs
-            .OrderBy(m => m.order)
-            .Select(m => ManagerDefMaker.MakeManagerTab(m, this))];
+        _tabs =
+        [
+            .. DefDatabase<ManagerDef>
+                .AllDefs.OrderBy(m => m.order)
+                .Select(m => ManagerDefMaker.MakeManagerTab(m, this)),
+        ];
 
         _comps = [];
-        var managerComps = DefDatabase<ManagerDef>.AllDefs
-            .SelectMany(m => m.managerComps);
+        var managerComps = DefDatabase<ManagerDef>.AllDefs.SelectMany(m => m.managerComps);
         foreach (var compProperties in managerComps)
         {
             ManagerComp? managerComp = null;
@@ -100,7 +108,8 @@ public class Manager : MapComponent, ILoadReferenceable
             catch (Exception ex)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    "Could not instantiate or initialize a ManagerComp: " + ex);
+                    "Could not instantiate or initialize a ManagerComp: " + ex
+                );
                 if (managerComp != null)
                 {
                     _ = _comps.Remove(managerComp);
@@ -113,6 +122,7 @@ public class Manager : MapComponent, ILoadReferenceable
     }
 
     private JobTracker _jobTracker;
+
     /// <summary>
     /// Gets the job tracker associated with this manager instance.
     /// </summary>
@@ -127,7 +137,8 @@ public class Manager : MapComponent, ILoadReferenceable
     /// <param name="map">The map for which to retrieve the manager.</param>
     /// <returns>The <see cref="Manager"/> instance for the given map.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="map"/> is null.</exception>
-    public static Manager For(Map map) => map == null ? throw new ArgumentNullException(nameof(map)) : map.GetComponent<Manager>();
+    public static Manager For(Map map) =>
+        map == null ? throw new ArgumentNullException(nameof(map)) : map.GetComponent<Manager>();
 
     /// <summary>
     /// Implicitly converts a <see cref="Manager"/> instance to its associated <see cref="Map"/>.
@@ -146,6 +157,7 @@ public class Manager : MapComponent, ILoadReferenceable
     public Map ToMap() => this;
 
     private List<IExposable> _tmpExposableTabs = [];
+
     /// <inheritdoc/>
     public override void ExposeData()
     {
@@ -242,8 +254,10 @@ public class Manager : MapComponent, ILoadReferenceable
                 }
                 catch (Exception err)
                 {
-                    ColonyManagerReduxMod.Instance
-                        .LogException($"Suspending manager job because it errored on tick", err);
+                    ColonyManagerReduxMod.Instance.LogException(
+                        $"Suspending manager job because it errored on tick",
+                        err
+                    );
                     job.IsSuspended = true;
                     job.CausedException = err;
                 }
@@ -259,9 +273,10 @@ public class Manager : MapComponent, ILoadReferenceable
             }
             catch (Exception err)
             {
-                ColonyManagerReduxMod.Instance
-                    .LogException(
-                        $"Tab caused exception during {nameof(ManagerTab.Tick)}", err);
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"Tab caused exception during {nameof(ManagerTab.Tick)}",
+                    err
+                );
             }
         }
 
@@ -274,22 +289,28 @@ public class Manager : MapComponent, ILoadReferenceable
             }
             catch (Exception err)
             {
-                ColonyManagerReduxMod.Instance
-                    .LogException(
-                        $"ManagerComp caused exception during {nameof(ManagerComp.CompTick)}", err);
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerComp caused exception during {nameof(ManagerComp.CompTick)}",
+                    err
+                );
             }
         }
     }
 
     private void CheckAncientDangerRects()
     {
-        _ancientDangerRects.AddRange(map.listerThings.GetThingsOfType<RectTrigger>()
-            .Where(t => t.signalTag.StartsWith("ancientTempleApproached", StringComparison.Ordinal))
-            .Select(t => t.Rect));
+        _ancientDangerRects.AddRange(
+            map.listerThings.GetThingsOfType<RectTrigger>()
+                .Where(t =>
+                    t.signalTag.StartsWith("ancientTempleApproached", StringComparison.Ordinal)
+                )
+                .Select(t => t.Rect)
+        );
 
         ColonyManagerReduxMod.Instance.LogDebug(
-            $"_ancientDangerRects.Count = {_ancientDangerRects.Count} after " +
-            "CheckAncientDangerRects");
+            $"_ancientDangerRects.Count = {_ancientDangerRects.Count} after "
+                + "CheckAncientDangerRects"
+        );
 
         _hasCheckedAncientDangerRect = true;
     }
@@ -307,10 +328,10 @@ public class Manager : MapComponent, ILoadReferenceable
             }
             catch (Exception err)
             {
-                ColonyManagerReduxMod.Instance
-                    .LogException(
-                        $"ManagerComp caused exception during {nameof(ManagerComp.CompUpdate)}",
-                        err);
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerComp caused exception during {nameof(ManagerComp.CompUpdate)}",
+                    err
+                );
             }
         }
     }
@@ -327,21 +348,24 @@ public class Manager : MapComponent, ILoadReferenceable
     {
         if (Scribe.mode == LoadSaveMode.LoadingVars && !_wasLoaded)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning("Getting next unique manager job ID during LoadingVars before Manager was loaded. Assigning a random value.");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "Getting next unique manager job ID during LoadingVars before Manager was loaded. Assigning a random value."
+            );
             return Rand.Int;
         }
         if (Scribe.mode == LoadSaveMode.Saving)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning("Getting next unique manager job ID during saving. This may cause bugs.");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "Getting next unique manager job ID during saving. This may cause bugs."
+            );
         }
         var result = _nextManagerJobID;
         _nextManagerJobID++;
         if (_nextManagerJobID == int.MaxValue)
         {
-            ColonyManagerReduxMod.Instance
-                .LogWarning("Next manager job ID is at max value. Resetting to 0. This may cause bugs.");
+            ColonyManagerReduxMod.Instance.LogWarning(
+                "Next manager job ID is at max value. Resetting to 0. This may cause bugs."
+            );
             _nextManagerJobID = 0;
         }
         return result;
@@ -352,12 +376,14 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     /// <typeparam name="T">The type of the manager component to retrieve.</typeparam>
     /// <returns>The first component of type <typeparamref name="T"/>, or <c>null</c> if not found.</returns>
-    public T? CompOfType<T>() where T : class => _comps?.FirstOrDefault(c => c is T) as T;
+    public T? CompOfType<T>()
+        where T : class => _comps?.FirstOrDefault(c => c is T) as T;
 
     /// <summary>
     /// Returns all manager components of the specified type.
     /// </summary>
     /// <typeparam name="T">The type of the manager components to retrieve.</typeparam>
     /// <returns>An enumerable of components of type <typeparamref name="T"/>.</returns>
-    public IEnumerable<T> CompsOfType<T>() where T : class => _comps?.Where(c => c is T).Cast<T>() ?? [];
+    public IEnumerable<T> CompsOfType<T>()
+        where T : class => _comps?.Where(c => c is T).Cast<T>() ?? [];
 }

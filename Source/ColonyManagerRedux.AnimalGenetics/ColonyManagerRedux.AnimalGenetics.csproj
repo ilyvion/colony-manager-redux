@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <UseLaboratory>true</UseLaboratory>
-
         <RootNamespace>ColonyManagerRedux.AnimalGenetics</RootNamespace>
         <AssemblyName>ColonyManagerRedux.AnimalGenetics</AssemblyName>
     </PropertyGroup>

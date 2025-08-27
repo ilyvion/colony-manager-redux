@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryStock</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -8,7 +7,6 @@
         </historyLabel>
         <color>(1, 1, 1)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryDesignated</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -16,7 +14,6 @@
         </historyLabel>
         <color>(.5, .5, .5)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryCorpses</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -24,7 +21,6 @@
         </historyLabel>
         <color>(.7, .7, .7)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryChunks</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -32,7 +28,6 @@
         </historyLabel>
         <color>(.7, .7, .7)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryAdultFemale</defName>
         <historyLabel Class="ColonyManagerRedux.Managers.ManagerJob_Livestock+LivestockLabel">
@@ -40,7 +35,6 @@
         </historyLabel>
         <color>(1, 0, 0)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryAdultMale</defName>
         <historyLabel Class="ColonyManagerRedux.Managers.ManagerJob_Livestock+LivestockLabel">
@@ -48,7 +42,6 @@
         </historyLabel>
         <color>(0, 1, 0)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryJuvenileFemale</defName>
         <historyLabel Class="ColonyManagerRedux.Managers.ManagerJob_Livestock+LivestockLabel">
@@ -56,7 +49,6 @@
         </historyLabel>
         <color>(0, 1, 1)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryJuvenileMale</defName>
         <historyLabel Class="ColonyManagerRedux.Managers.ManagerJob_Livestock+LivestockLabel">
@@ -64,7 +56,6 @@
         </historyLabel>
         <color>(1, 1, 0)</color>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryProduction</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -73,7 +64,6 @@
         <color>(0, 1, 0)</color>
         <suffix>W</suffix>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryConsumption</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -82,7 +72,6 @@
         <color>(1, 0, 0)</color>
         <suffix>W</suffix>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
     <ColonyManagerRedux.ManagerJobHistoryChapterDef>
         <defName>CM_HistoryBatteries</defName>
         <historyLabel Class="ColonyManagerRedux.TranslationHistoryLabel">
@@ -91,5 +80,4 @@
         <color>(1, 1, 0)</color>
         <suffix>Wd</suffix>
     </ColonyManagerRedux.ManagerJobHistoryChapterDef>
-
 </Defs>

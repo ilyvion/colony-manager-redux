@@ -17,8 +17,5 @@ public interface IJobLogger
     /// <summary>
     /// Gets an enumerable collection of all job logs.
     /// </summary>
-    IEnumerable<ManagerLog> Logs
-    {
-        get;
-    }
+    IEnumerable<ManagerLog> Logs { get; }
 }

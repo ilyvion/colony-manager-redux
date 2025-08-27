@@ -17,7 +17,7 @@ public class Building_AIManager : Building
         Color.red,
         Color.blue,
         Color.yellow,
-        Color.cyan
+        Color.cyan,
     ];
 
     private bool _glowDirty;
@@ -93,7 +93,9 @@ public class Building_AIManager : Building
             var newColour = new ColorInt(
                 (int)(value.r * 255),
                 (int)(value.g * 255),
-                (int)(value.b * 255), 0);
+                (int)(value.b * 255),
+                0
+            );
             Glower.Props.glowColor = newColour;
             _primaryColor = value;
             _glowDirty = true;
@@ -140,6 +142,7 @@ public class Building_AIManager : Building
     }
 
     private CoroutineHandle? handle;
+
     /// <inheritdoc/>
 #if v1_5
     public override void Tick()
@@ -172,7 +175,8 @@ public class Building_AIManager : Building
                     if (handle.IsCompleted)
                     {
                         ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                            $"AI Manager completed active job");
+                            $"AI Manager completed active job"
+                        );
                         handle = null;
                         PrimaryColour = Color.red;
                         PowerTrader.PowerOutput = -PowerTrader.Props.idlePowerDraw;
@@ -186,18 +190,24 @@ public class Building_AIManager : Building
                 else
                 {
                     PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage($"Setting up a job due to AI manager seeing there's work to do...");
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                        $"Setting up a job due to AI manager seeing there's work to do..."
+                    );
                     var coroutine = Manager.For(Map).TryDoWork();
                     PrimaryColour = coroutine != null ? Color.green : Color.red;
                     if (coroutine != null)
                     {
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage($"...job started @ game tick {Find.TickManager.TicksGame}.");
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                            $"...job started @ game tick {Find.TickManager.TicksGame}."
+                        );
                         PrimaryColour = Color.green;
                         handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
                     }
                     else
                     {
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage($"...there was no job to do.");
+                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                            $"...there was no job to do."
+                        );
                         PrimaryColour = Color.red;
                     }
                 }

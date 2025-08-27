@@ -12,6 +12,7 @@ public enum ManagerJobState
     /// The job is currently active.
     /// </summary>
     Active = 0,
+
     /// <summary>
     /// The job has been completed.
     /// </summary>

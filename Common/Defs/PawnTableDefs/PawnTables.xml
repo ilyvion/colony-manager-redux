@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <Defs>
     <PawnTableDef>
         <defName>CM_ManagerJobWorkTable</defName>
@@ -13,7 +12,6 @@
             <li>RemainingSpace</li>
         </columns>
     </PawnTableDef>
-
     <PawnTableDef>
         <defName>CM_ManagerLivestockAnimalTable</defName>
         <workerClass>PawnTable_Wildlife</workerClass>

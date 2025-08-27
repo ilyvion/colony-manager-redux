@@ -21,24 +21,24 @@ internal sealed class Alert_NoManager : Alert
                 return false;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobList.Count > 0
-                && !AnyConsciousManagerPawn();
+            return manager.JobTracker.JobList.Count > 0 && !AnyConsciousManagerPawn();
         });
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport() => ColonyManagerReduxMod.Settings.ShowNoManagerAlert
-            && _noManager.Value;
+    public override AlertReport GetReport() =>
+        ColonyManagerReduxMod.Settings.ShowNoManagerAlert && _noManager.Value;
 
-    private static bool AnyConsciousManagerPawn() => Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(
-                pawn => !pawn.health.Dead && !pawn.Downed &&
-                    pawn.workSettings.WorkIsActive(
-                        ManagerWorkTypeDefOf.Managing)) ||
-                    Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(
-                        ManagerThingDefOf.CM_AIManager);
+    private static bool AnyConsciousManagerPawn() =>
+        Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(pawn =>
+            !pawn.health.Dead
+            && !pawn.Downed
+            && pawn.workSettings.WorkIsActive(ManagerWorkTypeDefOf.Managing)
+        ) || Find.CurrentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
 
-    protected override void OnClick() => Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
+    protected override void OnClick() =>
+        Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
 }
 
 [HotSwappable]
@@ -59,9 +59,10 @@ internal sealed class Alert_JobsNotUpdating : Alert
                 return 0;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobList
-                .Where(j => !j.IsSuspended && j.ShouldDoNow)
-                .Max(j => (int?)j.TicksSinceShouldUpdate) ?? 0;
+            return manager
+                    .JobTracker.JobList.Where(j => !j.IsSuspended && j.ShouldDoNow)
+                    .Max(j => (int?)j.TicksSinceShouldUpdate)
+                ?? 0;
         });
     }
 
@@ -70,11 +71,18 @@ internal sealed class Alert_JobsNotUpdating : Alert
         get
         {
             var mostOutdatedJobTicks = _mostOutdatedJobTicks.Value;
-            if (mostOutdatedJobTicks >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingCriticalAlert)
+            if (
+                mostOutdatedJobTicks
+                >= GenDate.TicksPerDay
+                    * ColonyManagerReduxMod.Settings.DaysBeforeShowingCriticalAlert
+            )
             {
                 return AlertPriority.Critical;
             }
-            else if (mostOutdatedJobTicks >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingHighAlert)
+            else if (
+                mostOutdatedJobTicks
+                >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingHighAlert
+            )
             {
                 return AlertPriority.High;
             }
@@ -90,28 +98,39 @@ internal sealed class Alert_JobsNotUpdating : Alert
     {
         get
         {
-            var num = Pulser.PulseBrightness(0.5f,
-                Pulser.PulseBrightness(PulseFreq, PulseAmpCritical));
-            return new Color(num, num, num) * (Priority switch
-            {
-                AlertPriority.High => Color.yellow.ToTransparent(.5f),
-                AlertPriority.Critical => Color.red.ToTransparent(.5f),
-                AlertPriority.Medium => Color.clear,
-                _ => throw new NotImplementedException(),
-            });
+            var num = Pulser.PulseBrightness(
+                0.5f,
+                Pulser.PulseBrightness(PulseFreq, PulseAmpCritical)
+            );
+            return new Color(num, num, num)
+                * (
+                    Priority switch
+                    {
+                        AlertPriority.High => Color.yellow.ToTransparent(.5f),
+                        AlertPriority.Critical => Color.red.ToTransparent(.5f),
+                        AlertPriority.Medium => Color.clear,
+                        _ => throw new NotImplementedException(),
+                    }
+                );
         }
     }
 
     public override AlertReport GetReport() =>
         // No need to report jobs not being updated if there's no manager to update them
         ColonyManagerReduxMod.Settings.ShowJobsNotUpdatingAlert
-            && !Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager)
-            && (_mostOutdatedJobTicks.Value >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingAlert);
+        && !Find.Alerts.activeAlerts.Any(a => a is Alert_NoManager)
+        && (
+            _mostOutdatedJobTicks.Value
+            >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingAlert
+        );
 
-    public override TaggedString GetExplanation() => "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate(
-            _mostOutdatedJobTicks.Value.ToStringTicksToPeriod());
+    public override TaggedString GetExplanation() =>
+        "ColonyManagerRedux.Alerts.JobsNotUpdating".Translate(
+            _mostOutdatedJobTicks.Value.ToStringTicksToPeriod()
+        );
 
-    protected override void OnClick() => Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
+    protected override void OnClick() =>
+        Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
 }
 
 internal sealed class Alert_NoTable : Alert
@@ -130,24 +149,23 @@ internal sealed class Alert_NoTable : Alert
                 return false;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobsOfType<ManagerJob>().Any()
-                && !AnyManagerTable();
+            return manager.JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerTable();
         });
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport() => ColonyManagerReduxMod.Settings.ShowNoManagerAlert
-            && _noTable.Value;
+    public override AlertReport GetReport() =>
+        ColonyManagerReduxMod.Settings.ShowNoManagerAlert && _noTable.Value;
 
-    public override TaggedString GetExplanation() => "ColonyManagerRedux.Alerts.NoTable".Translate(
-            BestBuildingResearchedThatCanBeBuilt.label);
+    public override TaggedString GetExplanation() =>
+        "ColonyManagerRedux.Alerts.NoTable".Translate(BestBuildingResearchedThatCanBeBuilt.label);
 
     private static bool AnyManagerTable()
     {
         var listerBuildings = Find.CurrentMap.listerBuildings;
-        return listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any() ||
-            listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
+        return listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any()
+            || listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
     }
 
     protected override void OnClick()
@@ -158,19 +176,21 @@ internal sealed class Alert_NoTable : Alert
         var bestBuildingDef = BestBuildingResearchedThatCanBeBuilt;
 
         var desPanels = architectTabWindow.desPanelsCached;
-        architectTabWindow.selectedDesPanel = desPanels
-            .Find(p => p.def == DesignationCategoryDefOf.Production);
-        architectTabWindow.forceActivatedCommand
-            = DesignationCategoryDefOf.Production.AllResolvedDesignators
-                .SingleOrDefault(d => d is Designator_Build build
-                    && build.PlacingDef == bestBuildingDef);
+        architectTabWindow.selectedDesPanel = desPanels.Find(p =>
+            p.def == DesignationCategoryDefOf.Production
+        );
+        architectTabWindow.forceActivatedCommand =
+            DesignationCategoryDefOf.Production.AllResolvedDesignators.SingleOrDefault(d =>
+                d is Designator_Build build && build.PlacingDef == bestBuildingDef
+            );
     }
 
-    private static ThingDef BestBuildingResearchedThatCanBeBuilt => ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished
-                ? ManagerThingDefOf.CM_AIManager
-                : ManagerResearchProjectDefOf.ManagingSoftware.IsFinished
-                    ? ManagerThingDefOf.CM_ManagerStation
-                    : ManagerThingDefOf.CM_BasicManagerStation;
+    private static ThingDef BestBuildingResearchedThatCanBeBuilt =>
+        ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished
+            ? ManagerThingDefOf.CM_AIManager
+        : ManagerResearchProjectDefOf.ManagingSoftware.IsFinished
+            ? ManagerThingDefOf.CM_ManagerStation
+        : ManagerThingDefOf.CM_BasicManagerStation;
 }
 
 internal sealed class Alert_TableAndAI : Alert
@@ -186,15 +206,16 @@ internal sealed class Alert_TableAndAI : Alert
         _hasAIManager = new(updater: () =>
         {
             var currentMap = Find.CurrentMap;
-            return currentMap != null && currentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
+            return currentMap != null
+                && currentMap.listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager);
         });
         _managerStations = new(() => ManagerStations);
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
-    public override AlertReport GetReport() => !ColonyManagerReduxMod.Settings.ShowNoTableNeededAlert
-            || !_hasAIManager.Value
+    public override AlertReport GetReport() =>
+        !ColonyManagerReduxMod.Settings.ShowNoTableNeededAlert || !_hasAIManager.Value
             ? (AlertReport)false
             : AlertReport.CulpritsAre(_managerStations.Value);
 
@@ -208,7 +229,9 @@ internal sealed class Alert_TableAndAI : Alert
             managerStations.Clear();
             if (listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager))
             {
-                managerStations.AddRange(listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>());
+                managerStations.AddRange(
+                    listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
+                );
             }
             return managerStations;
         }
