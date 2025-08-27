@@ -1,11 +1,6 @@
 <Project>
+    <Import Project="..\rimworld-utils\Common.props" />
     <PropertyGroup>
         <VersionPrefix>0.12.4</VersionPrefix>
-
-        <!-- Intellisense doesn't work without specifying this explicitly -->
-        <RimWorldVersion Condition="'$(RimWorldVersion)'==''">1.6</RimWorldVersion>
-
-        <DefaultItemExcludes>$(DefaultItemExcludes);obj/**</DefaultItemExcludes>
-        <BaseIntermediateOutputPath>obj/$(RimWorldVersion)</BaseIntermediateOutputPath>
     </PropertyGroup>
 </Project>

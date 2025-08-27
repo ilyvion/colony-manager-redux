@@ -28,8 +28,6 @@ jobs:
                 1.5
                 1.6
             extra_files: |-
-                Common_AnimalGenetics
-                1.5_AnimalGenetics
-                1.6_AnimalGenetics
+                Integrations
             project_dependencies_base_path: ..\..
             steam_workshop_folder_path: ..\..\.deps\refs
