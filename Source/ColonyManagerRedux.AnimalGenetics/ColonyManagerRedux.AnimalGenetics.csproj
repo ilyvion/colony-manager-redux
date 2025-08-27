@@ -51,7 +51,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <OutputPath>../../$(RimWorldVersion)_AnimalGenetics/Assemblies</OutputPath>
+        <OutputPath>../../Integrations/AnimalGenetics/$(RimWorldVersion)/Assemblies</OutputPath>
         <DebugType>portable</DebugType>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>

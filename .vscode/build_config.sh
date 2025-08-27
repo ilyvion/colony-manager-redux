@@ -1,10 +1,4 @@
 MOD_NAME="ColonyManagerRedux"
 EXTRA_FILES=(
-    "Common_AnimalGenetics"
-)
-EXTRA_RW_1_5_FILES=(
-    "1.5_AnimalGenetics"
-)
-EXTRA_RW_1_6_FILES=(
-    "1.6_AnimalGenetics"
+    "Integrations"
 )
