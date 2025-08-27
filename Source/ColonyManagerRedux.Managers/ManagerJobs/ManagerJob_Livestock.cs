@@ -412,8 +412,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             td.requiredTrainability != null
             &&
 #endif
-            raceProps.trainability.intelligenceOrder < td.requiredTrainability.intelligenceOrder
-        )
+            raceProps.trainability.intelligenceOrder < td.requiredTrainability.intelligenceOrder)
         {
             visible = true;
             return new AcceptanceReport(
