@@ -100,7 +100,7 @@
         <tickerType>Normal</tickerType>
         <building>
             <paintable>true</paintable>
-            <workTableRoomRole>Workshop</workTableRoomRole
+            <workTableRoomRole>Workshop</workTableRoomRole>
         </building>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
@@ -168,7 +168,7 @@
         <tickerType>Normal</tickerType>
         <building>
             <paintable>true</paintable>
-            <workTableRoomRole>Workshop</workTableRoomRole
+            <workTableRoomRole>Workshop</workTableRoomRole>
         </building>
         <comps>
             <li Class="CompProperties_Power">
