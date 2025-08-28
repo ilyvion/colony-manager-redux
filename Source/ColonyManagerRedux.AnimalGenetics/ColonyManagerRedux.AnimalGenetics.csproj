@@ -3,6 +3,7 @@
         <UseLaboratory>true</UseLaboratory>
         <RootNamespace>ColonyManagerRedux.AnimalGenetics</RootNamespace>
         <AssemblyName>ColonyManagerRedux.AnimalGenetics</AssemblyName>
+        <OutputPath>../../Integrations/AnimalGenetics/$(RimWorldVersion)/Assemblies</OutputPath>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">

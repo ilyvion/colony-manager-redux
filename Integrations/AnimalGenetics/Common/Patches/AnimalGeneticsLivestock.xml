@@ -4,7 +4,7 @@
         <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_LivestockManager"]/jobComps</xpath>
         <value>
             <li>
-                <compClass>ColonyManagerRedux.AnimalGenetics.ManagerJob_Livestock_AnimalGenetics</compClass>
+                <compClass>ColonyManagerRedux.AnimalGenetics.Core.ManagerJob_Livestock_AnimalGenetics</compClass>
             </li>
         </value>
     </Operation>
