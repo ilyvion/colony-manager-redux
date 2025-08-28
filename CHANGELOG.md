@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Prevent overflow when sum of power production/consumption/battery storage exceeds int.MaxValue. Presumably fixes [#21](https://github.com/ilyvion/colony-manager-redux/issues/21).
 -   Plants without harvest yield had accidentally been removed from the clear areas forestry job. These are now back. Fixes [#22](https://github.com/ilyvion/colony-manager-redux/issues/22).
+-   Remove destroyed or dead pawns from livestock caches before considering them for various operations.
 
 ## [0.12.4] - 2025-08-13
 

@@ -77,6 +77,7 @@ internal static class Utilities_Livestock
         var key = (pawnKind, map.uniqueID);
         if (allCache.TryGetValue(key, out var pawns))
         {
+            _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return pawns;
         }
 
@@ -105,6 +106,7 @@ internal static class Utilities_Livestock
         var key = (pawnKind, map.uniqueID, ageSex);
         if (allSexedCache.TryGetValue(key, out var pawns))
         {
+            _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return pawns;
         }
 
@@ -129,6 +131,7 @@ internal static class Utilities_Livestock
         // is it up to date?
         if (cacheExists && followerCache[pawn].TryGetValue(out var cached) && cached != null)
         {
+            _ = cached.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return cached;
         }
 
@@ -206,6 +209,7 @@ internal static class Utilities_Livestock
         // is it up to date?
         if (cacheExists && masterCache[key].TryGetValue(out var cached) && cached != null)
         {
+            _ = cached.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return cached;
         }
 
@@ -246,6 +250,7 @@ internal static class Utilities_Livestock
         var key = (pawnKind, map.uniqueID, includeGuests);
         if (tameCache.TryGetValue(key, out var pawns))
         {
+            _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return pawns!;
         }
 
@@ -280,6 +285,7 @@ internal static class Utilities_Livestock
         }
         if (tameSexedCache.TryGetValue(key, out var pawns) && pawns != null)
         {
+            _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return pawns;
         }
 
@@ -329,6 +335,7 @@ internal static class Utilities_Livestock
         var key = (pawnKind, map.uniqueID);
         if (wildCache.TryGetValue(key, out var pawns))
         {
+            _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return pawns;
         }
 
@@ -348,6 +355,7 @@ internal static class Utilities_Livestock
         var key = (pawnKind, map.uniqueID, ageSex);
         if (wildSexedCache.TryGetValue(key, out var pawns))
         {
+            _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return pawns;
         }
 
