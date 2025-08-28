@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using Verse.AI;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
@@ -773,7 +775,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         // cut only mature trees, or saplings that yield something right now.
         && ((AllowSaplings && target.YieldNow() > 1) || target.LifeStage == PlantLifeStage.Mature)
         && (LoggingArea == null || LoggingArea.ActiveCells.Contains(target.Position))
-        && IsReachable(target);
+        && IsReachable(target, PathEndMode.Touch);
 
     private bool IsValidDesignatedForestryTarget(LocalTargetInfo t) =>
         t.HasThing && IsValidDesignatedForestryTarget(t.Thing);

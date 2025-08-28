@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using LudeonTK;
+using Verse.AI;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -182,7 +183,7 @@ internal sealed class Dialog_MiningDebugOptions(ManagerJob_Mining job) : Dialog_
                 )
                 {
                     Messages.Message(
-                        job.IsReachable(thing).ToString(),
+                        job.IsReachable(thing, PathEndMode.InteractionCell, Danger.Some).ToString(),
                         MessageTypeDefOf.SilentInput
                     );
                 }

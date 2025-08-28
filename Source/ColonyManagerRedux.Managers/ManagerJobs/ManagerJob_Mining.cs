@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Buffers;
+using Verse.AI;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -843,7 +844,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             && IsRelevantDeconstructionTarget(target)
             // in allowed area & reachable
             && IsInAllowedArea(target)
-            && IsReachable(target)
+            && IsReachable(target, PathEndMode.InteractionCell)
             // doesn't create safety hazards
             && !IsARoofSupport_Basic(target)
             && !IsARoomDivider(target);
@@ -892,7 +893,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             && !IsARoofSupport_Basic(target)
             && IsAllowedToMineRoofAt(target)
             // can be reached
-            && IsReachable(target);
+            && IsReachable(target, PathEndMode.InteractionCell);
     }
 
     public void Notify_ThresholdFilterChanged()

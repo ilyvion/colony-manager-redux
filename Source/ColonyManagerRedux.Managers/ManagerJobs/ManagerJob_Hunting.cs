@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using Verse.AI;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
@@ -872,7 +874,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         && target.Faction == null
         // non-biome animals won't be on the list
         && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position))
-        && IsReachable(target);
+        && IsReachable(target, PathEndMode.Touch);
 
     private bool IsValidDesignatedHuntingTarget(LocalTargetInfo t) =>
         t.HasThing && t.Thing is Pawn pawn && IsValidDesignatedHuntingTarget(pawn);

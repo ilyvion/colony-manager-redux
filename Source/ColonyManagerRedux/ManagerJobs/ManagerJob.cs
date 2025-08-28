@@ -770,20 +770,44 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         );
 
     /// <summary>
+    /// <b>Obsolete.</b> This method is obsolete and will be removed in a future version.
+    /// Use <see cref="IsReachable(Thing, PathEndMode, Danger)"/> instead.
+    /// <para>
     /// Determines whether the specified target <see cref="Thing"/> is reachable by any free colonist on the map,
     /// considering fog of war and the <see cref="ShouldCheckReachable"/> setting.
+    /// </para>
     /// </summary>
     /// <param name="target">The target <see cref="Thing"/> to check for reachability.</param>
     /// <returns>True if the target is reachable; otherwise, false.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="target"/> is null.</exception>
+    [Obsolete(
+        "Use IsReachable(Thing, PathEndMode, Danger) instead. "
+            + "This method will be removed in a future version."
+    )]
     public virtual bool IsReachable(Thing target) =>
+        IsReachable(target, PathEndMode.Touch, Danger.Some);
+
+    /// <summary>
+    /// Determines whether the specified target <see cref="Thing"/> is reachable by any free colonist on the map,
+    /// considering fog of war and the <see cref="ShouldCheckReachable"/> setting, with specified path end mode and danger level.
+    /// </summary>
+    /// <param name="target">The target <see cref="Thing"/> to check for reachability.</param>
+    /// <param name="pathEndMode">The path end mode to use when checking reachability (default is <see cref="PathEndMode.Touch"/>).</param>
+    /// <param name="danger">The danger level to allow when checking reachability (default is <see cref="Danger.Some"/>).</param>
+    /// <returns>True if the target is reachable; otherwise, false.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="target"/> is null.</exception>
+    public virtual bool IsReachable(
+        Thing target,
+        PathEndMode pathEndMode = PathEndMode.Touch,
+        Danger danger = Danger.Some
+    ) =>
         target == null
             ? throw new ArgumentNullException(nameof(target))
             : !target.Position.Fogged(Manager.map)
                 && (
                     !ShouldCheckReachable
                     || Manager.map.mapPawns.FreeColonistsSpawned.Any(p =>
-                        p.CanReach(target, PathEndMode.Touch, Danger.Some)
+                        p.CanReach(target, pathEndMode, danger)
                     )
                 );
 

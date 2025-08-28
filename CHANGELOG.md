@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 -   Make separate section for deconstructible buildings in Resource Gathering UI.
+-   Resource gathering job won't mark things for mining or deconstruction that isn't reachable (i.e. no more marking things in "inner corners" for mining/deconstruction.)
 
 ### Fixed
 

@@ -4,6 +4,7 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using Verse.AI;
 using Verse.Sound;
 
 namespace ColonyManagerRedux.Managers;
@@ -1239,7 +1240,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                             && p.Spawned
                             && Manager.map.designationManager.DesignationOn(p) == null
                             && (TameArea == null || TameArea.ActiveCells.Contains(p.Position))
-                            && IsReachable(p),
+                            && IsReachable(p, PathEndMode.Touch),
                         TamingPawnSortScore,
                         t => t
                     )

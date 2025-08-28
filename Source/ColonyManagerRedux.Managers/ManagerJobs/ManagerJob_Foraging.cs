@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using Verse.AI;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
@@ -583,7 +585,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             || target.LifeStage == PlantLifeStage.Mature
         )
         && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position))
-        && IsReachable(target);
+        && IsReachable(target, PathEndMode.Touch);
 
     private bool IsValidDesignatedForagingTarget(LocalTargetInfo t) =>
         t.HasThing && IsValidDesignatedForagingTarget(t.Thing);
