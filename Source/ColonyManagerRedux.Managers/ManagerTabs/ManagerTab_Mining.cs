@@ -1,4 +1,4 @@
-﻿// ManagerTab_Mining.cs
+// ManagerTab_Mining.cs
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
@@ -218,11 +218,42 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
     public float DrawMining(Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
-            "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip".Translate(),
-            ref SelectedMiningJob.TakeOwnershipOfMiningJobs
+            "ColonyManagerRedux.Mining.AllowMining".Translate(),
+            "ColonyManagerRedux.Mining.AllowMining.Tip".Translate(),
+            ref SelectedMiningJob.AllowMining
+        );
+
+        rowRect.y += ListEntryHeight;
+        if (SelectedMiningJob.AllowMining)
+        {
+            Utilities.DrawToggle(
+                rowRect,
+                "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
+                "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip".Translate(),
+                ref SelectedMiningJob.TakeOwnershipOfMiningJobs
+            );
+        }
+        else
+        {
+            IlyvionWidgets.Label(
+                rowRect,
+                "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
+                "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Disabled.Tip".Translate(),
+                TextAnchor.MiddleLeft,
+                color: Color.grey,
+                leftMargin: Margin
+            );
+        }
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.ControlDeepDrills".Translate(),
+            "ColonyManagerRedux.Mining.ControlDeepDrills.Tip".Translate(),
+            ref SelectedMiningJob.ControlDeepDrills
         );
 
         return rowRect.yMax - pos.y;

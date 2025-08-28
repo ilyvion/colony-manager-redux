@@ -6,6 +6,11 @@
     <ColonyManagerRedux.Mining.Mining>Mining</ColonyManagerRedux.Mining.Mining>
     <ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs>Take ownership of other mining designations</ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs>
     <ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip>With this setting enabled, the job will take ownership of mining designations it didn't create. This is not desirable if you're designating mining for the sake of making/expanding rooms, e.g., as it means the manager can cancel your mining jobs if targets are met or decide to prioritize other resource gathering jobs over your manually designated ones.\n\nNote that even with this setting enabled, settings like area of operation and the kind of resources targeted are still taken into account, so another way to not have your own jobs messed with is to assign an area outside your colony for resource gathering.</ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip>
+    <ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Disabled.Tip>Disabled because allow mining is not enabled.</ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Disabled.Tip>
+    <ColonyManagerRedux.Mining.AllowMining>Allow mining</ColonyManagerRedux.Mining.AllowMining>
+    <ColonyManagerRedux.Mining.AllowMining.Tip>Create mining designations to attempt to meet the threshold.</ColonyManagerRedux.Mining.AllowMining.Tip>
+    <ColonyManagerRedux.Mining.ControlDeepDrills>Control deep drills</ColonyManagerRedux.Mining.ControlDeepDrills>
+    <ColonyManagerRedux.Mining.ControlDeepDrills.Tip>With this setting enabled, the job will control the allow/forbidden state and the power state of deep drills depending on whether the threshold for the configured resources have been met or not.</ColonyManagerRedux.Mining.ControlDeepDrills.Tip>
     <ColonyManagerRedux.Mining.AllowedBuildings>Buildings</ColonyManagerRedux.Mining.AllowedBuildings>
     <ColonyManagerRedux.Mining.Chunks>Chunks</ColonyManagerRedux.Mining.Chunks>
     <ColonyManagerRedux.Mining.HaulMapChunks>Designate chunks on the map for hauling</ColonyManagerRedux.Mining.HaulMapChunks>
@@ -56,4 +61,6 @@
     <ColonyManagerRedux.Mining.Logs.Rocks>rocks</ColonyManagerRedux.Mining.Logs.Rocks>
     <ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations>Found and added {0} mining designations, {1} deconstruction designations and {2} hauling designations that weren't already being tracked</ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations>
     <ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings>Skipped adding {0} deconstruction designations on buildings belonging to the ancient danger structure</ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings>
+    <ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill>Skipping deep drill that produces {0} because it's marked as forbidden</ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill>
+    <ColonyManagerRedux.Mining.Logs.FlickedDeepDrill>Set deep drill producing {0} to be flicked {1}</ColonyManagerRedux.Mining.Logs.FlickedDeepDrill>
 </LanguageData>

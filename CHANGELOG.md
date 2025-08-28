@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+-   Added deep drill controlling to resource gathering job. When enabled, these jobs will now flick drills on to increase their resource counts and off when the resource counts are met. Closes [#6](https://github.com/ilyvion/colony-manager-redux/issues/6)
+-   Along with the above, also added a setting to make it possible to turn off mining on resource jobs.
+
 ### Changed
 
 -   Make separate section for deconstructible buildings in Resource Gathering UI.

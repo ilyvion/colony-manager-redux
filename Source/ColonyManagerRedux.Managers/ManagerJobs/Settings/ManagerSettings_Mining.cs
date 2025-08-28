@@ -13,7 +13,10 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
     public bool DefaultDeconstructBuildings;
     public bool DefaultDeconstructAncientDangerWhenFogged;
 
+    public bool DefaultAllowMining = true;
     public bool DefaultTakeOwnershipOfMiningJobs;
+    public bool DefaultControlDeepDrills;
+
     public bool DefaultHaulMapChunks = true;
     public bool DefaultHaulMinedChunks = true;
 
@@ -77,11 +80,27 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
     public float DrawMining(Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.AllowMining".Translate(),
+            "ColonyManagerRedux.Mining.AllowMining.Tip".Translate(),
+            ref DefaultAllowMining
+        );
+
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
             "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip".Translate(),
             ref DefaultTakeOwnershipOfMiningJobs
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.ControlDeepDrills".Translate(),
+            "ColonyManagerRedux.Mining.ControlDeepDrills.Tip".Translate(),
+            ref DefaultControlDeepDrills
         );
 
         return rowRect.yMax - pos.y;
@@ -188,6 +207,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
         );
         Scribe_Values.Look(ref DefaultHaulMapChunks, "defaultHaulMapChunks", true);
         Scribe_Values.Look(ref DefaultHaulMinedChunks, "defaultHaulMinedChunks", true);
+        Scribe_Values.Look(ref DefaultControlDeepDrills, "defaultControlDeepDrills", false);
 
         Scribe_Values.Look(ref DefaultMineThickRoofs, "defaultMineThickRoofs", true);
         Scribe_Values.Look(ref DefaultCheckRoofSupport, "defaultCheckRoofSupport", true);

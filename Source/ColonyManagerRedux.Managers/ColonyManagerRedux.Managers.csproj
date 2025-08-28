@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <UseLaboratory>true</UseLaboratory>
         <RootNamespace>ColonyManagerRedux.Managers</RootNamespace>
@@ -17,5 +17,7 @@
         <Publicize Include="Assembly-CSharp:RimWorld.CompMilkable.Active" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompShearable.Active" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompHasGatherableBodyResource.GatherResourcesIntervalDays" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompDeepDrill.GetNextResource" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompFlickable.wantSwitchOn" />
     </ItemGroup>
 </Project>
