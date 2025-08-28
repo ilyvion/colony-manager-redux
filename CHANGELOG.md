@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2025-08-28
+
 ### Added
 
 -   Added deep drill controlling to resource gathering job. When enabled, these jobs will now flick drills on to increase their resource counts and off when the resource counts are met. Closes [#6](https://github.com/ilyvion/colony-manager-redux/issues/6)
@@ -436,7 +438,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.4...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.4..v0.13.0
 [0.12.4]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.3..v0.12.4
 [0.12.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.2..v0.12.3
 [0.12.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.1..v0.12.2

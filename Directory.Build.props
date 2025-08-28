@@ -1,6 +1,6 @@
 <Project>
     <Import Project="..\rimworld-utils\Common.props" />
     <PropertyGroup>
-        <VersionPrefix>0.12.4</VersionPrefix>
+        <VersionPrefix>0.13.0</VersionPrefix>
     </PropertyGroup>
 </Project>
