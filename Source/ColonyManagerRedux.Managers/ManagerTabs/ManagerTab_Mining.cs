@@ -464,6 +464,19 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rect.width * 2 / 5f,
             rect.height - Margin - ButtonSize.y
         );
+        Rect? buildingColumnRect = null;
+        if (SelectedMiningJob.DeconstructBuildings)
+        {
+            mineralsColumnRect.height /= 2;
+            mineralsColumnRect.height -= Margin / 2;
+
+            buildingColumnRect = new Rect(
+                mineralsColumnRect.x,
+                mineralsColumnRect.yMax + Margin,
+                mineralsColumnRect.width,
+                mineralsColumnRect.height
+            );
+        }
         var buttonRect = new Rect(
             rect.xMax - ButtonSize.x,
             rect.yMax - ButtonSize.y,
@@ -538,8 +551,18 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             "ColonyManagerRedux.Mining.AllowedMinerals".Translate()
         );
         Widgets_Section.Section(ref position, width, DrawAllowedMinerals);
-        if (SelectedMiningJob.DeconstructBuildings)
+        Widgets_Section.EndSectionColumn("Mining.Minerals", position);
+
+        if (buildingColumnRect.HasValue)
         {
+            // buildings
+            Widgets_Section.BeginSectionColumn(
+                buildingColumnRect.Value,
+                "Mining.Buildings",
+                out position,
+                out width
+            );
+
             Widgets_Section.Section(
                 ref position,
                 width,
@@ -547,8 +570,9 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
                 "ColonyManagerRedux.Mining.AllowedBuildings".Translate()
             );
             Widgets_Section.Section(ref position, width, DrawAllowedBuildings);
+
+            Widgets_Section.EndSectionColumn("Mining.Buildings", position);
         }
-        Widgets_Section.EndSectionColumn("Mining.Minerals", position);
 
         if (Prefs.DevMode && Widgets.ButtonText(debugButtonRect, "DEV: Debug Options"))
         {
