@@ -9,20 +9,23 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 internal static class Utilities_Plants
 {
-    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea) =>
-        GetAllPlants(map)
-            // if !clearArea, remove things that do not yield wood
-            .Where(td =>
-                (
-                    clearArea
-                    || td.plant.harvestTag == "Wood"
-                    || td.plant.harvestedThingDef == ThingDefOf.WoodLog
-                )
-                && td.plant.harvestedThingDef != null
-                && td.plant.harvestYield > 0
-            )
-            .Distinct()
-            .OrderBy(pk => pk.label);
+    public static IEnumerable<ThingDef> GetForestryPlants(Map? map, bool clearArea)
+    {
+        bool IsValid(ThingDef td)
+        {
+            return clearArea
+                || (
+                    (
+                        td.plant.harvestTag == "Wood"
+                        || td.plant.harvestedThingDef == ThingDefOf.WoodLog
+                    )
+                    && td.plant.harvestedThingDef != null
+                    && td.plant.harvestYield > 0
+                );
+        }
+
+        return GetAllPlants(map).Where(IsValid).Distinct().OrderBy(pk => pk.label);
+    }
 
     public static IEnumerable<ThingDef> GetForagingPlants(Map? map) =>
         GetAllPlants(map)
