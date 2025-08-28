@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Prevent overflow when sum of power production/consumption/battery storage exceeds int.MaxValue. Presumably fixes [#21](https://github.com/ilyvion/colony-manager-redux/issues/21).
+
 ## [0.12.4] - 2025-08-13
 
 ### Fixed

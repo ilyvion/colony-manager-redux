@@ -720,6 +720,34 @@ public static class Utilities
         : value == int.MinValue ? int.MaxValue
         : -value;
 
+    /// <summary>
+    /// Sums a sequence of integers, saturating at <see cref="int.MaxValue"/> or <see cref="int.MinValue"/> if the sum exceeds the range of <see cref="int"/>.
+    /// </summary>
+    /// <param name="values">The sequence of integer values to sum.</param>
+    /// <returns>The sum of the values, saturated to the range of <see cref="int"/>.</returns>
+    public static int SaturatingIntSum(IEnumerable<int> values)
+    {
+        if (values == null)
+        {
+            throw new ArgumentNullException(nameof(values));
+        }
+
+        long sum = 0;
+        foreach (var v in values)
+        {
+            sum += v;
+            if (sum > int.MaxValue)
+            {
+                return int.MaxValue;
+            }
+            if (sum < int.MinValue)
+            {
+                return int.MinValue;
+            }
+        }
+        return (int)sum;
+    }
+
     internal static void Scribe_IntArray(ref CircularBuffer<int> values, string label)
     {
         var capacity = 0;

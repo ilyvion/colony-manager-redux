@@ -39,12 +39,19 @@ internal sealed class ManagerJob_Power : ManagerJob
 
             count.Value =
                 chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryProduction
-                    ? trade.Where(i => i.current > 0).Sum(i => i.current)
+                    ? Utilities.SaturatingIntSum(
+                        trade.Where(i => i.current > 0).Select(i => i.current)
+                    )
                 : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryConsumption
-                    ? trade.Where(i => i.current < 0).Sum(i => Utilities.SafeAbs(i.current))
+                    ? Utilities.SaturatingIntSum(
+                        trade.Where(i => i.current < 0).Select(i => Utilities.SafeAbs(i.current))
+                    )
                 : chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
-                    ? managerJob.GetCurrentBatteries().Sum(b => b.current)
+                    ? Utilities.SaturatingIntSum(
+                        managerJob.GetCurrentBatteries().Select(b => b.current)
+                    )
                 : throw new ArgumentException($"Unexpected chapterDef value {chapterDef.defName}");
+
             yield break;
         }
 
