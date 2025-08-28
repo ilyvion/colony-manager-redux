@@ -667,7 +667,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         // otherwise, assign a master that has the least amount of current followers.
-        return options.MinBy(p => p.GetFollowers().Count);
+        return options.MinBy(p => p.GetFollowers(forceRefresh: true).Count);
     }
 
     public static void SetFollowing(
@@ -1341,7 +1341,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         var followerCounts = masters
             .Select(p => p.GetFollowers(TriggerPawnKind.pawnKind).EnumerableCount())
             .ToArray();
-        return followerCounts.Max() - followerCounts.Min() <= 1;
+        var greatestDifferenceInFollowerCount = followerCounts.Max() - followerCounts.Min();
+        return greatestDifferenceInFollowerCount <= 1;
     }
 
     private bool TryRemoveDesignation(

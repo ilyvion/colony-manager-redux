@@ -120,7 +120,7 @@ internal static class Utilities_Livestock
         return getter();
     }
 
-    public static List<Pawn> GetFollowers(this Pawn pawn)
+    public static List<Pawn> GetFollowers(this Pawn pawn, bool forceRefresh = true)
     {
         // check if we have a cached version
         var followerCache = Manager.For(pawn.Map).LivestockCaches().FollowerCache;
@@ -129,7 +129,12 @@ internal static class Utilities_Livestock
         var cacheExists = followerCache.ContainsKey(pawn);
 
         // is it up to date?
-        if (cacheExists && followerCache[pawn].TryGetValue(out var cached) && cached != null)
+        if (
+            !forceRefresh
+            && cacheExists
+            && followerCache[pawn].TryGetValue(out var cached)
+            && cached != null
+        )
         {
             _ = cached.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
             return cached;
@@ -210,6 +215,7 @@ internal static class Utilities_Livestock
         if (cacheExists && masterCache[key].TryGetValue(out var cached) && cached != null)
         {
             _ = cached.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
+            cached.SortBy(p => Rand.Int);
             return cached;
         }
 
@@ -236,6 +242,7 @@ internal static class Utilities_Livestock
             masterCache.Add(key, new(cached, 2));
         }
 
+        cached.SortBy(p => Rand.Int);
         return cached;
     }
 
