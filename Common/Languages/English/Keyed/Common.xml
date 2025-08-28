@@ -3,12 +3,14 @@
     <!-- Main Manager Tab -->
     <ColonyManagerRedux.Common.TabDisabledBecause>(disabled: {0})</ColonyManagerRedux.Common.TabDisabledBecause>
     <!-- Alert messages -->
-    <ColonyManagerRedux.Alerts.NoTableLabel>Need manager's desk or AI manager</ColonyManagerRedux.Alerts.NoTableLabel>
-    <ColonyManagerRedux.Alerts.NoTable>Manager jobs exist, but no manager's desk or AI manager has been constructed.\n\n(Click to build {0})</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoTableLabel>Need manager workspace or AI manager</ColonyManagerRedux.Alerts.NoTableLabel>
+    <ColonyManagerRedux.Alerts.NoTable>Manager jobs exist, but no manager workspace or AI manager has been constructed.</ColonyManagerRedux.Alerts.NoTable>
+    <ColonyManagerRedux.Alerts.NoTable.ClickToBuild>(Click to build {0})</ColonyManagerRedux.Alerts.NoTable.ClickToBuild>
+    <ColonyManagerRedux.Alerts.NoTable.NoTableResearched>(None have not been researched yet. Click to open research.)</ColonyManagerRedux.Alerts.NoTable.NoTableResearched>
     <ColonyManagerRedux.Alerts.NoManagerLabel>Need manager</ColonyManagerRedux.Alerts.NoManagerLabel>
     <ColonyManagerRedux.Alerts.NoManager>Manager jobs exist, but no pawn has the managing job enabled, nor has an AI manager been constructed.\n\n(Click to open work window)</ColonyManagerRedux.Alerts.NoManager>
-    <ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>Manager's desk is superfluous</ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>
-    <ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager's desk is superfluous and it will not be used by colonists.</ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>
+    <ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>Manager workspace is superfluous</ColonyManagerRedux.Alerts.ManagerDeskAndAIManagerLabel>
+    <ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>Because you have an AI manager that autonomously runs manager jobs, having a manager workspace is superfluous and it will not be used by colonists.</ColonyManagerRedux.Alerts.ManagerDeskAndAIManager>
     <ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>Auto-slaughter animal overlap</ColonyManagerRedux.Alerts.AutoslaughterOverlapLabel>
     <ColonyManagerRedux.Alerts.AutoslaughterOverlap>You have configured both a Colony Manager livestock job and RimWorld's auto-slaughter to be responsible for maintaining animal count targets for one or more animals. These two systems will likely be in conflict, and you should either turn off the '{0}' setting for the manager job(s), or turn off auto-slaughter for the given animal(s). The animals that have an overlap are:\n\n{1}</ColonyManagerRedux.Alerts.AutoslaughterOverlap>
     <ColonyManagerRedux.Alerts.JobsNotUpdatingLabel>Manager jobs are not updating</ColonyManagerRedux.Alerts.JobsNotUpdatingLabel>

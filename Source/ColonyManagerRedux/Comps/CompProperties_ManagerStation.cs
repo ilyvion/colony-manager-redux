@@ -9,7 +9,7 @@ namespace ColonyManagerRedux;
 public class CompProperties_ManagerStation : CompProperties
 {
     /// <summary>
-    /// The work speed provided by the manager station.
+    /// The work speed provided by the manager station. Lower is faster; it's the amount of work required to finish the manager job.
     /// </summary>
     public int speed = 250;
 

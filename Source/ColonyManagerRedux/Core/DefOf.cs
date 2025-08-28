@@ -9,6 +9,7 @@ internal static class ManagerThingDefOf
     public static ThingDef CM_AIManager;
     public static ThingDef CM_BasicManagerStation;
     public static ThingDef CM_ManagerStation;
+    public static ThingDef CMR_ManagingSpot;
 
 #if !v1_5
     [MayRequireOdyssey]
@@ -57,12 +58,25 @@ internal static class ManagerStatDefOf
 [DefOf]
 internal static class ManagerResearchProjectDefOf
 {
+    public static ResearchProjectDef CMR_ManagingSpot;
+    public static ResearchProjectDef CMR_ManagingDesk;
     public static ResearchProjectDef ManagingSoftware;
     public static ResearchProjectDef AdvancedManagingSoftware;
 
     static ManagerResearchProjectDefOf()
     {
         DefOfHelper.EnsureInitializedInCtor(typeof(ManagerResearchProjectDefOf));
+    }
+}
+
+[DefOf]
+internal static class ManagerResearchTabDefOf
+{
+    public static ResearchTabDef CMR_ResearchTab;
+
+    static ManagerResearchTabDefOf()
+    {
+        DefOfHelper.EnsureInitializedInCtor(typeof(ManagerResearchTabDefOf));
     }
 }
 

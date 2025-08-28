@@ -1,5 +1,61 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
+    <ThingDef ParentName="BuildingBase">
+        <defName>CMR_ManagingSpot</defName>
+        <label>managing spot</label>
+        <description>A workplace for a manager, lacking the necessary tools and thus operating very inefficiently.</description>
+        <thingClass>ColonyManagerRedux.Building_ManagerStation</thingClass>
+        <graphicData>
+            <texPath>Buildings/CMR_ManagingSpot</texPath>
+            <graphicClass>Graphic_Single</graphicClass>
+            <drawSize>(1,1)</drawSize>
+        </graphicData>
+        <altitudeLayer>FloorEmplacement</altitudeLayer>
+        <useHitPoints>false</useHitPoints>
+        <statBases>
+            <WorkToBuild>0</WorkToBuild>
+            <WorkTableEfficiencyFactor>0.5</WorkTableEfficiencyFactor>
+        </statBases>
+        <scatterableOnMapGen>false</scatterableOnMapGen>
+        <size>(1,1)</size>
+        <designationCategory>Production</designationCategory>
+        <passability>Standable</passability>
+        <hasInteractionCell>True</hasInteractionCell>
+        <interactionCellOffset>(0,0,-1)</interactionCellOffset>
+        <surfaceType>Item</surfaceType>
+        <building>
+            <sowTag>SupportPlantsOnly</sowTag>
+            <canPlaceOverImpassablePlant>false</canPlaceOverImpassablePlant>
+            <ai_chillDestination>false</ai_chillDestination>
+            <wakeDormantPawnsOnConstruction>false</wakeDormantPawnsOnConstruction>
+            <artificialForMeditationPurposes>false</artificialForMeditationPurposes>
+            <buildingTags>
+                <li>Production</li>
+            </buildingTags>
+        </building>
+        <comps>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
+                <speed>1000</speed>
+            </li>
+            <li Class="CompProperties_Forbiddable" />
+            <li Class="CompProperties_AffectedByFacilities">
+                <linkableFacilities>
+                    <li>ToolCabinet</li>
+                </linkableFacilities>
+            </li>
+            <li Class="CompProperties_ReportWorkSpeed">
+                <workSpeedStat>WorkTableWorkSpeedFactor</workSpeedStat>
+            </li>
+        </comps>
+        <placeWorkers>
+            <li>PlaceWorker_ShowFacilitiesConnections</li>
+            <li>PlaceWorker_ReportWorkSpeedPenalties</li>
+            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+        </placeWorkers>
+        <researchPrerequisites>
+            <li>CMR_ManagingSpot</li>
+        </researchPrerequisites>
+    </ThingDef>
     <!-- ========================= Work tables ==========================-->
     <ThingDef ParentName="BenchBase">
         <defName>CM_BasicManagerStation</defName>
@@ -11,7 +67,15 @@
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(3.5,1.5)</drawSize>
+            <damageData>
+                <cornerTL>Damage/Corner</cornerTL>
+                <cornerTR>Damage/Corner</cornerTR>
+                <cornerBL>Damage/Corner</cornerBL>
+                <cornerBR>Damage/Corner</cornerBR>
+            </damageData>
         </graphicData>
+        <castEdgeShadows>true</castEdgeShadows>
+        <staticSunShadowHeight>0.20</staticSunShadowHeight>
         <altitudeLayer>Building</altitudeLayer>
         <costStuffCount>75</costStuffCount>
         <stuffCategories>
@@ -34,12 +98,28 @@
         <interactionCellOffset>(0,0,-1)</interactionCellOffset>
         <surfaceType>Item</surfaceType>
         <tickerType>Normal</tickerType>
+        <building>
+            <paintable>true</paintable>
+            <workTableRoomRole>Workshop</workTableRoomRole
+        </building>
         <comps>
             <li Class="ColonyManagerRedux.CompProperties_ManagerStation">
                 <speed>1000</speed>
             </li>
             <li Class="CompProperties_Forbiddable" />
+            <li Class="CompProperties_AffectedByFacilities">
+                <linkableFacilities>
+                    <li>ToolCabinet</li>
+                </linkableFacilities>
+            </li>
         </comps>
+        <researchPrerequisites>
+            <li>CMR_ManagingDesk</li>
+        </researchPrerequisites>
+        <placeWorkers>
+            <li>PlaceWorker_ShowFacilitiesConnections</li>
+            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+        </placeWorkers>
     </ThingDef>
     <ThingDef ParentName="BenchBase">
         <defName>CM_ManagerStation</defName>
@@ -51,7 +131,15 @@
             <graphicClass>Graphic_Multi</graphicClass>
             <shaderType>CutoutComplex</shaderType>
             <drawSize>(3.5,1.5)</drawSize>
+            <damageData>
+                <cornerTL>Damage/Corner</cornerTL>
+                <cornerTR>Damage/Corner</cornerTR>
+                <cornerBL>Damage/Corner</cornerBL>
+                <cornerBR>Damage/Corner</cornerBR>
+            </damageData>
         </graphicData>
+        <castEdgeShadows>true</castEdgeShadows>
+        <staticSunShadowHeight>0.20</staticSunShadowHeight>
         <altitudeLayer>Building</altitudeLayer>
         <costStuffCount>100</costStuffCount>
         <costList>
@@ -78,6 +166,10 @@
         <interactionCellOffset>(0,0,-1)</interactionCellOffset>
         <surfaceType>Item</surfaceType>
         <tickerType>Normal</tickerType>
+        <building>
+            <paintable>true</paintable>
+            <workTableRoomRole>Workshop</workTableRoomRole
+        </building>
         <comps>
             <li Class="CompProperties_Power">
                 <compClass>CompPowerTrader</compClass>
@@ -92,10 +184,19 @@
             <li Class="CompProperties_Forbiddable" />
             <li Class="CompProperties_Flickable" />
             <li Class="CompProperties_Breakdownable" />
+            <li Class="CompProperties_AffectedByFacilities">
+                <linkableFacilities>
+                    <li>ToolCabinet</li>
+                </linkableFacilities>
+            </li>
         </comps>
         <researchPrerequisites>
             <li>ManagingSoftware</li>
         </researchPrerequisites>
+        <placeWorkers>
+            <li>PlaceWorker_ShowFacilitiesConnections</li>
+            <li>PlaceWorker_PreventInteractionSpotOverlap</li>
+        </placeWorkers>
     </ThingDef>
     <ThingDef ParentName="BuildingBase">
         <defName>CM_AIManager</defName>

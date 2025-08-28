@@ -1,16 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Defs>
     <ResearchProjectDef>
+        <defName>CMR_ManagingSpot</defName>
+        <label>managing spot</label>
+        <description>Allows setting up a basic management area on the ground to do managerial tasks. Not very efficient, but better than nothing.</description>
+        <baseCost>300</baseCost>
+        <techLevel>Neolithic</techLevel>
+        <tags>
+            <li>TribalStart</li>
+        </tags>
+        <prerequisites></prerequisites>
+        <tab>CMR_ResearchTab</tab>
+        <researchViewX>0.0</researchViewX>
+        <researchViewY>0.0</researchViewY>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
+        <defName>CMR_ManagingDesk</defName>
+        <label>simple managing desk</label>
+        <description>Allows building a simple managing desk for a more efficient management experience than the managing spot offers.</description>
+        <baseCost>500</baseCost>
+        <techLevel>Industrial</techLevel>
+        <tags>
+            <li>ClassicStart</li>
+        </tags>
+        <prerequisites>
+            <li>CMR_ManagingSpot</li>
+        </prerequisites>
+        <tab>CMR_ResearchTab</tab>
+        <researchViewX>1.00</researchViewX>
+        <researchViewY>0.00</researchViewY>
+    </ResearchProjectDef>
+    <ResearchProjectDef>
         <defName>ManagingSoftware</defName>
         <label>basic managing software</label>
         <description>Develop basic software for colony management.\n\nAllows building manager desks with a computer, pre-installed with a host of guaranteed bug free(tm) managing software.</description>
         <baseCost>1500</baseCost>
         <techLevel>Industrial</techLevel>
         <requiredResearchBuilding>HiTechResearchBench</requiredResearchBuilding>
-        <prerequisites></prerequisites>
+        <prerequisites>
+            <li>CMR_ManagingDesk</li>
+        </prerequisites>
         <tab>CMR_ResearchTab</tab>
-        <researchViewX>0.16</researchViewX>
-        <researchViewY>0.16</researchViewY>
+        <researchViewX>2.00</researchViewX>
+        <researchViewY>0.00</researchViewY>
     </ResearchProjectDef>
     <ResearchProjectDef>
         <defName>AdvancedManagingSoftware</defName>
@@ -23,8 +55,8 @@
             <li>ManagingSoftware</li>
         </prerequisites>
         <tab>CMR_ResearchTab</tab>
-        <researchViewX>1.15</researchViewX>
-        <researchViewY>0.65</researchViewY>
+        <researchViewX>3.00</researchViewX>
+        <researchViewY>0.00</researchViewY>
     </ResearchProjectDef>
     <ResearchProjectDef>
         <defName>PowerManagement</defName>
@@ -37,8 +69,8 @@
             <li>ManagingSoftware</li>
         </prerequisites>
         <tab>CMR_ResearchTab</tab>
-        <researchViewX>1.16</researchViewX>
-        <researchViewY>0.18</researchViewY>
+        <researchViewX>3.00</researchViewX>
+        <researchViewY>0.60</researchViewY>
         <researchMods>
             <li Class="ColonyManagerRedux.Managers.UnlockPowerTab" />
         </researchMods>

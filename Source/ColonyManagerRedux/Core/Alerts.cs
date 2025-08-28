@@ -133,6 +133,7 @@ internal sealed class Alert_JobsNotUpdating : Alert
         Find.MainTabsRoot.SetCurrentTab(ManagerMainButtonDefOf.Work);
 }
 
+[HotSwappable]
 internal sealed class Alert_NoTable : Alert
 {
     private readonly CachedValue<bool> _noTable;
@@ -149,7 +150,7 @@ internal sealed class Alert_NoTable : Alert
                 return false;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerTable();
+            return manager.JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerWorkspace();
         });
     }
 
@@ -159,9 +160,17 @@ internal sealed class Alert_NoTable : Alert
         ColonyManagerReduxMod.Settings.ShowNoManagerAlert && _noTable.Value;
 
     public override TaggedString GetExplanation() =>
-        "ColonyManagerRedux.Alerts.NoTable".Translate(BestBuildingResearchedThatCanBeBuilt.label);
+        "ColonyManagerRedux.Alerts.NoTable".Translate()
+        + "\n\n"
+        + (
+            BestBuildingResearchedThatCanBeBuilt == null
+                ? "ColonyManagerRedux.Alerts.NoTable.NoTableResearched".Translate()
+                : "ColonyManagerRedux.Alerts.NoTable.ClickToBuild".Translate(
+                    BestBuildingResearchedThatCanBeBuilt!.label
+                )
+        );
 
-    private static bool AnyManagerTable()
+    private static bool AnyManagerWorkspace()
     {
         var listerBuildings = Find.CurrentMap.listerBuildings;
         return listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>().Any()
@@ -170,27 +179,40 @@ internal sealed class Alert_NoTable : Alert
 
     protected override void OnClick()
     {
-        Find.MainTabsRoot.SetCurrentTab(MainButtonDefOf.Architect);
-        var architectTabWindow = (MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow;
-
         var bestBuildingDef = BestBuildingResearchedThatCanBeBuilt;
 
-        var desPanels = architectTabWindow.desPanelsCached;
-        architectTabWindow.selectedDesPanel = desPanels.Find(p =>
-            p.def == DesignationCategoryDefOf.Production
-        );
-        architectTabWindow.forceActivatedCommand =
-            DesignationCategoryDefOf.Production.AllResolvedDesignators.SingleOrDefault(d =>
-                d is Designator_Build build && build.PlacingDef == bestBuildingDef
+        if (bestBuildingDef != null)
+        {
+            Find.MainTabsRoot.SetCurrentTab(MainButtonDefOf.Architect);
+            var architectTabWindow = (MainTabWindow_Architect)MainButtonDefOf.Architect.TabWindow;
+            var desPanels = architectTabWindow.desPanelsCached;
+
+            architectTabWindow.selectedDesPanel = desPanels.Find(p =>
+                p.def == DesignationCategoryDefOf.Production
             );
+            architectTabWindow.forceActivatedCommand =
+                DesignationCategoryDefOf.Production.AllResolvedDesignators.SingleOrDefault(d =>
+                    d is Designator_Build build && build.PlacingDef == bestBuildingDef
+                );
+        }
+        else
+        {
+            Find.MainTabsRoot.SetCurrentTab(MainButtonDefOf.Research);
+            var researchTabWindow = (MainTabWindow_Research)MainButtonDefOf.Research.TabWindow;
+            researchTabWindow.CurTab = ManagerResearchTabDefOf.CMR_ResearchTab;
+        }
     }
 
-    private static ThingDef BestBuildingResearchedThatCanBeBuilt =>
+    private static ThingDef? BestBuildingResearchedThatCanBeBuilt =>
         ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished
             ? ManagerThingDefOf.CM_AIManager
         : ManagerResearchProjectDefOf.ManagingSoftware.IsFinished
             ? ManagerThingDefOf.CM_ManagerStation
-        : ManagerThingDefOf.CM_BasicManagerStation;
+        : ManagerResearchProjectDefOf.CMR_ManagingDesk.IsFinished
+            ? ManagerThingDefOf.CM_BasicManagerStation
+        : ManagerResearchProjectDefOf.CMR_ManagingSpot.IsFinished
+            ? ManagerThingDefOf.CMR_ManagingSpot
+        : null;
 }
 
 internal sealed class Alert_TableAndAI : Alert

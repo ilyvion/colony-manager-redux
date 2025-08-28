@@ -11,11 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Added deep drill controlling to resource gathering job. When enabled, these jobs will now flick drills on to increase their resource counts and off when the resource counts are met. Closes [#6](https://github.com/ilyvion/colony-manager-redux/issues/6)
 -   Along with the above, also added a setting to make it possible to turn off mining on resource jobs.
+-   Managing spot for being able to do managing tasks even without having any resources. It's very slow compared to the better options. It's researchable and finished at start by neolithic and "classic" factions. Logic has been added to retroactively grant this research to existing saves. Closes [#28](https://github.com/ilyvion/colony-manager-redux/issues/28)
 
 ### Changed
 
 -   Make separate section for deconstructible buildings in Resource Gathering UI.
 -   Resource gathering job won't mark things for mining or deconstruction that isn't reachable (i.e. no more marking things in "inner corners" for mining/deconstruction.)
+-   The basic managing desk is now researchable and finished at start by "classic" factions. Logic has been added to retroactively grant this research to existing saves.
+-   Managing workspaces now support tool cabinets for a small boost in productivity.
+-   Managing desks are now paintable.
+-   Because it's now possible to be without any possible researched manager workspaces, the alert for missing a manager desk now offers to take you to the research tab if you're in that situation.
 
 ### Fixed
 
@@ -24,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Remove destroyed or dead pawns from livestock caches before considering them for various operations.
 -   When choosing masters for animals, don't use cached follower numbers. Also, sort the list randomly to make the selection less regular. Fixes [#24](https://github.com/ilyvion/colony-manager-redux/issues/24)
 -   The logic was inverted for "equals" and "not equals" job threshold conditions.
+-   Manager workspace managing speed is now affected by worktable efficiency factor, such as being built outdoors or being in uncomfortable temperatures. This wasn't properly accounted for up until this point.
 
 ## [0.12.4] - 2025-08-13
 

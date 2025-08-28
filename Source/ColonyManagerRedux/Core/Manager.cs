@@ -231,6 +231,31 @@ public class Manager : MapComponent, ILoadReferenceable
             comp.FinalizeInit();
         }
 
+        // Let's retroactively finish research that should be finished for the given starting faction.
+        var startingResearchTags = Faction.OfPlayer.def.startingResearchTags;
+        if (startingResearchTags != null)
+        {
+            foreach (var startingResearchTag in startingResearchTags)
+            {
+                foreach (
+                    var allDef in DefDatabase<ResearchProjectDef>.AllDefs.Where(r =>
+                        r.tab == ManagerResearchTabDefOf.CMR_ResearchTab
+                    )
+                )
+                {
+                    if (allDef.HasTag(startingResearchTag))
+                    {
+                        Find.ResearchManager.FinishProject(
+                            allDef,
+                            doCompletionDialog: false,
+                            null,
+                            doCompletionLetter: false
+                        );
+                    }
+                }
+            }
+        }
+
         _wasLoaded = true;
     }
 

@@ -5,11 +5,7 @@ using Verse.AI;
 
 namespace ColonyManagerRedux;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage(
-    "Microsoft.Performance",
-    "CA1812:AvoidUninstantiatedInternalClasses",
-    Justification = "Class is instantiated via reflection"
-)]
+[HotSwappable]
 internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
 {
     private float workDone;
@@ -75,7 +71,9 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
         }
 
         var intlSkill = pawn.skills.GetSkill(SkillDefOf.Intellectual);
-        var managingSpeed = pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed);
+        var managingSpeed =
+            pawn.GetStatValue(ManagerStatDefOf.ManagingSpeed)
+            * station.GetStatValue(StatDefOf.WorkTableEfficiencyFactor);
         var toil = new Toil
         {
             defaultCompleteMode = ToilCompleteMode.Never,
@@ -124,7 +122,7 @@ internal sealed class JobDriver_ManagingAtManagingStation : JobDriver
                 if (workDone < workNeeded)
                 {
                     // learn a bit
-                    intlSkill.Learn(0.11f);
+                    intlSkill.Learn(managingSpeed * 0.11f);
 
                     // update counter
                     workDone += managingSpeed;
