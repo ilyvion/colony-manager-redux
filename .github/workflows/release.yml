@@ -16,9 +16,7 @@ jobs:
                 1.5
                 1.6
             extra_files: |-
-                Common_AnimalGenetics
-                1.5_AnimalGenetics
-                1.6_AnimalGenetics
+                Integrations
             artifact_suffix: Release
 
     release:
