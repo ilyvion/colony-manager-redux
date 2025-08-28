@@ -22,7 +22,7 @@ public abstract class Trigger(ManagerJob job) : IExposable
     }
 
     /// <summary>
-    /// Whether the trigger's condition is met or not.
+    /// Whether the trigger thinks the job should be active.
     /// </summary>
     public abstract bool State { get; }
 

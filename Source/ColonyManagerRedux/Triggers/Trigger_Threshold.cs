@@ -88,7 +88,11 @@ public sealed class Trigger_Threshold : Trigger
     public Ops Op
     {
         get => op;
-        set => op = value;
+        set
+        {
+            op = value;
+            _hasReportedIncorrectOperator = false;
+        }
     }
 
     /// <summary>
@@ -238,35 +242,9 @@ public sealed class Trigger_Threshold : Trigger
     private bool _hasReportedIncorrectOperator;
 
     /// <summary>
-    /// Gets the current state of the trigger (whether the threshold condition is met).
+    /// Gets the current state of the trigger (whether the job should be active).
     /// </summary>
-    public override bool State
-    {
-        get
-        {
-            switch (op)
-            {
-                case Ops.LowerThan:
-                    return GetCurrentCount() < targetCount;
-
-                case Ops.Equals:
-                    return GetCurrentCount() == targetCount;
-
-                case Ops.HigherThan:
-                    return GetCurrentCount() > targetCount;
-
-                case Ops.NotEquals:
-                    return GetCurrentCount() != targetCount;
-
-                default:
-                    ColonyManagerReduxMod.Instance.LogWarningOnce(
-                        "Trigger_ThingThreshold was defined without a correct operator",
-                        ref _hasReportedIncorrectOperator
-                    );
-                    return true;
-            }
-        }
-    }
+    public override bool State => !DoesCountMeetTarget(GetCurrentCount());
 
     /// <inheritdoc/>
     public override string StatusTooltip =>
@@ -541,17 +519,18 @@ public sealed class Trigger_Threshold : Trigger
                 return count >= targetCount;
 
             case Ops.Equals:
-                return count != targetCount;
+                return count == targetCount;
 
             case Ops.HigherThan:
                 return count <= targetCount;
 
             case Ops.NotEquals:
-                return count == targetCount;
+                return count != targetCount;
 
             default:
-                ColonyManagerReduxMod.Instance.LogWarning(
-                    "Trigger_Threshold was defined without a correct operator"
+                ColonyManagerReduxMod.Instance.LogWarningOnce(
+                    "Trigger_ThingThreshold was defined without a correct operator",
+                    ref _hasReportedIncorrectOperator
                 );
                 return true;
         }

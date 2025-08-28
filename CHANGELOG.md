@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Plants without harvest yield had accidentally been removed from the clear areas forestry job. These are now back. Fixes [#22](https://github.com/ilyvion/colony-manager-redux/issues/22).
 -   Remove destroyed or dead pawns from livestock caches before considering them for various operations.
 -   When choosing masters for animals, don't use cached follower numbers. Also, sort the list randomly to make the selection less regular. Fixes [#24](https://github.com/ilyvion/colony-manager-redux/issues/24)
+-   The logic was inverted for "equals" and "not equals" job threshold conditions.
 
 ## [0.12.4] - 2025-08-13
 
