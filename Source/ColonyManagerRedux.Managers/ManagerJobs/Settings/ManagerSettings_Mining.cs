@@ -88,6 +88,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
             ref DefaultAllowMining
         );
 
+        rowRect.y += ListEntryHeight;
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),

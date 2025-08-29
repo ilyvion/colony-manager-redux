@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Adjust row position for Take Ownership of Mining Jobs toggle in settings so it doesn't overlap with the Allow Mining toggle.
+
 ## [0.13.0] - 2025-08-28
 
 ### Added
