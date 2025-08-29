@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.2] - 2025-08-29
+
 ### Fixed
 
 -   Handle null harvestedThingDef in forestry job processing (introduced when we restored plants without harvest yield in 0.13.0)
@@ -448,7 +450,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.1...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.2...HEAD
+[0.13.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.1..v0.13.2
 [0.13.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.0..v0.13.1
 [0.13.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.4..v0.13.0
 [0.12.4]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.3..v0.12.4
