@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Handle null harvestedThingDef in forestry job processing (introduced when we restored plants without harvest yield in 0.13.0)
+
 ## [0.13.1] - 2025-08-29
 
 ### Fixed

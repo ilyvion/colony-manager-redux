@@ -471,6 +471,11 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             Sync = Utilities.SyncDirection.AllowedToFilter;
 
             var harvestedThingDef = tree.plant.harvestedThingDef;
+            if (harvestedThingDef == null)
+            {
+                return;
+            }
+
             var setAllow = AllowedTrees.Any(t => t.plant.harvestedThingDef == harvestedThingDef);
             TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
         }
