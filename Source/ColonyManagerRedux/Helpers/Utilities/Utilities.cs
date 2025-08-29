@@ -964,4 +964,20 @@ public static class Utilities
         }
         return true;
     }
+
+    internal static bool IsLikelyAnonymous(Delegate delegat)
+    {
+        var method = delegat.Method;
+        var declaringType = method.DeclaringType;
+
+        // Lambdas and local functions usually have generated names containing things like:
+        // "<>c__DisplayClass", "<>c", "<SomeMethodName>b__..."
+#if v1_5
+        return method.Name.Contains('<')
+#else
+        return method.Name.Contains('<', StringComparison.Ordinal)
+#endif
+            || declaringType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length
+                != 0;
+    }
 }

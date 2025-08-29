@@ -31,6 +31,8 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
     public static string GetTreeTooltip(ThingDef tree) => ManagerTab_Foraging.GetPlantTooltip(tree);
 
+    private const string ForestOptions = "Forestry.Options";
+
     protected override void DoMainContent(Rect rect)
     {
         // layout: settings | trees
@@ -59,11 +61,13 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
         Widgets_Section.BeginSectionColumn(
             optionsColumnRect,
-            "Forestry.Options",
+            ForestOptions,
             out var position,
             out var width
         );
-        Widgets_Section.Section(
+        DrawSection(
+            ForestOptions,
+            "JobType",
             ref position,
             width,
             DrawJobType,
@@ -72,7 +76,9 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
         if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {
-            Widgets_Section.Section(
+            DrawSection(
+                ForestOptions,
+                "ClearArea",
                 ref position,
                 width,
                 DrawClearArea,
@@ -82,22 +88,26 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
         if (SelectedForestryJob.Type == ForestryJobType.Logging)
         {
-            Widgets_Section.Section(
+            DrawSection(
+                ForestOptions,
+                "Threshold",
                 ref position,
                 width,
                 DrawThreshold,
                 "ColonyManagerRedux.Threshold".Translate()
             );
-            Widgets_Section.Section(
+            DrawSection(
+                ForestOptions,
+                "LoggingArea",
                 ref position,
                 width,
                 DrawAreaRestriction,
                 "ColonyManagerRedux.Forestry.LoggingArea".Translate()
             );
-            Widgets_Section.Section(ref position, width, DrawAllowSaplings);
+            DrawSection(ForestOptions, "AllowSaplings", ref position, width, DrawAllowSaplings);
         }
 
-        Widgets_Section.EndSectionColumn("Forestry.Options", position);
+        Widgets_Section.EndSectionColumn(ForestOptions, position);
 
         Widgets_Section.BeginSectionColumn(
             treesColumnRect,
@@ -198,7 +208,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
             _ => throw new NotImplementedException(),
         };
 
-    public float DrawAllowSaplings(Vector2 pos, float width)
+    public float DrawAllowSaplings(ManagerJob_Forestry job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
@@ -207,35 +217,25 @@ internal sealed class ManagerTab_Forestry(Manager manager)
             rowRect,
             "ColonyManagerRedux.Forestry.AllowSaplings".Translate(),
             "ColonyManagerRedux.Forestry.AllowSaplings.Tip".Translate(),
-            !SelectedForestryJob.AllowSaplings,
-            () => SelectedForestryJob.AllowSaplings = false,
-            () => SelectedForestryJob.AllowSaplings = true
+            !job.AllowSaplings,
+            () => job.AllowSaplings = false,
+            () => job.AllowSaplings = true
         );
         return ListEntryHeight;
     }
 
-    public float DrawAreaRestriction(Vector2 pos, float width)
+    public float DrawAreaRestriction(ManagerJob_Forestry job, Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(
-            ref pos,
-            width,
-            ref SelectedForestryJob.LoggingArea,
-            5,
-            Manager
-        );
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.LoggingArea, 5, Manager);
         return pos.y - start.y;
     }
 
-    public float DrawClearArea(Vector2 pos, float width)
+    public float DrawClearArea(ManagerJob_Forestry job, Vector2 pos, float width)
     {
         var start = pos;
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        AreaAllowedGUI.DoAllowedAreaSelectorsMC(
-            rowRect,
-            ref SelectedForestryJob.ClearAreas,
-            Manager
-        );
+        AreaAllowedGUI.DoAllowedAreaSelectorsMC(rowRect, ref job.ClearAreas, Manager);
         pos.y += ListEntryHeight;
 
         return pos.y - start.y;
@@ -249,7 +249,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         return height;
     }
 
-    public float DrawJobType(Vector2 pos, float width)
+    public float DrawJobType(ManagerJob_Forestry job, Vector2 pos, float width)
     {
         // type of job;
         // clear clear area | logging
@@ -265,8 +265,8 @@ internal sealed class ManagerTab_Forestry(Manager manager)
                 cellRect,
                 $"ColonyManagerRedux.Forestry.JobType.{type}".Translate(),
                 $"ColonyManagerRedux.Forestry.JobType.{type}.Tip".Translate(),
-                SelectedForestryJob.Type == type,
-                () => SelectedForestryJob.Type = type,
+                job.Type == type,
+                () => job.Type = type,
                 () => { },
                 wrap: false
             );
@@ -276,15 +276,15 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         return ListEntryHeight;
     }
 
-    public float DrawThreshold(Vector2 pos, float width)
+    public float DrawThreshold(ManagerJob_Forestry job, Vector2 pos, float width)
     {
         var start = pos;
-        var currentCount = SelectedForestryJob.TriggerThreshold.GetCurrentCount();
-        _ = SelectedForestryJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
-        var designatedCount = SelectedForestryJob.CachedCurrentDesignatedCount.Value;
-        var targetLabel = SelectedForestryJob.TriggerThreshold.TargetLabel;
+        var currentCount = job.TriggerThreshold.GetCurrentCount();
+        _ = job.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+        var designatedCount = job.CachedCurrentDesignatedCount.Value;
+        var targetLabel = job.TriggerThreshold.TargetLabel;
 
-        SelectedForestryJob.TriggerThreshold.DrawTriggerConfig(
+        job.TriggerThreshold.DrawTriggerConfig(
             ref pos,
             width,
             ListEntryHeight,
@@ -298,12 +298,12 @@ internal sealed class ManagerTab_Forestry(Manager manager)
                 designatedCount,
                 targetLabel
             ),
-            SelectedForestryJob.Designations,
+            job.Designations,
             delegate
             {
-                SelectedForestryJob.Sync = Utilities.SyncDirection.FilterToAllowed;
+                job.Sync = Utilities.SyncDirection.FilterToAllowed;
             },
-            SelectedForestryJob.DesignationLabel
+            job.DesignationLabel
         );
 
         Utilities.DrawToggle(

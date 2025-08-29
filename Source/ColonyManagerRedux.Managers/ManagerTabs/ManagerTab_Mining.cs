@@ -12,6 +12,7 @@ namespace ColonyManagerRedux.Managers;
 internal sealed partial class ManagerTab_Mining(Manager manager)
     : ManagerTab<ManagerJob_Mining>(manager)
 {
+    private const string MiningOptions = "Mining.Options";
     public static HashSet<ThingDef> _metals =
     [
         .. DefDatabase<ThingDef>.AllDefsListForReading.Where(td =>
@@ -215,7 +216,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         return rowRect.yMax - start.y;
     }
 
-    public float DrawMining(Vector2 pos, float width)
+    public float DrawMining(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
@@ -223,17 +224,17 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rowRect,
             "ColonyManagerRedux.Mining.AllowMining".Translate(),
             "ColonyManagerRedux.Mining.AllowMining.Tip".Translate(),
-            ref SelectedMiningJob.AllowMining
+            ref job.AllowMining
         );
 
         rowRect.y += ListEntryHeight;
-        if (SelectedMiningJob.AllowMining)
+        if (job.AllowMining)
         {
             Utilities.DrawToggle(
                 rowRect,
                 "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
                 "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip".Translate(),
-                ref SelectedMiningJob.TakeOwnershipOfMiningJobs
+                ref job.TakeOwnershipOfMiningJobs
             );
         }
         else
@@ -253,20 +254,20 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rowRect,
             "ColonyManagerRedux.Mining.ControlDeepDrills".Translate(),
             "ColonyManagerRedux.Mining.ControlDeepDrills.Tip".Translate(),
-            ref SelectedMiningJob.ControlDeepDrills
+            ref job.ControlDeepDrills
         );
 
         return rowRect.yMax - pos.y;
     }
 
-    public float DrawChunks(Vector2 pos, float width)
+    public float DrawChunks(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.Mining.HaulMapChunks".Translate(),
             "ColonyManagerRedux.Mining.HaulMapChunks.Tip".Translate(),
-            ref SelectedMiningJob.HaulMapChunks
+            ref job.HaulMapChunks
         );
 
         rowRect.y += ListEntryHeight;
@@ -274,23 +275,23 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rowRect,
             "ColonyManagerRedux.Mining.HaulMinedChunks".Translate(),
             "ColonyManagerRedux.Mining.HaulMinedChunks.Tip".Translate(),
-            ref SelectedMiningJob.HaulMinedChunks
+            ref job.HaulMinedChunks
         );
 
         return rowRect.yMax - pos.y;
     }
 
-    public float DrawDeconstructBuildings(Vector2 pos, float width)
+    public float DrawDeconstructBuildings(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.Mining.DeconstructBuildings".Translate(),
             "ColonyManagerRedux.Mining.DeconstructBuildings.Tip".Translate(),
-            ref SelectedMiningJob.DeconstructBuildings
+            ref job.DeconstructBuildings
         );
 
-        if (SelectedMiningJob.DeconstructBuildings)
+        if (job.DeconstructBuildings)
         {
             var hasAncientDangerRect = Manager.AncientDangerRects.Count > 0;
             var label = "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate();
@@ -301,7 +302,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
                 rowRect,
                 label,
                 "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged.Tip".Translate(),
-                ref SelectedMiningJob.DeconstructAncientDangerWhenFogged,
+                ref job.DeconstructAncientDangerWhenFogged,
                 leaveRoomForAdditionalIcon: !hasAncientDangerRect
             );
 
@@ -318,9 +319,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
                     iconRect,
                     "ColonyManagerRedux.Mining.CannotFindAncientDanger".Translate()
                 );
-                GUI.color = SelectedMiningJob.DeconstructAncientDangerWhenFogged
-                    ? Resources.Orange
-                    : Color.grey;
+                GUI.color = job.DeconstructAncientDangerWhenFogged ? Resources.Orange : Color.grey;
                 GUI.DrawTexture(iconRect, Resources.Warning);
                 GUI.color = Color.white;
             }
@@ -329,27 +328,21 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         return rowRect.yMax - pos.y;
     }
 
-    public float DrawMiningArea(Vector2 pos, float width)
+    public float DrawMiningArea(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(
-            ref pos,
-            width,
-            ref SelectedMiningJob.MiningArea,
-            5,
-            Manager
-        );
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.MiningArea, 5, Manager);
         return pos.y - start.y;
     }
 
-    public float DrawRoofRoomChecks(Vector2 pos, float width)
+    public float DrawRoofRoomChecks(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.Mining.MineThickRoofs".Translate(),
             "ColonyManagerRedux.Mining.MineThickRoofs.Tip".Translate(),
-            ref SelectedMiningJob.MineThickRoofs
+            ref job.MineThickRoofs
         );
 
         rowRect.y += ListEntryHeight;
@@ -357,17 +350,17 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rowRect,
             "ColonyManagerRedux.Mining.CheckRoofSupport".Translate(),
             "ColonyManagerRedux.Mining.CheckRoofSupport.Tip".Translate(),
-            ref SelectedMiningJob.CheckRoofSupport
+            ref job.CheckRoofSupport
         );
 
         rowRect.y += ListEntryHeight;
-        if (SelectedMiningJob.CheckRoofSupport)
+        if (job.CheckRoofSupport)
         {
             Utilities.DrawToggle(
                 rowRect,
                 "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced".Translate(),
                 "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip".Translate(),
-                ref SelectedMiningJob.CheckRoofSupportAdvanced,
+                ref job.CheckRoofSupportAdvanced,
                 true
             );
         }
@@ -388,26 +381,26 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rowRect,
             "ColonyManagerRedux.Mining.CheckRoomDivision".Translate(),
             "ColonyManagerRedux.Mining.CheckRoomDivision.Tip".Translate(),
-            ref SelectedMiningJob.CheckRoomDivision,
+            ref job.CheckRoomDivision,
             true
         );
 
         return rowRect.yMax - pos.y;
     }
 
-    public float DrawThresholdSettings(Vector2 pos, float width)
+    public float DrawThresholdSettings(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var start = pos;
 
-        var currentCount = SelectedMiningJob.TriggerThreshold.GetCurrentCount();
-        _ = SelectedMiningJob.ChunksCachedValue.DoUpdateIfNeeded();
-        var chunkCount = SelectedMiningJob.ChunksCachedValue.Value;
-        _ = SelectedMiningJob.DesignatedCachedValue.DoUpdateIfNeeded();
-        var designatedCount = SelectedMiningJob.DesignatedCachedValue.Value;
-        var targetLabel = SelectedMiningJob.TriggerThreshold.TargetLabel;
-        var chunkProductKind = SelectedMiningJob.GetChunkProductKind();
+        var currentCount = job.TriggerThreshold.GetCurrentCount();
+        _ = job.ChunksCachedValue.DoUpdateIfNeeded();
+        var chunkCount = job.ChunksCachedValue.Value;
+        _ = job.DesignatedCachedValue.DoUpdateIfNeeded();
+        var designatedCount = job.DesignatedCachedValue.Value;
+        var targetLabel = job.TriggerThreshold.TargetLabel;
+        var chunkProductKind = job.GetChunkProductKind();
 
-        SelectedMiningJob.TriggerThreshold.DrawTriggerConfig(
+        job.TriggerThreshold.DrawTriggerConfig(
             ref pos,
             width,
             ListEntryHeight,
@@ -424,12 +417,12 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
                 targetLabel,
                 $"ColonyManagerRedux.Mining.TargetCount.Tip.{chunkProductKind}".Translate()
             ),
-            SelectedMiningJob.Designations,
+            job.Designations,
             delegate
             {
-                SelectedMiningJob.Sync = Utilities.SyncDirection.FilterToAllowed;
+                job.Sync = Utilities.SyncDirection.FilterToAllowed;
             },
-            SelectedMiningJob.DesignationLabel
+            job.DesignationLabel
         );
 
         Utilities.DrawToggle(
@@ -437,19 +430,15 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             width,
             "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip".Translate(),
-            ref SelectedMiningJob.SyncFilterAndAllowed
+            ref job.SyncFilterAndAllowed
         );
-        Utilities.DrawReachabilityToggle(
-            ref pos,
-            width,
-            ref SelectedMiningJob.ShouldCheckReachable
-        );
+        Utilities.DrawReachabilityToggle(ref pos, width, ref job.ShouldCheckReachable);
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
             "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(),
-            ref SelectedMiningJob.UsePathBasedDistance,
+            ref job.UsePathBasedDistance,
             true
         );
 
@@ -520,42 +509,58 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         // options
         Widgets_Section.BeginSectionColumn(
             optionsColumnRect,
-            "Mining.Options",
+            MiningOptions,
             out var position,
             out var width
         );
-        Widgets_Section.Section(
+        DrawSection(
+            MiningOptions,
+            "Threshold",
             ref position,
             width,
             DrawThresholdSettings,
             "ColonyManagerRedux.Threshold".Translate()
         );
-        Widgets_Section.Section(
+        DrawSection(
+            MiningOptions,
+            "Mining",
             ref position,
             width,
             DrawMining,
             "ColonyManagerRedux.Mining.Mining".Translate()
         );
-        Widgets_Section.Section(
+        DrawSection(
+            MiningOptions,
+            "Chunks",
             ref position,
             width,
             DrawChunks,
             "ColonyManagerRedux.Mining.Chunks".Translate()
         );
-        Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
-        Widgets_Section.Section(
+        DrawSection(
+            MiningOptions,
+            "DeconstructBuildings",
+            ref position,
+            width,
+            DrawDeconstructBuildings
+        );
+        DrawSection(
+            MiningOptions,
+            "MiningArea",
             ref position,
             width,
             DrawMiningArea,
             "ColonyManagerRedux.Mining.MiningArea".Translate()
         );
-        Widgets_Section.Section(
+        DrawSection(
+            MiningOptions,
+            "HealthAndSafety",
             ref position,
             width,
             DrawRoofRoomChecks,
             "ColonyManagerRedux.Mining.HealthAndSafety".Translate()
         );
-        Widgets_Section.EndSectionColumn("Mining.Options", position);
+        Widgets_Section.EndSectionColumn(MiningOptions, position);
 
         // minerals
         Widgets_Section.BeginSectionColumn(

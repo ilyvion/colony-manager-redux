@@ -1,5 +1,1 @@
-#!/bin/bash
-set -e
-
-rm -rf refs
-refasmer -v --all -O refs -g "originals/**/*.dll"
+../../rimworld-utils/generate_refs.sh

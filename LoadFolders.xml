@@ -4,11 +4,15 @@
         <li>1.5</li>
         <li IfModActive="Mlie.AnimalGenetics">Integrations/AnimalGenetics/1.5</li>
         <li IfModActive="Mlie.AnimalGenetics">Integrations/AnimalGenetics/Common</li>
+        <li IfModActive="seekiworksmod.no17">Integrations/AAAA/1.5</li>
+        <li IfModActive="seekiworksmod.no17">Integrations/AAAA/Common</li>
     </v1.5>
     <v1.6>
         <li>Common</li>
         <li>1.6</li>
         <li IfModActive="Mlie.AnimalGenetics">Integrations/AnimalGenetics/1.6</li>
         <li IfModActive="Mlie.AnimalGenetics">Integrations/AnimalGenetics/Common</li>
+        <li IfModActive="seekiworksmod.no17">Integrations/AAAA/1.6</li>
+        <li IfModActive="seekiworksmod.no17">Integrations/AAAA/Common</li>
     </v1.6>
 </loadFolders>

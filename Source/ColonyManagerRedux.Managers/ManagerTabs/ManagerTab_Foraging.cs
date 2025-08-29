@@ -13,6 +13,8 @@ internal sealed class ManagerTab_Foraging(Manager manager)
 {
     public ManagerJob_Foraging SelectedForagingJob => SelectedJob!;
 
+    private const string ForagingOptions = "Foraging.Options";
+
     protected override void DoMainContent(Rect rect)
     {
         // layout: settings | trees
@@ -41,24 +43,28 @@ internal sealed class ManagerTab_Foraging(Manager manager)
 
         Widgets_Section.BeginSectionColumn(
             optionsColumnRect,
-            "Foraging.Options",
+            ForagingOptions,
             out var position,
             out var width
         );
-        Widgets_Section.Section(
+        DrawSection(
+            ForagingOptions,
+            "Threshold",
             ref position,
             width,
             DrawThreshold,
             "ColonyManagerRedux.Threshold".Translate()
         );
-        Widgets_Section.Section(
+        DrawSection(
+            ForagingOptions,
+            "ForagingArea",
             ref position,
             width,
             DrawAreaRestriction,
             "ColonyManagerRedux.Foraging.ForagingArea".Translate()
         );
-        Widgets_Section.Section(ref position, width, DrawMaturePlants);
-        Widgets_Section.EndSectionColumn("Foraging.Options", position);
+        DrawSection(ForagingOptions, "MaturePlants", ref position, width, DrawMaturePlants);
+        Widgets_Section.EndSectionColumn(ForagingOptions, position);
 
         Widgets_Section.BeginSectionColumn(
             plantsColumnRect,
@@ -134,27 +140,21 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         }
     }
 
-    public float DrawAreaRestriction(Vector2 pos, float width)
+    public float DrawAreaRestriction(ManagerJob_Foraging job, Vector2 pos, float width)
     {
         var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(
-            ref pos,
-            width,
-            ref SelectedForagingJob.ForagingArea,
-            5,
-            Manager
-        );
+        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.ForagingArea, 5, Manager);
         return pos.y - start.y;
     }
 
-    public float DrawMaturePlants(Vector2 pos, float width)
+    public float DrawMaturePlants(ManagerJob_Foraging job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(
             rowRect,
             "ColonyManagerRedux.Foraging.ForceFullyMature".Translate(),
             "ColonyManagerRedux.Foraging.ForceFullyMature.Tip".Translate(),
-            ref SelectedForagingJob.ForceFullyMature
+            ref job.ForceFullyMature
         );
 
         return ListEntryHeight;
@@ -259,15 +259,15 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         return rowRect.yMax - start.y;
     }
 
-    public float DrawThreshold(Vector2 pos, float width)
+    public float DrawThreshold(ManagerJob_Foraging job, Vector2 pos, float width)
     {
-        var currentCount = SelectedForagingJob.TriggerThreshold.GetCurrentCount();
-        _ = SelectedForagingJob.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
-        var designatedCount = SelectedForagingJob.CachedCurrentDesignatedCount.Value;
-        var targetLabel = SelectedForagingJob.TriggerThreshold.TargetLabel;
+        var currentCount = job.TriggerThreshold.GetCurrentCount();
+        _ = job.CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+        var designatedCount = job.CachedCurrentDesignatedCount.Value;
+        var targetLabel = job.TriggerThreshold.TargetLabel;
         var start = pos;
 
-        SelectedForagingJob.TriggerThreshold.DrawTriggerConfig(
+        job.TriggerThreshold.DrawTriggerConfig(
             ref pos,
             width,
             ListEntryHeight,
@@ -281,9 +281,9 @@ internal sealed class ManagerTab_Foraging(Manager manager)
                 designatedCount,
                 targetLabel
             ),
-            SelectedForagingJob.Designations,
-            () => SelectedForagingJob.Sync = Utilities.SyncDirection.FilterToAllowed,
-            SelectedForagingJob.DesignationLabel
+            job.Designations,
+            () => job.Sync = Utilities.SyncDirection.FilterToAllowed,
+            job.DesignationLabel
         );
 
         Utilities.DrawToggle(
@@ -291,19 +291,15 @@ internal sealed class ManagerTab_Foraging(Manager manager)
             width,
             "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
             "ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip".Translate(),
-            ref SelectedForagingJob.SyncFilterAndAllowed
+            ref job.SyncFilterAndAllowed
         );
-        Utilities.DrawReachabilityToggle(
-            ref pos,
-            width,
-            ref SelectedForagingJob.ShouldCheckReachable
-        );
+        Utilities.DrawReachabilityToggle(ref pos, width, ref job.ShouldCheckReachable);
         Utilities.DrawToggle(
             ref pos,
             width,
             "ColonyManagerRedux.Threshold.PathBasedDistance".Translate(),
             "ColonyManagerRedux.Threshold.PathBasedDistance.Tip".Translate(),
-            ref SelectedForagingJob.UsePathBasedDistance,
+            ref job.UsePathBasedDistance,
             true
         );
 

@@ -91,6 +91,14 @@ public static class Widgets_Section
             throw new ArgumentNullException(nameof(drawerFunc));
         }
 
+        if (id == 0 && Utilities.IsLikelyAnonymous(drawerFunc))
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id "
+                    + "may lead to unexpected behavior as these don't have a stable hash value. "
+                    + $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}"
+            );
+        }
         id = id != 0 ? id : drawerFunc.GetHashCode();
         Section(ref position, width, (p, w) => drawerFunc(data, p, w), header, id);
     }
@@ -117,7 +125,7 @@ public static class Widgets_Section
         }
 
         var hasHeader = !header.NullOrEmpty();
-        if (id == 0 && IsLikelyAnonymous(drawerFunc))
+        if (id == 0 && Utilities.IsLikelyAnonymous(drawerFunc))
         {
             ColonyManagerReduxMod.Instance.LogWarning(
                 $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id "
@@ -161,23 +169,6 @@ public static class Widgets_Section
         var height = drawerFunc(position + new Vector2(Margin, Margin), width - (2 * Margin));
         position.y += height + (3 * Margin);
         _heights[id] = height;
-
-        static bool IsLikelyAnonymous(Delegate delegat)
-        {
-            var method = delegat.Method;
-            var declaringType = method.DeclaringType;
-
-            // Lambdas and local functions usually have generated names containing things like:
-            // "<>c__DisplayClass", "<>c", "<SomeMethodName>b__..."
-#if v1_5
-            return method.Name.Contains('<')
-#else
-            return method.Name.Contains('<', StringComparison.Ordinal)
-#endif
-                || declaringType
-                    .GetCustomAttributes(typeof(CompilerGeneratedAttribute), false)
-                    .Length != 0;
-        }
     }
 
     private static float GetHeight(string identifier)

@@ -17,6 +17,11 @@ public class ColonyManagerReduxMod : IlyvionMod
 
 #pragma warning restore CS8618
 
+    /// <summary>
+    /// Gets the package ID of the Colony Manager Redux mod.
+    /// </summary>
+    public static string PackageId => Instance!.Content.PackageId;
+
     /// <inheritdoc/>
     protected override bool HasSettings => true;
 

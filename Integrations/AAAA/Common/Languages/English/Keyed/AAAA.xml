@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+    <ColonyManagerRedux.AAAA.UseEvacuation>Use AAAA evacuation for area(s)</ColonyManagerRedux.AAAA.UseEvacuation>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the area(s) configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Tip>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.RestrictArea>Use AAAA evacuation for restriction areas</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.RestrictArea>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.RestrictArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the restriction areas configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.RestrictArea.Tip>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.CullingArea>Use AAAA evacuation for culling area</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.CullingArea>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.CullingArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the culling area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.CullingArea.Tip>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.MilkArea>Use AAAA evacuation for milking area</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.MilkArea>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.MilkArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the milking area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.MilkArea.Tip>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea>Use AAAA evacuation for shearing area</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the shearing area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea.Tip>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea>Use AAAA evacuation for training area</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the training area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea.Tip>
+</LanguageData>

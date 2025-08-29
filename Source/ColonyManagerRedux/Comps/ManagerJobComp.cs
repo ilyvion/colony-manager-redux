@@ -71,6 +71,44 @@ public abstract class ManagerJobComp
         float width
     ) { }
 
+    /// <summary>
+    /// Called before rendering the contents of a section in the UI; override to perform custom prefix rendering logic.
+    /// </summary>
+    /// <param name="sectionColumn">The column of the section being rendered.</param>
+    /// <param name="section">The name of the section being rendered.</param>
+    /// <param name="job">The manager job associated with this component.</param>
+    /// <param name="position">The position vector for rendering.</param>
+    /// <param name="width">The width available for rendering.</param>
+    /// <returns>The height used by the prefix rendering.</returns>
+    protected internal virtual float RenderSectionPrefix(
+        string sectionColumn,
+        string section,
+        ManagerJob job,
+        Vector2 position,
+        float width
+    ) =>
+        // Default implementation does nothing
+        0f;
+
+    /// <summary>
+    /// Called after rendering the contents of a section in the UI; override to perform custom postfix rendering logic.
+    /// </summary>
+    /// <param name="sectionColumn">The column of the section being rendered.</param>
+    /// <param name="section">The name of the section being rendered.</param>
+    /// <param name="job">The manager job associated with this component.</param>
+    /// <param name="position">The position vector for rendering.</param>
+    /// <param name="width">The width available for rendering.</param>
+    /// <returns>The height used by the postfix rendering.</returns>
+    protected internal virtual float RenderSectionPostfix(
+        string sectionColumn,
+        string section,
+        ManagerJob job,
+        Vector2 position,
+        float width
+    ) =>
+        // Default implementation does nothing
+        0f;
+
     /// <inheritdoc/>
     public override string ToString() => string.Concat(GetType().Name, "(parent=", Parent, ")");
 }

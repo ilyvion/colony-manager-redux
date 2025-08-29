@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_HuntingManager"]/jobComps</xpath>
+        <value>
+            <li Class="ColonyManagerRedux.AAAA.Core.CompProperties_AAAAManagerJob">
+                <fields>
+                    <li>
+                        <sectionColumn>Hunting.Options</sectionColumn>
+                        <section>HuntingGrounds</section>
+                        <jobAreaFieldName>HuntingGrounds</jobAreaFieldName>
+                        <scribeLabelPrefix>huntingGrounds</scribeLabelPrefix>
+                    </li>
+                </fields>
+            </li>
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_ForestryManager"]/jobComps</xpath>
+        <value>
+            <li Class="ColonyManagerRedux.AAAA.Core.CompProperties_AAAAManagerJob">
+                <fields>
+                    <li>
+                        <sectionColumn>Forestry.Options</sectionColumn>
+                        <section>ClearArea</section>
+                        <jobAreaFieldName>ClearAreas</jobAreaFieldName>
+                        <scribeLabelPrefix>clearAreas</scribeLabelPrefix>
+                    </li>
+                    <li>
+                        <sectionColumn>Forestry.Options</sectionColumn>
+                        <section>LoggingArea</section>
+                        <jobAreaFieldName>LoggingArea</jobAreaFieldName>
+                        <scribeLabelPrefix>loggingArea</scribeLabelPrefix>
+                    </li>
+                </fields>
+            </li>
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_LivestockManager"]/jobComps</xpath>
+        <value>
+            <li Class="ColonyManagerRedux.AAAA.Core.CompProperties_AAAAManagerJob">
+                <fields>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>Taming</section>
+                        <jobAreaFieldName>TameArea</jobAreaFieldName>
+                        <scribeLabelPrefix>tameArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>TryTameMore</hideIfFieldWithNameIsFalse>
+                    </li>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>AreaRestrictions</section>
+                        <jobAreaFieldName>RestrictArea</jobAreaFieldName>
+                        <scribeLabelPrefix>restrictArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>RestrictToArea</hideIfFieldWithNameIsFalse>
+                        <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.RestrictArea</toggleLabelKey>
+                        <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.RestrictArea.Tip</toggleTooltipKey>
+                    </li>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>AreaRestrictions</section>
+                        <jobAreaFieldName>CullingArea</jobAreaFieldName>
+                        <scribeLabelPrefix>cullingArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>SendToCullingArea</hideIfFieldWithNameIsFalse>
+                        <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.CullingArea</toggleLabelKey>
+                        <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.CullingArea.Tip</toggleTooltipKey>
+                    </li>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>AreaRestrictions</section>
+                        <jobAreaFieldName>MilkArea</jobAreaFieldName>
+                        <scribeLabelPrefix>milkArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>SendToMilkingArea</hideIfFieldWithNameIsFalse>
+                        <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.MilkArea</toggleLabelKey>
+                        <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.MilkArea.Tip</toggleTooltipKey>
+                    </li>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>AreaRestrictions</section>
+                        <jobAreaFieldName>ShearArea</jobAreaFieldName>
+                        <scribeLabelPrefix>shearArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>SendToShearingArea</hideIfFieldWithNameIsFalse>
+                        <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea</toggleLabelKey>
+                        <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea.Tip</toggleTooltipKey>
+                    </li>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>AreaRestrictions</section>
+                        <jobAreaFieldName>TrainingArea</jobAreaFieldName>
+                        <scribeLabelPrefix>trainingArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>SendToTrainingArea</hideIfFieldWithNameIsFalse>
+                        <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea</toggleLabelKey>
+                        <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea.Tip</toggleTooltipKey>
+                    </li>
+                </fields>
+            </li>
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_ForagingManager"]/jobComps</xpath>
+        <value>
+            <li Class="ColonyManagerRedux.AAAA.Core.CompProperties_AAAAManagerJob">
+                <fields>
+                    <li>
+                        <sectionColumn>Foraging.Options</sectionColumn>
+                        <section>ForagingArea</section>
+                        <jobAreaFieldName>ForagingArea</jobAreaFieldName>
+                        <scribeLabelPrefix>foragingArea</scribeLabelPrefix>
+                    </li>
+                </fields>
+            </li>
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[defName="CM_MiningManager"]/jobComps</xpath>
+        <value>
+            <li Class="ColonyManagerRedux.AAAA.Core.CompProperties_AAAAManagerJob">
+                <fields>
+                    <li>
+                        <sectionColumn>Mining.Options</sectionColumn>
+                        <section>MiningArea</section>
+                        <jobAreaFieldName>MiningArea</jobAreaFieldName>
+                        <scribeLabelPrefix>miningArea</scribeLabelPrefix>
+                    </li>
+                </fields>
+            </li>
+        </value>
+    </Operation>
+</Patch>

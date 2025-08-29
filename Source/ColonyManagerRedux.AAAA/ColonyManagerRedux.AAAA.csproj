@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <UseLaboratory>true</UseLaboratory>
+        <RootNamespace>ColonyManagerRedux.AAAA</RootNamespace>
+        <AssemblyName>ColonyManagerRedux.AAAA</AssemblyName>
+        <OutputPath>../../Integrations/AAAA/$(RimWorldVersion)/Assemblies</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <Reference Include="AAAA">
+            <HintPath>$(RimWorldSteamWorkshopFolderPath)\3264193512\$(RimWorldVersion)\Assemblies\AAAA.dll</HintPath>
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Publicize Include="AAAA:seekiworks_AllowedAreaAutomaticAdapter.Watcher.AllowedAreaChangeDangerMode" />
+        <Publicize Include="AAAA:seekiworks_AllowedAreaAutomaticAdapter.Watcher.AllowedAreaChangeNormalMode" />
+        <Publicize Include="AAAA:seekiworks_AllowedAreaAutomaticAdapter.Utility.GetSuffix" />
+    </ItemGroup>
+</Project>

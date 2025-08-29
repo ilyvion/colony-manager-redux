@@ -86,13 +86,68 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager)
         float width,
         Func<T, Vector2, float, float> drawerFunc,
         string header = ""
+    ) => DrawSection(sectionColumn, section, ref position, width, drawerFunc, header, 0);
+
+    /// <summary>
+    /// Draws a section for the selected job, including pre-render and post-render hooks for job components.
+    /// </summary>
+    /// <param name="sectionColumn">The section column identifier.</param>
+    /// <param name="section">The section identifier.</param>
+    /// <param name="position">The position vector, passed by reference and updated after drawing.</param>
+    /// <param name="width">The width of the section.</param>
+    /// <param name="drawerFunc">A function to draw the section content for the job.</param>
+    /// <param name="header">An optional header for the section.</param>
+    /// <param name="id">A unique identifier for the section, used for stable UI state.</param>
+    protected void DrawSection(
+        string sectionColumn,
+        string section,
+        ref Vector2 position,
+        float width,
+        Func<T, Vector2, float, float> drawerFunc,
+        string header,
+        int id = 0
     )
     {
+        if (drawerFunc == null)
+        {
+            throw new ArgumentNullException(nameof(drawerFunc));
+        }
+        if (id == 0 && Utilities.IsLikelyAnonymous(drawerFunc))
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"DrawSection drawerFunc seems to be an anonymous function; not providing a manual value for id "
+                    + "may lead to unexpected behavior as these don't have a stable hash value. "
+                    + $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}"
+            );
+        }
+        id = id != 0 ? id : drawerFunc.GetHashCode();
+
         var localPosition = position;
         SelectedJob!.ForAllCompsOfType<ManagerJobComp>(c =>
             c.PreRenderSection(sectionColumn, section, ref localPosition, width)
         );
-        Widgets_Section.Section(SelectedJob, ref localPosition, width, drawerFunc, header);
+        Widgets_Section.Section(
+            SelectedJob,
+            ref localPosition,
+            width,
+            (job, pos, width) =>
+            {
+                var start = pos;
+                SelectedJob!.ForAllCompsOfType<ManagerJobComp>(c =>
+                    pos.y += c.RenderSectionPrefix(sectionColumn, section, job, pos, width)
+                );
+
+                pos.y += drawerFunc(job, pos, width);
+
+                SelectedJob!.ForAllCompsOfType<ManagerJobComp>(c =>
+                    pos.y += c.RenderSectionPostfix(sectionColumn, section, job, pos, width)
+                );
+
+                return pos.y - start.y;
+            },
+            header,
+            id
+        );
         SelectedJob.ForAllCompsOfType<ManagerJobComp>(c =>
             c.PostRenderSection(sectionColumn, section, ref localPosition, width)
         );
