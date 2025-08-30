@@ -215,7 +215,7 @@ internal static class Utilities_Livestock
         if (cacheExists && masterCache[key].TryGetValue(out var cached) && cached != null)
         {
             _ = cached.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
-            cached.SortBy(p => Rand.Int);
+            cached.Shuffle();
             return cached;
         }
 
@@ -242,7 +242,7 @@ internal static class Utilities_Livestock
             masterCache.Add(key, new(cached, 2));
         }
 
-        cached.SortBy(p => Rand.Int);
+        cached.Shuffle();
         return cached;
     }
 
