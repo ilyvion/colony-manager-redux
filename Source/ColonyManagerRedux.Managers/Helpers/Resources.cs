@@ -12,6 +12,9 @@ internal static class Resources
         SlightlyDarkBackgroundColour = new(0f, 0f, 0f, .2f);
 
     public static readonly Texture2D
+        // sorting arrows
+        ArrowUp = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowUp"),
+        ArrowDown = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_ArrowDown"),
         // NOTE: These colors should be synchronized with the ones in HistoryChapters.xml
         AdultFemaleTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0.7f, 0f, 0f)),
         AdultMaleTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0f, 0.7f, 0f)),

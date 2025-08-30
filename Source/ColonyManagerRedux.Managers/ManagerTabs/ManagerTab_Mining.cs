@@ -216,6 +216,108 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         return rowRect.yMax - start.y;
     }
 
+    public static float DrawTaskPriorityOrder(
+        List<ManagerJob_Mining.Task> tasks,
+        Vector2 pos,
+        float width
+    )
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
+        (int, int)? swap = null;
+
+        // Draw the task order
+        for (var i = 0; i < tasks.Count; i++)
+        {
+            var task = tasks[i];
+            var top = i == 0;
+            var bottom = i == tasks.Count - 1;
+
+            const float ButtonWidth = 22;
+            const float ButtonHeight = 22;
+
+            Rect upRect =
+                    new(
+                        rowRect.xMax - (2 * ButtonWidth),
+                        rowRect.yMin + ((ListEntryHeight - ButtonHeight) / 2) + 1,
+                        ButtonWidth,
+                        ButtonHeight
+                    ),
+                downRect =
+                    new(
+                        rowRect.xMax - ButtonWidth,
+                        rowRect.yMin + ((ListEntryHeight - ButtonHeight) / 2) - 1,
+                        ButtonWidth,
+                        ButtonHeight
+                    );
+
+            var labelRect = rowRect;
+            labelRect.xMax -= (2 * ButtonWidth) + Margin;
+
+            if (i % 2 == 1)
+            {
+                Widgets.DrawAltRect(rowRect);
+            }
+
+            IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
+            {
+                Widgets.DrawRectFast(upRect, ColorLibrary.GrassGreen.ToTransparent(.5f));
+                Widgets.DrawRectFast(downRect, ColorLibrary.BrickRed.ToTransparent(.5f));
+                Widgets.DrawRectFast(labelRect, ColorLibrary.SkyBlue.ToTransparent(.5f));
+            });
+
+            if (!top)
+            {
+                DrawOrderTooltips(upRect);
+                if (Widgets.ButtonImage(upRect, Resources.ArrowUp))
+                {
+                    swap = (i, i - 1);
+                }
+            }
+
+            if (!bottom)
+            {
+                DrawOrderTooltips(downRect, increase: false);
+                if (Widgets.ButtonImage(downRect, Resources.ArrowDown))
+                {
+                    swap = (i, i + 1);
+                }
+            }
+
+            IlyvionWidgets.Label(
+                labelRect,
+                $"{i + 1}. " + $"ColonyManagerRedux.Mining.TaskPriorityOrder.{task}".Translate(),
+                null,
+                TextAnchor.MiddleLeft
+            );
+
+            rowRect.y += ListEntryHeight;
+        }
+        rowRect.y -= ListEntryHeight;
+
+        if (swap != null)
+        {
+            tasks.Swap(swap.Value.Item1, swap.Value.Item2);
+        }
+
+        return rowRect.yMax - pos.y;
+    }
+
+    public float DrawTaskPriorityOrder(ManagerJob_Mining job, Vector2 pos, float width) =>
+        DrawTaskPriorityOrder(job.TaskPriorityOrder, pos, width);
+
+    private static void DrawOrderTooltips(Rect step, bool increase = true)
+    {
+        if (increase)
+        {
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Task.IncreasePriority".Translate());
+        }
+        else
+        {
+            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Task.DecreasePriority".Translate());
+        }
+    }
+
     public float DrawMining(ManagerJob_Mining job, Vector2 pos, float width)
     {
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
@@ -520,6 +622,14 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             width,
             DrawThresholdSettings,
             "ColonyManagerRedux.Threshold".Translate()
+        );
+        DrawSection(
+            MiningOptions,
+            "TaskPriorityOrder",
+            ref position,
+            width,
+            DrawTaskPriorityOrder,
+            "ColonyManagerRedux.Mining.TaskPriorityOrder".Translate()
         );
         DrawSection(
             MiningOptions,

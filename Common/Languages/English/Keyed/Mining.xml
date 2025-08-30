@@ -41,6 +41,11 @@
     <ColonyManagerRedux.Mining.TargetCount.Tip.Neither>processing (none of the selected material(s) can be extracted from chunks)</ColonyManagerRedux.Mining.TargetCount.Tip.Neither>
     <!-- Jobs -->
     <ColonyManagerRedux.Mining.NewJob.Tip>Create a new resource gathering job</ColonyManagerRedux.Mining.NewJob.Tip>
+    <!-- Tasks -->
+    <ColonyManagerRedux.Mining.TaskPriorityOrder>Task priorities</ColonyManagerRedux.Mining.TaskPriorityOrder>
+    <ColonyManagerRedux.Mining.TaskPriorityOrder.HaulChunks>Haul chunks</ColonyManagerRedux.Mining.TaskPriorityOrder.HaulChunks>
+    <ColonyManagerRedux.Mining.TaskPriorityOrder.DeconstructBuildings>Deconstruct buildings</ColonyManagerRedux.Mining.TaskPriorityOrder.DeconstructBuildings>
+    <ColonyManagerRedux.Mining.TaskPriorityOrder.Mine>Mine</ColonyManagerRedux.Mining.TaskPriorityOrder.Mine>
     <!-- shortcuts -->
     <ColonyManagerRedux.Mining.Stone>Stone</ColonyManagerRedux.Mining.Stone>
     <ColonyManagerRedux.Mining.Stone.Tip>Toggle all mineables that yield stone chunks</ColonyManagerRedux.Mining.Stone.Tip>

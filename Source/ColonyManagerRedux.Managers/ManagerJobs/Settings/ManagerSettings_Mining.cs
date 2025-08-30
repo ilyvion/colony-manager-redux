@@ -2,6 +2,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
+using Task = ColonyManagerRedux.Managers.ManagerJob_Mining.Task;
 
 namespace ColonyManagerRedux.Managers;
 
@@ -25,6 +26,13 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
     public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
 
+    public List<Task> DefaultTaskPriorityOrder =
+    [
+        Task.HaulChunks,
+        Task.DeconstructBuildings,
+        Task.Mine,
+    ];
+
     public override void DoTabContents(Rect rect)
     {
         var panelRect = new Rect(rect.xMin, rect.yMin, rect.width, rect.height - Margin);
@@ -40,6 +48,12 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
             width,
             DrawSyncFilterAndAllowed,
             "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawTaskPriorityOrder,
+            "ColonyManagerRedux.ManagerSettings.DefaultTaskPriorityOrder".Translate()
         );
         Widgets_Section.Section(
             ref position,
@@ -76,6 +90,9 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
 
         return ListEntryHeight;
     }
+
+    public float DrawTaskPriorityOrder(Vector2 pos, float width) =>
+        ManagerTab_Mining.DrawTaskPriorityOrder(DefaultTaskPriorityOrder, pos, width);
 
     public float DrawMining(Vector2 pos, float width)
     {
@@ -218,5 +235,26 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
             false
         );
         Scribe_Values.Look(ref DefaultCheckRoomDivision, "defaultCheckRoomDivision", true);
+        Scribe_Collections.Look(
+            ref DefaultTaskPriorityOrder,
+            "defaultTaskPriorityOrder",
+            LookMode.Value
+        );
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            DefaultTaskPriorityOrder ??= [];
+            if (DefaultTaskPriorityOrder.Count != Enum.GetValues(typeof(Task)).Length)
+            {
+                // Add any missing tasks at the end
+                foreach (var task in Enum.GetValues(typeof(Task)).Cast<Task>())
+                {
+                    if (!DefaultTaskPriorityOrder.Contains(task))
+                    {
+                        DefaultTaskPriorityOrder.Add(task);
+                    }
+                }
+            }
+        }
     }
 }

@@ -78,6 +78,13 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         }
     }
 
+    public enum Task
+    {
+        HaulChunks,
+        DeconstructBuildings,
+        Mine,
+    }
+
     private const int RoofSupportGridSpacing = 5;
 
     internal MultiTickCachedValue<int> ChunksCachedValue { get; }
@@ -135,6 +142,8 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
+    public List<Task> TaskPriorityOrder = [Task.HaulChunks, Task.DeconstructBuildings, Task.Mine];
+
     public ManagerJob_Mining(Manager manager)
         : base(manager)
     {
@@ -168,6 +177,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             CheckRoofSupportAdvanced = miningSettings.DefaultCheckRoofSupportAdvanced;
             CheckRoomDivision = miningSettings.DefaultCheckRoomDivision;
             MineThickRoofs = miningSettings.DefaultMineThickRoofs;
+            TaskPriorityOrder = miningSettings.DefaultTaskPriorityOrder;
         }
     }
 
@@ -468,6 +478,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         Scribe_Values.Look(ref AllowMining, "allowMining", true);
         Scribe_Values.Look(ref TakeOwnershipOfMiningJobs, "takeOwnershipOfMiningJobs", false);
         Scribe_Values.Look(ref ControlDeepDrills, "controlDeepDrills", false);
+        Scribe_Collections.Look(ref TaskPriorityOrder, "taskPriorityOrder", LookMode.Value);
 
         if (Manager.ScribeSameMapData)
         {
@@ -490,6 +501,19 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
+
+            TaskPriorityOrder ??= ManagerSettings.DefaultTaskPriorityOrder;
+            if (TaskPriorityOrder.Count != Enum.GetValues(typeof(Task)).Length)
+            {
+                // Add any missing tasks at the end
+                foreach (var task in Enum.GetValues(typeof(Task)).Cast<Task>())
+                {
+                    if (!TaskPriorityOrder.Contains(task))
+                    {
+                        TaskPriorityOrder.Add(task);
+                    }
+                }
+            }
         }
     }
 
@@ -1095,63 +1119,81 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // Prioritize chunks; it's the lowest hanging "fruit" in terms of effort
-        if (HaulMapChunks)
+        for (var i = 0; i < TaskPriorityOrder.Count; i++)
         {
-            yield return TryHaulChunks(
-                    jobLog,
-                    workDone,
-                    operationsPerTick,
-                    ticksBetweenOperations,
-                    count
-                )
-                .ResumeWhenOtherCoroutineIsCompleted();
-        }
+            var task = TaskPriorityOrder[i];
+            var isLastTask = i == TaskPriorityOrder.Count - 1;
+            switch (task)
+            {
+                case Task.HaulChunks:
+                    if (HaulMapChunks)
+                    {
+                        yield return TryHaulChunks(
+                                jobLog,
+                                workDone,
+                                operationsPerTick,
+                                ticksBetweenOperations,
+                                count
+                            )
+                            .ResumeWhenOtherCoroutineIsCompleted();
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    break;
+                case Task.DeconstructBuildings:
+                    if (DeconstructBuildings)
+                    {
+                        yield return TryDeconstructBuildings(
+                                jobLog,
+                                workDone,
+                                operationsPerTick,
+                                ticksBetweenOperations,
+                                count
+                            )
+                            .ResumeWhenOtherCoroutineIsCompleted();
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    break;
+                case Task.Mine:
+                    if (AllowMining)
+                    {
+                        yield return TryMineResources(
+                                jobLog,
+                                workDone,
+                                operationsPerTick,
+                                ticksBetweenOperations,
+                                count
+                            )
+                            .ResumeWhenOtherCoroutineIsCompleted();
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                    break;
+                default:
+                    ColonyManagerReduxMod.Instance.LogError($"Unknown task {task}");
+                    break;
+            }
 
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
-        {
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                    "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
-                    Def.label
-                )
-            );
-            yield break;
-        }
-
-        if (DeconstructBuildings)
-        {
-            yield return TryDeconstructBuildings(
-                    jobLog,
-                    workDone,
-                    operationsPerTick,
-                    ticksBetweenOperations,
-                    count
-                )
-                .ResumeWhenOtherCoroutineIsCompleted();
-        }
-
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
-        {
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
-                    "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
-                    Def.label
-                )
-            );
-            yield break;
-        }
-
-        if (AllowMining)
-        {
-            yield return TryMineResources(
-                    jobLog,
-                    workDone,
-                    operationsPerTick,
-                    ticksBetweenOperations,
-                    count
-                )
-                .ResumeWhenOtherCoroutineIsCompleted();
+            if (
+                !isLastTask
+                && !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+            )
+            {
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
+                        "ColonyManagerRedux.Mining.Logs.Rocks".Translate(),
+                        Def.label
+                    )
+                );
+                yield break;
+            }
         }
     }
 

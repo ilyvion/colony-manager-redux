@@ -16,6 +16,7 @@
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target. Note that not necessarily all types of manager jobs can or will respect this setting.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
     <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: &lt; {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
+    <ColonyManagerRedux.ManagerSettings.DefaultTaskPriorityOrder>Default task priority</ColonyManagerRedux.ManagerSettings.DefaultTaskPriorityOrder>
     <ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals>Custom update intervals</ColonyManagerRedux.ManagerSettings.CustomUpdateIntervals>
     <ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour>- hour</ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour>
     <ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour>+ hour</ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour>
