@@ -161,9 +161,25 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var animalDef in allAnimals)
         {
+            var toggleRect = rowRect;
+
+            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
+            {
+                // Info card button
+                var infoRect = new Rect(
+                    rowRect.xMin,
+                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                _ = Widgets.InfoCardButton(infoRect, animalDef.race);
+
+                toggleRect.xMin += SmallIconSize;
+            }
+
             // draw the toggle
             Utilities.DrawToggle(
-                rowRect,
+                toggleRect,
                 animalDef.LabelCap,
                 new TipSignal(
                     GetAnimalKindTooltip(animalDef, SelectedHuntingJob.TargetResource),
@@ -178,8 +194,8 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             );
 
             var iconRect = new Rect(
-                rowRect.xMax - (2 * (SmallIconSize + Margin)) - Margin,
-                rowRect.yMin + ((rowRect.height - SmallIconSize) / 2),
+                toggleRect.xMax - (2 * (SmallIconSize + Margin)) - Margin,
+                toggleRect.yMin + ((toggleRect.height - SmallIconSize) / 2),
                 SmallIconSize,
                 SmallIconSize
             );

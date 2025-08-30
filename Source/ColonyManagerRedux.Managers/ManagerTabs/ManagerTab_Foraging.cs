@@ -168,13 +168,28 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         var allowedPlants = SelectedForagingJob.AllowedPlants;
         var allPlants = SelectedForagingJob.AllPlants;
 
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-
         // toggle for each plant
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var plantDef in allPlants)
         {
+            var toggleRect = rowRect;
+
+            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
+            {
+                // Info card button
+                var infoRect = new Rect(
+                    rowRect.xMin,
+                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                _ = Widgets.InfoCardButton(infoRect, plantDef);
+
+                toggleRect.xMin += SmallIconSize;
+            }
+
             Utilities.DrawToggle(
-                rowRect,
+                toggleRect,
                 plantDef.LabelCap,
                 new TipSignal(() => GetPlantTooltip(plantDef), plantDef.GetHashCode()),
                 allowedPlants.Contains(plantDef),

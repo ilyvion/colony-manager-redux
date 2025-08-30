@@ -122,6 +122,17 @@ public class Settings : ModSettings
         internal set => _newJobsShouldBeResourceLocked = value;
     }
 
+    private bool _showInfoCardButtonsWherePossible = true;
+
+    /// <summary>
+    /// Gets whether to show info card buttons where possible.
+    /// </summary>
+    public bool ShowInfoCardButtonsWherePossible
+    {
+        get => _showInfoCardButtonsWherePossible;
+        internal set => _showInfoCardButtonsWherePossible = value;
+    }
+
     private int _maxDesignationsPerJob;
 
     /// <summary>
@@ -646,6 +657,14 @@ public class Settings : ModSettings
                 )
                 : "ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob".Translate(),
             "ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip".Translate()
+        );
+
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.ShowInfoCardButtonsWherePossible".Translate(),
+            "ColonyManagerRedux.ShowInfoCardButtonsWherePossible.Tip".Translate(),
+            ref _showInfoCardButtonsWherePossible
         );
 
         return pos.y - start.y;
@@ -1208,6 +1227,11 @@ public class Settings : ModSettings
         Scribe_Values.Look(
             ref _newJobsShouldBeResourceLocked,
             "newJobsShouldBeResourceLocked",
+            true
+        );
+        Scribe_Values.Look(
+            ref _showInfoCardButtonsWherePossible,
+            "showInfoCardButtonsWherePossible",
             true
         );
         Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");

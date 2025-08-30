@@ -81,8 +81,29 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var building in allBuildings)
         {
+            var toggleRect = rowRect;
+
+            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
+            {
+                // Info card button
+                var infoRect = new Rect(
+                    rowRect.xMin,
+                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+
+                if (Widgets.InfoCardButtonWorker(infoRect))
+                {
+                    var stuffDef = GenStuff.AllowedStuffsFor(building).RandomElement();
+                    Find.WindowStack.Add(new Dialog_InfoCard(building, stuffDef));
+                }
+
+                toggleRect.xMin += SmallIconSize;
+            }
+
             Utilities.DrawToggle(
-                rowRect,
+                toggleRect,
                 building.LabelCap,
                 building.description,
                 allowedBuildings.Contains(building),
@@ -130,9 +151,25 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var mineral in Utilities_Mining.AllMinerals)
         {
+            var toggleRect = rowRect;
+
+            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
+            {
+                // Info card button
+                var infoRect = new Rect(
+                    rowRect.xMin,
+                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                _ = Widgets.InfoCardButton(infoRect, mineral);
+
+                toggleRect.xMin += SmallIconSize;
+            }
+
             // draw the toggle
             Utilities.DrawToggle(
-                rowRect,
+                toggleRect,
                 mineral.LabelCap,
                 new TipSignal(() => GetMineralTooltip(mineral), mineral.GetHashCode()),
                 allowedMinerals.Contains(mineral),

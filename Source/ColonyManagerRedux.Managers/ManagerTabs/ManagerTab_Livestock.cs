@@ -829,6 +829,22 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 }
             }
 
+            var labelRect = row;
+
+            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
+            {
+                // Info card button
+                var infoRect = new Rect(
+                    row.xMin,
+                    row.yMin + ((row.height - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                _ = Widgets.InfoCardButton(infoRect, animalDef.race);
+
+                labelRect.xMin += SmallIconSize;
+            }
+
             // draw label
             var label =
                 animalDef.LabelCap
@@ -841,10 +857,10 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                     animalDef.GetWild(Manager).Count()
                 )
                 + ".</i>";
-            IlyvionWidgets.Label(row, label, TextAnchor.MiddleLeft, leftMargin: Margin * 2);
+            IlyvionWidgets.Label(labelRect, label, TextAnchor.MiddleLeft, leftMargin: Margin * 2);
 
             // button
-            if (Widgets.ButtonInvisible(row))
+            if (Widgets.ButtonInvisible(labelRect))
             {
                 _selectedAvailable = animalDef;
                 Selected = MakeNewJob(animalDef);

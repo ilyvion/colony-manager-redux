@@ -333,14 +333,30 @@ internal sealed class ManagerTab_Forestry(Manager manager)
     public float DrawTreeList(Vector2 pos, float width)
     {
         var start = pos;
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         var allowedTrees = SelectedForestryJob.AllowedTrees;
 
         // toggle for each tree
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var plantDef in SelectedForestryJob.AllPlants)
         {
+            var toggleRect = rowRect;
+
+            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
+            {
+                // Info card button
+                var infoRect = new Rect(
+                    rowRect.xMin,
+                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                _ = Widgets.InfoCardButton(infoRect, plantDef);
+
+                toggleRect.xMin += SmallIconSize;
+            }
+
             Utilities.DrawToggle(
-                rowRect,
+                toggleRect,
                 plantDef.LabelCap,
                 new TipSignal(() => GetTreeTooltip(plantDef), plantDef.GetHashCode()),
                 allowedTrees.Contains(plantDef),

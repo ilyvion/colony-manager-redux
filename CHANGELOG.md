@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Compatibility with the AAAA mod: If the AAAA mod is loaded, all area settings for jobs get a new toggle that lets them participate in AAAA's evacuation mode, i.e. changing areas named 'Area' to 'Area#safe' (it respects the suffix set in its settings; isn't hardcoded to '#safe'). Closes [#1](https://github.com/ilyvion/colony-manager-redux/issues/1)
 -   Task priority order for resource gathering jobs [#9](https://github.com/ilyvion/colony-manager-redux/issues/9)
+-   Info card buttons for plants, trees, animals, and minerals in the various manager tabs. Can be turned off again with a mod setting.
 
 ## [0.13.2] - 2025-08-29
 
