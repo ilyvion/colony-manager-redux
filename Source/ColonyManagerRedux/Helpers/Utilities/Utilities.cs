@@ -289,8 +289,10 @@ public static class Utilities
         bool wrap = true
     )
     {
-        var toggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        pos.y += ListEntryHeight;
+        var labelHeight = Text.CalcHeight(label, width - SmallIconSize - (4 * Margin));
+        var height = Mathf.Max(labelHeight, ListEntryHeight);
+        var toggleRect = new Rect(pos.x, pos.y, width, height);
+        pos.y += height;
         DrawToggle(toggleRect, label, tooltip, ref checkOn, expensive, size, margin, font, wrap);
     }
 
