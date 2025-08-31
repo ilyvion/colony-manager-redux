@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   Compatibility with the AAAA mod: If the AAAA mod is loaded, all area settings for jobs get a new toggle that lets them participate in AAAA's evacuation mode, i.e. changing areas named 'Area' to 'Area#safe' (it respects the suffix set in its settings; isn't hardcoded to '#safe'). Closes [#1](https://github.com/ilyvion/colony-manager-redux/issues/1)
--   Task priority order for resource gathering jobs [#9](https://github.com/ilyvion/colony-manager-redux/issues/9)
+-   Compatibility with the AAAA mod: If the AAAA mod is loaded, all area settings for jobs get a new toggle that lets them participate in AAAA's evacuation mode, i.e. changing areas named 'Area' to 'Area#safe' (it respects the suffix set in its settings; isn't hardcoded to '#safe'). Closes [#1](https://github.com/ilyvion/colony-manager-redux/issues/1).
+-   Task priority order for resource gathering jobs. Closes [#9](https://github.com/ilyvion/colony-manager-redux/issues/9).
 -   Info card buttons for plants, trees, animals, and minerals in the various manager tabs. Can be turned off again with a mod setting.
 -   When 'synchronize threshold' is enabled and a resource gathering job has the relevant resources marked in the threshold filter settings, enabling 'deconstruct buildings' will automatically select the buildings that contain resources that match the threshold settings. Closes [#10](https://github.com/ilyvion/colony-manager-redux/issues/10).
 
@@ -30,9 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
--   Added deep drill controlling to resource gathering job. When enabled, these jobs will now flick drills on to increase their resource counts and off when the resource counts are met. Closes [#6](https://github.com/ilyvion/colony-manager-redux/issues/6)
+-   Added deep drill controlling to resource gathering job. When enabled, these jobs will now flick drills on to increase their resource counts and off when the resource counts are met. Closes [#6](https://github.com/ilyvion/colony-manager-redux/issues/6).
 -   Along with the above, also added a setting to make it possible to turn off mining on resource jobs.
--   Managing spot for being able to do managing tasks even without having any resources. It's very slow compared to the better options. It's researchable and finished at start by neolithic and 'classic' factions. Logic has been added to retroactively grant this research to existing saves. Closes [#28](https://github.com/ilyvion/colony-manager-redux/issues/28)
+-   Managing spot for being able to do managing tasks even without having any resources. It's very slow compared to the better options. It's researchable and finished at start by neolithic and 'classic' factions. Logic has been added to retroactively grant this research to existing saves. Closes [#28](https://github.com/ilyvion/colony-manager-redux/issues/28).
 
 ### Changed
 
@@ -48,7 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Prevent overflow when sum of power production/consumption/battery storage exceeds int.MaxValue. Presumably fixes [#21](https://github.com/ilyvion/colony-manager-redux/issues/21).
 -   Plants without harvest yield had accidentally been removed from the clear areas forestry job. These are now back. Fixes [#22](https://github.com/ilyvion/colony-manager-redux/issues/22).
 -   Remove destroyed or dead pawns from livestock caches before considering them for various operations.
--   When choosing masters for animals, don't use cached follower numbers. Also, sort the list randomly to make the selection less regular. Fixes [#24](https://github.com/ilyvion/colony-manager-redux/issues/24)
+-   When choosing masters for animals, don't use cached follower numbers. Also, sort the list randomly to make the selection less regular. Fixes [#24](https://github.com/ilyvion/colony-manager-redux/issues/24).
 -   The logic was inverted for 'equals' and 'not equals' job threshold conditions.
 -   Manager workspace managing speed is now affected by worktable efficiency factor, such as being built outdoors or being in uncomfortable temperatures. This wasn't properly accounted for up until this point.
 
