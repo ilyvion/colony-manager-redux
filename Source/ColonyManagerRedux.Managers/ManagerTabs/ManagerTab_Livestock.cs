@@ -835,7 +835,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             {
                 // Info card button
                 var infoRect = new Rect(
-                    row.xMin,
+                    row.xMin + Margin,
                     row.yMin + ((row.height - SmallIconSize) / 2) - 2,
                     SmallIconSize,
                     SmallIconSize
