@@ -114,6 +114,7 @@ internal partial class ManagerTab_Livestock
         public override int GetMinWidth(PawnTable table) => (int)Text.CalcSize("MMM").x;
     }
 
+    // TODO: Generalize over comp
     [HotSwappable]
     public sealed class PawnColumnWorker_MilkProgress : PawnColumnWorker_Livestock
     {
@@ -140,8 +141,8 @@ internal partial class ManagerTab_Livestock
 
         public override int Compare(Pawn a, Pawn b)
         {
-            var milkFullnessA = a.TryGetComp<CompMilkable>().Fullness * 100;
-            var milkFullnessB = b.TryGetComp<CompMilkable>().Fullness * 100;
+            var milkFullnessA = a.GetMilkFullness() * 100;
+            var milkFullnessB = b.GetMilkFullness() * 100;
 
             return (int)(milkFullnessA - milkFullnessB);
         }
@@ -183,8 +184,8 @@ internal partial class ManagerTab_Livestock
 
         public override int Compare(Pawn a, Pawn b)
         {
-            var woolFullnessA = a.TryGetComp<CompShearable>().Fullness * 100;
-            var woolFullnessB = b.TryGetComp<CompShearable>().Fullness * 100;
+            var woolFullnessA = a.GetWoolFullness() * 100;
+            var woolFullnessB = b.GetWoolFullness() * 100;
 
             return (int)(woolFullnessA - woolFullnessB);
         }

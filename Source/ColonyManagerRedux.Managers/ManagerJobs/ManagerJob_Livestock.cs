@@ -98,10 +98,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         Release,
     }
 
-    public bool CullBonded;
     public bool CullExcess;
-    public bool CullPregnant;
     public bool CullTrained;
+    public bool CullPregnant;
+    public bool CullBonded;
+    public bool AvoidCullingMilkable;
+    public float AvoidCullingMilkableThreshold = 0.7f;
+    public bool AvoidCullingShearable;
+    public float AvoidCullingShearableThreshold = 0.7f;
     public bool FollowDrafted;
     public bool FollowFieldwork;
     public bool FollowTraining;
@@ -502,13 +506,25 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         base.ExposeData();
 
         Scribe_Values.Look(ref CullExcess, "butcherExcess", true);
-        Scribe_Values.Look(ref CullTrained, "butcherTrained");
-        Scribe_Values.Look(ref CullPregnant, "butcherPregnant");
-        Scribe_Values.Look(ref CullBonded, "butcherBonded");
         Scribe_Values.Look(
             ref _cullingStrategy,
             "cullingStrategy",
             LivestockCullingStrategy.Butcher
+        );
+        Scribe_Values.Look(ref CullTrained, "butcherTrained");
+        Scribe_Values.Look(ref CullPregnant, "butcherPregnant");
+        Scribe_Values.Look(ref CullBonded, "butcherBonded");
+        Scribe_Values.Look(ref AvoidCullingMilkable, "avoidCullingMilkable");
+        Scribe_Values.Look(
+            ref AvoidCullingMilkableThreshold,
+            "avoidCullingMilkableThreshold",
+            0.7f
+        );
+        Scribe_Values.Look(ref AvoidCullingShearable, "avoidCullingShearable");
+        Scribe_Values.Look(
+            ref AvoidCullingShearableThreshold,
+            "avoidCullingShearableThreshold",
+            0.7f
         );
 
         Scribe_Values.Look(ref RestrictToArea, "restrictToArea");
@@ -1137,6 +1153,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         && (CullTrained || !p.training.HasLearned(TrainableDefOf.Obedience))
                         && (CullPregnant || !p.VisiblyPregnant())
                         && (CullBonded || !p.BondedWithColonist())
+                        && (
+                            !AvoidCullingMilkable
+                            || p.GetMilkFullness() < AvoidCullingMilkableThreshold
+                        )
+                        && (
+                            !AvoidCullingShearable
+                            || p.GetWoolFullness() < AvoidCullingShearableThreshold
+                        )
                     );
                 var animals = CullingPawnSorter(ageSex, animalsUnsorted);
 

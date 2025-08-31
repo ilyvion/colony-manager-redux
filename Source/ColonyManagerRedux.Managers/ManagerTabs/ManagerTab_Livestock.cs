@@ -993,6 +993,68 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             );
 
             pos.y += ListEntryHeight;
+
+            DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Livestock.AvoidCullingMilkable".Translate(),
+                "ColonyManagerRedux.Livestock.AvoidCullingMilkable.Tip".Translate(),
+                ref job.AvoidCullingMilkable
+            );
+
+            if (job.AvoidCullingMilkable)
+            {
+                IlyvionWidgets.Label(
+                    new Rect(pos.x + Margin, pos.y, width, ListEntryHeight),
+                    "ColonyManagerRedux.Livestock.AvoidCullingMilkableThreshold".Translate(
+                        job.AvoidCullingMilkableThreshold.ToString(
+                            "0%",
+                            CultureInfo.InvariantCulture
+                        )
+                    )
+                );
+                pos.y += ListEntryHeight;
+
+                var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
+                job.AvoidCullingMilkableThreshold = GUI.HorizontalSlider(
+                    sliderRect,
+                    job.AvoidCullingMilkableThreshold,
+                    0,
+                    1
+                );
+                pos.y += SliderHeight;
+            }
+
+            DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Livestock.AvoidCullingShearable".Translate(),
+                "ColonyManagerRedux.Livestock.AvoidCullingShearable.Tip".Translate(),
+                ref job.AvoidCullingShearable
+            );
+
+            if (job.AvoidCullingShearable)
+            {
+                IlyvionWidgets.Label(
+                    new Rect(pos.x + Margin, pos.y, width, ListEntryHeight),
+                    "ColonyManagerRedux.Livestock.AvoidCullingShearableThreshold".Translate(
+                        job.AvoidCullingShearableThreshold.ToString(
+                            "0%",
+                            CultureInfo.InvariantCulture
+                        )
+                    )
+                );
+                pos.y += ListEntryHeight;
+
+                var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
+                job.AvoidCullingShearableThreshold = GUI.HorizontalSlider(
+                    sliderRect,
+                    job.AvoidCullingShearableThreshold,
+                    0,
+                    1
+                );
+                pos.y += SliderHeight;
+            }
         }
 
         return pos.y - start.y;

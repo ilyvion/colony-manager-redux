@@ -67,6 +67,12 @@ internal static class Utilities_Livestock
         pawn?.relations?.GetFirstDirectRelationPawn(PawnRelationDefOf.Bond, p => p.IsColonist)
         != null;
 
+    public static float GetMilkFullness(this Pawn pawn) =>
+        pawn.TryGetComp<CompMilkable>() is { } comp ? comp.Fullness : 0f;
+
+    public static float GetWoolFullness(this Pawn pawn) =>
+        pawn.TryGetComp<CompShearable>() is { } comp ? comp.Fullness : 0f;
+
     public static bool IsGuest(this Pawn pawn) =>
         pawn?.Faction == Faction.OfPlayer && pawn.HasExtraHomeFaction();
 

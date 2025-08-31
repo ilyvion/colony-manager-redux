@@ -21,10 +21,14 @@ internal sealed class PawnKindSettings : IExposable
     public bool DefaultTamePastTargets;
 
     public bool DefaultCullExcess = true;
+    public LivestockCullingStrategy DefaultCullingStrategy;
     public bool DefaultCullTrained;
     public bool DefaultCullPregnant;
     public bool DefaultCullBonded;
-    public LivestockCullingStrategy DefaultCullingStrategy;
+    public bool DefaultAvoidCullingMilkable;
+    public float DefaultAvoidCullingMilkableThreshold = 0.7f;
+    public bool DefaultAvoidCullingShearable;
+    public float DefaultAvoidCullingShearableThreshold = 0.7f;
 
     public bool DefaultUnassignTraining;
     public bool DefaultTrainYoung;
@@ -53,9 +57,14 @@ internal sealed class PawnKindSettings : IExposable
         DefaultTryTameMore = copyFrom.DefaultTryTameMore;
         DefaultTamePastTargets = copyFrom.DefaultTamePastTargets;
         DefaultCullExcess = copyFrom.DefaultCullExcess;
+        DefaultCullingStrategy = copyFrom.DefaultCullingStrategy;
         DefaultCullTrained = copyFrom.DefaultCullTrained;
         DefaultCullPregnant = copyFrom.DefaultCullPregnant;
         DefaultCullBonded = copyFrom.DefaultCullBonded;
+        DefaultAvoidCullingMilkable = copyFrom.DefaultAvoidCullingMilkable;
+        DefaultAvoidCullingMilkableThreshold = copyFrom.DefaultAvoidCullingMilkableThreshold;
+        DefaultAvoidCullingShearable = copyFrom.DefaultAvoidCullingShearable;
+        DefaultAvoidCullingShearableThreshold = copyFrom.DefaultAvoidCullingShearableThreshold;
         DefaultUnassignTraining = copyFrom.DefaultUnassignTraining;
         DefaultTrainYoung = copyFrom.DefaultTrainYoung;
         DefaultMasterMode = copyFrom.DefaultMasterMode;
@@ -304,6 +313,68 @@ internal sealed class PawnKindSettings : IExposable
         );
 
         pos.y += ListEntryHeight;
+
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Livestock.AvoidCullingMilkable".Translate(),
+            "ColonyManagerRedux.Livestock.AvoidCullingMilkable.Tip".Translate(),
+            ref DefaultAvoidCullingMilkable
+        );
+
+        if (DefaultAvoidCullingMilkable)
+        {
+            IlyvionWidgets.Label(
+                new Rect(pos.x + Margin, pos.y, width, ListEntryHeight),
+                "ColonyManagerRedux.Livestock.AvoidCullingMilkableThreshold".Translate(
+                    DefaultAvoidCullingMilkableThreshold.ToString(
+                        "0%",
+                        CultureInfo.InvariantCulture
+                    )
+                )
+            );
+            pos.y += ListEntryHeight;
+
+            var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
+            DefaultAvoidCullingMilkableThreshold = GUI.HorizontalSlider(
+                sliderRect,
+                DefaultAvoidCullingMilkableThreshold,
+                0,
+                1
+            );
+            pos.y += SliderHeight;
+        }
+
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Livestock.AvoidCullingShearable".Translate(),
+            "ColonyManagerRedux.Livestock.AvoidCullingShearable.Tip".Translate(),
+            ref DefaultAvoidCullingShearable
+        );
+
+        if (DefaultAvoidCullingShearable)
+        {
+            IlyvionWidgets.Label(
+                new Rect(pos.x + Margin, pos.y, width, ListEntryHeight),
+                "ColonyManagerRedux.Livestock.AvoidCullingShearableThreshold".Translate(
+                    DefaultAvoidCullingShearableThreshold.ToString(
+                        "0%",
+                        CultureInfo.InvariantCulture
+                    )
+                )
+            );
+            pos.y += ListEntryHeight;
+
+            var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
+            DefaultAvoidCullingShearableThreshold = GUI.HorizontalSlider(
+                sliderRect,
+                DefaultAvoidCullingShearableThreshold,
+                0,
+                1
+            );
+            pos.y += SliderHeight;
+        }
 
         return pos.y - start.y;
     }
@@ -629,13 +700,25 @@ internal sealed class PawnKindSettings : IExposable
         Scribe_Values.Look(ref DefaultTamePastTargets, "defaultTamePastTargets", false);
 
         Scribe_Values.Look(ref DefaultCullExcess, "defaultButcherExcess", true);
-        Scribe_Values.Look(ref DefaultCullTrained, "defaultButcherTrained", false);
-        Scribe_Values.Look(ref DefaultCullPregnant, "defaultButcherPregnant", false);
-        Scribe_Values.Look(ref DefaultCullBonded, "defaultButcherBonded", false);
         Scribe_Values.Look(
             ref DefaultCullingStrategy,
             "cullingStrategy",
             LivestockCullingStrategy.Butcher
+        );
+        Scribe_Values.Look(ref DefaultCullTrained, "defaultButcherTrained", false);
+        Scribe_Values.Look(ref DefaultCullPregnant, "defaultButcherPregnant", false);
+        Scribe_Values.Look(ref DefaultCullBonded, "defaultButcherBonded", false);
+        Scribe_Values.Look(ref DefaultAvoidCullingMilkable, "defaultAvoidCullingMilkable", false);
+        Scribe_Values.Look(
+            ref DefaultAvoidCullingMilkableThreshold,
+            "defaultAvoidCullingMilkableThreshold",
+            0.7f
+        );
+        Scribe_Values.Look(ref DefaultAvoidCullingShearable, "defaultAvoidCullingShearable", false);
+        Scribe_Values.Look(
+            ref DefaultAvoidCullingShearableThreshold,
+            "defaultAvoidCullingShearableThreshold",
+            0.7f
         );
 
         Scribe_Collections.Look(ref EnabledTrainingTargets, "enabledTrainingTargets", LookMode.Def);

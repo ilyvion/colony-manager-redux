@@ -22,6 +22,12 @@
     <ColonyManagerRedux.Livestock.CullPregnant.Tip>Are pregnant animals allowed to be culled?</ColonyManagerRedux.Livestock.CullPregnant.Tip>
     <ColonyManagerRedux.Livestock.CullBonded>Bonded</ColonyManagerRedux.Livestock.CullBonded>
     <ColonyManagerRedux.Livestock.CullBonded.Tip>Are bonded animals allowed to be culled?</ColonyManagerRedux.Livestock.CullBonded.Tip>
+    <ColonyManagerRedux.Livestock.AvoidCullingMilkable>Avoid culling milkable animals close to producing</ColonyManagerRedux.Livestock.AvoidCullingMilkable>
+    <ColonyManagerRedux.Livestock.AvoidCullingMilkable.Tip>Should milkable animals past a certain threshold be protected from culling?</ColonyManagerRedux.Livestock.AvoidCullingMilkable.Tip>
+    <ColonyManagerRedux.Livestock.AvoidCullingMilkableThreshold>Don't cull above {0} milk progress</ColonyManagerRedux.Livestock.AvoidCullingMilkableThreshold>
+    <ColonyManagerRedux.Livestock.AvoidCullingShearable>Avoid culling shearable animals close to producing</ColonyManagerRedux.Livestock.AvoidCullingShearable>
+    <ColonyManagerRedux.Livestock.AvoidCullingShearable.Tip>Should shearable animals past a certain threshold be protected from culling?</ColonyManagerRedux.Livestock.AvoidCullingShearable.Tip>
+    <ColonyManagerRedux.Livestock.AvoidCullingShearableThreshold>Don't cull above {0} wool progress</ColonyManagerRedux.Livestock.AvoidCullingShearableThreshold>
     <ColonyManagerRedux.Livestock.TameMore>Auto-designate animals to be tamed</ColonyManagerRedux.Livestock.TameMore>
     <ColonyManagerRedux.Livestock.TameMore.Tip>Should the manager designate wild animals to be tamed?</ColonyManagerRedux.Livestock.TameMore.Tip>
     <ColonyManagerRedux.Livestock.TamePastTargets>Tame animals even when targets are met</ColonyManagerRedux.Livestock.TamePastTargets>
