@@ -427,7 +427,8 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             rowRect,
             "ColonyManagerRedux.Mining.DeconstructBuildings".Translate(),
             "ColonyManagerRedux.Mining.DeconstructBuildings.Tip".Translate(),
-            ref job.DeconstructBuildings
+            job.DeconstructBuildings,
+            () => job.DeconstructBuildings = !job.DeconstructBuildings
         );
 
         if (job.DeconstructBuildings)

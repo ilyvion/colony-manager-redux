@@ -119,10 +119,32 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
     public bool CheckRoomDivision = true;
     public bool HaulMapChunks = true;
     public bool HaulMinedChunks = true;
-    public bool DeconstructBuildings;
+    private bool _deconstructBuildings;
     public bool DeconstructAncientDangerWhenFogged;
     public Area? MiningArea;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
+
+    public bool DeconstructBuildings
+    {
+        get => _deconstructBuildings;
+        set
+        {
+            _deconstructBuildings = value;
+
+            if (!SyncFilterAndAllowed || Sync != Utilities.SyncDirection.FilterToAllowed)
+            {
+                return;
+            }
+
+            foreach (var building in AllDeconstructibleBuildings)
+            {
+                if (GetMaterialsInBuilding(building).Any(Counted))
+                {
+                    _ = AllowedBuildings.Add(building);
+                }
+            }
+        }
+    }
 
     public bool SyncFilterAndAllowed = true;
     private List<Designation> _designations = [];
@@ -465,7 +487,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref HaulMapChunks, "haulMapChunks", true);
         Scribe_Values.Look(ref HaulMinedChunks, "haulMinedChunks", true);
-        Scribe_Values.Look(ref DeconstructBuildings, "deconstructBuildings", false);
+        Scribe_Values.Look(ref _deconstructBuildings, "deconstructBuildings", false);
         Scribe_Values.Look(
             ref DeconstructAncientDangerWhenFogged,
             "deconstructAncientDangerWhenFogged",
@@ -725,14 +747,8 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         var baseCosts = building.costList.NullOrEmpty()
             ? []
             : building.costList.Select(tc => tc.thingDef);
-        var possibleStuffs = DefDatabase<ThingDef>.AllDefsListForReading.Where(td =>
-            td.IsStuff
-            && !td.stuffProps.categories.NullOrEmpty()
-            && !building.stuffCategories.NullOrEmpty()
-            && td.stuffProps.categories.Intersect(building.stuffCategories).Any()
-        );
 
-        return baseCosts.Concat(possibleStuffs);
+        return baseCosts.Concat(GenStuff.AllowedStuffsFor(building));
     }
 
     public static IEnumerable<ThingDef> GetMaterialsInChunk(ThingDef chunk) =>
