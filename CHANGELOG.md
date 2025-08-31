@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2025-08-31
+
 ### Added
 
 -   Compatibility with the AAAA mod: If the AAAA mod is loaded, all area settings for jobs get a new toggle that lets them participate in AAAA's evacuation mode, i.e. changing areas named 'Area' to 'Area#safe' (it respects the suffix set in its settings; isn't hardcoded to '#safe'). Closes [#1](https://github.com/ilyvion/colony-manager-redux/issues/1).
@@ -15,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   When 'synchronize threshold' is enabled and a resource gathering job has the relevant resources marked in the threshold filter settings, enabling 'deconstruct buildings' will automatically select the buildings that contain resources that match the threshold settings. Closes [#10](https://github.com/ilyvion/colony-manager-redux/issues/10).
 -   Setting to restrict animals that are fully trained for livestock jobs. Closes [#13](https://github.com/ilyvion/colony-manager-redux/issues/13).
 -   Functionality to avoid culling milkable and shearable livestock with adjustable thresholds. Closes [#14](https://github.com/ilyvion/colony-manager-redux/issues/14).
--   Culling by sterilization in Livestock manager. Culled animals are not counted towards the target, meaning that with this setting enabled, the target represents "unsterilized" animals, not total animals. Closes [#15](https://github.com/ilyvion/colony-manager-redux/issues/15).
+-   Culling by sterilization in Livestock manager. Culled animals are not counted towards the target, meaning that with this setting enabled, the target represents 'unsterilized' animals, not total animals. Closes [#15](https://github.com/ilyvion/colony-manager-redux/issues/15).
 
 ## [0.13.2] - 2025-08-29
 
@@ -460,7 +462,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.2...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.2..v0.14.0
 [0.13.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.1..v0.13.2
 [0.13.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.13.0..v0.13.1
 [0.13.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.12.4..v0.13.0
