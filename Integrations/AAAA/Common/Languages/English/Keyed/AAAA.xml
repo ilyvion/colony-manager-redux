@@ -12,4 +12,6 @@
     <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the shearing area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.ShearArea.Tip>
     <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea>Use AAAA evacuation for training area</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea>
     <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea.Tip>If this setting is enabled, evacuation protocols from the AAAA mod will be used on the training area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea.Tip>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainedArea>Use AAAA evacuation for trained area</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainedArea>
+    <ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainedArea.Tip>If this setted is enabled, evacuation protocols from the AAAA mod will be used on the trained area configured above.</ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainedArea.Tip>
 </LanguageData>

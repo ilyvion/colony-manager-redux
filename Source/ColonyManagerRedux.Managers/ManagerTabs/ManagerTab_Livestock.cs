@@ -586,7 +586,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
 
         var sendToTrainingAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
-        if (job.Training.Any)
+        if (job.Training.AnyEnabled)
         {
             DrawToggle(
                 sendToTrainingAreaRect,
@@ -606,6 +606,26 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 );
                 pos.y += trainingAreaRect.height;
             }
+
+            var sendToTrainedAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+            pos.y += ListEntryHeight;
+            DrawToggle(
+                sendToTrainedAreaRect,
+                "ColonyManagerRedux.Livestock.SendToTrainedArea".Translate(),
+                "ColonyManagerRedux.Livestock.SendToTrainedArea.Tip".Translate(),
+                ref job.SendToTrainedArea
+            );
+            if (job.SendToTrainedArea)
+            {
+                var trainedAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+                AreaAllowedGUI.DoAllowedAreaSelectors(
+                    ref trainedAreaRect,
+                    ref job.TrainedArea,
+                    5,
+                    Manager
+                );
+                pos.y += trainedAreaRect.height;
+            }
         }
         else
         {
@@ -613,6 +633,15 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             IlyvionWidgets.Label(
                 sendToTrainingAreaRect,
                 "ColonyManagerRedux.Livestock.SendToTrainingArea".Translate(),
+                "ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet".Translate(),
+                TextAnchor.MiddleLeft,
+                color: Color.grey
+            );
+            pos.y += ListEntryHeight;
+            sendToTrainingAreaRect.y += ListEntryHeight;
+            IlyvionWidgets.Label(
+                sendToTrainingAreaRect,
+                "ColonyManagerRedux.Livestock.SendToTrainedArea".Translate(),
                 "ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet".Translate(),
                 TextAnchor.MiddleLeft,
                 color: Color.grey
@@ -1359,17 +1388,14 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         );
         height += ListEntryHeight;
 
-        if (job.Training.Any)
-        {
-            var trainYoungRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
-            DrawToggle(
-                trainYoungRect,
-                "ColonyManagerRedux.Livestock.TrainYoung".Translate(),
-                "ColonyManagerRedux.Livestock.TrainYoung.Tip".Translate(),
-                ref job.Training.TrainYoung
-            );
-            height += ListEntryHeight;
-        }
+        var trainYoungRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
+        DrawToggle(
+            trainYoungRect,
+            "ColonyManagerRedux.Livestock.TrainYoung".Translate(),
+            "ColonyManagerRedux.Livestock.TrainYoung.Tip".Translate(),
+            ref job.Training.TrainYoung
+        );
+        height += ListEntryHeight;
 
         return height;
     }

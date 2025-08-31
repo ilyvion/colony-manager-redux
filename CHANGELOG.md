@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Task priority order for resource gathering jobs. Closes [#9](https://github.com/ilyvion/colony-manager-redux/issues/9).
 -   Info card buttons for plants, trees, animals, and minerals in the various manager tabs. Can be turned off again with a mod setting.
 -   When 'synchronize threshold' is enabled and a resource gathering job has the relevant resources marked in the threshold filter settings, enabling 'deconstruct buildings' will automatically select the buildings that contain resources that match the threshold settings. Closes [#10](https://github.com/ilyvion/colony-manager-redux/issues/10).
+-   Setting to restrict animals that are fully trained for livestock jobs. Closes [#13](https://github.com/ilyvion/colony-manager-redux/issues/13).
 
 ## [0.13.2] - 2025-08-29
 

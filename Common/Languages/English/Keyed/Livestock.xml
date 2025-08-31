@@ -6,6 +6,7 @@
     <ColonyManagerRedux.Livestock.Training>Training</ColonyManagerRedux.Livestock.Training>
     <ColonyManagerRedux.Livestock.RestrictToArea>Restrict animals to area?</ColonyManagerRedux.Livestock.RestrictToArea>
     <ColonyManagerRedux.Livestock.RestrictToArea.Tip>Restrict animals to a specific area, optionally separated by gender and lifestage</ColonyManagerRedux.Livestock.RestrictToArea.Tip>
+    <ColonyManagerRedux.Livestock.Culling>culling</ColonyManagerRedux.Livestock.Culling>
     <ColonyManagerRedux.Livestock.CullExcess>Cull excess livestock</ColonyManagerRedux.Livestock.CullExcess>
     <ColonyManagerRedux.Livestock.CullExcess.Tip>Should excess livestock be culled?</ColonyManagerRedux.Livestock.CullExcess.Tip>
     <ColonyManagerRedux.Livestock.CullingStrategy.None>None</ColonyManagerRedux.Livestock.CullingStrategy.None>
@@ -14,6 +15,7 @@
     <ColonyManagerRedux.Livestock.CullingStrategy.Butcher.Tip>Cull excess animals by designating them for slaughter</ColonyManagerRedux.Livestock.CullingStrategy.Butcher.Tip>
     <ColonyManagerRedux.Livestock.CullingStrategy.Release>Release</ColonyManagerRedux.Livestock.CullingStrategy.Release>
     <ColonyManagerRedux.Livestock.CullingStrategy.Release.Tip>Cull excess animals by designating them for release into the wild</ColonyManagerRedux.Livestock.CullingStrategy.Release.Tip>
+    <ColonyManagerRedux.Livestock.Trained>trained</ColonyManagerRedux.Livestock.Trained>
     <ColonyManagerRedux.Livestock.CullTrained>Trained</ColonyManagerRedux.Livestock.CullTrained>
     <ColonyManagerRedux.Livestock.CullTrained.Tip>Are trained animals allowed to be culled?</ColonyManagerRedux.Livestock.CullTrained.Tip>
     <ColonyManagerRedux.Livestock.CullPregnant>Pregnant</ColonyManagerRedux.Livestock.CullPregnant>
@@ -47,6 +49,10 @@
     <ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>Restrict animals with milk fullness close to 100% to a specific area.</ColonyManagerRedux.Livestock.SendToMilkingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToShearingArea>Restrict animals ready to be sheared</ColonyManagerRedux.Livestock.SendToShearingArea>
     <ColonyManagerRedux.Livestock.SendToShearingArea.Tip>Restrict animals with shearing fullness close to 100% to a specific area</ColonyManagerRedux.Livestock.SendToShearingArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToTrainingArea>Restrict animals marked for training</ColonyManagerRedux.Livestock.SendToTrainingArea>
+    <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restrict animals designated for training to a specific area.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
+    <ColonyManagerRedux.Livestock.SendToTrainedArea>Restrict animals that are fully trained</ColonyManagerRedux.Livestock.SendToTrainedArea>
+    <ColonyManagerRedux.Livestock.SendToTrainedArea.Tip>Restrict animals that are fully trained to a specific area.</ColonyManagerRedux.Livestock.SendToTrainedArea.Tip>
     <ColonyManagerRedux.Livestock.TargetCountsHeader>Target counts</ColonyManagerRedux.Livestock.TargetCountsHeader>
     <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>Area restrictions</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
     <ColonyManagerRedux.Livestock.TrainingHeader>Training</ColonyManagerRedux.Livestock.TrainingHeader>
@@ -59,8 +65,6 @@
     <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
     <ColonyManagerRedux.Livestock.NoPawnKindSelected>No animal selected</ColonyManagerRedux.Livestock.NoPawnKindSelected>
     <ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled>Disabled because excess livestock is not being culled.</ColonyManagerRedux.Livestock.DisabledBecauseCullExcessDisabled>
-    <ColonyManagerRedux.Livestock.SendToTrainingArea>Restrict animals marked for training</ColonyManagerRedux.Livestock.SendToTrainingArea>
-    <ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>Restrict animals designated for training to a specific area.</ColonyManagerRedux.Livestock.SendToTrainingArea.Tip>
     <ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>Disabled because no training target is set.</ColonyManagerRedux.Livestock.DisabledBecauseNoTrainingSet>
     <ColonyManagerRedux.Livestock.CannotTrainTooSmall>{0} are too small to train this.</ColonyManagerRedux.Livestock.CannotTrainTooSmall>
     <ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>{0} cannot be restricted</ColonyManagerRedux.Livestock.DisabledBecauseRoamingAnimal>

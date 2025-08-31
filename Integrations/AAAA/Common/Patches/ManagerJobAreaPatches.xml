@@ -93,6 +93,15 @@
                         <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea</toggleLabelKey>
                         <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainingArea.Tip</toggleTooltipKey>
                     </li>
+                    <li>
+                        <sectionColumn>Livestock.Options</sectionColumn>
+                        <section>AreaRestrictions</section>
+                        <jobAreaFieldName>TrainedArea</jobAreaFieldName>
+                        <scribeLabelPrefix>trainedArea</scribeLabelPrefix>
+                        <hideIfFieldWithNameIsFalse>SendToTrainedArea</hideIfFieldWithNameIsFalse>
+                        <toggleLabelKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainedArea</toggleLabelKey>
+                        <toggleTooltipKey>ColonyManagerRedux.AAAA.UseEvacuation.Livestock.TrainedArea.Tip</toggleTooltipKey>
+                    </li>
                 </fields>
             </li>
         </value>

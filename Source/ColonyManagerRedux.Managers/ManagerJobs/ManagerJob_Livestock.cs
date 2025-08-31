@@ -115,6 +115,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     public bool SendToShearingArea;
     public bool SendToCullingArea;
     public bool SendToTrainingArea;
+    public bool SendToTrainedArea;
     public bool SetFollow;
     public Area? ShearArea;
     public Area? CullingArea;
@@ -123,6 +124,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     public MasterMode Trainers;
     public TrainingTracker Training;
     public Area? TrainingArea;
+    public Area? TrainedArea;
     public bool TryTameMore;
     public bool TamePastTargets;
 
@@ -177,6 +179,10 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         // set up training area
         SendToTrainingArea = false;
         TrainingArea = null;
+
+        // set up trained area
+        SendToTrainedArea = false;
+        TrainedArea = null;
 
         // taming
         TryTameMore = false;
@@ -489,6 +495,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     private string? _tmpMilkAreaLabel;
     private string? _tmpShearAreaLabel;
     private string? _tmpTrainingAreaLabel;
+    private string? _tmpTrainedAreaLabel;
 
     public override void ExposeData()
     {
@@ -509,6 +516,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         Scribe_Values.Look(ref SendToMilkingArea, "sendToMilkingArea");
         Scribe_Values.Look(ref SendToShearingArea, "sendToShearingArea");
         Scribe_Values.Look(ref SendToTrainingArea, "sendToTrainingArea");
+        Scribe_Values.Look(ref SendToTrainedArea, "sendToTrainedArea");
         Scribe_Values.Look(ref TryTameMore, "tryTameMore");
         Scribe_Values.Look(ref TamePastTargets, "tamePastTargets");
         Scribe_Values.Look(ref SetFollow, "setFollow", true);
@@ -541,6 +549,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             Scribe_References.Look(ref MilkArea, "milkArea");
             Scribe_References.Look(ref ShearArea, "shearArea");
             Scribe_References.Look(ref TrainingArea, "trainingArea");
+            Scribe_References.Look(ref TrainedArea, "trainedArea");
 
             Utilities.Scribe_Designations(ref _designations, Manager);
 
@@ -630,6 +639,12 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 ref TrainingArea,
                 ref _tmpTrainingAreaLabel,
                 "trainingArea",
+                Manager.map.areaManager
+            );
+            Utilities.Scribe_AreaByLabel(
+                ref TrainedArea,
+                ref _tmpTrainedAreaLabel,
+                "trainedArea",
                 Manager.map.areaManager
             );
         }
@@ -956,13 +971,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 }
 
                 // slaughter
-                if (
-                    SendToCullingArea
-                    && Manager.map.designationManager.DesignationOn(
-                        animal,
-                        DesignationDefOf.Slaughter
-                    ) != null
-                )
+                if (SendToCullingArea)
                 {
                     workDone.Value |= currentArea != CullingArea;
                     SetArea(CullingArea);
@@ -970,7 +979,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
                             animal,
                             AreaUtility.AreaAllowedLabel_Area(CullingArea),
-                            ManagerWorkGiverDefOf.Slaughter.gerund
+                            "ColonyManagerRedux.Livestock.Culling".Translate()
                         ),
                         animal
                     );
@@ -1029,6 +1038,23 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                                 animal,
                                 AreaUtility.AreaAllowedLabel_Area(TrainingArea),
                                 ManagerWorkGiverDefOf.Train.gerund
+                            ),
+                            animal
+                        );
+                    }
+                }
+                // trained
+                else if (SendToTrainedArea && animal.training.NextTrainableToTrain() == null)
+                {
+                    if (currentArea != TrainedArea)
+                    {
+                        workDone.Value = true;
+                        SetArea(TrainedArea);
+                        jobLog.AddDetail(
+                            "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
+                                animal,
+                                AreaUtility.AreaAllowedLabel_Area(TrainedArea),
+                                "ColonyManagerRedux.Livestock.Trained".Translate()
                             ),
                             animal
                         );
@@ -1382,7 +1408,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         public bool TrainYoung;
         public bool UnassignTraining;
 
-        public bool Any
+        public bool AnyEnabled
         {
             get
             {
@@ -1473,6 +1499,10 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         if (TrainingArea == area)
         {
             TrainingArea = null;
+        }
+        if (TrainedArea == area)
+        {
+            TrainedArea = null;
         }
         for (var i = 0; i < RestrictArea.Length; i++)
         {
