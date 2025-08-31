@@ -250,33 +250,46 @@ internal partial class ManagerTab_Livestock
             GUI.DrawTexture(iconRect, texture);
         }
 
-        private static Texture2D GetCullingStrategyTexture(ManagerJob_Livestock job) =>
+        private static Texture2D? GetCullingStrategyTexture(ManagerJob_Livestock job) =>
             job.CullingStrategy switch
             {
+                LivestockCullingStrategy.None => null,
                 LivestockCullingStrategy.Butcher => Resources.Slaughter,
                 LivestockCullingStrategy.Release => Resources.ReleaseToTheWild,
+                LivestockCullingStrategy.Sterilize => Resources.Sterile,
                 _ => throw new NotImplementedException(),
             };
 
         protected override string GetHeaderTip(PawnTable table)
         {
             var job = jobGetter()!;
-            return "ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor".Translate(
-                $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action".Translate()
+            return "ColonyManagerRedux.Livestock.WhetherAnimalIsCulledBy".Translate(
+                $"ColonyManagerRedux.Livestock.Logs.{job.CullingStrategyAction.TranslationKey}.Action".Translate()
             );
         }
 
         public override void DoCell(Rect rect, Pawn pawn, PawnTable table)
         {
             var job = jobGetter()!;
-            if (pawn.Map.designationManager.DesignationOn(pawn, job.CullingDesignationDef) != null)
+            var isAlreadyCulling = job.CullingStrategyAction.IsAlreadyCulling(pawn);
+            var isAlreadyCulled = job.CullingStrategyAction.IsAlreadyCulled(pawn);
+            if (isAlreadyCulling || isAlreadyCulled)
             {
+                if (isAlreadyCulled)
+                {
+                    GUI.color = Color.gray;
+                }
                 GUI.DrawTexture(rect.ContractedBy(2), GetCullingStrategyTexture(job));
+                GUI.color = Color.white;
                 TooltipHandler.TipRegion(
                     rect,
-                    "ColonyManagerRedux.Livestock.AnimalIsDesignatedFor".Translate(
-                        $"ColonyManagerRedux.Livestock.Logs.{job.CullingDesignationDef.defName}.Action".Translate()
-                    )
+                    isAlreadyCulling
+                        ? "ColonyManagerRedux.Livestock.AnimalIsCulling".Translate(
+                            $"ColonyManagerRedux.Livestock.Logs.{job.CullingStrategyAction.TranslationKey}.Action".Translate()
+                        )
+                        : "ColonyManagerRedux.Livestock.AnimalIsCulled".Translate(
+                            $"ColonyManagerRedux.Livestock.Logs.{job.CullingStrategyAction.TranslationKey}.Culled".Translate()
+                        )
                 );
             }
         }

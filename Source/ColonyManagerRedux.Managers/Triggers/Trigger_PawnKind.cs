@@ -33,12 +33,14 @@ internal sealed class Trigger_PawnKind : Trigger
     public int[] Counts =>
         [
             .. Utilities_Livestock.AgeSexArray.Select(ageSex =>
-                pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0
+                (pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0)
+                - Job.CullingStrategyAction.GetAlreadyCulledForAgeSex(ageSex)
             ),
         ];
 
     public int GetCountFor(AgeAndSex ageAndSex, bool cached = true) =>
-        pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0;
+        (pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0)
+        - Job.CullingStrategyAction.GetAlreadyCulledForAgeSex(ageAndSex);
 
     public int GetTargetFor(AgeAndSex ageAndSex) => CountTargets[(int)ageAndSex];
 
@@ -96,11 +98,19 @@ internal sealed class Trigger_PawnKind : Trigger
                 progressRect,
                 c,
                 t,
-                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
-                    c,
-                    t,
-                    ageAndSex.GetLabel(true)
-                ),
+                Job.CullingStrategyAction.CullingRemovesAnimals
+                    ? "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
+                        c,
+                        t,
+                        ageAndSex.GetLabel(true)
+                    )
+                    : "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount.WithCulling".Translate(
+                        c,
+                        t,
+                        ageAndSex.GetLabel(true),
+                        Job.CullingStrategyAction.GetAlreadyCulledForAgeSex(ageAndSex),
+                        Job.CullingStrategyAction.ActionText
+                    ),
                 active,
                 GetProgressBarTextureFor(ageAndSex)
             );
@@ -123,11 +133,19 @@ internal sealed class Trigger_PawnKind : Trigger
                 eachRect,
                 c,
                 t,
-                "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
-                    c,
-                    t,
-                    ageAndSex.GetLabel(true)
-                ),
+                Job.CullingStrategyAction.CullingRemovesAnimals
+                    ? "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
+                        c,
+                        t,
+                        ageAndSex.GetLabel(true)
+                    )
+                    : "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount.WithCulling".Translate(
+                        c,
+                        t,
+                        ageAndSex.GetLabel(true),
+                        Job.CullingStrategyAction.GetAlreadyCulledForAgeSex(ageAndSex),
+                        Job.CullingStrategyAction.ActionText
+                    ),
                 active,
                 GetProgressBarTextureFor(ageAndSex)
             );
@@ -188,11 +206,19 @@ internal sealed class Trigger_PawnKind : Trigger
                     Utilities_Livestock.AgeSexArray,
                     (v, ageAndSex) =>
                         new NamedArgument(
-                            "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
-                                v.c,
-                                v.t,
-                                ageAndSex.GetLabel(true)
-                            ),
+                            Job.CullingStrategyAction.CullingRemovesAnimals
+                                ? "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount".Translate(
+                                    v.c,
+                                    v.t,
+                                    ageAndSex.GetLabel(true)
+                                )
+                                : "ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount.WithCulling".Translate(
+                                    v.c,
+                                    v.t,
+                                    ageAndSex.GetLabel(true),
+                                    Job.CullingStrategyAction.GetAlreadyCulledForAgeSex(ageAndSex),
+                                    Job.CullingStrategyAction.ActionText
+                                ),
                             null
                         )
                 )

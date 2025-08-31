@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   When 'synchronize threshold' is enabled and a resource gathering job has the relevant resources marked in the threshold filter settings, enabling 'deconstruct buildings' will automatically select the buildings that contain resources that match the threshold settings. Closes [#10](https://github.com/ilyvion/colony-manager-redux/issues/10).
 -   Setting to restrict animals that are fully trained for livestock jobs. Closes [#13](https://github.com/ilyvion/colony-manager-redux/issues/13).
 -   Functionality to avoid culling milkable and shearable livestock with adjustable thresholds. Closes [#14](https://github.com/ilyvion/colony-manager-redux/issues/14).
+-   Culling by sterilization in Livestock manager. Culled animals are not counted towards the target, meaning that with this setting enabled, the target represents "unsterilized" animals, not total animals. Closes [#15](https://github.com/ilyvion/colony-manager-redux/issues/15).
 
 ## [0.13.2] - 2025-08-29
 

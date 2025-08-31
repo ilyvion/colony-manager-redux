@@ -20,7 +20,6 @@ internal sealed class PawnKindSettings : IExposable
     public bool DefaultTryTameMore;
     public bool DefaultTamePastTargets;
 
-    public bool DefaultCullExcess = true;
     public LivestockCullingStrategy DefaultCullingStrategy;
     public bool DefaultCullTrained;
     public bool DefaultCullPregnant;
@@ -56,7 +55,6 @@ internal sealed class PawnKindSettings : IExposable
         Array.Copy(copyFrom.DefaultCountTargets, DefaultCountTargets, DefaultCountTargets.Length);
         DefaultTryTameMore = copyFrom.DefaultTryTameMore;
         DefaultTamePastTargets = copyFrom.DefaultTamePastTargets;
-        DefaultCullExcess = copyFrom.DefaultCullExcess;
         DefaultCullingStrategy = copyFrom.DefaultCullingStrategy;
         DefaultCullTrained = copyFrom.DefaultCullTrained;
         DefaultCullPregnant = copyFrom.DefaultCullPregnant;
@@ -249,18 +247,8 @@ internal sealed class PawnKindSettings : IExposable
         var cullingStrategies = (LivestockCullingStrategy[])
             Enum.GetValues(typeof(LivestockCullingStrategy));
 
-        var cellWidth = width / (cullingStrategies.Length + 1);
+        var cellWidth = width / cullingStrategies.Length;
         var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
-
-        Utilities.DrawToggle(
-            cellRect,
-            "ColonyManagerRedux.Livestock.CullingStrategy.None".Translate(),
-            "ColonyManagerRedux.Livestock.CullingStrategy.None.Tip".Translate(),
-            !DefaultCullExcess,
-            () => DefaultCullExcess = false,
-            () => { }
-        );
-        cellRect.x += cellWidth;
 
         foreach (var cullingStrategy in cullingStrategies)
         {
@@ -268,10 +256,9 @@ internal sealed class PawnKindSettings : IExposable
                 cellRect,
                 $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}".Translate(),
                 $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}.Tip".Translate(),
-                DefaultCullExcess && DefaultCullingStrategy == cullingStrategy,
+                DefaultCullingStrategy == cullingStrategy,
                 () =>
                 {
-                    DefaultCullExcess = true;
                     DefaultCullingStrategy = cullingStrategy;
                 },
                 () => { }
@@ -382,10 +369,10 @@ internal sealed class PawnKindSettings : IExposable
     private float DrawTrainingSection(Vector2 pos, float width)
     {
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
-        var rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / TrainingJobsPerRow);
+        var rowCount = (int)Math.Ceiling((double)allTrainingTargets.Count / EntriesPerRow);
         var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * rowCount);
         var visibleJobsRowCount = (int)
-            Math.Ceiling((double)DrawTrainingSelector(trainingRect, rowCount) / TrainingJobsPerRow);
+            Math.Ceiling((double)DrawTrainingSelector(trainingRect, rowCount) / EntriesPerRow);
         var height = ListEntryHeight * visibleJobsRowCount;
 
         var unassignTrainingRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
@@ -413,7 +400,7 @@ internal sealed class PawnKindSettings : IExposable
     {
         var allTrainingTargets = DefDatabase<TrainableDef>.AllDefsListForReading;
 
-        var cellCount = Math.Min(TrainingJobsPerRow, allTrainingTargets.Count);
+        var cellCount = Math.Min(EntriesPerRow, allTrainingTargets.Count);
         var cellWidth = (rect.width - (Margin * (cellCount - 1))) / cellCount;
 
         GUI.BeginGroup(rect);
@@ -699,12 +686,12 @@ internal sealed class PawnKindSettings : IExposable
         Scribe_Values.Look(ref DefaultTryTameMore, "defaultTryTameMore", false);
         Scribe_Values.Look(ref DefaultTamePastTargets, "defaultTamePastTargets", false);
 
-        Scribe_Values.Look(ref DefaultCullExcess, "defaultButcherExcess", true);
         Scribe_Values.Look(
             ref DefaultCullingStrategy,
             "cullingStrategy",
             LivestockCullingStrategy.Butcher
         );
+        ForwardCompatibleButcherExcess();
         Scribe_Values.Look(ref DefaultCullTrained, "defaultButcherTrained", false);
         Scribe_Values.Look(ref DefaultCullPregnant, "defaultButcherPregnant", false);
         Scribe_Values.Look(ref DefaultCullBonded, "defaultButcherBonded", false);
@@ -741,6 +728,38 @@ internal sealed class PawnKindSettings : IExposable
             ];
 
             EnabledTrainingTargets ??= [];
+        }
+    }
+
+    private bool? _oldDefaultCullExcessValue;
+
+    private void ForwardCompatibleButcherExcess()
+    {
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            if (Scribe.EnterNode("defaultButcherExcess"))
+            {
+                Scribe.ExitNode();
+                var oldDefaultCullExcess = false;
+                Scribe_Values.Look(ref oldDefaultCullExcess, "defaultButcherExcess");
+                _oldDefaultCullExcessValue = oldDefaultCullExcess;
+
+                ColonyManagerReduxMod.Instance.LogMessage(
+                    "Detected old 'defaultButcherExcess' value while loading livestock job. "
+                        + "This setting has been replaced with a more flexible 'culling strategy' setting. "
+                        + $"The old value was '{oldDefaultCullExcess}'. "
+                        + "If it was 'false', culling strategy has been set to 'None'. "
+                        + "If it was 'true', culling strategy didn't change."
+                );
+            }
+        }
+        if (Scribe.mode == LoadSaveMode.PostLoadInit && _oldDefaultCullExcessValue.HasValue)
+        {
+            if (!_oldDefaultCullExcessValue.Value)
+            {
+                DefaultCullingStrategy = LivestockCullingStrategy.None;
+            }
+            _oldDefaultCullExcessValue = null;
         }
     }
 }

@@ -39,6 +39,7 @@ internal static class Resources
         Tame = ContentFinder<Texture2D>.Get("UI/Icons/Animal/Tame"),
         Slaughter = ContentFinder<Texture2D>.Get("UI/Icons/Animal/Slaughter"),
         ReleaseToTheWild = ContentFinder<Texture2D>.Get("UI/Designators/ReleaseToTheWild"),
+        Sterile = ContentFinder<Texture2D>.Get("UI/Icons/Animal/Sterile"),
         Venerated = ContentFinder<Texture2D>.Get("UI/Icons/CMR_venerated"),
         PadlockClosed = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_closed"),
         PadlockOpen = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_open"),

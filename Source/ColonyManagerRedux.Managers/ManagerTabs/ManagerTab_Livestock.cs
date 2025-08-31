@@ -15,7 +15,7 @@ namespace ColonyManagerRedux.Managers;
 internal sealed partial class ManagerTab_Livestock(Manager manager)
     : ManagerTab<ManagerJob_Livestock>(manager)
 {
-    internal const int TrainingJobsPerRow = 3;
+    internal const int EntriesPerRow = 3;
     private readonly List<PawnKindDef> _availablePawnKinds = [];
 
     private string[] _newCounts = ["", "", "", ""];
@@ -76,7 +76,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
 
     public static int DrawTrainingSelector(ManagerJob_Livestock job, Rect rect, int rowCount)
     {
-        var cellCount = Math.Min(TrainingJobsPerRow, job.Training.Count);
+        var cellCount = Math.Min(EntriesPerRow, job.Training.Count);
         var cellWidth = (rect.width - (Margin * (cellCount - 1))) / cellCount;
         var keys = TrainingTracker.TrainableDefs;
 
@@ -922,41 +922,32 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         var cullingStrategies = (LivestockCullingStrategy[])
             Enum.GetValues(typeof(LivestockCullingStrategy));
 
-        var cellWidth = width / (cullingStrategies.Length + 1);
-        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+        var cellWidth = width / EntriesPerRow;
 
-        DrawToggle(
-            cellRect,
-            "ColonyManagerRedux.Livestock.CullingStrategy.None".Translate(),
-            "ColonyManagerRedux.Livestock.CullingStrategy.None.Tip".Translate(),
-            !job.CullExcess,
-            () =>
-            {
-                job.CullExcess = false;
-                animalsTameTable?.SetDirty();
-            },
-            () => { }
-        );
-        cellRect.x += cellWidth;
-
-        foreach (var cullingStrategy in cullingStrategies)
+        for (var i = 0; i < cullingStrategies.Length; i++)
         {
+            var skipCells = i == 0 ? 0 : 2;
+            var cellRect = new Rect(
+                pos.x + ((i + skipCells) % EntriesPerRow * (cellWidth + Margin)),
+                pos.y + ((i + skipCells) / EntriesPerRow * ListEntryHeight),
+                cellWidth,
+                ListEntryHeight
+            );
+            var cullingStrategy = cullingStrategies[i];
             DrawToggle(
                 cellRect,
                 $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}".Translate(),
                 $"ColonyManagerRedux.Livestock.CullingStrategy.{cullingStrategy}.Tip".Translate(),
-                job.CullExcess && job.CullingStrategy == cullingStrategy,
+                job.CullingStrategy == cullingStrategy,
                 () =>
                 {
-                    job.CullExcess = true;
                     job.CullingStrategy = cullingStrategy;
                     animalsTameTable?.SetDirty();
                 },
                 () => { }
             );
-            cellRect.x += cellWidth;
         }
-        pos.y += ListEntryHeight;
+        pos.y += ListEntryHeight * ((cullingStrategies.Length / EntriesPerRow) + 1);
 
         if (job.CullExcess)
         {
@@ -1433,11 +1424,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
 
     private float DrawTrainingSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
-        var allRowsCount = (int)Math.Ceiling((double)job.Training.Count / TrainingJobsPerRow);
+        var allRowsCount = (int)Math.Ceiling((double)job.Training.Count / EntriesPerRow);
         var trainingRect = new Rect(pos.x, pos.y, width, ListEntryHeight * allRowsCount);
         var visibleJobsRowCount = (int)
             Math.Ceiling(
-                (double)DrawTrainingSelector(job, trainingRect, allRowsCount) / TrainingJobsPerRow
+                (double)DrawTrainingSelector(job, trainingRect, allRowsCount) / EntriesPerRow
             );
         var height = ListEntryHeight * visibleJobsRowCount;
 

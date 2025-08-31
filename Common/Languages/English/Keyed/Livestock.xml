@@ -15,6 +15,11 @@
     <ColonyManagerRedux.Livestock.CullingStrategy.Butcher.Tip>Cull excess animals by designating them for slaughter</ColonyManagerRedux.Livestock.CullingStrategy.Butcher.Tip>
     <ColonyManagerRedux.Livestock.CullingStrategy.Release>Release</ColonyManagerRedux.Livestock.CullingStrategy.Release>
     <ColonyManagerRedux.Livestock.CullingStrategy.Release.Tip>Cull excess animals by designating them for release into the wild</ColonyManagerRedux.Livestock.CullingStrategy.Release.Tip>
+    <ColonyManagerRedux.Livestock.CullingStrategy.Sterilize>Sterilize</ColonyManagerRedux.Livestock.CullingStrategy.Sterilize>
+    <ColonyManagerRedux.Livestock.CullingStrategy.Sterilize.Tip>Cull excess animals by designating them for sterilization. When this mode is active, animals already sterilized will not count towards culling needs, i.e. the target number changes from "keep how many animals" to "keep how many unsterilized animals".</ColonyManagerRedux.Livestock.CullingStrategy.Sterilize.Tip>
+    <ColonyManagerRedux.Livestock.WhetherAnimalIsCulledBy>Whether an animal is culled by {0}</ColonyManagerRedux.Livestock.WhetherAnimalIsCulledBy>
+    <ColonyManagerRedux.Livestock.AnimalIsCulling>Animal is currently being culled by {0}</ColonyManagerRedux.Livestock.AnimalIsCulling>
+    <ColonyManagerRedux.Livestock.AnimalIsCulled>Animal has already been culled by {0} and is not counting towards target</ColonyManagerRedux.Livestock.AnimalIsCulled>
     <ColonyManagerRedux.Livestock.Trained>trained</ColonyManagerRedux.Livestock.Trained>
     <ColonyManagerRedux.Livestock.CullTrained>Trained</ColonyManagerRedux.Livestock.CullTrained>
     <ColonyManagerRedux.Livestock.CullTrained.Tip>Are trained animals allowed to be culled?</ColonyManagerRedux.Livestock.CullTrained.Tip>
@@ -34,6 +39,7 @@
     <ColonyManagerRedux.Livestock.TamePastTargets.Tip>Should the manager keep designating wild animals to be tamed, even when targets are met?</ColonyManagerRedux.Livestock.TamePastTargets.Tip>
     <ColonyManagerRedux.Livestock.TameArea>Allow taming in:</ColonyManagerRedux.Livestock.TameArea>
     <ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>{0}/{1} {2}</ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount>
+    <ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount.WithCulling>{0}/{1} {2} (+ {3} culled)</ColonyManagerRedux.Livestock.ListEntryAgeAndSexCount.WithCulling>
     <ColonyManagerRedux.Livestock.ListEntryTooltip>{PAWNKIND_labelPlural}:\n{1}\n{2}\n{3}\n{4}\n{5}</ColonyManagerRedux.Livestock.ListEntryTooltip>
     <ColonyManagerRedux.Livestock.TameCount>{0} tamed</ColonyManagerRedux.Livestock.TameCount>
     <ColonyManagerRedux.Livestock.WildCount>{0} in the wild</ColonyManagerRedux.Livestock.WildCount>
@@ -65,7 +71,6 @@
     <ColonyManagerRedux.Livestock.CullingHeader>Culling</ColonyManagerRedux.Livestock.CullingHeader>
     <ColonyManagerRedux.Livestock.TamingHeader>Taming</ColonyManagerRedux.Livestock.TamingHeader>
     <ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>The animal is designated for {0}</ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>
-    <ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor>Whether an animal is designated for {0}</ColonyManagerRedux.Livestock.WhetherAnimalIsDesignatedFor>
     <ColonyManagerRedux.Livestock.Tame>tame</ColonyManagerRedux.Livestock.Tame>
     <ColonyManagerRedux.Livestock.Wild>wild</ColonyManagerRedux.Livestock.Wild>
     <ColonyManagerRedux.Livestock.AnimalsHeader>{0} {1}</ColonyManagerRedux.Livestock.AnimalsHeader>
@@ -140,7 +145,10 @@
     <ColonyManagerRedux.Livestock.Logs.Slaughter>butcher</ColonyManagerRedux.Livestock.Logs.Slaughter>
     <ColonyManagerRedux.Livestock.Logs.Slaughter.Action>slaughter</ColonyManagerRedux.Livestock.Logs.Slaughter.Action>
     <ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild>release</ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild>
-    <ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild.Action>release</ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild.Action>
+    <ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild.Action>release to the wild</ColonyManagerRedux.Livestock.Logs.ReleaseAnimalToWild.Action>
+    <ColonyManagerRedux.Livestock.Logs.Sterilize>sterilize</ColonyManagerRedux.Livestock.Logs.Sterilize>
+    <ColonyManagerRedux.Livestock.Logs.Sterilize.Action>sterilization</ColonyManagerRedux.Livestock.Logs.Sterilize.Action>
+    <ColonyManagerRedux.Livestock.Logs.Sterilize.Culled>sterilization</ColonyManagerRedux.Livestock.Logs.Sterilize.Culled>
     <ColonyManagerRedux.Livestock.Logs.AddDesignation>Added new {0} designation for {1} {2}, bringing expected count / target to {3} / {4}</ColonyManagerRedux.Livestock.Logs.AddDesignation>
     <ColonyManagerRedux.Livestock.Logs.RemoveDesignation>Removed excess {0} designation for {1} {2}, bringing expected count / target to {3} / {4}</ColonyManagerRedux.Livestock.Logs.RemoveDesignation>
     <ColonyManagerRedux.Livestock.Logs.AddTraining>Set {1} to train {0}</ColonyManagerRedux.Livestock.Logs.AddTraining>
