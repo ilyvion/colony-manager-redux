@@ -1411,13 +1411,13 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         );
         IlyvionWidgets.Label(
             countRects[1, 0],
-            "ColonyManagerRedux.Livestock.Adult".Translate(),
+            "ColonyManagerRedux.Livestock.Adult".Translate() + " ",
             TextAnchor.MiddleRight,
             GameFont.Tiny
         );
         IlyvionWidgets.Label(
             countRects[2, 0],
-            "ColonyManagerRedux.Livestock.Juvenile".Translate(),
+            "ColonyManagerRedux.Livestock.Juvenile".Translate() + " ",
             TextAnchor.MiddleRight,
             GameFont.Tiny
         );
