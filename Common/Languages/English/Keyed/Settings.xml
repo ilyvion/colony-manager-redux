@@ -14,6 +14,8 @@
     <ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob>Jobs can manage as many designations as they need to meet targets</ColonyManagerRedux.ManagerSettings.NoMaxDesignationsPerJob>
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob>Jobs can only manage up to {0} designations at any time</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob>
     <ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>A manager will only maintain as many designations as this setting allows for, even if it's fewer than it would take to meet a job target. Note that not necessarily all types of manager jobs can or will respect this setting.</ColonyManagerRedux.ManagerSettings.MaxDesignationsPerJob.Tip>
+    <ColonyManagerRedux.ShowInfoCardButtonsWherePossible>Show info card buttons where possible</ColonyManagerRedux.ShowInfoCardButtonsWherePossible>
+    <ColonyManagerRedux.ShowInfoCardButtonsWherePossible.Tip>When this setting is enabled, info card buttons will be shown for things in manager jobs where applicable, providing quick access to relevant information.</ColonyManagerRedux.ShowInfoCardButtonsWherePossible.Tip>
     <ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>Default threshold settings</ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings>
     <ColonyManagerRedux.ManagerSettings.TargetCount>Active if: &lt; {0}</ColonyManagerRedux.ManagerSettings.TargetCount>
     <ColonyManagerRedux.ManagerSettings.DefaultTaskPriorityOrder>Default task priority</ColonyManagerRedux.ManagerSettings.DefaultTaskPriorityOrder>
