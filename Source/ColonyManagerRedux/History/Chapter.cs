@@ -222,15 +222,12 @@ public partial class History
             _observedMax = -1;
             _specificMax = -1;
             
-            // Clear and reset all period data
+            // Clear and reset all period data by recreating the circular buffers
             foreach (var period in Periods)
             {
                 var periodIndex = (int)period;
-                counts[periodIndex].Clear();
-                counts[periodIndex].PushBack(0);
-                
-                targets[periodIndex].Clear();
-                targets[periodIndex].PushBack((0, 0));
+                counts[periodIndex] = new CircularBuffer<int>(entriesPerInterval, [0]);
+                targets[periodIndex] = new CircularBuffer<(int, int)>(entriesPerInterval, [(0, 0)]);
             }
         }
     }
