@@ -602,6 +602,18 @@ public partial class History : IExposable
             }
         }
     }
+
+    /// <summary>
+    /// Purges all historical data from this history instance, clearing all chapters.
+    /// This operation cannot be undone.
+    /// </summary>
+    public void PurgeHistory()
+    {
+        foreach (var chapter in _chapters)
+        {
+            chapter.Clear();
+        }
+    }
 }
 
 /// <summary>

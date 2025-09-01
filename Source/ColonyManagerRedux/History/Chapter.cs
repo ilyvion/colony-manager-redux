@@ -213,5 +213,25 @@ public partial class History
             }
             return output;
         }
+
+        /// <summary>
+        /// Clears all historical data from this chapter, resetting counts and targets to their initial state.
+        /// </summary>
+        public void Clear()
+        {
+            _observedMax = -1;
+            _specificMax = -1;
+            
+            // Clear and reset all period data
+            foreach (var period in Periods)
+            {
+                var periodIndex = (int)period;
+                counts[periodIndex].Clear();
+                counts[periodIndex].PushBack(0);
+                
+                targets[periodIndex].Clear();
+                targets[periodIndex].PushBack((0, 0));
+            }
+        }
     }
 }

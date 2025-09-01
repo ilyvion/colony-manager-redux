@@ -411,4 +411,20 @@ public class Manager : MapComponent, ILoadReferenceable
     /// <returns>An enumerable of components of type <typeparamref name="T"/>.</returns>
     public IEnumerable<T> CompsOfType<T>()
         where T : class => _comps?.Where(c => c is T).Cast<T>() ?? [];
+
+    /// <summary>
+    /// Purges all historical data from all manager jobs with history components.
+    /// This operation cannot be undone and will clear all historical tracking data.
+    /// </summary>
+    public void PurgeAllHistory()
+    {
+        foreach (var job in _jobTracker.Jobs)
+        {
+            var historyComp = job.GetComponent<CompManagerJobHistory>();
+            if (historyComp != null)
+            {
+                historyComp.History.PurgeHistory();
+            }
+        }
+    }
 }

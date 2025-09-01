@@ -10,4 +10,7 @@
     <ColonyManagerRedux.ManagerNoSaves>No exports found.</ColonyManagerRedux.ManagerNoSaves>
     <ColonyManagerRedux.DeleteThisManagerFile>Delete this export file.</ColonyManagerRedux.DeleteThisManagerFile>
     <ColonyManagerRedux.InvalidJob>Cannot import job '{0}' because it has an error.</ColonyManagerRedux.InvalidJob>
+    <ColonyManagerRedux.PurgeAllHistory>Purge All History</ColonyManagerRedux.PurgeAllHistory>
+    <ColonyManagerRedux.ConfirmPurgeHistory>Are you sure you want to purge all historical data from your manager jobs?\n\nThis will permanently delete all tracking data and cannot be undone. This action is recommended if you have performance issues due to extensive history data.</ColonyManagerRedux.ConfirmPurgeHistory>
+    <ColonyManagerRedux.HistoryPurged>All manager job history has been purged.</ColonyManagerRedux.HistoryPurged>
 </LanguageData>
