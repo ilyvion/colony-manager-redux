@@ -304,7 +304,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     private void DrawSaveSection(Rect rect)
     {
         var infoRect = new Rect(rect.ContractedBy(Constants.Margin));
-        infoRect.height -= 70f + (2 * Constants.Margin); // Increased height for additional button
+        infoRect.height -= 30f + Constants.Margin;
         var nameRect = new Rect(
             rect.xMin + Constants.Margin,
             infoRect.yMax + Constants.Margin,
@@ -315,12 +315,6 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             nameRect.xMax + Constants.Margin,
             infoRect.yMax + Constants.Margin,
             nameRect.width,
-            30f
-        );
-        var purgeButtonRect = new Rect(
-            rect.xMin + Constants.Margin,
-            buttonRect.yMax + Constants.Margin,
-            rect.width - (2 * Constants.Margin),
             30f
         );
 
@@ -346,12 +340,6 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         )
         {
             TryExport(_saveName);
-        }
-
-        // Purge History button
-        if (Widgets.ButtonText(purgeButtonRect, "ColonyManagerRedux.PurgeAllHistory".Translate()))
-        {
-            TryPurgeHistory();
         }
     }
 
@@ -519,24 +507,6 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     }
 
     private void TryImport(SaveFileInfo file) => DoImport(file);
-
-    private void TryPurgeHistory()
-    {
-        Find.WindowStack.Add(
-            new Dialog_Confirm(
-                "ColonyManagerRedux.ConfirmPurgeHistory".Translate(),
-                delegate
-                {
-                    Manager.PurgeAllHistory();
-                    Messages.Message(
-                        "ColonyManagerRedux.HistoryPurged".Translate(),
-                        MessageTypeDefOf.TaskCompletion
-                    );
-                },
-                destructive: true
-            )
-        );
-    }
 }
 
 internal enum ScribingMode

@@ -40,7 +40,18 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
     {
         Widgets.DrawMenuSection(rect);
 
-        using var scrollView = GUIScope.ScrollView(rect, _logListScrollViewStatus);
+        // Reserve space for the purge button at the bottom
+        var buttonHeight = 30f;
+        var buttonMargin = Constants.Margin;
+        var logsRect = new Rect(rect.x, rect.y, rect.width, rect.height - buttonHeight - buttonMargin);
+        var buttonRect = new Rect(
+            rect.x + buttonMargin,
+            logsRect.yMax + buttonMargin / 2,
+            rect.width - (2 * buttonMargin),
+            buttonHeight
+        );
+
+        using var scrollView = GUIScope.ScrollView(logsRect, _logListScrollViewStatus);
         using var _g = GUIScope.WidgetGroup(scrollView.ViewRect);
 
         var cur = Vector2.zero;
@@ -160,7 +171,7 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         if (i == 0)
         {
             IlyvionWidgets.Label(
-                rect,
+                logsRect,
                 "ColonyManagerRedux.Logs.NoLogs".Translate(),
                 TextAnchor.MiddleCenter,
                 color: Color.gray
@@ -168,6 +179,12 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         }
 
         scrollView.Height = cur.y;
+
+        // Draw the purge history button
+        if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.PurgeAllHistory".Translate()))
+        {
+            TryPurgeHistory();
+        }
     }
 
     private static void DrawLogEntry(
@@ -337,5 +354,23 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         }
 
         position.y += rowRect.height;
+    }
+
+    private void TryPurgeHistory()
+    {
+        Find.WindowStack.Add(
+            new Dialog_Confirm(
+                "ColonyManagerRedux.ConfirmPurgeHistory".Translate(),
+                delegate
+                {
+                    Manager.PurgeAllHistory();
+                    Messages.Message(
+                        "ColonyManagerRedux.HistoryPurged".Translate(),
+                        MessageTypeDefOf.TaskCompletion
+                    );
+                },
+                destructive: true
+            )
+        );
     }
 }
