@@ -420,7 +420,7 @@ public class Manager : MapComponent, ILoadReferenceable
     {
         foreach (var job in _jobTracker.Jobs)
         {
-            var historyComp = job.GetComponent<CompManagerJobHistory>();
+            var historyComp = job.CompOfType<CompManagerJobHistory>();
             if (historyComp != null)
             {
                 historyComp.History.PurgeHistory();
