@@ -13,6 +13,7 @@ internal partial class ManagerTab_Logs
         // This is set by Initialize immediately after the comp is instantiated
         private CircularBuffer<ManagerLog> _logs = null!;
         public IEnumerable<ManagerLog> Logs => _logs;
+        private bool _enabled = true;
 
         public override void Initialize()
         {
@@ -20,10 +21,17 @@ internal partial class ManagerTab_Logs
                 ColonyManagerReduxMod.Settings.ManagerSettingsFor<ManagerSettings_Logs>(
                     ManagerDefOf.CM_LogsManager
                 )!;
-            _logs = new(logSettings.KeepLogCount);
+            _logs = new(logSettings.KeepLogCount > 0 ? logSettings.KeepLogCount : 1);
+            _enabled = logSettings.KeepLogCount > 0;
         }
 
-        public void AddLog(ManagerLog log) => _logs.PushBack(log);
+        public void AddLog(ManagerLog log)
+        {
+            if (_enabled)
+            {
+                _logs.PushBack(log);
+            }
+        }
 
         public override void PostExposeData()
         {
@@ -36,9 +44,14 @@ internal partial class ManagerTab_Logs
                     ColonyManagerReduxMod.Settings.ManagerSettingsFor<ManagerSettings_Logs>(
                         ManagerDefOf.CM_LogsManager
                     )!;
+                _enabled = logSettings.KeepLogCount > 0;
                 if (_logs == null)
                 {
                     _logs = new(logSettings.KeepLogCount);
+                }
+                else if (!_enabled)
+                {
+                    _logs.Clear();
                 }
                 else if (_logs.Capacity != logSettings.KeepLogCount)
                 {
