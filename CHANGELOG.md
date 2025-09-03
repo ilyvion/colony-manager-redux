@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.4] - 2025-09-03
+
 ### Fixed
 
 -   Don't include gravship component on 1.5 and remove superfluous workTableRoomRole which is already set by BenchBase parent.
@@ -484,7 +486,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.3...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.4...HEAD
+[0.14.4]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.3..v0.14.4
 [0.14.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.2..v0.14.3
 [0.14.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.1..v0.14.2
 [0.14.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.0..v0.14.1
