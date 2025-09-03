@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Don't include gravship component on 1.5 and remove superfluous workTableRoomRole which is already set by BenchBase parent.
+
 ## [0.14.3] - 2025-09-02
 
 ### Fixed
