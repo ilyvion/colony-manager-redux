@@ -175,7 +175,7 @@ public static class Utilities
             else
             {
                 // otherwise, go look for stuff that matches our filters.
-                var thingList = map.listerThings.ThingsOfDef(thingDef);
+                List<Thing> thingList = [.. map.listerThings.ThingsOfDef(thingDef)];
 
                 // if filtered by stockpile, filter the thinglist accordingly.
                 if (stockpile != null)
