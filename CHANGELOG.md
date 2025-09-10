@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Jobs imported after gravship landing weren't properly initialized.
+
 ## [0.14.4] - 2025-09-03
 
 ### Fixed

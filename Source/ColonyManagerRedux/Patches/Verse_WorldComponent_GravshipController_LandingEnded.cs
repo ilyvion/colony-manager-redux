@@ -71,7 +71,7 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         {
             job.PreImport();
             manager.JobTracker.Add(job);
-            job.PostImport();
+            job.PostImportInt();
         }
     }
 }
