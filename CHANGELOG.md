@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.6] - 2026-04-03
+
 ### Fixed
 
 -   Power manager should no longer risk being interrupted while enumerating buildings and batteries, which caused an exception when it happened.
@@ -496,7 +498,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 -   Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.5...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.6...HEAD
+[0.14.6]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.5..v0.14.6
 [0.14.5]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.4..v0.14.5
 [0.14.4]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.3..v0.14.4
 [0.14.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.2..v0.14.3
