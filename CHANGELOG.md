@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Power manager should no longer risk being interrupted while enumerating buildings and batteries, which caused an exception when it happened.
+
 ## [0.14.5] - 2025-09-10
 
 ### Fixed

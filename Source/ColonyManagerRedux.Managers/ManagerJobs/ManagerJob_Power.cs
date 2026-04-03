@@ -336,6 +336,8 @@ internal sealed class ManagerJob_Power : ManagerJob
     private bool _isRefreshingCompLists;
     private readonly List<(IEnumerable<CompPowerTrader> traders, int i)> _refreshCompListTraders =
     [];
+    private readonly List<Building> _refreshCompListBatteryBuildings = [];
+    private readonly List<Building> _refreshCompListTraderBuildings = [];
 
     [CoroutineSettingsMethod]
     private Coroutine RefreshCompLists(ManagerLog? jobLog = null)
@@ -355,6 +357,8 @@ internal sealed class ManagerJob_Power : ManagerJob
         _isRefreshingCompLists = true;
         using var _ = new DoOnDispose(() => _isRefreshingCompLists = false);
         using var _2 = new DoOnDispose(_refreshCompListTraders.Clear);
+        using var _3 = new DoOnDispose(_refreshCompListBatteryBuildings.Clear);
+        using var _4 = new DoOnDispose(_refreshCompListTraderBuildings.Clear);
 
         foreach (var traders in _traders)
         {
@@ -373,12 +377,15 @@ internal sealed class ManagerJob_Power : ManagerJob
             _traders.RemoveRange(TraderDefs.Count - 1, _traders.Count - TraderDefs.Count);
         }
 
+        _refreshCompListTraderBuildings.Clear();
+        _refreshCompListTraderBuildings.AddRange(_traderBuildings);
+
         _refreshCompListTraders.Clear();
         _refreshCompListTraders.AddRange(
             TraderDefs.Select(
                 (def, i) =>
                     (
-                        _traderBuildings
+                        _refreshCompListTraderBuildings
                             .Where(b => b.def == def)
                             .Select(b => b.GetComp<CompPowerTrader>()),
                         i
@@ -405,11 +412,15 @@ internal sealed class ManagerJob_Power : ManagerJob
         {
             _batteries.RemoveRange(BatteryDefs.Count - 1, _batteries.Count - BatteryDefs.Count);
         }
+
+        _refreshCompListBatteryBuildings.Clear();
+        _refreshCompListBatteryBuildings.AddRange(_batteryBuildings);
+
         foreach (
             var (batteries, i) in BatteryDefs.Select(
                 (def, i) =>
                     (
-                        _batteryBuildings
+                        _refreshCompListBatteryBuildings
                             .Where(b => b.def == def)
                             .Select(b => b.GetComp<CompPowerBattery>()),
                         i
