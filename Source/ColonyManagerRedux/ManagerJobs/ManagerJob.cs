@@ -45,7 +45,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// </summary>
     public ManagerDef Def => _def;
 
-    private List<ManagerJobComp> _comps;
+    private List<ManagerJobComp> _comps = [];
 
     private bool _shouldCheckReachable;
 
@@ -286,29 +286,26 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     internal void Initialize()
     {
-        if (_def.jobComps.Any())
+        _comps = [];
+        foreach (var compProperties in _def.jobComps)
         {
-            _comps = [];
-            foreach (var compProperties in _def.jobComps)
+            ManagerJobComp? managerJobComp = null;
+            try
             {
-                ManagerJobComp? managerJobComp = null;
-                try
+                managerJobComp = (ManagerJobComp)
+                    Activator.CreateInstance(compProperties.compClass);
+                managerJobComp.Parent = this;
+                _comps.Add(managerJobComp);
+                managerJobComp.InitializeInt(compProperties);
+            }
+            catch (Exception ex)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Could not instantiate or initialize a ManagerJobComp: " + ex
+                );
+                if (managerJobComp != null)
                 {
-                    managerJobComp = (ManagerJobComp)
-                        Activator.CreateInstance(compProperties.compClass);
-                    managerJobComp.Parent = this;
-                    _comps.Add(managerJobComp);
-                    managerJobComp.InitializeInt(compProperties);
-                }
-                catch (Exception ex)
-                {
-                    ColonyManagerReduxMod.Instance.LogError(
-                        "Could not instantiate or initialize a ManagerJobComp: " + ex
-                    );
-                    if (managerJobComp != null)
-                    {
-                        _ = _comps.Remove(managerJobComp);
-                    }
+                    _ = _comps.Remove(managerJobComp);
                 }
             }
         }

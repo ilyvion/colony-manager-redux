@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 -   Mining jobs using a threshold type other than "at least" (e.g. "exactly", "more than", or "not equal to") would keep removing haul-to-storage designations for mined chunks well past the intended target count, since the check that stops removal only understood "at least" thresholds.
 -   The power manager could crash (or silently drop a valid power trader/battery building) after removing the last building of a given type, or after a mod list change reduced the number of relevant building types, due to an off-by-one error when trimming its internal building lists.
+-   Fixed a potential crash for manager jobs added by other mods that don't attach any extra job components.
 
 ## [0.14.6] - 2026-04-03
 
