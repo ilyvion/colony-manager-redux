@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A livestock job's cached "should this job be active" check was discarding its own cached result and always reporting "yes, still needs to run" instead, even once animal targets were fully met and training was set up. It now correctly reports the cached result.
 - Importing a save that resulted in three or more power manager jobs ending up on the same map (e.g. after merging colonies) could crash the import instead of quietly deduplicating down to one job, as intended.
 - AAAA-integrated danger-mode jobs could crash when switching danger levels if the previous allowed area's name contained characters like parentheses or brackets (e.g. an area named "Zone (1)").
+- Fixed an AAAA-integration error log that named the wrong field when warning about a misconfigured boolean field, which could send anyone troubleshooting a bad AAAA patch chasing the wrong setting.
 
 ## [0.14.7] - 2026-07-09
 

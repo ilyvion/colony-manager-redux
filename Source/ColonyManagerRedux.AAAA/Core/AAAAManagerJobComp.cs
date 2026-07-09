@@ -359,7 +359,7 @@ internal sealed class AAAAManagerJobCompField(
         }
 
         ColonyManagerReduxMod.Instance.LogErrorOnce(
-            $"[AAAAManagerJobComp] Field '{props.jobAreaFieldName}' on job '{parent.Def.defName}' "
+            $"[AAAAManagerJobComp] Field '{fieldName}' on job '{parent.Def.defName}' "
                 + $"is of type {field.FieldType.Name}, but this field expects a boolean value.",
             ref hasReportedInvalidBooleanFieldType.RefValue
         );
