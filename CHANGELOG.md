@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - In the mod settings, the adjustment buttons for building a custom update interval now stay right-aligned instead of shifting left or right as the duration text next to them changes width.
+- Mining jobs with "avoid dividing rooms" enabled should run faster when scanning maps with lots of mining/deconstruction candidates. The room-division safety check no longer redoes its (potentially expensive) pathfinding from scratch for every candidate on every scan.
 
 ### Fixed
 

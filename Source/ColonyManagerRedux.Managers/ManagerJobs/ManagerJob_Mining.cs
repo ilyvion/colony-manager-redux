@@ -883,6 +883,16 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
     private const float MaxPathCost = 500f;
 
+    // Room-divider status rarely changes tick-to-tick (it only changes when
+    // walls/doors are built or removed nearby), but this method is called
+    // repeatedly for the same cells across scan passes. A short-lived,
+    // per-cell TTL cache avoids re-running up to 28 pathfinds per candidate
+    // on every pass, mirroring the TTL caching used elsewhere (e.g.
+    // Utilities_Livestock's per-pawn caches) rather than a fully
+    // invalidation-tracked grid.
+    private const int RoomDividerCacheTicks = 2000;
+    private readonly Dictionary<IntVec3, CachedValue<bool>> _roomDividerCache = [];
+
     public bool IsARoomDivider(Thing target)
     {
         if (!CheckRoomDivision)
@@ -890,8 +900,33 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             return false;
         }
 
+        var position = target.Position;
+        if (
+            _roomDividerCache.TryGetValue(position, out var cachedValue)
+            && cachedValue.TryGetValue(out var cached)
+        )
+        {
+            return cached;
+        }
+
+        var result = ComputeIsARoomDivider(position);
+
+        if (cachedValue != null)
+        {
+            _ = cachedValue.Update(result);
+        }
+        else
+        {
+            _roomDividerCache.Add(position, new CachedValue<bool>(result, RoomDividerCacheTicks));
+        }
+
+        return result;
+    }
+
+    private bool ComputeIsARoomDivider(IntVec3 position)
+    {
         var adjacent = GenAdjFast
-            .AdjacentCells8Way(target.Position)
+            .AdjacentCells8Way(position)
             .Where(c =>
                 c.InBounds(Manager.map) && !c.Fogged(Manager.map) && !c.Impassable(Manager.map)
             )
