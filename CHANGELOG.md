@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 -   Fixed a potential crash for manager jobs added by other mods that don't attach any extra job components.
 -   Importing jobs would attach them to whichever map was currently active instead of the map whose manager tab you opened the import dialog from, if you switched maps while the import dialog was still open.
 -   The livestock manager was quietly accumulating a small memory leak the longer you kept playing: internal caches used to speed up master/milking/shearing/follower lookups kept an entry for every animal or colonist ever tracked, even after they died, instead of cleaning those up. They're now pruned periodically so long play sessions don't keep growing in memory usage from this.
+-   In the mod settings, deleting a custom update interval from the list could cause the entry right below it to briefly not show up until you reopened the settings menu.
 
 ## [0.14.6] - 2026-04-03
 

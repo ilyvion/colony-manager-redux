@@ -827,6 +827,7 @@ public class Settings : ModSettings
             )
             {
                 _customUpdateIntervalTickList.RemoveAt(i);
+                i--;
                 SoundDefOf.Tick_Low.PlayOneShotOnCamera();
             }
         }
