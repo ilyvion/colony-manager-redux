@@ -201,6 +201,7 @@ internal sealed class AAAAManagerJobCompField(
             }
             else
             {
+                var originalAreas = jobAreaCollection.ToList();
                 try
                 {
                     jobAreaCollection.Clear();
@@ -215,6 +216,25 @@ internal sealed class AAAAManagerJobCompField(
                         $"[AAAAManagerJobComp] Error while changing job area for '{parent.Def.defName}' using field {jobAreaField.Name}",
                         ex
                     );
+
+                    // The collection may have been left partially cleared/filled by the
+                    // failed swap above; restore it to its pre-swap contents so later
+                    // "return to normal" logic doesn't operate on corrupted state.
+                    try
+                    {
+                        jobAreaCollection.Clear();
+                        foreach (var originalArea in originalAreas)
+                        {
+                            jobAreaCollection.Add(originalArea);
+                        }
+                    }
+                    catch (Exception restoreEx)
+                    {
+                        ColonyManagerReduxMod.Instance.LogException(
+                            $"[AAAAManagerJobComp] Error while restoring job area for '{parent.Def.defName}' using field {jobAreaField.Name} after a failed change",
+                            restoreEx
+                        );
+                    }
                 }
             }
         }
