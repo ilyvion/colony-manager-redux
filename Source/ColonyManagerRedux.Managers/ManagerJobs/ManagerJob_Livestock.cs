@@ -745,6 +745,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         // otherwise, assign a master that has the least amount of current followers.
+        // forceRefresh is intentional: a stale cache here caused masters to be picked based on
+        // outdated follower counts, unevenly piling animals onto the same master (fixes #24).
         return options.MinBy(p => p.GetFollowers(forceRefresh: true).Count);
     }
 
