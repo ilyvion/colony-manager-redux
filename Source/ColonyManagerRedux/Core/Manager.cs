@@ -2,6 +2,8 @@
 // Copyright Karel Kroeze, 2018-2020
 // Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace ColonyManagerRedux;
 
 /// <summary>
@@ -145,9 +147,10 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     /// <param name="manager">The <see cref="Manager"/> instance to convert.</param>
     /// <returns>The <see cref="Map"/> associated with the manager, or <c>null</c> if the manager is <c>null</c>.</returns>
-    public static implicit operator Map(Manager manager)
+    [return: NotNullIfNotNull(nameof(manager))]
+    public static implicit operator Map?(Manager? manager)
     {
-        return manager?.map!;
+        return manager?.map;
     }
 
     /// <summary>
