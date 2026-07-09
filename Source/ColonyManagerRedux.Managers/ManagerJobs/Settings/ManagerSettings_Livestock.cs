@@ -323,7 +323,7 @@ internal sealed class PawnKindSettings : IExposable
             pos.y += ListEntryHeight;
 
             var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
-            DefaultAvoidCullingMilkableThreshold = GUI.HorizontalSlider(
+            DefaultAvoidCullingMilkableThreshold = Widgets.HorizontalSlider(
                 sliderRect,
                 DefaultAvoidCullingMilkableThreshold,
                 0,
@@ -354,7 +354,7 @@ internal sealed class PawnKindSettings : IExposable
             pos.y += ListEntryHeight;
 
             var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
-            DefaultAvoidCullingShearableThreshold = GUI.HorizontalSlider(
+            DefaultAvoidCullingShearableThreshold = Widgets.HorizontalSlider(
                 sliderRect,
                 DefaultAvoidCullingShearableThreshold,
                 0,

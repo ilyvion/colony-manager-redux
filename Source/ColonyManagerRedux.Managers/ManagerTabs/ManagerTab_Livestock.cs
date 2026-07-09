@@ -1007,7 +1007,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 pos.y += ListEntryHeight;
 
                 var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
-                job.AvoidCullingMilkableThreshold = GUI.HorizontalSlider(
+                job.AvoidCullingMilkableThreshold = Widgets.HorizontalSlider(
                     sliderRect,
                     job.AvoidCullingMilkableThreshold,
                     0,
@@ -1038,7 +1038,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 pos.y += ListEntryHeight;
 
                 var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
-                job.AvoidCullingShearableThreshold = GUI.HorizontalSlider(
+                job.AvoidCullingShearableThreshold = Widgets.HorizontalSlider(
                     sliderRect,
                     job.AvoidCullingShearableThreshold,
                     0,

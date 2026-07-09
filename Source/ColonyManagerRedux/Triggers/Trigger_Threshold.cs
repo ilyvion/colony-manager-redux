@@ -472,7 +472,8 @@ public sealed class Trigger_Threshold : Trigger
             ref countAllOnMap,
             true
         );
-        targetCount = (int)GUI.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
+        targetCount = (int)
+            Widgets.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
     }
 
     /// <inheritdoc />

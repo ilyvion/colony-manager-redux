@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adjusting a gene bias slider in the animal genetics settings could cause the other genes' sliders to no longer add up to a full 100% share over repeated adjustments, subtly skewing which genes got preference over time. Rebalancing now keeps the full set of sliders summing to 100% correctly.
 - Threshold jobs with a hit points filter set (e.g. "count only items above 75% condition") were counting items backwards: damaged items matching the filter were skipped, while items that didn't match were counted. Stockpile counts using an HP filter should now reflect the items you actually configured it to count.
 - Custom update interval durations shown in the mod settings could silently drop smaller units once a bigger one was involved — e.g. displaying "1 year, 2 quadrums" when the actual interval was 1 year, 2 quadrums, 3 days, and 4 hours. Durations are now shown in full so you can always tell exactly what interval you've configured.
+- Slider widgets no longer lag when rendering.
 
 ## [0.14.7] - 2026-07-09
 

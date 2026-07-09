@@ -10,6 +10,8 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
 {
+    private const string TargetCountControlName = "WindowTriggerThresholdDetails_TargetCount";
+
     private string _input = "";
     private readonly Trigger_Threshold _trigger = trigger;
 
@@ -129,6 +131,14 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         buttonRect.x += Constants.SmallIconSize + Constants.Margin;
         buttonRect.x = buttonRect.xMax + Margin;
 
+        // if the field isn't being edited, re-sync it from the trigger so it picks up
+        // changes made elsewhere (e.g. the slider drawn on the main tab) instead of
+        // silently overwriting them with a stale cached value below
+        if (GUI.GetNameOfFocusedControl() != TargetCountControlName)
+        {
+            _input = _trigger.TargetCount.ToString(CultureInfo.InvariantCulture);
+        }
+
         // if current input is invalid color the element red
         var oldColor = GUI.color;
         if (int.TryParse(_input, out var value))
@@ -145,6 +155,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw the input field
+        GUI.SetNextControlName(TargetCountControlName);
         _input = Widgets.TextField(buttonRect, _input);
         TooltipHandler.TipRegion(buttonRect, opTooltip);
         GUI.color = oldColor;
