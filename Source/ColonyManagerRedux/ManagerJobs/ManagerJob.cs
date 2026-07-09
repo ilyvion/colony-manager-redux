@@ -97,6 +97,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     private int _updateIntervalScribe;
 
     private int _loadID = -1;
+    internal int LoadID => _loadID;
     private bool isManaged;
 
     private Trigger? _trigger;

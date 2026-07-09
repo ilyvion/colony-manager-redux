@@ -408,9 +408,10 @@ public class Manager : MapComponent, ILoadReferenceable
         if (Scribe.mode == LoadSaveMode.LoadingVars && !_wasLoaded)
         {
             ColonyManagerReduxMod.Instance.LogWarning(
-                "Getting next unique manager job ID during LoadingVars before Manager was loaded. Assigning a random value."
+                "Getting next unique manager job ID during LoadingVars before Manager was "
+                    + "loaded. Searching for an unused ID."
             );
-            return Rand.Int;
+            return GetUnusedManagerJobID();
         }
         if (Scribe.mode == LoadSaveMode.Saving)
         {
@@ -423,11 +424,25 @@ public class Manager : MapComponent, ILoadReferenceable
         if (_nextManagerJobID == int.MaxValue)
         {
             ColonyManagerReduxMod.Instance.LogWarning(
-                "Next manager job ID is at max value. Resetting to 0. This may cause bugs."
+                "Next manager job ID is at max value. Searching for an unused ID."
             );
-            _nextManagerJobID = 0;
+            _nextManagerJobID = GetUnusedManagerJobID();
         }
         return result;
+    }
+
+    // Finds the lowest ID not currently in use by any tracked job, so IDs assigned outside the
+    // normal incrementing counter (e.g. during a loading race, or after the counter overflows)
+    // can't collide with an existing job's load ID.
+    private int GetUnusedManagerJobID()
+    {
+        var usedIDs = JobTracker.Jobs.Select(job => job.LoadID).ToHashSet();
+        var candidate = 0;
+        while (usedIDs.Contains(candidate))
+        {
+            candidate++;
+        }
+        return candidate;
     }
 
     /// <summary>

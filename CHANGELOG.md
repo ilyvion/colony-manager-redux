@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed an AAAA-integration error log that named the wrong field when warning about a misconfigured boolean field, which could send anyone troubleshooting a bad AAAA patch chasing the wrong setting.
 - If AAAA area-evacuation hit an unexpected error partway through swapping a job's allowed areas, the job could be left with an incomplete, corrupted set of allowed areas instead of either the old or new set. It's now restored to its previous areas if the swap fails.
 - Hardened code against buggy manager-related mod code so a job, tab, or component can no longer crash the whole mod: creating a new job or tab, loading/finalizing a save, deleting a job, sending jobs through a gravship takeoff/landing, and refreshing job lists after your colonist roster changes will now log the error and continue instead of crashing. Fixes [#12](https://github.com/ilyvion/colony-manager-redux/issues/12).
+- Hardened the internal ID assignment jobs use for save/load: two safety-net cases (an ID being requested before a manager had properly finished loading, and the internal ID counter wrapping back around to 0 after an extremely long time) could previously have handed out a duplicate ID, which risked a job failing to load correctly on a future save/reload. Neither case is known to occur in normal play, but both are now handled by finding a genuinely unused ID instead.
 
 ## [0.14.7] - 2026-07-09
 
