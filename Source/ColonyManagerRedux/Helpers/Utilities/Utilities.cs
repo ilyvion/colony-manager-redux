@@ -209,7 +209,11 @@ public static class Utilities
                         }
                     }
 
-                    if (filter.AllowedHitPointsPercents.IncludesEpsilon(t.HitPoints))
+                    if (
+                        !filter.AllowedHitPointsPercents.IncludesEpsilon(
+                            (float)t.HitPoints / t.MaxHitPoints
+                        )
+                    )
                     {
                         continue;
                     }

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Adjusting a gene bias slider in the animal genetics settings could cause the other genes' sliders to no longer add up to a full 100% share over repeated adjustments, subtly skewing which genes got preference over time. Rebalancing now keeps the full set of sliders summing to 100% correctly.
+- Threshold jobs with a hit points filter set (e.g. "count only items above 75% condition") were counting items backwards: damaged items matching the filter were skipped, while items that didn't match were counted. Stockpile counts using an HP filter should now reflect the items you actually configured it to count.
 
 ## [0.14.7] - 2026-07-09
 
