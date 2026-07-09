@@ -161,6 +161,12 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var animalDef in allAnimals)
         {
+            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                rowRect.y += ListEntryHeight;
+                continue;
+            }
+
             var toggleRect = rowRect;
 
             if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)

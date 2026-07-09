@@ -172,6 +172,12 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var plantDef in allPlants)
         {
+            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                rowRect.y += ListEntryHeight;
+                continue;
+            }
+
             var toggleRect = rowRect;
 
             if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)

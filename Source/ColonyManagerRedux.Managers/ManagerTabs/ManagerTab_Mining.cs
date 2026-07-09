@@ -81,6 +81,12 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var building in allBuildings)
         {
+            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                rowRect.y += ListEntryHeight;
+                continue;
+            }
+
             var toggleRect = rowRect;
 
             if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
@@ -151,6 +157,12 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var mineral in SelectedMiningJob.AllMinerals)
         {
+            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                rowRect.y += ListEntryHeight;
+                continue;
+            }
+
             var toggleRect = rowRect;
 
             if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)

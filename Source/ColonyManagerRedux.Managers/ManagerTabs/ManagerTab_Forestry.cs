@@ -339,6 +339,12 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         foreach (var plantDef in SelectedForestryJob.AllPlants)
         {
+            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                rowRect.y += ListEntryHeight;
+                continue;
+            }
+
             var toggleRect = rowRect;
 
             if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)

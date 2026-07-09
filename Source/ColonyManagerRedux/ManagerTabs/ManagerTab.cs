@@ -739,6 +739,12 @@ public abstract class ManagerTab(Manager manager)
 
     private readonly ScrollViewStatus _jobListScrollViewStatus = new();
 
+    // Row heights are variable (depend on each job's comps), so a row's height can only be
+    // measured by actually drawing it. Cache the last measured height per job so that, on
+    // later frames, off-screen rows can be culled without drawing them; rows we haven't
+    // measured yet are never culled, so their real height gets established on first draw.
+    private readonly Dictionary<int, float> _jobRowHeights = [];
+
     /// <summary>
     /// Draws the job list UI for the manager tab.
     /// </summary>
@@ -755,45 +761,61 @@ public abstract class ManagerTab(Manager manager)
 
         foreach (var job in ManagerJobs)
         {
-            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, 0f);
-            DrawLocalListEntry(job, ref cur, scrollView.ViewRect.width, null);
+            var estimatedHeight = _jobRowHeights.TryGetValue(job.LoadID, out var cachedHeight)
+                ? cachedHeight
+                : float.MaxValue;
+            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, estimatedHeight);
 
-            row.height = cur.y - row.y;
-
-            Widgets.DrawHighlightIfMouseover(row);
-            if (Selected == job)
+            if (!scrollView.CanCull(row.height, cur.y))
             {
-                Widgets.DrawHighlightSelected(row);
-            }
+                DrawLocalListEntry(job, ref cur, scrollView.ViewRect.width, null);
 
-            if (i++ % 2 == 1)
-            {
-                Widgets.DrawAltRect(row);
-            }
+                row.height = cur.y - row.y;
+                _jobRowHeights[job.LoadID] = row.height;
 
-            if (job.CausedException is Exception ex)
-            {
-                Widgets.DrawBox(row, 2, Resources.Error);
-
-                TooltipHandler.TipRegion(
-                    row,
-                    new TipSignal(
-                        "ColonyManagerRedux.Job.CausedException".Translate(job.CausedExceptionText)
-                    )
-                );
-            }
-
-            if (Widgets.ButtonInvisible(row))
-            {
-                if (Selected != job)
+                Widgets.DrawHighlightIfMouseover(row);
+                if (Selected == job)
                 {
-                    Selected = job;
+                    Widgets.DrawHighlightSelected(row);
                 }
-                else if (AllowJobDeselect)
+
+                if (i % 2 == 1)
                 {
-                    Selected = null;
+                    Widgets.DrawAltRect(row);
+                }
+
+                if (job.CausedException is Exception ex)
+                {
+                    Widgets.DrawBox(row, 2, Resources.Error);
+
+                    TooltipHandler.TipRegion(
+                        row,
+                        new TipSignal(
+                            "ColonyManagerRedux.Job.CausedException".Translate(
+                                job.CausedExceptionText
+                            )
+                        )
+                    );
+                }
+
+                if (Widgets.ButtonInvisible(row))
+                {
+                    if (Selected != job)
+                    {
+                        Selected = job;
+                    }
+                    else if (AllowJobDeselect)
+                    {
+                        Selected = null;
+                    }
                 }
             }
+            else
+            {
+                cur.y += estimatedHeight;
+            }
+
+            i++;
         }
 
         scrollView.Height = cur.y;

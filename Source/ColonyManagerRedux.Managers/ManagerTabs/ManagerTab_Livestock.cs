@@ -674,6 +674,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             // set up rect
             var row = new Rect(0f, LargeListEntryHeight * i, viewRect.width, LargeListEntryHeight);
 
+            if (row.yMax < _scrollPosition.y || row.y > _scrollPosition.y + rect.height)
+            {
+                continue;
+            }
+
             // highlights
             Widgets.DrawHighlightIfMouseover(row);
             if (i % 2 == 0)

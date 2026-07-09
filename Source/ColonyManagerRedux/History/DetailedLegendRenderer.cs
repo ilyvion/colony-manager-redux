@@ -169,6 +169,11 @@ public class DetailedLegendRenderer : IExposable
                 height
             );
 
+            if (row.yMax < scrollPos.y || row.y > scrollPos.y + canvas.height)
+            {
+                continue;
+            }
+
             IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             {
                 Widgets.DrawRectFast(row, ColorLibrary.Red.ToTransparent(.5f));

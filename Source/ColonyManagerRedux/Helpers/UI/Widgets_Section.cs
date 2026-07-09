@@ -16,6 +16,8 @@ public static class Widgets_Section
 {
     private static readonly Dictionary<string, float> _columnHeights = [];
     private static readonly Dictionary<string, Vector2> _columnScrollPositions = [];
+    private static readonly Dictionary<string, float> _columnViewportHeights = [];
+    private static string? _activeColumnIdentifier;
 
     private static readonly Dictionary<int, float> _heights = [];
 
@@ -36,6 +38,8 @@ public static class Widgets_Section
         var height = GetHeight(identifier);
         var scrollPosition = GetScrollPosition(identifier);
         var outRect = canvas.ContractedBy(Margin).RoundToInt();
+        _columnViewportHeights[identifier] = outRect.height;
+        _activeColumnIdentifier = identifier;
         var viewRect = new Rect(outRect.xMin, outRect.yMin, outRect.width, height);
         if (viewRect.height > outRect.height)
         {
@@ -65,6 +69,30 @@ public static class Widgets_Section
         Widgets.EndScrollView();
 
         _columnHeights[identifier] = position.y;
+        _activeColumnIdentifier = null;
+    }
+
+    /// <summary>
+    /// Determines whether an entry at the given position within the currently active section
+    /// column falls entirely outside the visible scroll viewport, and can therefore skip its
+    /// (potentially expensive) drawing work. Callers must still advance their layout position by
+    /// <paramref name="entryHeight"/> as if the entry had been drawn, so that later entries and
+    /// the column's total height remain correct.
+    /// </summary>
+    /// <param name="entryY">The entry's y position, in the same space as the position passed to
+    /// a section's drawer function.</param>
+    /// <param name="entryHeight">The entry's height.</param>
+    public static bool CanCull(float entryY, float entryHeight)
+    {
+        if (_activeColumnIdentifier is not string identifier)
+        {
+            return false;
+        }
+
+        var scrollPosition = _columnScrollPositions[identifier];
+        var viewportHeight = _columnViewportHeights[identifier];
+        return entryY + entryHeight < scrollPosition.y
+            || entryY > scrollPosition.y + viewportHeight;
     }
 
     /// <summary>
