@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The livestock manager was quietly accumulating a small memory leak the longer you kept playing: internal caches used to speed up master/milking/shearing/follower lookups kept an entry for every animal or colonist ever tracked, even after they died, instead of cleaning those up. They're now pruned periodically so long play sessions don't keep growing in memory usage from this.
 - In the mod settings, deleting a custom update interval from the list could cause the entry right below it to briefly not show up until you reopened the settings menu.
 - Deep drill mining jobs would stop managing newly built deep drills once the resource quota was already met: any drill placed on a fresh deposit after that point would keep running instead of being switched off, letting stockpiles overshoot the quota until it dropped back below target on its own. Fixes [#35](https://github.com/ilyvion/colony-manager-redux/issues/35).
+- Livestock "send to culling area" was moving the entire herd of a given age/sex group into the culling area, including bonded pets, pregnant animals, and milkers/shearers you'd explicitly told it to avoid culling — instead of only the specific animals actually selected for culling. Fixes [#33](https://github.com/ilyvion/colony-manager-redux/issues/33).
 
 ## [0.14.6] - 2026-04-03
 

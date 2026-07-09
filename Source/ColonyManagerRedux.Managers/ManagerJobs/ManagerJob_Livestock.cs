@@ -1038,7 +1038,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 }
 
                 // culling
-                if (SendToCullingArea)
+                if (SendToCullingArea && CullingStrategyAction.IsAlreadyCulling(animal))
                 {
                     workDone.Value |= currentArea != CullingArea;
                     SetArea(CullingArea);
