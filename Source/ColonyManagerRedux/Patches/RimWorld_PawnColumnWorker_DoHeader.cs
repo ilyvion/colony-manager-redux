@@ -103,9 +103,11 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
 
             _ = codeMatcher.RemoveInstruction();
 
-            _ = codeMatcher.Insert(
-                [new(OpCodes.Ldarg_2), new(OpCodes.Ldarg_0), new(OpCodes.Callvirt, Action_Invoke)]
-            );
+            _ = codeMatcher.Insert([
+                new(OpCodes.Ldarg_2),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Callvirt, Action_Invoke),
+            ]);
 
             _ = codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Ldloc_0);
             if (!codeMatcher.IsValid)
@@ -184,9 +186,11 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
 
             _ = codeMatcher.RemoveInstruction();
 
-            _ = codeMatcher.Insert(
-                [new(OpCodes.Ldarg_2), new(OpCodes.Ldarg_0), new(OpCodes.Callvirt, Action_Invoke2)]
-            );
+            _ = codeMatcher.Insert([
+                new(OpCodes.Ldarg_2),
+                new(OpCodes.Ldarg_0),
+                new(OpCodes.Callvirt, Action_Invoke2),
+            ]);
 
             _ = codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Stloc_3);
             if (!codeMatcher.IsValid)

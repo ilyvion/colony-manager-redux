@@ -292,8 +292,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             ManagerJobComp? managerJobComp = null;
             try
             {
-                managerJobComp = (ManagerJobComp)
-                    Activator.CreateInstance(compProperties.compClass);
+                managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
                 managerJobComp.Parent = this;
                 _comps.Add(managerJobComp);
                 managerJobComp.InitializeInt(compProperties);

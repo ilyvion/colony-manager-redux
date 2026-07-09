@@ -259,20 +259,18 @@ public partial class History : IExposable
 
         var sign = negativeOnly ? -1 : 1;
 
-        graphRenderer ??= new(
-            [
-                .. _chapters.Select(c =>
+        graphRenderer ??= new([
+            .. _chapters.Select(c =>
+            {
+                c.GraphSeries ??= new GraphSeries()
                 {
-                    c.GraphSeries ??= new GraphSeries()
-                    {
-                        Color = c.LineColor,
-                        Label = c.label.Label,
-                        UnitLabel = c.ChapterSuffix ?? "",
-                    };
-                    return c.GraphSeries;
-                }),
-            ]
-        )
+                    Color = c.LineColor,
+                    Label = c.label.Label,
+                    UnitLabel = c.ChapterSuffix ?? "",
+                };
+                return c.GraphSeries;
+            }),
+        ])
         {
             LegendLabel = "ColonyManagerRedux.History.Legend".Translate(),
             NoDataLabel = "ColonyManagerRedux.History.NoChapters".Translate(),
