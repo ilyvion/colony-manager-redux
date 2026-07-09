@@ -710,6 +710,13 @@ public class Settings : ModSettings
     private const int DefaultCustomUpdateIntervalTicks = GenDate.TicksPerDay;
     private int _addCustomUpdateIntervalTicks = DefaultCustomUpdateIntervalTicks;
 
+    private static readonly (string Unit, int TicksPerUnit)[] _customUpdateIntervalUnits =
+    [
+        ("Hour", GenDate.TicksPerHour),
+        ("Day", GenDate.TicksPerDay),
+        ("Year", GenDate.TicksPerYear),
+    ];
+
     private float DrawCustomUpdateIntervals(Vector2 pos, float width)
     {
         var start = pos;
@@ -726,68 +733,29 @@ public class Settings : ModSettings
         {
             _addCustomUpdateIntervalTicks = 0;
         }
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByHour".Translate(),
-                ref rowPos
-            )
-        )
+        foreach (var (unit, ticksPerUnit) in _customUpdateIntervalUnits)
         {
-            _addCustomUpdateIntervalTicks = Mathf.Max(
-                0,
-                _addCustomUpdateIntervalTicks - GenDate.TicksPerHour
-            );
-        }
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByHour".Translate(),
-                ref rowPos
+            if (
+                RowButton(
+                    $"ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalBy{unit}".Translate(),
+                    ref rowPos
+                )
             )
-        )
-        {
-            _addCustomUpdateIntervalTicks += GenDate.TicksPerHour;
-        }
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByDay".Translate(),
-                ref rowPos
+            {
+                _addCustomUpdateIntervalTicks = Mathf.Max(
+                    0,
+                    _addCustomUpdateIntervalTicks - ticksPerUnit
+                );
+            }
+            if (
+                RowButton(
+                    $"ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalBy{unit}".Translate(),
+                    ref rowPos
+                )
             )
-        )
-        {
-            _addCustomUpdateIntervalTicks = Mathf.Max(
-                0,
-                _addCustomUpdateIntervalTicks - GenDate.TicksPerDay
-            );
-        }
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByDay".Translate(),
-                ref rowPos
-            )
-        )
-        {
-            _addCustomUpdateIntervalTicks += GenDate.TicksPerDay;
-        }
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalByYear".Translate(),
-                ref rowPos
-            )
-        )
-        {
-            _addCustomUpdateIntervalTicks = Mathf.Max(
-                0,
-                _addCustomUpdateIntervalTicks - GenDate.TicksPerYear
-            );
-        }
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalByYear".Translate(),
-                ref rowPos
-            )
-        )
-        {
-            _addCustomUpdateIntervalTicks += GenDate.TicksPerYear;
+            {
+                _addCustomUpdateIntervalTicks += ticksPerUnit;
+            }
         }
         rowPos.x += Margin;
         if (
