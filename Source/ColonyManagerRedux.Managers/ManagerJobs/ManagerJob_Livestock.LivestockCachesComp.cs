@@ -8,6 +8,12 @@ internal partial class ManagerJob_Livestock
 {
     public sealed class LivestockCachesComp : ManagerComp
     {
+        // Dead/despawned pawns used as dictionary keys below are never removed by the normal
+        // cache refresh logic (that only trims the *values*), so without this the dictionaries
+        // grow for as long as the game session lasts, and keep dead Pawn objects alive in memory.
+        private const int PruneIntervalTicks = 5000;
+        private int _lastPruneTick = -PruneIntervalTicks;
+
         internal readonly CachedValues<(PawnKindDef, int), List<Pawn>> AllCache = new(5);
 
         internal readonly CachedValues<(PawnKindDef, int, AgeAndSex), List<Pawn>> AllSexedCache =
@@ -35,6 +41,42 @@ internal partial class ManagerJob_Livestock
 
         internal readonly CachedValues<(PawnKindDef, int, AgeAndSex), List<Pawn>> WildSexedCache =
             new(5);
+
+        public override void CompTick()
+        {
+            var currentTick = Find.TickManager.TicksGame;
+            if (currentTick - _lastPruneTick < PruneIntervalTicks)
+            {
+                return;
+            }
+            _lastPruneTick = currentTick;
+
+            PruneDeadPawns(FollowerCache);
+            PruneDeadPawns(MilkablePawnCache);
+            PruneDeadPawns(ShearablePawnCache);
+        }
+
+        private static void PruneDeadPawns<TValue>(Dictionary<Pawn, TValue> cache)
+        {
+            List<Pawn>? deadKeys = null;
+            foreach (var pawn in cache.Keys)
+            {
+                if (pawn.DestroyedOrNull() || pawn.Dead)
+                {
+                    (deadKeys ??= []).Add(pawn);
+                }
+            }
+
+            if (deadKeys == null)
+            {
+                return;
+            }
+
+            foreach (var pawn in deadKeys)
+            {
+                _ = cache.Remove(pawn);
+            }
+        }
     }
 }
 
