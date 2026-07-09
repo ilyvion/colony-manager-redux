@@ -174,6 +174,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
                 Find.WindowStack.Add(
                     new Dialog_ImportJobs(
+                        Manager,
                         exportedJobs,
                         (count) =>
                         {

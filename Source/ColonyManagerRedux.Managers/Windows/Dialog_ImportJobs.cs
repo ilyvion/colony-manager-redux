@@ -8,6 +8,7 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 internal sealed class Dialog_ImportJobs : Window
 {
+    private readonly Manager _manager;
     private readonly Action<int>? _onImport;
     private readonly List<ManagerJob> _jobs;
     private readonly List<MultiCheckboxState> _selectedJobs;
@@ -19,8 +20,9 @@ internal sealed class Dialog_ImportJobs : Window
     private IEnumerable<ManagerJob> SelectedJobs =>
         _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
 
-    public Dialog_ImportJobs(List<ManagerJob> jobs, Action<int>? onImport = null)
+    public Dialog_ImportJobs(Manager manager, List<ManagerJob> jobs, Action<int>? onImport = null)
     {
+        _manager = manager;
         _jobs = jobs;
         _selectedJobs = [.. jobs.Select(_ => MultiCheckboxState.On)];
 
@@ -191,7 +193,7 @@ internal sealed class Dialog_ImportJobs : Window
         {
             jobCount++;
             job.PreImport();
-            Manager.For(Find.CurrentMap).JobTracker.Add(job);
+            _manager.JobTracker.Add(job);
             job.PostImportInt();
         }
         _onImport?.Invoke(jobCount);
