@@ -7,16 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.7] - 2026-07-09
+
 ### Fixed
 
-- Mining jobs using a threshold type other than "at least" (e.g. "exactly", "more than", or "not equal to") would keep removing haul-to-storage designations for mined chunks well past the intended target count, since the check that stops removal only understood "at least" thresholds.
+- Mining jobs using a threshold type other than 'at least' (e.g. 'exactly', 'more than', or 'not equal to') would keep removing haul-to-storage designations for mined chunks well past the intended target count, since the check that stops removal only understood 'at least' thresholds.
 - The power manager could crash (or silently drop a valid power trader/battery building) after removing the last building of a given type, or after a mod list change reduced the number of relevant building types, due to an off-by-one error when trimming its internal building lists.
 - Fixed a potential crash for manager jobs added by other mods that don't attach any extra job components.
 - Importing jobs would attach them to whichever map was currently active instead of the map whose manager tab you opened the import dialog from, if you switched maps while the import dialog was still open.
 - The livestock manager was quietly accumulating a small memory leak the longer you kept playing: internal caches used to speed up master/milking/shearing/follower lookups kept an entry for every animal or colonist ever tracked, even after they died, instead of cleaning those up. They're now pruned periodically so long play sessions don't keep growing in memory usage from this.
 - In the mod settings, deleting a custom update interval from the list could cause the entry right below it to briefly not show up until you reopened the settings menu.
 - Deep drill mining jobs would stop managing newly built deep drills once the resource quota was already met: any drill placed on a fresh deposit after that point would keep running instead of being switched off, letting stockpiles overshoot the quota until it dropped back below target on its own. Fixes [#35](https://github.com/ilyvion/colony-manager-redux/issues/35).
-- Livestock "send to culling area" was moving the entire herd of a given age/sex group into the culling area, including bonded pets, pregnant animals, and milkers/shearers you'd explicitly told it to avoid culling — instead of only the specific animals actually selected for culling. Fixes [#33](https://github.com/ilyvion/colony-manager-redux/issues/33).
+- Livestock 'send to culling area' was moving the entire herd of a given age/sex group into the culling area, including bonded pets, pregnant animals, and milkers/shearers you'd explicitly told it to avoid culling — instead of only the specific animals actually selected for culling. Fixes [#33](https://github.com/ilyvion/colony-manager-redux/issues/33).
 
 ## [0.14.6] - 2026-04-03
 
@@ -509,7 +511,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.6...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.7...HEAD
+[0.14.7]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.6..v0.14.7
 [0.14.6]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.5..v0.14.6
 [0.14.5]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.4..v0.14.5
 [0.14.4]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.3..v0.14.4
