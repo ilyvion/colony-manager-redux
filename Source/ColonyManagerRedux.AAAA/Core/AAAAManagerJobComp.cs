@@ -373,8 +373,11 @@ internal sealed class AAAAManagerJobCompField(
             .FirstOrDefault(area =>
                 Regex.IsMatch(
                     area.Label,
-                    (previousArea == null ? "NoAreaAllowed".Translate() : previousArea.Label)
-                        + Utility.GetSuffix,
+                    Regex.Escape(
+                        previousArea == null
+                            ? "NoAreaAllowed".Translate().ToString()
+                            : previousArea.Label
+                    ) + Utility.GetSuffix,
                     RegexOptions.IgnoreCase | RegexOptions.ECMAScript
                 )
             );
