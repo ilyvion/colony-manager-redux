@@ -1045,6 +1045,14 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
                 CleanUp(jobLog);
             }
+            else if (ControlDeepDrills)
+            {
+                // The quota is still met, but a deep drill placed on a new
+                // deposit after the job completed wouldn't have been caught
+                // by the CleanUp() call above, so keep flicking off any
+                // newly discovered drills here as well.
+                UpdateDeepDrills(jobLog);
+            }
             yield break;
         }
         else
