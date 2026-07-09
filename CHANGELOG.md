@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+-   Mining jobs using a threshold type other than "at least" (e.g. "exactly", "more than", or "not equal to") would keep removing haul-to-storage designations for mined chunks well past the intended target count, since the check that stops removal only understood "at least" thresholds.
+
 ## [0.14.6] - 2026-04-03
 
 ### Fixed

@@ -1485,7 +1485,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 var chunkCount = GetCountInChunk(chunk);
                 count.Value -= chunkCount;
                 if (
-                    count.Value >= TriggerThreshold.TargetCount
+                    TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
                         _designations.Count
                     )
