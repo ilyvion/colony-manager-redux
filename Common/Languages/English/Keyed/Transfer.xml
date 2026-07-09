@@ -10,4 +10,15 @@
     <ColonyManagerRedux.ManagerNoSaves>No exports found.</ColonyManagerRedux.ManagerNoSaves>
     <ColonyManagerRedux.DeleteThisManagerFile>Delete this export file.</ColonyManagerRedux.DeleteThisManagerFile>
     <ColonyManagerRedux.InvalidJob>Cannot import job '{0}' because it has an error.</ColonyManagerRedux.InvalidJob>
+
+    <ColonyManagerRedux.ManagerImportExport.JobSaves>Job saves</ColonyManagerRedux.ManagerImportExport.JobSaves>
+    <ColonyManagerRedux.ManagerImportExport.Templates>Templates</ColonyManagerRedux.ManagerImportExport.Templates>
+    <ColonyManagerRedux.SelectTemplateJobs>Select which jobs to include in the template</ColonyManagerRedux.SelectTemplateJobs>
+    <ColonyManagerRedux.SaveAsTemplate>Save as template</ColonyManagerRedux.SaveAsTemplate>
+    <ColonyManagerRedux.ManagerTemplateSaved>Template saved with {0} jobs</ColonyManagerRedux.ManagerTemplateSaved>
+    <ColonyManagerRedux.ManagerApplyTemplate>Apply</ColonyManagerRedux.ManagerApplyTemplate>
+    <ColonyManagerRedux.ManagerSetTemplateAsDefault>Set as default</ColonyManagerRedux.ManagerSetTemplateAsDefault>
+    <ColonyManagerRedux.ManagerSetTemplateAsDefault.Tip>The default template is automatically applied the first time a manager station is built on a new map, if enabled in the mod settings.</ColonyManagerRedux.ManagerSetTemplateAsDefault.Tip>
+    <ColonyManagerRedux.ManagerTemplateIsDefault>Default ✓</ColonyManagerRedux.ManagerTemplateIsDefault>
+    <ColonyManagerRedux.DefaultTemplateApplied>Applied default job template '{1}': {0} jobs added</ColonyManagerRedux.DefaultTemplateApplied>
 </LanguageData>

@@ -19,8 +19,20 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     private const float RowHeight = 40f;
 
+    private const float ModeBarHeight = 32f;
+
+    private const float MinButtonWidth = 70f;
+
     private const string SaveNameBase = "ManagerJobs_";
     private const string SaveExtension = ".cmr";
+    private const string TemplateNameBase = "Template_";
+
+    private bool _templateMode;
+
+    private string CurrentSaveNameBase => _templateMode ? TemplateNameBase : SaveNameBase;
+
+    private string CurrentSaveExtension =>
+        _templateMode ? ManagerJobTemplates.TemplateExtension : SaveExtension;
 
     private List<SaveFileInfo> _saveFiles = [];
 
@@ -34,23 +46,74 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
     protected override void DoTabContents(Rect canvas)
     {
+        var modeBarRect = new Rect(0f, 0f, canvas.width, ModeBarHeight);
+        DrawModeBar(modeBarRect);
+
+        var contentY = modeBarRect.yMax + Constants.Margin;
+        var contentHeight = canvas.height - contentY;
+
         var loadRect = new Rect(
             0f,
-            0f,
+            contentY,
             (canvas.width - Constants.Margin) * LoadAreaRatio,
-            canvas.height
+            contentHeight
         );
         var saveRect = new Rect(
             loadRect.xMax + Constants.Margin,
-            0f,
+            contentY,
             canvas.width - Constants.Margin - loadRect.width,
-            canvas.height
+            contentHeight
         );
         Widgets.DrawMenuSection(loadRect);
         Widgets.DrawMenuSection(saveRect);
 
         DrawLoadSection(loadRect);
         DrawSaveSection(saveRect);
+    }
+
+    private void DrawModeBar(Rect rect)
+    {
+        var buttonWidth = (rect.width - Constants.Margin) / 2f;
+        var jobSavesRect = new Rect(rect.x, rect.y, buttonWidth, rect.height);
+        var templatesRect = new Rect(
+            jobSavesRect.xMax + Constants.Margin,
+            rect.y,
+            buttonWidth,
+            rect.height
+        );
+
+        if (
+            Widgets.ButtonText(
+                jobSavesRect,
+                "ColonyManagerRedux.ManagerImportExport.JobSaves".Translate()
+            ) && _templateMode
+        )
+        {
+            SetMode(false);
+        }
+        if (
+            Widgets.ButtonText(
+                templatesRect,
+                "ColonyManagerRedux.ManagerImportExport.Templates".Translate()
+            ) && !_templateMode
+        )
+        {
+            SetMode(true);
+        }
+
+        Widgets.DrawBox(_templateMode ? templatesRect : jobSavesRect, 2);
+    }
+
+    private void SetMode(bool templateMode)
+    {
+        if (_templateMode == templateMode)
+        {
+            return;
+        }
+
+        _templateMode = templateMode;
+        _folder = GetSaveLocation();
+        Refresh();
     }
 
     public override void PreOpen()
@@ -88,11 +151,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     {
         // keep adding 1 until we have a new name.
         var i = 1;
-        var name = SaveNameBase + i;
+        var name = CurrentSaveNameBase + i;
         while (SaveExists(name))
         {
             i++;
-            name = SaveNameBase + i;
+            name = CurrentSaveNameBase + i;
         }
 
         return name;
@@ -106,7 +169,10 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         {
             try
             {
-                Scribe.saver.InitSaving(FilePath(name), "ManagerJobs");
+                Scribe.saver.InitSaving(
+                    FilePath(name),
+                    _templateMode ? "ManagerJobTemplate" : "ManagerJobs"
+                );
             }
             catch (Exception ex)
             {
@@ -135,7 +201,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             _ = Manager.SetScribingMode(ScribingMode.Normal);
             Scribe.saver.FinalizeSaving();
             Messages.Message(
-                "ColonyManagerRedux.ManagerJobsExported".Translate(exportJobs.Count),
+                (
+                    _templateMode
+                        ? "ColonyManagerRedux.ManagerTemplateSaved"
+                        : "ColonyManagerRedux.ManagerJobsExported"
+                ).Translate(exportJobs.Count),
                 MessageTypeDefOf.TaskCompletion
             );
             Refresh();
@@ -190,13 +260,49 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         );
     }
 
+    private static float ButtonWidthFor(string label) =>
+        Mathf.Max(MinButtonWidth, Text.CalcSize(label).x + (4 * Constants.Margin));
+
+    private static float ButtonWidthFor(params string[] labels) => labels.Max(ButtonWidthFor);
+
     private void DrawFileEntry(Rect rect, SaveFileInfo file)
     {
         GUI.BeginGroup(rect);
 
+        var templateName = Path.GetFileNameWithoutExtension(file.FileInfo.Name);
+        var isDefaultTemplate =
+            _templateMode && ColonyManagerReduxMod.Settings.DefaultTemplateName == templateName;
+
+        var loadButtonLabel = (
+            _templateMode
+                ? "ColonyManagerRedux.ManagerApplyTemplate"
+                : "ColonyManagerRedux.ManagerImport"
+        ).Translate();
+        var loadButtonWidth = ButtonWidthFor(loadButtonLabel);
+
+        var defaultButtonLabel = (
+            isDefaultTemplate
+                ? "ColonyManagerRedux.ManagerTemplateIsDefault"
+                : "ColonyManagerRedux.ManagerSetTemplateAsDefault"
+        ).Translate();
+        // Use the wider of the two possible labels so the column doesn't shift width between
+        // rows depending on whether that row's template happens to be the default.
+        var defaultButtonWidth = _templateMode
+            ? ButtonWidthFor(
+                "ColonyManagerRedux.ManagerTemplateIsDefault".Translate(),
+                "ColonyManagerRedux.ManagerSetTemplateAsDefault".Translate()
+            )
+            : 0f;
+        var defaultButtonReserve = _templateMode ? defaultButtonWidth + Constants.Margin : 0f;
+
         // set up rects
         var nameRect = rect.AtZero();
-        nameRect.width -= (Prefs.DisableTinyText ? 250f : 200f) + IconSize + (4 * Constants.Margin);
+        nameRect.width -=
+            (Prefs.DisableTinyText ? 150f : 100f)
+            + loadButtonWidth
+            + defaultButtonReserve
+            + IconSize
+            + (4 * Constants.Margin);
         nameRect.xMin += 2 * Constants.Margin;
         var timeRect = new Rect(
             nameRect.xMax + Constants.Margin,
@@ -204,9 +310,20 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             Prefs.DisableTinyText ? 150f : 100f,
             rect.height
         );
-        var buttonRect = new Rect(timeRect.xMax + Constants.Margin, 1f, 100f, rect.height - 2f);
-        var deleteRect = new Rect(
+        var buttonRect = new Rect(
+            timeRect.xMax + Constants.Margin,
+            1f,
+            loadButtonWidth,
+            rect.height - 2f
+        );
+        var defaultRect = new Rect(
             buttonRect.xMax + Constants.Margin,
+            1f,
+            defaultButtonWidth,
+            rect.height - 2f
+        );
+        var deleteRect = new Rect(
+            (_templateMode ? defaultRect.xMax : buttonRect.xMax) + Constants.Margin,
             (rect.height - IconSize) / 2,
             IconSize,
             IconSize
@@ -223,7 +340,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         // name
         Text.Anchor = TextAnchor.MiddleLeft;
         GUI.color = DefaultFileTextColor;
-        Widgets.Label(nameRect, Path.GetFileNameWithoutExtension(file.FileInfo.Name));
+        Widgets.Label(nameRect, templateName);
         GUI.color = Color.white;
         Text.Anchor = TextAnchor.UpperLeft;
 
@@ -234,9 +351,28 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         GUI.color = Color.white;
 
         // load button
-        if (Widgets.ButtonText(buttonRect, "ColonyManagerRedux.ManagerImport".Translate()))
+        if (Widgets.ButtonText(buttonRect, loadButtonLabel))
         {
             TryImport(file);
+        }
+
+        // set-as-default button (templates only)
+        if (_templateMode)
+        {
+            if (
+                IlyvionWidgets.DisableableButtonText(
+                    defaultRect,
+                    defaultButtonLabel,
+                    enabled: !isDefaultTemplate
+                )
+            )
+            {
+                ColonyManagerReduxMod.Settings.DefaultTemplateName = templateName;
+            }
+            TooltipHandler.TipRegionByKey(
+                defaultRect,
+                "ColonyManagerRedux.ManagerSetTemplateAsDefault.Tip"
+            );
         }
 
         // delete button
@@ -254,6 +390,10 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
                     "ConfirmDelete".Translate(file.FileInfo.Name),
                     delegate
                     {
+                        if (isDefaultTemplate)
+                        {
+                            ColonyManagerReduxMod.Settings.DefaultTemplateName = null;
+                        }
                         file.FileInfo.Delete();
                         Refresh();
                     }
@@ -319,7 +459,14 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             30f
         );
 
-        Widgets.Label(infoRect, "ColonyManagerRedux.SelectExportJobs".Translate());
+        Widgets.Label(
+            infoRect,
+            (
+                _templateMode
+                    ? "ColonyManagerRedux.SelectTemplateJobs"
+                    : "ColonyManagerRedux.SelectExportJobs"
+            ).Translate()
+        );
         infoRect.yMin += Constants.ListEntryHeight;
 
         DoJobList(infoRect);
@@ -335,7 +482,11 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         if (
             IlyvionWidgets.DisableableButtonText(
                 buttonRect,
-                "ColonyManagerRedux.ManagerExport".Translate(),
+                (
+                    _templateMode
+                        ? "ColonyManagerRedux.SaveAsTemplate"
+                        : "ColonyManagerRedux.ManagerExport"
+                ).Translate(),
                 enabled: anySelected
             )
         )
@@ -446,16 +597,20 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         position.y += rowRect.height;
     }
 
-    private string FilePath(string name) => _folder + "/" + name + SaveExtension;
+    private string FilePath(string name) => _folder + "/" + name + CurrentSaveExtension;
 
     private List<SaveFileInfo> GetSavedFilesList()
     {
         var directoryInfo = new DirectoryInfo(_folder);
+        if (!directoryInfo.Exists)
+        {
+            return [];
+        }
 
         // raw files
         var files =
             from f in directoryInfo.GetFiles()
-            where f.Extension == SaveExtension
+            where f.Extension == CurrentSaveExtension
             orderby f.LastWriteTime descending
             select f;
 
@@ -481,10 +636,13 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         return saves;
     }
 
-    private static string GetSaveLocation() => GenFilePaths.FolderUnderSaveData("ManagerJobs");
+    private string GetSaveLocation() =>
+        _templateMode
+            ? ManagerJobTemplates.GetTemplateSaveLocation()
+            : GenFilePaths.FolderUnderSaveData("ManagerJobs");
 
     private bool SaveExists(string name) =>
-        _saveFiles.Any(save => save.FileInfo.Name == name + SaveExtension);
+        _saveFiles.Any(save => save.FileInfo.Name == name + CurrentSaveExtension);
 
     private void TryExport(string name)
     {

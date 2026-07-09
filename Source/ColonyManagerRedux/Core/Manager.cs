@@ -27,6 +27,8 @@ public class Manager : MapComponent, ILoadReferenceable
     private bool _hasCheckedAncientDangerRect;
     private CellRect? _ancientDangerRect;
 
+    private bool _hasCheckedDefaultTemplate;
+
     /// <summary>
     /// (Obsolete) Gets the ancient danger rectangle for the map.
     /// This property is obsolete; use <see cref="AncientDangerRects"/> instead.
@@ -172,6 +174,8 @@ public class Manager : MapComponent, ILoadReferenceable
 
         Scribe_Values.Look(ref _hasCheckedAncientDangerRect, "hasCheckedAncientDangerRect", false);
         Scribe_Collections.Look(ref _ancientDangerRects, "ancientDangerRects", LookMode.Value);
+
+        Scribe_Values.Look(ref _hasCheckedDefaultTemplate, "hasCheckedDefaultTemplate", false);
 
         _tmpExposableTabs.AddRange(Tabs.OfType<IExposable>());
         using var _ = new DoOnDispose(_tmpExposableTabs.Clear);
@@ -402,6 +406,44 @@ public class Manager : MapComponent, ILoadReferenceable
     /// A <see cref="Coroutine"/> representing the job execution, or <c>null</c> if no job was executed.
     /// </returns>
     public Coroutine? TryDoWork() => JobTracker.TryDoNextJob();
+
+    /// <summary>
+    /// Applies the configured default manager job template to this map, but only the first time
+    /// it is called for this map (subsequent manager stations built on the same map are ignored).
+    /// Does nothing if auto-applying is disabled, no default template is configured, or the
+    /// configured template no longer exists.
+    /// </summary>
+    internal void TryApplyDefaultTemplateOnFirstManagerStation()
+    {
+        if (_hasCheckedDefaultTemplate)
+        {
+            return;
+        }
+        _hasCheckedDefaultTemplate = true;
+
+        var settings = ColonyManagerReduxMod.Settings;
+        if (!settings.AutoApplyDefaultTemplateOnFirstStation)
+        {
+            return;
+        }
+
+        var templateName = settings.DefaultTemplateName;
+        if (
+            string.IsNullOrEmpty(templateName) || !ManagerJobTemplates.TemplateExists(templateName!)
+        )
+        {
+            return;
+        }
+
+        var count = ManagerJobTemplates.ApplyTemplate(this, templateName!);
+        if (count is int addedCount and > 0)
+        {
+            Messages.Message(
+                "ColonyManagerRedux.DefaultTemplateApplied".Translate(addedCount, templateName),
+                MessageTypeDefOf.TaskCompletion
+            );
+        }
+    }
 
     internal int GetNextManagerJobID()
     {

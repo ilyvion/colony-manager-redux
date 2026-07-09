@@ -16,6 +16,17 @@ public class CompManagerStation : ThingComp
 
     private CoroutineHandle? _handle;
 
+    /// <inheritdoc/>
+    public override void PostSpawnSetup(bool respawningAfterLoad)
+    {
+        base.PostSpawnSetup(respawningAfterLoad);
+
+        if (!respawningAfterLoad)
+        {
+            Manager.For(parent.Map).TryApplyDefaultTemplateOnFirstManagerStation();
+        }
+    }
+
     /// <summary>
     /// Returns extra gizmos for the manager station, including the main manager tab and debug actions.
     /// </summary>

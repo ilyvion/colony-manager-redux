@@ -12,5 +12,6 @@
         <Publicize Include="Assembly-CSharp:RimWorld.MainTabWindow_Architect.forceActivatedCommand" />
         <Publicize Include="Assembly-CSharp:RimWorld.AlertsReadout.activeAlerts" />
         <Publicize Include="Assembly-CSharp:Verse.Designation.Map" />
+        <Publicize Include="Assembly-CSharp:Verse.GenFilePaths.FolderUnderSaveData" />
     </ItemGroup>
 </Project>

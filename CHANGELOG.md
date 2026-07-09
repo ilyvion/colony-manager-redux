@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Mining jobs now have "lock to map" toggles for the allowed minerals and allowed buildings lists, matching Foraging, Forestry, and Hunting. Enable them to only show mineral/building types actually present on the current map instead of every one known to the game.
+- Job templates: the Import/Export manager tab now has a "Templates" mode alongside the existing job saves, letting you save a set of manager jobs as a named, reusable template and apply it to any map later. One template can be marked as the default from either the Templates list or the mod settings; if "automatically apply default template on first manager station" is enabled (on by default), that template's jobs are added automatically the first time a manager station is built on a map, so you don't have to set everything up from scratch in a new colony.
 
 ### Changed
 

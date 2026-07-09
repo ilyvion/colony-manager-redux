@@ -122,6 +122,31 @@ public class Settings : ModSettings
         internal set => _newJobsShouldBeResourceLocked = value;
     }
 
+    private bool _autoApplyDefaultTemplateOnFirstStation = true;
+
+    /// <summary>
+    /// Gets whether the configured default job template should automatically be applied the
+    /// first time a manager station is built on a map.
+    /// </summary>
+    public bool AutoApplyDefaultTemplateOnFirstStation
+    {
+        get => _autoApplyDefaultTemplateOnFirstStation;
+        internal set => _autoApplyDefaultTemplateOnFirstStation = value;
+    }
+
+    private string? _defaultTemplateName;
+
+    /// <summary>
+    /// Gets the name of the manager job template to automatically apply to a map the first time
+    /// a manager station is built there. <see langword="null"/> or empty means no default
+    /// template is configured.
+    /// </summary>
+    public string? DefaultTemplateName
+    {
+        get => _defaultTemplateName;
+        set => _defaultTemplateName = value;
+    }
+
     private bool _showInfoCardButtonsWherePossible = true;
 
     /// <summary>
@@ -463,6 +488,12 @@ public class Settings : ModSettings
                 width,
                 settings.DrawDisableManagers,
                 "ColonyManagerRedux.ManagerSettings.DisableManagers".Translate()
+            );
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawTemplateSettings,
+                "ColonyManagerRedux.ManagerSettings.TemplateSettings".Translate()
             );
 
             Widgets_Section.EndSectionColumn("Shared.Settings", position);
@@ -948,6 +979,58 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
+    private float DrawTemplateSettings(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.ManagerSettings.AutoApplyDefaultTemplateOnFirstStation".Translate(),
+            "ColonyManagerRedux.ManagerSettings.AutoApplyDefaultTemplateOnFirstStation.Tip".Translate(),
+            ref _autoApplyDefaultTemplateOnFirstStation
+        );
+
+        var rect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        pos.y += ListEntryHeight;
+
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(
+            rect.TrimLeft(Margin),
+            "ColonyManagerRedux.ManagerSettings.DefaultTemplate".Translate()
+        );
+        Text.Anchor = TextAnchor.MiddleRight;
+        Widgets.Label(
+            rect.TrimRight(Margin),
+            string.IsNullOrEmpty(_defaultTemplateName)
+                ? "ColonyManagerRedux.ManagerSettings.DefaultTemplate.None".Translate().Resolve()
+                : _defaultTemplateName
+        );
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        Widgets.DrawHighlightIfMouseover(rect);
+        if (Widgets.ButtonInvisible(rect))
+        {
+            var options = new List<FloatMenuOption>
+            {
+                new(
+                    "ColonyManagerRedux.ManagerSettings.DefaultTemplate.None".Translate(),
+                    () => DefaultTemplateName = null
+                ),
+            };
+            foreach (var templateName in ManagerJobTemplates.GetTemplateNames())
+            {
+                options.Add(
+                    new FloatMenuOption(templateName, () => DefaultTemplateName = templateName)
+                );
+            }
+
+            Find.WindowStack.Add(new FloatMenu(options));
+        }
+
+        return pos.y - start.y;
+    }
+
     private const int MaxOperationsPerTick = 30;
     private const int MaxTicksBetweenOperations = 60;
 
@@ -1210,6 +1293,12 @@ public class Settings : ModSettings
             true
         );
         Scribe_Values.Look(ref _maxDesignationsPerJob, "maxDesignationsPerJob");
+        Scribe_Values.Look(
+            ref _autoApplyDefaultTemplateOnFirstStation,
+            "autoApplyDefaultTemplateOnFirstStation",
+            true
+        );
+        Scribe_Values.Look(ref _defaultTemplateName, "defaultTemplateName");
         Scribe_Collections.Look(
             ref _customUpdateIntervalTickList,
             "customUpdateIntervalTickList",
