@@ -501,27 +501,38 @@ internal sealed class ManagerJob_Power : ManagerJob
         base.PostImport();
 
         ManagerJob_Power remainingJob;
-        if (Manager.JobTracker.JobsOfType<ManagerJob_Power>().Count() > 1)
+        var otherJobs = Manager
+            .JobTracker.JobsOfType<ManagerJob_Power>()
+            .Where(j => j != this)
+            .ToList();
+        if (otherJobs.Count > 0)
         {
-            var otherJob = Manager
-                .JobTracker.JobsOfType<ManagerJob_Power>()
-                .SingleOrDefault(j => j != this);
-            if (otherJob.AnyPoweredStationOnline)
+            var otherJob = otherJobs.FirstOrDefault(j => j.AnyPoweredStationOnline);
+            if (otherJob != null)
             {
-                // We got imported to a map that already has a valid power job, so we need to delete our job.
+                // We got imported to a map that already has a valid power job, so we need to delete our job
+                // (and any other duplicates that may have accumulated).
                 ColonyManagerReduxMod.Instance.LogDebug(
                     $"ManagerJob_Power.PostImport: Deleting {this} because another power job is already present."
                 );
                 Manager.JobTracker.Delete(this, false);
                 remainingJob = otherJob;
+                foreach (var extraJob in otherJobs.Where(j => j != otherJob))
+                {
+                    Manager.JobTracker.Delete(extraJob, false);
+                }
             }
             else
             {
-                // We got imported to a map that has a power job, but it has no powered stations online, so we replace that job with our job.
-                ColonyManagerReduxMod.Instance.LogDebug(
-                    $"ManagerJob_Power.PostImport: Replacing {otherJob} with {this} because it has no powered stations online."
-                );
-                Manager.JobTracker.Delete(otherJob, false);
+                // We got imported to a map that has power job(s), but none have powered stations online,
+                // so we replace them all with our job.
+                foreach (var extraJob in otherJobs)
+                {
+                    ColonyManagerReduxMod.Instance.LogDebug(
+                        $"ManagerJob_Power.PostImport: Replacing {extraJob} with {this} because it has no powered stations online."
+                    );
+                    Manager.JobTracker.Delete(extraJob, false);
+                }
                 remainingJob = this;
             }
         }

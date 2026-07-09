@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Custom update interval durations shown in the mod settings could silently drop smaller units once a bigger one was involved — e.g. displaying "1 year, 2 quadrums" when the actual interval was 1 year, 2 quadrums, 3 days, and 4 hours. Durations are now shown in full so you can always tell exactly what interval you've configured.
 - Slider widgets no longer lag when rendering.
 - A livestock job's cached "should this job be active" check was discarding its own cached result and always reporting "yes, still needs to run" instead, even once animal targets were fully met and training was set up. It now correctly reports the cached result.
+- Importing a save that resulted in three or more power manager jobs ending up on the same map (e.g. after merging colonies) could crash the import instead of quietly deduplicating down to one job, as intended.
 
 ## [0.14.7] - 2026-07-09
 
