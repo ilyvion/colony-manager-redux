@@ -374,7 +374,7 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         if (TraderDefs.Count < _traders.Count)
         {
-            _traders.RemoveRange(TraderDefs.Count - 1, _traders.Count - TraderDefs.Count);
+            _traders.RemoveRange(TraderDefs.Count, _traders.Count - TraderDefs.Count);
         }
 
         _refreshCompListTraderBuildings.Clear();
@@ -410,7 +410,7 @@ internal sealed class ManagerJob_Power : ManagerJob
 
         if (BatteryDefs.Count < _batteries.Count)
         {
-            _batteries.RemoveRange(BatteryDefs.Count - 1, _batteries.Count - BatteryDefs.Count);
+            _batteries.RemoveRange(BatteryDefs.Count, _batteries.Count - BatteryDefs.Count);
         }
 
         _refreshCompListBatteryBuildings.Clear();
