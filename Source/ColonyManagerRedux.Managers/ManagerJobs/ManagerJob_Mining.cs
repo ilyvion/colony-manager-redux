@@ -1078,6 +1078,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 ? AllowedMinerals.Add(mineral)
                 : AllowedMinerals.Remove(mineral);
         }
+        Notify_TargetsChanged();
     }
 
     public void RefreshAllBuildingsAndMinerals()
@@ -1093,6 +1094,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
     public void SetBuildingAllowed(ThingDef building, bool allow, bool sync = true)
     {
         _ = allow ? AllowedBuildings.Add(building) : AllowedBuildings.Remove(building);
+        Notify_TargetsChanged();
 
         if (SyncFilterAndAllowed && sync)
         {
@@ -1111,6 +1113,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
     public void SetAllowMineral(ThingDef mineral, bool allow, bool sync = true)
     {
         _ = allow ? AllowedMinerals.Add(mineral) : AllowedMinerals.Remove(mineral);
+        Notify_TargetsChanged();
 
         if (SyncFilterAndAllowed && sync)
         {

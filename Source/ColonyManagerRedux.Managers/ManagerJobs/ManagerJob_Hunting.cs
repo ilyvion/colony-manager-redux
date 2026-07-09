@@ -505,6 +505,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     public void SetAnimalAllowed(PawnKindDef animal, bool allow, bool sync = true)
     {
         _ = allow ? AllowedAnimals.Add(animal) : AllowedAnimals.Remove(animal);
+        Notify_TargetsChanged();
 
         if (SyncFilterAndAllowed && sync)
         {
@@ -970,6 +971,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 ? AllowedAnimals.Add(pawnKindDef)
                 : AllowedAnimals.Remove(pawnKindDef);
         }
+        Notify_TargetsChanged();
     }
 
     protected override void Notify_AreaRemoved(Area area)

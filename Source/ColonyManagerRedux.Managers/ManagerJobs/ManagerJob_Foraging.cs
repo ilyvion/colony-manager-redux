@@ -309,6 +309,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
             _ = shouldAllowPlant ? AllowedPlants.Add(plant) : AllowedPlants.Remove(plant);
         }
+        Notify_TargetsChanged();
     }
 
     public void RefreshAllPlants()
@@ -327,12 +328,14 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 _ = AllowedPlants.Remove(plant);
             }
         }
+        Notify_TargetsChanged();
         ConfigureThresholdTriggerParentFilter();
     }
 
     public void SetPlantAllowed(ThingDef plant, bool allow, bool sync = true)
     {
         _ = allow ? AllowedPlants.Add(plant) : AllowedPlants.Remove(plant);
+        Notify_TargetsChanged();
 
         if (SyncFilterAndAllowed && sync)
         {

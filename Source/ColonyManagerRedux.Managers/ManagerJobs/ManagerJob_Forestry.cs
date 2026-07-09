@@ -441,6 +441,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 ? AllowedTrees.Add(thingDef)
                 : AllowedTrees.Remove(thingDef);
         }
+        Notify_TargetsChanged();
     }
 
     public void RefreshAllTrees()
@@ -459,12 +460,14 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 _ = AllowedTrees.Remove(tree);
             }
         }
+        Notify_TargetsChanged();
         ConfigureThresholdTriggerParentFilter();
     }
 
     public void SetTreeAllowed(ThingDef tree, bool allow, bool sync = true)
     {
         _ = allow ? AllowedTrees.Add(tree) : AllowedTrees.Remove(tree);
+        Notify_TargetsChanged();
 
         if (SyncFilterAndAllowed && sync)
         {

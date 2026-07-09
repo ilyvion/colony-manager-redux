@@ -548,16 +548,35 @@ public abstract class ManagerTab(Manager manager)
             subLabel ??= GetSubLabel(job);
             if (!subLabel.Fits(labelWidth, out var _))
             {
-                subLabel = subLabel.Truncate(labelWidth);
+                subLabel = TruncateCached(subLabel, labelWidth);
             }
         }
         var mainLabel = GetMainLabel(job);
         if (!mainLabel.Fits(labelWidth, out var _))
         {
-            mainLabel = mainLabel.Truncate(labelWidth);
+            mainLabel = TruncateCached(mainLabel, labelWidth);
         }
         var label = mainLabel + (drawSubLabel ? "\n" + subLabel : "");
         return (label, Text.CalcSize(label));
+    }
+
+    // Truncate() trims one character at a time re-measuring text width on every step, which is
+    // very expensive for long, untruncated strings (e.g. job sub-labels listing hundreds of
+    // targets). Cache results per (text, width) pair so repeated draws of the same job/window
+    // size don't repeat that work every frame.
+    private readonly Dictionary<float, Dictionary<string, string>> _truncateCache = [];
+
+    private string TruncateCached(string text, float width)
+    {
+        if (!_truncateCache.TryGetValue(width, out var cache))
+        {
+            _truncateCache[width] = cache = [];
+        }
+        else if (cache.Count >= 200)
+        {
+            cache.Clear();
+        }
+        return text.Truncate(width, cache);
     }
 
     /// <summary>
@@ -572,10 +591,7 @@ public abstract class ManagerTab(Manager manager)
     /// </summary>
     /// <param name="job">The manager job for which to get the sublabel.</param>
     /// <returns>A string representing the sublabel for the job.</returns>
-    public virtual string GetSubLabel(ManagerJob job) =>
-        job.Targets.Any()
-            ? string.Join(", ", job.Targets)
-            : (string)"ColonyManagerRedux.Common.None".Translate();
+    public virtual string GetSubLabel(ManagerJob job) => job.TargetsLabel;
 
     /// <summary>
     /// Draws the overview details for the specified manager job in the given rectangle.

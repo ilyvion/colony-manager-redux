@@ -228,6 +228,32 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// </summary>
     public abstract IEnumerable<string> Targets { get; }
 
+    private CachedValue<string>? _cachedTargetsLabel;
+
+    /// <summary>
+    /// Gets a comma-separated label of <see cref="Targets"/>, or a "none" placeholder if empty.
+    /// </summary>
+    /// <remarks>
+    /// Building this can be expensive for jobs with large allow-lists (it resolves a label per
+    /// target), so it's cached until <see cref="Notify_TargetsChanged"/> is called.
+    /// </remarks>
+    public string TargetsLabel =>
+        (
+            _cachedTargetsLabel ??= new CachedValue<string>(() =>
+                Targets.Any()
+                    ? string.Join(", ", Targets)
+                    : (string)"ColonyManagerRedux.Common.None".Translate()
+            )
+        ).TryGetValue(out var label)
+            ? label
+            : "";
+
+    /// <summary>
+    /// Invalidates the cached <see cref="TargetsLabel"/>. Call this whenever the set of allowed
+    /// targets for this job changes.
+    /// </summary>
+    public void Notify_TargetsChanged() => _cachedTargetsLabel?.Invalidate();
+
     /// <summary>
     /// Gets or sets the update interval for this manager job.
     /// </summary>
