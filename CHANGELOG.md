@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Adjusting a gene bias slider in the animal genetics settings could cause the other genes' sliders to no longer add up to a full 100% share over repeated adjustments, subtly skewing which genes got preference over time. Rebalancing now keeps the full set of sliders summing to 100% correctly.
+
 ## [0.14.7] - 2026-07-09
 
 ### Fixed

@@ -108,11 +108,14 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
         return listingStandard.CurHeight;
     }
 
+    private const float MinGeneValue = 0.0001f;
+    private const float MaxGeneValue = 0.999f;
+
     private float DoGeneSlider(Listing_Standard listingStandard, StatDef gene)
     {
         var startHeight = listingStandard.CurHeight;
 
-        var newValue = listingStandard.Slider(_values[gene], 0.0001f, 0.999f);
+        var newValue = listingStandard.Slider(_values[gene], MinGeneValue, MaxGeneValue);
 
         if (newValue == _values[gene])
         {
@@ -121,12 +124,25 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
 
         _values[gene] = newValue;
 
-        var others = _values.Where(kv => kv.Key != gene).Sum(kv => kv.Value);
+        var otherKeys = _values.Keys.Where(key => key != gene).ToList();
+        var others = otherKeys.Sum(key => _values[key]);
         var modifier = (1.0f - newValue) / others;
 
-        foreach (var key in _values.Keys.ToList().Where(key => key != gene))
+        foreach (var key in otherKeys)
         {
-            _values[key] = Math.Min(Math.Max(modifier * _values[key], 0.01f), 0.99f);
+            _values[key] = Math.Min(Math.Max(modifier * _values[key], MinGeneValue), MaxGeneValue);
+        }
+
+        // Clamping can push the other genes' sum away from (1 - newValue); re-normalize
+        // them so the full set still sums to 1.0 instead of drifting over repeated edits.
+        var clampedOthersSum = otherKeys.Sum(key => _values[key]);
+        if (clampedOthersSum > 0f)
+        {
+            var target = 1.0f - newValue;
+            foreach (var key in otherKeys)
+            {
+                _values[key] = _values[key] / clampedOthersSum * target;
+            }
         }
 
         return listingStandard.CurHeight - startHeight;
