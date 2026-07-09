@@ -149,7 +149,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
 
         // toggle for each animal
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var mineral in Utilities_Mining.AllMinerals)
+        foreach (var mineral in SelectedMiningJob.AllMinerals)
         {
             var toggleRect = rowRect;
 
@@ -191,7 +191,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
 
         // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
-        var allMinerals = Utilities_Mining.AllMinerals;
+        var allMinerals = SelectedMiningJob.AllMinerals;
 
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
 
@@ -728,6 +728,25 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             SelectedMiningJob.RefreshAllBuildingsAndMinerals();
         }
 
+        var mineralsPadlockRect = new Rect(
+            refreshRect.x - (SmallIconSize + 1) - (2 * Margin),
+            position.y + Margin,
+            SmallIconSize + 1,
+            SmallIconSize
+        );
+        if (
+            Widgets.ButtonImage(
+                mineralsPadlockRect,
+                SelectedMiningJob.MineralsLockedToMap
+                    ? Resources.PadlockClosed
+                    : Resources.PadlockOpen,
+                Color.grey
+            )
+        )
+        {
+            SelectedMiningJob.MineralsLockedToMap = !SelectedMiningJob.MineralsLockedToMap;
+        }
+
         Widgets_Section.Section(
             ref position,
             width,
@@ -746,6 +765,25 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
                 out position,
                 out width
             );
+
+            var buildingsPadlockRect = new Rect(
+                position.x + width - SmallIconSize - (2 * Margin),
+                position.y + Margin,
+                SmallIconSize + 1,
+                SmallIconSize
+            );
+            if (
+                Widgets.ButtonImage(
+                    buildingsPadlockRect,
+                    SelectedMiningJob.BuildingsLockedToMap
+                        ? Resources.PadlockClosed
+                        : Resources.PadlockOpen,
+                    Color.grey
+                )
+            )
+            {
+                SelectedMiningJob.BuildingsLockedToMap = !SelectedMiningJob.BuildingsLockedToMap;
+            }
 
             Widgets_Section.Section(
                 ref position,

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Mining jobs now have "lock to map" toggles for the allowed minerals and allowed buildings lists, matching Foraging, Forestry, and Hunting. Enable them to only show mineral/building types actually present on the current map instead of every one known to the game.
+
 ### Fixed
 
 - Adjusting a gene bias slider in the animal genetics settings could cause the other genes' sliders to no longer add up to a full 100% share over repeated adjustments, subtly skewing which genes got preference over time. Rebalancing now keeps the full set of sliders summing to 100% correctly.

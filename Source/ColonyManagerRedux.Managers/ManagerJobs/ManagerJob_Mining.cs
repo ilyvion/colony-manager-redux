@@ -124,6 +124,51 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
     public Area? MiningArea;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
 
+    private bool _mineralsLockedToMap = ColonyManagerReduxMod
+        .Settings
+        .NewJobsShouldBeResourceLocked;
+    public bool MineralsLockedToMap
+    {
+        get => _mineralsLockedToMap;
+        set
+        {
+            if (_mineralsLockedToMap != value)
+            {
+                _mineralsLockedToMap = value;
+                _allMinerals = null; // reset cached minerals
+            }
+        }
+    }
+
+    private bool _buildingsLockedToMap = ColonyManagerReduxMod
+        .Settings
+        .NewJobsShouldBeResourceLocked;
+    public bool BuildingsLockedToMap
+    {
+        get => _buildingsLockedToMap;
+        set
+        {
+            if (_buildingsLockedToMap != value)
+            {
+                _buildingsLockedToMap = value;
+                _allDeconstructibleBuildings = null; // reset cached buildings
+            }
+        }
+    }
+
+    private List<ThingDef>? _allMinerals;
+    public List<ThingDef> AllMinerals
+    {
+        get
+        {
+            _allMinerals ??=
+            [
+                .. Utilities_Mining.GetMinerals(_mineralsLockedToMap ? Manager.map : null),
+            ];
+            return _allMinerals;
+        }
+    }
+
     public bool DeconstructBuildings
     {
         get => _deconstructBuildings;
@@ -156,7 +201,9 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         {
             _allDeconstructibleBuildings ??=
             [
-                .. Utilities_Mining.GetDeconstructibleBuildings(Manager),
+                .. Utilities_Mining.GetDeconstructibleBuildings(
+                    _buildingsLockedToMap ? Manager.map : null
+                ),
             ];
             return _allDeconstructibleBuildings;
         }
@@ -207,7 +254,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
     {
         base.PostImport();
 
-        _ = AllowedMinerals.RemoveWhere(m => !Utilities_Mining.AllMinerals.Contains(m));
+        _ = AllowedMinerals.RemoveWhere(m => !AllMinerals.Contains(m));
         _ = AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));
     }
 
@@ -484,6 +531,16 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
         Scribe_Collections.Look(ref AllowedMinerals, "allowedMinerals", LookMode.Def);
         Scribe_Collections.Look(ref AllowedBuildings, "allowedBuildings", LookMode.Def);
+        Scribe_Values.Look(
+            ref _mineralsLockedToMap,
+            "mineralsLockedToMap",
+            ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
+        );
+        Scribe_Values.Look(
+            ref _buildingsLockedToMap,
+            "buildingsLockedToMap",
+            ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
+        );
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref HaulMapChunks, "haulMapChunks", true);
         Scribe_Values.Look(ref HaulMinedChunks, "haulMinedChunks", true);
@@ -980,7 +1037,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 : AllowedBuildings.Remove(building);
         }
 
-        foreach (var mineral in Utilities_Mining.AllMinerals)
+        foreach (var mineral in AllMinerals)
         {
             _ = GetMaterialsInMineral(mineral).Any(TriggerThreshold.ThresholdFilter.Allows)
                 ? AllowedMinerals.Add(mineral)
@@ -993,6 +1050,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         ColonyManagerReduxMod.Instance.LogDebug("Refreshing all deconstructible buildings");
 
         _allDeconstructibleBuildings = null;
+        _allMinerals = null;
 
         ConfigureThresholdTriggerParentFilter();
     }
@@ -1770,7 +1828,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         if (!TriggerThreshold.AllowAnyThreshold)
         {
             TriggerThreshold.ParentFilter.SetDisallowAll();
-            foreach (var mineral in Utilities_Mining.AllMinerals)
+            foreach (var mineral in AllMinerals)
             {
                 TriggerThreshold.ParentFilter.SetAllow(mineral.building.mineableThing, true);
             }
