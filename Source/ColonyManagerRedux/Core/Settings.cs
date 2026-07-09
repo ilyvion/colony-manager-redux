@@ -721,49 +721,52 @@ public class Settings : ModSettings
     {
         var start = pos;
 
-        var periodLabel = _addCustomUpdateIntervalTicks.ToStringTicksToPeriodVerbose();
-        var periodSize = Text.CalcSize(periodLabel);
-        var periodLabelAreaRect = new Rect(pos.x, pos.y, periodSize.x + Margin, ListEntryHeight);
-        var periodWidth = periodSize.x + Margin;
+        var periodLabel = _addCustomUpdateIntervalTicks.ToStringTicksToPeriodVerboseFull();
+        var periodLabelAreaRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         IlyvionWidgets.Label(periodLabelAreaRect, periodLabel, TextAnchor.MiddleLeft);
 
-        var rowPos = pos;
-        rowPos.x += periodWidth;
-        if (RowButton("0", ref rowPos))
+        var adjustButtonLabels = new string[1 + (2 * _customUpdateIntervalUnits.Length)];
+        adjustButtonLabels[0] = "0";
+        for (var i = 0; i < _customUpdateIntervalUnits.Length; i++)
+        {
+            var unit = _customUpdateIntervalUnits[i].Unit;
+            adjustButtonLabels[1 + (2 * i)] =
+                $"ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalBy{unit}".Translate();
+            adjustButtonLabels[2 + (2 * i)] =
+                $"ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalBy{unit}".Translate();
+        }
+        var addButtonLabel =
+            "ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals".Translate();
+
+        var totalButtonsWidth = Margin;
+        foreach (var label in adjustButtonLabels)
+        {
+            totalButtonsWidth += RowButtonWidth(label) + Margin;
+        }
+        totalButtonsWidth += RowButtonWidth(addButtonLabel);
+
+        var rowPos = new Vector2(pos.x + width - totalButtonsWidth, pos.y);
+        var labelIndex = 0;
+        if (RowButton(adjustButtonLabels[labelIndex++], ref rowPos))
         {
             _addCustomUpdateIntervalTicks = 0;
         }
-        foreach (var (unit, ticksPerUnit) in _customUpdateIntervalUnits)
+        foreach (var (_, ticksPerUnit) in _customUpdateIntervalUnits)
         {
-            if (
-                RowButton(
-                    $"ColonyManagerRedux.ManagerSettings.DecreaseCustomUpdateIntervalBy{unit}".Translate(),
-                    ref rowPos
-                )
-            )
+            if (RowButton(adjustButtonLabels[labelIndex++], ref rowPos))
             {
                 _addCustomUpdateIntervalTicks = Mathf.Max(
                     0,
                     _addCustomUpdateIntervalTicks - ticksPerUnit
                 );
             }
-            if (
-                RowButton(
-                    $"ColonyManagerRedux.ManagerSettings.IncreaseCustomUpdateIntervalBy{unit}".Translate(),
-                    ref rowPos
-                )
-            )
+            if (RowButton(adjustButtonLabels[labelIndex++], ref rowPos))
             {
                 _addCustomUpdateIntervalTicks += ticksPerUnit;
             }
         }
         rowPos.x += Margin;
-        if (
-            RowButton(
-                "ColonyManagerRedux.ManagerSettings.AddCustomUpdateIntervals".Translate(),
-                ref rowPos
-            )
-        )
+        if (RowButton(addButtonLabel, ref rowPos))
         {
             _customUpdateIntervalTickList.Add(_addCustomUpdateIntervalTicks);
             _customUpdateIntervalTickList.Sort();
@@ -782,7 +785,7 @@ public class Settings : ModSettings
             }
             IlyvionWidgets.Label(
                 new Rect(rect.x + 4f, rect.y, rect.width - 4f, rect.height),
-                customUpdateIntervalTicks.ToStringTicksToPeriodVerbose(),
+                customUpdateIntervalTicks.ToStringTicksToPeriodVerboseFull(),
                 TextAnchor.MiddleLeft
             );
             if (
@@ -803,9 +806,12 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
+    private static float RowButtonWidth(string buttonLabel) =>
+        Text.CalcSize(buttonLabel).x + (4 * Margin);
+
     private static bool RowButton(string buttonLabel, ref Vector2 pos)
     {
-        var buttonWidth = Text.CalcSize(buttonLabel).x + (4 * Margin);
+        var buttonWidth = RowButtonWidth(buttonLabel);
         Rect buttonRect = new(pos.x, pos.y, buttonWidth, ListEntryHeight);
         pos.x += buttonWidth + Margin;
         return Widgets.ButtonText(buttonRect, buttonLabel);

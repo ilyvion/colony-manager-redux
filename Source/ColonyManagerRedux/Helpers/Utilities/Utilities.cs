@@ -81,7 +81,7 @@ public static class Utilities
                         ticks => new UpdateInterval(
                             ticks,
                             "ColonyManagerRedux.UpdateInterval.Custom".Translate(
-                                ticks.ToStringTicksToPeriodVerbose()
+                                ticks.ToStringTicksToPeriodVerboseFull()
                             )
                         )
                     )
