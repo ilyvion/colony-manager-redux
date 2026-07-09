@@ -12,19 +12,41 @@ internal static class ManagerDefMaker
             return null;
         }
 
-        var job = (ManagerJob)Activator.CreateInstance(def.managerJobClass, [manager, .. args]);
-        job._def = def;
-        job.Initialize();
-        job.PostMake();
-        return job;
+        try
+        {
+            var job = (ManagerJob)Activator.CreateInstance(def.managerJobClass, [manager, .. args]);
+            job._def = def;
+            job.Initialize();
+            job.PostMake();
+            return job;
+        }
+        catch (Exception err)
+        {
+            ColonyManagerReduxMod.Instance.LogError(
+                $"Could not create {nameof(ManagerJob)} instance for "
+                    + $"{def.defName} because it threw an exception: \n{err}"
+            );
+            return null;
+        }
     }
 
-    public static ManagerTab MakeManagerTab(ManagerDef def, Manager manager)
+    public static ManagerTab? MakeManagerTab(ManagerDef def, Manager manager)
     {
-        var tab = (ManagerTab)Activator.CreateInstance(def.managerTabClass, manager);
-        tab.Def = def;
-        tab.PostMakeInt();
-        return tab;
+        try
+        {
+            var tab = (ManagerTab)Activator.CreateInstance(def.managerTabClass, manager);
+            tab.Def = def;
+            tab.PostMakeInt();
+            return tab;
+        }
+        catch (Exception err)
+        {
+            ColonyManagerReduxMod.Instance.LogError(
+                $"Could not create {nameof(ManagerTab)} instance for "
+                    + $"{def.defName} because it threw an exception: \n{err}"
+            );
+            return null;
+        }
     }
 
     public static ManagerSettings? MakeManagerSettings(ManagerDef def)

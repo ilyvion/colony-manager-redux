@@ -43,13 +43,40 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
                     .ToList();
                 foreach (var job in jobList)
                 {
-                    job.PreExport();
+                    try
+                    {
+                        job.PreExport();
+                    }
+                    catch (Exception err)
+                    {
+                        ColonyManagerReduxMod.Instance.LogException(
+                            $"ManagerJob caused exception during {nameof(ManagerJob.PreExport)}",
+                            err
+                        );
+                    }
                 }
                 Scribe_Collections.Look(ref jobList, "jobList", LookMode.Deep);
                 foreach (var job in jobList)
                 {
-                    job.PostExport();
+                    try
+                    {
+                        job.PostExport();
+                    }
+                    catch (Exception err)
+                    {
+                        ColonyManagerReduxMod.Instance.LogException(
+                            $"ManagerJob caused exception during {nameof(ManagerJob.PostExport)}",
+                            err
+                        );
+                    }
                 }
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    "Failed to serialize job list for gravship takeoff.",
+                    err
+                );
             }
             finally
             {

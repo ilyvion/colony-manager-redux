@@ -92,7 +92,8 @@ public class Manager : MapComponent, ILoadReferenceable
         [
             .. DefDatabase<ManagerDef>
                 .AllDefs.OrderBy(m => m.order)
-                .Select(m => ManagerDefMaker.MakeManagerTab(m, this)),
+                .Select(m => ManagerDefMaker.MakeManagerTab(m, this))
+                .OfType<ManagerTab>(),
         ];
 
         _comps = [];
@@ -198,7 +199,17 @@ public class Manager : MapComponent, ILoadReferenceable
 
         foreach (var comp in _comps)
         {
-            comp.PostExposeData();
+            try
+            {
+                comp.PostExposeData();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerComp caused exception during {nameof(ManagerComp.PostExposeData)}",
+                    err
+                );
+            }
         }
     }
 
@@ -226,12 +237,32 @@ public class Manager : MapComponent, ILoadReferenceable
 
         foreach (var job in _jobTracker.Jobs)
         {
-            job.FinalizeInit();
+            try
+            {
+                job.FinalizeInit();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerJob caused exception during {nameof(ManagerJob.FinalizeInit)}",
+                    err
+                );
+            }
         }
 
         foreach (var comp in _comps)
         {
-            comp.FinalizeInit();
+            try
+            {
+                comp.FinalizeInit();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerComp caused exception during {nameof(ManagerComp.FinalizeInit)}",
+                    err
+                );
+            }
         }
 
         // Let's retroactively finish research that should be finished for the given starting faction.

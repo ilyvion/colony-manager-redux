@@ -69,9 +69,19 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
 
         foreach (var job in jobList)
         {
-            job.PreImport();
-            manager.JobTracker.Add(job);
-            job.PostImportInt();
+            try
+            {
+                job.PreImport();
+                manager.JobTracker.Add(job);
+                job.PostImportInt();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    "ManagerJob caused exception while being imported after gravship landing.",
+                    err
+                );
+            }
         }
     }
 }

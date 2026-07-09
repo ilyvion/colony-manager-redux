@@ -156,7 +156,17 @@ public class JobTracker(Manager manager) : IExposable
 
         if (cleanup)
         {
-            job.CleanUp();
+            try
+            {
+                job.CleanUp();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerJob caused exception during {nameof(ManagerJob.CleanUp)}",
+                    err
+                );
+            }
         }
 
         _ = JobList.Remove(job);

@@ -17,7 +17,17 @@ internal static class RimWorld_MainTabWindowUtility_NotifyAllPawnTables_PawnsCha
         }
         foreach (var tab in Manager.For(Find.CurrentMap).Tabs)
         {
-            tab.Notify_PawnsChanged();
+            try
+            {
+                tab.Notify_PawnsChanged();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerTab caused exception during {nameof(ManagerTab.Notify_PawnsChanged)}",
+                    err
+                );
+            }
         }
     }
 }
