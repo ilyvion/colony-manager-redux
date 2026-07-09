@@ -68,17 +68,18 @@ internal sealed class Trigger_PawnKind : Trigger
     {
         get
         {
-            if (pawnKind != null && !_cachedState.TryGetValue(out var state))
+            bool state;
+            if (pawnKind == null)
+            {
+                state = true;
+            }
+            else if (!_cachedState.TryGetValue(out state))
             {
                 state =
                     Utilities_Livestock.AgeSexArray.All(ageSex =>
                         CountTargets[(int)ageSex] == pawnKind.GetTame(Job.Manager, ageSex).Count()
                     ) && AllTrainingWantedSet();
                 _ = _cachedState.Update(state);
-            }
-            else
-            {
-                state = true;
             }
 
             return state;
