@@ -14,10 +14,22 @@
         shipped release.
     -->
     <ItemGroup>
-        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj" />
-        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj" />
-        <ProjectReference Include="..\ColonyManagerRedux.AnimalGenetics\ColonyManagerRedux.AnimalGenetics.csproj" />
-        <ProjectReference Include="..\ColonyManagerRedux.AAAA\ColonyManagerRedux.AAAA.csproj" />
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.AnimalGenetics\ColonyManagerRedux.AnimalGenetics.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.AAAA\ColonyManagerRedux.AAAA.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
         <ProjectReference Include="$(ProjectDependenciesBasePath)\RimTest\Source\RimTestRedux\RimTestRedux.csproj">
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>

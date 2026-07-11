@@ -106,7 +106,7 @@ internal static class ManagerJobLivestockTests
                     woolThreshold: 0f
                 )
             )
-            .True();
+            .Is.True();
 
     [Test]
     public static void AlreadyCullingOrCulledAnimalsAreAlwaysExcluded()
@@ -130,7 +130,7 @@ internal static class ManagerJobLivestockTests
                     woolThreshold: 1f
                 )
             )
-            .False();
+            .Is.False();
 
         Assert
             .That(
@@ -151,7 +151,7 @@ internal static class ManagerJobLivestockTests
                     woolThreshold: 1f
                 )
             )
-            .False();
+            .Is.False();
     }
 
     [Test]
@@ -177,10 +177,10 @@ internal static class ManagerJobLivestockTests
             );
         }
 
-        Assert.That(Eligible(false, false, false)).False();
-        Assert.That(Eligible(true, false, false)).False();
-        Assert.That(Eligible(true, true, false)).False();
-        Assert.That(Eligible(true, true, true)).True();
+        Assert.That(Eligible(false, false, false)).Is.False();
+        Assert.That(Eligible(true, false, false)).Is.False();
+        Assert.That(Eligible(true, true, false)).Is.False();
+        Assert.That(Eligible(true, true, true)).Is.True();
     }
 
     [Test]
@@ -212,11 +212,11 @@ internal static class ManagerJobLivestockTests
         }
 
         // Exactly at threshold is not "below", so avoidance still excludes the animal.
-        Assert.That(Eligible(1f, 1f, 0f, 1f)).False();
-        Assert.That(Eligible(0f, 1f, 1f, 1f)).False();
+        Assert.That(Eligible(1f, 1f, 0f, 1f)).Is.False();
+        Assert.That(Eligible(0f, 1f, 1f, 1f)).Is.False();
 
         // Strictly below both thresholds is included.
-        Assert.That(Eligible(0.5f, 1f, 0.5f, 1f)).True();
+        Assert.That(Eligible(0.5f, 1f, 0.5f, 1f)).Is.True();
     }
 
     [Test]
@@ -239,9 +239,82 @@ internal static class ManagerJobLivestockTests
     [Test]
     public static void RoughlyEquallyDistributedFollowerCounts()
     {
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 3, 3])).True();
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 4])).True();
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 5])).False();
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([7])).True();
+        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 3, 3])).Is.True();
+        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 4])).Is.True();
+        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 5])).Is.False();
+        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([7])).Is.True();
+    }
+
+    [Test]
+    public static void ChooseMasterKeepsCurrentMasterWhenValidAndBalanced()
+    {
+        var chosen = ManagerJob_Livestock.ChooseMaster(
+            currentMaster: "Alice",
+            options: ["Alice", "Bob"],
+            currentOptionsRoughlyEquallyDistributed: true,
+            followerCount: _ => 3
+        );
+
+        Assert.That(chosen!).Is.EqualTo("Alice");
+    }
+
+    [Test]
+    public static void ChooseMasterSwitchesWhenDistributionIsUneven()
+    {
+        // Regression guard for the stale-cache bug fixed by de32088 (#24): even though "Alice"
+        // is still a valid current master, an uneven follower spread must force a re-pick.
+        var chosen = ManagerJob_Livestock.ChooseMaster(
+            currentMaster: "Alice",
+            options: ["Alice", "Bob"],
+            currentOptionsRoughlyEquallyDistributed: false,
+            followerCount: name => name == "Alice" ? 5 : 1
+        );
+
+        Assert.That(chosen!).Is.EqualTo("Bob");
+    }
+
+    [Test]
+    public static void ChooseMasterSwitchesWhenCurrentMasterNotInOptions()
+    {
+        var chosen = ManagerJob_Livestock.ChooseMaster(
+            currentMaster: "Carol",
+            options: ["Alice", "Bob"],
+            currentOptionsRoughlyEquallyDistributed: true,
+            followerCount: name => name == "Alice" ? 2 : 1
+        );
+
+        Assert.That(chosen!).Is.EqualTo("Bob");
+    }
+
+    [Test]
+    public static void ChooseMasterPicksLeastFollowersWhenNoCurrentMaster()
+    {
+        var chosen = ManagerJob_Livestock.ChooseMaster(
+            currentMaster: null,
+            options: ["Alice", "Bob", "Carol"],
+            currentOptionsRoughlyEquallyDistributed: true,
+            followerCount: name =>
+                name switch
+                {
+                    "Alice" => 4,
+                    "Bob" => 1,
+                    _ => 9,
+                }
+        );
+
+        Assert.That(chosen!).Is.EqualTo("Bob");
+    }
+
+    [Test]
+    public static void PruneIntervalGating()
+    {
+        // Initial state (_lastPruneTick starts at -PruneIntervalTicks) should trigger a prune
+        // immediately at tick 0.
+        Assert
+            .That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(0, -5000, 5000))
+            .Is.True();
+
+        Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(5000, 0, 5000)).Is.True();
+        Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(4999, 0, 5000)).Is.False();
     }
 }

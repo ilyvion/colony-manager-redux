@@ -737,17 +737,42 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             return null;
         }
 
+        // forceRefresh is intentional: a stale cache here caused masters to be picked based on
+        // outdated follower counts, unevenly piling animals onto the same master (fixes #24).
+        return ChooseMaster(
+            master,
+            options,
+            RoughlyEquallyDistributed(options),
+            p => p.GetFollowers(forceRefresh: true).Count
+        );
+    }
+
+    /// <summary>
+    /// Decides whether to keep <paramref name="currentMaster"/> or switch to the option with the
+    /// fewest followers. Kept separate from <see cref="GetMaster"/> so the "keep vs. switch"
+    /// decision is unit-testable without live <see cref="Pawn"/>s or follower-count caches.
+    /// </summary>
+    internal static T? ChooseMaster<T>(
+        T? currentMaster,
+        IReadOnlyList<T> options,
+        bool currentOptionsRoughlyEquallyDistributed,
+        Func<T, int> followerCount
+    )
+        where T : class
+    {
         // if we currently have a master, our current master is a valid option,
         // and all the options have roughly equal amounts of pets following them, we don't need to take action
-        if (master != null && options.Contains(master) && RoughlyEquallyDistributed(options))
+        if (
+            currentMaster != null
+            && options.Contains(currentMaster)
+            && currentOptionsRoughlyEquallyDistributed
+        )
         {
-            return master;
+            return currentMaster;
         }
 
         // otherwise, assign a master that has the least amount of current followers.
-        // forceRefresh is intentional: a stale cache here caused masters to be picked based on
-        // outdated follower counts, unevenly piling animals onto the same master (fixes #24).
-        return options.MinBy(p => p.GetFollowers(forceRefresh: true).Count);
+        return options.MinBy(followerCount);
     }
 
     public static void SetFollowing(

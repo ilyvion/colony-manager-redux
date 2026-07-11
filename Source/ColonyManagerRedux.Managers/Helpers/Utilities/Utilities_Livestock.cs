@@ -433,19 +433,24 @@ internal static class Utilities_Livestock
     }
 
     public static bool PawnIsOfAgeSex(this Pawn p, AgeAndSex ageSex) =>
-        // note; we're making the assumption here that anything with a lifestage
-        // index of 2 or greater is adult - so baby, juvenile, adult, ... this
-        // works for vanilla and all modded animals that I know off.
+        IsOfAgeSex(p.gender, p.ageTracker.CurLifeStageIndex, ageSex);
 
-        // note; we're treating anything non-male as female. I know, I'm sorry.
-
+    /// <summary>
+    /// Core classification logic behind <see cref="PawnIsOfAgeSex"/>, extracted so it's
+    /// unit-testable against plain <see cref="Gender"/>/<c>int</c> values without a live
+    /// <see cref="Pawn"/>.
+    /// </summary>
+    /// <remarks>
+    /// Deliberate simplifications: anything with a lifestage index
+    /// of 2 or greater counts as adult, and anything non-male counts as female.
+    /// </remarks>
+    internal static bool IsOfAgeSex(Gender gender, int lifeStageIndex, AgeAndSex ageSex) =>
         ageSex switch
         {
-            AgeAndSex.AdultFemale => p.gender != Gender.Male && p.ageTracker.CurLifeStageIndex >= 2,
-            AgeAndSex.AdultMale => p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex >= 2,
-            AgeAndSex.JuvenileFemale => p.gender != Gender.Male
-                && p.ageTracker.CurLifeStageIndex < 2,
-            AgeAndSex.JuvenileMale => p.gender == Gender.Male && p.ageTracker.CurLifeStageIndex < 2,
+            AgeAndSex.AdultFemale => gender != Gender.Male && lifeStageIndex >= 2,
+            AgeAndSex.AdultMale => gender == Gender.Male && lifeStageIndex >= 2,
+            AgeAndSex.JuvenileFemale => gender != Gender.Male && lifeStageIndex < 2,
+            AgeAndSex.JuvenileMale => gender == Gender.Male && lifeStageIndex < 2,
             _ => throw new ArgumentOutOfRangeException(nameof(ageSex), ageSex, null),
         };
 

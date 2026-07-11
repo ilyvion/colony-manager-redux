@@ -45,7 +45,7 @@ internal partial class ManagerJob_Livestock
         public override void CompTick()
         {
             var currentTick = Find.TickManager.TicksGame;
-            if (currentTick - _lastPruneTick < PruneIntervalTicks)
+            if (!ShouldPrune(currentTick, _lastPruneTick, PruneIntervalTicks))
             {
                 return;
             }
@@ -55,6 +55,13 @@ internal partial class ManagerJob_Livestock
             PruneDeadPawns(MilkablePawnCache);
             PruneDeadPawns(ShearablePawnCache);
         }
+
+        /// <summary>
+        /// Pure interval-gating check extracted from <see cref="CompTick"/> so it's unit-testable
+        /// without a live <see cref="TickManager"/>.
+        /// </summary>
+        internal static bool ShouldPrune(int currentTick, int lastPruneTick, int intervalTicks) =>
+            currentTick - lastPruneTick >= intervalTicks;
 
         private static void PruneDeadPawns<TValue>(Dictionary<Pawn, TValue> cache)
         {
