@@ -611,7 +611,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         foreach (var item in def.CostListAdjusted(building.Stuff, false))
         {
             var item2 = new ThingDefCountClass(item.thingDef, item.count);
-            item2.count = Mathf.Min(
+            item2.count = ClampScaledCount(
                 GenMath.RoundRandom(item2.count * def.resourcesFractionWhenDeconstructed),
                 item2.count
             );
@@ -625,6 +625,9 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         return _tmpBuildingCounts;
     }
 
+    internal static int ClampScaledCount(int roundedScaledCount, int originalCount) =>
+        Mathf.Min(roundedScaledCount, originalCount);
+
     public int GetCountInBuilding(Building? building)
     {
         var def = building?.def;
@@ -633,11 +636,15 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             return 0;
         }
 
-        var count = def.CostListAdjusted(building.Stuff)
-            .Where(Counted)
-            .Sum(tc => tc.count * def.resourcesFractionWhenDeconstructed);
-        return Mathf.RoundToInt(count);
+        var items = def.CostListAdjusted(building.Stuff)
+            .Select(tc => (tc.count, counted: Counted(tc)));
+        return SumScaledCounts(items, def.resourcesFractionWhenDeconstructed);
     }
+
+    internal static int SumScaledCounts(
+        IEnumerable<(int count, bool counted)> items,
+        float fraction
+    ) => Mathf.RoundToInt(items.Where(i => i.counted).Sum(i => i.count * fraction));
 
     public int GetCountInChunk(Thing chunk) => GetCountInChunk(chunk.def);
 
@@ -792,18 +799,38 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         // stone chunks
         if (resource.IsChunk())
         {
-            return (int)(GetCountInChunk(resource) * rock.building.mineableDropChance);
+            return CalculateMineralYield(
+                isChunk: true,
+                GetCountInChunk(resource),
+                rock.building.mineableDropChance,
+                mineableYield: 0,
+                mineYieldFactor: 0,
+                counted: false
+            );
         }
 
         // metals
-        return Counted(resource)
-            ? (int)(
-                rock.building.mineableYield
-                * Find.Storyteller.difficulty.mineYieldFactor
-                * rock.building.mineableDropChance
-            )
-            : 0;
+        return CalculateMineralYield(
+            isChunk: false,
+            chunkCount: 0,
+            rock.building.mineableDropChance,
+            rock.building.mineableYield,
+            Find.Storyteller.difficulty.mineYieldFactor,
+            Counted(resource)
+        );
     }
+
+    internal static int CalculateMineralYield(
+        bool isChunk,
+        int chunkCount,
+        float dropChance,
+        float mineableYield,
+        float mineYieldFactor,
+        bool counted
+    ) =>
+        isChunk ? (int)(chunkCount * dropChance)
+        : counted ? (int)(mineableYield * mineYieldFactor * dropChance)
+        : 0;
 
     public static IEnumerable<ThingDef> GetMaterialsInBuilding(ThingDef building)
     {
@@ -1846,19 +1873,6 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 }
             }
         }
-    }
-
-    private const int MaxRegionDistance = 4;
-
-    private static bool RegionsAreClose(Region start, Region end, int depth = 0)
-    {
-        if (depth > MaxRegionDistance)
-        {
-            return false;
-        }
-
-        var neighbours = start.Neighbors;
-        return neighbours.Contains(end) || neighbours.Any(n => RegionsAreClose(n, end, depth + 1));
     }
 
     protected override IEnumerable<Designation> GetIntersectionDesignations(

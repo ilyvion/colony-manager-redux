@@ -78,4 +78,113 @@ internal static class ManagerJobMiningTests
         Assert.That(result).Is.EqualTo(ChunkProcessingKind.Both);
         Assert.That(visitCount).Is.EqualTo(1);
     }
+
+    [Test]
+    public static void ClampScaledCountPassesThroughWhenBelowOriginal() =>
+        Assert.That(ManagerJob_Mining.ClampScaledCount(3, 10)).Is.EqualTo(3);
+
+    [Test]
+    public static void ClampScaledCountClampsToOriginalWhenRoundedExceedsIt() =>
+        // Regression: GenMath.RoundRandom is stochastic and can round a scaled count up past
+        // the original count; the clamp must always cap the result at the original.
+        Assert.That(ManagerJob_Mining.ClampScaledCount(11, 10)).Is.EqualTo(10);
+
+    [Test]
+    public static void ClampScaledCountAtExactlyOriginalIsUnchanged() =>
+        Assert.That(ManagerJob_Mining.ClampScaledCount(10, 10)).Is.EqualTo(10);
+
+    private static int SumScaled(float fraction, params (int count, bool counted)[] items) =>
+        ManagerJob_Mining.SumScaledCounts(items, fraction);
+
+    [Test]
+    public static void SumScaledCountsWithZeroFractionIsZero() =>
+        Assert.That(SumScaled(0f, (100, true))).Is.EqualTo(0);
+
+    [Test]
+    public static void SumScaledCountsWithFullFractionIsOriginalCount() =>
+        Assert.That(SumScaled(1f, (100, true))).Is.EqualTo(100);
+
+    [Test]
+    public static void SumScaledCountsExcludesUncountedItems() =>
+        Assert.That(SumScaled(1f, (100, true), (50, false))).Is.EqualTo(100);
+
+    [Test]
+    public static void SumScaledCountsSumsAcrossMultipleCountedItems() =>
+        Assert.That(SumScaled(0.5f, (100, true), (50, true))).Is.EqualTo(75);
+
+    [Test]
+    public static void ChunkYieldWithZeroDropChanceIsZero() =>
+        Assert
+            .That(
+                ManagerJob_Mining.CalculateMineralYield(
+                    isChunk: true,
+                    chunkCount: 10,
+                    dropChance: 0f,
+                    mineableYield: 0f,
+                    mineYieldFactor: 0f,
+                    counted: false
+                )
+            )
+            .Is.EqualTo(0);
+
+    [Test]
+    public static void ChunkYieldWithFullDropChanceIsFullChunkCount() =>
+        Assert
+            .That(
+                ManagerJob_Mining.CalculateMineralYield(
+                    isChunk: true,
+                    chunkCount: 10,
+                    dropChance: 1f,
+                    mineableYield: 0f,
+                    mineYieldFactor: 0f,
+                    counted: false
+                )
+            )
+            .Is.EqualTo(10);
+
+    [Test]
+    public static void ChunkYieldTruncatesFractionalDropChanceTowardZero() =>
+        // 3 * 0.5 = 1.5, and the (int) cast truncates rather than rounds.
+        Assert
+            .That(
+                ManagerJob_Mining.CalculateMineralYield(
+                    isChunk: true,
+                    chunkCount: 3,
+                    dropChance: 0.5f,
+                    mineableYield: 0f,
+                    mineYieldFactor: 0f,
+                    counted: false
+                )
+            )
+            .Is.EqualTo(1);
+
+    [Test]
+    public static void MetalYieldIsZeroWhenNotCounted() =>
+        Assert
+            .That(
+                ManagerJob_Mining.CalculateMineralYield(
+                    isChunk: false,
+                    chunkCount: 0,
+                    dropChance: 1f,
+                    mineableYield: 100f,
+                    mineYieldFactor: 2f,
+                    counted: false
+                )
+            )
+            .Is.EqualTo(0);
+
+    [Test]
+    public static void MetalYieldScalesByYieldFactorAndDropChanceWhenCounted() =>
+        Assert
+            .That(
+                ManagerJob_Mining.CalculateMineralYield(
+                    isChunk: false,
+                    chunkCount: 0,
+                    dropChance: 0.5f,
+                    mineableYield: 10f,
+                    mineYieldFactor: 2f,
+                    counted: true
+                )
+            )
+            .Is.EqualTo(10);
 }
