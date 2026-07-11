@@ -653,22 +653,34 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             return chunkProductKind;
         }
 
-        chunkProductKind = ChunkProcessingKind.Neither;
-        foreach (
-            var chunk in DefDatabase<ThingDef>.AllDefs.Where(t =>
-                t.IsChunk()
-                && (
-                    (t.butcherProducts?.Any(Counted) ?? false)
-                    || (t.smeltProducts?.Any(Counted) ?? false)
+        chunkProductKind = AccumulateChunkProcessingKind(
+            DefDatabase<ThingDef>
+                .AllDefs.Where(t =>
+                    t.IsChunk()
+                    && (
+                        (t.butcherProducts?.Any(Counted) ?? false)
+                        || (t.smeltProducts?.Any(Counted) ?? false)
+                    )
                 )
-            )
-        )
+                .Select(t => (t.butcherProducts != null, t.smeltProducts != null))
+        );
+
+        _ = _chunkProductKindCachedValue.Update(chunkProductKind);
+        return chunkProductKind;
+    }
+
+    internal static ChunkProcessingKind AccumulateChunkProcessingKind(
+        IEnumerable<(bool hasButcherProducts, bool hasSmeltProducts)> chunks
+    )
+    {
+        var chunkProductKind = ChunkProcessingKind.Neither;
+        foreach (var (hasButcherProducts, hasSmeltProducts) in chunks)
         {
-            if (chunk.butcherProducts != null)
+            if (hasButcherProducts)
             {
                 chunkProductKind |= ChunkProcessingKind.Stonecutting;
             }
-            if (chunk.smeltProducts != null)
+            if (hasSmeltProducts)
             {
                 chunkProductKind |= ChunkProcessingKind.Smelting;
             }
@@ -679,7 +691,6 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             }
         }
 
-        _ = _chunkProductKindCachedValue.Update(chunkProductKind);
         return chunkProductKind;
     }
 
