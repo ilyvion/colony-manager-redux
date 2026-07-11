@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Source", "Source", "{7E26C0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.AAAA", "Source\ColonyManagerRedux.AAAA\ColonyManagerRedux.AAAA.csproj", "{6C678B92-9529-490A-9A74-3C3628E1CAC8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.Tests", "Source\ColonyManagerRedux.Tests\ColonyManagerRedux.Tests.csproj", "{EEE3F212-F4EF-445E-A7B0-6D3AD18C80DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,9 @@ Global
 		{6C678B92-9529-490A-9A74-3C3628E1CAC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C678B92-9529-490A-9A74-3C3628E1CAC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C678B92-9529-490A-9A74-3C3628E1CAC8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEE3F212-F4EF-445E-A7B0-6D3AD18C80DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEE3F212-F4EF-445E-A7B0-6D3AD18C80DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEE3F212-F4EF-445E-A7B0-6D3AD18C80DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

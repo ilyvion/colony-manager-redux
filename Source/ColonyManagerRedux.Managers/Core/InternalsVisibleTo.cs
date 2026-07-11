@@ -2,3 +2,4 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 [assembly: InternalsVisibleTo("ColonyManagerRedux.AnimalGenetics")]
+[assembly: InternalsVisibleTo("ColonyManagerRedux.Tests")]

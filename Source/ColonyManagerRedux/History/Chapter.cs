@@ -42,32 +42,34 @@ public partial class History
 
         public Chapter()
         {
-            counts = [.. Periods.Select(_ => new CircularBuffer<int>(entriesPerInterval, [0]))];
-            targets =
-            [
-                .. Periods.Select(_ => new CircularBuffer<(int, int)>(
-                    entriesPerInterval,
-                    [(0, 0)]
-                )),
-            ];
+            counts = BuildBuffers();
+            targets = BuildTargetBuffers();
         }
 
         public Chapter(HistoryLabel label, int entriesPerInterval, Color color)
-            : this()
         {
             this.label = label;
             this.entriesPerInterval = entriesPerInterval;
             LineColor = color;
+            counts = BuildBuffers();
+            targets = BuildTargetBuffers();
         }
 
         public Chapter(ThingDefCountClass thingDefCount, int entriesPerInterval, Color color)
-            : this()
         {
             label = new DefHistoryLabel<ThingDef>(thingDefCount.thingDef);
             ThingDefCount = thingDefCount;
             this.entriesPerInterval = entriesPerInterval;
             LineColor = color;
+            counts = BuildBuffers();
+            targets = BuildTargetBuffers();
         }
+
+        private CircularBuffer<int>[] BuildBuffers() =>
+            [.. Periods.Select(_ => new CircularBuffer<int>(entriesPerInterval, [0]))];
+
+        private CircularBuffer<(int position, int target)>[] BuildTargetBuffers() =>
+            [.. Periods.Select(_ => new CircularBuffer<(int, int)>(entriesPerInterval, [(0, 0)]))];
 
         public Texture2D Texture
         {

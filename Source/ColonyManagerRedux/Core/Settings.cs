@@ -173,13 +173,30 @@ public class Settings : ModSettings
     /// Determines if more designations can be added to a job.
     /// </summary>
     public bool CanAddMoreDesignations(int currentCount) =>
-        MaxDesignationsPerJob == 0 || MaxDesignationsPerJob > currentCount;
+        CanAddMoreDesignations(MaxDesignationsPerJob, currentCount);
 
     /// <summary>
     /// Determines if more designations should be removed from a job.
     /// </summary>
     public bool ShouldRemoveMoreDesignations(int currentCount) =>
-        MaxDesignationsPerJob != 0 && MaxDesignationsPerJob < currentCount;
+        ShouldRemoveMoreDesignations(MaxDesignationsPerJob, currentCount);
+
+    /// <summary>
+    /// Pure comparison behind <see cref="CanAddMoreDesignations(int)"/>, kept separate so it's
+    /// unit-testable without a live <see cref="Settings"/> instance. A limit of 0 means "no limit".
+    /// </summary>
+    internal static bool CanAddMoreDesignations(int maxDesignationsPerJob, int currentCount) =>
+        maxDesignationsPerJob == 0 || maxDesignationsPerJob > currentCount;
+
+    /// <summary>
+    /// Pure comparison behind <see cref="ShouldRemoveMoreDesignations(int)"/>, kept separate so
+    /// it's unit-testable without a live <see cref="Settings"/> instance. A limit of 0 means "no
+    /// limit", so nothing should ever be removed for being over it.
+    /// </summary>
+    internal static bool ShouldRemoveMoreDesignations(
+        int maxDesignationsPerJob,
+        int currentCount
+    ) => maxDesignationsPerJob != 0 && maxDesignationsPerJob < currentCount;
 
     private List<int> _customUpdateIntervalTickList = [];
 

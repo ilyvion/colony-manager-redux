@@ -201,41 +201,20 @@ internal sealed class AAAAManagerJobCompField(
             }
             else
             {
-                var originalAreas = jobAreaCollection.ToList();
-                try
-                {
-                    jobAreaCollection.Clear();
-                    foreach (var safeArea in safeAreas)
-                    {
-                        jobAreaCollection.Add(safeArea);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    ColonyManagerReduxMod.Instance.LogException(
-                        $"[AAAAManagerJobComp] Error while changing job area for '{parent.Def.defName}' using field {jobAreaField.Name}",
-                        ex
-                    );
-
-                    // The collection may have been left partially cleared/filled by the
-                    // failed swap above; restore it to its pre-swap contents so later
-                    // "return to normal" logic doesn't operate on corrupted state.
-                    try
-                    {
-                        jobAreaCollection.Clear();
-                        foreach (var originalArea in originalAreas)
-                        {
-                            jobAreaCollection.Add(originalArea);
-                        }
-                    }
-                    catch (Exception restoreEx)
-                    {
+                TrySwapCollectionContents(
+                    jobAreaCollection,
+                    safeAreas,
+                    ex =>
+                        ColonyManagerReduxMod.Instance.LogException(
+                            $"[AAAAManagerJobComp] Error while changing job area for '{parent.Def.defName}' using field {jobAreaField.Name}",
+                            ex
+                        ),
+                    restoreEx =>
                         ColonyManagerReduxMod.Instance.LogException(
                             $"[AAAAManagerJobComp] Error while restoring job area for '{parent.Def.defName}' using field {jobAreaField.Name} after a failed change",
                             restoreEx
-                        );
-                    }
-                }
+                        )
+                );
             }
         }
     }
@@ -385,6 +364,49 @@ internal sealed class AAAAManagerJobCompField(
         );
 
         return null;
+    }
+
+    /// <summary>
+    /// Replaces the contents of <paramref name="collection"/> with <paramref name="newContents"/>.
+    /// If the swap throws partway through, <paramref name="collection"/> is restored to its
+    /// original contents instead of being left partially cleared/filled. Generic over the item
+    /// type so this failure-recovery logic (the fix for a past regression where a failed area
+    /// swap could leave a job with a corrupted, partially-swapped allowed-areas collection) is
+    /// unit-testable without live RimWorld <see cref="Area"/> collections.
+    /// </summary>
+    internal static void TrySwapCollectionContents<T>(
+        ICollection<T> collection,
+        IReadOnlyList<T> newContents,
+        Action<Exception> onSwapFailed,
+        Action<Exception> onRestoreFailed
+    )
+    {
+        var originalContents = collection.ToList();
+        try
+        {
+            collection.Clear();
+            foreach (var item in newContents)
+            {
+                collection.Add(item);
+            }
+        }
+        catch (Exception ex)
+        {
+            onSwapFailed(ex);
+
+            try
+            {
+                collection.Clear();
+                foreach (var item in originalContents)
+                {
+                    collection.Add(item);
+                }
+            }
+            catch (Exception restoreEx)
+            {
+                onRestoreFailed(restoreEx);
+            }
+        }
     }
 
     private Area_Allowed? GetSafeAreaFor(Area? previousArea) =>

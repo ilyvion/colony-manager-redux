@@ -1423,15 +1423,33 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
     public Func<AgeAndSex, IEnumerable<Pawn>, IEnumerable<Pawn>> CullingPawnSorter;
 
-    private IEnumerable<Pawn> DefaultCullingPawnSorter(AgeAndSex ageAndSex, IEnumerable<Pawn> pawns)
-    {
+    private IEnumerable<Pawn> DefaultCullingPawnSorter(
+        AgeAndSex ageAndSex,
+        IEnumerable<Pawn> pawns
+    ) =>
         // should cull oldest adults, youngest juveniles.
-        var oldestFirst = ageAndSex.IsAdult();
+        OrderForCulling(
+            ageAndSex.IsAdult(),
+            pawns,
+            p => p.training.learned.Count(l => l.Value),
+            p => p.ageTracker.AgeBiologicalTicks
+        );
 
-        return pawns
-            .OrderBy(p => p.training.learned.Count(l => l.Value))
-            .ThenBy(p => (oldestFirst ? -1 : 1) * p.ageTracker.AgeBiologicalTicks);
-    }
+    /// <summary>
+    /// Orders <paramref name="items"/> least-trained-first, then by age (oldest first if
+    /// <paramref name="oldestFirst"/>, youngest first otherwise). Generic over the item type and
+    /// key selectors, kept separate from <see cref="DefaultCullingPawnSorter"/> so this ordering
+    /// is unit-testable without constructing live <see cref="Pawn"/>s.
+    /// </summary>
+    internal static IEnumerable<T> OrderForCulling<T>(
+        bool oldestFirst,
+        IEnumerable<T> items,
+        Func<T, int> learnedTraitCount,
+        Func<T, long> ageBiologicalTicks
+    ) =>
+        items
+            .OrderBy(learnedTraitCount)
+            .ThenBy(p => (oldestFirst ? -1 : 1) * ageBiologicalTicks(p));
 
     private bool RoughlyEquallyDistributed(List<Pawn> masters)
     {

@@ -514,26 +514,31 @@ public sealed class Trigger_Threshold : Trigger
     /// <returns>True if the count meets the target; otherwise, false.</returns>
     public bool DoesCountMeetTarget(int count)
     {
-        switch (op)
+        var result = Evaluate(op, count, targetCount);
+        if (result is null)
         {
-            case Ops.LowerThan:
-                return count >= targetCount;
-
-            case Ops.Equals:
-                return count == targetCount;
-
-            case Ops.HigherThan:
-                return count <= targetCount;
-
-            case Ops.NotEquals:
-                return count != targetCount;
-
-            default:
-                ColonyManagerReduxMod.Instance.LogWarningOnce(
-                    "Trigger_ThingThreshold was defined without a correct operator",
-                    ref _hasReportedIncorrectOperator
-                );
-                return true;
+            ColonyManagerReduxMod.Instance.LogWarningOnce(
+                "Trigger_ThingThreshold was defined without a correct operator",
+                ref _hasReportedIncorrectOperator
+            );
+            return true;
         }
+        return result.Value;
     }
+
+    /// <summary>
+    /// Evaluates <paramref name="count"/> against <paramref name="targetCount"/> using
+    /// <paramref name="op"/>. Pure function, kept separate from <see cref="DoesCountMeetTarget"/>
+    /// so the comparison logic is unit-testable without a live <see cref="ManagerJob"/>.
+    /// </summary>
+    /// <returns>The comparison result, or <see langword="null"/> if <paramref name="op"/> is not a recognized value.</returns>
+    internal static bool? Evaluate(Ops op, int count, int targetCount) =>
+        op switch
+        {
+            Ops.LowerThan => count >= targetCount,
+            Ops.Equals => count == targetCount,
+            Ops.HigherThan => count <= targetCount,
+            Ops.NotEquals => count != targetCount,
+            _ => null,
+        };
 }

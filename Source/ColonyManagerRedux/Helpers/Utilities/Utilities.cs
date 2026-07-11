@@ -201,17 +201,12 @@ public static class Utilities
                         continue;
                     }
 
-                    if (t.TryGetQuality(out var quality))
-                    {
-                        if (!filter.AllowedQualityLevels.Includes(quality))
-                        {
-                            continue;
-                        }
-                    }
-
                     if (
-                        !filter.AllowedHitPointsPercents.IncludesEpsilon(
-                            (float)t.HitPoints / t.MaxHitPoints
+                        !ShouldCountThing(
+                            t.TryGetQuality(out var quality),
+                            quality,
+                            (float)t.HitPoints / t.MaxHitPoints,
+                            filter
                         )
                     )
                     {
@@ -228,6 +223,26 @@ public static class Utilities
             }
         }
     }
+
+    /// <summary>
+    /// Determines whether a thing with the given quality/hit-points state passes
+    /// <paramref name="filter"/>'s quality and hit-points-percent restrictions. Pure function
+    /// extracted from <see cref="CountProductsCoroutine"/> so this filtering logic (the subject of
+    /// a past regression where damaged items were counted backwards) is unit-testable without a
+    /// live <see cref="Thing"/>.
+    /// </summary>
+    /// <param name="hasQuality">Whether the thing has a quality category (per <c>Thing.TryGetQuality</c>).</param>
+    /// <param name="quality">The thing's quality category, if <paramref name="hasQuality"/> is true.</param>
+    /// <param name="hitPointsPercent">The thing's current hit points as a fraction of its max hit points.</param>
+    /// <param name="filter">The filter whose quality/hit-points restrictions to check against.</param>
+    internal static bool ShouldCountThing(
+        bool hasQuality,
+        QualityCategory quality,
+        float hitPointsPercent,
+        ThingFilter filter
+    ) =>
+        (!hasQuality || filter.AllowedQualityLevels.Includes(quality))
+        && filter.AllowedHitPointsPercents.IncludesEpsilon(hitPointsPercent);
 
     /// <summary>
     /// Draws a toggle UI element for reachability, allowing the user to enable or disable reachability checks.
