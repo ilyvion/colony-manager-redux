@@ -122,30 +122,45 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
             return listingStandard.CurHeight - startHeight;
         }
 
-        _values[gene] = newValue;
+        _values = RebalanceAfterSliderChange(_values, gene, newValue, MinGeneValue, MaxGeneValue);
 
-        var otherKeys = _values.Keys.Where(key => key != gene).ToList();
-        var others = otherKeys.Sum(key => _values[key]);
+        return listingStandard.CurHeight - startHeight;
+    }
+
+    // Redistributes 1 - newValue proportionally across the other genes, clamps each to
+    // [min, max], then re-normalizes the clamped others so the full set still sums to 1.0
+    // instead of drifting over repeated edits (regression test for the bug fixed in d3700fa).
+    internal static Dictionary<TKey, float> RebalanceAfterSliderChange<TKey>(
+        IReadOnlyDictionary<TKey, float> values,
+        TKey changedKey,
+        float newValue,
+        float min,
+        float max
+    )
+        where TKey : notnull
+    {
+        var result = new Dictionary<TKey, float>(values) { [changedKey] = newValue };
+
+        var otherKeys = result.Keys.Where(key => !key!.Equals(changedKey)).ToList();
+        var others = otherKeys.Sum(key => result[key]);
         var modifier = (1.0f - newValue) / others;
 
         foreach (var key in otherKeys)
         {
-            _values[key] = Math.Min(Math.Max(modifier * _values[key], MinGeneValue), MaxGeneValue);
+            result[key] = Math.Min(Math.Max(modifier * result[key], min), max);
         }
 
-        // Clamping can push the other genes' sum away from (1 - newValue); re-normalize
-        // them so the full set still sums to 1.0 instead of drifting over repeated edits.
-        var clampedOthersSum = otherKeys.Sum(key => _values[key]);
+        var clampedOthersSum = otherKeys.Sum(key => result[key]);
         if (clampedOthersSum > 0f)
         {
             var target = 1.0f - newValue;
             foreach (var key in otherKeys)
             {
-                _values[key] = _values[key] / clampedOthersSum * target;
+                result[key] = result[key] / clampedOthersSum * target;
             }
         }
 
-        return listingStandard.CurHeight - startHeight;
+        return result;
     }
 
     private float DrawAnimalGeneticsOverridesSection(Vector2 pos, float width)

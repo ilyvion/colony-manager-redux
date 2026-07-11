@@ -1177,7 +1177,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 - cullingAction.GetAlreadyCulledForAgeSex(ageSex);
             var alreadyCulling = cullingAction.GetAlreadyCullingCountForAgeSex(ageSex);
             var target = TriggerPawnKind.CountTargets[(int)ageSex];
-            var targetDifference = animalCount - alreadyCulling - target;
+            var targetDifference = CalculateCullingTargetDifference(
+                animalCount,
+                alreadyCulling,
+                target
+            );
 
             jobLog.AddDetail(
                 "ColonyManagerRedux.Livestock.Logs.CurrentCountCulling".Translate(
@@ -1200,18 +1204,21 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 var animalsUnsorted = TriggerPawnKind
                     .pawnKind.GetTame(Manager, ageSex, includeGuests: false)
                     .Where(p =>
-                        !cullingAction.IsAlreadyCulling(p)
-                        && !cullingAction.IsAlreadyCulled(p)
-                        && (CullTrained || !p.training.HasLearned(TrainableDefOf.Obedience))
-                        && (CullPregnant || !p.VisiblyPregnant())
-                        && (CullBonded || !p.BondedWithColonist())
-                        && (
-                            !AvoidCullingMilkable
-                            || p.GetMilkFullness() < AvoidCullingMilkableThreshold
-                        )
-                        && (
-                            !AvoidCullingShearable
-                            || p.GetWoolFullness() < AvoidCullingShearableThreshold
+                        IsEligibleForCulling(
+                            cullingAction.IsAlreadyCulling(p),
+                            cullingAction.IsAlreadyCulled(p),
+                            CullTrained,
+                            p.training.HasLearned(TrainableDefOf.Obedience),
+                            CullPregnant,
+                            p.VisiblyPregnant(),
+                            CullBonded,
+                            p.BondedWithColonist(),
+                            AvoidCullingMilkable,
+                            p.GetMilkFullness(),
+                            AvoidCullingMilkableThreshold,
+                            AvoidCullingShearable,
+                            p.GetWoolFullness(),
+                            AvoidCullingShearableThreshold
                         )
                     );
                 var animals = CullingPawnSorter(ageSex, animalsUnsorted);
@@ -1298,7 +1305,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 .Count();
             DesignationsOfOn(DesignationDefOf.Tame, ageSex, _tmpDesignations);
             var alreadyTaming = _tmpDesignations.Count;
-            var targetDifference = target - animalCount - alreadyTaming;
+            var targetDifference = CalculateTamingTargetDifference(
+                target,
+                animalCount,
+                alreadyTaming
+            );
 
             if (!TamePastTargets)
             {
@@ -1458,12 +1469,56 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             return true;
         }
 
-        var followerCounts = masters
-            .Select(p => p.GetFollowers(TriggerPawnKind.pawnKind).EnumerableCount())
-            .ToArray();
-        var greatestDifferenceInFollowerCount = followerCounts.Max() - followerCounts.Min();
-        return greatestDifferenceInFollowerCount <= 1;
+        var followerCounts = masters.Select(p =>
+            p.GetFollowers(TriggerPawnKind.pawnKind).EnumerableCount()
+        );
+        return IsRoughlyEquallyDistributed(followerCounts);
     }
+
+    internal static bool IsRoughlyEquallyDistributed(IEnumerable<int> followerCounts)
+    {
+        var counts = followerCounts.ToArray();
+        return counts.Max() - counts.Min() <= 1;
+    }
+
+    // Positive means excess (cull more), negative means deficit (stop culling some
+    // already-marked animals).
+    internal static int CalculateCullingTargetDifference(
+        int animalCount,
+        int alreadyCulling,
+        int target
+    ) => animalCount - alreadyCulling - target;
+
+    // Positive means we need to tame more animals to reach the target.
+    internal static int CalculateTamingTargetDifference(
+        int target,
+        int animalCount,
+        int alreadyTaming
+    ) => target - animalCount - alreadyTaming;
+
+    internal static bool IsEligibleForCulling(
+        bool alreadyCulling,
+        bool alreadyCulled,
+        bool cullTrained,
+        bool isTrained,
+        bool cullPregnant,
+        bool isPregnant,
+        bool cullBonded,
+        bool isBonded,
+        bool avoidMilkable,
+        float milkFullness,
+        float milkThreshold,
+        bool avoidShearable,
+        float woolFullness,
+        float woolThreshold
+    ) =>
+        !alreadyCulling
+        && !alreadyCulled
+        && (cullTrained || !isTrained)
+        && (cullPregnant || !isPregnant)
+        && (cullBonded || !isBonded)
+        && (!avoidMilkable || milkFullness < milkThreshold)
+        && (!avoidShearable || woolFullness < woolThreshold);
 
     private bool TryRemoveDesignation(
         AgeAndSex ageSex,

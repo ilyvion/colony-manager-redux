@@ -16,6 +16,7 @@
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj" />
         <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj" />
+        <ProjectReference Include="..\ColonyManagerRedux.AnimalGenetics\ColonyManagerRedux.AnimalGenetics.csproj" />
         <ProjectReference Include="..\ColonyManagerRedux.AAAA\ColonyManagerRedux.AAAA.csproj" />
         <ProjectReference Include="$(ProjectDependenciesBasePath)\RimTest\Source\RimTestRedux\RimTestRedux.csproj">
             <CopyLocal>False</CopyLocal>
