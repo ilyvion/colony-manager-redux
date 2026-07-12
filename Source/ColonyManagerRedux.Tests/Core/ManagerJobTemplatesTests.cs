@@ -35,4 +35,12 @@ internal static class ManagerJobTemplatesTests
         Assert
             .That(ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", "Already.cmt"))
             .Is.EqualTo("/save/ManagerJobTemplates/Already.cmt.cmt");
+
+    // Path.Combine treats an empty second segment as a no-op (no separator added), so this
+    // collapses to the base path with the extension appended directly.
+    [Test]
+    public static void HandlesEmptyName() =>
+        Assert
+            .That(ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", ""))
+            .Is.EqualTo("/save/ManagerJobTemplates.cmt");
 }

@@ -415,21 +415,18 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     internal void TryApplyDefaultTemplateOnFirstManagerStation()
     {
-        if (_hasCheckedDefaultTemplate)
-        {
-            return;
-        }
+        var alreadyChecked = _hasCheckedDefaultTemplate;
         _hasCheckedDefaultTemplate = true;
 
         var settings = ColonyManagerReduxMod.Settings;
-        if (!settings.AutoApplyDefaultTemplateOnFirstStation)
-        {
-            return;
-        }
-
         var templateName = settings.DefaultTemplateName;
         if (
-            string.IsNullOrEmpty(templateName) || !ManagerJobTemplates.TemplateExists(templateName!)
+            !ShouldApplyDefaultTemplate(
+                alreadyChecked,
+                settings.AutoApplyDefaultTemplateOnFirstStation,
+                templateName,
+                ManagerJobTemplates.TemplateExists
+            )
         )
         {
             return;
@@ -444,6 +441,22 @@ public class Manager : MapComponent, ILoadReferenceable
             );
         }
     }
+
+    /// <summary>
+    /// Decides whether the default manager job template should be applied. Kept separate from
+    /// <see cref="TryApplyDefaultTemplateOnFirstManagerStation"/> so this is unit-testable without
+    /// live settings or a template store.
+    /// </summary>
+    internal static bool ShouldApplyDefaultTemplate(
+        bool alreadyChecked,
+        bool autoApplyEnabled,
+        string? templateName,
+        Func<string, bool> templateExists
+    ) =>
+        !alreadyChecked
+        && autoApplyEnabled
+        && !string.IsNullOrEmpty(templateName)
+        && templateExists(templateName!);
 
     internal int GetNextManagerJobID()
     {
@@ -476,11 +489,19 @@ public class Manager : MapComponent, ILoadReferenceable
     // Finds the lowest ID not currently in use by any tracked job, so IDs assigned outside the
     // normal incrementing counter (e.g. during a loading race, or after the counter overflows)
     // can't collide with an existing job's load ID.
-    private int GetUnusedManagerJobID()
+    private int GetUnusedManagerJobID() =>
+        FindLowestUnusedId(JobTracker.Jobs.Select(job => job.LoadID));
+
+    /// <summary>
+    /// Walks upward from 0 to find the lowest ID not present in <paramref name="usedIds"/>. Kept
+    /// separate from <see cref="GetUnusedManagerJobID"/> so this is unit-testable without a live
+    /// <see cref="JobTracker"/>.
+    /// </summary>
+    internal static int FindLowestUnusedId(IEnumerable<int> usedIds)
     {
-        var usedIDs = JobTracker.Jobs.Select(job => job.LoadID).ToHashSet();
+        var used = usedIds.ToHashSet();
         var candidate = 0;
-        while (usedIDs.Contains(candidate))
+        while (used.Contains(candidate))
         {
             candidate++;
         }

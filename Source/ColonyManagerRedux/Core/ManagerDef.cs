@@ -75,6 +75,46 @@ public class ManagerDef : Def
             yield return item;
         }
 
+        foreach (
+            var item in ValidateManagerDefTypes(
+                managerJobClass,
+                managerTabClass,
+                managerSettingsClass
+            )
+        )
+        {
+            yield return item;
+        }
+
+        foreach (var comp in jobComps)
+        {
+            foreach (var item in comp.ConfigErrors(this))
+            {
+                yield return item;
+            }
+        }
+
+        foreach (var comp in managerComps)
+        {
+            foreach (var item in comp.ConfigErrors(this))
+            {
+                yield return item;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Validates that <paramref name="managerJobClass"/>, <paramref name="managerTabClass"/>, and
+    /// <paramref name="managerSettingsClass"/> are null (where allowed) or assignable to the
+    /// expected base types, yielding a config-error string for each violation. Kept separate from
+    /// <see cref="ConfigErrors"/> so this is unit-testable without a live <see cref="Def"/>.
+    /// </summary>
+    internal static IEnumerable<string> ValidateManagerDefTypes(
+        Type? managerJobClass,
+        Type? managerTabClass,
+        Type? managerSettingsClass
+    )
+    {
         if (managerJobClass != null && !typeof(ManagerJob).IsAssignableFrom(managerJobClass))
         {
             yield return $"{nameof(managerJobClass)} is not {nameof(ManagerJob)} or a subclass thereof";
@@ -95,22 +135,6 @@ public class ManagerDef : Def
         )
         {
             yield return $"{nameof(managerSettingsClass)} is not a subclass of {nameof(ManagerSettings)}";
-        }
-
-        foreach (var comp in jobComps)
-        {
-            foreach (var item in comp.ConfigErrors(this))
-            {
-                yield return item;
-            }
-        }
-
-        foreach (var comp in managerComps)
-        {
-            foreach (var item in comp.ConfigErrors(this))
-            {
-                yield return item;
-            }
         }
     }
 }
