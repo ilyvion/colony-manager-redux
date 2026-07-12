@@ -11,7 +11,7 @@ internal static class ClockTests
 {
     private static readonly Rect SquareCanvas = new(0f, 0f, 100f, 100f);
 
-    private static Vector2 Round(Vector2 v) => new(MathF.Round(v.x), MathF.Round(v.y));
+    private static Vector2 Round(Vector2 v) => new(Mathf.Round(v.x), Mathf.Round(v.y));
 
     [Test]
     public static void HourZeroPointsToTopOfCanvas()

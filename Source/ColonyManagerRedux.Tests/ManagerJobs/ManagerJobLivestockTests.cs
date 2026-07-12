@@ -380,6 +380,7 @@ internal static class ManagerJobLivestockTests
         Assert.That(visible).Is.False();
     }
 
+#if !v1_5
     [Test]
     public static void OdysseySpecialTrainableNotListedRejectsAndHides()
     {
@@ -413,6 +414,7 @@ internal static class ManagerJobLivestockTests
         Assert.That(report.Accepted).Is.True();
         Assert.That(visible).Is.True();
     }
+#endif
 
     [Test]
     public static void TrainableTagMatchButTooSmallIsVisibleButRejected()
@@ -446,7 +448,9 @@ internal static class ManagerJobLivestockTests
         {
             defName = "Unrelated",
             defaultTrainable = false,
+#if !v1_5
             specialTrainable = false,
+#endif
         };
 
         var report = ManagerJob_Livestock.CanBeTrained(

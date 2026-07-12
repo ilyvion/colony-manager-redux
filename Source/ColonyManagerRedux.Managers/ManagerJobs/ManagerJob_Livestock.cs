@@ -377,7 +377,13 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         PawnKindDef pawnKind,
         TrainableDef td,
         out bool visible
-    ) => CanBeTrained(ModsConfig.OdysseyActive, pawnKind, td, out visible);
+    ) => CanBeTrained(
+#if !v1_5
+            ModsConfig.OdysseyActive,
+#else
+            false,
+#endif
+            pawnKind, td, out visible);
 
     /// <summary>
     /// Same as <see cref="CanBeTrained(PawnKindDef, TrainableDef, out bool)"/>, but with
