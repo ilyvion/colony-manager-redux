@@ -21,7 +21,8 @@ internal sealed class Alert_NoManager : Alert
                 return false;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobList.Count > 0 && !AnyConsciousManagerPawn();
+            return AnyUnsuspendedJobs(manager.JobTracker.JobList.Select(j => j.IsSuspended))
+                && !AnyConsciousManagerPawn();
         });
     }
 
@@ -29,6 +30,14 @@ internal sealed class Alert_NoManager : Alert
 
     public override AlertReport GetReport() =>
         ColonyManagerReduxMod.Settings.ShowNoManagerAlert && _noManager.Value;
+
+    /// <summary>
+    /// Pure filter behind the "are there jobs that actually need a manager" checks in
+    /// <see cref="Alert_NoManager"/> and <see cref="Alert_NoTable"/>: a suspended job doesn't
+    /// need anyone (or anything) to work on it, so it shouldn't be able to trigger either alert.
+    /// </summary>
+    internal static bool AnyUnsuspendedJobs(IEnumerable<bool> jobsIsSuspended) =>
+        jobsIsSuspended.Any(isSuspended => !isSuspended);
 
     private static bool AnyConsciousManagerPawn() =>
         Find.CurrentMap.mapPawns.FreeColonistsSpawned.Any(pawn =>
@@ -169,14 +178,16 @@ internal sealed class Alert_NoTable : Alert
                 return false;
             }
             var manager = Manager.For(currentMap);
-            return manager.JobTracker.JobsOfType<ManagerJob>().Any() && !AnyManagerWorkspace();
+            return Alert_NoManager.AnyUnsuspendedJobs(
+                    manager.JobTracker.JobsOfType<ManagerJob>().Select(j => j.IsSuspended)
+                ) && !AnyManagerWorkspace();
         });
     }
 
     public override AlertPriority Priority => AlertPriority.Medium;
 
     public override AlertReport GetReport() =>
-        ColonyManagerReduxMod.Settings.ShowNoManagerAlert && _noTable.Value;
+        ColonyManagerReduxMod.Settings.ShowNoTableAlert && _noTable.Value;
 
     public override TaggedString GetExplanation() =>
         "ColonyManagerRedux.Alerts.NoTable".Translate()

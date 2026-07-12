@@ -118,6 +118,21 @@ internal static class AlertsTests
             .Is.EqualTo(AlertPriority.Critical);
 
     [Test]
+    public static void AnyUnsuspendedJobsIsFalseForEmptySequence() =>
+        Assert.That(Alert_NoManager.AnyUnsuspendedJobs([])).Is.False();
+
+    [Test]
+    public static void AnyUnsuspendedJobsIsFalseWhenAllJobsSuspended() =>
+        // A colony that only has a suspended job (e.g. an auto-created ManagerJob_Power the
+        // player never asked for) shouldn't be nagged to build a manager desk or hire a manager
+        // for it - see GitHub issue #18.
+        Assert.That(Alert_NoManager.AnyUnsuspendedJobs([true, true])).Is.False();
+
+    [Test]
+    public static void AnyUnsuspendedJobsIsTrueWhenAnyJobIsNotSuspended() =>
+        Assert.That(Alert_NoManager.AnyUnsuspendedJobs([true, false, true])).Is.True();
+
+    [Test]
     public static void AutoSlaughterConfigWithAllSentinelsIsInactive() =>
         Assert
             .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(-1, -1, -1, -1, -1))

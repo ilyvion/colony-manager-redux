@@ -10,6 +10,26 @@ namespace ColonyManagerRedux.Tests;
 internal static class ManagerJobPowerTests
 {
     [Test]
+    public static void ShouldStartSuspendedIsFalseWhenSettingIsDisabled() =>
+        // Old behavior, kept as the default: the auto-created Power job never starts suspended
+        // unless the player opts in via the setting - see GitHub issue #18.
+        Assert
+            .That(ManagerTab_Power.ShouldStartSuspended(false, mapIsPlayerHome: false))
+            .Is.False();
+
+    [Test]
+    public static void ShouldStartSuspendedIsFalseOnHomeMapsEvenWhenSettingIsEnabled() =>
+        Assert.That(ManagerTab_Power.ShouldStartSuspended(true, mapIsPlayerHome: true)).Is.False();
+
+    [Test]
+    public static void ShouldStartSuspendedIsTrueOnNonHomeMapsWhenSettingIsEnabled() =>
+        // A quest site or other map the player is just visiting shouldn't start nagging about an
+        // auto-created Power job the moment it exists - see GitHub issue #18.
+        Assert
+            .That(ManagerTab_Power.ShouldStartSuspended(true, mapIsPlayerHome: false))
+            .Is.True();
+
+    [Test]
     public static void TrimListToIsNoOpWhenListAlreadyAtTargetLength()
     {
         List<int> list = [1, 2, 3];

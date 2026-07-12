@@ -7,7 +7,8 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_Power>(manager)
+internal sealed class ManagerTab_Power(Manager manager)
+    : ManagerTab<ManagerJob_Power, ManagerSettings_Power>(manager)
 {
     private Vector2 _consumptionScrollPos = Vector2.zero;
 
@@ -51,6 +52,10 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
                     job = Manager.NewJob<ManagerJob_Power>(Def);
                     Manager.JobTracker.Add(job);
                     job.IsManaged = true;
+                    job.IsSuspended = ShouldStartSuspended(
+                        ManagerSettings.AutoSuspendOnNonHomeMaps,
+                        Manager.map.IsPlayerHome
+                    );
                     Selected = job;
                 }
                 else
@@ -71,6 +76,17 @@ internal sealed class ManagerTab_Power(Manager manager) : ManagerTab<ManagerJob_
     protected override bool CreateNewSelectedJobOnMake => false;
 
     public static bool ResearchedFinished => ManagerResearchProjectDefOf.PowerManagement.IsFinished;
+
+    /// <summary>
+    /// Pure decision behind whether a newly auto-created Power job should start out suspended:
+    /// only suspend it when the setting is enabled and the map isn't one of the player's home
+    /// colony maps - see GitHub issue #18 (players getting nagged by the Power job's alerts on
+    /// maps they're only visiting, e.g. quest sites).
+    /// </summary>
+    internal static bool ShouldStartSuspended(
+        bool autoSuspendOnNonHomeMaps,
+        bool mapIsPlayerHome
+    ) => autoSuspendOnNonHomeMaps && !mapIsPlayerHome;
 
     public static void OnPowerResearchedFinished()
     {

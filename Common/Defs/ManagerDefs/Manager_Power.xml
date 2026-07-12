@@ -4,6 +4,7 @@
         <defName>CM_PowerManager</defName>
         <order>800</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Power</managerJobClass>
+        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Power</managerSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Power</managerTabClass>
         <iconPath>UI/Icons/CMR_Power</iconPath>
         <label>power</label>
