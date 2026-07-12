@@ -85,12 +85,23 @@ internal static class Clock
         float end
     )
     {
+        var (from, to) = ComputeHandlePoints(canvas, hour, start, end);
+        Widgets.DrawLine(from, to, color, thickness);
+    }
+
+    internal static (Vector2 from, Vector2 to) ComputeHandlePoints(
+        Rect canvas,
+        float hour,
+        float start,
+        float end
+    )
+    {
         var angle = ((hour / 6) - .5f) * Mathf.PI; // should start at top...
         var radius = Mathf.Min(canvas.width, canvas.height) / 2f;
         var vector = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
         var from = (radius * start * vector) + canvas.center;
         var to = (radius * end * vector) + canvas.center;
-        Widgets.DrawLine(from, to, color, thickness);
+        return (from, to);
     }
 
     public static void DrawTick(Rect canvas, HourTick tick, float hour)

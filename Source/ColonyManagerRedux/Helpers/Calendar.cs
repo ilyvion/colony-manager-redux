@@ -92,15 +92,25 @@ internal static class Calendar
         Widgets.DrawLine(start, end, color, 1);
     }
 
-    //https://math.stackexchange.com/a/466248/176741
     private static int SquareSize(float x, float y, int n)
     {
-        var key = $"x:{x:F3}, y:{y:F3}, n:{n}";
+        var key = BuildSizeCacheKey(x, y, n);
         if (_sizeCache.TryGetValue(key, out var size))
         {
             return size;
         }
 
+        size = ComputeSquareSize(x, y, n);
+        _sizeCache.Add(key, size);
+        return size;
+    }
+
+    internal static string BuildSizeCacheKey(float x, float y, int n) =>
+        $"x:{x:F3}, y:{y:F3}, n:{n}";
+
+    //https://math.stackexchange.com/a/466248/176741
+    internal static int ComputeSquareSize(float x, float y, int n)
+    {
         float sx,
             sy;
 
@@ -110,8 +120,6 @@ internal static class Calendar
         var py = Mathf.Ceil(Mathf.Sqrt(n * y / x));
         sy = Mathf.Floor(py * x / y) * py < n ? x / Mathf.CeilToInt(x * py / y) : y / py;
 
-        size = (int)Mathf.Max(sx, sy);
-        _sizeCache.Add(key, size);
-        return size;
+        return (int)Mathf.Max(sx, sy);
     }
 }

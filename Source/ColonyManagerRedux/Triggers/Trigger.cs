@@ -67,8 +67,11 @@ public abstract class Trigger(ManagerJob job) : IExposable
         Texture2D progressBarTexture
     )
     {
-        // bar always goes a little beyond the actual target
-        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
+        var (_, _, markPosition, barSpan) = ComputeProgressBarMetrics(
+            currentValue,
+            maxValue,
+            progressRect.ContractedBy(2f).height
+        );
 
         // draw a box for the bar
         GUI.color = Color.gray;
@@ -77,9 +80,8 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
         // get the bar rect
         var barRect = progressRect.ContractedBy(2f);
-        var unit = barRect.height / max;
-        var markHeight = barRect.yMin + ((max - maxValue) * unit);
-        barRect.yMin += (max - currentValue) * unit;
+        var markHeight = barRect.yMin + (barRect.height - markPosition);
+        barRect.yMin += barRect.height - barSpan;
 
         // draw the bar
         // if the job is active and pending, make the bar blueish green - otherwise white.
@@ -117,8 +119,11 @@ public abstract class Trigger(ManagerJob job) : IExposable
         Texture2D progressBarTexture
     )
     {
-        // bar always goes a little beyond the actual target
-        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
+        var (_, _, markPosition, barSpan) = ComputeProgressBarMetrics(
+            currentValue,
+            maxValue,
+            progressRect.ContractedBy(2f).width
+        );
 
         // draw a box for the bar
         GUI.color = Color.gray;
@@ -127,9 +132,8 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
         // get the bar rect
         var barRect = progressRect.ContractedBy(2f);
-        var unit = barRect.width / max;
-        var markWidth = barRect.xMin + (maxValue * unit);
-        barRect.width = currentValue * unit;
+        var markWidth = barRect.xMin + markPosition;
+        barRect.width = barSpan;
 
         // draw the bar
         // if the job is active and pending, make the bar blueish green - otherwise white.
@@ -140,6 +144,28 @@ public abstract class Trigger(ManagerJob job) : IExposable
         Widgets.DrawLineVertical(markWidth, progressRect.yMin, progressRect.height);
 
         TooltipHandler.TipRegion(progressRect, tooltip);
+    }
+
+    /// <summary>
+    /// Computes the numeric metrics (logical max, per-unit scale, target-mark position, and
+    /// filled-bar span) shared by both the vertical and horizontal progress bar drawing methods.
+    /// </summary>
+    /// <param name="currentValue">The current value to display.</param>
+    /// <param name="maxValue">The maximum value for the bar.</param>
+    /// <param name="barLength">The length (height or width) of the bar's drawable area.</param>
+    internal static (
+        float max,
+        float unit,
+        float markPosition,
+        float barSpan
+    ) ComputeProgressBarMetrics(float currentValue, float maxValue, float barLength)
+    {
+        // bar always goes a little beyond the actual target
+        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
+        var unit = barLength / max;
+        var markPosition = maxValue * unit;
+        var barSpan = currentValue * unit;
+        return (max, unit, markPosition, barSpan);
     }
 
     /// <summary>
