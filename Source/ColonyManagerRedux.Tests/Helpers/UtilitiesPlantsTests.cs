@@ -104,4 +104,136 @@ internal static class UtilitiesPlantsTests
                 )
             )
             .Is.False();
+
+    [Test]
+    public static void ComputeReduceCountRemovesNothingWhenRemovalWouldDropBelowTarget() =>
+        // "At least 8" threshold: removing even the first item would drop count from 10 to 7,
+        // below target, so the loop must break before removing anything.
+        Assert
+            .That(
+                Utilities_Plants.ComputeReduceCount(
+                    startingCount: 10,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 3,
+                    countMeetsTarget: c => c >= 8,
+                    shouldRemoveMoreDesignations: _ => false
+                )
+            )
+            .Is.EqualTo(0);
+
+    [Test]
+    public static void ComputeReduceCountStopsAsSoonAsFurtherRemovalWouldDropBelowTarget() =>
+        // "At least 8" threshold, starting count 15: removing the first two 3-yield items keeps
+        // count at/above target (12, then 9); removing a third would drop it to 6, below target -
+        // stop there, leaving the third item's designation untouched ("just above target").
+        Assert
+            .That(
+                Utilities_Plants.ComputeReduceCount(
+                    startingCount: 15,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 3,
+                    countMeetsTarget: c => c >= 8,
+                    shouldRemoveMoreDesignations: _ => false
+                )
+            )
+            .Is.EqualTo(2);
+
+    [Test]
+    public static void ComputeReduceCountRemovesAllWhenTargetStaysMetThroughout() =>
+        Assert
+            .That(
+                Utilities_Plants.ComputeReduceCount(
+                    startingCount: 10,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 3,
+                    countMeetsTarget: _ => true,
+                    shouldRemoveMoreDesignations: _ => false
+                )
+            )
+            .Is.EqualTo(3);
+
+    [Test]
+    public static void ComputeReduceCountHonorsShouldRemoveMoreDesignationsOverride()
+    {
+        // A non-"at least" threshold type (e.g. "not equal to") can keep reporting the target as
+        // unmet forever; ShouldRemoveMoreDesignations is the independent escape hatch that must
+        // still allow the loop to keep removing designations. This mirrors the equivalent Mining
+        // bug fixed before af20ec1 ("Mining jobs using a threshold type other than 'at least' ...
+        // would keep removing ... past target").
+        var designationCountsSeen = new List<int>();
+        Assert
+            .That(
+                Utilities_Plants.ComputeReduceCount(
+                    startingCount: 10,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 3,
+                    countMeetsTarget: _ => false,
+                    shouldRemoveMoreDesignations: c =>
+                    {
+                        designationCountsSeen.Add(c);
+                        return c > 1;
+                    }
+                )
+            )
+            .Is.EqualTo(2);
+        Assert.ThatCollection(designationCountsSeen).Has.Count(3);
+    }
+
+    [Test]
+    public static void ComputeNumberToDesignateAddsNoneWhenAlreadyAtTarget() =>
+        Assert
+            .That(
+                Utilities_Plants.ComputeNumberToDesignate(
+                    startingCount: 10,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 0,
+                    countMeetsTarget: c => c >= 10,
+                    canAddMoreDesignations: _ => true
+                )
+            )
+            .Is.EqualTo(0);
+
+    [Test]
+    public static void ComputeNumberToDesignateStopsAsSoonAsTargetIsMet() =>
+        Assert
+            .That(
+                Utilities_Plants.ComputeNumberToDesignate(
+                    startingCount: 0,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 0,
+                    countMeetsTarget: c => c >= 5,
+                    canAddMoreDesignations: _ => true
+                )
+            )
+            .Is.EqualTo(2);
+
+    [Test]
+    public static void ComputeNumberToDesignateStopsWhenRunningOutOfCandidates() =>
+        Assert
+            .That(
+                Utilities_Plants.ComputeNumberToDesignate(
+                    startingCount: 0,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 0,
+                    countMeetsTarget: c => c >= 100,
+                    canAddMoreDesignations: _ => true
+                )
+            )
+            .Is.EqualTo(3);
+
+    [Test]
+    public static void ComputeNumberToDesignateStopsWhenCanAddMoreDesignationsBecomesFalse() =>
+        // Exercises the loop's *use* of the CanAddMoreDesignations predicate (already covered
+        // standalone by SettingsTests), not just the predicate itself.
+        Assert
+            .That(
+                Utilities_Plants.ComputeNumberToDesignate(
+                    startingCount: 0,
+                    sortedYields: [3, 3, 3],
+                    startingDesignationCount: 0,
+                    countMeetsTarget: _ => false,
+                    canAddMoreDesignations: c => c < 2
+                )
+            )
+            .Is.EqualTo(2);
 }

@@ -31,12 +31,23 @@ internal sealed class Trigger_PawnKind : Trigger
     }
 
     public int[] Counts =>
-        [
-            .. Utilities_Livestock.AgeSexArray.Select(ageSex =>
-                (pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0)
-                - Job.CullingStrategyAction.GetAlreadyCulledForAgeSex(ageSex)
-            ),
-        ];
+        ComputeRemainingCounts(
+            [
+                .. Utilities_Livestock.AgeSexArray.Select(ageSex =>
+                    pawnKind?.GetTame(Job.Manager, ageSex, includeGuests: false).Count() ?? 0
+                ),
+            ],
+            [
+                .. Utilities_Livestock.AgeSexArray.Select(
+                    Job.CullingStrategyAction.GetAlreadyCulledForAgeSex
+                ),
+            ]
+        );
+
+    internal static int[] ComputeRemainingCounts(
+        IReadOnlyList<int> tameCounts,
+        IReadOnlyList<int> alreadyCulled
+    ) => [.. tameCounts.Zip(alreadyCulled, (tame, culled) => tame - culled)];
 
     public int GetCountFor(AgeAndSex ageAndSex, bool cached = true) =>
         (pawnKind?.GetTame(Job.Manager, ageAndSex, cached, false).Count() ?? 0)
@@ -75,16 +86,21 @@ internal sealed class Trigger_PawnKind : Trigger
             }
             else if (!_cachedState.TryGetValue(out state))
             {
-                state =
-                    Utilities_Livestock.AgeSexArray.All(ageSex =>
-                        CountTargets[(int)ageSex] == pawnKind.GetTame(Job.Manager, ageSex).Count()
-                    ) && AllTrainingWantedSet();
+                var actualCounts = Utilities_Livestock.AgeSexArray.Select(ageSex =>
+                    pawnKind.GetTame(Job.Manager, ageSex).Count()
+                );
+                state = AllTargetsMet(CountTargets, [.. actualCounts]) && AllTrainingWantedSet();
                 _ = _cachedState.Update(state);
             }
 
             return state;
         }
     }
+
+    internal static bool AllTargetsMet(
+        IReadOnlyList<int> targets,
+        IReadOnlyList<int> actualCounts
+    ) => targets.Zip(actualCounts, (target, actual) => target == actual).All(matched => matched);
 
     public override string StatusTooltip => _cachedTooltip.Value;
 

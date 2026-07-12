@@ -45,6 +45,68 @@ internal static class Utilities_Plants
             && harvestYield > 0
         );
 
+    /// <summary>
+    /// Shared by Forestry and Foraging's "reduce designations until we're just above target"
+    /// loop. Given yields in removal order, walks forward removing (subtracting) each one as
+    /// long as either the running count still meets the threshold once removed, or the
+    /// designation count is high enough that more should be removed regardless — stopping at the
+    /// first item that fails both checks. Since removal always proceeds from the front and stops
+    /// at the first failure, the result is always a contiguous prefix, so only its length is
+    /// returned.
+    /// </summary>
+    internal static int ComputeReduceCount(
+        int startingCount,
+        IReadOnlyList<int> sortedYields,
+        int startingDesignationCount,
+        Func<int, bool> countMeetsTarget,
+        Func<int, bool> shouldRemoveMoreDesignations
+    )
+    {
+        var count = startingCount;
+        var designationCount = startingDesignationCount;
+        var removeCount = 0;
+        for (; removeCount < sortedYields.Count; removeCount++)
+        {
+            count -= sortedYields[removeCount];
+            if (!countMeetsTarget(count) && !shouldRemoveMoreDesignations(designationCount))
+            {
+                break;
+            }
+            designationCount--;
+        }
+        return removeCount;
+    }
+
+    /// <summary>
+    /// Shared by Forestry and Foraging's "add designations until target met" loop. Given yields
+    /// in designation order, walks forward adding (accumulating) each one until the running count
+    /// meets the threshold or no more designations may be added — stopping before the first item
+    /// that would violate either check. The result is always a contiguous prefix, so only its
+    /// length is returned.
+    /// </summary>
+    internal static int ComputeNumberToDesignate(
+        int startingCount,
+        IReadOnlyList<int> sortedYields,
+        int startingDesignationCount,
+        Func<int, bool> countMeetsTarget,
+        Func<int, bool> canAddMoreDesignations
+    )
+    {
+        var count = startingCount;
+        var designationCount = startingDesignationCount;
+        var designateCount = 0;
+        for (; designateCount < sortedYields.Count; designateCount++)
+        {
+            if (countMeetsTarget(count) || !canAddMoreDesignations(designationCount))
+            {
+                break;
+            }
+            count += sortedYields[designateCount];
+            designationCount++;
+        }
+        return designateCount;
+    }
+
     public static IEnumerable<ThingDef> GetForagingPlants(Map? map) =>
         GetAllPlants(map)
             // that yield something that is not wood

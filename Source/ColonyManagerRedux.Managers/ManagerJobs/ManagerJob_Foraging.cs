@@ -413,39 +413,37 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             // reduce designations until we're just above target
-            for (var i = 0; i < sortedDesignations.Count; i++)
+            var sortedYields = sortedDesignations
+                .Select(d => ((Plant)d.target.Thing).YieldNow())
+                .ToList();
+            var removeCount = Utilities_Plants.ComputeReduceCount(
+                count,
+                sortedYields,
+                _designations.Count,
+                TriggerThreshold.DoesCountMeetTarget,
+                ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
+            );
+            for (var i = 0; i < removeCount; i++)
             {
                 var designation = sortedDesignations[i];
 
                 var plant = (Plant)designation.target.Thing;
-                var yield = plant.YieldNow();
+                var yield = sortedYields[i];
                 count -= yield;
-                if (
-                    TriggerThreshold.DoesCountMeetTarget(count)
-                    || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count
-                    )
-                )
-                {
-                    designation.Delete();
-                    _ = _designations.Remove(designation);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                            DesignationDefOf.HarvestPlant.ActionText(),
-                            "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
-                            plant.Label,
-                            yield,
-                            count,
-                            TriggerThreshold.TargetLabel
-                        ),
-                        plant
-                    );
-                    workDone.Value = true;
-                }
-                else
-                {
-                    break;
-                }
+                designation.Delete();
+                _ = _designations.Remove(designation);
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.HarvestPlant.ActionText(),
+                        "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
+                        plant.Label,
+                        yield,
+                        count,
+                        TriggerThreshold.TargetLabel
+                    ),
+                    plant
+                );
+                workDone.Value = true;
 
                 if (i > 0 && i % operationsPerTick == 0)
                 {
@@ -501,17 +499,17 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             yield break;
         }
 
-        foreach (var (plant, i) in sortedPlants.Select((t, i) => (t, i)))
+        var sortedPlantYields = sortedPlants.Select(p => p.YieldNow()).ToList();
+        var designateCount = Utilities_Plants.ComputeNumberToDesignate(
+            count,
+            sortedPlantYields,
+            _designations.Count,
+            TriggerThreshold.DoesCountMeetTarget,
+            ColonyManagerReduxMod.Settings.CanAddMoreDesignations
+        );
+        foreach (var (plant, i) in sortedPlants.Take(designateCount).Select((t, i) => (t, i)))
         {
-            if (
-                TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
-            )
-            {
-                break;
-            }
-
-            var yield = plant.YieldNow();
+            var yield = sortedPlantYields[i];
             count += yield;
             AddDesignation(new(plant, DesignationDefOf.HarvestPlant));
             jobLog.AddDetail(

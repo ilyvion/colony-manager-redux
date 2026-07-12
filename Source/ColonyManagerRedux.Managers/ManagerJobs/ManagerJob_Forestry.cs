@@ -474,15 +474,34 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             Sync = Utilities.SyncDirection.AllowedToFilter;
 
             var harvestedThingDef = tree.plant.harvestedThingDef;
-            if (harvestedThingDef == null)
+            var setAllow = ComputeSetAllow(
+                harvestedThingDef,
+                AllowedTrees.Select(t => t.plant.harvestedThingDef)
+            );
+            if (setAllow == null)
             {
                 return;
             }
 
-            var setAllow = AllowedTrees.Any(t => t.plant.harvestedThingDef == harvestedThingDef);
-            TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
+            TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef!, setAllow.Value);
         }
     }
+
+    /// <summary>
+    /// Decides whether the threshold filter's "allow" flag for <paramref name="harvestedThingDef"/>
+    /// should be set, and to what. Returns null when there's nothing to sync (a null
+    /// <paramref name="harvestedThingDef"/> means the caller should bail out without touching the
+    /// filter — this is the guard added for the null-<c>harvestedThingDef</c> crash fixed by
+    /// commit 04a87f5).
+    /// </summary>
+    internal static bool? ComputeSetAllow<T>(
+        T? harvestedThingDef,
+        IEnumerable<T?> allowedTreesHarvestedDefs
+    )
+        where T : class =>
+        harvestedThingDef == null
+            ? null
+            : allowedTreesHarvestedDefs.Any(d => d == harvestedThingDef);
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
@@ -653,39 +672,37 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
             // reduce designations until we're just above target
-            for (var i = 0; i < sortedDesignations.Count; i++)
+            var sortedYields = sortedDesignations
+                .Select(d => ((Plant)d.target.Thing).YieldNow())
+                .ToList();
+            var removeCount = Utilities_Plants.ComputeReduceCount(
+                count,
+                sortedYields,
+                _designations.Count,
+                TriggerThreshold.DoesCountMeetTarget,
+                ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
+            );
+            for (var i = 0; i < removeCount; i++)
             {
                 var designation = sortedDesignations[i];
 
                 var tree = (Plant)designation.target.Thing;
-                var yield = tree.YieldNow();
+                var yield = sortedYields[i];
                 count -= yield;
-                if (
-                    TriggerThreshold.DoesCountMeetTarget(count)
-                    || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count
-                    )
-                )
-                {
-                    designation.Delete();
-                    _ = _designations.Remove(designation);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                            DesignationDefOf.HarvestPlant.ActionText(),
-                            "ColonyManagerRedux.Forestry.Logs.Tree".Translate(),
-                            tree.Label,
-                            yield,
-                            count,
-                            TriggerThreshold.TargetLabel
-                        ),
-                        tree
-                    );
-                    workDone.Value = true;
-                }
-                else
-                {
-                    break;
-                }
+                designation.Delete();
+                _ = _designations.Remove(designation);
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.HarvestPlant.ActionText(),
+                        "ColonyManagerRedux.Forestry.Logs.Tree".Translate(),
+                        tree.Label,
+                        yield,
+                        count,
+                        TriggerThreshold.TargetLabel
+                    ),
+                    tree
+                );
+                workDone.Value = true;
 
                 if (i > 0 && i % operationsPerTick == 0)
                 {
@@ -741,17 +758,17 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             yield break;
         }
 
-        foreach (var (tree, i) in sortedTrees.Select((t, i) => (t, i)))
+        var sortedTreeYields = sortedTrees.Select(t => t.YieldNow()).ToList();
+        var designateCount = Utilities_Plants.ComputeNumberToDesignate(
+            count,
+            sortedTreeYields,
+            _designations.Count,
+            TriggerThreshold.DoesCountMeetTarget,
+            ColonyManagerReduxMod.Settings.CanAddMoreDesignations
+        );
+        foreach (var (tree, i) in sortedTrees.Take(designateCount).Select((t, i) => (t, i)))
         {
-            if (
-                TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
-            )
-            {
-                break;
-            }
-
-            var yield = tree.YieldNow();
+            var yield = sortedTreeYields[i];
             count += yield;
             AddDesignation(new(tree, DesignationDefOf.HarvestPlant));
             jobLog.AddDetail(
