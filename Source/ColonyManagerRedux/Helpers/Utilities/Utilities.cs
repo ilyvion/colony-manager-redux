@@ -814,7 +814,8 @@ public static class Utilities
                         var target = int.Parse(values[1], CultureInfo.InvariantCulture);
                         return (count, target);
                     })
-                    .ToArray() ?? []
+                    .ToArray()
+                    ?? []
             );
         }
     }

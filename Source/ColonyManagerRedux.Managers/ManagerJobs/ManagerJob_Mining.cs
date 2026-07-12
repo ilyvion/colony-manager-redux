@@ -581,18 +581,10 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
 
-            TaskPriorityOrder ??= ManagerSettings.DefaultTaskPriorityOrder;
-            if (TaskPriorityOrder.Count != Enum.GetValues(typeof(Task)).Length)
-            {
-                // Add any missing tasks at the end
-                foreach (var task in Enum.GetValues(typeof(Task)).Cast<Task>())
-                {
-                    if (!TaskPriorityOrder.Contains(task))
-                    {
-                        TaskPriorityOrder.Add(task);
-                    }
-                }
-            }
+            TaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
+                TaskPriorityOrder ?? ManagerSettings.DefaultTaskPriorityOrder,
+                [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+            );
         }
     }
 

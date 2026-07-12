@@ -165,9 +165,21 @@ public class Settings : ModSettings
     /// </summary>
     public int MaxDesignationsPerJob
     {
-        get => _maxDesignationsPerJob * 10;
-        internal set => _maxDesignationsPerJob = value / 10;
+        get => ScaleUpMaxDesignationsPerJob(_maxDesignationsPerJob);
+        internal set => _maxDesignationsPerJob = ScaleDownMaxDesignationsPerJob(value);
     }
+
+    /// <summary>
+    /// Pure scaling behind <see cref="MaxDesignationsPerJob"/>'s getter: the raw stored value is
+    /// in units of 10 so the settings UI slider can work in steps of 10.
+    /// </summary>
+    internal static int ScaleUpMaxDesignationsPerJob(int raw) => raw * 10;
+
+    /// <summary>
+    /// Pure scaling behind <see cref="MaxDesignationsPerJob"/>'s setter; truncates via integer
+    /// division, so values not a multiple of 10 don't round-trip exactly.
+    /// </summary>
+    internal static int ScaleDownMaxDesignationsPerJob(int value) => value / 10;
 
     /// <summary>
     /// Determines if more designations can be added to a job.
@@ -922,10 +934,11 @@ public class Settings : ModSettings
                 roundTo: 0.5f
             );
 
-            if (_daysBeforeShowingHighAlert < _daysBeforeShowingAlert)
-            {
-                _daysBeforeShowingHighAlert = _daysBeforeShowingAlert;
-            }
+            (_daysBeforeShowingHighAlert, _) = ClampAlertTiers(
+                _daysBeforeShowingAlert,
+                _daysBeforeShowingHighAlert,
+                _daysBeforeShowingCriticalAlert
+            );
 
             DrawSliderConfig(
                 _daysBeforeShowingHighAlert,
@@ -941,10 +954,11 @@ public class Settings : ModSettings
                 roundTo: 0.5f
             );
 
-            if (_daysBeforeShowingCriticalAlert < _daysBeforeShowingHighAlert)
-            {
-                _daysBeforeShowingCriticalAlert = _daysBeforeShowingHighAlert;
-            }
+            (_, _daysBeforeShowingCriticalAlert) = ClampAlertTiers(
+                _daysBeforeShowingAlert,
+                _daysBeforeShowingHighAlert,
+                _daysBeforeShowingCriticalAlert
+            );
 
             DrawSliderConfig(
                 _daysBeforeShowingCriticalAlert,
@@ -965,6 +979,28 @@ public class Settings : ModSettings
         }
 
         return pos.y - start.y;
+    }
+
+    /// <summary>
+    /// Pure ordering-invariant enforcement behind <see cref="DrawAlertSettings"/>: ratchets
+    /// <paramref name="high"/> and <paramref name="critical"/> up so that
+    /// <c>alert &lt;= high &lt;= critical</c> always holds, without ever lowering either tier.
+    /// </summary>
+    internal static (float high, float critical) ClampAlertTiers(
+        float alert,
+        float high,
+        float critical
+    )
+    {
+        if (high < alert)
+        {
+            high = alert;
+        }
+        if (critical < high)
+        {
+            critical = high;
+        }
+        return (high, critical);
     }
 
     private float DrawDisableManagers(Vector2 pos, float width)
@@ -1269,15 +1305,31 @@ public class Settings : ModSettings
 
     private static UpdateInterval TicksToInterval(int ticks)
     {
-        foreach (var interval in Utilities.UpdateIntervalOptions)
+        var matchedTicks = FindMatchingTicks(
+            Utilities.UpdateIntervalOptions.Select(i => i.Ticks),
+            ticks
+        );
+        return matchedTicks == null
+            ? UpdateInterval.Daily
+            : Utilities.UpdateIntervalOptions.First(i => i.Ticks == matchedTicks.Value);
+    }
+
+    /// <summary>
+    /// Pure linear search behind <see cref="TicksToInterval"/>, decoupled from live, translated
+    /// <see cref="UpdateInterval"/> objects. Returns the first matching tick count, or null if
+    /// none of <paramref name="optionTicks"/> equal <paramref name="ticks"/>.
+    /// </summary>
+    internal static int? FindMatchingTicks(IEnumerable<int> optionTicks, int ticks)
+    {
+        foreach (var optionTick in optionTicks)
         {
-            if (interval.Ticks == ticks)
+            if (optionTick == ticks)
             {
-                return interval;
+                return optionTick;
             }
         }
 
-        return UpdateInterval.Daily;
+        return null;
     }
 
     /// <inheritdoc/>
@@ -1373,7 +1425,7 @@ public class Settings : ModSettings
     {
         var allManagerDefs = DefDatabase<ManagerDef>
             .AllDefs.Where(m => m.managerSettingsClass != null)
-            .ToDictionary(j => j, _ => false);
+            .ToHashSet();
 
         // remove settings that should no longer be here
         for (var i = _managerSettings.Count - 1; i >= 0; i--)
@@ -1389,7 +1441,7 @@ public class Settings : ModSettings
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i}'s Def is null");
                 _managerSettings.RemoveAt(i);
             }
-            else if (!allManagerDefs.ContainsKey(item.Def))
+            else if (!ShouldKeepManagerSettingsEntry(item.Def, allManagerDefs))
             {
                 ColonyManagerReduxMod.Instance.LogWarning(
                     $"Job settings exist for {item.Def} but no such ManagerDef was found"
@@ -1399,11 +1451,8 @@ public class Settings : ModSettings
         }
 
         // add any settings that are missing
-        foreach (var managerSettings in _managerSettings)
-        {
-            allManagerDefs[managerSettings.Def] = true;
-        }
-        foreach (var missingDef in allManagerDefs.Where(kv => !kv.Value).Select(kv => kv.Key))
+        var presentManagerDefs = _managerSettings.Select(s => s.Def).ToHashSet();
+        foreach (var missingDef in FindMissingManagerDefs(allManagerDefs, presentManagerDefs))
         {
             ColonyManagerReduxMod.Instance.LogMessage(
                 $"Creating new settings instance for {missingDef} since it was missing"
@@ -1413,6 +1462,26 @@ public class Settings : ModSettings
 
         _managerSettings.SortBy(j => j.Def.order);
     }
+
+    /// <summary>
+    /// Pure membership check behind <see cref="EnsureManagerSettingsAreCorrect"/>: an entry is
+    /// kept only if its def still exists among the currently registered defs.
+    /// </summary>
+    internal static bool ShouldKeepManagerSettingsEntry<TDef>(
+        TDef def,
+        IReadOnlyCollection<TDef> validDefs
+    )
+        where TDef : notnull => validDefs.Contains(def);
+
+    /// <summary>
+    /// Pure set-difference behind <see cref="EnsureManagerSettingsAreCorrect"/>: which known defs
+    /// don't yet have a settings entry and need one created for them.
+    /// </summary>
+    internal static IEnumerable<TDef> FindMissingManagerDefs<TDef>(
+        IReadOnlyCollection<TDef> allDefs,
+        IReadOnlyCollection<TDef> presentDefs
+    )
+        where TDef : notnull => allDefs.Where(d => !presentDefs.Contains(d));
 
     /// <summary>
     /// Gets the manager settings for a specific manager definition.

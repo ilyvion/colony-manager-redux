@@ -243,18 +243,10 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
-            DefaultTaskPriorityOrder ??= [];
-            if (DefaultTaskPriorityOrder.Count != Enum.GetValues(typeof(Task)).Length)
-            {
-                // Add any missing tasks at the end
-                foreach (var task in Enum.GetValues(typeof(Task)).Cast<Task>())
-                {
-                    if (!DefaultTaskPriorityOrder.Contains(task))
-                    {
-                        DefaultTaskPriorityOrder.Add(task);
-                    }
-                }
-            }
+            DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
+                DefaultTaskPriorityOrder,
+                [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+            );
         }
     }
 }

@@ -59,4 +59,30 @@ internal static class Utilities_Mining
         (chunk.butcherProducts ?? Enumerable.Empty<ThingDefCountClass>()).Concat(
             chunk.smeltProducts ?? Enumerable.Empty<ThingDefCountClass>()
         );
+
+    /// <summary>
+    /// Repairs a saved priority-order list after loading: appends any <typeparamref name="T"/>
+    /// enum values missing from <paramref name="current"/> (e.g. because a newer mod version
+    /// added a task) in enum-declaration order, preserving the existing order and never removing
+    /// stale/unknown values already present.
+    /// </summary>
+    internal static List<T> EnsureAllEnumValuesPresent<T>(
+        List<T>? current,
+        IReadOnlyList<T> allValues
+    )
+        where T : struct, Enum
+    {
+        current ??= [];
+        if (current.Count != allValues.Count)
+        {
+            foreach (var value in allValues)
+            {
+                if (!current.Contains(value))
+                {
+                    current.Add(value);
+                }
+            }
+        }
+        return current;
+    }
 }
