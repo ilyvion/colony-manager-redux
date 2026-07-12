@@ -164,4 +164,56 @@ internal static class ManagerJobPowerTests
         Assert.That(producers).Is.EqualTo(1);
         Assert.That(consumers).Is.EqualTo(1);
     }
+
+    private readonly struct Battery(float storedEnergyMax)
+    {
+        public float StoredEnergyMax { get; } = storedEnergyMax;
+    }
+
+    [Test]
+    public static void SumNestedOfEmptyOuterListIsZero() =>
+        Assert.That(ManagerJob_Power.SumNested<Battery>([], b => b.StoredEnergyMax)).Is.EqualTo(0f);
+
+    [Test]
+    public static void SumNestedOfEmptyInnerListsIsZero() =>
+        Assert
+            .That(
+                ManagerJob_Power.SumNested<Battery>(
+                    [
+                        [],
+                        [],
+                    ],
+                    b => b.StoredEnergyMax
+                )
+            )
+            .Is.EqualTo(0f);
+
+    [Test]
+    public static void SumNestedOfSingleGroupSingleItemReturnsThatValue() =>
+        Assert
+            .That(
+                ManagerJob_Power.SumNested(
+                    [
+                        [new Battery(500f)],
+                    ],
+                    b => b.StoredEnergyMax
+                )
+            )
+            .Is.EqualTo(500f);
+
+    [Test]
+    public static void SumNestedAcrossMultipleGroupsSumsAllItems() =>
+        // Mirrors the batteries-max history chapter: multiple battery-type groups, each
+        // containing multiple batteries, must all contribute to a single flat sum.
+        Assert
+            .That(
+                ManagerJob_Power.SumNested(
+                    [
+                        [new Battery(500f), new Battery(500f)],
+                        [new Battery(1000f)],
+                    ],
+                    b => b.StoredEnergyMax
+                )
+            )
+            .Is.EqualTo(2000f);
 }

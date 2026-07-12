@@ -88,4 +88,72 @@ internal static class ManagerJobLivestockAnimalGeneticsTests
             Assert.That(value).Is.GreaterThan(0f);
         }
     }
+
+    private sealed class FakePawn(Dictionary<string, float> genes)
+    {
+        public Dictionary<string, float> Genes { get; } = genes;
+    }
+
+    private static float GetGene(FakePawn pawn, string gene) => pawn.Genes[gene];
+
+    [Test]
+    public static void CalculatePreferenceScoreOfSingleGeneReducesToGeneTimesWeight()
+    {
+        var values = new Dictionary<string, float> { ["A"] = 0.5f };
+        var pawn = new FakePawn(new Dictionary<string, float> { ["A"] = 4f });
+
+        var score = ManagerJob_Livestock_AnimalGenetics.CalculatePreferenceScore(
+            ["A"],
+            values,
+            pawn,
+            GetGene
+        );
+
+        Assert.That(score).Is.EqualTo(2f);
+    }
+
+    [Test]
+    public static void CalculatePreferenceScoreSumsAcrossMultipleGenes()
+    {
+        var values = new Dictionary<string, float>
+        {
+            ["A"] = 0.5f,
+            ["B"] = 0.25f,
+            ["C"] = 0.25f,
+        };
+        var pawn = new FakePawn(
+            new Dictionary<string, float>
+            {
+                ["A"] = 2f,
+                ["B"] = 4f,
+                ["C"] = 8f,
+            }
+        );
+
+        var score = ManagerJob_Livestock_AnimalGenetics.CalculatePreferenceScore(
+            ["A", "B", "C"],
+            values,
+            pawn,
+            GetGene
+        );
+
+        // 2*0.5 + 4*0.25 + 8*0.25 = 1 + 1 + 2 = 4
+        Assert.That(score).Is.EqualTo(4f);
+    }
+
+    [Test]
+    public static void CalculatePreferenceScoreOfAllZeroWeightsIsZero()
+    {
+        var values = new Dictionary<string, float> { ["A"] = 0f, ["B"] = 0f };
+        var pawn = new FakePawn(new Dictionary<string, float> { ["A"] = 5f, ["B"] = 10f });
+
+        var score = ManagerJob_Livestock_AnimalGenetics.CalculatePreferenceScore(
+            ["A", "B"],
+            values,
+            pawn,
+            GetGene
+        );
+
+        Assert.That(score).Is.EqualTo(0f);
+    }
 }

@@ -204,7 +204,20 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     }
 
     private float CalculatePreferenceScore(Pawn pawn) =>
-        AffectedStats.Sum(gene => GetGene(pawn, gene) * _values[gene]);
+        CalculatePreferenceScore(AffectedStats, _values, pawn, GetGene);
+
+    /// <summary>
+    /// Weighted dot-product of per-gene values against a pawn's actual gene stats: the score
+    /// used to sort/rank animals for taming and culling when the AnimalGenetics override is
+    /// active.
+    /// </summary>
+    internal static float CalculatePreferenceScore<TStat, TPawn>(
+        IEnumerable<TStat> affectedStats,
+        IReadOnlyDictionary<TStat, float> values,
+        TPawn pawn,
+        Func<TPawn, TStat, float> geneValue
+    )
+        where TStat : notnull => affectedStats.Sum(gene => geneValue(pawn, gene) * values[gene]);
 
     private static float GetGene(Pawn pawn, StatDef gene) =>
         gene == global::AnimalGenetics.AnimalGenetics.GatherYield

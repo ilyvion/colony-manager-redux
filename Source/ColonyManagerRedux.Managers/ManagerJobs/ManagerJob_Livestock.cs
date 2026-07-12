@@ -304,20 +304,42 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         var text = Label + "\n";
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
-            text +=
-                TriggerPawnKind.pawnKind!.GetTame(Manager, ageSex, includeGuests: false).Count()
-                - CullingStrategyAction.GetAlreadyCulledForAgeSex(ageSex)
-                + "/"
-                + TriggerPawnKind.CountTargets[(int)ageSex];
-            if (!CullingStrategyAction.CullingRemovesAnimals)
-            {
-                text += $"(+{CullingStrategyAction.GetAlreadyCulledForAgeSex(ageSex)})";
-            }
-            text += ", ";
+            var tame = TriggerPawnKind
+                .pawnKind!.GetTame(Manager, ageSex, includeGuests: false)
+                .Count();
+            var culled = CullingStrategyAction.GetAlreadyCulledForAgeSex(ageSex);
+            var target = TriggerPawnKind.CountTargets[(int)ageSex];
+            text += FormatAgeSexBucket(
+                tame,
+                culled,
+                target,
+                CullingStrategyAction.CullingRemovesAnimals
+            );
         }
 
         text += $"{TriggerPawnKind.pawnKind!.GetWild(Manager).Count()}";
         return text;
+    }
+
+    /// <summary>
+    /// Formats a single age/sex bucket's portion of <see cref="LabelGenerator"/>'s label, e.g.
+    /// "3/5(+2), " — showing the already-culled-adjusted count against the target, plus a
+    /// "(+N)" suffix (the still-pending cull count) when culling doesn't actually remove
+    /// animals from the tame count.
+    /// </summary>
+    internal static string FormatAgeSexBucket(
+        int tame,
+        int culled,
+        int target,
+        bool cullingRemovesAnimals
+    )
+    {
+        var text = $"{tame - culled}/{target}";
+        if (!cullingRemovesAnimals)
+        {
+            text += $"(+{culled})";
+        }
+        return text + ", ";
     }
 
     public override bool IsValid => base.IsValid && Training != null && Trigger != null;

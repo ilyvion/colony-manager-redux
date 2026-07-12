@@ -75,10 +75,10 @@ internal sealed class ManagerJob_Power : ManagerJob
         {
             max.Value =
                 chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryBatteries
-                    ? (int)
-                        managerJob._batteries.Sum(list =>
-                            list.Sum(battery => battery.Props.storedEnergyMax)
-                        )
+                    ? (int)SumNested(
+                        managerJob._batteries,
+                        battery => battery.Props.storedEnergyMax
+                    )
                     : 0;
             yield break;
         }
@@ -145,7 +145,7 @@ internal sealed class ManagerJob_Power : ManagerJob
             {
                 var (producerCount, consumerCount) = CountByOutputSign(
                     _traders,
-                    (CompPowerTrader i) => i.PowerOutput
+                    i => i.PowerOutput
                 );
                 trade = [producerCount, consumerCount];
                 _ = cachedTradeCounts.Update(trade);
@@ -169,6 +169,16 @@ internal sealed class ManagerJob_Power : ManagerJob
         var consumers = flattened.Count(i => outputSelector(i) < 0);
         return (producers, consumers);
     }
+
+    /// <summary>
+    /// Sums <paramref name="selector"/> across every item in every group of
+    /// <paramref name="groups"/>, e.g. the battery-storage-max history chapter's sum across all
+    /// battery-type groups' individual batteries.
+    /// </summary>
+    internal static float SumNested<T>(
+        IEnumerable<IEnumerable<T>> groups,
+        Func<T, float> selector
+    ) => groups.Sum(group => group.Sum(selector));
 
     internal int ProducerCount => CachedTradeCounts[0];
     internal int ConsumerCount => CachedTradeCounts[1];

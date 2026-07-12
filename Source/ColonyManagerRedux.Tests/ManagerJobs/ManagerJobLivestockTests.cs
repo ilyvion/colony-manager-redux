@@ -318,6 +318,48 @@ internal static class ManagerJobLivestockTests
         Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(4999, 0, 5000)).Is.False();
     }
 
+    [Test]
+    public static void FormatAgeSexBucketOmitsCulledSuffixWhenCullingRemovesAnimals() =>
+        Assert
+            .That(
+                ManagerJob_Livestock.FormatAgeSexBucket(
+                    tame: 5,
+                    culled: 2,
+                    target: 5,
+                    cullingRemovesAnimals: true
+                )
+            )
+            .Is.EqualTo("3/5, ");
+
+    [Test]
+    public static void FormatAgeSexBucketShowsCulledSuffixWhenCullingDoesNotRemoveAnimals() =>
+        // When culling doesn't actually remove the animal (e.g. it's marked for slaughter but
+        // still alive/present), the still-pending cull count is surfaced via a "(+N)" suffix so
+        // the label doesn't silently undercount what's actually on the map.
+        Assert
+            .That(
+                ManagerJob_Livestock.FormatAgeSexBucket(
+                    tame: 5,
+                    culled: 2,
+                    target: 5,
+                    cullingRemovesAnimals: false
+                )
+            )
+            .Is.EqualTo("3/5(+2), ");
+
+    [Test]
+    public static void FormatAgeSexBucketWithNoCullsOmitsSuffixEvenWhenNotRemoving() =>
+        Assert
+            .That(
+                ManagerJob_Livestock.FormatAgeSexBucket(
+                    tame: 5,
+                    culled: 0,
+                    target: 5,
+                    cullingRemovesAnimals: false
+                )
+            )
+            .Is.EqualTo("5/5(+0), ");
+
     private static PawnKindDef PawnKind(RaceProperties raceProps) =>
         new() { race = new ThingDef { race = raceProps } };
 
