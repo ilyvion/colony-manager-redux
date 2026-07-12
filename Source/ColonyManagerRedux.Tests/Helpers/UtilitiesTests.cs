@@ -62,4 +62,40 @@ internal static class UtilitiesTests
         var filter = NewFilter(QualityCategory.Awful, QualityCategory.Legendary, 0.75f);
         Assert.That(Utilities.ShouldCountThing(false, default, 0.9f, filter)).Is.True();
     }
+
+    [Test]
+    public static void SaturatingIntSumOfEmptySequenceIsZero() =>
+        Assert.That(Utilities.SaturatingIntSum([])).Is.EqualTo(0);
+
+    [Test]
+    public static void SaturatingIntSumAddsNormally() =>
+        Assert.That(Utilities.SaturatingIntSum([1, 2, 3])).Is.EqualTo(6);
+
+    [Test]
+    public static void SaturatingIntSumClampsAtMaxValueOnOverflow() =>
+        // Born from commit 9b8ae26 ("feat: add SaturatingIntSum utility method to prevent
+        // integer overflow in power calculations", issue #21): summing near int.MaxValue must
+        // saturate rather than wrap around into negative territory.
+        Assert.That(Utilities.SaturatingIntSum([int.MaxValue, 1])).Is.EqualTo(int.MaxValue);
+
+    [Test]
+    public static void SaturatingIntSumClampsAtMinValueOnUnderflow() =>
+        Assert.That(Utilities.SaturatingIntSum([int.MinValue, -1])).Is.EqualTo(int.MinValue);
+
+    [Test]
+    public static void SafeAbsOfPositiveValueIsUnchanged() =>
+        Assert.That(Utilities.SafeAbs(5)).Is.EqualTo(5);
+
+    [Test]
+    public static void SafeAbsOfNegativeValueIsPositive() =>
+        Assert.That(Utilities.SafeAbs(-5)).Is.EqualTo(5);
+
+    [Test]
+    public static void SafeAbsOfZeroIsZero() => Assert.That(Utilities.SafeAbs(0)).Is.EqualTo(0);
+
+    [Test]
+    public static void SafeAbsOfMinValueDoesNotOverflow() =>
+        // The motivation for commit 9b8ae26: naive -value on int.MinValue overflows back to
+        // int.MinValue (still negative) instead of throwing or crashing.
+        Assert.That(Utilities.SafeAbs(int.MinValue)).Is.EqualTo(int.MaxValue);
 }

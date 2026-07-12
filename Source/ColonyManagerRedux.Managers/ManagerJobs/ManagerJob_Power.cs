@@ -143,14 +143,33 @@ internal sealed class ManagerJob_Power : ManagerJob
         {
             if (!cachedTradeCounts.TryGetValue(out var trade))
             {
-                var producerCount = _traders.Sum(list => list.Count(i => i.PowerOutput > 0));
-                var consumerCount = _traders.Sum(list => list.Count(i => i.PowerOutput < 0));
+                var (producerCount, consumerCount) = CountByOutputSign(
+                    _traders,
+                    (CompPowerTrader i) => i.PowerOutput
+                );
                 trade = [producerCount, consumerCount];
                 _ = cachedTradeCounts.Update(trade);
             }
             return trade;
         }
     }
+
+    /// <summary>
+    /// Counts how many items across <paramref name="groups"/> have a positive
+    /// (<paramref name="outputSelector"/> &gt; 0, "producer") or negative ("consumer") output.
+    /// Items with exactly zero output are counted as neither.
+    /// </summary>
+    internal static (int producers, int consumers) CountByOutputSign<T>(
+        IEnumerable<IEnumerable<T>> groups,
+        Func<T, float> outputSelector
+    )
+    {
+        var flattened = groups.SelectMany(g => g).ToList();
+        var producers = flattened.Count(i => outputSelector(i) > 0);
+        var consumers = flattened.Count(i => outputSelector(i) < 0);
+        return (producers, consumers);
+    }
+
     internal int ProducerCount => CachedTradeCounts[0];
     internal int ConsumerCount => CachedTradeCounts[1];
 
@@ -372,10 +391,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         // get list of power trader comps per def for consumers and producers.
         var compCounter = -1;
 
-        if (TraderDefs.Count < _traders.Count)
-        {
-            _traders.RemoveRange(TraderDefs.Count, _traders.Count - TraderDefs.Count);
-        }
+        TrimListTo(_traders, TraderDefs.Count);
 
         _refreshCompListTraderBuildings.Clear();
         _refreshCompListTraderBuildings.AddRange(_traderBuildings);
@@ -408,10 +424,7 @@ internal sealed class ManagerJob_Power : ManagerJob
             }
         }
 
-        if (BatteryDefs.Count < _batteries.Count)
-        {
-            _batteries.RemoveRange(BatteryDefs.Count, _batteries.Count - BatteryDefs.Count);
-        }
+        TrimListTo(_batteries, BatteryDefs.Count);
 
         _refreshCompListBatteryBuildings.Clear();
         _refreshCompListBatteryBuildings.AddRange(_batteryBuildings);
@@ -500,49 +513,57 @@ internal sealed class ManagerJob_Power : ManagerJob
     {
         base.PostImport();
 
-        ManagerJob_Power remainingJob;
         var otherJobs = Manager
             .JobTracker.JobsOfType<ManagerJob_Power>()
             .Where(j => j != this)
             .ToList();
-        if (otherJobs.Count > 0)
+        var remainingJob = PickSurvivor(this, otherJobs, j => j.AnyPoweredStationOnline);
+
+        if (remainingJob != this)
         {
-            var otherJob = otherJobs.FirstOrDefault(j => j.AnyPoweredStationOnline);
-            if (otherJob != null)
-            {
-                // We got imported to a map that already has a valid power job, so we need to delete our job
-                // (and any other duplicates that may have accumulated).
-                ColonyManagerReduxMod.Instance.LogDebug(
-                    $"ManagerJob_Power.PostImport: Deleting {this} because another power job is already present."
-                );
-                Manager.JobTracker.Delete(this, false);
-                remainingJob = otherJob;
-                foreach (var extraJob in otherJobs.Where(j => j != otherJob))
-                {
-                    Manager.JobTracker.Delete(extraJob, false);
-                }
-            }
-            else
+            // We got imported to a map that already has a valid power job, so we need to delete our job
+            // (and any other duplicates that may have accumulated).
+            ColonyManagerReduxMod.Instance.LogDebug(
+                $"ManagerJob_Power.PostImport: Deleting {this} because another power job is already present."
+            );
+            Manager.JobTracker.Delete(this, false);
+        }
+        foreach (var extraJob in otherJobs.Where(j => j != remainingJob))
+        {
+            if (remainingJob == this)
             {
                 // We got imported to a map that has power job(s), but none have powered stations online,
                 // so we replace them all with our job.
-                foreach (var extraJob in otherJobs)
-                {
-                    ColonyManagerReduxMod.Instance.LogDebug(
-                        $"ManagerJob_Power.PostImport: Replacing {extraJob} with {this} because it has no powered stations online."
-                    );
-                    Manager.JobTracker.Delete(extraJob, false);
-                }
-                remainingJob = this;
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    $"ManagerJob_Power.PostImport: Replacing {extraJob} with {this} because it has no powered stations online."
+                );
             }
-        }
-        else
-        {
-            remainingJob = this;
+            Manager.JobTracker.Delete(extraJob, false);
         }
 
         _cachedAnyPoweredStationOnline.Invalidate();
         RefreshBuildingLists().RunImmediatelyToCompletion();
         RefreshCompLists().RunImmediatelyToCompletion();
+    }
+
+    /// <summary>
+    /// Picks which of <paramref name="current"/> or <paramref name="others"/> should survive a
+    /// post-import deduplication: the first online job among <paramref name="others"/>, or
+    /// <paramref name="current"/> if none of them are online.
+    /// </summary>
+    internal static T PickSurvivor<T>(T current, IReadOnlyList<T> others, Func<T, bool> isOnline)
+        where T : class => others.FirstOrDefault(isOnline) ?? current;
+
+    /// <summary>
+    /// Removes trailing entries from <paramref name="list"/> so its length matches
+    /// <paramref name="newCount"/>. No-op if <paramref name="list"/> is already that length or
+    /// shorter.
+    /// </summary>
+    internal static void TrimListTo<T>(List<T> list, int newCount)
+    {
+        if (newCount < list.Count)
+        {
+            list.RemoveRange(newCount, list.Count - newCount);
+        }
     }
 }

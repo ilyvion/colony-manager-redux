@@ -255,7 +255,7 @@ internal static class ManagerJobLivestockTests
             followerCount: _ => 3
         );
 
-        Assert.That(chosen!).Is.EqualTo("Alice");
+        Assert.That(chosen).Is.EqualTo("Alice");
     }
 
     [Test]
@@ -270,7 +270,7 @@ internal static class ManagerJobLivestockTests
             followerCount: name => name == "Alice" ? 5 : 1
         );
 
-        Assert.That(chosen!).Is.EqualTo("Bob");
+        Assert.That(chosen).Is.EqualTo("Bob");
     }
 
     [Test]
@@ -283,7 +283,7 @@ internal static class ManagerJobLivestockTests
             followerCount: name => name == "Alice" ? 2 : 1
         );
 
-        Assert.That(chosen!).Is.EqualTo("Bob");
+        Assert.That(chosen).Is.EqualTo("Bob");
     }
 
     [Test]
@@ -302,7 +302,7 @@ internal static class ManagerJobLivestockTests
                 }
         );
 
-        Assert.That(chosen!).Is.EqualTo("Bob");
+        Assert.That(chosen).Is.EqualTo("Bob");
     }
 
     [Test]

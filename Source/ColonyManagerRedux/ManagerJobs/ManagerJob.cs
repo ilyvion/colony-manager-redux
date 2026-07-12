@@ -687,15 +687,15 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// <param name="sortedTargets">The list to store the sorted targets.</param>
     /// <param name="predicate">A predicate to filter the targets.</param>
     /// <param name="sorter">A function to determine the sort order based on the target and its distance.</param>
-    /// <param name="toTThing">A function to convert from <typeparamref name="TOrigin"/> to <typeparamref name="TThing"/>.</param>
+    /// <param name="toThing">A function to convert from <typeparamref name="TOrigin"/> to <typeparamref name="TThing"/>.</param>
     /// <param name="sourcePosition">An optional source position for distance calculations; if null, the base center is used.</param>
     /// <returns>A coroutine that sorts the targets as specified.</returns>
-    public virtual Coroutine GetThingsSorted<TOrigin, TThing, TSorter>(
+    protected virtual Coroutine GetThingsSorted<TOrigin, TThing, TSorter>(
         IEnumerable<TOrigin> unsortedTargets,
         List<TOrigin> sortedTargets,
         Func<TThing, bool> predicate,
         Func<TThing, float, TSorter> sorter,
-        Func<TOrigin, TThing> toTThing,
+        Func<TOrigin, TThing> toThing,
         IntVec3? sourcePosition = null
     )
         where TSorter : IComparable<TSorter>
@@ -708,11 +708,15 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         {
             throw new ArgumentNullException(nameof(sortedTargets));
         }
+        if (toThing == null)
+        {
+            throw new ArgumentNullException(nameof(toThing));
+        }
 
         var targets = _tmpTargets.Count > 0 ? _tmpTargets.Dequeue() : [];
         var targetDistances = _tmpTargetDistances.Count > 0 ? _tmpTargetDistances.Dequeue() : [];
         targets.AddRange(
-            unsortedTargets.Where(o => predicate(toTThing(o))).Select((t, i) => ((object)t!, i))
+            unsortedTargets.Where(o => predicate(toThing(o))).Select((t, i) => ((object)t!, i))
         );
 
         using var _ = new DoOnDispose(() =>
@@ -727,16 +731,50 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         var position = sourcePosition ?? Manager.map.GetBaseCenter();
 
         yield return DistancesCoroutine(
-                targets.Select(t => (toTThing((TOrigin)t.thing) as Thing)!),
+                targets.Select(t => (toThing((TOrigin)t.thing) as Thing)!),
                 position,
                 targetDistances
             )
             .ResumeWhenOtherCoroutineIsCompleted();
 
-        targets.SortByDescending(t => sorter(toTThing((TOrigin)t.thing), targetDistances[t.i]));
+        var origins = new List<TOrigin>(targets.Count);
+        var things = new List<TThing>(targets.Count);
+        foreach (var (thing, i) in targets)
+        {
+            var origin = (TOrigin)thing;
+            origins.Add(origin);
+            things.Add(toThing(origin));
+        }
 
         sortedTargets.Clear();
-        sortedTargets.AddRange(targets.Select(t => (TOrigin)t.thing));
+        sortedTargets.AddRange(SortByScoreDescending(origins, things, targetDistances, sorter));
+    }
+
+    /// <summary>
+    /// Sorts <paramref name="origins"/> descending by the score <paramref name="sorter"/> assigns
+    /// each corresponding <paramref name="things"/>/<paramref name="distances"/> pair.
+    /// </summary>
+    internal static List<TOrigin> SortByScoreDescending<TOrigin, TThing, TSorter>(
+        IReadOnlyList<TOrigin> origins,
+        IReadOnlyList<TThing> things,
+        IReadOnlyList<float> distances,
+        Func<TThing, float, TSorter> sorter
+    )
+        where TSorter : IComparable<TSorter>
+    {
+        var indices = new List<int>(origins.Count);
+        for (var i = 0; i < origins.Count; i++)
+        {
+            indices.Add(i);
+        }
+        indices.SortByDescending(i => sorter(things[i], distances[i]));
+
+        var result = new List<TOrigin>(origins.Count);
+        foreach (var i in indices)
+        {
+            result.Add(origins[i]);
+        }
+        return result;
     }
 
     /// <summary>

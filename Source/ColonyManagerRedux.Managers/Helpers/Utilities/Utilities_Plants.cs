@@ -13,19 +13,37 @@ internal static class Utilities_Plants
     {
         bool IsValid(ThingDef td)
         {
-            return clearArea
-                || (
-                    (
-                        td.plant.harvestTag == "Wood"
-                        || td.plant.harvestedThingDef == ThingDefOf.WoodLog
-                    )
-                    && td.plant.harvestedThingDef != null
-                    && td.plant.harvestYield > 0
-                );
+            return IsValidForestryPlant(
+                clearArea,
+                td.plant.harvestTag,
+                td.plant.harvestedThingDef,
+                ThingDefOf.WoodLog,
+                td.plant.harvestYield
+            );
         }
 
         return GetAllPlants(map).Where(IsValid).Distinct().OrderBy(pk => pk.label);
     }
+
+    /// <summary>
+    /// Decides whether a plant def is a valid forestry (logging) target: any def is valid when
+    /// <paramref name="clearArea"/> is true; otherwise only wood-yielding defs with a positive
+    /// yield are valid.
+    /// </summary>
+    internal static bool IsValidForestryPlant<T>(
+        bool clearArea,
+        string? harvestTag,
+        T? harvestedThingDef,
+        T woodLogDef,
+        float harvestYield
+    )
+        where T : class =>
+        clearArea
+        || (
+            (harvestTag == "Wood" || harvestedThingDef == woodLogDef)
+            && harvestedThingDef != null
+            && harvestYield > 0
+        );
 
     public static IEnumerable<ThingDef> GetForagingPlants(Map? map) =>
         GetAllPlants(map)
