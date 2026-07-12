@@ -355,6 +355,18 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         PawnKindDef pawnKind,
         TrainableDef td,
         out bool visible
+    ) => CanBeTrained(ModsConfig.OdysseyActive, pawnKind, td, out visible);
+
+    /// <summary>
+    /// Same as <see cref="CanBeTrained(PawnKindDef, TrainableDef, out bool)"/>, but with
+    /// <see cref="ModsConfig.OdysseyActive"/> passed in explicitly so this logic is
+    /// unit-testable without depending on which DLCs happen to be active.
+    /// </summary>
+    internal static AcceptanceReport CanBeTrained(
+        bool odysseyActive,
+        PawnKindDef pawnKind,
+        TrainableDef td,
+        out bool visible
     )
     {
         var raceProps = pawnKind.RaceProps;
@@ -373,7 +385,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
 #if !v1_5
-        if (ModsConfig.OdysseyActive && td.specialTrainable)
+        if (odysseyActive && td.specialTrainable)
         {
             var specialTrainables = raceProps.specialTrainables;
             if (specialTrainables == null || !specialTrainables.Contains(td))

@@ -37,32 +37,27 @@ internal static class Utilities_Hunting
 
     internal static IEnumerable<PawnKindDef> GetMapPawnKindDefs(Map? map, bool animalsOnly = true)
     {
-        // Get all the wild animals on the map
         if (map != null)
         {
             // Get all the wild animals on the map
-            return map
-                .Biome.AllWildAnimals
-                // and any visible pawns on the map
-                .Concat(
-                    map.mapPawns.AllPawns.Where(p =>
-                            (!animalsOnly || (p.RaceProps?.Animal ?? false))
-                            && !(map.fogGrid?.IsFogged(p.Position) ?? true)
-                        )
-                        .Select(p => p.kindDef)
+            var wild = map.Biome.AllWildAnimals;
+            var visible = map
+                .mapPawns.AllPawns.Where(p =>
+                    (!animalsOnly || (p.RaceProps?.Animal ?? false))
+                    && !(map.fogGrid?.IsFogged(p.Position) ?? true)
                 )
-                // and any corpses on the map
-                .Concat(
-                    map.listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
-                        .Cast<Corpse>()
-                        .Where(c =>
-                            c?.InnerPawn != null
-                            && (!animalsOnly || (c.InnerPawn.RaceProps?.Animal ?? false))
-                        )
-                        .Select(c => c.InnerPawn.kindDef)
+                .Select(p => p.kindDef);
+            // and any corpses on the map
+            var corpses = map
+                .listerThings.ThingsInGroup(ThingRequestGroup.Corpse)
+                .Cast<Corpse>()
+                .Where(c =>
+                    c?.InnerPawn != null
+                    && (!animalsOnly || (c.InnerPawn.RaceProps?.Animal ?? false))
                 )
-                .Distinct()
-                .OrderBy(pk => pk.label);
+                .Select(c => c.InnerPawn.kindDef);
+
+            return CombineAndOrderPawnKindSources(wild, visible, corpses);
         }
         else
         {
@@ -71,4 +66,16 @@ internal static class Utilities_Hunting
             );
         }
     }
+
+    /// <summary>
+    /// Unions the three sources of on-map <see cref="PawnKindDef"/>s (biome wild animals, visible
+    /// unfogged pawns, unfogged corpses), deduplicates, and orders by label. Split out from
+    /// <see cref="GetMapPawnKindDefs"/> so the combine/dedupe/order logic is unit-testable without
+    /// a live <see cref="Map"/>.
+    /// </summary>
+    internal static IEnumerable<PawnKindDef> CombineAndOrderPawnKindSources(
+        IEnumerable<PawnKindDef> wild,
+        IEnumerable<PawnKindDef> visible,
+        IEnumerable<PawnKindDef> corpses
+    ) => wild.Concat(visible).Concat(corpses).Distinct().OrderBy(pk => pk.label);
 }

@@ -267,16 +267,23 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
     public override WorkTypeDef WorkTypeDef => WorkTypeDefOf.Mining;
 
-    public static bool IsDesignatedForRemoval(Building building, Map map)
-    {
-        var designation = map.designationManager.DesignationOn(building);
+    public static bool IsDesignatedForRemoval(Building building, Map map) =>
+        IsDesignatedForRemoval(
+            map.designationManager.DesignationOn(building)?.def,
+            DesignationDefOf.Mine,
+            DesignationDefOf.Deconstruct
+        );
 
-        return designation != null
-            && (
-                designation.def == DesignationDefOf.Mine
-                || designation.def == DesignationDefOf.Deconstruct
-            );
-    }
+    /// <summary>
+    /// Same as <see cref="IsDesignatedForRemoval(Building, Map)"/>, but with the actual
+    /// designation def (if any) and the "removal" designation defs passed in directly so this
+    /// is unit-testable without a live <see cref="Map"/>/<see cref="DesignationManager"/>.
+    /// </summary>
+    internal static bool IsDesignatedForRemoval(
+        DesignationDef? designationOn,
+        DesignationDef mine,
+        DesignationDef deconstruct
+    ) => designationOn != null && (designationOn == mine || designationOn == deconstruct);
 
     // largely copypasta from RoofCollapseUtility.WithinRangeOfRoofHolder
     // TODO: PERFORMANCE; maintain a cellgrid of 'safe' supported areas.

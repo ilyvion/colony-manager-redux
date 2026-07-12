@@ -1,6 +1,7 @@
 // AlertsTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
+using ColonyManagerRedux.Managers;
 using RimTestRedux;
 
 namespace ColonyManagerRedux.Tests;
@@ -115,4 +116,38 @@ internal static class AlertsTests
                 )
             )
             .Is.EqualTo(AlertPriority.Critical);
+
+    [Test]
+    public static void AutoSlaughterConfigWithAllSentinelsIsInactive() =>
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(-1, -1, -1, -1, -1))
+            .Is.False();
+
+    [Test]
+    public static void AutoSlaughterConfigWithAnySingleNonSentinelFieldIsActive()
+    {
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(0, -1, -1, -1, -1))
+            .Is.True();
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(-1, 0, -1, -1, -1))
+            .Is.True();
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(-1, -1, 0, -1, -1))
+            .Is.True();
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(-1, -1, -1, 0, -1))
+            .Is.True();
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(-1, -1, -1, -1, 0))
+            .Is.True();
+    }
+
+    [Test]
+    public static void AutoSlaughterConfigWithAllZeroesIsActive() =>
+        // 0 is a valid, real "slaughter everything over 0" threshold, not the -1 "off" sentinel
+        // - easily confused with "off" if the sentinel check were ever changed to `<= 0`.
+        Assert
+            .That(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(0, 0, 0, 0, 0))
+            .Is.True();
 }

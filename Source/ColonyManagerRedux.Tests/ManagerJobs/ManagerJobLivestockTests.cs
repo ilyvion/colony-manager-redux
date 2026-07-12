@@ -317,4 +317,184 @@ internal static class ManagerJobLivestockTests
         Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(5000, 0, 5000)).Is.True();
         Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(4999, 0, 5000)).Is.False();
     }
+
+    private static PawnKindDef PawnKind(RaceProperties raceProps) =>
+        new() { race = new ThingDef { race = raceProps } };
+
+    [Test]
+    public static void UntrainableTagRejectsAndHides()
+    {
+        var pawnKind = PawnKind(new RaceProperties { untrainableTags = ["Sit"] });
+        var td = new TrainableDef { defName = "Sit", defaultTrainable = true };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: false,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.False();
+        Assert.That(visible).Is.False();
+    }
+
+    [Test]
+    public static void OdysseySpecialTrainableNotListedRejectsAndHides()
+    {
+        var pawnKind = PawnKind(new RaceProperties { specialTrainables = [] });
+        var td = new TrainableDef { defName = "Fly", specialTrainable = true };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: true,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.False();
+        Assert.That(visible).Is.False();
+    }
+
+    [Test]
+    public static void OdysseySpecialTrainableListedPassesGate()
+    {
+        var td = new TrainableDef { defName = "Fly", specialTrainable = true };
+        var pawnKind = PawnKind(new RaceProperties { specialTrainables = [td] });
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: true,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.True();
+        Assert.That(visible).Is.True();
+    }
+
+    [Test]
+    public static void TrainableTagMatchButTooSmallIsVisibleButRejected()
+    {
+        var pawnKind = PawnKind(
+            new RaceProperties { trainableTags = ["Obedience"], baseBodySize = 0.5f }
+        );
+        var td = new TrainableDef
+        {
+            defName = "Obedience",
+            defaultTrainable = true,
+            minBodySize = 1f,
+        };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: false,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.False();
+        Assert.That(visible).Is.True();
+    }
+
+    [Test]
+    public static void NotDefaultOrSpecialTrainableRejectsAndHides()
+    {
+        var pawnKind = PawnKind(new RaceProperties());
+        var td = new TrainableDef
+        {
+            defName = "Unrelated",
+            defaultTrainable = false,
+            specialTrainable = false,
+        };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: false,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.False();
+        Assert.That(visible).Is.False();
+    }
+
+    [Test]
+    public static void TooSmallForDefaultTrainableIsVisibleButRejected()
+    {
+        var pawnKind = PawnKind(new RaceProperties { baseBodySize = 0.5f });
+        var td = new TrainableDef
+        {
+            defName = "Obedience",
+            defaultTrainable = true,
+            minBodySize = 1f,
+        };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: false,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.False();
+        Assert.That(visible).Is.True();
+    }
+
+    [Test]
+    public static void NotSmartEnoughIsVisibleButRejected()
+    {
+        var pawnKind = PawnKind(
+            new RaceProperties
+            {
+                baseBodySize = 1f,
+                trainability = new TrainabilityDef { intelligenceOrder = 1 },
+            }
+        );
+        var td = new TrainableDef
+        {
+            defName = "Obedience",
+            defaultTrainable = true,
+            minBodySize = 1f,
+            requiredTrainability = new TrainabilityDef { intelligenceOrder = 2 },
+        };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: false,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.False();
+        Assert.That(visible).Is.True();
+    }
+
+    [Test]
+    public static void FullyEligibleCombinationIsAccepted()
+    {
+        var pawnKind = PawnKind(
+            new RaceProperties
+            {
+                baseBodySize = 1f,
+                trainability = new TrainabilityDef { intelligenceOrder = 2 },
+            }
+        );
+        var td = new TrainableDef
+        {
+            defName = "Obedience",
+            defaultTrainable = true,
+            minBodySize = 1f,
+            requiredTrainability = new TrainabilityDef { intelligenceOrder = 1 },
+        };
+
+        var report = ManagerJob_Livestock.CanBeTrained(
+            odysseyActive: false,
+            pawnKind,
+            td,
+            out var visible
+        );
+
+        Assert.That(report.Accepted).Is.True();
+        Assert.That(visible).Is.True();
+    }
 }

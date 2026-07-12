@@ -43,17 +43,37 @@ internal sealed class Alert_AutoslaughterOverlap : Alert
         foreach (var config in currentMap.autoSlaughterManager.configs)
         {
             if (
-                config.maxTotal != -1
-                || config.maxFemales != -1
-                || config.maxFemalesYoung != -1
-                || config.maxMales != -1
-                || config.maxMalesYoung != -1
+                IsAutoSlaughterConfigActive(
+                    config.maxTotal,
+                    config.maxFemales,
+                    config.maxFemalesYoung,
+                    config.maxMales,
+                    config.maxMalesYoung
+                )
             )
             {
                 yield return config.animal;
             }
         }
     }
+
+    /// <summary>
+    /// An <see cref="AutoSlaughterConfig"/> is "active" (worth flagging as potentially
+    /// overlapping with a Colony Manager cull-excess job) if any of its five max-count fields
+    /// isn't <c>-1</c>, RimWorld's sentinel for "unlimited"/"off".
+    /// </summary>
+    internal static bool IsAutoSlaughterConfigActive(
+        int maxTotal,
+        int maxFemales,
+        int maxFemalesYoung,
+        int maxMales,
+        int maxMalesYoung
+    ) =>
+        maxTotal != -1
+        || maxFemales != -1
+        || maxFemalesYoung != -1
+        || maxMales != -1
+        || maxMalesYoung != -1;
 
     private static IEnumerable<ThingDef> AutoSlaugherLivestockAnimals()
     {

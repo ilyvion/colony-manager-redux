@@ -344,8 +344,10 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             if (!plant.TrySpecialAllowedSync(AllowedPlants, TriggerThreshold.ThresholdFilter))
             {
                 var harvestedThingDef = plant.plant.harvestedThingDef;
-                var setAllow = AllowedPlants.Any(p =>
-                    p.plant.harvestedThingDef == harvestedThingDef
+                var setAllow = Utilities_ResourceSync.ShouldResourceStayAllowed(
+                    AllowedPlants,
+                    p => p.plant.harvestedThingDef,
+                    harvestedThingDef
                 );
                 TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow);
             }

@@ -520,7 +520,11 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
 
             var resource = AnimalResource(animal);
 
-            var setAllow = AllowedAnimals.Any(a => AnimalResource(a) == resource);
+            var setAllow = Utilities_ResourceSync.ShouldResourceStayAllowed(
+                AllowedAnimals,
+                AnimalResource,
+                resource
+            );
             TriggerThreshold.ThresholdFilter.SetAllow(resource, setAllow);
         }
     }

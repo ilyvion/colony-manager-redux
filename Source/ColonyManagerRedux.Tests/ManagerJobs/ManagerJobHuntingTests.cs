@@ -73,4 +73,25 @@ internal static class ManagerJobHuntingTests
                     is null
             )
             .Is.True();
+
+    // The designation-priority comment at ManagerJob_Hunting.cs:688 says "value = meat /
+    // (distance ^ 2)", but the sorter it actually passes to GetTargetsSorted is
+    // "yield / distance" (single division, not squared) — see TEST-OPPORTUNITIES.md #7. This
+    // pins the real (non-squared) ordering down as a regression guard, using values where the
+    // two formulas disagree: yield/d gives {9, 25} (second wins), yield/d^2 gives {9, 6.25}
+    // (first would win) — so an accidental "fix" to match the stale comment would flip this
+    // ordering and be caught here.
+    [Test]
+    public static void DesignationPrioritySortsByYieldOverDistanceNotDistanceSquared()
+    {
+        var result = ManagerJob.SortByScoreDescending(
+            origins: ["low-yield-close", "high-yield-far"],
+            things: [9, 100],
+            distances: [1f, 4f],
+            sorter: (yield, distance) => yield / distance
+        );
+
+        Assert.That(result[0]).Is.EqualTo("high-yield-far");
+        Assert.That(result[1]).Is.EqualTo("low-yield-close");
+    }
 }

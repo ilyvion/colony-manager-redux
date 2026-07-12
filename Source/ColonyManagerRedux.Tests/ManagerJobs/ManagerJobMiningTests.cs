@@ -187,4 +187,28 @@ internal static class ManagerJobMiningTests
                 )
             )
             .Is.EqualTo(10);
+
+    private static readonly DesignationDef Mine = new() { defName = "Mine" };
+    private static readonly DesignationDef Deconstruct = new() { defName = "Deconstruct" };
+    private static readonly DesignationDef Unrelated = new() { defName = "Unrelated" };
+
+    [Test]
+    public static void NoDesignationIsNotDesignatedForRemoval() =>
+        Assert.That(ManagerJob_Mining.IsDesignatedForRemoval(null, Mine, Deconstruct)).Is.False();
+
+    [Test]
+    public static void UnrelatedDesignationIsNotDesignatedForRemoval() =>
+        Assert
+            .That(ManagerJob_Mining.IsDesignatedForRemoval(Unrelated, Mine, Deconstruct))
+            .Is.False();
+
+    [Test]
+    public static void MineDesignationIsDesignatedForRemoval() =>
+        Assert.That(ManagerJob_Mining.IsDesignatedForRemoval(Mine, Mine, Deconstruct)).Is.True();
+
+    [Test]
+    public static void DeconstructDesignationIsDesignatedForRemoval() =>
+        Assert
+            .That(ManagerJob_Mining.IsDesignatedForRemoval(Deconstruct, Mine, Deconstruct))
+            .Is.True();
 }
