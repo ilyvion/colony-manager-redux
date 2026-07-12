@@ -36,11 +36,12 @@ internal static class ManagerJobTemplatesTests
             .That(ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", "Already.cmt"))
             .Is.EqualTo("/save/ManagerJobTemplates/Already.cmt.cmt");
 
-    // Path.Combine treats an empty second segment as a no-op (no separator added), so this
-    // collapses to the base path with the extension appended directly.
+    // An empty name would otherwise silently collapse onto the base path (Path.Combine treats
+    // an empty second segment as a no-op), producing a file that isn't actually named after
+    // anything. Reject it instead of allowing a nameless template to be saved/loaded.
     [Test]
-    public static void HandlesEmptyName() =>
+    public static void RejectsEmptyName() =>
         Assert
-            .That(ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", ""))
-            .Is.EqualTo("/save/ManagerJobTemplates.cmt");
+            .ThatFunc(() => ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", ""))
+            .Does.Throw();
 }

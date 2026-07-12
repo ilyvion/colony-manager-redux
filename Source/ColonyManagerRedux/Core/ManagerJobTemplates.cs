@@ -29,7 +29,9 @@ public static class ManagerJobTemplates
     /// save-data folder.
     /// </summary>
     internal static string FilePath(string basePath, string name) =>
-        Path.Combine(basePath, name) + TemplateExtension;
+        string.IsNullOrEmpty(name)
+            ? throw new ArgumentException("Template name must not be empty.", nameof(name))
+            : Path.Combine(basePath, name) + TemplateExtension;
 
     /// <summary>
     /// Gets the names of all currently saved templates, ordered by name.
@@ -37,19 +39,16 @@ public static class ManagerJobTemplates
     public static List<string> GetTemplateNames()
     {
         var directoryInfo = new DirectoryInfo(GetTemplateSaveLocation());
-        if (!directoryInfo.Exists)
-        {
-            return [];
-        }
-
-        return
-        [
-            .. directoryInfo
-                .GetFiles()
-                .Where(f => f.Extension == TemplateExtension)
-                .Select(f => Path.GetFileNameWithoutExtension(f.Name))
-                .OrderBy(n => n),
-        ];
+        return !directoryInfo.Exists
+            ? []
+            :
+            [
+                .. directoryInfo
+                    .GetFiles()
+                    .Where(f => f.Extension == TemplateExtension)
+                    .Select(f => Path.GetFileNameWithoutExtension(f.Name))
+                    .OrderBy(n => n),
+            ];
     }
 
     /// <summary>
