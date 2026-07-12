@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-07-12
+
 ### Added
 
 - Mining jobs now have 'lock to map' toggles for the allowed minerals and allowed buildings lists, matching Foraging, Forestry, and Hunting. Enable them to only show mineral/building types actually present on the current map instead of every one known to the game.
@@ -537,7 +539,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.7...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.7..v0.15.0
 [0.14.7]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.6..v0.14.7
 [0.14.6]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.5..v0.14.6
 [0.14.5]: https://github.com/ilyvion/colony-manager-redux/compare/v0.14.4..v0.14.5
