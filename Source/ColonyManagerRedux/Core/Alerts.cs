@@ -59,35 +59,54 @@ internal sealed class Alert_JobsNotUpdating : Alert
                 return 0;
             }
             var manager = Manager.For(currentMap);
-            return manager
-                    .JobTracker.JobList.Where(j => !j.IsSuspended && j.ShouldDoNow)
-                    .Max(j => (int?)j.TicksSinceShouldUpdate)
-                ?? 0;
+            return MostOutdatedTicks(
+                manager.JobTracker.JobList.Select(j =>
+                    (j.IsSuspended, j.ShouldDoNow, j.TicksSinceShouldUpdate)
+                )
+            );
         });
     }
 
-    public override AlertPriority Priority
+    /// <summary>
+    /// Pure filter/max behind <see cref="_mostOutdatedJobTicks"/>: finds the largest
+    /// <c>ticksSinceShouldUpdate</c> among jobs that are active (not suspended) and currently due,
+    /// defaulting to 0 when there are none.
+    /// </summary>
+    internal static int MostOutdatedTicks(
+        IEnumerable<(bool isSuspended, bool shouldDoNow, int ticksSinceShouldUpdate)> jobs
+    ) =>
+        jobs.Where(j => !j.isSuspended && j.shouldDoNow).Max(j => (int?)j.ticksSinceShouldUpdate)
+        ?? 0;
+
+    public override AlertPriority Priority =>
+        ClassifyOutdatedPriority(
+            _mostOutdatedJobTicks.Value,
+            ColonyManagerReduxMod.Settings.DaysBeforeShowingCriticalAlert,
+            ColonyManagerReduxMod.Settings.DaysBeforeShowingHighAlert
+        );
+
+    /// <summary>
+    /// Pure threshold classification behind <see cref="Priority"/>: compares
+    /// <paramref name="mostOutdatedTicks"/> against the critical/high day thresholds (converted
+    /// to ticks) to pick the alert tier. Critical is checked first, so classification stays sane
+    /// even if the critical/high day-threshold ordering invariant normally enforced by
+    /// <see cref="Settings.ClampAlertTiers"/> were ever violated.
+    /// </summary>
+    internal static AlertPriority ClassifyOutdatedPriority(
+        int mostOutdatedTicks,
+        float criticalDays,
+        float highDays
+    )
     {
-        get
+        if (mostOutdatedTicks >= GenDate.TicksPerDay * criticalDays)
         {
-            var mostOutdatedJobTicks = _mostOutdatedJobTicks.Value;
-            if (
-                mostOutdatedJobTicks
-                >= GenDate.TicksPerDay
-                    * ColonyManagerReduxMod.Settings.DaysBeforeShowingCriticalAlert
-            )
-            {
-                return AlertPriority.Critical;
-            }
-            else if (
-                mostOutdatedJobTicks
-                >= GenDate.TicksPerDay * ColonyManagerReduxMod.Settings.DaysBeforeShowingHighAlert
-            )
-            {
-                return AlertPriority.High;
-            }
-            return AlertPriority.Medium;
+            return AlertPriority.Critical;
         }
+        else if (mostOutdatedTicks >= GenDate.TicksPerDay * highDays)
+        {
+            return AlertPriority.High;
+        }
+        return AlertPriority.Medium;
     }
 
     private const float PulseFreq = 0.5f;

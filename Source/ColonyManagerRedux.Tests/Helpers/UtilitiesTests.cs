@@ -83,6 +83,20 @@ internal static class UtilitiesTests
         Assert.That(Utilities.SaturatingIntSum([int.MinValue, -1])).Is.EqualTo(int.MinValue);
 
     [Test]
+    public static void SaturatingIntSumReachingExactlyMaxValueDoesNotSaturate() =>
+        // Landing exactly on int.MaxValue is not itself an overflow; only exceeding it should
+        // trigger the saturating clamp.
+        Assert.That(Utilities.SaturatingIntSum([int.MaxValue - 1, 1])).Is.EqualTo(int.MaxValue);
+
+    [Test]
+    public static void SaturatingIntSumReachingExactlyMinValueDoesNotSaturate() =>
+        Assert.That(Utilities.SaturatingIntSum([int.MinValue + 1, -1])).Is.EqualTo(int.MinValue);
+
+    [Test]
+    public static void SaturatingIntSumThrowsOnNullSequence() =>
+        Assert.ThatFunc(() => Utilities.SaturatingIntSum(null!)).Does.Throw();
+
+    [Test]
     public static void SafeAbsOfPositiveValueIsUnchanged() =>
         Assert.That(Utilities.SafeAbs(5)).Is.EqualTo(5);
 

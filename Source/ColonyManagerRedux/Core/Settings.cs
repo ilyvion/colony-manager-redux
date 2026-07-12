@@ -815,14 +815,17 @@ public class Settings : ModSettings
         {
             if (RowButton(adjustButtonLabels[labelIndex++], ref rowPos))
             {
-                _addCustomUpdateIntervalTicks = Mathf.Max(
-                    0,
-                    _addCustomUpdateIntervalTicks - ticksPerUnit
+                _addCustomUpdateIntervalTicks = AdjustCustomIntervalTicks(
+                    _addCustomUpdateIntervalTicks,
+                    -ticksPerUnit
                 );
             }
             if (RowButton(adjustButtonLabels[labelIndex++], ref rowPos))
             {
-                _addCustomUpdateIntervalTicks += ticksPerUnit;
+                _addCustomUpdateIntervalTicks = AdjustCustomIntervalTicks(
+                    _addCustomUpdateIntervalTicks,
+                    ticksPerUnit
+                );
             }
         }
         rowPos.x += Margin;
@@ -1002,6 +1005,14 @@ public class Settings : ModSettings
         }
         return (high, critical);
     }
+
+    /// <summary>
+    /// Pure clamp behind the custom-update-interval adjust buttons in
+    /// <see cref="DrawCustomUpdateIntervals"/>: applies <paramref name="delta"/> to
+    /// <paramref name="current"/>, never letting the result go below zero.
+    /// </summary>
+    internal static int AdjustCustomIntervalTicks(int current, int delta) =>
+        Mathf.Max(0, current + delta);
 
     private float DrawDisableManagers(Vector2 pos, float width)
     {

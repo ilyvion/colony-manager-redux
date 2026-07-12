@@ -151,4 +151,16 @@ internal static class SettingsTests
     [Test]
     public static void FindMatchingTicksReturnsFirstOfDuplicateMatches() =>
         Assert.That(Settings.FindMatchingTicks([100, 100, 200], 100)!.Value).Is.EqualTo(100);
+
+    [Test]
+    public static void AdjustCustomIntervalTicksClampsAtZeroOnDecrement() =>
+        Assert.That(Settings.AdjustCustomIntervalTicks(100, -1000)).Is.EqualTo(0);
+
+    [Test]
+    public static void AdjustCustomIntervalTicksDecrementsNormally() =>
+        Assert.That(Settings.AdjustCustomIntervalTicks(100, -40)).Is.EqualTo(60);
+
+    [Test]
+    public static void AdjustCustomIntervalTicksIncrementsNormally() =>
+        Assert.That(Settings.AdjustCustomIntervalTicks(100, 40)).Is.EqualTo(140);
 }
