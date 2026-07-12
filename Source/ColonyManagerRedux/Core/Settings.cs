@@ -417,18 +417,34 @@ public class Settings : ModSettings
         }
 
         var fullName = GetFullName(coroutine);
+        var hasOverride = _coroutineOperationsPerTick.TryGetValue(
+            fullName,
+            out var operationsPerTick
+        );
 
-        return !ShowAdvancedPerformanceSettings
-            ? OperationsPerTick
-            : (
-                (
-                    _coroutineOperationsPerTick.TryGetValue(fullName, out var operationsPerTick)
-                    && operationsPerTick > 0
-                )
-                    ? operationsPerTick
-                    : OperationsPerTick
-            );
+        return ResolveCoroutineSetting(
+            ShowAdvancedPerformanceSettings,
+            OperationsPerTick,
+            hasOverride,
+            operationsPerTick,
+            minValidOverride: 1
+        );
     }
+
+    // The "no override" sentinel differs between the two coroutine settings: 0 operations per
+    // tick is invalid (nothing would ever run), but 0 ticks between operations is a valid
+    // explicit override (run every tick). `minValidOverride` captures that difference: an
+    // override is only used if it's >= minValidOverride.
+    internal static int ResolveCoroutineSetting(
+        bool showAdvanced,
+        int globalValue,
+        bool hasOverride,
+        int overrideValue,
+        int minValidOverride
+    ) =>
+        showAdvanced && hasOverride && overrideValue >= minValidOverride
+            ? overrideValue
+            : globalValue;
 
     /// <summary>
     /// Gets the number of ticks between operations for a specific coroutine.
@@ -443,20 +459,18 @@ public class Settings : ModSettings
         }
 
         var fullName = GetFullName(coroutine);
+        var hasOverride = _coroutineTicksBetweenOperations.TryGetValue(
+            fullName,
+            out var ticksBetweenOperations
+        );
 
-        return !ShowAdvancedPerformanceSettings
-            ? TicksBetweenOperations
-            : (
-                (
-                    _coroutineTicksBetweenOperations.TryGetValue(
-                        fullName,
-                        out var ticksBetweenOperations
-                    )
-                    && ticksBetweenOperations > -1
-                )
-                    ? ticksBetweenOperations
-                    : TicksBetweenOperations
-            );
+        return ResolveCoroutineSetting(
+            ShowAdvancedPerformanceSettings,
+            TicksBetweenOperations,
+            hasOverride,
+            ticksBetweenOperations,
+            minValidOverride: 0
+        );
     }
 
     private List<TabRecord>? _tabList;

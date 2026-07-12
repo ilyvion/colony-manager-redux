@@ -413,14 +413,28 @@ internal sealed class AAAAManagerJobCompField(
         parent
             .Manager.map.areaManager.AllAreas.OfType<Area_Allowed>()
             .FirstOrDefault(area =>
-                Regex.IsMatch(
+                MatchesSafeAreaLabel(
                     area.Label,
-                    Regex.Escape(
-                        previousArea == null
-                            ? "NoAreaAllowed".Translate().ToString()
-                            : previousArea.Label
-                    ) + Utility.GetSuffix,
-                    RegexOptions.IgnoreCase | RegexOptions.ECMAScript
+                    previousArea == null
+                        ? "NoAreaAllowed".Translate().ToString()
+                        : previousArea.Label,
+                    Utility.GetSuffix
                 )
             );
+
+    // The area label may contain regex metacharacters (e.g. "Home (1)"), so it must be escaped
+    // before being used to build the match pattern. Regressed once in commit 3466824.
+    internal static string BuildSafeAreaPattern(string areaLabel, string suffixPattern) =>
+        Regex.Escape(areaLabel) + suffixPattern;
+
+    internal static bool MatchesSafeAreaLabel(
+        string candidateLabel,
+        string areaLabel,
+        string suffixPattern
+    ) =>
+        Regex.IsMatch(
+            candidateLabel,
+            BuildSafeAreaPattern(areaLabel, suffixPattern),
+            RegexOptions.IgnoreCase | RegexOptions.ECMAScript
+        );
 }

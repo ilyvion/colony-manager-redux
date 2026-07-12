@@ -106,4 +106,53 @@ internal static class AAAAManagerJobCompTests
         Assert.That(swapFailed).Is.True();
         Assert.That(restoreFailed).Is.True();
     }
+
+    private const string Suffix = " \\(Safe\\)";
+
+    [Test]
+    public static void MatchesSafeAreaLabelMatchesPlainLabelWithSuffix() =>
+        Assert
+            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("Home (Safe)", "Home", Suffix))
+            .Is.True();
+
+    [Test]
+    public static void MatchesSafeAreaLabelIsCaseInsensitive() =>
+        Assert
+            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("HOME (SAFE)", "home", Suffix))
+            .Is.True();
+
+    [Test]
+    public static void MatchesSafeAreaLabelEscapesRegexMetacharactersInAreaLabel()
+    {
+        // Regression guard for commit 3466824: an area label containing regex metacharacters
+        // must be escaped, not interpreted as a pattern, or this either throws or silently
+        // matches the wrong areas.
+        Assert
+            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("a.b*c (Safe)", "a.b*c", Suffix))
+            .Is.True();
+        Assert
+            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("aXbXXXc (Safe)", "a.b*c", Suffix))
+            .Is.False();
+    }
+
+    [Test]
+    public static void MatchesSafeAreaLabelHandlesParenthesesInAreaLabel() =>
+        // e.g. an area literally named "Home (1)".
+        Assert
+            .That(
+                AAAAManagerJobCompField.MatchesSafeAreaLabel("Home (1) (Safe)", "Home (1)", Suffix)
+            )
+            .Is.True();
+
+    [Test]
+    public static void MatchesSafeAreaLabelRejectsLabelWithoutSuffix() =>
+        Assert
+            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("Home", "Home", Suffix))
+            .Is.False();
+
+    [Test]
+    public static void BuildSafeAreaPatternEscapesAreaLabel() =>
+        Assert
+            .That(AAAAManagerJobCompField.BuildSafeAreaPattern("a.b*c", Suffix))
+            .Is.EqualTo("a\\.b\\*c \\(Safe\\)");
 }

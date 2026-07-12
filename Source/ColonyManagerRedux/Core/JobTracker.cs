@@ -310,7 +310,7 @@ public class JobTracker(Manager manager) : IExposable
                 yield break;
             }
 
-            if (!wasCompleted || job.JobState != ManagerJobState.Completed)
+            if (ShouldLogJobRun(wasCompleted, job.JobState))
             {
                 // Don't log jobs where the state is Completed both before and after TryDoJob;
                 // those TryDoJobs are only for checking whether a job should be resumed again, and
@@ -359,12 +359,40 @@ public class JobTracker(Manager manager) : IExposable
         }
     }
 
+    // Suppresses logging a job run that was Completed both before and after TryDoJob; those
+    // runs are only checking whether a job should be resumed and didn't actually do anything.
+    internal static bool ShouldLogJobRun(bool wasCompletedBefore, ManagerJobState stateAfter) =>
+        !wasCompletedBefore || stateAfter != ManagerJobState.Completed;
+
     private void CleanPriorities()
     {
-        foreach (var (job, priority) in Jobs.OrderBy(mj => mj.Priority).Select((j, i) => (j, i)))
+        var jobList = JobList;
+        var currentPriorities = new int[jobList.Count];
+        for (var i = 0; i < jobList.Count; i++)
         {
-            job.Priority = priority;
+            currentPriorities[i] = jobList[i].Priority;
         }
+        var newPriorities = ComputeCleanedPriorities(currentPriorities);
+        for (var i = 0; i < jobList.Count; i++)
+        {
+            jobList[i].Priority = newPriorities[i];
+        }
+    }
+
+    // Renumbers priorities densely from 0, preserving the relative order jobs are already in
+    // (ties broken by original position, matching the stable sort this replaced).
+    internal static int[] ComputeCleanedPriorities(IReadOnlyList<int> currentPrioritiesInOrder)
+    {
+        var order = Enumerable
+            .Range(0, currentPrioritiesInOrder.Count)
+            .OrderBy(i => currentPrioritiesInOrder[i])
+            .ToArray();
+        var result = new int[currentPrioritiesInOrder.Count];
+        for (var rank = 0; rank < order.Length; rank++)
+        {
+            result[order[rank]] = rank;
+        }
+        return result;
     }
 
     private static void SwitchPriorities(ManagerJob a, ManagerJob b) =>
@@ -381,24 +409,57 @@ public class JobTracker(Manager manager) : IExposable
             jobsOfTypeCount < Constants.MaxStackallocSize
                 ? stackalloc int[jobsOfTypeCount]
                 : new int[jobsOfTypeCount];
+        var movedIndex = -1;
         foreach (var (j, i) in Jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
         {
             jobsOfType[i] = j;
             priorities[i] = j.Priority;
+            if (j == job)
+            {
+                movedIndex = i;
+            }
         }
 
-        // make sure our job is on top.
-        job.Priority = newPriority;
-
-        // re-sort
-        IlyvionArray.SortBy(jobsOfType.Arr, 0, jobsOfTypeCount, j => j.Priority);
+        var newPriorities = ComputeReprioritizedPriorities(
+            priorities.ToArray(),
+            movedIndex,
+            newPriority
+        );
 
         // fill in priorities, making sure we don't affect other types.
         for (var i = 0; i < jobsOfTypeCount; i++)
         {
-            jobsOfType[i].Priority = priorities[i];
+            jobsOfType[i].Priority = newPriorities[i];
         }
         CleanPriorities();
+    }
+
+    // Moves the job at `movedIndex` (within the ascending-by-priority `oldPrioritiesAscending`
+    // list) to `newPriorityForMoved`, then redistributes the original set of priority values
+    // across the resulting order, so other same-type jobs' priority values are otherwise
+    // untouched (they still get renumbered densely afterwards by CleanPriorities).
+    internal static int[] ComputeReprioritizedPriorities(
+        IReadOnlyList<int> oldPrioritiesAscending,
+        int movedIndex,
+        int newPriorityForMoved
+    )
+    {
+        var n = oldPrioritiesAscending.Count;
+        var currentPriority = new int[n];
+        for (var i = 0; i < n; i++)
+        {
+            currentPriority[i] = oldPrioritiesAscending[i];
+        }
+        currentPriority[movedIndex] = newPriorityForMoved;
+
+        var order = Enumerable.Range(0, n).OrderBy(i => currentPriority[i]).ToArray();
+
+        var result = new int[n];
+        for (var rank = 0; rank < n; rank++)
+        {
+            result[order[rank]] = oldPrioritiesAscending[rank];
+        }
+        return result;
     }
 
     internal void TopPriority<T>(T job)
@@ -410,9 +471,9 @@ public class JobTracker(Manager manager) : IExposable
     internal void IncreasePriority<T>(T job)
         where T : ManagerJob
     {
-        ManagerJob jobB = Jobs.OfType<T>()
-            .OrderByDescending(mj => mj.Priority)
-            .First(mj => mj.Priority < job.Priority);
+        var prioritiesOfType = Jobs.OfType<T>().Select(mj => mj.Priority).ToArray();
+        var adjacentPriority = FindAdjacentPriority(prioritiesOfType, job.Priority, lower: true);
+        ManagerJob jobB = Jobs.OfType<T>().First(mj => mj.Priority == adjacentPriority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
@@ -420,10 +481,23 @@ public class JobTracker(Manager manager) : IExposable
     internal void DecreasePriority<T>(T job)
         where T : ManagerJob
     {
-        ManagerJob jobB = Jobs.OfType<T>()
-            .OrderBy(mj => mj.Priority)
-            .First(mj => mj.Priority > job.Priority);
+        var prioritiesOfType = Jobs.OfType<T>().Select(mj => mj.Priority).ToArray();
+        var adjacentPriority = FindAdjacentPriority(prioritiesOfType, job.Priority, lower: false);
+        ManagerJob jobB = Jobs.OfType<T>().First(mj => mj.Priority == adjacentPriority);
         SwitchPriorities(job, jobB);
         CleanPriorities();
     }
+
+    // Finds the priority value immediately adjacent to `currentPriority` within
+    // `prioritiesOfType` (the largest one below it, or the smallest one above it). Throws
+    // InvalidOperationException if there's no such value (i.e. currentPriority is already at
+    // the top/bottom of its type), matching the previous .First(...) behavior this replaced.
+    internal static int FindAdjacentPriority(
+        IReadOnlyList<int> prioritiesOfType,
+        int currentPriority,
+        bool lower
+    ) =>
+        lower
+            ? prioritiesOfType.Where(p => p < currentPriority).Max()
+            : prioritiesOfType.Where(p => p > currentPriority).Min();
 }

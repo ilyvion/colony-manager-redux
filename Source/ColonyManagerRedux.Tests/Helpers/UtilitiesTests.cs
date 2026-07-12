@@ -112,4 +112,38 @@ internal static class UtilitiesTests
         // The motivation for commit 9b8ae26: naive -value on int.MinValue overflows back to
         // int.MinValue (still negative) instead of throwing or crashing.
         Assert.That(Utilities.SafeAbs(int.MinValue)).Is.EqualTo(int.MaxValue);
+
+    private static void NamedStaticMethod() { }
+
+    private sealed class InstanceMethodHolder
+    {
+#pragma warning disable CA1822 // Mark members as static
+        public void NamedInstanceMethod() { }
+#pragma warning restore CA1822 // Mark members as static
+    }
+
+    [Test]
+    public static void IsLikelyAnonymousIsFalseForNamedStaticMethod() =>
+        Assert.That(Utilities.IsLikelyAnonymous(NamedStaticMethod)).Is.False();
+
+    [Test]
+    public static void IsLikelyAnonymousIsFalseForNamedInstanceMethod() =>
+        Assert
+            .That(Utilities.IsLikelyAnonymous(new InstanceMethodHolder().NamedInstanceMethod))
+            .Is.False();
+
+    [Test]
+    public static void IsLikelyAnonymousIsTrueForLambda()
+    {
+        Action lambda = () => { };
+        Assert.That(Utilities.IsLikelyAnonymous(lambda)).Is.True();
+    }
+
+    [Test]
+    public static void IsLikelyAnonymousIsTrueForLocalFunction()
+    {
+        static void LocalFunction() { }
+        Action local = LocalFunction;
+        Assert.That(Utilities.IsLikelyAnonymous(local)).Is.True();
+    }
 }

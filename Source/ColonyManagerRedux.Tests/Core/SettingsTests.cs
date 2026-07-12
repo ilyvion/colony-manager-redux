@@ -163,4 +163,79 @@ internal static class SettingsTests
     [Test]
     public static void AdjustCustomIntervalTicksIncrementsNormally() =>
         Assert.That(Settings.AdjustCustomIntervalTicks(100, 40)).Is.EqualTo(140);
+
+    [Test]
+    public static void ResolveCoroutineSettingUsesGlobalWhenAdvancedSettingsDisabled() =>
+        // Even a valid, present override must be ignored when the advanced-settings toggle is
+        // off.
+        Assert
+            .That(
+                Settings.ResolveCoroutineSetting(
+                    showAdvanced: false,
+                    globalValue: 5,
+                    hasOverride: true,
+                    overrideValue: 99,
+                    minValidOverride: 1
+                )
+            )
+            .Is.EqualTo(5);
+
+    [Test]
+    public static void ResolveCoroutineSettingUsesGlobalWhenNoOverrideStored() =>
+        Assert
+            .That(
+                Settings.ResolveCoroutineSetting(
+                    showAdvanced: true,
+                    globalValue: 5,
+                    hasOverride: false,
+                    overrideValue: 0,
+                    minValidOverride: 1
+                )
+            )
+            .Is.EqualTo(5);
+
+    [Test]
+    public static void ResolveCoroutineSettingUsesGlobalWhenOverrideBelowValidityThreshold() =>
+        Assert
+            .That(
+                Settings.ResolveCoroutineSetting(
+                    showAdvanced: true,
+                    globalValue: 5,
+                    hasOverride: true,
+                    overrideValue: 0,
+                    minValidOverride: 1
+                )
+            )
+            .Is.EqualTo(5);
+
+    [Test]
+    public static void ResolveCoroutineSettingUsesValidOverrideWhenAdvancedSettingsEnabled() =>
+        Assert
+            .That(
+                Settings.ResolveCoroutineSetting(
+                    showAdvanced: true,
+                    globalValue: 5,
+                    hasOverride: true,
+                    overrideValue: 99,
+                    minValidOverride: 1
+                )
+            )
+            .Is.EqualTo(99);
+
+    [Test]
+    public static void ResolveCoroutineSettingTreatsZeroAsValidOverrideForTicksBetweenOperations() =>
+        // The asymmetry between the two coroutine settings: 0 is a valid explicit override for
+        // ticks-between-operations (minValidOverride 0), unlike operations-per-tick
+        // (minValidOverride 1).
+        Assert
+            .That(
+                Settings.ResolveCoroutineSetting(
+                    showAdvanced: true,
+                    globalValue: 5,
+                    hasOverride: true,
+                    overrideValue: 0,
+                    minValidOverride: 0
+                )
+            )
+            .Is.EqualTo(0);
 }
