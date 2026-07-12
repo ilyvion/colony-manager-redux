@@ -198,14 +198,15 @@ public partial class History : IExposable
     /// <summary>
     /// Gets whether the current tick is an update tick for any period.
     /// </summary>
-    public static bool IsUpdateTick
-    {
-        get
-        {
-            var ticksGame = Find.TickManager.TicksGame;
-            return Periods.Any(p => ticksGame % PeriodTickInterval(p) == 0);
-        }
-    }
+    public static bool IsUpdateTick => IsUpdateTickFor(Find.TickManager.TicksGame);
+
+    /// <summary>
+    /// True if <paramref name="ticksGame"/> is an update tick boundary for any period.
+    /// </summary>
+    /// <remarks>Kept separate from <see cref="IsUpdateTick"/> so this is unit-testable
+    /// without a live <see cref="TickManager"/>.</remarks>
+    internal static bool IsUpdateTickFor(int ticksGame) =>
+        Periods.Any(p => ticksGame % PeriodTickInterval(p) == 0);
 
     /// <inheritdoc/>
     public void ExposeData()
@@ -580,7 +581,12 @@ public partial class History : IExposable
 
             // create a chapter for each new def
             var currentChapterCount = _chapters.Count;
-            var currentChapterCountCounts = _chapters.First().counts.Select(c => c.Size).ToArray();
+            // No surviving chapters to line up with: leave new chapters at their default
+            // (single-entry) buffer length instead of indexing into an empty _chapters list.
+            var currentChapterCountCounts =
+                _chapters.Count > 0
+                    ? [.. _chapters.First().counts.Select(c => c.Size)]
+                    : new int[Periods.Length];
             for (var i = 0; i < traderDefs.Count; i++)
             {
                 Chapter chapter = new(
@@ -590,7 +596,11 @@ public partial class History : IExposable
                 );
                 for (var j = 0; j < currentChapterCountCounts.Length; j++)
                 {
-                    for (var k = 0; k < currentChapterCountCounts[j]; k++)
+                    // A new chapter's buffers are already seeded with a single 0 entry (see
+                    // Chapter.BuildBuffers), so start backfilling from 1 to land on exactly
+                    // currentChapterCountCounts[j] total entries, matching the existing
+                    // chapters' buffer length instead of overshooting it by one.
+                    for (var k = 1; k < currentChapterCountCounts[j]; k++)
                     {
                         chapter.counts[j].PushBack(0);
                     }

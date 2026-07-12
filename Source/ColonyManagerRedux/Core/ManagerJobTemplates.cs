@@ -21,8 +21,15 @@ public static class ManagerJobTemplates
     public static string GetTemplateSaveLocation() =>
         GenFilePaths.FolderUnderSaveData("ManagerJobTemplates");
 
-    internal static string FilePath(string name) =>
-        GetTemplateSaveLocation() + "/" + name + TemplateExtension;
+    internal static string FilePath(string name) => FilePath(GetTemplateSaveLocation(), name);
+
+    /// <summary>
+    /// Builds the on-disk path for a named template under <paramref name="basePath"/>. Kept
+    /// separate from <see cref="FilePath(string)"/> so this is unit-testable without a live
+    /// save-data folder.
+    /// </summary>
+    internal static string FilePath(string basePath, string name) =>
+        Path.Combine(basePath, name) + TemplateExtension;
 
     /// <summary>
     /// Gets the names of all currently saved templates, ordered by name.

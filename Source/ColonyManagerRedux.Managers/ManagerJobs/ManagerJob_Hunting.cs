@@ -891,21 +891,37 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // non-biome animals won't be on the list
         && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position));
 
+    /// <summary>
+    /// Picks the meat or leather def a pawn kind's resource threshold should track, depending on
+    /// <paramref name="targetResource"/>. Kept separate from <see cref="IsCountedResource(PawnKindDef)"/>
+    /// / <see cref="IsValidResource(PawnKindDef)"/> so the null-selection logic (the subject of
+    /// CHANGELOG 0.5.3/0.5.4's NullReferenceException fixes) is unit-testable without a live
+    /// <see cref="PawnKindDef"/>.
+    /// </summary>
+    internal static T? SelectResourceDef<T>(
+        HuntingTargetResource targetResource,
+        T? meatDef,
+        T? leatherDef
+    )
+        where T : class => targetResource == HuntingTargetResource.Meat ? meatDef : leatherDef;
+
     private bool IsCountedResource(PawnKindDef pawnKindDef)
     {
-        var resourceDef =
-            TargetResource == HuntingTargetResource.Meat
-                ? pawnKindDef.RaceProps.meatDef
-                : pawnKindDef.RaceProps.leatherDef;
+        var resourceDef = SelectResourceDef(
+            TargetResource,
+            pawnKindDef.RaceProps.meatDef,
+            pawnKindDef.RaceProps.leatherDef
+        );
         return resourceDef != null && TriggerThreshold.ThresholdFilter.Allows(resourceDef);
     }
 
     private bool IsValidResource(PawnKindDef pawnKindDef)
     {
-        var resourceDef =
-            TargetResource == HuntingTargetResource.Meat
-                ? pawnKindDef.RaceProps.meatDef
-                : pawnKindDef.RaceProps.leatherDef;
+        var resourceDef = SelectResourceDef(
+            TargetResource,
+            pawnKindDef.RaceProps.meatDef,
+            pawnKindDef.RaceProps.leatherDef
+        );
         return resourceDef != null;
     }
 

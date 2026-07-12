@@ -666,14 +666,7 @@ public static class Utilities
         using var _ = new DoOnDispose(_tmpHomeCells.Clear);
         if (_tmpHomeCells.Count > 0)
         {
-            for (var i = 0; i < _tmpHomeCells.Count; i++)
-            {
-                position += _tmpHomeCells[i];
-            }
-
-            position.x /= _tmpHomeCells.Count;
-            position.y /= _tmpHomeCells.Count;
-            position.z /= _tmpHomeCells.Count;
+            position = AverageCell(_tmpHomeCells);
             var standableCell = position;
 
             // find the closest traversable cell to the center
@@ -690,6 +683,25 @@ public static class Utilities
             return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement().Position
                 ?? map.Center;
         }
+    }
+
+    /// <summary>
+    /// Averages a set of cells by summing their coordinates and truncating-dividing by the
+    /// count. Kept separate from <see cref="GetBaseCenter"/> so this arithmetic is
+    /// unit-testable without a live <see cref="Map"/>.
+    /// </summary>
+    internal static IntVec3 AverageCell(IReadOnlyList<IntVec3> cells)
+    {
+        var position = IntVec3.Zero;
+        for (var i = 0; i < cells.Count; i++)
+        {
+            position += cells[i];
+        }
+
+        position.x /= cells.Count;
+        position.y /= cells.Count;
+        position.z /= cells.Count;
+        return position;
     }
 
     /// <summary>
