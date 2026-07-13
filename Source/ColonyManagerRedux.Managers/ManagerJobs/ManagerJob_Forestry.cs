@@ -506,6 +506,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             : allowedTreesHarvestedDefs.Any(d => d == harvestedThingDef);
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         var ticksBetweenOperations =
@@ -563,6 +564,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
     }
+#pragma warning restore CS0672, CS0618
 
     internal void UpdateClearAreas()
     {

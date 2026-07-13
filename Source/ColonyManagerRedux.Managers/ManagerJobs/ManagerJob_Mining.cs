@@ -9,8 +9,70 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 [CoroutineSettingsType]
-internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, INotifyStoneChunkMined
+internal sealed class ManagerJob_Mining
+    : ManagerJob<ManagerSettings_Mining, ManagerJob_Mining.MiningWorkData>,
+        INotifyStoneChunkMined
 {
+    // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
+    // Gathering only ever decides on one of these paths per run (mirroring the branches that
+    // used to early-return/yield break in the old single-phase TryDoJobCoroutine).
+    internal enum MiningWorkKind
+    {
+        // Trigger is disabled: clean up all existing designations and stop drilling.
+        CleanUpAndDisableDrills,
+
+        // Trigger is already satisfied (or too many designations exist): remove some.
+        ReduceDesignations,
+
+        // Trigger is not yet satisfied: add new designations for the configured tasks.
+        AddDesignations,
+
+        // Job already completed; only newly discovered drills need rechecking, without a
+        // full CleanUp() pass (designations were already cleaned up when the job first
+        // completed, and re-running CleanUp() here would needlessly redelete them and
+        // double-flick the drills gathered below).
+        RecheckDrillsOnly,
+    }
+
+    /// <summary>
+    /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
+    /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them). No field here
+    /// should ever be read as a signal that a change has already happened.
+    /// </summary>
+    internal sealed class MiningWorkData
+    {
+        public MiningWorkKind Kind;
+
+        // Kind == CleanUpAndDisableDrills or AddDesignations
+        public bool ShouldEnableDrills;
+        public List<(CompFlickable Flickable, ThingDef ResDef)> DrillCandidatesToFlick = [];
+
+        // Kind == ReduceDesignations
+        public List<(
+            Designation Designation,
+            int Yield,
+            int CountAfter
+        )> MineDesignationsToRemove = [];
+        public List<(
+            Designation Designation,
+            int Yield,
+            int CountAfter
+        )> DeconstructDesignationsToRemove = [];
+        public List<(
+            Designation Designation,
+            int Yield,
+            int CountAfter
+        )> HaulDesignationsToRemove = [];
+
+        // Kind == AddDesignations
+        public List<(
+            Thing Target,
+            DesignationDef Def,
+            int Amount,
+            int CountAfter
+        )> DesignationsToAdd = [];
+    }
+
     [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Mining>
     {
@@ -468,7 +530,12 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
         if (ControlDeepDrills)
         {
-            UpdateDeepDrills(jobLog);
+            var drillData = new MiningWorkData();
+            PlanDeepDrillUpdates(jobLog, null, drillData);
+            // Immediately, synchronously apply the plan: CleanUp() is used outside the
+            // gather/execute coroutine flow (e.g. when a job is deleted), so there's no
+            // later execute phase to defer to.
+            foreach (var _ in ExecuteDrillFlicks(jobLog, drillData, null)) { }
         }
     }
 
@@ -1168,8 +1235,11 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         }
     }
 
-    [CoroutineSettingsMethod]
-    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+    protected override Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<MiningWorkData?> data
+    )
     {
         if (!TriggerThreshold.State)
         {
@@ -1178,15 +1248,17 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 JobState = ManagerJobState.Completed;
                 jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
 
-                CleanUp(jobLog);
+                data.Value = new MiningWorkData { Kind = MiningWorkKind.CleanUpAndDisableDrills };
             }
             else if (ControlDeepDrills)
             {
                 // The quota is still met, but a deep drill placed on a new
                 // deposit after the job completed wouldn't have been caught
-                // by the CleanUp() call above, so keep flicking off any
+                // by the cleanup above, so keep planning to flick off any
                 // newly discovered drills here as well.
-                UpdateDeepDrills(jobLog);
+                var drillData = new MiningWorkData { Kind = MiningWorkKind.RecheckDrillsOnly };
+                PlanDeepDrillUpdates(jobLog, null, drillData);
+                data.Value = drillData;
             }
             yield break;
         }
@@ -1195,17 +1267,17 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             JobState = ManagerJobState.Active;
         }
 
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
-            TryDoJobCoroutine
-        );
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, AnyBoxed<MiningWorkData?>, Coroutine>)GatherJobDataCoroutine
+            );
 
-        // clean up designations that were completed.
+        // Resync our own bookkeeping against designations that have disappeared or that
+        // already exist in the game unbeknownst to us; this doesn't change anything in the
+        // game itself, so it's safe to do while gathering.
         CleanDeadDesignations(_designations, null, jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // add designations in the game that could have been handled by this job
         yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -1226,10 +1298,15 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 + DesignatedCachedValue.Value
         );
 
+        // Plan drill updates once, against the not-yet-decremented count, exactly like the
+        // pre-two-phase-split code did before branching on whether to reduce or add
+        // designations below — the drill on/off decision only cares whether the trigger's
+        // target is currently met, not which branch that leads to.
+        var workData = new MiningWorkData();
         if (ControlDeepDrills)
         {
-            ColonyManagerReduxMod.Instance.LogVerboseMessage("Updating deep drills");
-            UpdateDeepDrills(jobLog, workDone, count);
+            ColonyManagerReduxMod.Instance.LogVerboseMessage("Planning deep drill updates");
+            PlanDeepDrillUpdates(jobLog, count, workData);
         }
         else
         {
@@ -1241,20 +1318,20 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {
-            yield return ReduceDesignations(
-                    jobLog,
-                    workDone,
-                    operationsPerTick,
-                    ticksBetweenOperations,
-                    count
-                )
+            workData.Kind = MiningWorkKind.ReduceDesignations;
+
+            yield return PlanReduceDesignations(jobLog, count, workData)
                 .ResumeWhenOtherCoroutineIsCompleted();
 
+            data.Value = workData;
             yield break;
         }
 
+        workData.Kind = MiningWorkKind.AddDesignations;
+
         if (!HaulMapChunks && !DeconstructBuildings && !AllowMining)
         {
+            data.Value = workData;
             yield break;
         }
 
@@ -1266,6 +1343,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                     Def.label
                 )
             );
+            data.Value = workData;
             yield break;
         }
 
@@ -1287,13 +1365,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 case Task.HaulChunks:
                     if (HaulMapChunks)
                     {
-                        yield return TryHaulChunks(
-                                jobLog,
-                                workDone,
-                                operationsPerTick,
-                                ticksBetweenOperations,
-                                count
-                            )
+                        yield return PlanHaulChunks(count, workData)
                             .ResumeWhenOtherCoroutineIsCompleted();
                     }
                     else
@@ -1304,13 +1376,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 case Task.DeconstructBuildings:
                     if (DeconstructBuildings)
                     {
-                        yield return TryDeconstructBuildings(
-                                jobLog,
-                                workDone,
-                                operationsPerTick,
-                                ticksBetweenOperations,
-                                count
-                            )
+                        yield return PlanDeconstructBuildings(jobLog, count, workData)
                             .ResumeWhenOtherCoroutineIsCompleted();
                     }
                     else
@@ -1321,13 +1387,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 case Task.Mine:
                     if (AllowMining)
                     {
-                        yield return TryMineResources(
-                                jobLog,
-                                workDone,
-                                operationsPerTick,
-                                ticksBetweenOperations,
-                                count
-                            )
+                        yield return PlanMineResources(count, workData)
                             .ResumeWhenOtherCoroutineIsCompleted();
                     }
                     else
@@ -1342,7 +1402,9 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
             if (
                 !isLastTask
-                && !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+                && !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                    _designations.Count + workData.DesignationsToAdd.Count
+                )
             )
             {
                 jobLog.AddDetail(
@@ -1351,148 +1413,73 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                         Def.label
                     )
                 );
-                yield break;
+                break;
             }
         }
+
+        data.Value = workData;
     }
 
-    private void UpdateDeepDrills(
-        ManagerLog? jobLog,
-        Boxed<bool>? workDone = null,
-        Boxed<int>? count = null
-    )
+    /// <summary>
+    /// Decides which deep drills need to be flicked on/off to reach the desired state, without
+    /// actually touching them. <paramref name="count"/> being <see langword="null"/> means the
+    /// trigger is disabled and drills should always be planned to flick off.
+    /// </summary>
+    private void PlanDeepDrillUpdates(ManagerLog? jobLog, Boxed<int>? count, MiningWorkData data)
     {
         var drills = _cachedDeepDrills.Value;
         ColonyManagerReduxMod.Instance.LogVerboseMessage(
             $"Found {drills.Count} deep drills on map {Manager.map.Tile}"
         );
-        var shouldEnableDrills =
+        data.ShouldEnableDrills =
             count != null && !TriggerThreshold.DoesCountMeetTarget(count.Value);
-        if (shouldEnableDrills)
+
+        foreach (var (building, drill) in drills.Where(d => !d.building.DestroyedOrNull()))
         {
-            foreach (var (building, drill) in drills.Where(d => !d.building.DestroyedOrNull()))
+            _ = drill.GetNextResource(out var resDef, out _, out _);
+            if (!Counted(resDef) && !resDef.GetChunkProducts().Any(Counted))
             {
-                _ = drill.GetNextResource(out var resDef, out _, out _);
-                if (!Counted(resDef) && !resDef.GetChunkProducts().Any(Counted))
-                {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Skipping deep drill {building.Label} - not counted because {resDef.label} is not counted"
-                    );
-                    continue;
-                }
-
-                if (
-                    building.TryGetComp<CompForbiddable>(out var forbiddable)
-                    && forbiddable.Forbidden
-                )
-                {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Skipping deep drill {building.Label} - forbidden"
-                    );
-                    jobLog?.AddDetail(
-                        "ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill".Translate(
-                            resDef.label
-                        ),
-                        building
-                    );
-
-                    continue;
-                }
-
-                if (building.TryGetComp<CompFlickable>(out var flickable))
-                {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Flicking deep drill {building.Label} on - currently {(flickable.SwitchIsOn ? "on" : "off")}"
-                    );
-                    flickable.wantSwitchOn = true;
-                    FlickUtility.UpdateFlickDesignation(flickable.parent);
-                    if (flickable.WantsFlick())
-                    {
-                        jobLog?.AddDetail(
-                            "ColonyManagerRedux.Mining.Logs.FlickedDeepDrill".Translate(
-                                resDef.label,
-                                ((string)"On".Translate()).UncapitalizeFirst()
-                            ),
-                            building
-                        );
-                        if (workDone != null)
-                        {
-                            workDone.Value = true;
-                        }
-                        else
-                        {
-                            ColonyManagerReduxMod.Instance.LogWarning(
-                                "workDone is null when trying to enable deep drill. This is a bug."
-                            );
-                        }
-                    }
-                }
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Skipping deep drill {building.Label} - not counted because {resDef.label} is not counted"
+                );
+                continue;
             }
-        }
-        else
-        {
-            foreach (var (building, drill) in drills.Where(d => !d.building.DestroyedOrNull()))
+
+            if (building.TryGetComp<CompForbiddable>(out var forbiddable) && forbiddable.Forbidden)
             {
-                _ = drill.GetNextResource(out var resDef, out _, out _);
-                if (!Counted(resDef) && !resDef.GetChunkProducts().Any(Counted))
-                {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Skipping deep drill {building.Label} - not counted because {resDef.label} is not counted"
-                    );
-                    continue;
-                }
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Skipping deep drill {building.Label} - forbidden"
+                );
+                jobLog?.AddDetail(
+                    "ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill".Translate(resDef.label),
+                    building
+                );
 
-                if (
-                    building.TryGetComp<CompForbiddable>(out var forbiddable)
-                    && forbiddable.Forbidden
-                )
-                {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Skipping deep drill {building.Label} - forbidden"
-                    );
+                continue;
+            }
 
-                    jobLog?.AddDetail(
-                        "ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill".Translate(
-                            resDef.label
-                        ),
-                        building
-                    );
-
-                    continue;
-                }
-
-                if (building.TryGetComp<CompFlickable>(out var flickable))
-                {
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Flicking deep drill {building.Label} off - currently {(flickable.SwitchIsOn ? "on" : "off")}"
-                    );
-
-                    flickable.wantSwitchOn = false;
-                    FlickUtility.UpdateFlickDesignation(flickable.parent);
-                    if (flickable.WantsFlick())
-                    {
-                        jobLog?.AddDetail(
-                            "ColonyManagerRedux.Mining.Logs.FlickedDeepDrill".Translate(
-                                resDef.label,
-                                ((string)"Off".Translate()).UncapitalizeFirst()
-                            ),
-                            building
-                        );
-                    }
-                }
+            if (building.TryGetComp<CompFlickable>(out var flickable))
+            {
+                data.DrillCandidatesToFlick.Add((flickable, resDef));
             }
         }
     }
 
-    private Coroutine ReduceDesignations(
+    [CoroutineSettingsMethod]
+    private Coroutine PlanReduceDesignations(
         ManagerLog jobLog,
-        Boxed<bool> workDone,
-        int operationsPerTick,
-        int ticksBetweenOperations,
-        Boxed<int> count
+        Boxed<int> count,
+        MiningWorkData data
     )
     {
-        var designationCounter = 0;
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanReduceDesignations
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                PlanReduceDesignations
+            );
+
         List<Designation> sortedMineDesignations = [];
         yield return GetThingsSorted(
                 _designations.Where(d =>
@@ -1508,47 +1495,47 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // reduce designations until we're just above target
-        foreach (var designation in sortedMineDesignations)
+        // Removal is only planned here, not applied, so _designations.Count itself never
+        // shrinks as we go (unlike the pre-two-phase-split code, which deleted designations
+        // as it iterated). Track how many we've planned to remove so far and subtract that
+        // from _designations.Count to get the same shrinking "effective count" the old
+        // ShouldRemoveMoreDesignations checks relied on to stop once back under the cap.
+        var plannedRemovalCount = 0;
+
+        // plan reducing designations until we're just above target
+        for (var i = 0; i < sortedMineDesignations.Count; i++)
         {
+            var designation = sortedMineDesignations[i];
             var mineable = designation.target.Cell.GetFirstThing<Mineable>(Manager.map);
-            var yield = GetCountInMineral(mineable);
-            count.Value -= yield;
+            var mineableYield = GetCountInMineral(mineable);
+            count.Value -= mineableYield;
             if (
                 TriggerThreshold.DoesCountMeetTarget(count)
-                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+                || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                    _designations.Count - plannedRemovalCount
+                )
             )
             {
-                designation.Delete();
-                _ = _designations.Remove(designation);
-                jobLog.AddDetail(
-                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                        DesignationDefOf.Mine.ActionText(),
-                        "ColonyManagerRedux.Mining.Logs.Rock".Translate(),
-                        mineable.Label,
-                        yield,
-                        count.Value,
-                        TriggerThreshold.TargetLabel
-                    ),
-                    mineable
-                );
-                workDone.Value = true;
-                designationCounter++;
+                data.MineDesignationsToRemove.Add((designation, mineableYield, count.Value));
+                plannedRemovalCount++;
             }
             else
             {
                 break;
             }
 
-            if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
+            if (i > 0 && i % operationsPerTick == 0)
             {
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (
             TriggerThreshold.DoesCountMeetTarget(count)
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                _designations.Count - plannedRemovalCount
+            )
         )
         {
             List<Designation> sortedDeconstructDesignations = [];
@@ -1564,50 +1551,42 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-            // reduce designations until we're just above target
-            foreach (var designation in sortedDeconstructDesignations)
+            for (var i = 0; i < sortedDeconstructDesignations.Count; i++)
             {
+                var designation = sortedDeconstructDesignations[i];
                 var building = (Building)designation.target.Thing;
-                var yield = GetCountInBuilding(building);
-                count.Value -= yield;
+                var buildingYield = GetCountInBuilding(building);
+                count.Value -= buildingYield;
                 if (
                     TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count
+                        _designations.Count - plannedRemovalCount
                     )
                 )
                 {
-                    designation.Delete();
-                    _ = _designations.Remove(designation);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                            DesignationDefOf.Deconstruct.ActionText(),
-                            "ColonyManagerRedux.Mining.Logs.Building".Translate(),
-                            building.Label,
-                            yield,
-                            count.Value,
-                            TriggerThreshold.TargetLabel
-                        ),
-                        building
+                    data.DeconstructDesignationsToRemove.Add(
+                        (designation, buildingYield, count.Value)
                     );
-                    workDone.Value = true;
-                    designationCounter++;
+                    plannedRemovalCount++;
                 }
                 else
                 {
                     break;
                 }
 
-                if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
                     yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         if (
             TriggerThreshold.DoesCountMeetTarget(count)
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                _designations.Count - plannedRemovalCount
+            )
         )
         {
             List<Designation> sortedHaulDesignations = [];
@@ -1621,48 +1600,39 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-            // reduce designations until we're just above target
-            foreach (var designation in sortedHaulDesignations)
+            for (var i = 0; i < sortedHaulDesignations.Count; i++)
             {
+                var designation = sortedHaulDesignations[i];
                 var chunk = designation.target.Thing;
                 var chunkCount = GetCountInChunk(chunk);
                 count.Value -= chunkCount;
                 if (
                     TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count
+                        _designations.Count - plannedRemovalCount
                     )
                 )
                 {
-                    designation.Delete();
-                    _ = _designations.Remove(designation);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                            DesignationDefOf.Haul.ActionText(),
-                            "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
-                            chunk.Label,
-                            chunkCount,
-                            count.Value,
-                            TriggerThreshold.TargetLabel
-                        ),
-                        chunk
-                    );
-                    workDone.Value = true;
-                    designationCounter++;
+                    data.HaulDesignationsToRemove.Add((designation, chunkCount, count.Value));
+                    plannedRemovalCount++;
                 }
                 else
                 {
                     break;
                 }
 
-                if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
+                if (i > 0 && i % operationsPerTick == 0)
                 {
                     yield return new ResumeAfterTicks(ticksBetweenOperations);
                 }
             }
         }
 
-        if (!workDone)
+        if (
+            data.MineDesignationsToRemove.Count == 0
+            && data.DeconstructDesignationsToRemove.Count == 0
+            && data.HaulDesignationsToRemove.Count == 0
+        )
         {
             jobLog.AddDetail(
                 "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
@@ -1673,14 +1643,15 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         }
     }
 
-    private Coroutine TryHaulChunks(
-        ManagerLog jobLog,
-        Boxed<bool> workDone,
-        int operationsPerTick,
-        int ticksBetweenOperations,
-        Boxed<int> count
-    )
+    [CoroutineSettingsMethod]
+    private Coroutine PlanHaulChunks(Boxed<int> count, MiningWorkData data)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanHaulChunks
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(PlanHaulChunks);
+
         var map = Manager.map;
         List<Thing> sortedChunks = [];
         yield return GetTargetsSorted(
@@ -1697,33 +1668,22 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        foreach (var (chunk, i) in sortedChunks.Select((c, i) => (c, i)))
+        for (var i = 0; i < sortedChunks.Count; i++)
         {
+            var chunk = sortedChunks[i];
             if (
                 TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                    _designations.Count + data.DesignationsToAdd.Count
+                )
             )
             {
                 break;
             }
 
             var chunkCount = GetCountInChunk(chunk);
-            AddDesignation(chunk, DesignationDefOf.Haul);
             count.Value += chunkCount;
-
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Logs.AddDesignation".Translate(
-                    DesignationDefOf.Haul.ActionText(),
-                    "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
-                    chunk.Label,
-                    chunkCount,
-                    count.Value,
-                    TriggerThreshold.TargetLabel
-                ),
-                chunk
-            );
-
-            workDone.Value = true;
+            data.DesignationsToAdd.Add((chunk, DesignationDefOf.Haul, chunkCount, count.Value));
 
             if (i > 0 && i % operationsPerTick == 0)
             {
@@ -1732,14 +1692,21 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         }
     }
 
-    private Coroutine TryDeconstructBuildings(
+    [CoroutineSettingsMethod]
+    private Coroutine PlanDeconstructBuildings(
         ManagerLog jobLog,
-        Boxed<bool> workDone,
-        int operationsPerTick,
-        int ticksBetweenOperations,
-        Boxed<int> count
+        Boxed<int> count,
+        MiningWorkData data
     )
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanDeconstructBuildings
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                PlanDeconstructBuildings
+            );
+
         List<Building> sortedBuildings = [];
         yield return GetTargetsSorted(
                 sortedBuildings,
@@ -1752,11 +1719,14 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         var ancientDangerRects = Manager.AncientDangerRects;
         List<LocalTargetInfo> skippedAncientDangerTargets = [];
 
-        foreach (var (building, i) in sortedBuildings.Select((c, i) => (c, i)))
+        for (var i = 0; i < sortedBuildings.Count; i++)
         {
+            var building = sortedBuildings[i];
             if (
                 TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                    _designations.Count + data.DesignationsToAdd.Count
+                )
             )
             {
                 break;
@@ -1787,22 +1757,10 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
             if (!skipBuilding)
             {
-                AddDesignation(building, DesignationDefOf.Deconstruct);
                 count.Value += buildingCount;
-
-                jobLog.AddDetail(
-                    "ColonyManagerRedux.Logs.AddDesignation".Translate(
-                        DesignationDefOf.Deconstruct.ActionText(),
-                        "ColonyManagerRedux.Mining.Logs.Building".Translate(),
-                        building.Label,
-                        buildingCount,
-                        count.Value,
-                        TriggerThreshold.TargetLabel
-                    ),
-                    building
+                data.DesignationsToAdd.Add(
+                    (building, DesignationDefOf.Deconstruct, buildingCount, count.Value)
                 );
-
-                workDone.Value = true;
             }
 
             if (i > 0 && i % operationsPerTick == 0)
@@ -1821,14 +1779,15 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         }
     }
 
-    private Coroutine TryMineResources(
-        ManagerLog jobLog,
-        Boxed<bool> workDone,
-        int operationsPerTick,
-        int ticksBetweenOperations,
-        Boxed<int> count
-    )
+    [CoroutineSettingsMethod]
+    private Coroutine PlanMineResources(Boxed<int> count, MiningWorkData data)
     {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanMineResources
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(PlanMineResources);
+
         List<Mineable> sortedMineable = [];
         yield return GetTargetsSorted(
                 sortedMineable,
@@ -1838,11 +1797,14 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        foreach (var (mineable, i) in sortedMineable.Select((c, i) => (c, i)))
+        for (var i = 0; i < sortedMineable.Count; i++)
         {
+            var mineable = sortedMineable[i];
             if (
                 TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                    _designations.Count + data.DesignationsToAdd.Count
+                )
             )
             {
                 break;
@@ -1852,26 +1814,288 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
 
             if (!IsARoofSupport_Advanced(mineable))
             {
-                workDone.Value = true;
-                AddDesignation(mineable, DesignationDefOf.Mine);
                 count.Value += mineableCount;
+                data.DesignationsToAdd.Add(
+                    (mineable, DesignationDefOf.Mine, mineableCount, count.Value)
+                );
+            }
 
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    protected override Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        MiningWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        if (data.Kind == MiningWorkKind.CleanUpAndDisableDrills)
+        {
+            // Matches the old behavior of not counting a completion cleanup, or flicking off
+            // newly discovered drills after completion, as "work done" for this cycle.
+            // CleanUp() plans and applies its own drill flicks synchronously (data's
+            // DrillCandidatesToFlick is never populated for this Kind), so there's nothing
+            // left for ExecuteDrillFlicks to do here.
+            CleanUp(jobLog);
+            yield break;
+        }
+
+        if (data.Kind == MiningWorkKind.RecheckDrillsOnly)
+        {
+            // The job already completed and its designations were cleaned up previously;
+            // only the newly discovered drills gathered above need flicking, so don't
+            // re-run CleanUp() here.
+            yield return ExecuteDrillFlicks(jobLog, data, null)
+                .ResumeWhenOtherCoroutineIsCompleted();
+            yield break;
+        }
+
+        yield return ExecuteDrillFlicks(jobLog, data, workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        yield return data.Kind == MiningWorkKind.ReduceDesignations
+            ? ExecuteReduceDesignations(jobLog, data, workDone)
+                .ResumeWhenOtherCoroutineIsCompleted()
+            : ExecuteAddDesignations(jobLog, data, workDone).ResumeWhenOtherCoroutineIsCompleted();
+    }
+
+    [CoroutineSettingsMethod]
+    private static Coroutine ExecuteDrillFlicks(
+        ManagerLog? jobLog,
+        MiningWorkData data,
+        Boxed<bool>? workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteDrillFlicks
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteDrillFlicks
+            );
+
+        var i = 0;
+        foreach (var (flickable, resDef) in data.DrillCandidatesToFlick)
+        {
+            if (flickable.parent.DestroyedOrNull())
+            {
+                continue;
+            }
+
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Flicking deep drill {flickable.parent.Label} "
+                    + $"{(data.ShouldEnableDrills ? "on" : "off")} - currently "
+                    + $"{(flickable.SwitchIsOn ? "on" : "off")}"
+            );
+            flickable.wantSwitchOn = data.ShouldEnableDrills;
+            FlickUtility.UpdateFlickDesignation(flickable.parent);
+            if (flickable.WantsFlick())
+            {
+                jobLog?.AddDetail(
+                    "ColonyManagerRedux.Mining.Logs.FlickedDeepDrill".Translate(
+                        resDef.label,
+                        (
+                            (string)(data.ShouldEnableDrills ? "On" : "Off").Translate()
+                        ).UncapitalizeFirst()
+                    ),
+                    flickable.parent
+                );
+                if (data.ShouldEnableDrills)
+                {
+                    if (workDone != null)
+                    {
+                        workDone.Value = true;
+                    }
+                    else
+                    {
+                        ColonyManagerReduxMod.Instance.LogWarning(
+                            "workDone is null when trying to enable deep drill. This is a bug."
+                        );
+                    }
+                }
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteReduceDesignations(
+        ManagerLog jobLog,
+        MiningWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteReduceDesignations
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteReduceDesignations
+            );
+
+        var designationCounter = 0;
+
+        foreach (var (designation, yieldAmount, countAfter) in data.MineDesignationsToRemove)
+        {
+            var mineable = designation.target.Cell.GetFirstThing<Mineable>(Manager.map);
+            designation.Delete();
+            _ = _designations.Remove(designation);
+
+            // The execute phase is gated behind ~95% of the job's work timer, so the mineable
+            // planned for removal during gather may already be gone by the time we get here;
+            // the designation is still cleaned up above, but there's nothing to report.
+            if (!mineable.DestroyedOrNull())
+            {
                 jobLog.AddDetail(
-                    "ColonyManagerRedux.Logs.AddDesignation".Translate(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
                         DesignationDefOf.Mine.ActionText(),
                         "ColonyManagerRedux.Mining.Logs.Rock".Translate(),
                         mineable.Label,
-                        mineableCount,
-                        count.Value,
+                        yieldAmount,
+                        countAfter,
                         TriggerThreshold.TargetLabel
                     ),
                     mineable
                 );
+                workDone.Value = true;
+            }
+            designationCounter++;
 
-                if (i > 0 && i % operationsPerTick == 0)
-                {
-                    yield return new ResumeAfterTicks(ticksBetweenOperations);
-                }
+            if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        foreach (var (designation, yieldAmount, countAfter) in data.DeconstructDesignationsToRemove)
+        {
+            var building = (Building)designation.target.Thing;
+            designation.Delete();
+            _ = _designations.Remove(designation);
+
+            if (!building.DestroyedOrNull())
+            {
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.Deconstruct.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Building".Translate(),
+                        building.Label,
+                        yieldAmount,
+                        countAfter,
+                        TriggerThreshold.TargetLabel
+                    ),
+                    building
+                );
+                workDone.Value = true;
+            }
+            designationCounter++;
+
+            if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        foreach (var (designation, yieldAmount, countAfter) in data.HaulDesignationsToRemove)
+        {
+            var chunk = designation.target.Thing;
+            designation.Delete();
+            _ = _designations.Remove(designation);
+
+            if (!chunk.DestroyedOrNull())
+            {
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.Haul.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Chunk".Translate(),
+                        chunk.Label,
+                        yieldAmount,
+                        countAfter,
+                        TriggerThreshold.TargetLabel
+                    ),
+                    chunk
+                );
+                workDone.Value = true;
+            }
+            designationCounter++;
+
+            if (designationCounter > 0 && designationCounter % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteAddDesignations(
+        ManagerLog jobLog,
+        MiningWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteAddDesignations
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteAddDesignations
+            );
+
+        var i = 0;
+        foreach (var (target, def, amount, countAfter) in data.DesignationsToAdd)
+        {
+            // The execute phase is gated behind ~95% of the job's work timer, so the target
+            // planned during gather may have been destroyed, despawned, or hauled away by the
+            // time we get here; re-validate before designating it.
+            if (target.DestroyedOrNull())
+            {
+                continue;
+            }
+
+            AddDesignation(target, def);
+            workDone.Value = true;
+
+            var (actionText, itemLabel) =
+                def == DesignationDefOf.Haul
+                    ? (
+                        DesignationDefOf.Haul.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Chunk".Translate()
+                    )
+                : def == DesignationDefOf.Deconstruct
+                    ? (
+                        DesignationDefOf.Deconstruct.ActionText(),
+                        "ColonyManagerRedux.Mining.Logs.Building".Translate()
+                    )
+                : (
+                    DesignationDefOf.Mine.ActionText(),
+                    "ColonyManagerRedux.Mining.Logs.Rock".Translate()
+                );
+
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddDesignation".Translate(
+                    actionText,
+                    itemLabel,
+                    target.Label,
+                    amount,
+                    countAfter,
+                    TriggerThreshold.TargetLabel
+                ),
+                target
+            );
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }

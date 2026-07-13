@@ -400,12 +400,51 @@ public class Manager : MapComponent, ILoadReferenceable
     }
 
     /// <summary>
-    /// Attempts to execute the next available manager job, if any.
+    /// Attempts to execute the next available manager job, if any, running both its gather
+    /// and execute phases back-to-back.
     /// </summary>
     /// <returns>
     /// A <see cref="Coroutine"/> representing the job execution, or <c>null</c> if no job was executed.
     /// </returns>
-    public Coroutine? TryDoWork() => JobTracker.TryDoNextJob();
+    public Coroutine? TryDoWork()
+    {
+        AnyBoxed<JobTracker.PendingJobWork?> pendingWork = new(null);
+        var gatherCoroutine = JobTracker.TryGatherNextJobWork(pendingWork);
+        return gatherCoroutine == null ? null : TryDoWorkInner();
+
+        Coroutine TryDoWorkInner()
+        {
+            yield return gatherCoroutine.ResumeWhenOtherCoroutineIsCompleted();
+            if (pendingWork.Value != null)
+            {
+                yield return JobTracker
+                    .TryExecuteJobWork(pendingWork.Value)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gathers the information needed for the next available manager job to do its work,
+    /// without changing anything in the game. Must be followed by a matching call to
+    /// <see cref="TryExecuteWork"/> using the same <paramref name="pendingWork"/>.
+    /// </summary>
+    /// <param name="pendingWork">Receives the gathered job state to pass to <see cref="TryExecuteWork"/>.</param>
+    /// <returns>
+    /// A <see cref="Coroutine"/> representing the gather operation, or <c>null</c> if there was no job to do.
+    /// </returns>
+    public Coroutine? TryGatherWork(AnyBoxed<JobTracker.PendingJobWork?> pendingWork) =>
+        JobTracker.TryGatherNextJobWork(pendingWork);
+
+    /// <summary>
+    /// Executes the job work gathered by a preceding call to <see cref="TryGatherWork"/>.
+    /// </summary>
+    /// <param name="pendingWork">The job state gathered by <see cref="TryGatherWork"/>.</param>
+    /// <returns>A <see cref="Coroutine"/> representing the execute operation.</returns>
+    public Coroutine TryExecuteWork(JobTracker.PendingJobWork pendingWork) =>
+        JobTracker.TryExecuteJobWork(
+            pendingWork ?? throw new ArgumentNullException(nameof(pendingWork))
+        );
 
     /// <summary>
     /// Applies the configured default manager job template to this map, but only the first time

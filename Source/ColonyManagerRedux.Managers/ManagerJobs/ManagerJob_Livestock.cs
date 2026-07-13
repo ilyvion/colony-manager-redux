@@ -907,6 +907,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     }
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (TriggerPawnKind.pawnKind == null)
@@ -966,6 +967,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
     }
+#pragma warning restore CS0672, CS0618
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public Coroutine AddRelevantGameDesignations(ManagerLog jobLog)

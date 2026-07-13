@@ -1,4 +1,7 @@
 <Project>
+    <PropertyGroup>
+        <UseTaggedUnions>true</UseTaggedUnions>
+    </PropertyGroup>
     <Import Project="..\rimworld-utils\Common.props" />
     <PropertyGroup>
         <VersionPrefix>0.15.0</VersionPrefix>

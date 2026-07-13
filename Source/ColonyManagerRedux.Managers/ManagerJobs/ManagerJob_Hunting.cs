@@ -532,6 +532,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     }
 
     [CoroutineSettingsMethod]
+#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (!TriggerThreshold.State)
@@ -745,6 +746,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
         }
     }
+#pragma warning restore CS0672, CS0618
 
     private void AddDesignation(Designation des, bool addToGame = true)
     {

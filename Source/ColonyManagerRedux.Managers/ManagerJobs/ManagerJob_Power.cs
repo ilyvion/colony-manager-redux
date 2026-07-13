@@ -260,6 +260,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         throw new NotImplementedException();
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         if (!AnyPoweredStationOnline)
@@ -289,6 +290,7 @@ internal sealed class ManagerJob_Power : ManagerJob
         yield return new ResumeAfterTicks(ticksBetweenOperations);
         workDone.Value = true;
     }
+#pragma warning restore CS0672, CS0618
 
     private static IEnumerable<ThingDef> GetTraderDefs() =>
         from td in DefDatabase<ThingDef>.AllDefsListForReading

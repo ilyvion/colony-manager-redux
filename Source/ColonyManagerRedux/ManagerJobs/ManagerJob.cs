@@ -31,6 +31,89 @@ public abstract class ManagerJob<TSettings>(Manager manager) : ManagerJob(manage
 }
 
 /// <summary>
+/// Represents a manager job with specific settings of type <typeparamref name="TSettings"/>,
+/// whose asynchronous work is split into a gather phase (which decides what needs to be
+/// done, without changing anything in the game) and an execute phase (which applies those
+/// decisions), communicating between the two via a <typeparamref name="TWorkData"/> value.
+/// </summary>
+/// <typeparam name="TSettings">The type of settings associated with this manager job.</typeparam>
+/// <typeparam name="TWorkData">The type used to carry the gather phase's decisions to the execute phase.</typeparam>
+[HotSwappable]
+public abstract class ManagerJob<TSettings, TWorkData>(Manager manager)
+    : ManagerJob<TSettings>(manager)
+    where TSettings : ManagerSettings
+{
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the concrete job type derives from this class without overriding
+    /// <see cref="GatherJobDataCoroutine(ManagerLog, AnyBoxed{TWorkData})"/> — every job built on
+    /// this class must implement the gather phase.
+    /// </exception>
+    public sealed override Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<object?> data
+    )
+    {
+        if (data == null)
+        {
+            throw new ArgumentNullException(nameof(data));
+        }
+
+        AnyBoxed<TWorkData?> typedData = new(default);
+        yield return GatherJobDataCoroutine(jobLog, typedData)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        data.Value = typedData.Value;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if called without gathered data of type <typeparamref name="TWorkData"/>; this
+    /// would indicate a bug in the gather/execute sequencing that calls this method, not a
+    /// legitimate "no work" state.
+    /// </exception>
+    public sealed override Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        object? data,
+        Boxed<bool> workDone
+    ) =>
+        data is TWorkData typedData
+            ? ExecuteJobDataCoroutine(jobLog, typedData, workDone)
+            : throw new InvalidOperationException(
+                $"{GetType().Name}.{nameof(ExecuteJobDataCoroutine)} was invoked without "
+                    + $"gathered data of type {typeof(TWorkData).Name}. This indicates a bug in "
+                    + "the caller's gather/execute sequencing."
+            );
+
+    /// <summary>
+    /// Gathers the information needed to perform the job, without making any changes to
+    /// the game world (e.g. finding and sorting candidate targets, but not designating
+    /// them). The resulting data is passed to
+    /// <see cref="ExecuteJobDataCoroutine(ManagerLog, TWorkData, Boxed{bool})"/>.
+    /// </summary>
+    /// <param name="jobLog">The log to record job actions and results.</param>
+    /// <param name="data">A boxed value to store the gathered data in.</param>
+    /// <returns>A coroutine representing the asynchronous gather operation.</returns>
+    protected abstract Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<TWorkData?> data
+    );
+
+    /// <summary>
+    /// Executes the job using the data gathered by
+    /// <see cref="GatherJobDataCoroutine(ManagerLog, AnyBoxed{TWorkData})"/>.
+    /// </summary>
+    /// <param name="jobLog">The log to record job actions and results.</param>
+    /// <param name="data">The data gathered by the gather phase.</param>
+    /// <param name="workDone">A boxed boolean indicating whether work was done.</param>
+    /// <returns>A coroutine representing the asynchronous execute operation.</returns>
+    protected abstract Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        TWorkData data,
+        Boxed<bool> workDone
+    );
+}
+
+/// <summary>
 /// Represents a base class for all manager jobs, providing core functionality for job management,
 /// serialization, and interaction with the manager system.
 /// </summary>
@@ -455,29 +538,56 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     protected internal virtual void FinalizeInit() { }
 
     /// <summary>
-    /// Attempts to perform the manager job synchronously.
-    /// </summary>
-    /// <param name="jobLog">The log to record job actions and results.</param>
-    /// <returns>True if the job was performed successfully; otherwise, false.</returns>
-    [Obsolete(
-        "Implement TryDoJobCoroutine; this is only here for backwards compatibility; "
-            + "this method will be removed in a future version"
-    )]
-    public virtual bool TryDoJob(ManagerLog jobLog) =>
-        // This should never be called as long as the Coroutine has been
-        // properly implemented in the subclass.
-        false;
-
-    /// <summary>
     /// Attempts to perform the manager job asynchronously using a coroutine.
     /// </summary>
+    /// <remarks>
+    /// This is a temporary fallback for jobs that don't yet implement the two-phase
+    /// <see cref="GatherJobDataCoroutine(ManagerLog, AnyBoxed{object})"/>/
+    /// <see cref="ExecuteJobDataCoroutine(ManagerLog, object, Boxed{bool})"/> API, and will be
+    /// removed once every job has been migrated. Because this method's whole body typically
+    /// mutates game state, the caller runs it as the job's <i>execute</i> phase (not gather) —
+    /// it does not get the early-start benefit two-phase jobs get, only the "finish instantly
+    /// once done" one.
+    /// </remarks>
     /// <param name="jobLog">The log to record job actions and results.</param>
     /// <param name="workDone">A boxed boolean indicating whether work was done.</param>
     /// <returns>A coroutine representing the asynchronous job operation.</returns>
-    public virtual Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone) =>
-        // We're allowing returning null here despite the signature because of backwards
-        // compatibility, but anyone overriding this method should not!
-        null!;
+    [Obsolete(
+        "Implement the two-phase GatherJobDataCoroutine/ExecuteJobDataCoroutine API instead; "
+            + "this fallback will be removed in a future version."
+    )]
+    public virtual Coroutine? TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone) => null;
+
+    /// <summary>
+    /// Gathers the information needed to perform the job, without making any changes to
+    /// the game world. The resulting data is passed to
+    /// <see cref="ExecuteJobDataCoroutine(ManagerLog, object, Boxed{bool})"/>.
+    /// </summary>
+    /// <remarks>
+    /// Returns <see langword="null"/> by default to signal that this job hasn't
+    /// implemented the two-phase API, in which case the obsolete <see cref="TryDoJobCoroutine"/>
+    /// is used as a fallback instead — run in full during the execute phase, since (unlike
+    /// gathering) its body isn't guaranteed to be free of game-state mutation.
+    /// </remarks>
+    /// <param name="jobLog">The log to record job actions and results.</param>
+    /// <param name="data">A boxed value to store the gathered data in.</param>
+    /// <returns>A coroutine representing the asynchronous gather operation, or <see langword="null"/> if not implemented.</returns>
+    public virtual Coroutine? GatherJobDataCoroutine(ManagerLog jobLog, AnyBoxed<object?> data) =>
+        null;
+
+    /// <summary>
+    /// Executes the job using the data gathered by
+    /// <see cref="GatherJobDataCoroutine(ManagerLog, AnyBoxed{object})"/>.
+    /// </summary>
+    /// <param name="jobLog">The log to record job actions and results.</param>
+    /// <param name="data">The data gathered by the gather phase.</param>
+    /// <param name="workDone">A boxed boolean indicating whether work was done.</param>
+    /// <returns>A coroutine representing the asynchronous execute operation.</returns>
+    public virtual Coroutine? ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        object? data,
+        Boxed<bool> workDone
+    ) => null;
 
     /// <summary>
     /// Cleans up any resources or state associated with this manager job.

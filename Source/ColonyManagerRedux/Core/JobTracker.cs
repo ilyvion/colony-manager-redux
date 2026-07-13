@@ -195,22 +195,64 @@ public class JobTracker(Manager manager) : IExposable
     public bool IsRunningJobs { get; private set; }
 
     /// <summary>
-    ///     Call the worker for the next available job
+    /// Carries state gathered for a job between
+    /// <see cref="TryGatherNextJobWork(AnyBoxed{PendingJobWork})"/> and the
+    /// later matching call to <see cref="TryExecuteJobWork"/>.
     /// </summary>
-    internal Coroutine? TryDoNextJob()
+#pragma warning disable CA1034 // Nested types should not be visible; this type only makes sense alongside JobTracker
+    public sealed class PendingJobWork(
+        ManagerJob job,
+        ManagerLog log,
+        bool wasCompleted,
+        bool responsibleForFlag
+    )
+#pragma warning restore CA1034
+    {
+        internal ManagerJob Job { get; } = job;
+        internal ManagerLog Log { get; } = log;
+        internal bool WasCompleted { get; } = wasCompleted;
+        internal bool ResponsibleForFlag { get; } = responsibleForFlag;
+
+        // True if this job doesn't implement the two-phase API; its obsolete
+        // TryDoJobCoroutine fallback is run in full during the execute step
+        // since its body isn't guaranteed to be free of game-state mutation.
+        internal bool IsLegacyFallback { get; set; }
+        internal object? GatheredData { get; set; }
+    }
+
+    /// <summary>
+    ///     Gather the information needed for the next available job to do its work, without
+    ///     changing anything in the game. Must be followed by a matching call to
+    ///     <see cref="TryExecuteJobWork"/> using the same <see cref="PendingJobWork"/>.
+    /// </summary>
+    internal Coroutine? TryGatherNextJobWork(AnyBoxed<PendingJobWork?> pendingWork) =>
+        TryGatherNextJobWork(pendingWork, null);
+
+    // The responsibleForFlag parameter is threaded through explicitly (once computed) rather
+    // than recomputed from !IsRunningJobs on every call: the exception-recovery branches below
+    // recurse on the same pendingWork chain after IsRunningJobs has already been set true
+    // by this same call chain, so recomputing it there would always yield false and the
+    // chain would never reset IsRunningJobs once it finally succeeds or bottoms out. It's passed
+    // in as a nullable override rather than computed eagerly by the caller, so that - matching
+    // the pre-two-phase-split code - it's only read from IsRunningJobs lazily, on the coroutine's
+    // first pump, rather than at the moment this method is called (which, since the returned
+    // Coroutine isn't necessarily pumped immediately, could otherwise observe a stale value).
+    private Coroutine? TryGatherNextJobWork(
+        AnyBoxed<PendingJobWork?> pendingWork,
+        bool? responsibleForFlagOverride
+    )
     {
         var job = NextJob;
         ColonyManagerReduxMod.Instance.LogVerboseMessage(
             $"Manager.TryDoWork called with {job} as next job."
         );
-        return job == null ? null : TryDoNextJobInner();
+        return job == null ? null : TryGatherNextJobWorkInner();
 
-        Coroutine TryDoNextJobInner()
+        Coroutine TryGatherNextJobWorkInner()
         {
-            var responsibleForFlag = !IsRunningJobs;
+            var responsibleForFlag = responsibleForFlagOverride ?? !IsRunningJobs;
             IsRunningJobs = true;
 
-            // perform next job if no action was taken
             string jobLogLabel = null!;
             try
             {
@@ -220,17 +262,19 @@ public class JobTracker(Manager manager) : IExposable
             {
                 ColonyManagerReduxMod.Instance.LogError(
                     "Suspending manager job because it errored on "
-                        + $"{nameof(TryDoNextJob)}: \n{err}"
+                        + $"{nameof(TryGatherNextJobWork)}: \n{err}"
                 );
                 job.IsSuspended = true;
                 job.CausedException = err;
             }
             if (job.CausedException != null)
             {
-                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterException1({job.GetUniqueLoadID()})"
+                yield return (
+                    TryGatherNextJobWork(pendingWork, responsibleForFlag) ?? []
+                ).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryGatherNextJobWorkAfterException1({job.GetUniqueLoadID()})"
                 );
-                if (responsibleForFlag)
+                if (responsibleForFlag && pendingWork.Value == null)
                 {
                     IsRunningJobs = false;
                 }
@@ -238,21 +282,35 @@ public class JobTracker(Manager manager) : IExposable
             }
 
             ManagerLog log = new(job) { LogLabel = jobLogLabel };
-            Boxed<bool> workDone = new(false);
-
             var wasCompleted = job.JobState == ManagerJobState.Completed;
+            var pending = new PendingJobWork(job, log, wasCompleted, responsibleForFlag);
+
+            AnyBoxed<object?> data = new(null);
             Coroutine coroutine = null!;
             try
             {
-                ColonyManagerReduxMod.Instance.LogVerboseMessage($"Setting up job's coroutine.");
-                coroutine =
-                    job.TryDoJobCoroutine(log, workDone) ?? TryDoJobTheOldWay(job, log, workDone);
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Setting up job's gather coroutine."
+                );
+                var outcome = JobPhaseOutcome.For(job.GatherJobDataCoroutine(log, data));
+                coroutine = outcome.Match(
+                    r => r.Value,
+                    _ =>
+                    {
+                        // Legacy (obsolete TryDoJobCoroutine) jobs mutate game state in a single
+                        // step, so none of that can safely run during gather; defer running the
+                        // whole thing to the execute phase instead, same as a two-phase job's real
+                        // mutations would be.
+                        pending.IsLegacyFallback = true;
+                        return [];
+                    }
+                );
             }
             catch (Exception err)
             {
                 ColonyManagerReduxMod.Instance.LogError(
                     "Suspending manager job because it errored on setting up "
-                        + $"{nameof(TryDoNextJob)}: \n{err}"
+                        + $"{nameof(TryGatherNextJobWork)}: \n{err}"
                 );
                 job.IsSuspended = true;
                 job.CausedException = err;
@@ -262,13 +320,12 @@ public class JobTracker(Manager manager) : IExposable
                 ColonyManagerReduxMod.Instance.LogVerboseMessage(
                     $"Since setting up the job caused an exception, let's try to do the next job."
                 );
-                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterException2({job.GetUniqueLoadID()})"
+                yield return (
+                    TryGatherNextJobWork(pendingWork, responsibleForFlag) ?? []
+                ).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryGatherNextJobWorkAfterException2({job.GetUniqueLoadID()})"
                 );
-                ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Back from the next job after the exception."
-                );
-                if (responsibleForFlag)
+                if (responsibleForFlag && pendingWork.Value == null)
                 {
                     IsRunningJobs = false;
                 }
@@ -276,86 +333,193 @@ public class JobTracker(Manager manager) : IExposable
             }
 
             ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                $"Waiting for job's coroutine to complete."
+                $"Waiting for job's gather coroutine to complete."
             );
             var handle = MultiTickCoroutineManager.StartCoroutine(
                 coroutine,
-                debugHandle: $"TryDoNextJob({job.GetUniqueLoadID()})"
+                debugHandle: $"TryGatherNextJobWork({job.GetUniqueLoadID()})"
             );
             yield return handle.ResumeWhenOtherCoroutineIsCompleted();
-            ColonyManagerReduxMod.Instance.LogVerboseMessage($"Job's coroutine completed.");
+            ColonyManagerReduxMod.Instance.LogVerboseMessage($"Job's gather coroutine completed.");
 
             if (handle.Exception is Exception err2)
             {
                 ColonyManagerReduxMod.Instance.LogError(
-                    "Suspending manager job because it errored on running "
-                        + $"{nameof(TryDoNextJob)}: \n{err2}"
+                    "Suspending manager job because it errored on gathering "
+                        + $"{nameof(TryGatherNextJobWork)}: \n{err2}"
                 );
                 job.IsSuspended = true;
                 job.CausedException = err2;
 
                 ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Since running the job caused an exception, let's try to do the next job."
+                    $"Since gathering the job caused an exception, let's try to do the next job."
                 );
-                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterException3({job.GetUniqueLoadID()})"
+                yield return (
+                    TryGatherNextJobWork(pendingWork, responsibleForFlag) ?? []
+                ).ResumeWhenOtherCoroutineIsCompleted(
+                    debugHandle: $"TryGatherNextJobWorkAfterException3({job.GetUniqueLoadID()})"
                 );
-                ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Back from the next job after the exception."
-                );
-                if (responsibleForFlag)
+                if (responsibleForFlag && pendingWork.Value == null)
                 {
                     IsRunningJobs = false;
                 }
                 yield break;
             }
 
-            if (ShouldLogJobRun(wasCompleted, job.JobState))
+            pending.GatheredData = data.Value;
+            pendingWork.Value = pending;
+        }
+    }
+
+    /// <summary>
+    ///     Execute the work gathered by a preceding call to
+    ///     <see cref="TryGatherNextJobWork(AnyBoxed{PendingJobWork})"/>
+    ///     for the same job, applying whatever changes it decided on.
+    /// </summary>
+    internal Coroutine TryExecuteJobWork(PendingJobWork pending)
+    {
+        var job = pending.Job;
+        var log = pending.Log;
+        Boxed<bool> workDone = new(false);
+
+        if (pending.IsLegacyFallback || pending.GatheredData != null)
+        {
+            Coroutine? executeCoroutine = null;
+            try
             {
-                // Don't log jobs where the state is Completed both before and after TryDoJob;
-                // those TryDoJobs are only for checking whether a job should be resumed again, and
-                // it was decided we weren't about to resume yet.
                 ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Since the job did something, let's log it."
+                    $"Setting up job's execute coroutine."
                 );
-                log._workDone = workDone;
-                foreach (var jobLogger in _manager.CompsOfType<IJobLogger>())
+                executeCoroutine = pending.IsLegacyFallback
+                    // The obsolete fallback mutates game state in one step, so - unlike a
+                    // two-phase job - it only runs now, gated behind the execute phase's
+                    // timing, instead of during gather.
+#pragma warning disable CS0618 // Type or member is obsolete
+                    ? job.TryDoJobCoroutine(log, workDone)
+#pragma warning restore CS0618
+                    : job.ExecuteJobDataCoroutine(log, pending.GatheredData, workDone);
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    "Suspending manager job because it errored on setting up "
+                        + $"{nameof(TryExecuteJobWork)}: \n{err}"
+                );
+                job.IsSuspended = true;
+                job.CausedException = err;
+            }
+
+            if (job.CausedException == null)
+            {
+                var outcome = JobPhaseOutcome.For(executeCoroutine);
+                if (outcome is not JobPhaseOutcome.Ready { Value: var readyExecuteCoroutine })
                 {
-                    jobLogger.AddLog(log);
+                    ColonyManagerReduxMod.Instance.LogError(
+                        $"Manager job {job.GetUniqueLoadID()} ({job.GetType().Name}) "
+                            + $"implements neither the two-phase {nameof(ManagerJob.GatherJobDataCoroutine)} "
+                            + $"API nor the (obsolete) {nameof(ManagerJob.TryDoJobCoroutine)} "
+                            + "fallback, so it cannot do any work. Suspending it."
+                    );
+                    job.IsSuspended = true;
+                    job.CausedException = new NotImplementedException(
+                        $"{job.GetType().Name} does not implement "
+                            + $"{nameof(ManagerJob.GatherJobDataCoroutine)} or "
+                            + $"{nameof(ManagerJob.TryDoJobCoroutine)}."
+                    );
                 }
-            }
+                else
+                {
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                        $"Waiting for job's execute coroutine to complete."
+                    );
+                    var handle = MultiTickCoroutineManager.StartCoroutine(
+                        readyExecuteCoroutine,
+                        debugHandle: $"TryExecuteJobWork({job.GetUniqueLoadID()})"
+                    );
+                    yield return handle.ResumeWhenOtherCoroutineIsCompleted();
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                        $"Job's execute coroutine completed."
+                    );
 
-            // mark job as dealt with
-            ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                $"Mark the job as having been updated."
-            );
-            job.Touch();
-
-            if (!workDone)
-            {
-                ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Since the job did not do any work, let's try to do the next job."
-                );
-                yield return (TryDoNextJob() ?? []).ResumeWhenOtherCoroutineIsCompleted(
-                    debugHandle: $"TryDoNextJobAfterNoWorkDone({job.GetUniqueLoadID()})"
-                );
-                ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                    $"Back from the next job after the one with no work done."
-                );
-            }
-
-            if (responsibleForFlag)
-            {
-                IsRunningJobs = false;
+                    if (handle.Exception is Exception err2)
+                    {
+                        ColonyManagerReduxMod.Instance.LogError(
+                            "Suspending manager job because it errored on executing "
+                                + $"{nameof(TryExecuteJobWork)}: \n{err2}"
+                        );
+                        job.IsSuspended = true;
+                        job.CausedException = err2;
+                    }
+                }
             }
         }
 
-        static Coroutine TryDoJobTheOldWay(ManagerJob job, ManagerLog log, Boxed<bool> workDone)
+        if (job.CausedException != null)
         {
-#pragma warning disable CS0618 // This is the one place we are allowed to call it
-            workDone.Value = job.TryDoJob(log);
-#pragma warning restore CS0618
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Since executing the job caused an exception, let's try to do the next job."
+            );
+            AnyBoxed<PendingJobWork?> nextPending = new(null);
+            yield return (
+                TryGatherNextJobWork(nextPending) ?? []
+            ).ResumeWhenOtherCoroutineIsCompleted(
+                debugHandle: $"TryExecuteJobWorkAfterException({job.GetUniqueLoadID()})"
+            );
+            if (nextPending.Value != null)
+            {
+                yield return TryExecuteJobWork(nextPending.Value)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+            }
+            if (pending.ResponsibleForFlag)
+            {
+                IsRunningJobs = false;
+            }
             yield break;
+        }
+
+        if (ShouldLogJobRun(pending.WasCompleted, job.JobState))
+        {
+            // Don't log jobs where the state is Completed both before and after; those runs
+            // are only for checking whether a job should be resumed again, and it was
+            // decided we weren't about to resume yet.
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Since the job did something, let's log it."
+            );
+            log._workDone = workDone;
+            foreach (var jobLogger in _manager.CompsOfType<IJobLogger>())
+            {
+                jobLogger.AddLog(log);
+            }
+        }
+
+        // mark job as dealt with
+        ColonyManagerReduxMod.Instance.LogVerboseMessage($"Mark the job as having been updated.");
+        job.Touch();
+
+        if (!workDone)
+        {
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Since the job did not do any work, let's try to do the next job."
+            );
+            AnyBoxed<PendingJobWork?> nextPending = new(null);
+            yield return (
+                TryGatherNextJobWork(nextPending) ?? []
+            ).ResumeWhenOtherCoroutineIsCompleted(
+                debugHandle: $"TryExecuteJobWorkAfterNoWorkDone({job.GetUniqueLoadID()})"
+            );
+            if (nextPending.Value != null)
+            {
+                yield return TryExecuteJobWork(nextPending.Value)
+                    .ResumeWhenOtherCoroutineIsCompleted();
+            }
+            ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                $"Back from the next job after the one with no work done."
+            );
+        }
+
+        if (pending.ResponsibleForFlag)
+        {
+            IsRunningJobs = false;
         }
     }
 

@@ -357,6 +357,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     }
 
     [CoroutineSettingsMethod]
+#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
     public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
     {
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
@@ -534,6 +535,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             }
         }
     }
+#pragma warning restore CS0672, CS0618
 
     private void AddDesignation(Designation des, bool addToGame = true)
     {
