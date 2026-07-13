@@ -125,6 +125,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     public Area? ShearArea;
     public Area? CullingArea;
     public Area? TameArea;
+    public bool InvertTameArea;
     public Pawn? Trainer;
     public MasterMode Trainers;
     public TrainingTracker Training;
@@ -182,6 +183,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
         // set areas for restriction and taming to unrestricted
         TameArea = null;
+        InvertTameArea = false;
         RestrictToArea = false;
         RestrictArea = [.. Utilities_Livestock.AgeSexArray.Select(k => (Area?)null)];
 
@@ -209,6 +211,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         TryTameMore = false;
         TamePastTargets = false;
         TameArea = null;
+        InvertTameArea = false;
 
         // set defaults for culling
         CullTrained = false;
@@ -584,6 +587,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         Scribe_Values.Look(ref SendToTrainedArea, "sendToTrainedArea");
         Scribe_Values.Look(ref TryTameMore, "tryTameMore");
         Scribe_Values.Look(ref TamePastTargets, "tamePastTargets");
+        Scribe_Values.Look(ref InvertTameArea, "invertTameArea");
         Scribe_Values.Look(ref SetFollow, "setFollow", true);
         Scribe_Values.Look(ref FollowDrafted, "followDrafted", true);
         Scribe_Values.Look(ref FollowFieldwork, "followFieldwork", true);
@@ -1417,7 +1421,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                             p != null
                             && p.Spawned
                             && Manager.map.designationManager.DesignationOn(p) == null
-                            && (TameArea == null || TameArea.ActiveCells.Contains(p.Position))
+                            && Utilities.IsInAllowedArea(TameArea, p.Position, InvertTameArea)
                             && IsReachable(p, PathEndMode.Touch),
                         TamingPawnSortScore,
                         t => t

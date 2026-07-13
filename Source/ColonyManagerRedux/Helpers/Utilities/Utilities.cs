@@ -879,6 +879,24 @@ public static class Utilities
     }
 
     /// <summary>
+    /// Determines whether a position is within a job's area-of-operation restriction, optionally inverted.
+    /// </summary>
+    /// <param name="hasArea">Whether an area restriction is set at all.</param>
+    /// <param name="areaContainsPosition">Whether the restricted area contains the position in question.</param>
+    /// <param name="invert">When true, the restriction is inverted: the position must be outside the area instead of inside it.</param>
+    internal static bool IsInAllowedArea(bool hasArea, bool areaContainsPosition, bool invert) =>
+        !hasArea || (areaContainsPosition != invert);
+
+    /// <summary>
+    /// Determines whether a position is within a job's area-of-operation restriction, optionally inverted.
+    /// </summary>
+    /// <param name="area">The area restriction, or <see langword="null"/> if unrestricted.</param>
+    /// <param name="position">The position to check.</param>
+    /// <param name="invert">When true, the restriction is inverted: the position must be outside the area instead of inside it.</param>
+    public static bool IsInAllowedArea(Area? area, IntVec3 position, bool invert) =>
+        IsInAllowedArea(area != null, area?.ActiveCells.Contains(position) ?? false, invert);
+
+    /// <summary>
     /// Serializes and deserializes an <see cref="Area"/> reference by its label using the provided <see cref="AreaManager"/>.
     /// </summary>
     /// <param name="area">The area reference to be scribed.</param>

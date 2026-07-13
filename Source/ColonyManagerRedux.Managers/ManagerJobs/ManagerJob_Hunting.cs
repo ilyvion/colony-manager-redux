@@ -98,6 +98,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         TargetResource == HuntingTargetResource.Meat ? _allowedAnimalsMeat : _allowedAnimalsLeather;
 
     public Area? HuntingGrounds;
+    public bool InvertHuntingGrounds;
 
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
     public bool SyncFilterAndAllowed = true;
@@ -247,7 +248,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 .ConvertAll(thing => (Corpse)thing);
             return corpses.Where(thing =>
                 thing?.InnerPawn != null
-                && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(thing.Position))
+                && Utilities.IsInAllowedArea(HuntingGrounds, thing.Position, InvertHuntingGrounds)
                 && (_unforbidAllCorpses || AllowedAnimals.Contains(thing.InnerPawn.kindDef))
             );
         }
@@ -355,6 +356,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             "animalsLockedToMap",
             ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
         );
+        Scribe_Values.Look(ref InvertHuntingGrounds, "invertHuntingGrounds");
 
         if (Manager.ScribeSameMapData)
         {
@@ -797,7 +799,13 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 missingThingCount++;
                 des.Delete();
             }
-            else if (!HuntingGrounds?.ActiveCells.Contains(des.target.Thing.Position) ?? false)
+            else if (
+                !Utilities.IsInAllowedArea(
+                    HuntingGrounds,
+                    des.target.Thing.Position,
+                    InvertHuntingGrounds
+                )
+            )
             {
                 incorrectAreaCount++;
                 des.Delete();
@@ -878,7 +886,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // wild animals only
         && target.Faction == null
         // non-biome animals won't be on the list
-        && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position))
+        && Utilities.IsInAllowedArea(HuntingGrounds, target.Position, InvertHuntingGrounds)
         && IsReachable(target, PathEndMode.Touch);
 
     private bool IsValidDesignatedHuntingTarget(LocalTargetInfo t) =>
@@ -893,7 +901,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         // wild animals only
         && target.Faction == null
         // non-biome animals won't be on the list
-        && (HuntingGrounds == null || HuntingGrounds.ActiveCells.Contains(target.Position));
+        && Utilities.IsInAllowedArea(HuntingGrounds, target.Position, InvertHuntingGrounds);
 
     /// <summary>
     /// Picks the meat or leather def a pawn kind's resource threshold should track, depending on

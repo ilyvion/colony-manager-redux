@@ -1343,6 +1343,13 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         if (job.TryTameMore)
         {
             AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.TameArea, 5, Manager);
+            DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.InvertArea".Translate(),
+                "ColonyManagerRedux.InvertArea.Tip".Translate(),
+                ref job.InvertTameArea
+            );
 
             DrawToggle(
                 ref pos,

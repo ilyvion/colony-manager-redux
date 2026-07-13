@@ -460,6 +460,13 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     {
         var start = pos;
         AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.HuntingGrounds, 5, Manager);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.InvertArea".Translate(),
+            "ColonyManagerRedux.InvertArea.Tip".Translate(),
+            ref job.InvertHuntingGrounds
+        );
         return pos.y - start.y;
     }
 

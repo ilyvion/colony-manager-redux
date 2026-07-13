@@ -122,6 +122,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
     private bool _deconstructBuildings;
     public bool DeconstructAncientDangerWhenFogged;
     public Area? MiningArea;
+    public bool InvertMiningArea;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
 
     private bool _mineralsLockedToMap = ColonyManagerReduxMod
@@ -564,6 +565,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         Scribe_Values.Look(ref AllowMining, "allowMining", true);
         Scribe_Values.Look(ref TakeOwnershipOfMiningJobs, "takeOwnershipOfMiningJobs", false);
         Scribe_Values.Look(ref ControlDeepDrills, "controlDeepDrills", false);
+        Scribe_Values.Look(ref InvertMiningArea, "invertMiningArea");
         Scribe_Collections.Look(ref TaskPriorityOrder, "taskPriorityOrder", LookMode.Value);
 
         if (Manager.ScribeSameMapData)
@@ -1004,7 +1006,7 @@ internal sealed class ManagerJob_Mining : ManagerJob<ManagerSettings_Mining>, IN
         MineThickRoofs || (!target.Map.roofGrid.RoofAt(target.Position)?.isThickRoof ?? true);
 
     public bool IsInAllowedArea(Thing target) =>
-        MiningArea == null || MiningArea.ActiveCells.Contains(target.Position);
+        Utilities.IsInAllowedArea(MiningArea, target.Position, InvertMiningArea);
 
     public bool IsRelevantDeconstructionTarget(Building target) =>
         target.def.building.IsDeconstructible

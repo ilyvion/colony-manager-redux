@@ -71,6 +71,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
     public HashSet<ThingDef> AllowedPlants = [];
     public Area? ForagingArea;
+    public bool InvertForagingArea;
     public bool ForceFullyMature;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
     public bool SyncFilterAndAllowed = true;
@@ -264,6 +265,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             "plantsLockedToMap",
             ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
         );
+        Scribe_Values.Look(ref InvertForagingArea, "invertForagingArea");
 
         if (Manager.ScribeSameMapData)
         {
@@ -557,7 +559,13 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 des.Delete();
             }
             // if area is not null and does not contain designate location, remove designation.
-            else if (!ForagingArea?.ActiveCells.Contains(des.target.Thing.Position) ?? false)
+            else if (
+                !Utilities.IsInAllowedArea(
+                    ForagingArea,
+                    des.target.Thing.Position,
+                    InvertForagingArea
+                )
+            )
             {
                 incorrectAreaCount++;
                 des.Delete();
@@ -587,7 +595,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             (!ForceFullyMature && target.YieldNow() > 1)
             || target.LifeStage == PlantLifeStage.Mature
         )
-        && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position))
+        && Utilities.IsInAllowedArea(ForagingArea, target.Position, InvertForagingArea)
         && IsReachable(target, PathEndMode.Touch);
 
     private bool IsValidDesignatedForagingTarget(LocalTargetInfo t) =>
@@ -601,7 +609,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
         && target.Map == Manager.map
         && AllowedPlants.Contains(target.def)
         && target.Spawned
-        && (ForagingArea == null || ForagingArea.ActiveCells.Contains(target.Position));
+        && Utilities.IsInAllowedArea(ForagingArea, target.Position, InvertForagingArea);
 
     private void ConfigureThresholdTrigger()
     {

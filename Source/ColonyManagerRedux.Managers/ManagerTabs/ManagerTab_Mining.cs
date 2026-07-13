@@ -484,6 +484,13 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
     {
         var start = pos;
         AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.MiningArea, 5, Manager);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.InvertArea".Translate(),
+            "ColonyManagerRedux.InvertArea.Tip".Translate(),
+            ref job.InvertMiningArea
+        );
         return pos.y - start.y;
     }
 

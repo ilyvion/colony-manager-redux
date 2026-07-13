@@ -79,6 +79,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
     public bool AllowSaplings;
     public HashSet<Area> ClearAreas = [];
     public Area? LoggingArea;
+    public bool InvertLoggingArea;
     public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
 
     public bool SyncFilterAndAllowed = true;
@@ -348,6 +349,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
             "plantsLockedToMap",
             ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
         );
+        Scribe_Values.Look(ref InvertLoggingArea, "invertLoggingArea");
 
         // clearing areas list
         if (Scribe.mode == LoadSaveMode.Saving)
@@ -598,7 +600,13 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
                 missingThingCount++;
                 des.Delete();
             }
-            else if ((!LoggingArea?.ActiveCells.Contains(des.target.Thing.Position)) ?? false)
+            else if (
+                !Utilities.IsInAllowedArea(
+                    LoggingArea,
+                    des.target.Thing.Position,
+                    InvertLoggingArea
+                )
+            )
             {
                 incorrectAreaCount++;
                 des.Delete();
@@ -799,7 +807,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         && Manager.map.designationManager.DesignationOn(target) == null
         // cut only mature trees, or saplings that yield something right now.
         && ((AllowSaplings && target.YieldNow() > 1) || target.LifeStage == PlantLifeStage.Mature)
-        && (LoggingArea == null || LoggingArea.ActiveCells.Contains(target.Position))
+        && Utilities.IsInAllowedArea(LoggingArea, target.Position, InvertLoggingArea)
         && IsReachable(target, PathEndMode.Touch);
 
     private bool IsValidDesignatedForestryTarget(LocalTargetInfo t) =>
@@ -813,7 +821,7 @@ internal sealed class ManagerJob_Forestry : ManagerJob<ManagerSettings_Forestry>
         && target.Map == Manager.map
         && AllowedTrees.Contains(target.def)
         && target.Spawned
-        && (LoggingArea == null || LoggingArea.ActiveCells.Contains(target.Position));
+        && Utilities.IsInAllowedArea(LoggingArea, target.Position, InvertLoggingArea);
 
     private void ConfigureThresholdTriggerParentFilter()
     {

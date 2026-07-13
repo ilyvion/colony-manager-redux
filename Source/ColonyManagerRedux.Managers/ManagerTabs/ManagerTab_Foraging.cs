@@ -144,6 +144,13 @@ internal sealed class ManagerTab_Foraging(Manager manager)
     {
         var start = pos;
         AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.ForagingArea, 5, Manager);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.InvertArea".Translate(),
+            "ColonyManagerRedux.InvertArea.Tip".Translate(),
+            ref job.InvertForagingArea
+        );
         return pos.y - start.y;
     }
 

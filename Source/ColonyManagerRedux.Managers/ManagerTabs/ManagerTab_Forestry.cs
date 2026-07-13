@@ -228,6 +228,13 @@ internal sealed class ManagerTab_Forestry(Manager manager)
     {
         var start = pos;
         AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.LoggingArea, 5, Manager);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.InvertArea".Translate(),
+            "ColonyManagerRedux.InvertArea.Tip".Translate(),
+            ref job.InvertLoggingArea
+        );
         return pos.y - start.y;
     }
 
