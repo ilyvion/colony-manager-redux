@@ -109,6 +109,52 @@ internal static class ManagerJobPowerTests
         Assert.That(survivor).Is.EqualTo("this");
     }
 
+    [Test]
+    public static void DeterminePowerJobOutcomeIsNoPoweredStationOnlineWhenNoneOnline() =>
+        Assert
+            .That(
+                ManagerJob_Power.DeterminePowerJobOutcome(
+                    anyPoweredStationOnline: false,
+                    recordHistoricalData: true
+                )
+            )
+            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.NoPoweredStationOnline);
+
+    [Test]
+    public static void DeterminePowerJobOutcomeIsNoPoweredStationOnlineEvenWhenHistoricalDataDisabled() =>
+        // No online station takes priority over the historical-data setting - matches the old
+        // TryDoJobCoroutine's ordering, where the "any station online" check yield-broke first.
+        Assert
+            .That(
+                ManagerJob_Power.DeterminePowerJobOutcome(
+                    anyPoweredStationOnline: false,
+                    recordHistoricalData: false
+                )
+            )
+            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.NoPoweredStationOnline);
+
+    [Test]
+    public static void DeterminePowerJobOutcomeIsHistoricalDataRecordingDisabledWhenOnlineButSettingOff() =>
+        Assert
+            .That(
+                ManagerJob_Power.DeterminePowerJobOutcome(
+                    anyPoweredStationOnline: true,
+                    recordHistoricalData: false
+                )
+            )
+            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.HistoricalDataRecordingDisabled);
+
+    [Test]
+    public static void DeterminePowerJobOutcomeIsRefreshListsWhenOnlineAndRecordingEnabled() =>
+        Assert
+            .That(
+                ManagerJob_Power.DeterminePowerJobOutcome(
+                    anyPoweredStationOnline: true,
+                    recordHistoricalData: true
+                )
+            )
+            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.RefreshLists);
+
     private readonly struct Trader(float powerOutput)
     {
         public float PowerOutput { get; } = powerOutput;

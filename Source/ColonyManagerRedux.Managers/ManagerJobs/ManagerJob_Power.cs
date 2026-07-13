@@ -8,8 +8,27 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 [CoroutineSettingsType]
-internal sealed class ManagerJob_Power : ManagerJob
+internal sealed class ManagerJob_Power
+    : ManagerJob<ManagerSettings_Power, ManagerJob_Power.PowerWorkData>
 {
+    // What GatherJobDataCoroutine decided about this run. RefreshLists is the only outcome that
+    // leads to any work being reported as done; the other two mirror the old TryDoJobCoroutine's
+    // early yield breaks (no powered station online / historical data recording disabled).
+    internal enum PowerJobOutcome
+    {
+        NoPoweredStationOnline,
+        HistoricalDataRecordingDisabled,
+        RefreshLists,
+    }
+
+    /// <summary>
+    /// Carries the decision made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
+    /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which only needs to report that work
+    /// was done - refreshing the trader/battery bookkeeping lists doesn't mutate the game, so
+    /// it's done entirely during gather).
+    /// </summary>
+    internal sealed class PowerWorkData;
+
     [HotSwappable]
     [CoroutineSettingsType]
     public sealed class HistoryWorker : HistoryWorker<ManagerJob_Power>
@@ -259,16 +278,36 @@ internal sealed class ManagerJob_Power : ManagerJob
         // The power job is never removed/cleaned up
         throw new NotImplementedException();
 
+    /// <summary>
+    /// Decides what a run of the job should do based on whether any powered manager station is
+    /// online and whether historical data recording is enabled, mirroring the early yield-break
+    /// branches the old single-phase <c>TryDoJobCoroutine</c> used to have.
+    /// </summary>
+    internal static PowerJobOutcome DeterminePowerJobOutcome(
+        bool anyPoweredStationOnline,
+        bool recordHistoricalData
+    ) =>
+        !anyPoweredStationOnline ? PowerJobOutcome.NoPoweredStationOnline
+        : !recordHistoricalData ? PowerJobOutcome.HistoricalDataRecordingDisabled
+        : PowerJobOutcome.RefreshLists;
+
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
-#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
-    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
+    protected override Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<PowerWorkData?> data
+    )
     {
-        if (!AnyPoweredStationOnline)
+        var outcome = DeterminePowerJobOutcome(
+            AnyPoweredStationOnline,
+            ColonyManagerReduxMod.Settings.RecordHistoricalData
+        );
+
+        if (outcome == PowerJobOutcome.NoPoweredStationOnline)
         {
             yield break;
         }
 
-        if (!ColonyManagerReduxMod.Settings.RecordHistoricalData)
+        if (outcome == PowerJobOutcome.HistoricalDataRecordingDisabled)
         {
             if (JobState != ManagerJobState.Completed)
             {
@@ -276,21 +315,36 @@ internal sealed class ManagerJob_Power : ManagerJob
             }
             yield break;
         }
-        else
-        {
-            JobState = ManagerJobState.Active;
-        }
+
+        JobState = ManagerJobState.Active;
 
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, AnyBoxed<PowerWorkData?>, Coroutine>)GatherJobDataCoroutine
+            );
 
+        // Refreshing these lists only updates the job's own bookkeeping fields (_traderBuildings,
+        // _batteryBuildings, _traders, _batteries) from a read-only query of the map's buildings;
+        // it doesn't change anything in the game itself, so it's safe to do while gathering.
         yield return RefreshBuildingLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
         yield return RefreshCompLists(jobLog).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
-        workDone.Value = true;
+
+        data.Value = new PowerWorkData();
     }
-#pragma warning restore CS0672, CS0618
+
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+    protected override Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        PowerWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        // All the actual work happened during gather; there's nothing left to apply.
+        workDone.Value = true;
+        yield break;
+    }
 
     private static IEnumerable<ThingDef> GetTraderDefs() =>
         from td in DefDatabase<ThingDef>.AllDefsListForReading
