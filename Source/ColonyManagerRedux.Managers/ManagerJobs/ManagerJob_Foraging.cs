@@ -8,8 +8,44 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 [CoroutineSettingsType]
-internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
+internal sealed class ManagerJob_Foraging
+    : ManagerJob<ManagerSettings_Foraging, ManagerJob_Foraging.ForagingWorkData>
 {
+    // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
+    // Gathering only ever decides on one of these paths per run (mirroring the branches that
+    // used to early-return/yield break in the old single-phase TryDoJobCoroutine).
+    internal enum ForagingWorkKind
+    {
+        // Trigger is disabled: clean up all existing designations and stop foraging.
+        CleanUp,
+
+        // Trigger is already satisfied (or too many designations exist): remove some.
+        ReduceDesignations,
+
+        // Trigger is not yet satisfied: add new designations for the allowed plants.
+        AddDesignations,
+    }
+
+    /// <summary>
+    /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
+    /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them). No field here
+    /// should ever be read as a signal that a change has already happened.
+    /// </summary>
+    internal sealed class ForagingWorkData
+    {
+        public ForagingWorkKind Kind;
+
+        // Always considered, regardless of Kind (except CleanUp, where CleanUp() deletes
+        // every outstanding designation anyway).
+        public List<Designation> AreaDesignationsToRemove = [];
+
+        // Kind == ReduceDesignations
+        public List<(Designation Designation, int Yield, int CountAfter)> DesignationsToRemove = [];
+
+        // Kind == AddDesignations
+        public List<(Plant Target, int Yield, int CountAfter)> DesignationsToAdd = [];
+    }
+
     [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Foraging>
     {
@@ -357,15 +393,11 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
     }
 
     [CoroutineSettingsMethod]
-#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
-    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
+    protected override Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<ForagingWorkData?> data
+    )
     {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
-            TryDoJobCoroutine
-        );
-        var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
-
         if (!TriggerThreshold.State)
         {
             if (JobState != ManagerJobState.Completed)
@@ -373,7 +405,7 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 JobState = ManagerJobState.Completed;
                 jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
 
-                CleanUp(jobLog);
+                data.Value = new ForagingWorkData { Kind = ForagingWorkKind.CleanUp };
             }
             yield break;
         }
@@ -382,16 +414,25 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             JobState = ManagerJobState.Active;
         }
 
-        // clean up designations that were completed.
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            (Func<ManagerLog, AnyBoxed<ForagingWorkData?>, Coroutine>)GatherJobDataCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, AnyBoxed<ForagingWorkData?>, Coroutine>)GatherJobDataCoroutine
+            );
+
+        // Resync our own bookkeeping against designations that have disappeared or that
+        // already exist in the game unbeknownst to us; this doesn't change anything in the
+        // game itself, so it's safe to do while gathering.
         CleanDeadDesignations(_designations, DesignationDefOf.HarvestPlant, jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // clean up designations that are (now) in the wrong area.
-        CleanAreaDesignations(jobLog);
+        AddRelevantGameDesignations(jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // add designations in the game that could have been handled by this job
-        AddRelevantGameDesignations(jobLog);
+        var workData = new ForagingWorkData();
+        workData.AreaDesignationsToRemove.AddRange(PlanAreaCleanupDesignations());
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate plants until trigger is met.
@@ -399,80 +440,133 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
             .DoUpdateIfNeeded(force: true)
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
-        var count = TriggerThreshold.GetCurrentCount() + CachedCurrentDesignatedCount.Value;
+        var count = new Boxed<int>(
+            TriggerThreshold.GetCurrentCount() + CachedCurrentDesignatedCount.Value
+        );
 
         if (
             TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {
-            List<Designation> sortedDesignations = [];
-            yield return GetThingsSorted(
-                    _designations.Where(d => d.target.HasThing),
-                    sortedDesignations,
-                    _ => true,
-                    (p, d) => -p.YieldNow() / d,
-                    d => (Plant)d.target.Thing
+            workData.Kind = ForagingWorkKind.ReduceDesignations;
+
+            yield return PlanReduceDesignations(
+                    operationsPerTick,
+                    ticksBetweenOperations,
+                    count,
+                    workData
                 )
                 .ResumeWhenOtherCoroutineIsCompleted();
-            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-            // reduce designations until we're just above target
-            var sortedYields = sortedDesignations
-                .Select(d => ((Plant)d.target.Thing).YieldNow())
-                .ToList();
-            var removeCount = Utilities_Plants.ComputeReduceCount(
-                count,
-                sortedYields,
-                _designations.Count,
-                TriggerThreshold.DoesCountMeetTarget,
-                ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
-            );
-            for (var i = 0; i < removeCount; i++)
-            {
-                var designation = sortedDesignations[i];
-
-                var plant = (Plant)designation.target.Thing;
-                var yield = sortedYields[i];
-                count -= yield;
-                designation.Delete();
-                _ = _designations.Remove(designation);
-                jobLog.AddDetail(
-                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                        DesignationDefOf.HarvestPlant.ActionText(),
-                        "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
-                        plant.Label,
-                        yield,
-                        count,
-                        TriggerThreshold.TargetLabel
-                    ),
-                    plant
-                );
-                workDone.Value = true;
-
-                if (i > 0 && i % operationsPerTick == 0)
-                {
-                    yield return new ResumeAfterTicks(ticksBetweenOperations);
-                }
-            }
-
-            if (!workDone)
-            {
-                jobLog.AddDetail(
-                    "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
-                        "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
-                        Def.label
-                    )
-                );
-            }
-
+            data.Value = workData;
             yield break;
         }
 
+        workData.Kind = ForagingWorkKind.AddDesignations;
+
         jobLog.AddDetail(
-            "ColonyManagerRedux.Logs.CurrentCount".Translate(count, TriggerThreshold.TargetCount)
+            "ColonyManagerRedux.Logs.CurrentCount".Translate(
+                count.Value,
+                TriggerThreshold.TargetCount
+            )
         );
 
+        yield return PlanAddDesignations(
+                jobLog,
+                operationsPerTick,
+                ticksBetweenOperations,
+                count,
+                workData
+            )
+            .ResumeWhenOtherCoroutineIsCompleted();
+
+        data.Value = workData;
+    }
+
+    /// <summary>
+    /// Decides whether a designation whose target either has no thing, or whose thing is no
+    /// longer inside the configured foraging area, should be removed. Pure function, kept
+    /// separate so it's unit-testable without a live <see cref="Map"/>.
+    /// </summary>
+    internal static bool ShouldRemoveForAreaCleanup(bool hasThing, bool inAllowedArea) =>
+        !hasThing || !inAllowedArea;
+
+    /// <summary>
+    /// Decides which designations need to be removed because their target has vanished or has
+    /// left the configured foraging area, without deleting anything yet.
+    /// </summary>
+    private List<Designation> PlanAreaCleanupDesignations()
+    {
+        List<Designation> toRemove = [];
+        foreach (var des in _designations)
+        {
+            var inAllowedArea =
+                des.target.HasThing
+                && Utilities.IsInAllowedArea(
+                    ForagingArea,
+                    des.target.Thing.Position,
+                    InvertForagingArea
+                );
+            if (ShouldRemoveForAreaCleanup(des.target.HasThing, inAllowedArea))
+            {
+                toRemove.Add(des);
+            }
+        }
+        return toRemove;
+    }
+
+    private Coroutine PlanReduceDesignations(
+        int operationsPerTick,
+        int ticksBetweenOperations,
+        Boxed<int> count,
+        ForagingWorkData data
+    )
+    {
+        List<Designation> sortedDesignations = [];
+        yield return GetThingsSorted(
+                _designations.Where(d => d.target.HasThing),
+                sortedDesignations,
+                _ => true,
+                (p, d) => -p.YieldNow() / d,
+                d => (Plant)d.target.Thing
+            )
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        // plan reducing designations until we're just above target
+        var sortedYields = sortedDesignations
+            .Select(d => ((Plant)d.target.Thing).YieldNow())
+            .ToList();
+        var removeCount = Utilities_Plants.ComputeReduceCount(
+            count.Value,
+            sortedYields,
+            _designations.Count,
+            TriggerThreshold.DoesCountMeetTarget,
+            ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
+        );
+        for (var i = 0; i < removeCount; i++)
+        {
+            var designation = sortedDesignations[i];
+            var yield = sortedYields[i];
+            count.Value -= yield;
+            data.DesignationsToRemove.Add((designation, yield, count.Value));
+
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    private Coroutine PlanAddDesignations(
+        ManagerLog jobLog,
+        int operationsPerTick,
+        int ticksBetweenOperations,
+        Boxed<int> count,
+        ForagingWorkData data
+    )
+    {
         if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
         {
             jobLog.AddDetail(
@@ -506,72 +600,103 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
 
         var sortedPlantYields = sortedPlants.Select(p => p.YieldNow()).ToList();
         var designateCount = Utilities_Plants.ComputeNumberToDesignate(
-            count,
+            count.Value,
             sortedPlantYields,
             _designations.Count,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.CanAddMoreDesignations
         );
-        foreach (var (plant, i) in sortedPlants.Take(designateCount).Select((t, i) => (t, i)))
+        for (var i = 0; i < designateCount; i++)
         {
+            var plant = sortedPlants[i];
             var yield = sortedPlantYields[i];
-            count += yield;
-            AddDesignation(new(plant, DesignationDefOf.HarvestPlant));
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Logs.AddDesignation".Translate(
-                    DesignationDefOf.HarvestPlant.ActionText(),
-                    "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
-                    plant.Label,
-                    yield,
-                    count,
-                    TriggerThreshold.TargetLabel
-                ),
-                plant
-            );
-            workDone.Value = true;
+            count.Value += yield;
+            data.DesignationsToAdd.Add((plant, yield, count.Value));
+
             if (i > 0 && i % operationsPerTick == 0)
             {
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
-#pragma warning restore CS0672, CS0618
 
-    private void AddDesignation(Designation des, bool addToGame = true)
+    [CoroutineSettingsMethod]
+    protected override Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        ForagingWorkData data,
+        Boxed<bool> workDone
+    )
     {
-        // add to game
-        if (addToGame)
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            (Func<ManagerLog, ForagingWorkData, Boxed<bool>, Coroutine>)ExecuteJobDataCoroutine
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, ForagingWorkData, Boxed<bool>, Coroutine>)ExecuteJobDataCoroutine
+            );
+
+        if (data.Kind == ForagingWorkKind.CleanUp)
         {
-            Manager.map.designationManager.AddDesignation(des);
+            // Matches the old behavior of not counting a completion cleanup as "work done"
+            // for this cycle.
+            CleanUp(jobLog);
+            yield break;
         }
 
-        // add to internal list
-        _designations.Add(des);
+        ExecuteAreaCleanupDesignations(jobLog, data);
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        yield return data.Kind == ForagingWorkKind.ReduceDesignations
+            ? ExecuteReduceDesignations(
+                    jobLog,
+                    data,
+                    operationsPerTick,
+                    ticksBetweenOperations,
+                    workDone
+                )
+                .ResumeWhenOtherCoroutineIsCompleted()
+            : ExecuteAddDesignations(
+                    jobLog,
+                    data,
+                    operationsPerTick,
+                    ticksBetweenOperations,
+                    workDone
+                )
+                .ResumeWhenOtherCoroutineIsCompleted();
     }
 
-    private void CleanAreaDesignations(ManagerLog jobLog)
+    private void ExecuteAreaCleanupDesignations(ManagerLog jobLog, ForagingWorkData data)
     {
         var missingThingCount = 0;
         var incorrectAreaCount = 0;
-        foreach (var des in _designations)
+        foreach (var des in data.AreaDesignationsToRemove)
         {
-            if (!des.target.HasThing)
-            {
-                missingThingCount++;
-                des.Delete();
-            }
-            // if area is not null and does not contain designate location, remove designation.
-            else if (
-                !Utilities.IsInAllowedArea(
+            // The execute phase is gated behind ~95% of the job's work timer, so re-check
+            // that the condition which flagged this designation during gather still holds
+            // before deleting it.
+            var hasThing = des.target.HasThing;
+            var inAllowedArea =
+                hasThing
+                && Utilities.IsInAllowedArea(
                     ForagingArea,
                     des.target.Thing.Position,
                     InvertForagingArea
-                )
-            )
+                );
+            if (!ShouldRemoveForAreaCleanup(hasThing, inAllowedArea))
+            {
+                continue;
+            }
+
+            if (!hasThing)
+            {
+                missingThingCount++;
+            }
+            else
             {
                 incorrectAreaCount++;
-                des.Delete();
             }
+            des.Delete();
+            _ = _designations.Remove(des);
         }
         if (missingThingCount != 0 || incorrectAreaCount != 0)
         {
@@ -584,6 +709,112 @@ internal sealed class ManagerJob_Foraging : ManagerJob<ManagerSettings_Foraging>
                 )
             );
         }
+    }
+
+    private Coroutine ExecuteReduceDesignations(
+        ManagerLog jobLog,
+        ForagingWorkData data,
+        int operationsPerTick,
+        int ticksBetweenOperations,
+        Boxed<bool> workDone
+    )
+    {
+        var i = 0;
+        foreach (var (designation, yieldAmount, countAfter) in data.DesignationsToRemove)
+        {
+            var plant = (Plant)designation.target.Thing;
+            designation.Delete();
+            _ = _designations.Remove(designation);
+
+            // The target planned for removal during gather may already be gone by the time
+            // the (now much later) execute phase actually runs; the designation is still
+            // cleaned up above, but there's nothing to report in that case.
+            if (!plant.DestroyedOrNull())
+            {
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.HarvestPlant.ActionText(),
+                        "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
+                        plant.Label,
+                        yieldAmount,
+                        countAfter,
+                        TriggerThreshold.TargetLabel
+                    ),
+                    plant
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        if (!workDone.Value)
+        {
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                    "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+                    Def.label
+                )
+            );
+        }
+    }
+
+    private Coroutine ExecuteAddDesignations(
+        ManagerLog jobLog,
+        ForagingWorkData data,
+        int operationsPerTick,
+        int ticksBetweenOperations,
+        Boxed<bool> workDone
+    )
+    {
+        var i = 0;
+        foreach (var (plant, yieldAmount, countAfter) in data.DesignationsToAdd)
+        {
+            // The target planned for designation during gather may have been destroyed,
+            // despawned, or hauled away by the time the (now much later) execute phase
+            // actually runs; re-validate before designating it.
+            if (plant.DestroyedOrNull())
+            {
+                continue;
+            }
+
+            AddDesignation(new(plant, DesignationDefOf.HarvestPlant));
+            workDone.Value = true;
+
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddDesignation".Translate(
+                    DesignationDefOf.HarvestPlant.ActionText(),
+                    "ColonyManagerRedux.Foraging.Logs.Plant".Translate(),
+                    plant.Label,
+                    yieldAmount,
+                    countAfter,
+                    TriggerThreshold.TargetLabel
+                ),
+                plant
+            );
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    private void AddDesignation(Designation des, bool addToGame = true)
+    {
+        // add to game
+        if (addToGame)
+        {
+            Manager.map.designationManager.AddDesignation(des);
+        }
+
+        // add to internal list
+        _designations.Add(des);
     }
 
     private bool IsValidUndesignatedForagingTarget(Plant target) =>
