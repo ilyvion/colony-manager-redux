@@ -509,6 +509,18 @@ public class Manager : MapComponent, ILoadReferenceable
     }
 
     /// <summary>
+    /// Clears the recorded history for every job tracked by this manager, without removing the
+    /// jobs themselves.
+    /// </summary>
+    public void PurgeHistory()
+    {
+        foreach (var job in JobTracker.Jobs)
+        {
+            job.CompOfType<CompManagerJobHistory>()?.History.Clear();
+        }
+    }
+
+    /// <summary>
     /// Returns the first manager component of the specified type, or <c>null</c> if none exists.
     /// </summary>
     /// <typeparam name="T">The type of the manager component to retrieve.</typeparam>

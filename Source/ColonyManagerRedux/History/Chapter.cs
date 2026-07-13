@@ -132,6 +132,17 @@ public partial class History
             }
         }
 
+        // Resets this chapter's stored data back to its just-created state, without touching
+        // its def/label/color, which are structural and tied to the job's configuration rather
+        // than the historical data itself.
+        public void Clear()
+        {
+            counts = BuildBuffers();
+            targets = BuildTargetBuffers();
+            _observedMax = -1;
+            _specificMax = -1;
+        }
+
         public void Add(int newCount, int newTarget, int tick)
         {
             foreach (var period in Periods)

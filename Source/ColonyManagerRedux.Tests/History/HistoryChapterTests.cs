@@ -109,4 +109,47 @@ internal static class HistoryChapterTests
         Assert.That(targets[1]).Is.EqualTo(100);
         Assert.That(targets[4]).Is.EqualTo(100);
     }
+
+    [Test]
+    public static void ClearResetsValuesToFreshChapterState()
+    {
+        var chapter = NewChapter(5);
+        chapter.Add(10, 0, 0 * interval);
+        chapter.Add(20, 0, 1 * interval);
+        chapter.Add(30, 0, 2 * interval);
+
+        chapter.Clear();
+
+        var values = chapter.ValuesFor(Period.Day);
+        Assert.ThatCollection(values).Has.Count(1);
+        Assert.That(values[0]).Is.EqualTo(0);
+    }
+
+    [Test]
+    public static void ClearResetsTrueMaxToDefault()
+    {
+        var chapter = NewChapter(5);
+        chapter.Add(10, 100, 0 * interval);
+        chapter.Add(20, 0, 1 * interval);
+
+        chapter.Clear();
+
+        // With no recorded data, TrueMax falls back to its floor of 1.
+        Assert.That(chapter.TrueMax).Is.EqualTo(1);
+    }
+
+    [Test]
+    public static void ClearResetsTargetsSoHasTargetsIsFalse()
+    {
+        var chapter = NewChapter(5);
+        chapter.Add(10, 0, 0 * interval);
+        chapter.Add(20, 100, 1 * interval);
+
+        Assert.That(chapter.HasTargets(Period.Day)).Is.True();
+
+        chapter.Clear();
+
+        Assert.That(chapter.HasTargets(Period.Day)).Is.False();
+        Assert.That(chapter.TargetsFor(Period.Day) is null).Is.True();
+    }
 }

@@ -346,6 +346,21 @@ public partial class History : IExposable
                         );
                     }
 
+                    options.Add(
+                        new FloatMenuOption(
+                            "ColonyManagerRedux.History.ClearThisJob".Translate(),
+                            delegate
+                            {
+                                Find.WindowStack.Add(
+                                    new Dialog_Confirm(
+                                        "ColonyManagerRedux.History.ClearThisJob.Confirm".Translate(),
+                                        Clear
+                                    )
+                                );
+                            }
+                        )
+                    );
+
                     Find.WindowStack.Add(new FloatMenu(options));
                 }
             }
@@ -401,6 +416,18 @@ public partial class History : IExposable
                 ColonyManagerReduxMod.Settings.RecordHistoricalData = true;
                 ColonyManagerReduxMod.Settings.Write();
             }
+        }
+    }
+
+    /// <summary>
+    /// Clears all recorded historical data (counts, targets, and observed maximums) for every
+    /// chapter, without removing the chapters themselves.
+    /// </summary>
+    public void Clear()
+    {
+        foreach (var chapter in _chapters)
+        {
+            chapter.Clear();
         }
     }
 

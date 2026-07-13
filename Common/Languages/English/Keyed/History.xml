@@ -13,4 +13,11 @@
     <ColonyManagerRedux.History.JobSuspended>job is suspended</ColonyManagerRedux.History.JobSuspended>
     <ColonyManagerRedux.History.HistoryRecordingDisabled>history recording disabled</ColonyManagerRedux.History.HistoryRecordingDisabled>
     <ColonyManagerRedux.History.ClickToEnableHistoryRecording>click to enable</ColonyManagerRedux.History.ClickToEnableHistoryRecording>
+    <ColonyManagerRedux.History.PurgeAll>Purge manager history</ColonyManagerRedux.History.PurgeAll>
+    <ColonyManagerRedux.History.PurgeAll.Tip>Clears all recorded history data for every job on this map. This does not affect the jobs themselves, only the graphs of past values shown for them.</ColonyManagerRedux.History.PurgeAll.Tip>
+    <ColonyManagerRedux.History.PurgeAll.NoJobs.Tip>There are no jobs on this map, so there is no history to purge.</ColonyManagerRedux.History.PurgeAll.NoJobs.Tip>
+    <ColonyManagerRedux.History.PurgeAll.Confirm>Are you sure you want to purge the recorded history for every job on this map? This cannot be undone.</ColonyManagerRedux.History.PurgeAll.Confirm>
+    <ColonyManagerRedux.History.PurgeAll.Done>Manager history purged.</ColonyManagerRedux.History.PurgeAll.Done>
+    <ColonyManagerRedux.History.ClearThisJob>Clear history for this job</ColonyManagerRedux.History.ClearThisJob>
+    <ColonyManagerRedux.History.ClearThisJob.Confirm>Are you sure you want to clear the recorded history for this job? This cannot be undone.</ColonyManagerRedux.History.ClearThisJob.Confirm>
 </LanguageData>

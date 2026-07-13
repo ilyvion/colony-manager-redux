@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The Power manager job (auto-created as soon as you research Power Management) no longer triggers the 'no manager' or 'no manager station' alerts while it's suspended, which can help silence alert noise on new maps after researching Power Management. That job now also starts out suspended automatically on any map that isn't one of your home colonies, so you're no longer nagged about it on quest sites, ambushes, or other maps you're just visiting — you can still un-suspend it manually from the Overview tab if you do want it active there. If you'd rather the job always start active like it used to, there's a new setting in the Power tab's settings section to turn this off. Implements [#18](https://github.com/ilyvion/colony-manager-redux/issues/18).
+- A job's history graph now has a 'Clear history for this job' option in its right-click menu, letting you wipe its recorded history data without affecting the job itself. Implements [#20](https://github.com/ilyvion/colony-manager-redux/issues/20).
 
 ### Fixed
 
