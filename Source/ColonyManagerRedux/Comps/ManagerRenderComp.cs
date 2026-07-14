@@ -44,19 +44,10 @@ public abstract class ManagerRenderCompProperties<TComp, TWorker> : ManagerJobCo
         compClass = typeof(TComp);
     }
 
-    private TWorker? workerInt;
-
     /// <summary>
     /// Gets the instance of the worker associated with this render component.
     /// </summary>
-    public TWorker Worker
-    {
-        get
-        {
-            workerInt ??= (TWorker)Activator.CreateInstance(workerClass);
-            return workerInt;
-        }
-    }
+    public TWorker Worker => field ??= (TWorker)Activator.CreateInstance(workerClass);
 
     /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors(ManagerDef parentDef)

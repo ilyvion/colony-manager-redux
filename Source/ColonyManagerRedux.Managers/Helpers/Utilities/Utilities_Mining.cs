@@ -6,15 +6,8 @@ namespace ColonyManagerRedux.Managers;
 
 internal static class Utilities_Mining
 {
-    private static List<ThingCategoryDef>? _chunkCategoryDefs;
-    private static List<ThingCategoryDef> ChunkCategoryDefs
-    {
-        get
-        {
-            _chunkCategoryDefs ??= [.. ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs];
-            return _chunkCategoryDefs;
-        }
-    }
+    private static List<ThingCategoryDef> ChunkCategoryDefs =>
+        field ??= [.. ThingCategoryDefOf.Chunks.ThisAndChildCategoryDefs];
 
     public static bool IsChunk(this ThingDef def) =>
         def?.thingCategories?.Any(ChunkCategoryDefs.Contains) ?? false;

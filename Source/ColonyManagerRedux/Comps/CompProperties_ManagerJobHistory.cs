@@ -58,19 +58,10 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
         compClass = typeof(CompManagerJobHistory);
     }
 
-    private HistoryWorker? workerInt;
-
     /// <summary>
     /// Gets the history worker instance for this component.
     /// </summary>
-    public HistoryWorker Worker
-    {
-        get
-        {
-            workerInt ??= (HistoryWorker)Activator.CreateInstance(workerClass);
-            return workerInt;
-        }
-    }
+    public HistoryWorker Worker => field ??= (HistoryWorker)Activator.CreateInstance(workerClass);
 
     /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors(ManagerDef parentDef)

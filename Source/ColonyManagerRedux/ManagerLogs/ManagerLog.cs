@@ -169,8 +169,6 @@ public class ManagerLog : IExposable
 /// </summary>
 public sealed class LogDetails : IExposable
 {
-    private int jumpToTargetCycleIndex = -1;
-
     /// <summary>
     /// Gets the next target index for cycling through targets.
     /// </summary>
@@ -178,14 +176,14 @@ public sealed class LogDetails : IExposable
     {
         get
         {
-            jumpToTargetCycleIndex++;
-            if (jumpToTargetCycleIndex >= Targets.Count)
+            field++;
+            if (field >= Targets.Count)
             {
-                jumpToTargetCycleIndex = 0;
+                field = 0;
             }
-            return jumpToTargetCycleIndex;
+            return field;
         }
-    }
+    } = -1;
 
 #pragma warning disable IDE0032 // Use auto property
     private string _text;

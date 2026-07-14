@@ -317,20 +317,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
     }
 
     private Tab? _currentTab;
-    private List<TabRecord>? _tabList;
-    private List<TabRecord> TabList
-    {
-        get
-        {
-            _tabList ??=
-            [
-                new TabRecord(new AvailableTab(this), () => ref _currentTab!),
-                new TabRecord(new CurrentTab(base.DoJobList), () => ref _currentTab!),
-            ];
-
-            return _tabList;
-        }
-    }
+    private List<TabRecord> TabList =>
+        field ??= [
+            new TabRecord(new AvailableTab(this), () => ref _currentTab!),
+            new TabRecord(new CurrentTab(base.DoJobList), () => ref _currentTab!),
+        ];
 
     protected override void DoJobList(Rect rect)
     {

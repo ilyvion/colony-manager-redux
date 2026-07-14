@@ -1,6 +1,7 @@
 ﻿// MainTabWindow_Manager.cs
 // Copyright Karel Kroeze, 2018-2020
 
+using System.Diagnostics.CodeAnalysis;
 using static ColonyManagerRedux.Constants;
 
 namespace ColonyManagerRedux;
@@ -11,67 +12,63 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public sealed class MainTabWindow_Manager : MainTabWindow
 {
-    private Manager? _manager;
+    [AllowNull]
     private Manager Manager
     {
         get
         {
-            _manager ??= Manager.For(Find.CurrentMap);
-            return _manager;
+            field ??= Manager.For(Find.CurrentMap);
+            return field;
         }
+        set;
     }
-    private static ManagerTab? currentTab;
 
     /// <summary>
     /// Gets or sets the currently selected manager tab.
     /// </summary>
     public static ManagerTab CurrentTab
     {
-        get
-        {
-            currentTab ??= DefaultTab;
-            return currentTab;
-        }
-        set => currentTab = value;
+        get => field ??= DefaultTab;
+        set;
     }
 
-    private List<ManagerTab>? _managerTabsLeft;
+    [AllowNull]
     private List<ManagerTab> ManagerTabsLeft
     {
         get
         {
-            _managerTabsLeft ??=
-            [
-                .. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show),
-            ];
-            return _managerTabsLeft;
+            field ??= [.. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Left && tab.Show)];
+            return field;
         }
+        set;
     }
 
-    private List<ManagerTab>? _managerTabsMiddle;
+    [AllowNull]
     private List<ManagerTab> ManagerTabsMiddle
     {
         get
         {
-            _managerTabsMiddle ??=
+            field ??=
             [
                 .. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Middle && tab.Show),
             ];
-            return _managerTabsMiddle;
+            return field;
         }
+        set;
     }
 
-    private List<ManagerTab>? _managerTabsRight;
+    [AllowNull]
     private List<ManagerTab> ManagerTabsRight
     {
         get
         {
-            _managerTabsRight ??=
+            field ??=
             [
                 .. Manager.Tabs.Where(tab => tab.Def.iconArea == IconArea.Right && tab.Show),
             ];
-            return _managerTabsRight;
+            return field;
         }
+        set;
     }
 
     /// <summary>
@@ -288,10 +285,10 @@ public sealed class MainTabWindow_Manager : MainTabWindow
         base.PreOpen();
 
         // Reset these caches so we're not holding on to outdated values
-        _manager = null;
-        _managerTabsLeft = null;
-        _managerTabsMiddle = null;
-        _managerTabsRight = null;
+        Manager = null;
+        ManagerTabsLeft = null;
+        ManagerTabsMiddle = null;
+        ManagerTabsRight = null;
 
         // make sure the currently open tab is for this map
         if (CurrentTab.Manager.map != Find.CurrentMap)

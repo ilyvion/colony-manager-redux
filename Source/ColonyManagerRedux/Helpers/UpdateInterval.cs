@@ -12,8 +12,6 @@ namespace ColonyManagerRedux;
 [HotSwappable]
 public class UpdateInterval(int ticks, string label)
 {
-    private static UpdateInterval? _daily;
-
     /// <summary>
     /// Gets the display label for this update interval.
     /// </summary>
@@ -31,12 +29,12 @@ public class UpdateInterval(int ticks, string label)
     {
         get
         {
-            _daily ??= new UpdateInterval(
+            field ??= new UpdateInterval(
                 GenDate.TicksPerDay,
                 "ColonyManagerRedux.UpdateInterval.Daily".Translate()
             );
 
-            return _daily;
+            return field;
         }
     }
 

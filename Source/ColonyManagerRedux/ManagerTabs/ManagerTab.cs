@@ -227,18 +227,16 @@ public abstract class ManagerTab(Manager manager)
     /// </summary>
     public virtual string Label => Def.label.CapitalizeFirst();
 
-    private ManagerJob? _selected;
-
     /// <summary>
     /// Gets or sets the currently selected manager job in this tab.
     /// </summary>
     public ManagerJob? Selected
     {
-        get => _selected;
+        get;
         set
         {
             PreSelect();
-            _selected = value;
+            field = value;
             PostSelect();
         }
     }

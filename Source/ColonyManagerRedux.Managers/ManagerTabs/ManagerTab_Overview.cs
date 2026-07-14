@@ -19,18 +19,12 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     private SkillDef? SkillDef { get; set; }
 
-    private WorkTypeDef? _workType;
     private WorkTypeDef WorkTypeDef
     {
-        get
-        {
-            _workType ??= ManagerWorkTypeDefOf.Managing;
-
-            return _workType;
-        }
+        get => field ??= ManagerWorkTypeDefOf.Managing;
         set
         {
-            _workType = value;
+            field = value;
             RefreshWorkers();
         }
     }

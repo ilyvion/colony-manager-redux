@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Diagnostics.CodeAnalysis;
 using Verse.AI;
 
 namespace ColonyManagerRedux.Managers;
@@ -135,22 +136,23 @@ internal sealed class ManagerJob_Foraging
             if (_plantsLockedToMap != value)
             {
                 _plantsLockedToMap = value;
-                _allPlants = null; // reset cached plants
+                AllPlants = null; // reset cached plants
             }
         }
     }
 
-    private List<ThingDef>? _allPlants;
+    [AllowNull]
     public List<ThingDef> AllPlants
     {
         get
         {
-            _allPlants ??=
+            field ??=
             [
                 .. Utilities_Plants.GetForagingPlants(_plantsLockedToMap ? Manager.map : null),
             ];
-            return _allPlants;
+            return field;
         }
+        private set;
     }
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
@@ -365,7 +367,7 @@ internal sealed class ManagerJob_Foraging
         ColonyManagerReduxMod.Instance.LogDebug("Refreshing all plants");
 
         // all plants that yield something, and it isn't wood.
-        _allPlants = null;
+        AllPlants = null;
         var options = AllPlants;
 
         // remove stuff not in new list

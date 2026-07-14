@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Diagnostics.CodeAnalysis;
 using System.Xml;
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
@@ -473,20 +474,21 @@ public class Settings : ModSettings
         );
     }
 
-    private List<TabRecord>? _tabList;
+    [AllowNull]
     private List<TabRecord> TabList
     {
         get
         {
-            _tabList ??=
+            field ??=
             [
                 .. Gen.YieldSingle<Tab>(_sharedManagerSettings)
                     .Concat(Gen.YieldSingle<Tab>(_performanceSettings))
                     .Concat(_managerSettings.Where(m => m.Show))
                     .Select(m => new TabRecord(m, () => ref _currentManagerSettings)),
             ];
-            return _tabList;
+            return field;
         }
+        set;
     }
 
     private sealed class SharedManagerSettings(Settings settings) : Tab
@@ -1520,7 +1522,7 @@ public class Settings : ModSettings
     /// <summary>
     /// Resets the tab list before opening the settings window.
     /// </summary>
-    internal void PreOpen() => _tabList = null;
+    internal void PreOpen() => TabList = null;
 }
 
 /// <summary>
@@ -1533,22 +1535,11 @@ public class Settings : ModSettings
 )]
 public sealed class CoroutineSettingsTypeAttribute : Attribute
 {
-    private static List<Type>? _allTypesWithAttribute;
-
     /// <summary>
     /// Gets all types with the <see cref="CoroutineSettingsTypeAttribute"/> applied.
     /// </summary>
-    public static List<Type> AllTypesWithAttribute
-    {
-        get
-        {
-            _allTypesWithAttribute ??=
-            [
-                .. GenTypes.AllTypesWithAttribute<CoroutineSettingsTypeAttribute>(),
-            ];
-            return _allTypesWithAttribute;
-        }
-    }
+    public static List<Type> AllTypesWithAttribute =>
+        field ??= [.. GenTypes.AllTypesWithAttribute<CoroutineSettingsTypeAttribute>()];
 }
 
 /// <summary>

@@ -271,21 +271,20 @@ internal sealed class Alert_TableAndAI : Alert
             ? (AlertReport)false
             : AlertReport.CulpritsAre(_managerStations.Value);
 
-    private readonly List<Thing> managerStations = [];
     private List<Thing> ManagerStations
     {
         get
         {
             var listerBuildings = Find.CurrentMap.listerBuildings;
 
-            managerStations.Clear();
+            field.Clear();
             if (listerBuildings.ColonistsHaveBuilding(ManagerThingDefOf.CM_AIManager))
             {
-                managerStations.AddRange(
+                field.AddRange(
                     listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
                 );
             }
-            return managerStations;
+            return field;
         }
-    }
+    } = [];
 }

@@ -3,6 +3,7 @@
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
 using System.Buffers;
+using System.Diagnostics.CodeAnalysis;
 using Verse.AI;
 
 namespace ColonyManagerRedux.Managers;
@@ -210,7 +211,7 @@ internal sealed class ManagerJob_Mining
             if (_mineralsLockedToMap != value)
             {
                 _mineralsLockedToMap = value;
-                _allMinerals = null; // reset cached minerals
+                AllMinerals = null; // reset cached minerals
             }
         }
     }
@@ -226,22 +227,20 @@ internal sealed class ManagerJob_Mining
             if (_buildingsLockedToMap != value)
             {
                 _buildingsLockedToMap = value;
-                _allDeconstructibleBuildings = null; // reset cached buildings
+                AllDeconstructibleBuildings = null; // reset cached buildings
             }
         }
     }
 
-    private List<ThingDef>? _allMinerals;
+    [AllowNull]
     public List<ThingDef> AllMinerals
     {
         get
         {
-            _allMinerals ??=
-            [
-                .. Utilities_Mining.GetMinerals(_mineralsLockedToMap ? Manager.map : null),
-            ];
-            return _allMinerals;
+            field ??= [.. Utilities_Mining.GetMinerals(_mineralsLockedToMap ? Manager.map : null)];
+            return field;
         }
+        private set;
     }
 
     public bool DeconstructBuildings
@@ -269,19 +268,20 @@ internal sealed class ManagerJob_Mining
     public bool SyncFilterAndAllowed = true;
     private List<Designation> _designations = [];
 
-    private List<ThingDef>? _allDeconstructibleBuildings;
+    [AllowNull]
     public List<ThingDef> AllDeconstructibleBuildings
     {
         get
         {
-            _allDeconstructibleBuildings ??=
+            field ??=
             [
                 .. Utilities_Mining.GetDeconstructibleBuildings(
                     _buildingsLockedToMap ? Manager.map : null
                 ),
             ];
-            return _allDeconstructibleBuildings;
+            return field;
         }
+        private set;
     }
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
@@ -1203,8 +1203,8 @@ internal sealed class ManagerJob_Mining
     {
         ColonyManagerReduxMod.Instance.LogDebug("Refreshing all deconstructible buildings");
 
-        _allDeconstructibleBuildings = null;
-        _allMinerals = null;
+        AllDeconstructibleBuildings = null;
+        AllMinerals = null;
 
         ConfigureThresholdTriggerParentFilter();
     }

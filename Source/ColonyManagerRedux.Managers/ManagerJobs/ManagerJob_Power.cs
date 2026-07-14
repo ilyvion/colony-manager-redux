@@ -130,25 +130,9 @@ internal sealed class ManagerJob_Power
         }
     }
 
-    private static List<ThingDef>? _batteryDefs;
-    public static List<ThingDef> BatteryDefs
-    {
-        get
-        {
-            _batteryDefs ??= [.. GetBatteryDefs()];
-            return _batteryDefs;
-        }
-    }
+    public static List<ThingDef> BatteryDefs => field ??= [.. GetBatteryDefs()];
 
-    private static List<ThingDef>? _traderDefs;
-    public static List<ThingDef> TraderDefs
-    {
-        get
-        {
-            _traderDefs ??= [.. GetTraderDefs()];
-            return _traderDefs;
-        }
-    }
+    public static List<ThingDef> TraderDefs => field ??= [.. GetTraderDefs()];
 
     private List<Building> _batteryBuildings = [];
     private List<Building> _traderBuildings = [];

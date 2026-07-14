@@ -21,30 +21,20 @@ public class Building_AIManager : Building
     ];
 
     private bool _glowDirty;
-
-    private CompGlowerAIManager _glower;
-
     private bool _graphicDirty;
-
-    private bool _powered;
-
-    private CompPowerTrader _powerTrader;
-
     private Color _primaryBlinkerColour = Color.black;
 
     private Color _primaryColor = Color.black;
 
     private Color _secondaryColor = Color.black;
 
-    private int _secondaryColourIndex;
-
     /// <summary>
     /// Initializes a new instance of the <see cref="Building_AIManager"/> class.
     /// </summary>
     public Building_AIManager()
     {
-        _powerTrader = (CompPowerTrader)PowerComp;
-        _glower = GetComp<CompGlowerAIManager>();
+        PowerTrader = (CompPowerTrader)PowerComp;
+        Glower = GetComp<CompGlowerAIManager>();
     }
 
     /// <summary>
@@ -60,27 +50,27 @@ public class Building_AIManager : Building
     /// <summary>
     /// Gets the glower component for this building.
     /// </summary>
-    public CompGlowerAIManager Glower => _glower ??= GetComp<CompGlowerAIManager>();
+    public CompGlowerAIManager Glower => field ??= GetComp<CompGlowerAIManager>();
 
     /// <summary>
     /// Gets or sets whether the building is powered. Updates glower and LED colors accordingly.
     /// </summary>
     public bool Powered
     {
-        get => _powered;
+        get;
         set
         {
-            _powered = value;
+            field = value;
             Glower.IsLit = value;
             PrimaryColourBlinker = value ? PrimaryColour : Color.black;
-            SecondaryColour = value ? _colors[_secondaryColourIndex] : Color.black;
+            SecondaryColour = value ? _colors[SecondaryColourIndex] : Color.black;
         }
     }
 
     /// <summary>
     /// Gets the power trader component for this building.
     /// </summary>
-    public CompPowerTrader PowerTrader => _powerTrader ??= (CompPowerTrader)PowerComp;
+    public CompPowerTrader PowerTrader => field ??= (CompPowerTrader)PowerComp;
 
     /// <summary>
     /// Gets or sets the primary color for the building's LED and glower.
@@ -133,11 +123,11 @@ public class Building_AIManager : Building
     /// </summary>
     public int SecondaryColourIndex
     {
-        get => _secondaryColourIndex;
+        get;
         set
         {
-            _secondaryColourIndex = value;
-            SecondaryColour = _colors[_secondaryColourIndex];
+            field = value;
+            SecondaryColour = _colors[field];
         }
     }
 

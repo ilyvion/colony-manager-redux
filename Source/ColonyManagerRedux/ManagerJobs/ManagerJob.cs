@@ -363,21 +363,18 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// </summary>
     public virtual int MaxUpperThreshold { get; } = Constants.DefaultMaxUpperThreshold;
 
-    private Exception? _causedException;
-
     /// <summary>
     /// Gets or sets the exception that caused this manager job to be suspended, if any.
     /// </summary>
     public Exception? CausedException
     {
-        get => _causedException;
+        get;
         set
         {
-            _causedException = value;
-            _causedExceptionToStringCache = null;
+            field = value;
+            CausedExceptionText = null;
         }
     }
-    private string? _causedExceptionToStringCache;
 
     /// <summary>
     /// Gets the cached string representation of the exception that caused this manager job to be suspended, if any.
@@ -386,7 +383,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     {
         get
         {
-            if (_causedExceptionToStringCache == null && _causedException != null)
+            if (field == null && CausedException != null)
             {
                 ref var noStacktraceCaching = ref AccessTools.StaticFieldRefAccess<bool>(
                     "HarmonyMod.HarmonyMain:noStacktraceCaching"
@@ -394,11 +391,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
                 var originalValue = noStacktraceCaching;
                 noStacktraceCaching = true;
-                _causedExceptionToStringCache = _causedException.ToString();
+                field = CausedException.ToString();
                 noStacktraceCaching = originalValue;
             }
-            return _causedExceptionToStringCache;
+            return field;
         }
+        private set;
     }
 
     internal void Initialize()

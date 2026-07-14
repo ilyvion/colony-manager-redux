@@ -8,18 +8,16 @@ internal partial class ManagerTab_ImportExport
 {
     public sealed class ScribeModeComp : ManagerComp
     {
-        private ScribingMode mode = ScribingMode.Normal;
-
         public ScribingMode Mode
         {
-            get => mode;
+            get;
             internal set
             {
-                mode = value;
+                field = value;
                 Manager.ScribeSameMapData = Mode == ScribingMode.Normal;
                 Manager.ScribeSameGameData = Mode == ScribingMode.Normal;
             }
-        }
+        } = ScribingMode.Normal;
     }
 }
 

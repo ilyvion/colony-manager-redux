@@ -770,20 +770,12 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
     private PawnKindSettings defaults = new();
     private Dictionary<PawnKindDef, PawnKindSettings> overrides = [];
 
-    private List<PawnKindDef>? pawnKindDefs;
-    private List<PawnKindDef> PawnKindDefs
-    {
-        get
-        {
-            pawnKindDefs ??=
-            [
-                .. DefDatabase<PawnKindDef>
-                    .AllDefs.Where(p => p.RaceProps.Animal)
-                    .OrderBy(p => p.GetLabelPlural()),
-            ];
-            return pawnKindDefs;
-        }
-    }
+    private List<PawnKindDef> PawnKindDefs =>
+        field ??= [
+            .. DefDatabase<PawnKindDef>
+                .AllDefs.Where(p => p.RaceProps.Animal)
+                .OrderBy(p => p.GetLabelPlural()),
+        ];
 
     private int _currentLivestockSettingsTab = -1;
     private PawnKindSettings? currentOverrideTab;

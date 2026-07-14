@@ -2,6 +2,7 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
+using System.Diagnostics.CodeAnalysis;
 using Verse.AI;
 
 namespace ColonyManagerRedux.Managers;
@@ -156,22 +157,23 @@ internal sealed class ManagerJob_Hunting
             if (_animalsLockedToMap != value)
             {
                 _animalsLockedToMap = value;
-                _allAnimals = null; // reset cached animals
+                AllAnimals = null; // reset cached animals
             }
         }
     }
 
-    private List<PawnKindDef>? _allAnimals;
+    [AllowNull]
     public List<PawnKindDef> AllAnimals
     {
         get
         {
-            _allAnimals ??=
+            field ??=
             [
                 .. Utilities_Hunting.GetMapPawnKindDefs(_animalsLockedToMap ? Manager.map : null),
             ];
-            return _allAnimals;
+            return field;
         }
+        private set;
     }
 
     private HuntingTargetResource _targetResource = HuntingTargetResource.Meat;
@@ -293,12 +295,11 @@ internal sealed class ManagerJob_Hunting
 
     public List<Designation> Designations => [.. _designations];
 
-    private static List<ThingDef>? _humanLikeMeatDefs;
     public static List<ThingDef> HumanLikeMeatDefs
     {
         get
         {
-            _humanLikeMeatDefs ??=
+            field ??=
             [
                 .. DefDatabase<ThingDef>
                     .AllDefsListForReading.Where(def =>
@@ -313,7 +314,7 @@ internal sealed class ManagerJob_Hunting
                     .Distinct(),
             ];
 
-            return _humanLikeMeatDefs;
+            return field;
 
             static bool CheckAndReportIfInvalidMeatDef(ThingDef def)
             {
@@ -550,7 +551,7 @@ internal sealed class ManagerJob_Hunting
 
     public void RefreshAllAnimals()
     {
-        _allAnimals = null;
+        AllAnimals = null;
         ConfigureThresholdTriggerParentFilter();
     }
 
