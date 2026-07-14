@@ -94,4 +94,33 @@ internal static class ManagerJobHuntingTests
         Assert.That(result[0]).Is.EqualTo("high-yield-far");
         Assert.That(result[1]).Is.EqualTo("low-yield-close");
     }
+
+    [Test]
+    public static void DesignationWithNoThingIsRemovedForAreaCleanup() =>
+        // A designation whose target has already lost its Thing (e.g. the animal died and its
+        // corpse rotted away) is always cleaned up, regardless of area.
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldRemoveForAreaCleanup(hasThing: false, inAllowedArea: false)
+            )
+            .Is.True();
+
+    [Test]
+    public static void DesignationInAllowedAreaIsNotRemoved() =>
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldRemoveForAreaCleanup(hasThing: true, inAllowedArea: true)
+            )
+            .Is.False();
+
+    [Test]
+    public static void DesignationOutsideAllowedAreaIsRemoved() =>
+        // Regression: the hunting grounds may shrink or be reassigned after an animal was
+        // designated, in which case the stale designation must be cleaned up even though its
+        // target thing still exists.
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldRemoveForAreaCleanup(hasThing: true, inAllowedArea: false)
+            )
+            .Is.True();
 }

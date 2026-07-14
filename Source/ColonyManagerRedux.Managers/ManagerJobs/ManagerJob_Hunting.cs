@@ -8,8 +8,45 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 [CoroutineSettingsType]
-internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
+internal sealed class ManagerJob_Hunting
+    : ManagerJob<ManagerSettings_Hunting, ManagerJob_Hunting.HuntingWorkData>
 {
+    // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
+    // Gathering only ever decides on one of these paths per run (mirroring the branches that
+    // used to early-return/yield break in the old single-phase TryDoJobCoroutine).
+    internal enum HuntingWorkKind
+    {
+        // Trigger is disabled: clean up all existing designations and stop hunting.
+        CleanUp,
+
+        // Trigger is already satisfied (or too many designations exist): remove some.
+        ReduceDesignations,
+
+        // Trigger is not yet satisfied: unforbid corpses and/or add new designations.
+        AddDesignations,
+    }
+
+    /// <summary>
+    /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
+    /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them). No field here
+    /// should ever be read as a signal that a change has already happened.
+    /// </summary>
+    internal sealed class HuntingWorkData
+    {
+        public HuntingWorkKind Kind;
+
+        // Always considered, regardless of Kind (except CleanUp, where CleanUp() deletes
+        // every outstanding designation anyway).
+        public List<Designation> AreaDesignationsToRemove = [];
+
+        // Kind == ReduceDesignations
+        public List<(Designation Designation, int Yield, int CountAfter)> DesignationsToRemove = [];
+
+        // Kind == AddDesignations
+        public List<(Corpse Corpse, int Yield, int CountAfter)> CorpsesToUnforbid = [];
+        public List<(Pawn Target, int Yield, int CountAfter)> DesignationsToAdd = [];
+    }
+
     [HotSwappable]
     [CoroutineSettingsType]
     public sealed class History : HistoryWorker<ManagerJob_Hunting>
@@ -532,8 +569,10 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
     }
 
     [CoroutineSettingsMethod]
-#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
-    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
+    protected override Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<HuntingWorkData?> data
+    )
     {
         if (!TriggerThreshold.State)
         {
@@ -542,7 +581,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 JobState = ManagerJobState.Completed;
                 jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
 
-                CleanUp(jobLog);
+                data.Value = new HuntingWorkData { Kind = HuntingWorkKind.CleanUp };
             }
             yield break;
         }
@@ -552,20 +591,23 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
         }
 
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
-            TryDoJobCoroutine
+            (Func<ManagerLog, AnyBoxed<HuntingWorkData?>, Coroutine>)GatherJobDataCoroutine
         );
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, AnyBoxed<HuntingWorkData?>, Coroutine>)GatherJobDataCoroutine
+            );
 
-        // clean dead designations
+        // Resync our own bookkeeping against designations that have disappeared or that
+        // already exist in the game unbeknownst to us; this doesn't change anything in the
+        // game itself, so it's safe to do while gathering.
         CleanDeadDesignations(_designations, DesignationDefOf.Hunt, jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // clean designations not in area
-        CleanAreaDesignations(jobLog);
+        var workData = new HuntingWorkData();
+        workData.AreaDesignationsToRemove.AddRange(PlanAreaCleanupDesignations());
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // add designations that could have been handed out by us
         AddRelevantGameDesignations(jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
@@ -583,98 +625,44 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        Boxed<int> totalCount = new(
+        var count = new Boxed<int>(
             TriggerThreshold.GetCurrentCount()
                 + corpsesCachedValue.Value
                 + designationsCachedValue.Value
         );
 
         if (
-            TriggerThreshold.DoesCountMeetTarget(totalCount)
+            TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {
-            List<Designation> sortedDesignations = [];
-            yield return GetThingsSorted(
-                    _designations.Where(d => d.target.HasThing),
-                    sortedDesignations,
-                    _ => true,
-                    (p, d) => -p.EstimatedYield(TargetResource) / d,
-                    d => (Pawn)d.target.Thing
-                )
+            workData.Kind = HuntingWorkKind.ReduceDesignations;
+
+            yield return PlanReduceDesignations(count, workData)
                 .ResumeWhenOtherCoroutineIsCompleted();
-            yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-            // reduce designations until we're just above target
-            for (var i = 0; i < sortedDesignations.Count; i++)
-            {
-                var designation = sortedDesignations[i];
-
-                var plant = (Pawn)designation.target.Thing;
-                var yield = plant.EstimatedYield(TargetResource);
-                totalCount.Value -= yield;
-                if (
-                    TriggerThreshold.DoesCountMeetTarget(totalCount)
-                    || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count
-                    )
-                )
-                {
-                    designation.Delete();
-                    _ = _designations.Remove(designation);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
-                            DesignationDefOf.Hunt.ActionText(),
-                            "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
-                            plant.Label,
-                            yield,
-                            totalCount.Value,
-                            TriggerThreshold.TargetLabel
-                        ),
-                        plant
-                    );
-                    workDone.Value = true;
-                }
-                else
-                {
-                    break;
-                }
-
-                if (i > 0 && i % operationsPerTick == 0)
-                {
-                    yield return new ResumeAfterTicks(ticksBetweenOperations);
-                }
-            }
-
-            if (!workDone)
-            {
-                jobLog.AddDetail(
-                    "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
-                        "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
-                        Def.label
-                    )
-                );
-            }
-
+            data.Value = workData;
             yield break;
         }
 
+        workData.Kind = HuntingWorkKind.AddDesignations;
+
         jobLog.AddDetail(
             "ColonyManagerRedux.Logs.CurrentCount".Translate(
-                totalCount.Value,
+                count.Value,
                 TriggerThreshold.TargetCount
             )
         );
 
-        // unforbid if allowed
+        // plan unforbidding corpses if allowed
         if (_unforbidCorpses)
         {
-            yield return DoUnforbidCorpses(jobLog, workDone, totalCount)
-                .ResumeWhenOtherCoroutineIsCompleted();
+            yield return PlanUnforbidCorpses(count, workData).ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-            if (workDone && TriggerThreshold.DoesCountMeetTarget(totalCount))
+            if (workData.CorpsesToUnforbid.Count > 0 && TriggerThreshold.DoesCountMeetTarget(count))
             {
+                data.Value = workData;
                 yield break;
             }
         }
@@ -687,6 +675,7 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                     Def.label
                 )
             );
+            data.Value = workData;
             yield break;
         }
 
@@ -710,35 +699,104 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                     Def.label
                 )
             );
+            data.Value = workData;
             yield break;
         }
 
-        // while totalCount < count AND we have animals that can be designated, designate animal.
-        foreach (var (huntableAnimal, i) in huntableAnimals.Select((h, i) => (h, i)))
+        var sortedYields = huntableAnimals.Select(a => a.EstimatedYield(TargetResource)).ToList();
+        var designateCount = Utilities_Plants.ComputeNumberToDesignate(
+            count.Value,
+            sortedYields,
+            _designations.Count,
+            TriggerThreshold.DoesCountMeetTarget,
+            ColonyManagerReduxMod.Settings.CanAddMoreDesignations
+        );
+        for (var i = 0; i < designateCount; i++)
         {
-            if (
-                TriggerThreshold.DoesCountMeetTarget(totalCount)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
-            )
-            {
-                break;
-            }
+            var animal = huntableAnimals[i];
+            var yield = sortedYields[i];
+            count.Value += yield;
+            workData.DesignationsToAdd.Add((animal, yield, count.Value));
 
-            AddDesignation(new(huntableAnimal, DesignationDefOf.Hunt));
-            var yield = huntableAnimal.EstimatedYield(TargetResource);
-            totalCount.Value += yield;
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Logs.AddDesignation".Translate(
-                    DesignationDefOf.Hunt.ActionText(),
-                    "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
-                    huntableAnimal.Label,
-                    yield,
-                    totalCount.Value,
-                    TriggerThreshold.TargetLabel
-                ),
-                huntableAnimal
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        data.Value = workData;
+    }
+
+    /// <summary>
+    /// Decides whether a designation whose target either has no thing, or whose thing is no
+    /// longer inside the configured hunting grounds, should be removed. Pure function, kept
+    /// separate so it's unit-testable without a live <see cref="Map"/>.
+    /// </summary>
+    internal static bool ShouldRemoveForAreaCleanup(bool hasThing, bool inAllowedArea) =>
+        !hasThing || !inAllowedArea;
+
+    /// <summary>
+    /// Decides which designations need to be removed because their target has vanished or has
+    /// left the configured hunting grounds, without deleting anything yet.
+    /// </summary>
+    private List<Designation> PlanAreaCleanupDesignations()
+    {
+        List<Designation> toRemove = [];
+        foreach (var des in _designations)
+        {
+            var inAllowedArea =
+                des.target.HasThing
+                && Utilities.IsInAllowedArea(
+                    HuntingGrounds,
+                    des.target.Thing.Position,
+                    InvertHuntingGrounds
+                );
+            if (ShouldRemoveForAreaCleanup(des.target.HasThing, inAllowedArea))
+            {
+                toRemove.Add(des);
+            }
+        }
+        return toRemove;
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine PlanReduceDesignations(Boxed<int> count, HuntingWorkData data)
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanReduceDesignations
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                PlanReduceDesignations
             );
-            workDone.Value = true;
+
+        List<Designation> sortedDesignations = [];
+        yield return GetThingsSorted(
+                _designations.Where(d => d.target.HasThing),
+                sortedDesignations,
+                _ => true,
+                (p, d) => -p.EstimatedYield(TargetResource) / d,
+                d => (Pawn)d.target.Thing
+            )
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        var sortedYields = sortedDesignations
+            .Select(d => ((Pawn)d.target.Thing).EstimatedYield(TargetResource))
+            .ToList();
+        var removeCount = Utilities_Plants.ComputeReduceCount(
+            count.Value,
+            sortedYields,
+            _designations.Count,
+            TriggerThreshold.DoesCountMeetTarget,
+            ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
+        );
+        for (var i = 0; i < removeCount; i++)
+        {
+            var designation = sortedDesignations[i];
+            var yield = sortedYields[i];
+            count.Value -= yield;
+            data.DesignationsToRemove.Add((designation, yield, count.Value));
 
             if (i > 0 && i % operationsPerTick == 0)
             {
@@ -746,7 +804,288 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
             }
         }
     }
-#pragma warning restore CS0672, CS0618
+
+    // originally copypasta from autohuntbeacon by Carry
+    // https://ludeon.com/forums/index.php?topic=8930.0
+    [CoroutineSettingsMethod]
+    private Coroutine PlanUnforbidCorpses(Boxed<int> count, HuntingWorkData data)
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanUnforbidCorpses
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                PlanUnforbidCorpses
+            );
+
+        foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
+        {
+            if (TriggerThreshold.DoesCountMeetTarget(count))
+            {
+                yield break;
+            }
+
+            // don't unforbid corpses in storage - we're going to assume they were
+            // intentionally forbidden.
+            if (corpse != null && !corpse.IsInAnyStorage() && corpse.IsForbidden(Faction.OfPlayer))
+            {
+                if (!corpse.IsNotFresh())
+                {
+                    var yield = corpse.EstimatedYield(TargetResource);
+                    count.Value += yield;
+                    data.CorpsesToUnforbid.Add((corpse, yield, count.Value));
+                }
+            }
+
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+    protected override Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        HuntingWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, HuntingWorkData, Boxed<bool>, Coroutine>)ExecuteJobDataCoroutine
+            );
+
+        if (data.Kind == HuntingWorkKind.CleanUp)
+        {
+            // Matches the old behavior of not counting a completion cleanup as "work done"
+            // for this cycle.
+            CleanUp(jobLog);
+            yield break;
+        }
+
+        ExecuteAreaCleanupDesignations(jobLog, data);
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        if (data.Kind == HuntingWorkKind.ReduceDesignations)
+        {
+            yield return ExecuteReduceDesignations(jobLog, data, workDone)
+                .ResumeWhenOtherCoroutineIsCompleted();
+            yield break;
+        }
+
+        yield return ExecuteUnforbidCorpses(jobLog, data, workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        yield return ExecuteAddDesignations(jobLog, data, workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
+    }
+
+    private void ExecuteAreaCleanupDesignations(ManagerLog jobLog, HuntingWorkData data)
+    {
+        var missingThingCount = 0;
+        var incorrectAreaCount = 0;
+        foreach (var des in data.AreaDesignationsToRemove)
+        {
+            // The execute phase is gated behind ~95% of the job's work timer, so re-check
+            // that the condition which flagged this designation during gather still holds
+            // before deleting it.
+            var hasThing = des.target.HasThing;
+            var inAllowedArea =
+                hasThing
+                && Utilities.IsInAllowedArea(
+                    HuntingGrounds,
+                    des.target.Thing.Position,
+                    InvertHuntingGrounds
+                );
+            if (!ShouldRemoveForAreaCleanup(hasThing, inAllowedArea))
+            {
+                continue;
+            }
+
+            if (!hasThing)
+            {
+                missingThingCount++;
+            }
+            else
+            {
+                incorrectAreaCount++;
+            }
+            des.Delete();
+            _ = _designations.Remove(des);
+        }
+        if (missingThingCount != 0 || incorrectAreaCount != 0)
+        {
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CleanAreaDesignations".Translate(
+                    missingThingCount + incorrectAreaCount,
+                    missingThingCount,
+                    incorrectAreaCount,
+                    Def.label
+                )
+            );
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteReduceDesignations(
+        ManagerLog jobLog,
+        HuntingWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteReduceDesignations
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteReduceDesignations
+            );
+
+        var i = 0;
+        foreach (var (designation, yieldAmount, countAfter) in data.DesignationsToRemove)
+        {
+            var animal = (Pawn)designation.target.Thing;
+            designation.Delete();
+            _ = _designations.Remove(designation);
+
+            // The target planned for removal during gather may already be gone by the time
+            // the (now much later) execute phase actually runs; the designation is still
+            // cleaned up above, but there's nothing to report in that case.
+            if (!animal.DestroyedOrNull())
+            {
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.Hunt.ActionText(),
+                        "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
+                        animal.Label,
+                        yieldAmount,
+                        countAfter,
+                        TriggerThreshold.TargetLabel
+                    ),
+                    animal
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        if (!workDone.Value)
+        {
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.TargetsAlreadySatisfied".Translate(
+                    "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+                    Def.label
+                )
+            );
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteUnforbidCorpses(
+        ManagerLog jobLog,
+        HuntingWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteUnforbidCorpses
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteUnforbidCorpses
+            );
+
+        var i = 0;
+        foreach (var (corpse, yieldAmount, countAfter) in data.CorpsesToUnforbid)
+        {
+            // The target planned for unforbidding during gather may have been destroyed,
+            // hauled into storage, or re-forbidden by the time the (now much later) execute
+            // phase actually runs; re-validate before touching it.
+            if (
+                corpse.DestroyedOrNull()
+                || corpse.IsInAnyStorage()
+                || !corpse.IsForbidden(Faction.OfPlayer)
+            )
+            {
+                continue;
+            }
+
+            corpse.SetForbidden(false, false);
+            workDone.Value = true;
+
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Hunting.Logs.UnforbidCorpse".Translate(
+                    corpse.Label,
+                    yieldAmount,
+                    countAfter,
+                    TriggerThreshold.TargetCount
+                ),
+                corpse
+            );
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteAddDesignations(
+        ManagerLog jobLog,
+        HuntingWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteAddDesignations
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteAddDesignations
+            );
+
+        var i = 0;
+        foreach (var (animal, yieldAmount, countAfter) in data.DesignationsToAdd)
+        {
+            // The target planned for designation during gather may have been destroyed,
+            // despawned, or killed by the time the (now much later) execute phase actually
+            // runs; re-validate before designating it.
+            if (animal.DestroyedOrNull())
+            {
+                continue;
+            }
+
+            AddDesignation(new(animal, DesignationDefOf.Hunt));
+            workDone.Value = true;
+
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.AddDesignation".Translate(
+                    DesignationDefOf.Hunt.ActionText(),
+                    "ColonyManagerRedux.Hunting.Logs.Animal".Translate(),
+                    animal.Label,
+                    yieldAmount,
+                    countAfter,
+                    TriggerThreshold.TargetLabel
+                ),
+                animal
+            );
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
 
     private void AddDesignation(Designation des, bool addToGame = true)
     {
@@ -786,95 +1125,6 @@ internal sealed class ManagerJob_Hunting : ManagerJob<ManagerSettings_Hunting>
                 ),
                 newTargets
             );
-        }
-    }
-
-    private void CleanAreaDesignations(ManagerLog jobLog)
-    {
-        var missingThingCount = 0;
-        var incorrectAreaCount = 0;
-
-        foreach (var des in _designations)
-        {
-            if (!des.target.HasThing)
-            {
-                missingThingCount++;
-                des.Delete();
-            }
-            else if (
-                !Utilities.IsInAllowedArea(
-                    HuntingGrounds,
-                    des.target.Thing.Position,
-                    InvertHuntingGrounds
-                )
-            )
-            {
-                incorrectAreaCount++;
-                des.Delete();
-            }
-        }
-        if (missingThingCount != 0 || incorrectAreaCount != 0)
-        {
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Logs.CleanAreaDesignations".Translate(
-                    missingThingCount + incorrectAreaCount,
-                    missingThingCount,
-                    incorrectAreaCount,
-                    Def.label
-                )
-            );
-        }
-    }
-
-    // originally copypasta from autohuntbeacon by Carry
-    // https://ludeon.com/forums/index.php?topic=8930.0
-    [CoroutineSettingsMethod]
-    private Coroutine DoUnforbidCorpses(
-        ManagerLog jobLog,
-        Boxed<bool> workDone,
-        Boxed<int> totalCount
-    )
-    {
-        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
-            DoUnforbidCorpses
-        );
-        var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoUnforbidCorpses);
-
-        foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
-        {
-            if (TriggerThreshold.DoesCountMeetTarget(totalCount))
-            {
-                yield break;
-            }
-
-            // don't unforbid corpses in storage - we're going to assume they were intentionally
-            // forbidden.
-            if (corpse != null && !corpse.IsInAnyStorage() && corpse.IsForbidden(Faction.OfPlayer))
-            {
-                if (!corpse.IsNotFresh())
-                {
-                    corpse.SetForbidden(false, false);
-                    workDone.Value = true;
-
-                    var yield = corpse.EstimatedYield(TargetResource);
-                    totalCount.Value += yield;
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Hunting.Logs.UnforbidCorpse".Translate(
-                            corpse.Label,
-                            yield,
-                            totalCount.Value,
-                            TriggerThreshold.TargetCount
-                        ),
-                        corpse
-                    );
-                }
-            }
-
-            if (i > 0 && i % operationsPerTick == 0)
-            {
-                yield return new ResumeAfterTicks(ticksBetweenOperations);
-            }
         }
     }
 
