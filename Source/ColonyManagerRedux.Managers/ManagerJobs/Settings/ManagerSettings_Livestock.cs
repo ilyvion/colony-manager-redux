@@ -28,6 +28,7 @@ internal sealed class PawnKindSettings : IExposable
     public float DefaultAvoidCullingMilkableThreshold = 0.7f;
     public bool DefaultAvoidCullingShearable;
     public float DefaultAvoidCullingShearableThreshold = 0.7f;
+    public bool DefaultAvoidCullingNamed;
 
     public bool DefaultUnassignTraining;
     public bool DefaultTrainYoung;
@@ -63,6 +64,7 @@ internal sealed class PawnKindSettings : IExposable
         DefaultAvoidCullingMilkableThreshold = copyFrom.DefaultAvoidCullingMilkableThreshold;
         DefaultAvoidCullingShearable = copyFrom.DefaultAvoidCullingShearable;
         DefaultAvoidCullingShearableThreshold = copyFrom.DefaultAvoidCullingShearableThreshold;
+        DefaultAvoidCullingNamed = copyFrom.DefaultAvoidCullingNamed;
         DefaultUnassignTraining = copyFrom.DefaultUnassignTraining;
         DefaultTrainYoung = copyFrom.DefaultTrainYoung;
         DefaultMasterMode = copyFrom.DefaultMasterMode;
@@ -295,6 +297,18 @@ internal sealed class PawnKindSettings : IExposable
             "ColonyManagerRedux.Livestock.CullBonded".Translate(),
             "ColonyManagerRedux.Livestock.CullBonded.Tip".Translate(),
             ref DefaultCullBonded,
+            font: GameFont.Tiny,
+            wrap: false
+        );
+
+        pos.y += ListEntryHeight;
+        cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+        Utilities.DrawToggle(
+            cullingOptionRect,
+            "ColonyManagerRedux.Livestock.AvoidCullingNamed".Translate(),
+            "ColonyManagerRedux.Livestock.AvoidCullingNamed.Tip".Translate(),
+            ref DefaultAvoidCullingNamed,
             font: GameFont.Tiny,
             wrap: false
         );
@@ -707,6 +721,7 @@ internal sealed class PawnKindSettings : IExposable
             "defaultAvoidCullingShearableThreshold",
             0.7f
         );
+        Scribe_Values.Look(ref DefaultAvoidCullingNamed, "defaultAvoidCullingNamed", false);
 
         Scribe_Collections.Look(ref EnabledTrainingTargets, "enabledTrainingTargets", LookMode.Def);
         Scribe_Values.Look(ref DefaultUnassignTraining, "defaultUnassignTraining", false);

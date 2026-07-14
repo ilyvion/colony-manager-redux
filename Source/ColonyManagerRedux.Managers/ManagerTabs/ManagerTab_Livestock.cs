@@ -980,6 +980,18 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             );
 
             pos.y += ListEntryHeight;
+            cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+            DrawToggle(
+                cullingOptionRect,
+                "ColonyManagerRedux.Livestock.AvoidCullingNamed".Translate(),
+                "ColonyManagerRedux.Livestock.AvoidCullingNamed.Tip".Translate(),
+                ref job.AvoidCullingNamed,
+                font: GameFont.Tiny,
+                wrap: false
+            );
+
+            pos.y += ListEntryHeight;
 
             DrawToggle(
                 ref pos,

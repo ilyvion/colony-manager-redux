@@ -103,7 +103,9 @@ internal static class ManagerJobLivestockTests
                     milkThreshold: 0f,
                     avoidShearable: false,
                     woolFullness: 1f,
-                    woolThreshold: 0f
+                    woolThreshold: 0f,
+                    avoidNamed: false,
+                    isNamed: false
                 )
             )
             .Is.True();
@@ -127,7 +129,9 @@ internal static class ManagerJobLivestockTests
                     milkThreshold: 1f,
                     avoidShearable: false,
                     woolFullness: 0f,
-                    woolThreshold: 1f
+                    woolThreshold: 1f,
+                    avoidNamed: false,
+                    isNamed: false
                 )
             )
             .Is.False();
@@ -148,7 +152,9 @@ internal static class ManagerJobLivestockTests
                     milkThreshold: 1f,
                     avoidShearable: false,
                     woolFullness: 0f,
-                    woolThreshold: 1f
+                    woolThreshold: 1f,
+                    avoidNamed: false,
+                    isNamed: false
                 )
             )
             .Is.False();
@@ -173,7 +179,9 @@ internal static class ManagerJobLivestockTests
                 milkThreshold: 1f,
                 avoidShearable: false,
                 woolFullness: 0f,
-                woolThreshold: 1f
+                woolThreshold: 1f,
+                avoidNamed: false,
+                isNamed: false
             );
         }
 
@@ -181,6 +189,36 @@ internal static class ManagerJobLivestockTests
         Assert.That(Eligible(true, false, false)).Is.False();
         Assert.That(Eligible(true, true, false)).Is.False();
         Assert.That(Eligible(true, true, true)).Is.True();
+    }
+
+    [Test]
+    public static void NamedAnimalsExcludedUnlessToggleAllows()
+    {
+        static bool Eligible(bool avoidNamed, bool isNamed)
+        {
+            return ManagerJob_Livestock.IsEligibleForCulling(
+                alreadyCulling: false,
+                alreadyCulled: false,
+                cullTrained: true,
+                isTrained: false,
+                cullPregnant: true,
+                isPregnant: false,
+                cullBonded: true,
+                isBonded: false,
+                avoidMilkable: false,
+                milkFullness: 0f,
+                milkThreshold: 1f,
+                avoidShearable: false,
+                woolFullness: 0f,
+                woolThreshold: 1f,
+                avoidNamed,
+                isNamed
+            );
+        }
+
+        Assert.That(Eligible(false, true)).Is.True();
+        Assert.That(Eligible(true, false)).Is.True();
+        Assert.That(Eligible(true, true)).Is.False();
     }
 
     [Test]
@@ -207,7 +245,9 @@ internal static class ManagerJobLivestockTests
                 milkThreshold,
                 avoidShearable: true,
                 woolFullness,
-                woolThreshold
+                woolThreshold,
+                avoidNamed: false,
+                isNamed: false
             );
         }
 

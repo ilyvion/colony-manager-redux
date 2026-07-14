@@ -168,6 +168,7 @@ internal sealed partial class ManagerJob_Livestock
     public float AvoidCullingMilkableThreshold = 0.7f;
     public bool AvoidCullingShearable;
     public float AvoidCullingShearableThreshold = 0.7f;
+    public bool AvoidCullingNamed;
     public bool FollowDrafted;
     public bool FollowFieldwork;
     public bool FollowTraining;
@@ -278,6 +279,7 @@ internal sealed partial class ManagerJob_Livestock
         CullTrained = false;
         CullPregnant = false;
         CullBonded = false;
+        AvoidCullingNamed = false;
 
         // following
         SetFollow = true;
@@ -317,6 +319,7 @@ internal sealed partial class ManagerJob_Livestock
         CullTrained = pawnKindSettings.DefaultCullTrained;
         CullPregnant = pawnKindSettings.DefaultCullPregnant;
         CullBonded = pawnKindSettings.DefaultCullBonded;
+        AvoidCullingNamed = pawnKindSettings.DefaultAvoidCullingNamed;
         _cullingStrategy = pawnKindSettings.DefaultCullingStrategy;
 
         foreach (var def in TrainingTracker.TrainableDefs)
@@ -789,6 +792,7 @@ internal sealed partial class ManagerJob_Livestock
             "avoidCullingShearableThreshold",
             0.7f
         );
+        Scribe_Values.Look(ref AvoidCullingNamed, "avoidCullingNamed");
 
         Scribe_Values.Look(ref RestrictToArea, "restrictToArea");
         Scribe_Values.Look(ref SendToCullingArea, "sendToSlaughterArea");
@@ -1519,7 +1523,9 @@ internal sealed partial class ManagerJob_Livestock
                             AvoidCullingMilkableThreshold,
                             AvoidCullingShearable,
                             p.GetWoolFullness(),
-                            AvoidCullingShearableThreshold
+                            AvoidCullingShearableThreshold,
+                            AvoidCullingNamed,
+                            p.Name?.Numerical == false
                         )
                     );
                 var animals = CullingPawnSorter(ageSex, animalsUnsorted);
@@ -1897,7 +1903,9 @@ internal sealed partial class ManagerJob_Livestock
         float milkThreshold,
         bool avoidShearable,
         float woolFullness,
-        float woolThreshold
+        float woolThreshold,
+        bool avoidNamed,
+        bool isNamed
     ) =>
         !alreadyCulling
         && !alreadyCulled
@@ -1905,7 +1913,8 @@ internal sealed partial class ManagerJob_Livestock
         && (cullPregnant || !isPregnant)
         && (cullBonded || !isBonded)
         && (!avoidMilkable || milkFullness < milkThreshold)
-        && (!avoidShearable || woolFullness < woolThreshold);
+        && (!avoidShearable || woolFullness < woolThreshold)
+        && (!avoidNamed || !isNamed);
 
     /// <summary>
     /// Decides which up to <paramref name="count"/> animals currently designated with

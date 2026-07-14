@@ -33,6 +33,8 @@
     <ColonyManagerRedux.Livestock.AvoidCullingShearable>Avoid culling shearable animals close to producing</ColonyManagerRedux.Livestock.AvoidCullingShearable>
     <ColonyManagerRedux.Livestock.AvoidCullingShearable.Tip>Should shearable animals past a certain threshold be protected from culling?</ColonyManagerRedux.Livestock.AvoidCullingShearable.Tip>
     <ColonyManagerRedux.Livestock.AvoidCullingShearableThreshold>Don't cull above {0} wool progress</ColonyManagerRedux.Livestock.AvoidCullingShearableThreshold>
+    <ColonyManagerRedux.Livestock.AvoidCullingNamed>Named</ColonyManagerRedux.Livestock.AvoidCullingNamed>
+    <ColonyManagerRedux.Livestock.AvoidCullingNamed.Tip>Should animals with a real (non-numerical) name be protected from culling?</ColonyManagerRedux.Livestock.AvoidCullingNamed.Tip>
     <ColonyManagerRedux.Livestock.TameMore>Auto-designate animals to be tamed</ColonyManagerRedux.Livestock.TameMore>
     <ColonyManagerRedux.Livestock.TameMore.Tip>Should the manager designate wild animals to be tamed?</ColonyManagerRedux.Livestock.TameMore.Tip>
     <ColonyManagerRedux.Livestock.TamePastTargets>Tame animals even when targets are met</ColonyManagerRedux.Livestock.TamePastTargets>
