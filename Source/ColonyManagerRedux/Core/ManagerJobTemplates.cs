@@ -138,9 +138,12 @@ public static class ManagerJobTemplates
         }
 
         List<ManagerJob>? loadedJobs = null;
-        PreLoadUtility.CheckVersionAndLoad(
+        ScribeModMismatchUtility.LoadWithModMismatchConfirmation(
             filePath,
-            ScribeMetaHeaderUtility.ScribeHeaderMode.None,
+            "ColonyManagerRedux.Templates.ModMismatchHeader".Translate(
+                "ColonyManagerRedux.Templates.FileTypeTemplate".Translate(),
+                name
+            ),
             () =>
             {
                 Scribe.loader.InitLoading(filePath);

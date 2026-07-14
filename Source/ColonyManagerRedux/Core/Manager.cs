@@ -459,15 +459,30 @@ public class Manager : MapComponent, ILoadReferenceable
 
         var settings = ColonyManagerReduxMod.Settings;
         var templateName = settings.DefaultTemplateName;
-        if (
-            !ShouldApplyDefaultTemplate(
-                alreadyChecked,
-                settings.AutoApplyDefaultTemplateOnFirstStation,
-                templateName,
-                ManagerJobTemplates.TemplateExists
-            )
-        )
+        var wouldApply = ShouldApplyDefaultTemplate(
+            alreadyChecked,
+            settings.AutoApplyDefaultTemplateOnFirstStation,
+            templateName,
+            ManagerJobTemplates.TemplateExists
+        );
+        if (!wouldApply)
         {
+            return;
+        }
+
+        var modMismatchDetected = ScribeModMismatchUtility.TryDetectModMismatch(
+            ManagerJobTemplates.FilePath(templateName!),
+            out _,
+            out _
+        );
+        if (ShouldSkipDefaultTemplateForModMismatch(wouldApply, modMismatchDetected))
+        {
+            Messages.Message(
+                "ColonyManagerRedux.Templates.DefaultTemplateSkippedModMismatch".Translate(
+                    templateName
+                ),
+                MessageTypeDefOf.RejectInput
+            );
             return;
         }
 
@@ -496,6 +511,16 @@ public class Manager : MapComponent, ILoadReferenceable
         && autoApplyEnabled
         && !string.IsNullOrEmpty(templateName)
         && templateExists(templateName!);
+
+    /// <summary>
+    /// Decides whether an otherwise-applicable default template should be skipped because its
+    /// mod list doesn't match the currently active mods. Kept separate so this trivial
+    /// combination is unit-testable without live Scribe state.
+    /// </summary>
+    internal static bool ShouldSkipDefaultTemplateForModMismatch(
+        bool wouldApply,
+        bool modMismatchDetected
+    ) => wouldApply && modMismatchDetected;
 
     internal int GetNextManagerJobID()
     {

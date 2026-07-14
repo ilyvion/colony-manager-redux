@@ -117,4 +117,44 @@ internal static class ManagerTests
                 )
             )
             .Is.True();
+
+    [Test]
+    public static void ShouldSkipDefaultTemplateForModMismatchTrueOnlyWhenBothTrue()
+    {
+        Assert
+            .That(
+                Manager.ShouldSkipDefaultTemplateForModMismatch(
+                    wouldApply: true,
+                    modMismatchDetected: true
+                )
+            )
+            .Is.True();
+
+        Assert
+            .That(
+                Manager.ShouldSkipDefaultTemplateForModMismatch(
+                    wouldApply: true,
+                    modMismatchDetected: false
+                )
+            )
+            .Is.False();
+
+        Assert
+            .That(
+                Manager.ShouldSkipDefaultTemplateForModMismatch(
+                    wouldApply: false,
+                    modMismatchDetected: true
+                )
+            )
+            .Is.False();
+
+        Assert
+            .That(
+                Manager.ShouldSkipDefaultTemplateForModMismatch(
+                    wouldApply: false,
+                    modMismatchDetected: false
+                )
+            )
+            .Is.False();
+    }
 }

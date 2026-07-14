@@ -21,4 +21,9 @@
     <ColonyManagerRedux.ManagerSetTemplateAsDefault.Tip>The default template is automatically applied the first time a manager station is built on a new map, if enabled in the mod settings.</ColonyManagerRedux.ManagerSetTemplateAsDefault.Tip>
     <ColonyManagerRedux.ManagerTemplateIsDefault>Default ✓</ColonyManagerRedux.ManagerTemplateIsDefault>
     <ColonyManagerRedux.DefaultTemplateApplied>Applied default job template '{1}': {0} jobs added</ColonyManagerRedux.DefaultTemplateApplied>
+    <ColonyManagerRedux.Templates.DefaultTemplateSkippedModMismatch>Default manager job template '{0}' was not applied automatically because it was saved with a different set of mods active. Apply it manually from the manager tab's import/export screen if you still want its jobs.</ColonyManagerRedux.Templates.DefaultTemplateSkippedModMismatch>
+    <ColonyManagerRedux.Templates.FileTypeTemplate>template</ColonyManagerRedux.Templates.FileTypeTemplate>
+    <ColonyManagerRedux.Templates.FileTypeJobSave>job save</ColonyManagerRedux.Templates.FileTypeJobSave>
+    <ColonyManagerRedux.Templates.ModMismatchTitle>Manager job mods mismatch</ColonyManagerRedux.Templates.ModMismatchTitle>
+    <ColonyManagerRedux.Templates.ModMismatchHeader>The {0} '{1}' was saved with a different set of mods active than you currently have running. Some jobs in it may fail to load, or reference content that no longer exists.</ColonyManagerRedux.Templates.ModMismatchHeader>
 </LanguageData>

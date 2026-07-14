@@ -215,9 +215,17 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
     private void DoImport(SaveFileInfo file)
     {
         var filePath = _folder + "/" + file.FileInfo.Name;
-        PreLoadUtility.CheckVersionAndLoad(
+        var fileName = Path.GetFileNameWithoutExtension(file.FileInfo.Name);
+        ScribeModMismatchUtility.LoadWithModMismatchConfirmation(
             filePath,
-            ScribeMetaHeaderUtility.ScribeHeaderMode.None,
+            "ColonyManagerRedux.Templates.ModMismatchHeader".Translate(
+                (
+                    _templateMode
+                        ? "ColonyManagerRedux.Templates.FileTypeTemplate"
+                        : "ColonyManagerRedux.Templates.FileTypeJobSave"
+                ).Translate(),
+                fileName
+            ),
             () =>
             {
                 Scribe.loader.InitLoading(filePath);
