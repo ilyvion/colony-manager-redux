@@ -295,7 +295,7 @@ internal sealed class ManagerJob_Mining
         ChunksCachedValue = new(0, GetCountInChunksCoroutine);
         DesignatedCachedValue = new(0, GetCountInDesignationsCoroutine);
         // populate the trigger field
-        Trigger = new Trigger_Threshold(this)
+        Trigger = new Trigger_Threshold(this, Trigger_Threshold.AccumulationOnlyOps)
         {
             AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter,
         };
@@ -665,6 +665,7 @@ internal sealed class ManagerJob_Mining
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
+            TriggerThreshold.RestrictSupportedOps(Trigger_Threshold.AccumulationOnlyOps);
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
@@ -1325,8 +1326,9 @@ internal sealed class ManagerJob_Mining
             ColonyManagerReduxMod.Instance.LogVerboseMessage("Not updating deep drills");
         }
 
+        var directive = TriggerThreshold.GetDirective(count.Value);
         if (
-            TriggerThreshold.DoesCountMeetTarget(count)
+            directive != Trigger_Threshold.Directive.Increase
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {
@@ -1444,7 +1446,8 @@ internal sealed class ManagerJob_Mining
             $"Found {drills.Count} deep drills on map {Manager.map.Tile}"
         );
         data.ShouldEnableDrills =
-            count != null && !TriggerThreshold.DoesCountMeetTarget(count.Value);
+            count != null
+            && TriggerThreshold.GetDirective(count.Value) == Trigger_Threshold.Directive.Increase;
 
         foreach (var (building, drill) in drills.Where(d => !d.building.DestroyedOrNull()))
         {

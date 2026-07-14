@@ -64,7 +64,6 @@
     <ColonyManagerRedux.Threshold.NotEqualTo.Tip>The job will be active as long as the count of selected items is not equal to {0}.</ColonyManagerRedux.Threshold.NotEqualTo.Tip>
     <ColonyManagerRedux.Threshold.GreaterThan>Greater than</ColonyManagerRedux.Threshold.GreaterThan>
     <ColonyManagerRedux.Threshold.GreaterThan.Tip>The job will be active as long as the count of selected items is greater than {0}.</ColonyManagerRedux.Threshold.GreaterThan.Tip>
-    <ColonyManagerRedux.Threshold.Op.Warning>&lt;b&gt;WARNING&lt;/b&gt;: Using an operator other than 'lower than' may lead to unexpected behavior as far as the job trying to meet its target is concerned — most jobs are striving to do something to increase the count until it meets the threshold.</ColonyManagerRedux.Threshold.Op.Warning>
     <ColonyManagerRedux.SyncFilterAndAllowed>Synchronize threshold</ColonyManagerRedux.SyncFilterAndAllowed>
     <ColonyManagerRedux.AnyStockpile>Any stockpile</ColonyManagerRedux.AnyStockpile>
     <ColonyManagerRedux.InvertArea>Invert area</ColonyManagerRedux.InvertArea>

@@ -52,8 +52,6 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
             Constants.ListEntryHeight
         );
 
-        buttonRect.x -= Constants.SmallIconSize + Constants.Margin;
-
         // draw thingfilter
         ThingFilterUI.DoThingFilterConfigWindow(
             filterRect,
@@ -80,25 +78,43 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         // draw operator button
         if (Widgets.ButtonText(buttonRect, _trigger.OpString))
         {
-            var list = new List<FloatMenuOption>
+            var list = new List<FloatMenuOption>();
+            if (_trigger.SupportsOp(Trigger_Threshold.Ops.LowerThan))
             {
-                new(
-                    "ColonyManagerRedux.Threshold.LowerThan".Translate(),
-                    () => _trigger.Op = Trigger_Threshold.Ops.LowerThan
-                ),
-                new(
-                    "ColonyManagerRedux.Threshold.EqualTo".Translate(),
-                    () => _trigger.Op = Trigger_Threshold.Ops.Equals
-                ),
-                new(
-                    "ColonyManagerRedux.Threshold.NotEqualTo".Translate(),
-                    () => _trigger.Op = Trigger_Threshold.Ops.NotEquals
-                ),
-                new(
-                    "ColonyManagerRedux.Threshold.GreaterThan".Translate(),
-                    () => _trigger.Op = Trigger_Threshold.Ops.HigherThan
-                ),
-            };
+                list.Add(
+                    new(
+                        "ColonyManagerRedux.Threshold.LowerThan".Translate(),
+                        () => _trigger.Op = Trigger_Threshold.Ops.LowerThan
+                    )
+                );
+            }
+            if (_trigger.SupportsOp(Trigger_Threshold.Ops.Equals))
+            {
+                list.Add(
+                    new(
+                        "ColonyManagerRedux.Threshold.EqualTo".Translate(),
+                        () => _trigger.Op = Trigger_Threshold.Ops.Equals
+                    )
+                );
+            }
+            if (_trigger.SupportsOp(Trigger_Threshold.Ops.NotEquals))
+            {
+                list.Add(
+                    new(
+                        "ColonyManagerRedux.Threshold.NotEqualTo".Translate(),
+                        () => _trigger.Op = Trigger_Threshold.Ops.NotEquals
+                    )
+                );
+            }
+            if (_trigger.SupportsOp(Trigger_Threshold.Ops.HigherThan))
+            {
+                list.Add(
+                    new(
+                        "ColonyManagerRedux.Threshold.GreaterThan".Translate(),
+                        () => _trigger.Op = Trigger_Threshold.Ops.HigherThan
+                    )
+                );
+            }
             Find.WindowStack.Add(new FloatMenu(list));
         }
         string? opTooltip = null;
@@ -116,19 +132,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         };
         TooltipHandler.TipRegion(buttonRect, opTooltip);
 
-        var iconRect = new Rect(
-            buttonRect.xMax + Constants.Margin,
-            0f,
-            Constants.SmallIconSize,
-            Constants.SmallIconSize
-        ).CenteredOnYIn(buttonRect);
-        TooltipHandler.TipRegion(iconRect, "ColonyManagerRedux.Threshold.Op.Warning".Translate());
-        GUI.color = _trigger.Op != Trigger_Threshold.Ops.LowerThan ? Resources.Orange : Color.grey;
-        GUI.DrawTexture(iconRect, Resources.Warning);
-        GUI.color = Color.white;
-
         // move operator button canvas for count input
-        buttonRect.x += Constants.SmallIconSize + Constants.Margin;
         buttonRect.x = buttonRect.xMax + Margin;
 
         // if the field isn't being edited, re-sync it from the trigger so it picks up

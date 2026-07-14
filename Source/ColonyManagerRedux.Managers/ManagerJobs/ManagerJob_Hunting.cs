@@ -189,7 +189,7 @@ internal sealed class ManagerJob_Hunting
         _designatedLeatherCachedValue = new(0, GetLeatherInDesignationsCoroutine);
 
         // populate the trigger field
-        Trigger = new Trigger_Threshold(this)
+        Trigger = new Trigger_Threshold(this, Trigger_Threshold.AccumulationOnlyOps)
         {
             AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter,
         };
@@ -414,6 +414,7 @@ internal sealed class ManagerJob_Hunting
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
+            TriggerThreshold.RestrictSupportedOps(Trigger_Threshold.AccumulationOnlyOps);
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
@@ -645,8 +646,9 @@ internal sealed class ManagerJob_Hunting
                 + designationsCachedValue.Value
         );
 
+        var directive = TriggerThreshold.GetDirective(count.Value);
         if (
-            TriggerThreshold.DoesCountMeetTarget(count)
+            directive != Trigger_Threshold.Directive.Increase
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {

@@ -19,10 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The Livestock job tab's "Culling" section has been split in two: "Culling" now only holds the None/Butcher/Release/Sterilize strategy choice, while a new "Culling exceptions" section below it holds the Trained/Pregnant/Bonded/Named and Avoid culling milkable/shearable toggles. The same split applies to the per-animal-type defaults in the mod settings.
 - Manager jobs are now divided into two separate phases: a "gather information" phase and an "execute the changes" phase. A pawn sent to work at a manager station now starts on the gather phase the moment they arrive, instead of standing around doing nothing for roughly the first half of the job's time. The execution phase doesn't happen until near the very end of that timer, though, so cancelling the job early or a pawn getting knocked out partway through no longer lets any of that work slip through. Once the real work is ready to go, it's now applied instantly and the job finishes right away instead of making the pawn keep standing at the station for the rest of the timer. Implements [#27](https://github.com/ilyvion/colony-manager-redux/issues/27).
+- Mining, Hunting, Forestry (logging), and Foraging's threshold settings no longer offer "greater than" as an operator choice, since none of these jobs have any way to actively reduce stock that's already been collected — the option never did anything useful for them. Existing jobs already set to "greater than" will fall back to "less than" automatically.
 
 ### Fixed
 
 - The 'no manager station' alert's own show/hide toggle in the mod settings wasn't actually being used to decide whether to show it — it was checking the unrelated 'no manager' alert's toggle instead. Turning off just the 'no manager station' alert while leaving 'no manager' enabled (or vice versa) now works as expected.
+- Mining, Hunting, Forestry (logging), and Foraging jobs using a threshold type other than "at least" (e.g. "exactly" or "not equal to") could end up trying to add more designations when they should have been reducing them, or vice versa, because the decision was based on a single "is the target met" check that doesn't carry directional information. The threshold tracker now exposes a proper increase/decrease/hold directive that jobs use instead. Implements [#26](https://github.com/ilyvion/colony-manager-redux/issues/26).
 
 ## [0.15.0] - 2026-07-12
 

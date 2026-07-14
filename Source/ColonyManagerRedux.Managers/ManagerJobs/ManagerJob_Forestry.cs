@@ -188,7 +188,7 @@ internal sealed class ManagerJob_Forestry
         CachedCurrentDesignatedCount = new(0, GetCurrentDesignatedCountCoroutine);
 
         // populate the trigger field, set the root category to wood.
-        Trigger = new Trigger_Threshold(this)
+        Trigger = new Trigger_Threshold(this, Trigger_Threshold.AccumulationOnlyOps)
         {
             AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter,
         };
@@ -367,6 +367,7 @@ internal sealed class ManagerJob_Forestry
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
+            TriggerThreshold.RestrictSupportedOps(Trigger_Threshold.AccumulationOnlyOps);
             ConfigureThresholdTriggerParentFilter();
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
@@ -680,8 +681,9 @@ internal sealed class ManagerJob_Forestry
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate until we're either out of trees or we have enough designated.
+        var directive = TriggerThreshold.GetDirective(count.Value);
         if (
-            TriggerThreshold.DoesCountMeetTarget(count)
+            directive != Trigger_Threshold.Directive.Increase
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {

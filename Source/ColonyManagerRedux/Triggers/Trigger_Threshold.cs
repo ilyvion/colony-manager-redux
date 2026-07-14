@@ -40,6 +40,111 @@ public sealed class Trigger_Threshold : Trigger
         NotEquals,
     }
 
+    /// <summary>
+    /// Indicates which direction, if any, a job should move its managed count in order to
+    /// satisfy this trigger.
+    /// </summary>
+    public enum Directive
+    {
+        /// <summary>
+        /// The count should be increased (e.g. more designations should be added).
+        /// </summary>
+        Increase,
+
+        /// <summary>
+        /// The count should be decreased (e.g. designations should be removed).
+        /// </summary>
+        Decrease,
+
+        /// <summary>
+        /// The count already satisfies the trigger; no directional change is needed.
+        /// </summary>
+        Hold,
+    }
+
+    /// <summary>
+    /// All defined <see cref="Ops"/> values, in order of preference — the first entry is used
+    /// as the fallback/default op (see <see cref="DefaultOp"/>).
+    /// </summary>
+    public static readonly IReadOnlyList<Ops> AllOps =
+    [
+        Ops.LowerThan,
+        Ops.Equals,
+        Ops.HigherThan,
+        Ops.NotEquals,
+    ];
+
+    /// <summary>
+    /// Ops usable by jobs that can only add to their tracked count (via designations) or
+    /// stop/undo pending work — never actively deplete stock that's already been collected.
+    /// Excludes <see cref="Ops.HigherThan"/>, whose entire purpose is driving an active
+    /// decrease.
+    /// </summary>
+    public static readonly IReadOnlyList<Ops> AccumulationOnlyOps =
+    [
+        Ops.LowerThan,
+        Ops.Equals,
+        Ops.NotEquals,
+    ];
+
+    private IReadOnlyList<Ops> _supportedOps;
+    private HashSet<Ops> _supportedOpsSet;
+
+    /// <summary>
+    /// Gets the set of <see cref="Ops"/> values that the owning job supports.
+    /// </summary>
+    public IReadOnlyCollection<Ops> SupportedOps => _supportedOpsSet;
+
+    /// <summary>
+    /// Gets the op used as this job's default and as the fallback when a saved game specifies
+    /// an op that's no longer in <see cref="SupportedOps"/> — the first entry of the
+    /// <c>supportedOps</c> collection passed to the constructor.
+    /// </summary>
+    public Ops DefaultOp => _supportedOps[0];
+
+    /// <summary>
+    /// Gets whether the given <paramref name="op"/> is supported by the owning job.
+    /// </summary>
+    public bool SupportsOp(Ops op) => _supportedOpsSet.Contains(op);
+
+    /// <summary>
+    /// Narrows this trigger's supported ops to <paramref name="supportedOps"/>, migrating the
+    /// current op to its new <see cref="DefaultOp"/> if it's no longer supported.
+    /// </summary>
+    /// <param name="supportedOps">
+    /// The <see cref="Ops"/> values the owning job supports, in order of preference — see
+    /// <see cref="DefaultOp"/>.
+    /// </param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="supportedOps"/> is null.</exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="supportedOps"/> is empty.</exception>
+    public void RestrictSupportedOps(IReadOnlyList<Ops> supportedOps)
+    {
+        if (supportedOps == null)
+        {
+            throw new ArgumentNullException(nameof(supportedOps));
+        }
+        if (supportedOps.Count == 0)
+        {
+            throw new ArgumentException(
+                $"{nameof(supportedOps)} must not be empty.",
+                nameof(supportedOps)
+            );
+        }
+        _supportedOps = supportedOps;
+        _supportedOpsSet = [.. supportedOps];
+
+        if (!SupportsOp(op))
+        {
+            var unsupportedOp = op;
+            op = MigrateUnsupportedOp(op, SupportedOps, DefaultOp);
+            ColonyManagerReduxMod.Instance.LogWarningOnce(
+                $"Trigger_Threshold operator '{unsupportedOp}' is no longer supported by "
+                    + $"this job; falling back to {op}.",
+                ref _hasReportedUnsupportedOperator
+            );
+        }
+    }
+
     private bool allowAnyThreshold;
 
     /// <summary>
@@ -154,16 +259,46 @@ public sealed class Trigger_Threshold : Trigger
 
     /// <summary>
     /// Initializes a new instance of the <see cref="Trigger_Threshold"/> class.
+    /// Starts out supporting <see cref="AllOps"/>.
     /// </summary>
     /// <param name="job">The manager job associated with this trigger.</param>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="job"/> is null.</exception>
     public Trigger_Threshold(ManagerJob job)
+        : this(job, AllOps) { }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Trigger_Threshold"/> class.
+    /// </summary>
+    /// <param name="job">The manager job associated with this trigger.</param>
+    /// <param name="supportedOps">
+    /// The <see cref="Ops"/> values the owning job supports, in order of preference — the
+    /// first entry becomes <see cref="DefaultOp"/>, used both as this trigger's initial op and
+    /// as the fallback when migrating a saved game whose op is no longer supported.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if <paramref name="job"/> or <paramref name="supportedOps"/> is null.
+    /// </exception>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="supportedOps"/> is empty.</exception>
+    public Trigger_Threshold(ManagerJob job, IReadOnlyList<Ops> supportedOps)
         : base(job)
     {
         if (job == null)
         {
             throw new ArgumentNullException(nameof(job));
         }
+        if (supportedOps == null)
+        {
+            throw new ArgumentNullException(nameof(supportedOps));
+        }
+        if (supportedOps.Count == 0)
+        {
+            throw new ArgumentException(
+                $"{nameof(supportedOps)} must not be empty.",
+                nameof(supportedOps)
+            );
+        }
+        _supportedOps = supportedOps;
+        _supportedOpsSet = [.. _supportedOps];
 
         var settings = ColonyManagerReduxMod.Settings;
         countAllOnMap = settings.DefaultCountAllOnMap;
@@ -173,7 +308,7 @@ public sealed class Trigger_Threshold : Trigger
         thresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
         ThresholdFilter.SetDisallowAll();
 
-        op = Ops.LowerThan;
+        op = DefaultOp;
         maxUpperThreshold = job.MaxUpperThreshold;
         targetCount = settings.DefaultTargetCount;
     }
@@ -240,6 +375,7 @@ public sealed class Trigger_Threshold : Trigger
         };
 
     private bool _hasReportedIncorrectOperator;
+    private bool _hasReportedUnsupportedOperator;
 
     /// <summary>
     /// Gets the current state of the trigger (whether the job should be active).
@@ -552,4 +688,65 @@ public sealed class Trigger_Threshold : Trigger
             Ops.NotEquals => count != targetCount,
             _ => null,
         };
+
+    /// <summary>
+    /// Determines whether the given count should be increased, decreased, or held in order
+    /// to satisfy this trigger, based on the current operation. Where
+    /// <see cref="DoesCountMeetTarget"/> only answers "is this satisfied", this answers
+    /// "which way do I need to move it".
+    /// </summary>
+    /// <param name="count">The count to evaluate.</param>
+    /// <returns>
+    /// The direction the count should move in. Falls back to <see cref="Directive.Hold"/>
+    /// (mirroring <see cref="DoesCountMeetTarget"/>'s "assume satisfied" fallback) and logs a
+    /// warning once if the operation is not recognized.
+    /// </returns>
+    public Directive GetDirective(int count)
+    {
+        var result = EvaluateDirective(op, count, targetCount);
+        if (result is null)
+        {
+            ColonyManagerReduxMod.Instance.LogWarningOnce(
+                "Trigger_ThingThreshold was defined without a correct operator",
+                ref _hasReportedIncorrectOperator
+            );
+            return Directive.Hold;
+        }
+        return result.Value;
+    }
+
+    /// <summary>
+    /// Evaluates <paramref name="count"/> against <paramref name="targetCount"/> using
+    /// <paramref name="op"/>, producing the directive for which way the count should move.
+    /// Pure function, kept separate from <see cref="GetDirective"/> so the logic is
+    /// unit-testable without a live <see cref="ManagerJob"/>. For every op, a
+    /// <see cref="Directive.Hold"/> result corresponds exactly to <see cref="Evaluate"/>
+    /// returning <see langword="true"/> for the same arguments.
+    /// </summary>
+    /// <returns>The directive, or <see langword="null"/> if <paramref name="op"/> is not a recognized value.</returns>
+    internal static Directive? EvaluateDirective(Ops op, int count, int targetCount) =>
+        op switch
+        {
+            Ops.LowerThan => count < targetCount ? Directive.Increase : Directive.Hold,
+            Ops.Equals => count < targetCount ? Directive.Increase
+            : count > targetCount ? Directive.Decrease
+            : Directive.Hold,
+            Ops.HigherThan => count > targetCount ? Directive.Decrease : Directive.Hold,
+            // count == targetCount must move away from target but direction is arbitrary;
+            // default to Increase, mirroring LowerThan's bias toward accumulation.
+            Ops.NotEquals => count == targetCount ? Directive.Increase : Directive.Hold,
+            _ => null,
+        };
+
+    /// <summary>
+    /// Returns <paramref name="op"/> unchanged if it's in <paramref name="supportedOps"/>,
+    /// otherwise falls back to <paramref name="fallbackOp"/> — used when a saved game
+    /// specifies an op that the owning job no longer supports (e.g. after a job's
+    /// supported-ops set is narrowed in an update).
+    /// </summary>
+    internal static Ops MigrateUnsupportedOp(
+        Ops op,
+        IReadOnlyCollection<Ops> supportedOps,
+        Ops fallbackOp
+    ) => supportedOps.Contains(op) ? op : fallbackOp;
 }

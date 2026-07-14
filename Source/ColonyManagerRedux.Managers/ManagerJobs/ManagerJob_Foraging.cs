@@ -172,7 +172,7 @@ internal sealed class ManagerJob_Foraging
         CachedCurrentDesignatedCount = new(0, GetCurrentDesignatedCountCoroutine);
 
         // populate the trigger field, count all harvested thingdefs from the allowed plant list
-        Trigger = new Trigger_Threshold(this);
+        Trigger = new Trigger_Threshold(this, Trigger_Threshold.AccumulationOnlyOps);
         ConfigureThresholdTrigger();
     }
 
@@ -333,6 +333,7 @@ internal sealed class ManagerJob_Foraging
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
+            TriggerThreshold.RestrictSupportedOps(Trigger_Threshold.AccumulationOnlyOps);
             TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
             ConfigureThresholdTriggerParentFilter();
@@ -456,8 +457,9 @@ internal sealed class ManagerJob_Foraging
             TriggerThreshold.GetCurrentCount() + CachedCurrentDesignatedCount.Value
         );
 
+        var directive = TriggerThreshold.GetDirective(count.Value);
         if (
-            TriggerThreshold.DoesCountMeetTarget(count)
+            directive != Trigger_Threshold.Directive.Increase
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
         )
         {
