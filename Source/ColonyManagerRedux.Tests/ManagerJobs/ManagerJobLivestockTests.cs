@@ -543,4 +543,60 @@ internal static class ManagerJobLivestockTests
         Assert.That(report.Accepted).Is.True();
         Assert.That(visible).Is.True();
     }
+
+    // Regression guard for the gather/execute split (issue #27): stopping a culling/taming
+    // designation used to remove the game's own List<Designation>.Last() repeatedly in a single
+    // synchronous pass. Since the gather phase can no longer mutate the game to observe the
+    // effect of each removal before picking the next one, TakeLastReversed reproduces that same
+    // "always take from the end" order up front as a pure decision.
+
+    [Test]
+    public static void TakeLastReversedPicksFromTheEndInReverseOrder()
+    {
+        var result = ManagerJob_Livestock.TakeLastReversed(
+            ["a", "b", "c", "d"],
+            count: 4,
+            selector: s => s
+        );
+
+        Assert.ThatCollection(result).Has.Count(4);
+        Assert.That(result[0]).Is.EqualTo("d");
+        Assert.That(result[1]).Is.EqualTo("c");
+        Assert.That(result[2]).Is.EqualTo("b");
+        Assert.That(result[3]).Is.EqualTo("a");
+    }
+
+    [Test]
+    public static void TakeLastReversedClampsToAvailableCount()
+    {
+        var result = ManagerJob_Livestock.TakeLastReversed(["a", "b"], count: 10, selector: s => s);
+
+        Assert.ThatCollection(result).Has.Count(2);
+        Assert.That(result[0]).Is.EqualTo("b");
+        Assert.That(result[1]).Is.EqualTo("a");
+    }
+
+    [Test]
+    public static void TakeLastReversedWithZeroCountReturnsEmpty()
+    {
+        var result = ManagerJob_Livestock.TakeLastReversed(
+            ["a", "b", "c"],
+            count: 0,
+            selector: s => s
+        );
+
+        Assert.ThatCollection(result).Is.Empty();
+    }
+
+    [Test]
+    public static void TakeLastReversedOnEmptyListReturnsEmpty()
+    {
+        var result = ManagerJob_Livestock.TakeLastReversed(
+            Array.Empty<string>(),
+            count: 5,
+            selector: s => s
+        );
+
+        Assert.ThatCollection(result).Is.Empty();
+    }
 }

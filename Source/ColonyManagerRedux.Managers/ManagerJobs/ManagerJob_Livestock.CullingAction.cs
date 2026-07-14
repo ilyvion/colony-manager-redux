@@ -2,8 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024 Alexander Krivács Schrøder
 
-using System.Diagnostics.CodeAnalysis;
-
 namespace ColonyManagerRedux.Managers;
 
 internal partial class ManagerJob_Livestock
@@ -26,7 +24,20 @@ internal partial class ManagerJob_Livestock
 
         public abstract void Cull(Pawn p);
 
-        public abstract bool TryStopCulling(AgeAndSex ageSex, [NotNullWhen(true)] out Pawn? p);
+        /// <summary>
+        /// Decides which up to <paramref name="count"/> already-culling animals for
+        /// <paramref name="ageSex"/> would be picked to have their culling stopped, without
+        /// touching the game.
+        /// </summary>
+        public abstract List<Pawn> PeekCullingToStop(AgeAndSex ageSex, int count);
+
+        /// <summary>
+        /// Applies the decision to stop culling <paramref name="animal"/> (deleting the
+        /// designation, cancelling the surgery bill, etc., depending on the concrete action). A
+        /// no-op if <paramref name="animal"/> is no longer actually being culled by the time
+        /// this runs.
+        /// </summary>
+        public abstract void StopCulling(Pawn animal);
     }
 
     public class NoneCullingAction(ManagerJob_Livestock managerJob) : CullingAction(managerJob)
@@ -41,11 +52,9 @@ internal partial class ManagerJob_Livestock
 
         public override bool IsAlreadyCulling(Pawn p) => false;
 
-        public override bool TryStopCulling(AgeAndSex ageSex, [NotNullWhen(true)] out Pawn? p)
-        {
-            p = null;
-            return false;
-        }
+        public override List<Pawn> PeekCullingToStop(AgeAndSex ageSex, int count) => [];
+
+        public override void StopCulling(Pawn animal) { }
     }
 
     public class DesignationCullingAction(
@@ -74,8 +83,11 @@ internal partial class ManagerJob_Livestock
 
         public override void Cull(Pawn p) => ManagerJob.AddDesignation(new(p, designationDef));
 
-        public override bool TryStopCulling(AgeAndSex ageSex, [NotNullWhen(true)] out Pawn? p) =>
-            ManagerJob.TryRemoveDesignation(ageSex, designationDef, out p);
+        public override List<Pawn> PeekCullingToStop(AgeAndSex ageSex, int count) =>
+            ManagerJob.PeekDesignationsToRemove(designationDef, ageSex, count);
+
+        public override void StopCulling(Pawn animal) =>
+            ManagerJob.RemoveDesignationOn(animal, designationDef);
     }
 
     public class SterilizeCullingAction(ManagerJob_Livestock managerJob) : CullingAction(managerJob)
@@ -91,12 +103,14 @@ internal partial class ManagerJob_Livestock
         public override int GetAlreadyCullingCountForAgeSex(AgeAndSex ageSex) =>
             ManagerJob
                 .TriggerPawnKind.pawnKind?.GetTame(ManagerJob.Manager, ageSex)
-                .Count(IsAlreadyCulling) ?? 0;
+                .Count(IsAlreadyCulling)
+            ?? 0;
 
         public override int GetAlreadyCulledForAgeSex(AgeAndSex ageSex) =>
             ManagerJob
                 .TriggerPawnKind.pawnKind?.GetTame(ManagerJob.Manager, ageSex)
-                .Count(IsAlreadyCulled) ?? 0;
+                .Count(IsAlreadyCulled)
+            ?? 0;
 
         public override bool IsAlreadyCulling(Pawn p) =>
             p.health.surgeryBills.Bills.Any(b =>
@@ -106,33 +120,29 @@ internal partial class ManagerJob_Livestock
         public override bool IsAlreadyCulled(Pawn p) =>
             p.health.hediffSet.HasHediff(HediffDefOf.Sterilized);
 
-        private readonly List<Pawn> _tmpPawns = [];
+        public override List<Pawn> PeekCullingToStop(AgeAndSex ageSex, int count) =>
+            ManagerJob.TriggerPawnKind.pawnKind == null
+                ? []
+                :
+                [
+                    .. ManagerJob
+                        .TriggerPawnKind.pawnKind.GetTame(ManagerJob.Manager, ageSex)
+                        .Where(IsAlreadyCulling)
+                        .Take(count),
+                ];
 
-        public override bool TryStopCulling(AgeAndSex ageSex, [NotNullWhen(true)] out Pawn? p)
+        public override void StopCulling(Pawn animal)
         {
-            p = null;
-
-            if (ManagerJob.TriggerPawnKind.pawnKind == null)
+            // Re-validate: the execute phase runs well after gather, so the surgery bill may
+            // already have been cancelled or resolved by something else in the interim.
+            if (!IsAlreadyCulling(animal))
             {
-                return false;
+                return;
             }
 
-            using var _clear = new DoOnDispose(_tmpPawns.Clear);
-            _tmpPawns.AddRange(
-                ManagerJob
-                    .TriggerPawnKind.pawnKind.GetTame(ManagerJob.Manager, ageSex)
-                    .Where(IsAlreadyCulling)
-            );
-            if (_tmpPawns.Count == 0)
-            {
-                return false;
-            }
-
-            p = _tmpPawns[0];
-            _ = p.health.surgeryBills.Bills.RemoveAll(b =>
+            _ = animal.health.surgeryBills.Bills.RemoveAll(b =>
                 b is Bill_Medical bm && bm.recipe == RecipeDefOf.Sterilize
             );
-            return true;
         }
     }
 }

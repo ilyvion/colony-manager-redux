@@ -255,8 +255,8 @@ internal sealed class Trigger_PawnKind : Trigger
     {
         // do a dry run of the training assignment (no assignments are set).
         // this is ridiculously expensive, and should never be called every tick.
-        Boxed<bool> actionTaken = new(false);
-        Job.DoTrainingJobs(actionTaken, assign: false).RunImmediatelyToCompletion();
-        return !actionTaken;
+        var data = new ManagerJob_Livestock.LivestockWorkData();
+        Job.PlanTrainingJobs(data).RunImmediatelyToCompletion();
+        return data.TrainingsToSet.Count == 0;
     }
 }

@@ -2,7 +2,6 @@
 // Copyright Karel Kroeze, 2020-2020
 // Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Verse.AI;
 using Verse.Sound;
@@ -11,8 +10,70 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 [CoroutineSettingsType]
-internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_Livestock>
+internal sealed partial class ManagerJob_Livestock
+    : ManagerJob<ManagerSettings_Livestock, ManagerJob_Livestock.LivestockWorkData>
 {
+    // What GatherJobDataCoroutine decides needs to happen; ExecuteJobDataCoroutine applies it.
+    // Unlike some other migrated jobs, Livestock doesn't branch on a single "Kind" - culling,
+    // training, area restriction, follow settings, and taming are independent concerns that are
+    // all considered on every run, so each gets its own decision list here. No field here should
+    // ever be read as a signal that a change has already happened.
+    internal sealed class LivestockWorkData
+    {
+        // Kind == culling
+        public List<(
+            Pawn Animal,
+            AgeAndSex AgeSex,
+            int AnimalCountAfter,
+            int Target
+        )> AnimalsToCull = [];
+        public List<(
+            Pawn Animal,
+            AgeAndSex AgeSex,
+            int AnimalCountAfter,
+            int Target
+        )> CullingsToStop = [];
+
+        // training
+        public List<(Pawn Animal, TrainableDef Def, bool Wanted)> TrainingsToSet = [];
+
+        // area restriction
+        public List<(Pawn Animal, Area? Area, AreaAssignReason Reason)> AreasToSet = [];
+
+        // follow settings
+        public List<(Pawn Animal, Pawn? Master)> MastersToSet = [];
+        public List<(Pawn Animal, bool Drafted, bool Fieldwork)> FollowSettingsToSet = [];
+
+        // taming
+        public List<(
+            Pawn Animal,
+            AgeAndSex AgeSex,
+            int AnimalCountAfter,
+            int Target
+        )> AnimalsToTame = [];
+        public List<(
+            Pawn Animal,
+            AgeAndSex AgeSex,
+            int AnimalCountAfter,
+            int Target
+        )> TamingsToStop = [];
+    }
+
+    /// <summary>
+    /// Which UI-facing reason an area assignment in <see cref="LivestockWorkData.AreasToSet"/>
+    /// was made for; used to build the matching log message once the mutation is actually
+    /// applied in the execute phase, since the message text can't be resolved before then.
+    /// </summary>
+    internal enum AreaAssignReason
+    {
+        Culling,
+        Milking,
+        Shearing,
+        Training,
+        Trained,
+        Restrict,
+    }
+
     public sealed class History : HistoryWorker<ManagerJob_Livestock>
     {
         public override Coroutine GetCountForHistoryChapterCoroutine(
@@ -506,13 +567,31 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         );
     }
 
-    public void DoFollowSettings(ManagerLog jobLog, Boxed<bool> workDone)
+    /// <summary>
+    /// Decides which animals need their master and/or follow settings changed, without
+    /// touching the game. The original single-phase code ran this as a single unthrottled pass
+    /// over every tame animal (no coroutine, no per-item yields); since it now runs as part of
+    /// a coroutine and iterates the same potentially-large "all tame animals of this kind" set
+    /// as <see cref="PlanAreaRestrictions"/>, it's given the same per-item throttling here
+    /// rather than repeating the missing-throttle mistake called out for the Mining migration.
+    /// </summary>
+    [CoroutineSettingsMethod]
+    private Coroutine PlanFollowSettings(LivestockWorkData data)
     {
         if (TriggerPawnKind.pawnKind == null)
         {
-            return;
+            yield break;
         }
 
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            PlanFollowSettings
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                PlanFollowSettings
+            );
+
+        var animalCounter = -1;
         foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager))
         {
             if (animal.training.HasLearned(TrainableDefOf.Obedience))
@@ -521,8 +600,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (Trainers != MasterMode.Manual)
                     {
-                        SetMaster(jobLog, animal, Trainers, Trainer, workDone);
-                        SetFollowing(jobLog, animal, false, true, workDone);
+                        PlanMaster(animal, Trainers, Trainer, data);
+                        PlanFollowing(animal, false, true, data);
                     }
                 }
                 // default
@@ -530,14 +609,146 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 {
                     if (Masters != MasterMode.Manual)
                     {
-                        SetMaster(jobLog, animal, Masters, Master, workDone);
+                        PlanMaster(animal, Masters, Master, data);
                     }
 
                     if (SetFollow)
                     {
-                        SetFollowing(jobLog, animal, FollowDrafted, FollowFieldwork, workDone);
+                        PlanFollowing(animal, FollowDrafted, FollowFieldwork, data);
                     }
                 }
+            }
+
+            if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    private void PlanMaster(
+        Pawn animal,
+        MasterMode mode,
+        Pawn? specificMaster,
+        LivestockWorkData data
+    )
+    {
+        if (mode == MasterMode.Manual)
+        {
+            return;
+        }
+
+        var master = mode == MasterMode.Specific ? specificMaster : GetMaster(animal, mode);
+        if (animal.playerSettings.Master != master)
+        {
+            data.MastersToSet.Add((animal, master));
+        }
+    }
+
+    private static void PlanFollowing(
+        Pawn animal,
+        bool drafted,
+        bool fieldwork,
+        LivestockWorkData data
+    )
+    {
+        if (animal?.playerSettings == null)
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"Attempted to use PlanFollowing on {animal}, which is either null or has "
+                    + "a null playerSettings field"
+            );
+            return;
+        }
+
+        if (
+            animal.playerSettings.followDrafted != drafted
+            || animal.playerSettings.followFieldwork != fieldwork
+        )
+        {
+            data.FollowSettingsToSet.Add((animal, drafted, fieldwork));
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteFollowSettings(
+        ManagerLog jobLog,
+        LivestockWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteFollowSettings
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteFollowSettings
+            );
+
+        var i = 0;
+        foreach (var (animal, master) in data.MastersToSet)
+        {
+            // The execute phase is gated behind ~95% of the job's work timer, so the animal
+            // planned for a master change during gather may have died or been sold by now, or
+            // its master may already have changed again since.
+            if (!animal.DestroyedOrNull() && animal.playerSettings.Master != master)
+            {
+                animal.playerSettings.Master = master;
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Livestock.Logs.AssigningMasterOf".Translate(
+                        master?.Label ?? "ColonyManagerRedux.Livestock.Logs.Nobody".Translate(),
+                        animal.Label
+                    ),
+                    animal,
+                    master
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        foreach (var (animal, drafted, fieldwork) in data.FollowSettingsToSet)
+        {
+            if (!animal.DestroyedOrNull() && animal.playerSettings != null)
+            {
+                if (animal.playerSettings.followDrafted != drafted)
+                {
+                    animal.playerSettings.followDrafted = drafted;
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Livestock.Logs.SetFollow".Translate(
+                            animal.Label,
+                            drafted ? "" : "ColonyManagerRedux.Livestock.Logs.Not".Translate(),
+                            "ColonyManagerRedux.Livestock.Logs.Drafted".Translate()
+                        ),
+                        animal
+                    );
+                    workDone.Value = true;
+                }
+
+                if (animal.playerSettings.followFieldwork != fieldwork)
+                {
+                    animal.playerSettings.followFieldwork = fieldwork;
+                    jobLog.AddDetail(
+                        "ColonyManagerRedux.Livestock.Logs.SetFollow".Translate(
+                            animal.Label,
+                            fieldwork ? "" : "ColonyManagerRedux.Livestock.Logs.Not".Translate(),
+                            "ColonyManagerRedux.Livestock.Logs.FieldWork".Translate()
+                        ),
+                        animal
+                    );
+                    workDone.Value = true;
+                }
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
@@ -819,96 +1030,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         return options.MinBy(followerCount);
     }
 
-    public static void SetFollowing(
-        ManagerLog jobLog,
-        Pawn animal,
-        bool drafted,
-        bool fieldwork,
-        Boxed<bool> workDone
-    )
-    {
-        if (animal?.playerSettings == null)
-        {
-            ColonyManagerReduxMod.Instance.LogWarning(
-                $"Attempted to use SetFollowing on {animal}, which is either null or has "
-                    + "a null playerSettings field"
-            );
-            return;
-        }
-
-        if (animal.playerSettings.followDrafted != drafted)
-        {
-            animal.playerSettings.followDrafted = drafted;
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Livestock.Logs.SetFollow".Translate(
-                    animal.Label,
-                    drafted ? "" : "ColonyManagerRedux.Livestock.Logs.Not".Translate(),
-                    "ColonyManagerRedux.Livestock.Logs.Drafted".Translate()
-                ),
-                animal
-            );
-            workDone.Value = true;
-        }
-
-        if (animal.playerSettings.followFieldwork != fieldwork)
-        {
-            animal.playerSettings.followFieldwork = fieldwork;
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Livestock.Logs.SetFollow".Translate(
-                    animal.Label,
-                    fieldwork ? "" : "ColonyManagerRedux.Livestock.Logs.Not".Translate(),
-                    "ColonyManagerRedux.Livestock.Logs.FieldWork".Translate()
-                ),
-                animal
-            );
-            workDone.Value = true;
-        }
-    }
-
-    public void SetMaster(
-        ManagerLog jobLog,
-        Pawn animal,
-        MasterMode mode,
-        Pawn? specificMaster,
-        Boxed<bool> workDone
-    )
-    {
-#pragma warning disable IDE0010
-        switch (mode)
-        {
-            case MasterMode.Manual:
-                break;
-            case MasterMode.Specific:
-                SetMaster(jobLog, animal, specificMaster, workDone);
-                break;
-            default:
-                var master = GetMaster(animal, mode);
-                SetMaster(jobLog, animal, master, workDone);
-                break;
-        }
-#pragma warning restore IDE0010
-    }
-
-    public static void SetMaster(ManagerLog jobLog, Pawn animal, Pawn? master, Boxed<bool> workDone)
-    {
-        if (animal.playerSettings.Master != master)
-        {
-            animal.playerSettings.Master = master;
-            jobLog.AddDetail(
-                "ColonyManagerRedux.Livestock.Logs.AssigningMasterOf".Translate(
-                    master?.Label ?? "ColonyManagerRedux.Livestock.Logs.Nobody".Translate(),
-                    animal.Label
-                ),
-                animal,
-                master
-            );
-            workDone.Value = true;
-        }
-    }
-
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
-#pragma warning disable CS0672, CS0618 // overrides obsolete member; not yet migrated to two-phase API
-    public override Coroutine TryDoJobCoroutine(ManagerLog jobLog, Boxed<bool> workDone)
+    protected override Coroutine GatherJobDataCoroutine(
+        ManagerLog jobLog,
+        AnyBoxed<LivestockWorkData?> data
+    )
     {
         if (TriggerPawnKind.pawnKind == null)
         {
@@ -918,7 +1044,9 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(TryDoJobCoroutine);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, AnyBoxed<LivestockWorkData?>, Coroutine>)GatherJobDataCoroutine
+            );
 
 #if v1_5
         jobLog.LogLabel = Tab.GetMainLabel(this).Replace("\n", " (") + ")";
@@ -927,47 +1055,88 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             Tab.GetMainLabel(this).Replace("\n", " (", StringComparison.Ordinal) + ")";
 #endif
 
-        // clean up designations that were completed.
+        // Resync our own bookkeeping against designations that have disappeared or that
+        // already exist in the game unbeknownst to us; this doesn't change anything in the
+        // game itself, so it's safe to do while gathering.
         CleanDeadDesignations(_designations, null, jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        // add designations in the game that could have been handled by this job
         yield return AddRelevantGameDesignations(jobLog).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        var workData = new LivestockWorkData();
 
         // handle culling
         if (CullExcess)
         {
-            yield return DoCullingJobs(jobLog, CullingStrategyAction, workDone)
+            yield return PlanCullingJobs(jobLog, CullingStrategyAction, workData)
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         // handle training
-        yield return DoTrainingJobs(jobLog: jobLog, workDone: workDone)
-            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return PlanTrainingJobs(workData).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // area restrictions
         // skip for roamers
         if (!(TriggerPawnKind.pawnKind?.RaceProps.Roamer ?? true))
         {
-            yield return DoAreaRestrictions(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+            yield return PlanAreaRestrictions(workData).ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
 
         // follow settings
-        DoFollowSettings(jobLog, workDone);
+        yield return PlanFollowSettings(workData).ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // handle taming
         if (TryTameMore)
         {
-            yield return DoTamingJobs(jobLog, workDone).ResumeWhenOtherCoroutineIsCompleted();
+            yield return PlanTamingJobs(jobLog, workData).ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
         }
+
+        data.Value = workData;
     }
-#pragma warning restore CS0672, CS0618
+
+    [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
+    protected override Coroutine ExecuteJobDataCoroutine(
+        ManagerLog jobLog,
+        LivestockWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                (Func<ManagerLog, LivestockWorkData, Boxed<bool>, Coroutine>)ExecuteJobDataCoroutine
+            );
+
+        if (CullExcess)
+        {
+            yield return ExecuteCullingJobs(jobLog, CullingStrategyAction, data, workDone)
+                .ResumeWhenOtherCoroutineIsCompleted();
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
+        }
+
+        yield return ExecuteTrainingJobs(jobLog, data, workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        yield return ExecuteAreaRestrictions(jobLog, data, workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        yield return ExecuteFollowSettings(jobLog, data, workDone)
+            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        if (TryTameMore)
+        {
+            yield return ExecuteTamingJobs(jobLog, data, workDone)
+                .ResumeWhenOtherCoroutineIsCompleted();
+        }
+    }
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     public Coroutine AddRelevantGameDesignations(ManagerLog jobLog)
@@ -1020,12 +1189,14 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
+    /// <summary>
+    /// Decides which animal/trainable-def combinations need their "wanted" flag changed,
+    /// without touching the game. Also used directly by <see cref="Trigger_PawnKind"/> for a
+    /// dry run (checking whether any training assignment is pending) since it never mutates
+    /// anything itself.
+    /// </summary>
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
-    internal Coroutine DoTrainingJobs(
-        Boxed<bool> workDone,
-        ManagerLog? jobLog = null,
-        bool assign = true
-    )
+    internal Coroutine PlanTrainingJobs(LivestockWorkData data)
     {
         if (TriggerPawnKind.pawnKind == null)
         {
@@ -1033,7 +1204,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoTrainingJobs);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(PlanTrainingJobs);
 
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
@@ -1057,20 +1228,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         && (trainingDef || Training.UnassignTraining)
                     )
                     {
-                        if (assign)
-                        {
-                            animal.training.SetWanted(def, trainingDef);
-                            jobLog?.AddDetail(
-                                (
-                                    trainingDef
-                                        ? "ColonyManagerRedux.Livestock.Logs.AddTraining"
-                                        : "ColonyManagerRedux.Livestock.Logs.RemoveTraining"
-                                ).Translate(def.label, animal.Label),
-                                animal
-                            );
-                        }
-
-                        workDone.Value = true;
+                        data.TrainingsToSet.Add((animal, def, trainingDef));
                     }
                 }
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
@@ -1079,7 +1237,49 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     }
 
     [CoroutineSettingsMethod]
-    private Coroutine DoAreaRestrictions(ManagerLog jobLog, Boxed<bool> workDone)
+    private Coroutine ExecuteTrainingJobs(
+        ManagerLog jobLog,
+        LivestockWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteTrainingJobs
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteTrainingJobs
+            );
+
+        var i = 0;
+        foreach (var (animal, def, wanted) in data.TrainingsToSet)
+        {
+            // The execute phase is gated behind ~95% of the job's work timer, so the animal
+            // planned for a training change during gather may have died or been sold by now.
+            if (!animal.DestroyedOrNull() && animal.training.GetWanted(def) != wanted)
+            {
+                animal.training.SetWanted(def, wanted);
+                jobLog.AddDetail(
+                    (
+                        wanted
+                            ? "ColonyManagerRedux.Livestock.Logs.AddTraining"
+                            : "ColonyManagerRedux.Livestock.Logs.RemoveTraining"
+                    ).Translate(def.label, animal.Label),
+                    animal
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine PlanAreaRestrictions(LivestockWorkData data)
     {
         if (TriggerPawnKind.pawnKind == null)
         {
@@ -1087,11 +1287,11 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
-            DoAreaRestrictions
+            PlanAreaRestrictions
         );
         var ticksBetweenOperations =
             ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
-                DoAreaRestrictions
+                PlanAreaRestrictions
             );
 
         var animalCounter = -1;
@@ -1105,113 +1305,60 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
             )
             {
                 var currentArea = animal.playerSettings.AreaRestrictionInPawnCurrentMap;
-                void SetArea(Area? area)
-                {
-                    animal.playerSettings.AreaRestrictionInPawnCurrentMap = area;
-                }
 
                 // culling
                 if (SendToCullingArea && CullingStrategyAction.IsAlreadyCulling(animal))
                 {
-                    workDone.Value |= currentArea != CullingArea;
-                    SetArea(CullingArea);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                            animal,
-                            AreaUtility.AreaAllowedLabel_Area(CullingArea),
-                            "ColonyManagerRedux.Livestock.Culling".Translate()
-                        ),
-                        animal
-                    );
+                    // Note: unlike the other branches below, this one is planned unconditionally
+                    // whenever it applies, even if currentArea already equals CullingArea - this
+                    // matches a pre-existing quirk of the original single-phase code, which
+                    // always re-applied and logged here (workDone was the only thing actually
+                    // gated on a real change). Preserved as-is rather than "fixed" during this
+                    // mechanical migration.
+                    data.AreasToSet.Add((animal, CullingArea, AreaAssignReason.Culling));
                 }
                 // milking
                 else if (
                     SendToMilkingArea
                     && animal.GetComp<CompMilkable>() != null
                     && animal.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.Ticks
+                    && currentArea != MilkArea
                 )
                 {
-                    if (currentArea != MilkArea)
-                    {
-                        workDone.Value = true;
-                        SetArea(MilkArea);
-                        jobLog.AddDetail(
-                            "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                                animal,
-                                AreaUtility.AreaAllowedLabel_Area(MilkArea),
-                                ManagerWorkGiverDefOf.Milk.gerund
-                            ),
-                            animal
-                        );
-                    }
+                    data.AreasToSet.Add((animal, MilkArea, AreaAssignReason.Milking));
                 }
                 // shearing
                 else if (
                     SendToShearingArea
                     && animal.GetComp<CompShearable>() != null
                     && animal.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.Ticks
+                    && currentArea != ShearArea
                 )
                 {
-                    if (currentArea != ShearArea)
-                    {
-                        workDone.Value = true;
-                        SetArea(ShearArea);
-                        jobLog.AddDetail(
-                            "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                                animal,
-                                AreaUtility.AreaAllowedLabel_Area(ShearArea),
-                                ManagerWorkGiverDefOf.Shear.gerund
-                            ),
-                            animal
-                        );
-                    }
+                    data.AreasToSet.Add((animal, ShearArea, AreaAssignReason.Shearing));
                 }
                 // training
-                else if (SendToTrainingArea && animal.training.NextTrainableToTrain() != null)
+                else if (
+                    SendToTrainingArea
+                    && animal.training.NextTrainableToTrain() != null
+                    && currentArea != TrainingArea
+                )
                 {
-                    if (currentArea != TrainingArea)
-                    {
-                        workDone.Value = true;
-                        SetArea(TrainingArea);
-                        jobLog.AddDetail(
-                            "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                                animal,
-                                AreaUtility.AreaAllowedLabel_Area(TrainingArea),
-                                ManagerWorkGiverDefOf.Train.gerund
-                            ),
-                            animal
-                        );
-                    }
+                    data.AreasToSet.Add((animal, TrainingArea, AreaAssignReason.Training));
                 }
                 // trained
-                else if (SendToTrainedArea && animal.training.NextTrainableToTrain() == null)
+                else if (
+                    SendToTrainedArea
+                    && animal.training.NextTrainableToTrain() == null
+                    && currentArea != TrainedArea
+                )
                 {
-                    if (currentArea != TrainedArea)
-                    {
-                        workDone.Value = true;
-                        SetArea(TrainedArea);
-                        jobLog.AddDetail(
-                            "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor".Translate(
-                                animal,
-                                AreaUtility.AreaAllowedLabel_Area(TrainedArea),
-                                "ColonyManagerRedux.Livestock.Trained".Translate()
-                            ),
-                            animal
-                        );
-                    }
+                    data.AreasToSet.Add((animal, TrainedArea, AreaAssignReason.Trained));
                 }
                 // all
                 else if (RestrictToArea && currentArea != RestrictArea[i])
                 {
-                    workDone.Value = true;
-                    SetArea(RestrictArea[i]);
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Livestock.Logs.AssigningToArea".Translate(
-                            animal,
-                            AreaUtility.AreaAllowedLabel_Area(RestrictArea[i])
-                        ),
-                        animal
-                    );
+                    data.AreasToSet.Add((animal, RestrictArea[i], AreaAssignReason.Restrict));
                 }
 
                 if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
@@ -1222,13 +1369,97 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
     }
 
+    private static string BuildAreaLogMessage(AreaAssignReason reason, Pawn animal, Area? area) =>
+        reason switch
+        {
+            AreaAssignReason.Culling => "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor"
+                .Translate(
+                    animal,
+                    AreaUtility.AreaAllowedLabel_Area(area),
+                    "ColonyManagerRedux.Livestock.Culling".Translate()
+                )
+                .Resolve(),
+            AreaAssignReason.Milking => "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor"
+                .Translate(
+                    animal,
+                    AreaUtility.AreaAllowedLabel_Area(area),
+                    ManagerWorkGiverDefOf.Milk.gerund
+                )
+                .Resolve(),
+            AreaAssignReason.Shearing => "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor"
+                .Translate(
+                    animal,
+                    AreaUtility.AreaAllowedLabel_Area(area),
+                    ManagerWorkGiverDefOf.Shear.gerund
+                )
+                .Resolve(),
+            AreaAssignReason.Training => "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor"
+                .Translate(
+                    animal,
+                    AreaUtility.AreaAllowedLabel_Area(area),
+                    ManagerWorkGiverDefOf.Train.gerund
+                )
+                .Resolve(),
+            AreaAssignReason.Trained => "ColonyManagerRedux.Livestock.Logs.AssigningToAreaFor"
+                .Translate(
+                    animal,
+                    AreaUtility.AreaAllowedLabel_Area(area),
+                    "ColonyManagerRedux.Livestock.Trained".Translate()
+                )
+                .Resolve(),
+            AreaAssignReason.Restrict => "ColonyManagerRedux.Livestock.Logs.AssigningToArea"
+                .Translate(animal, AreaUtility.AreaAllowedLabel_Area(area))
+                .Resolve(),
+            _ => throw new ArgumentException($"Unexpected {nameof(AreaAssignReason)} {reason}"),
+        };
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteAreaRestrictions(
+        ManagerLog jobLog,
+        LivestockWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteAreaRestrictions
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteAreaRestrictions
+            );
+
+        var i = 0;
+        foreach (var (animal, area, reason) in data.AreasToSet)
+        {
+            if (!animal.DestroyedOrNull())
+            {
+                var currentArea = animal.playerSettings.AreaRestrictionInPawnCurrentMap;
+                var changed = currentArea != area;
+                animal.playerSettings.AreaRestrictionInPawnCurrentMap = area;
+
+                // matches the pre-existing quirk noted in PlanAreaRestrictions: the culling
+                // reason always re-applies + logs, but only counts as work done if the area
+                // actually changed.
+                workDone.Value |= reason != AreaAssignReason.Culling || changed;
+
+                jobLog.AddDetail(BuildAreaLogMessage(reason, animal, area), animal);
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+    }
+
     private readonly List<Designation> _tmpDesignations = [];
 
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
-    private Coroutine DoCullingJobs(
+    private Coroutine PlanCullingJobs(
         ManagerLog jobLog,
         CullingAction cullingAction,
-        Boxed<bool> workDone
+        LivestockWorkData data
     )
     {
         if (TriggerPawnKind.pawnKind == null)
@@ -1237,9 +1468,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoCullingJobs);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(PlanCullingJobs);
 
-        using var _ = new DoOnDispose(_tmpDesignations.Clear);
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // too many animals?
@@ -1299,51 +1529,89 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 for (var i = 0; i < targetDifference && animalsEnumerator.MoveNext(); i++)
                 {
                     var animal = animalsEnumerator.Current;
-                    cullingAction.Cull(animal);
                     animalCount--;
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Livestock.Logs.AddDesignation".Translate(
-                            cullingAction.ActionText,
-                            animal.Label,
-                            ageSex.GetLabel(),
-                            animalCount,
-                            target
-                        ),
-                        animal
-                    );
-                    workDone.Value = true;
+                    data.AnimalsToCull.Add((animal, ageSex, animalCount, target));
                 }
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
-            // remove extra designations
-            var didRemove = false;
-            while (targetDifference < 0)
+            // plan removing extra designations
+            if (targetDifference < 0)
             {
-                if (cullingAction.TryStopCulling(ageSex, out var animal))
+                foreach (var animal in cullingAction.PeekCullingToStop(ageSex, -targetDifference))
                 {
-                    workDone.Value = true;
-                    targetDifference++;
                     animalCount++;
-                    didRemove = true;
-
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Livestock.Logs.RemoveDesignation".Translate(
-                            cullingAction.ActionText,
-                            animal.Label,
-                            ageSex.GetLabel(),
-                            animalCount,
-                            target
-                        ),
-                        animal
-                    );
+                    data.CullingsToStop.Add((animal, ageSex, animalCount, target));
                 }
-                else
-                {
-                    break;
-                }
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
-            if (didRemove)
+        }
+    }
+
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteCullingJobs(
+        ManagerLog jobLog,
+        CullingAction cullingAction,
+        LivestockWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteCullingJobs
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(
+                ExecuteCullingJobs
+            );
+
+        var i = 0;
+        foreach (var (animal, ageSex, animalCountAfter, target) in data.AnimalsToCull)
+        {
+            // The execute phase is gated behind ~95% of the job's work timer, so the animal
+            // planned for culling during gather may have died or been sold by now.
+            if (!animal.DestroyedOrNull())
+            {
+                cullingAction.Cull(animal);
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Livestock.Logs.AddDesignation".Translate(
+                        cullingAction.ActionText,
+                        animal.Label,
+                        ageSex.GetLabel(),
+                        animalCountAfter,
+                        target
+                    ),
+                    animal
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        foreach (var (animal, ageSex, animalCountAfter, target) in data.CullingsToStop)
+        {
+            if (!animal.DestroyedOrNull())
+            {
+                cullingAction.StopCulling(animal);
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Livestock.Logs.RemoveDesignation".Translate(
+                        cullingAction.ActionText,
+                        animal.Label,
+                        ageSex.GetLabel(),
+                        animalCountAfter,
+                        target
+                    ),
+                    animal
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
             {
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
@@ -1351,7 +1619,7 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
     }
 
     [CoroutineSettingsMethod]
-    private Coroutine DoTamingJobs(ManagerLog jobLog, Boxed<bool> workDone)
+    private Coroutine PlanTamingJobs(ManagerLog jobLog, LivestockWorkData data)
     {
         if (TriggerPawnKind.pawnKind == null)
         {
@@ -1359,10 +1627,10 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         }
 
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
-            DoTamingJobs
+            PlanTamingJobs
         );
         var ticksBetweenOperations =
-            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(DoTamingJobs);
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(PlanTamingJobs);
 
         using var _ = new DoOnDispose(_tmpDesignations.Clear);
 
@@ -1411,9 +1679,6 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
 
             if (targetDifference > 0 || TamePastTargets)
             {
-                // get the 'home' position
-                var position = Manager.map.GetBaseCenter();
-
                 // get list of animals in sorted by youngest weighted by distance.
                 List<Pawn> sortedAnimals = [];
                 yield return GetThingsSorted(
@@ -1438,19 +1703,8 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                         break;
                     }
 
-                    AddDesignation(new(animal, DesignationDefOf.Tame));
                     animalCount++;
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Livestock.Logs.AddDesignation".Translate(
-                            DesignationDefOf.Tame.ActionText(),
-                            ageSex.GetLabel(),
-                            animal.Label,
-                            animalCount,
-                            target
-                        ),
-                        animal
-                    );
-                    workDone.Value = true;
+                    data.AnimalsToTame.Add((animal, ageSex, animalCount, target));
 
                     if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
                     {
@@ -1459,35 +1713,97 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
                 }
             }
 
-            // remove extra designations
-            while (targetDifference < 0 && !TamePastTargets)
+            // plan removing extra designations
+            if (targetDifference < 0 && !TamePastTargets)
             {
-                if (TryRemoveDesignation(ageSex, DesignationDefOf.Tame, out var animal))
+                foreach (
+                    var animal in PeekDesignationsToRemove(
+                        DesignationDefOf.Tame,
+                        ageSex,
+                        -targetDifference
+                    )
+                )
                 {
-                    workDone.Value = true;
-                    targetDifference++;
                     animalCount--;
+                    data.TamingsToStop.Add((animal, ageSex, animalCount, target));
 
-                    jobLog.AddDetail(
-                        "ColonyManagerRedux.Livestock.Logs.RemoveDesignation".Translate(
-                            DesignationDefOf.Tame.ActionText(),
-                            ageSex.GetLabel(),
-                            animal.Label,
-                            animalCount,
-                            target
-                        ),
-                        animal
-                    );
+                    if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
+                    {
+                        yield return new ResumeAfterTicks(ticksBetweenOperations);
+                    }
                 }
-                else
-                {
-                    break;
-                }
+            }
+        }
+    }
 
-                if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
-                {
-                    yield return new ResumeAfterTicks(ticksBetweenOperations);
-                }
+    [CoroutineSettingsMethod]
+    private Coroutine ExecuteTamingJobs(
+        ManagerLog jobLog,
+        LivestockWorkData data,
+        Boxed<bool> workDone
+    )
+    {
+        var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
+            ExecuteTamingJobs
+        );
+        var ticksBetweenOperations =
+            ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(ExecuteTamingJobs);
+
+        var i = 0;
+        foreach (var (animal, ageSex, animalCountAfter, target) in data.AnimalsToTame)
+        {
+            // The execute phase is gated behind ~95% of the job's work timer, so the animal
+            // planned for taming during gather may have died, fled, or already been designated
+            // by the time we get here.
+            if (
+                !animal.DestroyedOrNull()
+                && animal.Spawned
+                && Manager.map.designationManager.DesignationOn(animal) == null
+            )
+            {
+                AddDesignation(new(animal, DesignationDefOf.Tame));
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Livestock.Logs.AddDesignation".Translate(
+                        DesignationDefOf.Tame.ActionText(),
+                        ageSex.GetLabel(),
+                        animal.Label,
+                        animalCountAfter,
+                        target
+                    ),
+                    animal
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
+            }
+        }
+
+        foreach (var (animal, ageSex, animalCountAfter, target) in data.TamingsToStop)
+        {
+            if (!animal.DestroyedOrNull())
+            {
+                RemoveDesignationOn(animal, DesignationDefOf.Tame);
+                jobLog.AddDetail(
+                    "ColonyManagerRedux.Livestock.Logs.RemoveDesignation".Translate(
+                        DesignationDefOf.Tame.ActionText(),
+                        ageSex.GetLabel(),
+                        animal.Label,
+                        animalCountAfter,
+                        target
+                    ),
+                    animal
+                );
+                workDone.Value = true;
+            }
+
+            i++;
+            if (i > 0 && i % operationsPerTick == 0)
+            {
+                yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
     }
@@ -1591,35 +1907,56 @@ internal sealed partial class ManagerJob_Livestock : ManagerJob<ManagerSettings_
         && (!avoidMilkable || milkFullness < milkThreshold)
         && (!avoidShearable || woolFullness < woolThreshold);
 
-    private bool TryRemoveDesignation(
-        AgeAndSex ageSex,
-        DesignationDef def,
-        [NotNullWhen(true)] out Pawn? animal
-    )
+    /// <summary>
+    /// Decides which up to <paramref name="count"/> animals currently designated with
+    /// <paramref name="def"/> for <paramref name="ageSex"/> would be picked by
+    /// <see cref="RemoveDesignationOn"/>, without touching the game. Picks from the end of the
+    /// tracked list first (i.e. the same "youngest/oldest" designation last-in-first-out order
+    /// the single-phase code used to remove in).
+    /// </summary>
+    private List<Pawn> PeekDesignationsToRemove(DesignationDef def, AgeAndSex ageSex, int count)
     {
-        animal = null;
-
-        if (TriggerPawnKind.pawnKind == null)
-        {
-            return false;
-        }
-
-        // get current designations
         using var _disposeDesignations = new DoOnDispose(_tmpDesignations.Clear);
         DesignationsOfOn(def, ageSex, _tmpDesignations);
 
-        // if none, return false
-        if (_tmpDesignations.Count == 0)
-        {
-            return false;
-        }
+        return [.. TakeLastReversed(_tmpDesignations, count, d => (Pawn)d.target.Thing)];
+    }
 
-        // else, remove one from the game as well as our managed list. (delete last - this should be the youngest/oldest).
-        var designation = _tmpDesignations.Last();
-        animal = (Pawn)designation.target.Thing;
+    /// <summary>
+    /// Returns up to <paramref name="count"/> items from the end of <paramref name="items"/>,
+    /// most-recently-added first (i.e. <c>items[^1]</c>, then <c>items[^2]</c>, ...) - the same
+    /// order the pre-migration single-phase code removed designations in (it always called
+    /// <c>.Last()</c> repeatedly). Kept generic and side-effect-free so the selection order is
+    /// unit-testable without live <see cref="Designation"/>/<see cref="Pawn"/> objects.
+    /// </summary>
+    internal static List<TResult> TakeLastReversed<TItem, TResult>(
+        IReadOnlyList<TItem> items,
+        int count,
+        Func<TItem, TResult> selector
+    )
+    {
+        List<TResult> result = new(Math.Min(count, items.Count));
+        for (var i = items.Count - 1; i >= 0 && result.Count < count; i--)
+        {
+            result.Add(selector(items[i]));
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Removes the <paramref name="def"/> designation on <paramref name="animal"/>, both from
+    /// the game and from this job's own tracking list. A no-op if the designation is already
+    /// gone by the time this runs (e.g. the animal died between gather and execute).
+    /// </summary>
+    private void RemoveDesignationOn(Pawn animal, DesignationDef def)
+    {
+        var designation = Manager.map.designationManager.DesignationOn(animal, def);
+        if (designation == null)
+        {
+            return;
+        }
         _ = _designations.Remove(designation);
         designation.Delete();
-        return true;
     }
 
     internal sealed class TrainingTracker : IExposable
