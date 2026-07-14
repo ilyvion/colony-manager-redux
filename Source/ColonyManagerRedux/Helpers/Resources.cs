@@ -29,6 +29,9 @@ internal static class Resources
         BarBackgroundInactiveTexture = SolidColorMaterials.NewSolidColorTexture(
             new Color(0.7f, 0.7f, 0.7f)
         ),
+        BarBackgroundExpectedTexture = SolidColorMaterials.NewSolidColorTexture(
+            new Color(0.2f, 0.8f, 0.85f, 0.35f)
+        ),
         // misc
         SlightlyDarkBackground = SolidColorMaterials.NewSolidColorTexture(
             SlightlyDarkBackgroundColour

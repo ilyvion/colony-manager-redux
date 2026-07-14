@@ -200,6 +200,13 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public virtual bool IsTransferable => true;
 
     /// <summary>
+    /// Gets the amount expected to be added on top of the trigger's current count once this
+    /// job's pending designations are completed (e.g. wood on trees already marked for
+    /// felling), for use as a "pending" overlay on top of the current-stock progress bar.
+    /// </summary>
+    public virtual int ExpectedAdditionalCount => 0;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ManagerJob"/> class with the specified manager.
     /// </summary>
     /// <param name="manager">The manager instance associated with this job.</param>

@@ -66,4 +66,59 @@ internal static class TriggerTests
         Assert.That(max).Is.EqualTo(12f);
         Assert.That(barSpan).Is.LessThan(0f);
     }
+
+    [Test]
+    public static void ProgressBarMetricsWithZeroExpectedValueMatchesThreeArgOverload()
+    {
+        // The 3-arg overload used to be the only formula; it now delegates to the 4-arg
+        // one with expectedValue=0, so the two must keep producing identical results.
+        var withoutExpected = Trigger.ComputeProgressBarMetrics(5f, 10f, 120f);
+        var (max, unit, markPosition, barSpan, expectedBarSpan) = Trigger.ComputeProgressBarMetrics(
+            5f,
+            0f,
+            10f,
+            120f
+        );
+        Assert.That(max).Is.EqualTo(withoutExpected.max);
+        Assert.That(unit).Is.EqualTo(withoutExpected.unit);
+        Assert.That(markPosition).Is.EqualTo(withoutExpected.markPosition);
+        Assert.That(barSpan).Is.EqualTo(withoutExpected.barSpan);
+        Assert.That(expectedBarSpan).Is.EqualTo(barSpan);
+    }
+
+    [Test]
+    public static void ProgressBarMetricsExpectedBarSpanCoversCurrentPlusExpected()
+    {
+        // currentValue=5, expectedValue=3 -> totalValue=8 is still under maxValue*1.2 (12),
+        // so max stays anchored to the 20%-past-target margin and expectedBarSpan reflects
+        // the full current+expected total.
+        var (max, unit, markPosition, barSpan, expectedBarSpan) = Trigger.ComputeProgressBarMetrics(
+            5f,
+            3f,
+            10f,
+            120f
+        );
+        Assert.That(max).Is.EqualTo(12f);
+        Assert.That(unit).Is.EqualTo(10f);
+        Assert.That(markPosition).Is.EqualTo(100f);
+        Assert.That(barSpan).Is.EqualTo(50f);
+        Assert.That(expectedBarSpan).Is.EqualTo(80f);
+    }
+
+    [Test]
+    public static void ProgressBarMetricsExpandsMaxWhenCurrentPlusExpectedOvershootsTarget()
+    {
+        // currentValue=8, expectedValue=10 -> totalValue=18 exceeds maxValue*1.2 (12) and
+        // maxValue+1 (11), so the logical max grows to fit the expected overlay without
+        // clipping it, just like an overshot currentValue would on its own.
+        var (max, unit, _, _, expectedBarSpan) = Trigger.ComputeProgressBarMetrics(
+            8f,
+            10f,
+            10f,
+            120f
+        );
+        Assert.That(max).Is.EqualTo(18f);
+        Assert.That(unit).Is.EqualTo(120f / 18f);
+        Assert.That(expectedBarSpan).Is.EqualTo(120f);
+    }
 }

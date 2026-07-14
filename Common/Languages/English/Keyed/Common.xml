@@ -79,6 +79,7 @@
     <!-- Thresholds -->
     <ColonyManagerRedux.Thresholds.ThresholdCount>Active if: {0} {1}</ColonyManagerRedux.Thresholds.ThresholdCount>
     <ColonyManagerRedux.Thresholds.ThresholdCountTooltip>Click to open threshold details.\n\nTarget: {1}\nIn production: {0}</ColonyManagerRedux.Thresholds.ThresholdCountTooltip>
+    <ColonyManagerRedux.Thresholds.ThresholdCountWithExpected>Active if: {0} {2} (+ {1} expected)</ColonyManagerRedux.Thresholds.ThresholdCountWithExpected>
     <!-- Tab headers -->
     <ColonyManagerRedux.Thresholds.Current>Current</ColonyManagerRedux.Thresholds.Current>
     <ColonyManagerRedux.Thresholds.Available>Available</ColonyManagerRedux.Thresholds.Available>

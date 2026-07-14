@@ -136,6 +136,16 @@ internal sealed class ManagerJob_Forestry
 
     internal MultiTickCachedValue<int> CachedCurrentDesignatedCount { get; }
 
+    /// <inheritdoc/>
+    public override int ExpectedAdditionalCount
+    {
+        get
+        {
+            _ = CachedCurrentDesignatedCount.DoUpdateIfNeeded();
+            return CachedCurrentDesignatedCount.Value;
+        }
+    }
+
     private bool _plantsLockedToMap = ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked;
     public bool PlantsLockedToMap
     {

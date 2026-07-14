@@ -155,6 +155,18 @@ internal sealed class ManagerJob_Mining
     );
 
     internal MultiTickCachedValue<int> DesignatedCachedValue { get; }
+
+    /// <inheritdoc/>
+    public override int ExpectedAdditionalCount
+    {
+        get
+        {
+            _ = ChunksCachedValue.DoUpdateIfNeeded();
+            _ = DesignatedCachedValue.DoUpdateIfNeeded();
+            return ChunksCachedValue.Value + DesignatedCachedValue.Value;
+        }
+    }
+
     public HashSet<ThingDef> AllowedBuildings = [];
 
     public HashSet<ThingDef> AllowedMinerals = [];

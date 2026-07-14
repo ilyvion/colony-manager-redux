@@ -248,7 +248,16 @@ public sealed class Trigger_Threshold : Trigger
 
     /// <inheritdoc/>
     public override string StatusTooltip =>
-        "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(GetCurrentCount(), TargetLabel);
+        Job.ExpectedAdditionalCount > 0
+            ? "ColonyManagerRedux.Thresholds.ThresholdCountWithExpected".Translate(
+                GetCurrentCount(),
+                Job.ExpectedAdditionalCount,
+                TargetLabel
+            )
+            : "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(
+                GetCurrentCount(),
+                TargetLabel
+            );
 
     /// <inheritdoc/>
     public override void DrawVerticalProgressBars(Rect progressRect, bool active)
@@ -260,7 +269,8 @@ public sealed class Trigger_Threshold : Trigger
             targetCount,
             StatusTooltip,
             active,
-            Resources.BarBackgroundActiveTexture
+            Resources.BarBackgroundActiveTexture,
+            Job.ExpectedAdditionalCount
         );
     }
 
@@ -274,7 +284,8 @@ public sealed class Trigger_Threshold : Trigger
             targetCount,
             StatusTooltip,
             active,
-            Resources.BarBackgroundActiveTexture
+            Resources.BarBackgroundActiveTexture,
+            Job.ExpectedAdditionalCount
         );
     }
 

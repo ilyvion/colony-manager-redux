@@ -419,6 +419,19 @@ internal sealed class ManagerJob_Hunting
         }
     }
 
+    /// <inheritdoc/>
+    public override int ExpectedAdditionalCount
+    {
+        get
+        {
+            var corpsesCache = GetYieldInCorpsesCache();
+            _ = corpsesCache.DoUpdateIfNeeded();
+            var designationsCache = GetYieldInDesignationsCache();
+            _ = designationsCache.DoUpdateIfNeeded();
+            return corpsesCache.Value + designationsCache.Value;
+        }
+    }
+
     public MultiTickCachedValue<int> GetYieldInCorpsesCache() =>
         TargetResource == HuntingTargetResource.Meat
             ? _corpseMeatCachedValue

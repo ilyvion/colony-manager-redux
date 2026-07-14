@@ -58,17 +58,23 @@ public abstract class Trigger(ManagerJob job) : IExposable
     /// <param name="tooltip">Tooltip to display for the bar.</param>
     /// <param name="active">Whether the trigger is active.</param>
     /// <param name="progressBarTexture">The texture to use for the progress bar.</param>
+    /// <param name="expectedValue">
+    /// Additional value expected to be added on top of <paramref name="currentValue"/> once
+    /// pending designations complete, drawn as a dimmer segment stacked above the current value.
+    /// </param>
     protected static void DrawVerticalProgressBar(
         Rect progressRect,
         float currentValue,
         float maxValue,
         string tooltip,
         bool active,
-        Texture2D progressBarTexture
+        Texture2D progressBarTexture,
+        float expectedValue = 0f
     )
     {
-        var (_, _, markPosition, barSpan) = ComputeProgressBarMetrics(
+        var (_, _, markPosition, barSpan, expectedBarSpan) = ComputeProgressBarMetrics(
             currentValue,
+            expectedValue,
             maxValue,
             progressRect.ContractedBy(2f).height
         );
@@ -80,6 +86,16 @@ public abstract class Trigger(ManagerJob job) : IExposable
 
         // get the bar rect
         var barRect = progressRect.ContractedBy(2f);
+
+        // draw the expected segment first, underneath the current-value bar, so it shows
+        // as a dimmer cap above the solid current-value fill.
+        if (expectedValue > 0f)
+        {
+            var expectedRect = barRect;
+            expectedRect.yMin += expectedRect.height - expectedBarSpan;
+            GUI.DrawTexture(expectedRect, Resources.BarBackgroundExpectedTexture);
+        }
+
         var markHeight = barRect.yMin + (barRect.height - markPosition);
         barRect.yMin += barRect.height - barSpan;
 
@@ -110,17 +126,23 @@ public abstract class Trigger(ManagerJob job) : IExposable
     /// <param name="tooltip">Tooltip to display for the bar.</param>
     /// <param name="active">Whether the trigger is active.</param>
     /// <param name="progressBarTexture">The texture to use for the progress bar.</param>
+    /// <param name="expectedValue">
+    /// Additional value expected to be added on top of <paramref name="currentValue"/> once
+    /// pending designations complete, drawn as a dimmer segment stacked past the current value.
+    /// </param>
     protected static void DrawHorizontalProgressBar(
         Rect progressRect,
         float currentValue,
         float maxValue,
         string tooltip,
         bool active,
-        Texture2D progressBarTexture
+        Texture2D progressBarTexture,
+        float expectedValue = 0f
     )
     {
-        var (_, _, markPosition, barSpan) = ComputeProgressBarMetrics(
+        var (_, _, markPosition, barSpan, expectedBarSpan) = ComputeProgressBarMetrics(
             currentValue,
+            expectedValue,
             maxValue,
             progressRect.ContractedBy(2f).width
         );
@@ -133,6 +155,16 @@ public abstract class Trigger(ManagerJob job) : IExposable
         // get the bar rect
         var barRect = progressRect.ContractedBy(2f);
         var markWidth = barRect.xMin + markPosition;
+
+        // draw the expected segment first, underneath the current-value bar, so it shows
+        // as a dimmer cap past the solid current-value fill.
+        if (expectedValue > 0f)
+        {
+            var expectedRect = barRect;
+            expectedRect.width = expectedBarSpan;
+            GUI.DrawTexture(expectedRect, Resources.BarBackgroundExpectedTexture);
+        }
+
         barRect.width = barSpan;
 
         // draw the bar
@@ -160,12 +192,49 @@ public abstract class Trigger(ManagerJob job) : IExposable
         float barSpan
     ) ComputeProgressBarMetrics(float currentValue, float maxValue, float barLength)
     {
+        var (max, unit, markPosition, barSpan, _) = ComputeProgressBarMetrics(
+            currentValue,
+            0f,
+            maxValue,
+            barLength
+        );
+        return (max, unit, markPosition, barSpan);
+    }
+
+    /// <summary>
+    /// Computes the numeric metrics (logical max, per-unit scale, target-mark position,
+    /// filled-bar span, and expected-bar span) shared by both the vertical and horizontal
+    /// progress bar drawing methods.
+    /// </summary>
+    /// <param name="currentValue">The current value to display.</param>
+    /// <param name="expectedValue">
+    /// Additional value expected on top of <paramref name="currentValue"/> once pending
+    /// designations complete.
+    /// </param>
+    /// <param name="maxValue">The maximum value for the bar.</param>
+    /// <param name="barLength">The length (height or width) of the bar's drawable area.</param>
+    internal static (
+        float max,
+        float unit,
+        float markPosition,
+        float barSpan,
+        float expectedBarSpan
+    ) ComputeProgressBarMetrics(
+        float currentValue,
+        float expectedValue,
+        float maxValue,
+        float barLength
+    )
+    {
+        var totalValue = currentValue + expectedValue;
+
         // bar always goes a little beyond the actual target
-        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), currentValue);
+        var max = Math.Max(Math.Max((int)(maxValue * 1.2f), maxValue + 1), totalValue);
         var unit = barLength / max;
         var markPosition = maxValue * unit;
         var barSpan = currentValue * unit;
-        return (max, unit, markPosition, barSpan);
+        var expectedBarSpan = totalValue * unit;
+        return (max, unit, markPosition, barSpan, expectedBarSpan);
     }
 
     /// <summary>
