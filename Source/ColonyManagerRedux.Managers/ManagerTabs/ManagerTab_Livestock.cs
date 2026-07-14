@@ -236,6 +236,14 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         );
         DrawSection(
             LivestockOptions,
+            "CullingExceptions",
+            ref position,
+            width,
+            DrawCullingExceptionsSection,
+            "ColonyManagerRedux.Livestock.CullingExceptionsHeader".Translate()
+        );
+        DrawSection(
+            LivestockOptions,
             "Training",
             ref position,
             width,
@@ -945,9 +953,16 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         }
         pos.y += ListEntryHeight * ((cullingStrategies.Length / EntriesPerRow) + 1);
 
+        return pos.y - start.y;
+    }
+
+    private float DrawCullingExceptionsSection(ManagerJob_Livestock job, Vector2 pos, float width)
+    {
+        var start = pos;
+
         if (job.CullExcess)
         {
-            cellWidth = (width - (Margin * 2)) / 3f;
+            var cellWidth = (width - (Margin * 2)) / 3f;
             var cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
             DrawToggle(

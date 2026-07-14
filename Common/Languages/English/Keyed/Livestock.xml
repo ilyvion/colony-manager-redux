@@ -71,6 +71,7 @@
     <ColonyManagerRedux.Livestock.AreaRestrictionsHeader>Area restrictions</ColonyManagerRedux.Livestock.AreaRestrictionsHeader>
     <ColonyManagerRedux.Livestock.TrainingHeader>Training</ColonyManagerRedux.Livestock.TrainingHeader>
     <ColonyManagerRedux.Livestock.CullingHeader>Culling</ColonyManagerRedux.Livestock.CullingHeader>
+    <ColonyManagerRedux.Livestock.CullingExceptionsHeader>Culling exceptions</ColonyManagerRedux.Livestock.CullingExceptionsHeader>
     <ColonyManagerRedux.Livestock.TamingHeader>Taming</ColonyManagerRedux.Livestock.TamingHeader>
     <ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>The animal is designated for {0}</ColonyManagerRedux.Livestock.AnimalIsDesignatedFor>
     <ColonyManagerRedux.Livestock.Tame>tame</ColonyManagerRedux.Livestock.Tame>
@@ -131,6 +132,7 @@
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>Default target counts</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTargetCountsHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>Default taming</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTamingHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader>Default culling</ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingHeader>
+    <ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingExceptionsHeader>Default culling exceptions</ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingExceptionsHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader>Default training</ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader>Default following</ColonyManagerRedux.Livestock.ManagerSettings.DefaultFollowHeader>
     <ColonyManagerRedux.Livestock.ManagerSettings.Default>Defaults</ColonyManagerRedux.Livestock.ManagerSettings.Default>

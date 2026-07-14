@@ -107,6 +107,12 @@ internal sealed class PawnKindSettings : IExposable
         Widgets_Section.Section(
             ref position,
             width,
+            DrawCullingExceptionsSection,
+            "ColonyManagerRedux.Livestock.ManagerSettings.DefaultCullingExceptionsHeader".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
             DrawTrainingSection,
             "ColonyManagerRedux.Livestock.ManagerSettings.DefaultTrainingHeader".Translate()
         );
@@ -269,7 +275,14 @@ internal sealed class PawnKindSettings : IExposable
         }
         pos.y += ListEntryHeight;
 
-        cellWidth = (width - (Margin * 2)) / 3f;
+        return pos.y - start.y;
+    }
+
+    private float DrawCullingExceptionsSection(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var cellWidth = (width - (Margin * 2)) / 3f;
         var cullingOptionRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
         Utilities.DrawToggle(

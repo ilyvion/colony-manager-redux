@@ -58,7 +58,10 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
         float width
     )
     {
-        if (sectionColumn == ManagerTab_Livestock.LivestockOptions && section == "Culling")
+        if (
+            sectionColumn == ManagerTab_Livestock.LivestockOptions
+            && section == "CullingExceptions"
+        )
         {
             Widgets_Section.Section(
                 ref position,
