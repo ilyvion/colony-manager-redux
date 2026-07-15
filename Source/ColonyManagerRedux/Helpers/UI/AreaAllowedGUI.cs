@@ -85,8 +85,8 @@ public static class AreaAllowedGUI
             rect.width -= lrMargin * 2;
         }
 
-        var allAreas = map.areaManager.AllAreas;
-        var areaCount = 1 + allAreas.Count(a => a.AssignableAsAllowed());
+        var assignableAreas = map.areaManager.AllAreas.Where(a => a.AssignableAsAllowed()).ToList();
+        var areaCount = 1 + assignableAreas.Count;
 
         if (areaCount < countPerRow)
         {
@@ -102,7 +102,7 @@ public static class AreaAllowedGUI
         var nullAreaRect = new Rect(rect.x, rect.y, widthPerArea, rect.height / areaRows);
         DoAreaSelector(nullAreaRect, ref allowedArea, null);
         var areaIndex = 1;
-        foreach (var area in allAreas.Where(a => a.AssignableAsAllowed()))
+        foreach (var area in assignableAreas)
         {
             var xOffset = areaIndex % countPerRow * widthPerArea;
             var yOffset = areaIndex / countPerRow * Constants.ListEntryHeight;
@@ -182,14 +182,14 @@ public static class AreaAllowedGUI
             rect.width -= lrMargin * 2;
         }
 
-        var allAreas = map.areaManager.AllAreas;
-        var areaCount = allAreas.Count(a => a.AssignableAsAllowed());
+        var assignableAreas = map.areaManager.AllAreas.Where(a => a.AssignableAsAllowed()).ToList();
+        var areaCount = assignableAreas.Count;
 
         var widthPerArea = rect.width / areaCount;
         Text.WordWrap = false;
         Text.Font = GameFont.Tiny;
         var areaIndex = 0;
-        foreach (var area in allAreas.Where(a => a.AssignableAsAllowed()))
+        foreach (var area in assignableAreas)
         {
             var xOffset = areaIndex * widthPerArea;
             var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);

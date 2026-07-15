@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mining's "would this roof collapse" safety check (used by the advanced roof support setting) now briefly caches its result per cell instead of recalculating it from scratch for every candidate on every planning pass, which should help mining job planning run a bit smoother on maps with a lot of roofed area to check.
 - The manager's internal job list is now kept in priority order at all times instead of being re-sorted from scratch every single game tick, which should shave a small but constant amount of CPU overhead off every tick on maps with several manager jobs configured. There's no change to job ordering or priority behavior — this is purely an internal efficiency improvement.
 - Mining, Hunting, Forestry (logging), and Foraging's "can a colonist actually reach this" check now briefly caches its result per location instead of scanning every free colonist again for every candidate on every planning pass, which should help job planning run a bit smoother on maps with a lot of colonists and a lot of candidates to check.
+- The area-of-operation selector shown in Mining, Hunting, Forestry (logging), and Livestock job settings no longer checks which areas are selectable twice every frame it's drawn.
 
 ### Fixed
 
