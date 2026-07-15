@@ -474,7 +474,7 @@ public sealed class Trigger_Threshold : Trigger
             label =
                 "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(
                     GetCurrentCount(),
-                    targetCount
+                    TargetLabel
                 ) + ":";
         }
 
@@ -482,7 +482,7 @@ public sealed class Trigger_Threshold : Trigger
         {
             tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(
                 GetCurrentCount(),
-                targetCount
+                TargetLabel
             );
         }
 
