@@ -101,14 +101,12 @@ internal static class JobTrackerTests
         Assert.That(JobTracker.FindAdjacentPriority([0, 2, 5, 8], 5, lower: false)).Is.EqualTo(8);
 
     [Test]
+    [ShouldThrow(typeof(InvalidOperationException))]
     public static void FindAdjacentPriorityThrowsWhenAlreadyAtTop() =>
-        Assert
-            .ThatFunc(() => JobTracker.FindAdjacentPriority([0, 2, 5], 0, lower: true))
-            .Does.Throw();
+        JobTracker.FindAdjacentPriority([0, 2, 5], 0, lower: true);
 
     [Test]
+    [ShouldThrow(typeof(InvalidOperationException))]
     public static void FindAdjacentPriorityThrowsWhenAlreadyAtBottom() =>
-        Assert
-            .ThatFunc(() => JobTracker.FindAdjacentPriority([0, 2, 5], 5, lower: false))
-            .Does.Throw();
+        JobTracker.FindAdjacentPriority([0, 2, 5], 5, lower: false);
 }

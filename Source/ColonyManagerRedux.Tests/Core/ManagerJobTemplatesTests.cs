@@ -40,8 +40,7 @@ internal static class ManagerJobTemplatesTests
     // an empty second segment as a no-op), producing a file that isn't actually named after
     // anything. Reject it instead of allowing a nameless template to be saved/loaded.
     [Test]
+    [ShouldThrow(typeof(ArgumentException))]
     public static void RejectsEmptyName() =>
-        Assert
-            .ThatFunc(() => ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", ""))
-            .Does.Throw();
+        ManagerJobTemplates.FilePath("/save/ManagerJobTemplates", "");
 }

@@ -93,8 +93,8 @@ internal static class UtilitiesTests
         Assert.That(Utilities.SaturatingIntSum([int.MinValue + 1, -1])).Is.EqualTo(int.MinValue);
 
     [Test]
-    public static void SaturatingIntSumThrowsOnNullSequence() =>
-        Assert.ThatFunc(() => Utilities.SaturatingIntSum(null!)).Does.Throw();
+    [ShouldThrow(typeof(ArgumentNullException))]
+    public static void SaturatingIntSumThrowsOnNullSequence() => Utilities.SaturatingIntSum(null!);
 
     [Test]
     public static void SafeAbsOfPositiveValueIsUnchanged() =>
