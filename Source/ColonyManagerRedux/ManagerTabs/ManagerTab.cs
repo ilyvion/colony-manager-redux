@@ -914,53 +914,36 @@ public abstract class ManagerTab(Manager manager)
             );
         });
 
-        if (!top)
-        {
-            DrawOrderTooltips(upRect, topRect);
-            if (Widgets.ButtonImage(topRect, Resources.ArrowTop))
-            {
-                TopPriority(jobTracker, job);
-                reOrdered = true;
-            }
-
-            if (Widgets.ButtonImage(upRect, Resources.ArrowUp))
-            {
-                IncreasePriority(jobTracker, job);
-                reOrdered = true;
-            }
-        }
-
-        if (!bottom)
-        {
-            DrawOrderTooltips(downRect, bottomRect, increase: false);
-            if (Widgets.ButtonImage(downRect, Resources.ArrowDown))
-            {
-                DecreasePriority(jobTracker, job);
-                reOrdered = true;
-            }
-
-            if (Widgets.ButtonImage(bottomRect, Resources.ArrowBottom))
-            {
-                BottomPriority(jobTracker, job);
-                reOrdered = true;
-            }
-        }
+        reOrdered |= Utilities.DrawReorderButton(
+            topRect,
+            Resources.ArrowTop,
+            "ColonyManagerRedux.Job.TopPriority".Translate(),
+            top,
+            () => TopPriority(jobTracker, job)
+        );
+        reOrdered |= Utilities.DrawReorderButton(
+            upRect,
+            Resources.ArrowUp,
+            "ColonyManagerRedux.Job.IncreasePriority".Translate(),
+            top,
+            () => IncreasePriority(jobTracker, job)
+        );
+        reOrdered |= Utilities.DrawReorderButton(
+            downRect,
+            Resources.ArrowDown,
+            "ColonyManagerRedux.Job.DecreasePriority".Translate(),
+            bottom,
+            () => DecreasePriority(jobTracker, job)
+        );
+        reOrdered |= Utilities.DrawReorderButton(
+            bottomRect,
+            Resources.ArrowBottom,
+            "ColonyManagerRedux.Job.BottomPriority".Translate(),
+            bottom,
+            () => BottomPriority(jobTracker, job)
+        );
 
         return reOrdered;
-    }
-
-    private static void DrawOrderTooltips(Rect step, Rect max, bool increase = true)
-    {
-        if (increase)
-        {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.IncreasePriority".Translate());
-            TooltipHandler.TipRegion(max, "ColonyManagerRedux.Job.TopPriority".Translate());
-        }
-        else
-        {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Job.DecreasePriority".Translate());
-            TooltipHandler.TipRegion(max, "ColonyManagerRedux.Job.BottomPriority".Translate());
-        }
     }
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member

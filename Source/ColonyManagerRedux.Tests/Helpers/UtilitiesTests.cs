@@ -146,4 +146,28 @@ internal static class UtilitiesTests
         Action local = LocalFunction;
         Assert.That(Utilities.IsLikelyAnonymous(local)).Is.True();
     }
+
+    [Test]
+    public static void DrawReorderButtonDoesNotInvokeCallbackAtBoundary()
+    {
+        // Regression guard: a reorder button at its boundary (e.g. already at the top of the
+        // list) must not fire its click callback, even if it somehow received a click.
+        var invoked = false;
+
+        var result = Utilities.DrawReorderButton(
+            default,
+            null!,
+            default,
+            atBoundary: true,
+            () => invoked = true
+        );
+
+        Assert.That(result).Is.False();
+        Assert.That(invoked).Is.False();
+    }
+
+    [Test]
+    [ShouldThrow(typeof(ArgumentNullException))]
+    public static void DrawReorderButtonThrowsOnNullCallback() =>
+        Utilities.DrawReorderButton(default, null!, default, true, null!);
 }

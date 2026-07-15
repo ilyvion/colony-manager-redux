@@ -254,23 +254,21 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
                 Widgets.DrawRectFast(labelRect, ColorLibrary.SkyBlue.ToTransparent(.5f));
             });
 
-            if (!top)
-            {
-                DrawOrderTooltips(upRect);
-                if (Widgets.ButtonImage(upRect, Resources.ArrowUp))
-                {
-                    swap = (i, i - 1);
-                }
-            }
+            _ = Utilities.DrawReorderButton(
+                upRect,
+                Resources.ArrowUp,
+                "ColonyManagerRedux.Task.IncreasePriority".Translate(),
+                top,
+                () => swap = (i, i - 1)
+            );
 
-            if (!bottom)
-            {
-                DrawOrderTooltips(downRect, increase: false);
-                if (Widgets.ButtonImage(downRect, Resources.ArrowDown))
-                {
-                    swap = (i, i + 1);
-                }
-            }
+            _ = Utilities.DrawReorderButton(
+                downRect,
+                Resources.ArrowDown,
+                "ColonyManagerRedux.Task.DecreasePriority".Translate(),
+                bottom,
+                () => swap = (i, i + 1)
+            );
 
             IlyvionWidgets.Label(
                 labelRect,
@@ -293,18 +291,6 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
 
     public float DrawTaskPriorityOrder(ManagerJob_Mining job, Vector2 pos, float width) =>
         DrawTaskPriorityOrder(job.TaskPriorityOrder, pos, width);
-
-    private static void DrawOrderTooltips(Rect step, bool increase = true)
-    {
-        if (increase)
-        {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Task.IncreasePriority".Translate());
-        }
-        else
-        {
-            TooltipHandler.TipRegion(step, "ColonyManagerRedux.Task.DecreasePriority".Translate());
-        }
-    }
 
     public float DrawMining(ManagerJob_Mining job, Vector2 pos, float width)
     {

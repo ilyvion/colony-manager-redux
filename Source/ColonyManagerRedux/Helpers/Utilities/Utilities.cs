@@ -731,6 +731,46 @@ public static class Utilities
         return rowRect.yMin - start.y;
     }
 
+    /// <summary>
+    /// Draws a single boundary-gated reordering button (move up/down/top/bottom, etc.):
+    /// nothing is drawn and <paramref name="onClick"/> is not invoked when
+    /// <paramref name="atBoundary"/> is <see langword="true"/> (e.g. the item is already at the
+    /// top of the list, so there's nothing to move it up to).
+    /// </summary>
+    /// <param name="rect">The rectangle in which to draw the button.</param>
+    /// <param name="icon">The icon to draw on the button.</param>
+    /// <param name="tooltip">The tooltip to display when hovering over the button.</param>
+    /// <param name="atBoundary">Whether the item this button reorders is already at the
+    /// boundary this button would move it towards.</param>
+    /// <param name="onClick">Invoked when the button is clicked.</param>
+    /// <returns><see langword="true"/> if the button was drawn and clicked.</returns>
+    public static bool DrawReorderButton(
+        Rect rect,
+        Texture2D icon,
+        TipSignal tooltip,
+        bool atBoundary,
+        Action onClick
+    )
+    {
+        if (onClick == null)
+        {
+            throw new ArgumentNullException(nameof(onClick));
+        }
+        if (atBoundary)
+        {
+            return false;
+        }
+
+        TooltipHandler.TipRegion(rect, tooltip);
+        if (!Widgets.ButtonImage(rect, icon))
+        {
+            return false;
+        }
+
+        onClick();
+        return true;
+    }
+
     private static readonly List<IntVec3> _tmpHomeCells = [];
 
     /// <summary>
