@@ -976,16 +976,58 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         Thing target,
         PathEndMode pathEndMode = PathEndMode.Touch,
         Danger danger = Danger.Some
-    ) =>
-        target == null
-            ? throw new ArgumentNullException(nameof(target))
-            : !target.Position.Fogged(Manager.map)
-                && (
-                    !ShouldCheckReachable
-                    || Manager.map.mapPawns.FreeColonistsSpawned.Any(p =>
-                        p.CanReach(target, pathEndMode, danger)
-                    )
-                );
+    )
+    {
+        if (target == null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
+        if (target.Position.Fogged(Manager.map))
+        {
+            return false;
+        }
+
+        if (!ShouldCheckReachable)
+        {
+            return true;
+        }
+
+        var key = (target.Position, pathEndMode, danger);
+        if (
+            _reachabilityCache.TryGetValue(key, out var cachedValue)
+            && cachedValue.TryGetValue(out var cached)
+        )
+        {
+            return cached;
+        }
+
+        var result = Manager.map.mapPawns.FreeColonistsSpawned.Any(p =>
+            p.CanReach(target, pathEndMode, danger)
+        );
+
+        if (cachedValue != null)
+        {
+            _ = cachedValue.Update(result);
+        }
+        else
+        {
+            _reachabilityCache.Add(key, new CachedValue<bool>(result, ReachabilityCacheTicks));
+        }
+
+        return result;
+    }
+
+    // Colony reachability rarely changes tick-to-tick (only when doors/pathing
+    // change nearby), but IsReachable is called once per candidate thing on every
+    // job planning pass across every job type. A short-lived, per-(position,
+    // pathEndMode, danger) TTL cache avoids re-running an O(free colonists)
+    // CanReach scan per candidate per pass.
+    private const int ReachabilityCacheTicks = 2000;
+    private readonly Dictionary<
+        (IntVec3 Position, PathEndMode PathEndMode, Danger Danger),
+        CachedValue<bool>
+    > _reachabilityCache = [];
 
     internal void IntTick()
     {
