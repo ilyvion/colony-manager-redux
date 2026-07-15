@@ -360,9 +360,50 @@ internal sealed class ManagerJob_Mining
         DesignationDef deconstruct
     ) => designationOn != null && (designationOn == mine || designationOn == deconstruct);
 
+    // Roof-support status rarely changes tick-to-tick (it only changes when
+    // roof-holding buildings are built, destroyed, or (de)designated nearby),
+    // but this is called per candidate mineable/deconstructible target on every
+    // mining job planning pass. A short-lived, per-(position, support) TTL cache
+    // avoids re-walking up to RoofSupportRadialCellsCount neighboring cells per
+    // candidate per pass, mirroring the room-divider TTL cache above rather than
+    // a fully invalidation-tracked grid.
+    private const int RoofSupportCacheTicks = 2000;
+    private readonly Dictionary<
+        (IntVec3 Position, IntVec3 Support),
+        CachedValue<bool>
+    > _roofSupportCache = [];
+
+    private bool WouldCollapseIfSupportDestroyed(IntVec3 position, IntVec3 support, Map map)
+    {
+        var key = (position, support);
+        if (
+            _roofSupportCache.TryGetValue(key, out var cachedValue)
+            && cachedValue.TryGetValue(out var cached)
+        )
+        {
+            return cached;
+        }
+
+        var result = ComputeWouldCollapseIfSupportDestroyed(position, support, map);
+
+        if (cachedValue != null)
+        {
+            _ = cachedValue.Update(result);
+        }
+        else
+        {
+            _roofSupportCache.Add(key, new CachedValue<bool>(result, RoofSupportCacheTicks));
+        }
+
+        return result;
+    }
+
     // largely copypasta from RoofCollapseUtility.WithinRangeOfRoofHolder
-    // TODO: PERFORMANCE; maintain a cellgrid of 'safe' supported areas.
-    private static bool WouldCollapseIfSupportDestroyed(IntVec3 position, IntVec3 support, Map map)
+    private static bool ComputeWouldCollapseIfSupportDestroyed(
+        IntVec3 position,
+        IntVec3 support,
+        Map map
+    )
     {
         if (!position.InBounds(map) || !position.Roofed(map))
         {
