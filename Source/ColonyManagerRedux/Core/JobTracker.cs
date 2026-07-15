@@ -42,12 +42,15 @@ public class JobTracker(Manager manager) : IExposable
     }
 
     /// <summary>
-    /// Gets a read-only collection of all manager jobs associated with this tracker.
+    /// Gets a read-only collection of all manager jobs associated with this tracker, in priority
+    /// order (see <see cref="CleanPriorities"/> for the invariant that keeps it that way).
     /// </summary>
     public IEnumerable<ManagerJob> Jobs => JobList.AsReadOnly();
 
+    // Jobs is always kept physically sorted by Priority (see CleanPriorities), so this can filter
+    // without a separate OrderBy.
     private IEnumerable<ManagerJob> JobsInOrderOfPriority =>
-        Jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow).OrderBy(mj => mj.Priority);
+        Jobs.Where(mj => !mj.IsSuspended && mj.ShouldDoNow);
 
     /// <summary>
     /// Gets a value indicating whether there are no jobs in the job tracker.
@@ -177,7 +180,9 @@ public class JobTracker(Manager manager) : IExposable
     /// Returns an ordered enumerable of jobs of the specified type.
     /// </summary>
     /// <typeparam name="T">The type of ManagerJob to filter by.</typeparam>
-    public IEnumerable<T> JobsOfType<T>() => Jobs.OrderBy(job => job.Priority).OfType<T>();
+    // Jobs is always kept physically sorted by Priority (see CleanPriorities), so OfType alone
+    // preserves that order without needing to sort again here.
+    public IEnumerable<T> JobsOfType<T>() => Jobs.OfType<T>();
 
     internal (int lowest, int highest) GetBoundsForJobsOfType<T>()
         where T : ManagerJob => Jobs.OfType<T>().Select(j => j.Priority).MinAndMax();
@@ -528,6 +533,17 @@ public class JobTracker(Manager manager) : IExposable
     internal static bool ShouldLogJobRun(bool wasCompletedBefore, ManagerJobState stateAfter) =>
         !wasCompletedBefore || stateAfter != ManagerJobState.Completed;
 
+    // Renumbers priorities densely from 0 (preserving relative priority order) and physically
+    // re-sorts the backing list to match, so Jobs/JobList/JobsOfType<T> can always be trusted as
+    // already priority-ordered instead of every read site needing its own OrderBy.
+    //
+    // Priorities are a single space shared across every job type (Add assigns MaxPriority + 1
+    // globally, not per-type), while Reprioritize/SwitchPriorities (used by Top/Bottom/Increase/
+    // DecreasePriority) only mutate Priority fields on same-type jobs without moving list entries.
+    // So after one of those calls the list can be physically out of order relative to the newly
+    // assigned priorities; this is the one place - called after every mutating operation, plus
+    // post-load - that reconciles physical order back to priority order for every job, not just
+    // the ones that were just touched.
     private void CleanPriorities()
     {
         var jobList = JobList;
@@ -536,21 +552,30 @@ public class JobTracker(Manager manager) : IExposable
         {
             currentPriorities[i] = jobList[i].Priority;
         }
+
         var newPriorities = ComputeCleanedPriorities(currentPriorities);
         for (var i = 0; i < jobList.Count; i++)
         {
             jobList[i].Priority = newPriorities[i];
         }
+
+        // ComputeSortOrder on the old priorities yields the same order as on the new (dense) ones
+        // -- the renumbering above preserves relative order, it's a monotonic relabeling.
+        var sortOrder = ComputeSortOrder(currentPriorities);
+        var sortedJobs = new ManagerJob[jobList.Count];
+        for (var rank = 0; rank < sortOrder.Length; rank++)
+        {
+            sortedJobs[rank] = jobList[sortOrder[rank]];
+        }
+        jobList.Clear();
+        jobList.AddRange(sortedJobs);
     }
 
     // Renumbers priorities densely from 0, preserving the relative order jobs are already in
     // (ties broken by original position, matching the stable sort this replaced).
     internal static int[] ComputeCleanedPriorities(IReadOnlyList<int> currentPrioritiesInOrder)
     {
-        var order = Enumerable
-            .Range(0, currentPrioritiesInOrder.Count)
-            .OrderBy(i => currentPrioritiesInOrder[i])
-            .ToArray();
+        var order = ComputeSortOrder(currentPrioritiesInOrder);
         var result = new int[currentPrioritiesInOrder.Count];
         for (var rank = 0; rank < order.Length; rank++)
         {
@@ -558,6 +583,12 @@ public class JobTracker(Manager manager) : IExposable
         }
         return result;
     }
+
+    // Returns the indices of `priorities` in ascending-priority visiting order (ties broken by
+    // original position) -- i.e. applying this as a permutation to the original sequence
+    // physically sorts it by priority.
+    internal static int[] ComputeSortOrder(IReadOnlyList<int> priorities) =>
+        [.. Enumerable.Range(0, priorities.Count).OrderBy(i => priorities[i])];
 
     private static void SwitchPriorities(ManagerJob a, ManagerJob b) =>
         (b.Priority, a.Priority) = (a.Priority, b.Priority);
@@ -574,7 +605,9 @@ public class JobTracker(Manager manager) : IExposable
                 ? stackalloc int[jobsOfTypeCount]
                 : new int[jobsOfTypeCount];
         var movedIndex = -1;
-        foreach (var (j, i) in Jobs.OfType<T>().OrderBy(j => j.Priority).Select((j, i) => (j, i)))
+        // Jobs is always kept physically sorted by Priority (see CleanPriorities), so OfType
+        // alone already yields this type's jobs in priority order.
+        foreach (var (j, i) in Jobs.OfType<T>().Select((j, i) => (j, i)))
         {
             jobsOfType[i] = j;
             priorities[i] = j.Priority;

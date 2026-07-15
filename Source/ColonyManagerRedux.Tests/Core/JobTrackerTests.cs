@@ -77,6 +77,54 @@ internal static class JobTrackerTests
     }
 
     [Test]
+    public static void ComputeSortOrderReturnsAscendingIndices()
+    {
+        // Physical positions 1 (value 2), 0 (value 5), 2 (value 9) is the ascending-by-value
+        // visiting order.
+        var order = JobTracker.ComputeSortOrder([5, 2, 9]);
+        Assert.That(order[0]).Is.EqualTo(1);
+        Assert.That(order[1]).Is.EqualTo(0);
+        Assert.That(order[2]).Is.EqualTo(2);
+    }
+
+    [Test]
+    public static void ComputeSortOrderPreservesOriginalPositionOnTies()
+    {
+        var order = JobTracker.ComputeSortOrder([3, 3, 3]);
+        Assert.That(order[0]).Is.EqualTo(0);
+        Assert.That(order[1]).Is.EqualTo(1);
+        Assert.That(order[2]).Is.EqualTo(2);
+    }
+
+    [Test]
+    public static void ComputeSortOrderOnAlreadySortedListIsIdentity()
+    {
+        var order = JobTracker.ComputeSortOrder([0, 1, 2]);
+        Assert.That(order[0]).Is.EqualTo(0);
+        Assert.That(order[1]).Is.EqualTo(1);
+        Assert.That(order[2]).Is.EqualTo(2);
+    }
+
+    [Test]
+    public static void ComputeSortOrderRecoversPriorityOrderAfterReprioritizeScramblesPhysicalOrder()
+    {
+        // Regression guard for the JobTracker physical-sort invariant: Reprioritize only mutates
+        // Priority fields on same-type jobs without moving list entries, so the physical list can
+        // end up out of order relative to priority (e.g. moving the physically-last job of a type
+        // to top priority). CleanPriorities uses ComputeSortOrder on the resulting priorities to
+        // physically re-sort the backing list back into priority order; this reproduces that
+        // scenario directly: physical order [A0, B0, A1, B1, A2] with priorities
+        // [2, 1, 4, 3, 0] (A2 was just moved to top) should sort back to
+        // [A2, B0, A0, B1, A1].
+        var order = JobTracker.ComputeSortOrder([2, 1, 4, 3, 0]);
+        Assert.That(order[0]).Is.EqualTo(4); // A2, priority 0
+        Assert.That(order[1]).Is.EqualTo(1); // B0, priority 1
+        Assert.That(order[2]).Is.EqualTo(0); // A0, priority 2
+        Assert.That(order[3]).Is.EqualTo(3); // B1, priority 3
+        Assert.That(order[4]).Is.EqualTo(2); // A1, priority 4
+    }
+
+    [Test]
     public static void ShouldLogJobRunSuppressesWhenCompletedBeforeAndAfter() =>
         Assert.That(JobTracker.ShouldLogJobRun(true, ManagerJobState.Completed)).Is.False();
 
