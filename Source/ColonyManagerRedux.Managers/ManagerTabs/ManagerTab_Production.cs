@@ -1,6 +1,7 @@
 // ManagerTab_Production.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
 using TabRecord = ilyvion.Laboratory.UI.TabRecord;
@@ -222,6 +223,14 @@ internal sealed class ManagerTab_Production(Manager manager)
             DrawThreshold,
             "ColonyManagerRedux.Threshold".Translate()
         );
+        DrawSection(
+            ProductionOptions,
+            "WorkbenchScope",
+            ref position,
+            width,
+            DrawWorkbenchScope,
+            "ColonyManagerRedux.Production.WorkbenchScope".Translate()
+        );
         DrawSection(ProductionOptions, "Status", ref position, width, DrawStatus);
         Widgets_Section.EndSectionColumn(ProductionOptions, position);
 
@@ -268,5 +277,119 @@ internal sealed class ManagerTab_Production(Manager manager)
             "ColonyManagerRedux.Production.ManagedBillCount".Translate(job.ManagedBills.Count)
         );
         return ListEntryHeight;
+    }
+
+    private static float DrawWorkbenchScope(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        DrawAssignmentModeSelector(job, ref pos, width);
+
+        switch (job.AssignmentMode)
+        {
+            case ManagerJob_Production.WorkbenchAssignmentMode.Area:
+                AreaAllowedGUI.DoAllowedAreaSelectors(
+                    ref pos,
+                    width,
+                    ref job.WorkbenchArea,
+                    5,
+                    job.Manager
+                );
+                Utilities.DrawToggle(
+                    ref pos,
+                    width,
+                    "ColonyManagerRedux.InvertArea".Translate(),
+                    "ColonyManagerRedux.InvertArea.Tip".Translate(),
+                    ref job.InvertWorkbenchArea
+                );
+                break;
+            case ManagerJob_Production.WorkbenchAssignmentMode.Specific:
+                pos.y += DrawSpecificWorkbenches(job, pos, width);
+                break;
+            case ManagerJob_Production.WorkbenchAssignmentMode.All:
+            default:
+                break;
+        }
+
+        return pos.y - start.y;
+    }
+
+    // Same layout/widget as ManagerTab_Forestry.DrawJobType's "Clear areas | Wood logging"
+    // selector: one DrawToggle cell per enum value, in a single row.
+    private static void DrawAssignmentModeSelector(
+        ManagerJob_Production job,
+        ref Vector2 pos,
+        float width
+    )
+    {
+        var modes = (ManagerJob_Production.WorkbenchAssignmentMode[])
+            Enum.GetValues(typeof(ManagerJob_Production.WorkbenchAssignmentMode));
+        var cellWidth = width / modes.Length;
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+        foreach (var mode in modes)
+        {
+            Utilities.DrawToggle(
+                cellRect,
+                $"ColonyManagerRedux.Production.WorkbenchScope.{mode}".Translate(),
+                $"ColonyManagerRedux.Production.WorkbenchScope.{mode}.Tip".Translate(),
+                job.AssignmentMode == mode,
+                () => job.AssignmentMode = mode,
+                () => { },
+                wrap: false
+            );
+            cellRect.x += cellWidth;
+        }
+
+        pos.y += ListEntryHeight;
+    }
+
+    private static float DrawSpecificWorkbenches(
+        ManagerJob_Production job,
+        Vector2 pos,
+        float width
+    )
+    {
+        var workTables = job.AllEligibleWorkTables.ToList();
+
+        if (workTables.Count == 0)
+        {
+            var emptyRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+            Widgets.Label(
+                emptyRect,
+                "ColonyManagerRedux.Production.WorkbenchScope.NoEligibleWorkbenches".Translate()
+            );
+            return ListEntryHeight;
+        }
+
+        var start = pos;
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        foreach (var workTable in workTables)
+        {
+            if (!Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                var allowed = job.SpecificWorkbenches.Contains(workTable);
+                Utilities.DrawToggle(
+                    rowRect,
+                    workTable.LabelCap,
+                    (TipSignal)workTable.LabelCap,
+                    allowed,
+                    () => _ = job.SpecificWorkbenches.Add(workTable),
+                    () => _ = job.SpecificWorkbenches.Remove(workTable)
+                );
+
+                // Same "hover to pan/point the camera" behavior as the trigger's target
+                // search FloatMenu (Trigger_Threshold.DrawTriggerConfig's onHover), just
+                // applied to a persistent list row instead of a menu option.
+                if (Mouse.IsOver(rowRect) && !Find.CameraDriver.IsPanning())
+                {
+                    CameraJumper.TryJump(workTable);
+                }
+            }
+
+            rowRect.y += ListEntryHeight;
+        }
+
+        return rowRect.y - start.y;
     }
 }

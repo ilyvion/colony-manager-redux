@@ -80,4 +80,62 @@ internal static class ManagerJobProductionTests
                 )
             )
             .Is.EqualTo(ProductionBillDecision.None);
+
+    [Test]
+    public static void AllModeIsAlwaysInScope() =>
+        Assert
+            .That(
+                IsWorkTableInScope(
+                    WorkbenchAssignmentMode.All,
+                    inArea: false,
+                    isSpecificallySelected: false
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void AreaModeFollowsAreaMembership()
+    {
+        Assert
+            .That(
+                IsWorkTableInScope(
+                    WorkbenchAssignmentMode.Area,
+                    inArea: true,
+                    isSpecificallySelected: false
+                )
+            )
+            .Is.True();
+        Assert
+            .That(
+                IsWorkTableInScope(
+                    WorkbenchAssignmentMode.Area,
+                    inArea: false,
+                    isSpecificallySelected: true
+                )
+            )
+            .Is.False();
+    }
+
+    [Test]
+    public static void SpecificModeFollowsExplicitSelection()
+    {
+        Assert
+            .That(
+                IsWorkTableInScope(
+                    WorkbenchAssignmentMode.Specific,
+                    inArea: true,
+                    isSpecificallySelected: false
+                )
+            )
+            .Is.False();
+        Assert
+            .That(
+                IsWorkTableInScope(
+                    WorkbenchAssignmentMode.Specific,
+                    inArea: false,
+                    isSpecificallySelected: true
+                )
+            )
+            .Is.True();
+    }
 }

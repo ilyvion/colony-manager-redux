@@ -46,12 +46,47 @@ internal sealed class ManagerJob_Production
         };
 
     /// <summary>
+    /// How <see cref="AllEligibleWorkTables"/> is narrowed down to the work tables a job
+    /// actually manages bills on.
+    /// </summary>
+    internal enum WorkbenchAssignmentMode
+    {
+        /// <summary>Every eligible work table on the map participates. Default.</summary>
+        All,
+
+        /// <summary>Only work tables within (or outside, if inverted) <see cref="WorkbenchArea"/>.</summary>
+        Area,
+
+        /// <summary>Only work tables explicitly listed in <see cref="SpecificWorkbenches"/>.</summary>
+        Specific,
+    }
+
+    /// <summary>
+    /// Pure decision function for whether a single work table is in scope, kept separate from
+    /// <see cref="IsWorkTableInScope(Building_WorkTable)"/> so it's unit-testable without a live
+    /// <see cref="Building_WorkTable"/>/<see cref="Area"/>.
+    /// </summary>
+    internal static bool IsWorkTableInScope(
+        WorkbenchAssignmentMode mode,
+        bool inArea,
+        bool isSpecificallySelected
+    ) =>
+        mode switch
+        {
+            WorkbenchAssignmentMode.All => true,
+            WorkbenchAssignmentMode.Area => inArea,
+            WorkbenchAssignmentMode.Specific => isSpecificallySelected,
+            _ => true,
+        };
+
+    /// <summary>
     /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
     /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them).
     /// </summary>
     internal sealed class ProductionWorkData
     {
         public List<Bill_Production> DeadBillsToForget = [];
+        public List<Bill_Production> OutOfScopeBillsToRemove = [];
         public List<Building_WorkTable> WorkTablesNeedingNewBill = [];
         public List<Bill_Production> BillsToActivate = [];
         public List<Bill_Production> BillsToSuspend = [];
@@ -79,6 +114,41 @@ internal sealed class ManagerJob_Production
             Notify_TargetsChanged();
         }
     }
+
+    public WorkbenchAssignmentMode AssignmentMode = WorkbenchAssignmentMode.All;
+    public Area? WorkbenchArea;
+    public bool InvertWorkbenchArea;
+    public HashSet<Building_WorkTable> SpecificWorkbenches = [];
+
+    private string? _tmpWorkbenchAreaLabel;
+
+    /// <summary>
+    /// Every built, billable work table on the map that could run <see cref="Recipe"/>,
+    /// regardless of <see cref="AssignmentMode"/>. Used both to compute which work tables are
+    /// actually in scope and to populate the "Specific" mode picker in the tab.
+    /// </summary>
+    public IEnumerable<Building_WorkTable> AllEligibleWorkTables
+    {
+        get
+        {
+            if (Recipe == null)
+            {
+                return [];
+            }
+
+            var recipeUsers = Recipe.AllRecipeUsers.ToHashSet();
+            return Manager
+                .map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>()
+                .Where(wt => wt.billStack != null && recipeUsers.Contains(wt.def));
+        }
+    }
+
+    public bool IsWorkTableInScope(Building_WorkTable workTable) =>
+        IsWorkTableInScope(
+            AssignmentMode,
+            Utilities.IsInAllowedArea(WorkbenchArea, workTable.Position, InvertWorkbenchArea),
+            SpecificWorkbenches.Contains(workTable)
+        );
 
     public Trigger_Threshold TriggerThreshold => (Trigger_Threshold)Trigger!;
 
@@ -136,6 +206,40 @@ internal sealed class ManagerJob_Production
 
         Scribe_Defs.Look(ref _recipe, "recipe");
         Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
+        Scribe_Values.Look(ref AssignmentMode, "assignmentMode", WorkbenchAssignmentMode.All);
+        Scribe_Values.Look(ref InvertWorkbenchArea, "invertWorkbenchArea");
+
+        if (Manager.ScribeSameMapData)
+        {
+            Scribe_References.Look(ref WorkbenchArea, "workbenchArea");
+            Scribe_Collections.Look(
+                ref SpecificWorkbenches,
+                "specificWorkbenches",
+                LookMode.Reference
+            );
+        }
+        else
+        {
+            Utilities.Scribe_AreaByLabel(
+                ref WorkbenchArea,
+                ref _tmpWorkbenchAreaLabel,
+                "workbenchArea",
+                Manager.map.areaManager
+            );
+
+            // Specific work table instances have no cross-map/template identity the way an
+            // Area's label does, so they can't be carried through an export/import; the job
+            // keeps AssignmentMode == Specific but with an empty selection, and the player
+            // re-picks work tables in the tab after importing.
+        }
+    }
+
+    protected override void Notify_AreaRemoved(Area area)
+    {
+        if (WorkbenchArea == area)
+        {
+            WorkbenchArea = null;
+        }
     }
 
     [CoroutineSettingsMethod]
@@ -155,6 +259,10 @@ internal sealed class ManagerJob_Production
                 (Func<ManagerLog, AnyBoxed<ProductionWorkData?>, Coroutine>)GatherJobDataCoroutine
             );
 
+        // Specific-mode selections can accumulate references to work tables that were later
+        // deconstructed; prune those opportunistically so they don't linger forever.
+        _ = SpecificWorkbenches.RemoveWhere(wt => wt.Destroyed || !wt.Spawned);
+
         var workData = new ProductionWorkData();
 
         foreach (var bill in _managedBills)
@@ -169,11 +277,23 @@ internal sealed class ManagerJob_Production
         var liveManagedBills = _managedBills.Except(workData.DeadBillsToForget).ToList();
 
         var recipeUsers = Recipe.AllRecipeUsers.ToHashSet();
-        var eligibleWorkTables = Manager
+        var inScopeWorkTables = Manager
             .map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>()
-            .Where(wt => wt.billStack != null && recipeUsers.Contains(wt.def))
+            .Where(wt =>
+                wt.billStack != null && recipeUsers.Contains(wt.def) && IsWorkTableInScope(wt)
+            )
             .ToList();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        // A managed bill whose work table fell out of scope (e.g. area/specific selection
+        // changed) should be forgotten too, so the bench reverts to fully unmanaged instead of
+        // being stuck in whatever suspended/active state it last had.
+        var inScopeBillStacks = inScopeWorkTables.Select(wt => wt.billStack).ToHashSet();
+        var outOfScopeBills = liveManagedBills
+            .Where(b => !inScopeBillStacks.Contains(b.billStack))
+            .ToList();
+        workData.OutOfScopeBillsToRemove.AddRange(outOfScopeBills);
+        liveManagedBills = [.. liveManagedBills.Except(outOfScopeBills)];
 
         var triggerActive = TriggerThreshold.State;
         JobState = triggerActive ? ManagerJobState.Active : ManagerJobState.Completed;
@@ -185,7 +305,7 @@ internal sealed class ManagerJob_Production
             )
         );
 
-        foreach (var workTable in eligibleWorkTables)
+        foreach (var workTable in inScopeWorkTables)
         {
             var managedBill = liveManagedBills.Find(b => b.billStack == workTable.billStack);
 
@@ -231,6 +351,16 @@ internal sealed class ManagerJob_Production
         foreach (var bill in data.DeadBillsToForget)
         {
             _ = _managedBills.Remove(bill);
+        }
+
+        foreach (var bill in data.OutOfScopeBillsToRemove)
+        {
+            if (!bill.DeletedOrDereferenced)
+            {
+                bill.billStack.Delete(bill);
+            }
+            _ = _managedBills.Remove(bill);
+            workDone.Value = true;
         }
 
         foreach (var workTable in data.WorkTablesNeedingNewBill)

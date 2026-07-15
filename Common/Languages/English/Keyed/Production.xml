@@ -3,6 +3,14 @@
     <ColonyManagerRedux.Production.Recipe>Recipe</ColonyManagerRedux.Production.Recipe>
     <ColonyManagerRedux.Production.NoRecipesFound>No recipes found.</ColonyManagerRedux.Production.NoRecipesFound>
     <ColonyManagerRedux.Production.ManagedBillCount>Managed bills: {0}</ColonyManagerRedux.Production.ManagedBillCount>
+    <ColonyManagerRedux.Production.WorkbenchScope>Workbenches</ColonyManagerRedux.Production.WorkbenchScope>
+    <ColonyManagerRedux.Production.WorkbenchScope.All>All</ColonyManagerRedux.Production.WorkbenchScope.All>
+    <ColonyManagerRedux.Production.WorkbenchScope.All.Tip>Every eligible workbench on the map is managed by this job.</ColonyManagerRedux.Production.WorkbenchScope.All.Tip>
+    <ColonyManagerRedux.Production.WorkbenchScope.Area>Area</ColonyManagerRedux.Production.WorkbenchScope.Area>
+    <ColonyManagerRedux.Production.WorkbenchScope.Area.Tip>Only workbenches within (or outside, if inverted) a chosen area are managed by this job.</ColonyManagerRedux.Production.WorkbenchScope.Area.Tip>
+    <ColonyManagerRedux.Production.WorkbenchScope.Specific>Specific</ColonyManagerRedux.Production.WorkbenchScope.Specific>
+    <ColonyManagerRedux.Production.WorkbenchScope.Specific.Tip>Only the workbenches you explicitly select are managed by this job.</ColonyManagerRedux.Production.WorkbenchScope.Specific.Tip>
+    <ColonyManagerRedux.Production.WorkbenchScope.NoEligibleWorkbenches>No eligible workbenches built yet.</ColonyManagerRedux.Production.WorkbenchScope.NoEligibleWorkbenches>
     <ColonyManagerRedux.Production.Logs.CurrentCount>Current count / target: {0} / {1}</ColonyManagerRedux.Production.Logs.CurrentCount>
     <ColonyManagerRedux.Production.Logs.BillAdded>Added a {0} bill to {1}.</ColonyManagerRedux.Production.Logs.BillAdded>
 </LanguageData>
