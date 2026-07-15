@@ -396,43 +396,27 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         if (job.RestrictToArea)
         {
             // area selectors table
-            // set up a 3x3 table of rects
-            var cols = 3;
             var fifth = width / 5;
             float[] widths = [fifth, fifth * 2, fifth * 2];
             float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-            var areaRects = new Rect[cols, cols];
-#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
-            for (var x = 0; x < cols; x++)
-            {
-                for (var y = 0; y < cols; y++)
-                {
-                    areaRects[x, y] = new Rect(
-                        widths.Take(x).Sum(),
-                        pos.y + heights.Take(y).Sum(),
-                        widths[x] - Margin,
-                        heights[y]
-                    );
-                }
-            }
+            var areaRects = BuildGridRects(pos, widths, heights, Margin);
 
             // headers
             IlyvionWidgets.Label(
-                areaRects[1, 0],
+                areaRects[0, 1],
                 Gender.Female.ToString(),
                 TextAnchor.LowerCenter,
                 GameFont.Tiny
             );
             IlyvionWidgets.Label(
-                areaRects[2, 0],
+                areaRects[0, 2],
                 Gender.Male.ToString(),
                 TextAnchor.LowerCenter,
                 GameFont.Tiny
             );
             IlyvionWidgets.Label(
-                areaRects[0, 1],
+                areaRects[1, 0],
                 "ColonyManagerRedux.Livestock.Adult".Translate(),
                 TextAnchor.MiddleRight,
                 GameFont.Tiny
@@ -447,7 +431,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 0
             );
             job.RestrictArea[1] = AreaAllowedGUI.DoAllowedAreaSelectors(
-                ref areaRects[2, 1],
+                ref areaRects[1, 2],
                 job.RestrictArea[1],
                 2,
                 Manager,
@@ -455,19 +439,19 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             );
 
             // update the juvenile rects
-            areaRects[0, 2].y = areaRects[1, 1].yMax + Margin;
-            areaRects[1, 2].y = areaRects[1, 1].yMax + Margin;
+            areaRects[2, 0].y = areaRects[1, 1].yMax + Margin;
+            areaRects[2, 1].y = areaRects[1, 1].yMax + Margin;
             areaRects[2, 2].y = areaRects[1, 1].yMax + Margin;
 
             IlyvionWidgets.Label(
-                areaRects[0, 2],
+                areaRects[2, 0],
                 "ColonyManagerRedux.Livestock.Juvenile".Translate(),
                 TextAnchor.MiddleRight,
                 GameFont.Tiny
             );
 
             job.RestrictArea[2] = AreaAllowedGUI.DoAllowedAreaSelectors(
-                ref areaRects[1, 2],
+                ref areaRects[2, 1],
                 job.RestrictArea[2],
                 2,
                 Manager,
@@ -484,15 +468,15 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
             {
                 Widgets.DrawRectFast(areaRects[0, 0], ColorLibrary.Red.ToTransparent(.5f));
-                Widgets.DrawRectFast(areaRects[0, 1], ColorLibrary.Green.ToTransparent(.5f));
-                Widgets.DrawRectFast(areaRects[0, 2], ColorLibrary.Blue.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[1, 0], ColorLibrary.Green.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[2, 0], ColorLibrary.Blue.ToTransparent(.5f));
 
-                Widgets.DrawRectFast(areaRects[1, 0], ColorLibrary.Cyan.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[0, 1], ColorLibrary.Cyan.ToTransparent(.5f));
                 Widgets.DrawRectFast(areaRects[1, 1], ColorLibrary.Yellow.ToTransparent(.5f));
-                Widgets.DrawRectFast(areaRects[1, 2], ColorLibrary.Magenta.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[2, 1], ColorLibrary.Magenta.ToTransparent(.5f));
 
-                Widgets.DrawRectFast(areaRects[2, 0], ColorLibrary.Orange.ToTransparent(.5f));
-                Widgets.DrawRectFast(areaRects[2, 1], ColorLibrary.Purple.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[0, 2], ColorLibrary.Orange.ToTransparent(.5f));
+                Widgets.DrawRectFast(areaRects[1, 2], ColorLibrary.Purple.ToTransparent(.5f));
                 Widgets.DrawRectFast(areaRects[2, 2], ColorLibrary.Pink.ToTransparent(.5f));
             });
 
@@ -1393,29 +1377,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
     private float DrawTargetCountsSection(ManagerJob_Livestock job, Vector2 pos, float width)
     {
         // counts table
-        var cols = 3;
-        var rows = 3;
         var fifth = width / 5;
         float[] widths = [fifth, fifth * 2, fifth * 2];
         float[] heights = [ListEntryHeight * 2 / 3, ListEntryHeight, ListEntryHeight];
 
-        // set up a 3x3 table of rects
-#pragma warning disable CA1814
-        var countRects = new Rect[rows, cols];
-#pragma warning restore CA1814
-        for (var x = 0; x < cols; x++)
-        {
-            for (var y = 0; y < rows; y++)
-            {
-                // kindof overkill for a 3x3 table, but ok.
-                countRects[y, x] = new Rect(
-                    pos.x + widths.Take(x).Sum(),
-                    pos.y + heights.Take(y).Sum(),
-                    widths[x],
-                    heights[y]
-                );
-            }
-        }
+        var countRects = BuildGridRects(pos, widths, heights);
 
         // headers
         IlyvionWidgets.Label(

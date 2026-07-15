@@ -732,6 +732,54 @@ public static class Utilities
     }
 
     /// <summary>
+    /// Builds a grid of <see cref="Rect"/>s laid out from <paramref name="pos"/>, with column
+    /// widths and row heights taken from <paramref name="widths"/> and <paramref name="heights"/>
+    /// respectively. Used to lay out small fixed-size tables (e.g. a gender/age-class grid of
+    /// selectors or count fields) without repeating the same running-sum rect math at each call
+    /// site.
+    /// </summary>
+    /// <param name="pos">The top-left position to start the grid at.</param>
+    /// <param name="widths">The width of each column, in order.</param>
+    /// <param name="heights">The height of each row, in order.</param>
+    /// <param name="columnMargin">Subtracted from each column's width, to leave a gap between columns.</param>
+    /// <returns>
+    /// A <c>[row, column]</c>-indexed array of rects, <c>heights.Length</c> rows by
+    /// <c>widths.Length</c> columns.
+    /// </returns>
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+    public static Rect[,] BuildGridRects(
+        Vector2 pos,
+        float[] widths,
+        float[] heights,
+        float columnMargin = 0f
+    )
+    {
+        if (widths == null)
+        {
+            throw new ArgumentNullException(nameof(widths));
+        }
+        if (heights == null)
+        {
+            throw new ArgumentNullException(nameof(heights));
+        }
+
+        var rects = new Rect[heights.Length, widths.Length];
+        var y = pos.y;
+        for (var row = 0; row < heights.Length; row++)
+        {
+            var x = pos.x;
+            for (var col = 0; col < widths.Length; col++)
+            {
+                rects[row, col] = new Rect(x, y, widths[col] - columnMargin, heights[row]);
+                x += widths[col];
+            }
+            y += heights[row];
+        }
+        return rects;
+    }
+#pragma warning restore CA1814 // Prefer jagged arrays over multidimensional
+
+    /// <summary>
     /// Draws a single boundary-gated reordering button (move up/down/top/bottom, etc.):
     /// nothing is drawn and <paramref name="onClick"/> is not invoked when
     /// <paramref name="atBoundary"/> is <see langword="true"/> (e.g. the item is already at the
