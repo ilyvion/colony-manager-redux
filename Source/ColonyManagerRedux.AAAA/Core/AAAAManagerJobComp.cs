@@ -69,6 +69,7 @@ internal sealed class AAAAManagerJobCompField(
     private bool _useAAAAEvacuation;
     private List<Area?> _previousAreas = [];
     private bool _hasWarnedAboutNullAreas;
+    private bool _hasWarnedAboutEmptyPreviousAreas;
 
     public void Initialize() => _useAAAAEvacuation = props.defaultValue;
 
@@ -234,7 +235,16 @@ internal sealed class AAAAManagerJobCompField(
 
         if (jobAreaField.FieldType == typeof(Area))
         {
-            jobAreaField.SetValue(parent, _previousAreas[0]);
+            if (!TryGetAreaToRestore(_previousAreas, out var previousArea))
+            {
+                ColonyManagerReduxMod.Instance.LogWarningOnce(
+                    $"[AAAAManagerJobComp] Job '{parent.Def.defName}''s {jobAreaField.Name} had no previous area recorded, we can't restore the job area",
+                    ref _hasWarnedAboutEmptyPreviousAreas
+                );
+                return;
+            }
+
+            jobAreaField.SetValue(parent, previousArea);
             _previousAreas.Clear();
         }
         else if (typeof(ICollection<Area>).IsAssignableFrom(jobAreaField.FieldType))
@@ -407,6 +417,25 @@ internal sealed class AAAAManagerJobCompField(
                 onRestoreFailed(restoreEx);
             }
         }
+    }
+
+    /// <summary>
+    /// Pulls the single area to restore off <paramref name="previousAreas"/>. Fails instead of
+    /// indexing blindly, guarding against normal-mode firing without a matching prior danger-mode
+    /// call (e.g. a comp added mid-danger-mode, or any desync in AAAA's watcher state) leaving
+    /// <paramref name="previousAreas"/> empty.
+    /// </summary>
+    internal static bool TryGetAreaToRestore<T>(IReadOnlyList<T?> previousAreas, out T? area)
+        where T : class
+    {
+        if (previousAreas.Count == 0)
+        {
+            area = null;
+            return false;
+        }
+
+        area = previousAreas[0];
+        return true;
     }
 
     private Area_Allowed? GetSafeAreaFor(Area? previousArea) =>

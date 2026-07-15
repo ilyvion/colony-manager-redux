@@ -107,6 +107,31 @@ internal static class AAAAManagerJobCompTests
         Assert.That(restoreFailed).Is.True();
     }
 
+    [Test]
+    public static void TryGetAreaToRestoreReturnsFirstAreaWhenPreviousAreasIsNonEmpty()
+    {
+        var previousAreas = new List<string?> { "old1", "old2" };
+
+        var found = AAAAManagerJobCompField.TryGetAreaToRestore(previousAreas, out var area);
+
+        Assert.That(found).Is.True();
+        Assert.That(area).Is.EqualTo("old1");
+    }
+
+    [Test]
+    public static void TryGetAreaToRestoreFailsWhenPreviousAreasIsEmpty()
+    {
+        // Regression guard: normal mode firing without a matching prior danger-mode
+        // call (e.g. a comp added mid-danger-mode) must not throw an IndexOutOfRangeException
+        // from indexing an empty previous-areas list.
+        var previousAreas = new List<string?>();
+
+        var found = AAAAManagerJobCompField.TryGetAreaToRestore(previousAreas, out var area);
+
+        Assert.That(found).Is.False();
+        Assert.That(area is null).Is.True();
+    }
+
     private const string Suffix = " \\(Safe\\)";
 
     [Test]
