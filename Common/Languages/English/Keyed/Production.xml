@@ -11,6 +11,8 @@
     <ColonyManagerRedux.Production.WorkbenchScope.Specific>Specific</ColonyManagerRedux.Production.WorkbenchScope.Specific>
     <ColonyManagerRedux.Production.WorkbenchScope.Specific.Tip>Only the workbenches you explicitly select are managed by this job.</ColonyManagerRedux.Production.WorkbenchScope.Specific.Tip>
     <ColonyManagerRedux.Production.WorkbenchScope.NoEligibleWorkbenches>No eligible workbenches built yet.</ColonyManagerRedux.Production.WorkbenchScope.NoEligibleWorkbenches>
+    <ColonyManagerRedux.Production.JobSettings>Job settings</ColonyManagerRedux.Production.JobSettings>
+    <ColonyManagerRedux.Production.SkillRange.Label>{0} skill range:</ColonyManagerRedux.Production.SkillRange.Label>
     <ColonyManagerRedux.Production.Logs.CurrentCount>Current count / target: {0} / {1}</ColonyManagerRedux.Production.Logs.CurrentCount>
     <ColonyManagerRedux.Production.Logs.BillAdded>Added a {0} bill to {1}.</ColonyManagerRedux.Production.Logs.BillAdded>
 </LanguageData>

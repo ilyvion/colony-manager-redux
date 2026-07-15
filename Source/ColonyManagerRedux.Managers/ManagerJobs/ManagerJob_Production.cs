@@ -80,6 +80,43 @@ internal sealed class ManagerJob_Production
         };
 
     /// <summary>
+    /// Pure comparison used to decide whether a managed bill's <see cref="Bill.allowedSkillRange"/>
+    /// is out of sync with the job's <see cref="AllowedSkillRange"/> and needs to be pushed to it,
+    /// kept separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable without a
+    /// live <see cref="Bill_Production"/>.
+    /// </summary>
+    internal static bool BillNeedsSkillRangeUpdate(
+        IntRange billSkillRange,
+        IntRange jobSkillRange
+    ) => billSkillRange != jobSkillRange;
+
+    /// <summary>
+    /// Pure comparison used to decide whether a managed bill's
+    /// <see cref="Bill.ingredientSearchRadius"/> is out of sync with the job's
+    /// <see cref="IngredientSearchRadius"/>, kept separate from
+    /// <see cref="GatherJobDataCoroutine"/> so it's unit-testable without a live
+    /// <see cref="Bill_Production"/>.
+    /// </summary>
+    internal static bool BillNeedsIngredientRadiusUpdate(
+        float billIngredientRadius,
+        float jobIngredientRadius
+    ) => billIngredientRadius != jobIngredientRadius;
+
+    /// <summary>
+    /// Pure comparison used to decide whether a managed bill's store mode
+    /// (<see cref="Bill.GetStoreMode"/>) is out of sync with the job's <see cref="StoreMode"/>,
+    /// kept separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable without a
+    /// live <see cref="Bill_Production"/>. Doesn't compare the specific stockpile/storage group
+    /// itself (an <see cref="ISlotGroup"/> reference comparison, not meaningfully unit-testable)
+    /// — callers must additionally compare that when <see cref="StoreMode"/> is
+    /// <see cref="BillStoreModeDefOf.SpecificStockpile"/>.
+    /// </summary>
+    internal static bool BillNeedsStoreModeUpdate(
+        BillStoreModeDef billStoreMode,
+        BillStoreModeDef jobStoreMode
+    ) => billStoreMode != jobStoreMode;
+
+    /// <summary>
     /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
     /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them).
     /// </summary>
@@ -90,6 +127,9 @@ internal sealed class ManagerJob_Production
         public List<Building_WorkTable> WorkTablesNeedingNewBill = [];
         public List<Bill_Production> BillsToActivate = [];
         public List<Bill_Production> BillsToSuspend = [];
+        public List<Bill_Production> BillsNeedingSkillRangeUpdate = [];
+        public List<Bill_Production> BillsNeedingIngredientRadiusUpdate = [];
+        public List<Bill_Production> BillsNeedingStoreModeUpdate = [];
     }
 
     private List<Bill_Production> _managedBills = [];
@@ -119,6 +159,34 @@ internal sealed class ManagerJob_Production
     public Area? WorkbenchArea;
     public bool InvertWorkbenchArea;
     public HashSet<Building_WorkTable> SpecificWorkbenches = [];
+
+    /// <summary>
+    /// Mirrors <see cref="Bill.allowedSkillRange"/>, applied to every bill this job manages.
+    /// Only meaningful (and only shown in the tab) when <see cref="Recipe"/> has a
+    /// <see cref="RecipeDef.workSkill"/> — matches vanilla's own <c>Dialog_BillConfig</c>, which
+    /// hides the control entirely otherwise.
+    /// </summary>
+    public IntRange AllowedSkillRange = new(0, 20);
+
+    /// <summary>
+    /// Mirrors <see cref="Bill.ingredientSearchRadius"/>, applied to every bill this job manages.
+    /// Default matches vanilla's own unlimited-radius default.
+    /// </summary>
+    public float IngredientSearchRadius = 999f;
+
+    /// <summary>
+    /// Mirrors <see cref="Bill_Production.GetStoreMode"/>, applied to every bill this job
+    /// manages. Default matches vanilla's own <see cref="BillStoreModeDefOf.BestStockpile"/>
+    /// default.
+    /// </summary>
+    public BillStoreModeDef StoreMode = BillStoreModeDefOf.BestStockpile;
+
+    /// <summary>
+    /// The specific stockpile/storage group to deliver to when <see cref="StoreMode"/> is
+    /// <see cref="BillStoreModeDefOf.SpecificStockpile"/>; unused (and left stale) otherwise,
+    /// same as vanilla's own <c>Bill_Production.storeGroup</c>.
+    /// </summary>
+    public ISlotGroup? StoreGroup;
 
     private string? _tmpWorkbenchAreaLabel;
 
@@ -208,6 +276,10 @@ internal sealed class ManagerJob_Production
         Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
         Scribe_Values.Look(ref AssignmentMode, "assignmentMode", WorkbenchAssignmentMode.All);
         Scribe_Values.Look(ref InvertWorkbenchArea, "invertWorkbenchArea");
+        Scribe_Values.Look(ref AllowedSkillRange, "allowedSkillRange", new IntRange(0, 20));
+        Scribe_Values.Look(ref IngredientSearchRadius, "ingredientSearchRadius", 999f);
+        Scribe_Defs.Look(ref StoreMode, "storeMode");
+        StoreMode ??= BillStoreModeDefOf.BestStockpile;
 
         if (Manager.ScribeSameMapData)
         {
@@ -217,6 +289,31 @@ internal sealed class ManagerJob_Production
                 "specificWorkbenches",
                 LookMode.Reference
             );
+
+            // ISlotGroup itself isn't directly referenceable; mirrors vanilla
+            // Bill_Production.SaveSlotReferencable/LoadSlotReferencable, which scribes either
+            // the group itself (storage buildings/groups) or its zone parent (stockpile zones).
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                var storeGroupReferencable = StoreGroup switch
+                {
+                    ILoadReferenceable loadReferenceable => loadReferenceable,
+                    SlotGroup { parent: ILoadReferenceable parent } => parent,
+                    _ => null,
+                };
+                Scribe_References.Look(ref storeGroupReferencable, "storeGroup");
+            }
+            else if (Scribe.mode is LoadSaveMode.LoadingVars or LoadSaveMode.ResolvingCrossRefs)
+            {
+                ILoadReferenceable? storeGroupReferencable = null;
+                Scribe_References.Look(ref storeGroupReferencable, "storeGroup");
+                StoreGroup = storeGroupReferencable switch
+                {
+                    ISlotGroup slotGroup => slotGroup,
+                    ISlotGroupParent slotGroupParent => slotGroupParent.GetSlotGroup(),
+                    _ => null,
+                };
+            }
         }
         else
         {
@@ -232,6 +329,14 @@ internal sealed class ManagerJob_Production
             // keeps AssignmentMode == Specific but with an empty selection, and the player
             // re-picks work tables in the tab after importing.
         }
+
+        // Cross-map import intentionally drops StoreGroup (see comment above); a same-map load
+        // can also legitimately fail to resolve it if the zone/storage was deleted since saving.
+        // Mirrors vanilla Bill_Production.ValidateSettings' equivalent fallback.
+        if (StoreGroup == null && StoreMode == BillStoreModeDefOf.SpecificStockpile)
+        {
+            StoreMode = BillStoreModeDefOf.BestStockpile;
+        }
     }
 
     protected override void Notify_AreaRemoved(Area area)
@@ -241,6 +346,18 @@ internal sealed class ManagerJob_Production
             WorkbenchArea = null;
         }
     }
+
+    private bool IsStoreGroupStillValid(ISlotGroup slot) =>
+        slot switch
+        {
+            SlotGroup { parent: Zone_Stockpile zone } => Manager.map.zoneManager.AllZones.Contains(
+                zone
+            ),
+            SlotGroup { parent: Building_Storage storage } =>
+                Manager.map.haulDestinationManager.AllGroups.Contains(storage.slotGroup),
+            StorageGroup storageGroup => Manager.map.storageGroups.HasStorageGroup(storageGroup),
+            _ => true,
+        };
 
     [CoroutineSettingsMethod]
     protected override Coroutine GatherJobDataCoroutine(
@@ -262,6 +379,15 @@ internal sealed class ManagerJob_Production
         // Specific-mode selections can accumulate references to work tables that were later
         // deconstructed; prune those opportunistically so they don't linger forever.
         _ = SpecificWorkbenches.RemoveWhere(wt => wt.Destroyed || !wt.Spawned);
+
+        // Unlike areas (Notify_AreaRemoved) there's no live "zone/storage deleted" notification
+        // to hook into, so validity is checked lazily here instead, mirroring vanilla
+        // Bill_Production.ValidateGroup/IsZoneValid/IsBuildingValid/IsStorageGroupValid.
+        if (StoreGroup != null && !IsStoreGroupStillValid(StoreGroup))
+        {
+            StoreGroup = null;
+            StoreMode = BillStoreModeDefOf.BestStockpile;
+        }
 
         var workData = new ProductionWorkData();
 
@@ -294,6 +420,26 @@ internal sealed class ManagerJob_Production
             .ToList();
         workData.OutOfScopeBillsToRemove.AddRange(outOfScopeBills);
         liveManagedBills = [.. liveManagedBills.Except(outOfScopeBills)];
+
+        workData.BillsNeedingSkillRangeUpdate.AddRange(
+            liveManagedBills.Where(b =>
+                BillNeedsSkillRangeUpdate(b.allowedSkillRange, AllowedSkillRange)
+            )
+        );
+        workData.BillsNeedingIngredientRadiusUpdate.AddRange(
+            liveManagedBills.Where(b =>
+                BillNeedsIngredientRadiusUpdate(b.ingredientSearchRadius, IngredientSearchRadius)
+            )
+        );
+        workData.BillsNeedingStoreModeUpdate.AddRange(
+            liveManagedBills.Where(b =>
+                BillNeedsStoreModeUpdate(b.GetStoreMode(), StoreMode)
+                || (
+                    StoreMode == BillStoreModeDefOf.SpecificStockpile
+                    && b.GetSlotGroup() != StoreGroup
+                )
+            )
+        );
 
         var triggerActive = TriggerThreshold.State;
         JobState = triggerActive ? ManagerJobState.Active : ManagerJobState.Completed;
@@ -370,6 +516,12 @@ internal sealed class ManagerJob_Production
                 ? new Bill_ProductionWithUft(recipe, null)
                 : new Bill_Production(recipe, null);
             bill.repeatMode = BillRepeatModeDefOf.Forever;
+            bill.allowedSkillRange = AllowedSkillRange;
+            bill.ingredientSearchRadius = IngredientSearchRadius;
+            bill.SetStoreMode(
+                StoreMode,
+                StoreMode == BillStoreModeDefOf.SpecificStockpile ? StoreGroup : null
+            );
             workTable.billStack.AddBill(bill);
             _managedBills.Add(bill);
             workDone.Value = true;
@@ -393,6 +545,27 @@ internal sealed class ManagerJob_Production
         foreach (var bill in data.BillsToSuspend)
         {
             bill.suspended = true;
+            workDone.Value = true;
+        }
+
+        foreach (var bill in data.BillsNeedingSkillRangeUpdate)
+        {
+            bill.allowedSkillRange = AllowedSkillRange;
+            workDone.Value = true;
+        }
+
+        foreach (var bill in data.BillsNeedingIngredientRadiusUpdate)
+        {
+            bill.ingredientSearchRadius = IngredientSearchRadius;
+            workDone.Value = true;
+        }
+
+        foreach (var bill in data.BillsNeedingStoreModeUpdate)
+        {
+            bill.SetStoreMode(
+                StoreMode,
+                StoreMode == BillStoreModeDefOf.SpecificStockpile ? StoreGroup : null
+            );
             workDone.Value = true;
         }
     }

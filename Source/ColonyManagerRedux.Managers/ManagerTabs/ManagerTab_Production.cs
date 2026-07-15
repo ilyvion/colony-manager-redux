@@ -231,6 +231,14 @@ internal sealed class ManagerTab_Production(Manager manager)
             DrawWorkbenchScope,
             "ColonyManagerRedux.Production.WorkbenchScope".Translate()
         );
+        DrawSection(
+            ProductionOptions,
+            "JobSettings",
+            ref position,
+            width,
+            DrawJobSettings,
+            "ColonyManagerRedux.Production.JobSettings".Translate()
+        );
         DrawSection(ProductionOptions, "Status", ref position, width, DrawStatus);
         Widgets_Section.EndSectionColumn(ProductionOptions, position);
 
@@ -268,6 +276,238 @@ internal sealed class ManagerTab_Production(Manager manager)
         job.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight, targets: []);
         return pos.y - start.y;
     }
+
+    // Combines skill range, ingredient radius and store mode into a single section instead of
+    // one section per setting; each sub-widget already carries its own inline label, so a
+    // section header per setting was just wasted vertical space.
+    private static float DrawJobSettings(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        if (job.Recipe?.workSkill != null)
+        {
+            pos.y += DrawSkillRange(job, pos, width);
+        }
+        pos.y += DrawIngredientRadius(job, pos, width);
+        pos.y += DrawStoreMode(job, pos, width);
+
+        return pos.y - start.y;
+    }
+
+    private static float DrawSkillRange(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+        var workSkill = job.Recipe!.workSkill!;
+
+        var labelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Widgets.Label(
+            labelRect,
+            "ColonyManagerRedux.Production.SkillRange.Label".Translate(workSkill.LabelCap)
+        );
+        pos.y += ListEntryHeight;
+
+        var rangeRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Widgets.IntRange(rangeRect, job.GetHashCode(), ref job.AllowedSkillRange, 0, 20);
+        pos.y += ListEntryHeight;
+
+        return pos.y - start.y;
+    }
+
+    // Mirrors vanilla Dialog_BillConfig.DoIngredientConfigPane's radius sub-widget: a label
+    // showing the current radius (or "Unlimited" once it hits 999) above a 3-100 slider that
+    // snaps to unlimited at its top end.
+    private static float DrawIngredientRadius(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var labelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        var valueLabel =
+            job.IngredientSearchRadius >= 999f
+                ? "Unlimited".Translate().ToString()
+                : job.IngredientSearchRadius.ToString("F0", CultureInfo.InvariantCulture);
+        Widgets.Label(labelRect, "IngredientSearchRadius".Translate() + ": " + valueLabel);
+        pos.y += ListEntryHeight;
+
+        var sliderRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        var displayedRadius = job.IngredientSearchRadius > 100f ? 100f : job.IngredientSearchRadius;
+        var newRadius = Widgets.HorizontalSlider(sliderRect, displayedRadius, 3f, 100f);
+        job.IngredientSearchRadius = newRadius >= 100f ? 999f : newRadius;
+        pos.y += ListEntryHeight;
+
+        return pos.y - start.y;
+    }
+
+    // Mirrors vanilla Dialog_BillConfig.DoWindowContents' store-mode button + FloatMenu, and
+    // FillOutputDropdownOptions/FillSlotGroupOptions/ShouldCollapseGroup for populating it with
+    // every stockpile zone/storage building/storage group on the map.
+    private static float DrawStoreMode(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var buttonRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        var groupLabel = job.StoreGroup != null ? SlotGroup.GetGroupLabel(job.StoreGroup) : "";
+        var label = string.Format(CultureInfo.InvariantCulture, job.StoreMode.LabelCap, groupLabel);
+        if (Widgets.ButtonText(buttonRect, label))
+        {
+            Find.WindowStack.Add(new FloatMenu(BuildStoreModeOptions(job)));
+        }
+        pos.y += ListEntryHeight;
+
+        return pos.y - start.y;
+    }
+
+    private static List<FloatMenuOption> BuildStoreModeOptions(ManagerJob_Production job)
+    {
+        var opts = new List<FloatMenuOption>();
+        foreach (
+            var storeModeDef in DefDatabase<BillStoreModeDef>.AllDefsListForReading.OrderBy(sm =>
+                sm.listOrder
+            )
+        )
+        {
+            if (storeModeDef == BillStoreModeDefOf.SpecificStockpile)
+            {
+                FillSpecificStockpileOptions(job, opts);
+                continue;
+            }
+
+            var storeModeDefLocal = storeModeDef;
+            opts.Add(
+                new FloatMenuOption(
+                    storeModeDefLocal.LabelCap,
+                    () =>
+                    {
+                        job.StoreMode = storeModeDefLocal;
+                        job.StoreGroup = null;
+                    }
+                )
+            );
+        }
+        return opts;
+    }
+
+    private static void FillSpecificStockpileOptions(
+        ManagerJob_Production job,
+        List<FloatMenuOption> opts
+    )
+    {
+        var prefix = BillStoreModeDefOf.SpecificStockpile.LabelCap;
+        var groupsByLabel = new Dictionary<string, List<ISlotGroup>>();
+        foreach (
+            var slotGroup in job.Manager.map.haulDestinationManager.AllGroupsListInPriorityOrder
+        )
+        {
+            if (slotGroup.StorageGroup != null)
+            {
+                var storageGroup = slotGroup.StorageGroup;
+                if (!groupsByLabel.TryGetValue(storageGroup.GroupingLabel, out var list))
+                {
+                    groupsByLabel[storageGroup.GroupingLabel] = list = [];
+                }
+                if (!list.Contains(storageGroup))
+                {
+                    list.Add(storageGroup);
+                }
+            }
+            else if (slotGroup.parent is not Building_Storage or IRenameable)
+            {
+                if (!groupsByLabel.TryGetValue(slotGroup.GroupingLabel, out var list))
+                {
+                    groupsByLabel[slotGroup.GroupingLabel] = list = [];
+                }
+                list.Add(slotGroup);
+            }
+        }
+
+        var orderedGroups = groupsByLabel
+            .OrderBy(kvp => kvp.Value.Count > 0 ? kvp.Value[0].GroupingOrder : 0)
+            .ToList();
+        foreach (var (label, groups) in orderedGroups)
+        {
+            var collapse =
+                groups.Count > 2
+                && groupsByLabel.Any(kvp => kvp.Key != label && kvp.Value.Count > 0);
+            if (collapse)
+            {
+                opts.Add(
+                    new FloatMenuOption(
+                        label,
+                        () =>
+                            Find.WindowStack.Add(
+                                new FloatMenu(FillSlotGroupOptions(job, groups, prefix))
+                            )
+                    )
+                );
+            }
+        }
+        foreach (var (label, groups) in orderedGroups)
+        {
+            var collapse =
+                groups.Count > 2
+                && groupsByLabel.Any(kvp => kvp.Key != label && kvp.Value.Count > 0);
+            if (!collapse)
+            {
+                opts.AddRange(FillSlotGroupOptions(job, groups, prefix));
+            }
+        }
+    }
+
+    private static List<FloatMenuOption> FillSlotGroupOptions(
+        ManagerJob_Production job,
+        List<ISlotGroup> groups,
+        string prefix
+    )
+    {
+        var opts = new List<FloatMenuOption>();
+        foreach (var group in groups)
+        {
+            var groupLocal = group;
+            var label = string.Format(
+                CultureInfo.InvariantCulture,
+                prefix,
+                SlotGroup.GetGroupLabel(groupLocal)
+            );
+
+            if (!CanPossiblyStore(job.Recipe!, groupLocal))
+            {
+                opts.Add(
+                    new FloatMenuOption(
+                        string.Format(
+                            CultureInfo.InvariantCulture,
+                            "{0} ({1})",
+                            label,
+                            "IncompatibleLower".Translate()
+                        ),
+                        null
+                    )
+                );
+                continue;
+            }
+
+            opts.Add(
+                new FloatMenuOption(
+                    label,
+                    () =>
+                    {
+                        job.StoreMode = BillStoreModeDefOf.SpecificStockpile;
+                        job.StoreGroup = groupLocal;
+                    }
+                )
+            );
+        }
+        return opts;
+    }
+
+    // Mirrors vanilla RecipeWorkerCounter.CanPossiblyStore/CanCountProducts' default
+    // implementation: only recipes with a single, non-special product can be checked against a
+    // slot group's storage filter at all; anything else (including the special-product recipes
+    // like butchery/smelting/stonecutting that this codebase doesn't support tracking for yet,
+    // see Docs/ProductionManagerRework.md Step 4) is treated as always compatible.
+    private static bool CanPossiblyStore(RecipeDef recipe, ISlotGroup slotGroup) =>
+        recipe.specialProducts != null
+        || recipe.products == null
+        || recipe.products.Count != 1
+        || slotGroup.Settings.AllowedToAccept(recipe.products[0].thingDef);
 
     private static float DrawStatus(ManagerJob_Production job, Vector2 pos, float width)
     {

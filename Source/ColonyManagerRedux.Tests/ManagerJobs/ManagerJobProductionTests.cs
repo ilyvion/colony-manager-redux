@@ -138,4 +138,42 @@ internal static class ManagerJobProductionTests
             )
             .Is.True();
     }
+
+    [Test]
+    public static void MatchingSkillRangeNeedsNoUpdate() =>
+        Assert.That(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(0, 20))).Is.False();
+
+    [Test]
+    public static void MismatchedSkillRangeNeedsUpdate() =>
+        Assert.That(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(5, 15))).Is.True();
+
+    [Test]
+    public static void MatchingIngredientRadiusNeedsNoUpdate() =>
+        Assert.That(BillNeedsIngredientRadiusUpdate(999f, 999f)).Is.False();
+
+    [Test]
+    public static void MismatchedIngredientRadiusNeedsUpdate() =>
+        Assert.That(BillNeedsIngredientRadiusUpdate(999f, 12f)).Is.True();
+
+    [Test]
+    public static void MatchingStoreModeNeedsNoUpdate() =>
+        Assert
+            .That(
+                BillNeedsStoreModeUpdate(
+                    BillStoreModeDefOf.BestStockpile,
+                    BillStoreModeDefOf.BestStockpile
+                )
+            )
+            .Is.False();
+
+    [Test]
+    public static void MismatchedStoreModeNeedsUpdate() =>
+        Assert
+            .That(
+                BillNeedsStoreModeUpdate(
+                    BillStoreModeDefOf.DropOnFloor,
+                    BillStoreModeDefOf.BestStockpile
+                )
+            )
+            .Is.True();
 }
