@@ -152,115 +152,77 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
     public float DrawAnimalList(Vector2 pos, float width)
     {
-        var start = pos;
-        // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedAnimals = SelectedHuntingJob.AllowedAnimals;
-        var allAnimals = SelectedHuntingJob.AllAnimals;
 
-        // toggle for each animal
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var animalDef in allAnimals)
+        return Utilities.DrawToggleDefList(
+            pos,
+            width,
+            SelectedHuntingJob.AllAnimals,
+            allowedAnimals.Contains,
+            (animalDef, allow) => SelectedHuntingJob.SetAnimalAllowed(animalDef, allow),
+            animalDef => animalDef.LabelCap,
+            animalDef => new TipSignal(
+                GetAnimalKindTooltip(animalDef, SelectedHuntingJob.TargetResource),
+                animalDef.GetHashCode()
+            ),
+            (rect, animalDef) => Widgets.InfoCardButton(rect, animalDef.race),
+            DrawAnimalListExtraIcons
+        );
+    }
+
+    private void DrawAnimalListExtraIcons(Rect toggleRect, PawnKindDef animalDef, bool allowed)
+    {
+        var iconRect = new Rect(
+            toggleRect.xMax - (2 * (SmallIconSize + Margin)) - Margin,
+            toggleRect.yMin + ((toggleRect.height - SmallIconSize) / 2),
+            SmallIconSize,
+            SmallIconSize
+        );
+
+        // if aggressive, draw warning icon
+        if (animalDef.RaceProps.manhunterOnDamageChance >= 0.1)
         {
-            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            var color = GUI.color;
+            GUI.color = Utilities_Hunting.GetManhunterIconColor(
+                allowed,
+                animalDef.RaceProps.manhunterOnDamageChance
+            );
+            GUI.DrawTexture(iconRect, Resources.ClawIcon);
+            GUI.color = color;
+
+            iconRect.x -= Margin + SmallIconSize;
+        }
+
+        if (ModsConfig.IdeologyActive)
+        {
+            var atLeastOneVenerated = false;
+            var allVenerated = true;
+            foreach (var item in Manager.map.mapPawns.FreeColonistsSpawned)
             {
-                rowRect.y += ListEntryHeight;
-                continue;
+                var isVenerated = item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
+                atLeastOneVenerated |= isVenerated;
+                allVenerated &= isVenerated;
             }
 
-            var toggleRect = rowRect;
-
-            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
-            {
-                // Info card button
-                var infoRect = new Rect(
-                    rowRect.xMin,
-                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
-                    SmallIconSize,
-                    SmallIconSize
-                );
-                _ = Widgets.InfoCardButton(infoRect, animalDef.race);
-
-                toggleRect.xMin += SmallIconSize;
-            }
-
-            // draw the toggle
-            Utilities.DrawToggle(
-                toggleRect,
-                animalDef.LabelCap,
-                new TipSignal(
-                    GetAnimalKindTooltip(animalDef, SelectedHuntingJob.TargetResource),
-                    animalDef.GetHashCode()
-                ),
-                allowedAnimals.Contains(animalDef),
-                () =>
-                    SelectedHuntingJob.SetAnimalAllowed(
-                        animalDef,
-                        !allowedAnimals.Contains(animalDef)
-                    )
-            );
-
-            var iconRect = new Rect(
-                toggleRect.xMax - (2 * (SmallIconSize + Margin)) - Margin,
-                toggleRect.yMin + ((toggleRect.height - SmallIconSize) / 2),
-                SmallIconSize,
-                SmallIconSize
-            );
-
-            // if aggressive, draw warning icon
-            if (animalDef.RaceProps.manhunterOnDamageChance >= 0.1)
+            if (atLeastOneVenerated)
             {
                 var color = GUI.color;
-                GUI.color = allowedAnimals.Contains(animalDef)
-                    ? animalDef.RaceProps.manhunterOnDamageChance > 0.25
-                        ? Color.red
-                        : Resources.Orange
-                    : Color.gray;
-                GUI.DrawTexture(iconRect, Resources.ClawIcon);
+                GUI.color = Utilities_Hunting.GetVeneratedIconColor(allowed, allVenerated);
+                GUI.DrawTexture(iconRect, Resources.Venerated);
                 GUI.color = color;
+
+                TooltipHandler.TipRegion(
+                    iconRect,
+                    "ColonyManagerRedux.Hunting.VeneratedAnimal.Tip".Translate(
+                        allVenerated
+                            ? "ColonyManagerRedux.Misc.All".Translate()
+                            : "ColonyManagerRedux.Misc.Some".Translate()
+                    )
+                );
 
                 iconRect.x -= Margin + SmallIconSize;
             }
-
-            if (ModsConfig.IdeologyActive)
-            {
-                var atLeastOneVenerated = false;
-                var allVenerated = true;
-                foreach (var item in Manager.map.mapPawns.FreeColonistsSpawned)
-                {
-                    var isVenerated =
-                        item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
-                    atLeastOneVenerated |= isVenerated;
-                    allVenerated &= isVenerated;
-                }
-
-                if (atLeastOneVenerated)
-                {
-                    var color = GUI.color;
-                    GUI.color = allowedAnimals.Contains(animalDef)
-                        ? allVenerated
-                            ? Color.red
-                            : Resources.Orange
-                        : Color.gray;
-                    GUI.DrawTexture(iconRect, Resources.Venerated);
-                    GUI.color = color;
-
-                    TooltipHandler.TipRegion(
-                        iconRect,
-                        "ColonyManagerRedux.Hunting.VeneratedAnimal.Tip".Translate(
-                            allVenerated
-                                ? "ColonyManagerRedux.Misc.All".Translate()
-                                : "ColonyManagerRedux.Misc.Some".Translate()
-                        )
-                    );
-
-                    iconRect.x -= Margin + SmallIconSize;
-                }
-            }
-
-            rowRect.y += ListEntryHeight;
         }
-
-        return rowRect.yMin - start.y;
     }
 
     private static readonly List<string> _tmpAnimalKindTooltipYields = [];

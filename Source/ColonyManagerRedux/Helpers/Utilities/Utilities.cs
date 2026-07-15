@@ -634,6 +634,103 @@ public static class Utilities
         float margin = Margin
     ) => DrawToggle(rect, label, tooltip, checkOn, toggle, toggle, expensive, size, margin);
 
+    /// <summary>
+    /// Draws a culled, scrollable list of toggle rows for a set of defs, one row per item,
+    /// each with an optional info card button and optional extra per-row icons. Shared by
+    /// job tabs that let the user toggle a set of allowed defs (trees, plants, minerals,
+    /// buildings, animals, etc.) on or off.
+    /// </summary>
+    /// <param name="pos">The position at which to start drawing the list.</param>
+    /// <param name="width">The width of the list.</param>
+    /// <param name="items">The defs to draw a toggle row for, in order.</param>
+    /// <param name="isAllowed">Returns whether the given item is currently allowed.</param>
+    /// <param name="setAllowed">Sets whether the given item is allowed.</param>
+    /// <param name="label">Returns the row label for the given item.</param>
+    /// <param name="tooltip">Returns the row tooltip for the given item.</param>
+    /// <param name="drawInfoCardButton">
+    /// Draws an info card button for the given item at the given rect, if info card buttons
+    /// are enabled in settings. If <see langword="null"/>, no info card button is drawn.
+    /// </param>
+    /// <param name="drawExtraIcons">
+    /// Draws any extra per-row icons (e.g. warning/status overlays) for the given item at the
+    /// given toggle rect, given its current allowed state.
+    /// </param>
+    /// <returns>The total height of the drawn list.</returns>
+    public static float DrawToggleDefList<T>(
+        Vector2 pos,
+        float width,
+        IEnumerable<T> items,
+        Func<T, bool> isAllowed,
+        Action<T, bool> setAllowed,
+        Func<T, string> label,
+        Func<T, TipSignal> tooltip,
+        Action<Rect, T>? drawInfoCardButton = null,
+        Action<Rect, T, bool>? drawExtraIcons = null
+    )
+    {
+        if (items == null)
+        {
+            throw new ArgumentNullException(nameof(items));
+        }
+        if (isAllowed == null)
+        {
+            throw new ArgumentNullException(nameof(isAllowed));
+        }
+        if (label == null)
+        {
+            throw new ArgumentNullException(nameof(label));
+        }
+        if (tooltip == null)
+        {
+            throw new ArgumentNullException(nameof(tooltip));
+        }
+
+        var start = pos;
+
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        foreach (var item in items)
+        {
+            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                rowRect.y += ListEntryHeight;
+                continue;
+            }
+
+            var toggleRect = rowRect;
+
+            if (
+                drawInfoCardButton != null
+                && ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible
+            )
+            {
+                var infoRect = new Rect(
+                    rowRect.xMin,
+                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                drawInfoCardButton(infoRect, item);
+
+                toggleRect.xMin += SmallIconSize;
+            }
+
+            var allowed = isAllowed(item);
+            DrawToggle(
+                toggleRect,
+                label(item),
+                tooltip(item),
+                allowed,
+                () => setAllowed(item, !isAllowed(item))
+            );
+
+            drawExtraIcons?.Invoke(toggleRect, item, allowed);
+
+            rowRect.y += ListEntryHeight;
+        }
+
+        return rowRect.yMin - start.y;
+    }
+
     private static readonly List<IntVec3> _tmpHomeCells = [];
 
     /// <summary>

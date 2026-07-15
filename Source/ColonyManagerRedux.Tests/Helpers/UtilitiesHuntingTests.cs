@@ -52,4 +52,64 @@ internal static class UtilitiesHuntingTests
                 Utilities_Hunting.CombineAndOrderPawnKindSources(wild: [], visible: [], corpses: [])
             )
             .Is.Empty();
+
+    [Test]
+    public static void ManhunterIconColorIsGrayWhenAnimalNotAllowed() =>
+        Assert
+            .That(
+                Utilities_Hunting.GetManhunterIconColor(
+                    allowed: false,
+                    manhunterOnDamageChance: 0.9f
+                ) == Color.gray
+            )
+            .Is.True();
+
+    [Test]
+    public static void ManhunterIconColorIsRedAboveQuarterChanceWhenAllowed() =>
+        Assert
+            .That(
+                Utilities_Hunting.GetManhunterIconColor(
+                    allowed: true,
+                    manhunterOnDamageChance: 0.26f
+                ) == Color.red
+            )
+            .Is.True();
+
+    [Test]
+    public static void ManhunterIconColorIsOrangeAtOrBelowQuarterChanceWhenAllowed() =>
+        Assert
+            .That(
+                Utilities_Hunting.GetManhunterIconColor(
+                    allowed: true,
+                    manhunterOnDamageChance: 0.25f
+                ) == Resources.Orange
+            )
+            .Is.True();
+
+    [Test]
+    public static void VeneratedIconColorIsGrayWhenAnimalNotAllowed() =>
+        Assert
+            .That(
+                Utilities_Hunting.GetVeneratedIconColor(allowed: false, allVenerated: true)
+                    == Color.gray
+            )
+            .Is.True();
+
+    [Test]
+    public static void VeneratedIconColorIsRedWhenAllColonistsVenerateAndAllowed() =>
+        Assert
+            .That(
+                Utilities_Hunting.GetVeneratedIconColor(allowed: true, allVenerated: true)
+                    == Color.red
+            )
+            .Is.True();
+
+    [Test]
+    public static void VeneratedIconColorIsOrangeWhenOnlySomeColonistsVenerateAndAllowed() =>
+        Assert
+            .That(
+                Utilities_Hunting.GetVeneratedIconColor(allowed: true, allVenerated: false)
+                    == Resources.Orange
+            )
+            .Is.True();
 }

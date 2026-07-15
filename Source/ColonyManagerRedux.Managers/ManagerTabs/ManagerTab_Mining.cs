@@ -73,56 +73,25 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
 
     public float DrawAllowedBuildings(Vector2 pos, float width)
     {
-        var start = pos;
-
         var allowedBuildings = SelectedMiningJob.AllowedBuildings;
-        var allBuildings = SelectedMiningJob.AllDeconstructibleBuildings;
 
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var building in allBuildings)
-        {
-            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
+        return Utilities.DrawToggleDefList(
+            pos,
+            width,
+            SelectedMiningJob.AllDeconstructibleBuildings,
+            allowedBuildings.Contains,
+            (building, allow) => SelectedMiningJob.SetBuildingAllowed(building, allow),
+            building => building.LabelCap,
+            building => building.description,
+            (rect, building) =>
             {
-                rowRect.y += ListEntryHeight;
-                continue;
-            }
-
-            var toggleRect = rowRect;
-
-            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
-            {
-                // Info card button
-                var infoRect = new Rect(
-                    rowRect.xMin,
-                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
-                    SmallIconSize,
-                    SmallIconSize
-                );
-
-                if (Widgets.InfoCardButtonWorker(infoRect))
+                if (Widgets.InfoCardButtonWorker(rect))
                 {
                     var stuffDef = GenStuff.AllowedStuffsFor(building).RandomElement();
                     Find.WindowStack.Add(new Dialog_InfoCard(building, stuffDef));
                 }
-
-                toggleRect.xMin += SmallIconSize;
             }
-
-            Utilities.DrawToggle(
-                toggleRect,
-                building.LabelCap,
-                building.description,
-                allowedBuildings.Contains(building),
-                () =>
-                    SelectedMiningJob.SetBuildingAllowed(
-                        building,
-                        !allowedBuildings.Contains(building)
-                    )
-            );
-            rowRect.y += ListEntryHeight;
-        }
-
-        return rowRect.yMin - start.y;
+        );
     }
 
     public float DrawAllowedBuildingsShortcuts(Vector2 pos, float width)
@@ -149,48 +118,18 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
 
     public float DrawAllowedMinerals(Vector2 pos, float width)
     {
-        var start = pos;
-        // list of keys in allowed animals list (all animals in biome + visible animals on map)
         var allowedMinerals = SelectedMiningJob.AllowedMinerals;
 
-        // toggle for each animal
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var mineral in SelectedMiningJob.AllMinerals)
-        {
-            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
-            {
-                rowRect.y += ListEntryHeight;
-                continue;
-            }
-
-            var toggleRect = rowRect;
-
-            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
-            {
-                // Info card button
-                var infoRect = new Rect(
-                    rowRect.xMin,
-                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
-                    SmallIconSize,
-                    SmallIconSize
-                );
-                _ = Widgets.InfoCardButton(infoRect, mineral);
-
-                toggleRect.xMin += SmallIconSize;
-            }
-
-            // draw the toggle
-            Utilities.DrawToggle(
-                toggleRect,
-                mineral.LabelCap,
-                new TipSignal(() => GetMineralTooltip(mineral), mineral.GetHashCode()),
-                allowedMinerals.Contains(mineral),
-                () => SelectedMiningJob.SetAllowMineral(mineral, !allowedMinerals.Contains(mineral))
-            );
-            rowRect.y += ListEntryHeight;
-        }
-
-        return rowRect.yMin - start.y;
+        return Utilities.DrawToggleDefList(
+            pos,
+            width,
+            SelectedMiningJob.AllMinerals,
+            allowedMinerals.Contains,
+            (mineral, allow) => SelectedMiningJob.SetAllowMineral(mineral, allow),
+            mineral => mineral.LabelCap,
+            mineral => new TipSignal(() => GetMineralTooltip(mineral), mineral.GetHashCode()),
+            (rect, mineral) => Widgets.InfoCardButton(rect, mineral)
+        );
     }
 
     private readonly List<ThingDef> _tmpThings = [];

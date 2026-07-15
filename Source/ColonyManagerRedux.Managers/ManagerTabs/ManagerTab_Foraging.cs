@@ -169,50 +169,18 @@ internal sealed class ManagerTab_Foraging(Manager manager)
 
     public float DrawPlantList(Vector2 pos, float width)
     {
-        var start = pos;
-
-        // list of keys in allowed trees list (all plans that yield wood in biome, static)
         var allowedPlants = SelectedForagingJob.AllowedPlants;
-        var allPlants = SelectedForagingJob.AllPlants;
 
-        // toggle for each plant
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var plantDef in allPlants)
-        {
-            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
-            {
-                rowRect.y += ListEntryHeight;
-                continue;
-            }
-
-            var toggleRect = rowRect;
-
-            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
-            {
-                // Info card button
-                var infoRect = new Rect(
-                    rowRect.xMin,
-                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
-                    SmallIconSize,
-                    SmallIconSize
-                );
-                _ = Widgets.InfoCardButton(infoRect, plantDef);
-
-                toggleRect.xMin += SmallIconSize;
-            }
-
-            Utilities.DrawToggle(
-                toggleRect,
-                plantDef.LabelCap,
-                new TipSignal(() => GetPlantTooltip(plantDef), plantDef.GetHashCode()),
-                allowedPlants.Contains(plantDef),
-                () =>
-                    SelectedForagingJob.SetPlantAllowed(plantDef, !allowedPlants.Contains(plantDef))
-            );
-            rowRect.y += ListEntryHeight;
-        }
-
-        return rowRect.yMin - start.y;
+        return Utilities.DrawToggleDefList(
+            pos,
+            width,
+            SelectedForagingJob.AllPlants,
+            allowedPlants.Contains,
+            (plantDef, allow) => SelectedForagingJob.SetPlantAllowed(plantDef, allow),
+            plantDef => plantDef.LabelCap,
+            plantDef => new TipSignal(() => GetPlantTooltip(plantDef), plantDef.GetHashCode()),
+            (rect, plantDef) => Widgets.InfoCardButton(rect, plantDef)
+        );
     }
 
     public static string GetPlantTooltip(ThingDef plant)

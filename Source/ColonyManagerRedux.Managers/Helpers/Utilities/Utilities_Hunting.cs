@@ -78,4 +78,24 @@ internal static class Utilities_Hunting
         IEnumerable<PawnKindDef> visible,
         IEnumerable<PawnKindDef> corpses
     ) => wild.Concat(visible).Concat(corpses).Distinct().OrderBy(pk => pk.label);
+
+    /// <summary>
+    /// Chooses the color of the manhunter-risk warning icon drawn next to an animal's toggle
+    /// row: gray when the animal isn't allowed (the risk doesn't apply), otherwise red above a
+    /// 25% manhunter-on-damage chance and orange below it.
+    /// </summary>
+    internal static Color GetManhunterIconColor(bool allowed, float manhunterOnDamageChance) =>
+        !allowed ? Color.gray
+        : manhunterOnDamageChance > 0.25 ? Color.red
+        : Resources.Orange;
+
+    /// <summary>
+    /// Chooses the color of the venerated-animal icon drawn next to an animal's toggle row:
+    /// gray when the animal isn't allowed, otherwise red when every colonist venerates it and
+    /// orange when only some do.
+    /// </summary>
+    internal static Color GetVeneratedIconColor(bool allowed, bool allVenerated) =>
+        !allowed ? Color.gray
+        : allVenerated ? Color.red
+        : Resources.Orange;
 }

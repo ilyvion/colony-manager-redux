@@ -339,46 +339,18 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
     public float DrawTreeList(Vector2 pos, float width)
     {
-        var start = pos;
         var allowedTrees = SelectedForestryJob.AllowedTrees;
 
-        // toggle for each tree
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        foreach (var plantDef in SelectedForestryJob.AllPlants)
-        {
-            if (Widgets_Section.CanCull(rowRect.y, rowRect.height))
-            {
-                rowRect.y += ListEntryHeight;
-                continue;
-            }
-
-            var toggleRect = rowRect;
-
-            if (ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible)
-            {
-                // Info card button
-                var infoRect = new Rect(
-                    rowRect.xMin,
-                    rowRect.yMin + ((ListEntryHeight - SmallIconSize) / 2) - 2,
-                    SmallIconSize,
-                    SmallIconSize
-                );
-                _ = Widgets.InfoCardButton(infoRect, plantDef);
-
-                toggleRect.xMin += SmallIconSize;
-            }
-
-            Utilities.DrawToggle(
-                toggleRect,
-                plantDef.LabelCap,
-                new TipSignal(() => GetTreeTooltip(plantDef), plantDef.GetHashCode()),
-                allowedTrees.Contains(plantDef),
-                () => SelectedForestryJob.SetTreeAllowed(plantDef, !allowedTrees.Contains(plantDef))
-            );
-            rowRect.y += ListEntryHeight;
-        }
-
-        return rowRect.yMin - start.y;
+        return Utilities.DrawToggleDefList(
+            pos,
+            width,
+            SelectedForestryJob.AllPlants,
+            allowedTrees.Contains,
+            (plantDef, allow) => SelectedForestryJob.SetTreeAllowed(plantDef, allow),
+            plantDef => plantDef.LabelCap,
+            plantDef => new TipSignal(() => GetTreeTooltip(plantDef), plantDef.GetHashCode()),
+            (rect, plantDef) => Widgets.InfoCardButton(rect, plantDef)
+        );
     }
 
     private readonly List<ThingDef> _tmpThings = [];
