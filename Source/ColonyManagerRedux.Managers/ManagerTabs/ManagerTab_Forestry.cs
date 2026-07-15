@@ -224,19 +224,15 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         return ListEntryHeight;
     }
 
-    public float DrawAreaRestriction(ManagerJob_Forestry job, Vector2 pos, float width)
-    {
-        var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.LoggingArea, 5, Manager);
-        Utilities.DrawToggle(
+    public float DrawAreaRestriction(ManagerJob_Forestry job, Vector2 pos, float width) =>
+        AreaAllowedGUI.DoAllowedAreaSelectorsWithInvert(
             ref pos,
             width,
-            "ColonyManagerRedux.InvertArea".Translate(),
-            "ColonyManagerRedux.InvertArea.Tip".Translate(),
-            ref job.InvertLoggingArea
+            ref job.LoggingArea,
+            ref job.InvertLoggingArea,
+            5,
+            Manager
         );
-        return pos.y - start.y;
-    }
 
     public float DrawClearArea(ManagerJob_Forestry job, Vector2 pos, float width)
     {

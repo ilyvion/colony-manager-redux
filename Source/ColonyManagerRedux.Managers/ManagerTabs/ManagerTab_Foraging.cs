@@ -140,19 +140,15 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         }
     }
 
-    public float DrawAreaRestriction(ManagerJob_Foraging job, Vector2 pos, float width)
-    {
-        var start = pos;
-        AreaAllowedGUI.DoAllowedAreaSelectors(ref pos, width, ref job.ForagingArea, 5, Manager);
-        Utilities.DrawToggle(
+    public float DrawAreaRestriction(ManagerJob_Foraging job, Vector2 pos, float width) =>
+        AreaAllowedGUI.DoAllowedAreaSelectorsWithInvert(
             ref pos,
             width,
-            "ColonyManagerRedux.InvertArea".Translate(),
-            "ColonyManagerRedux.InvertArea.Tip".Translate(),
-            ref job.InvertForagingArea
+            ref job.ForagingArea,
+            ref job.InvertForagingArea,
+            5,
+            Manager
         );
-        return pos.y - start.y;
-    }
 
     public float DrawMaturePlants(ManagerJob_Foraging job, Vector2 pos, float width)
     {

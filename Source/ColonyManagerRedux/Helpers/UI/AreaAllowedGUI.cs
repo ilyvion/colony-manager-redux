@@ -121,6 +121,39 @@ public static class AreaAllowedGUI
     }
 
     /// <summary>
+    /// Draws the allowed area selector UI followed by an "invert area" toggle below it.
+    /// </summary>
+    /// <param name="pos">Reference to the position to start drawing.</param>
+    /// <param name="width">The width of the selector area.</param>
+    /// <param name="area">Reference to the currently selected area.</param>
+    /// <param name="invert">Reference to whether the area should be inverted.</param>
+    /// <param name="countPerRow">Number of areas per row.</param>
+    /// <param name="map">The map containing the areas.</param>
+    /// <param name="margin">Optional margin for the selector area.</param>
+    /// <returns>The total height drawn.</returns>
+    public static float DoAllowedAreaSelectorsWithInvert(
+        ref Vector2 pos,
+        float width,
+        ref Area? area,
+        ref bool invert,
+        int countPerRow,
+        Map map,
+        float margin = 0
+    )
+    {
+        var start = pos;
+        DoAllowedAreaSelectors(ref pos, width, ref area, countPerRow, map, margin);
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.InvertArea".Translate(),
+            "ColonyManagerRedux.InvertArea.Tip".Translate(),
+            ref invert
+        );
+        return pos.y - start.y;
+    }
+
+    /// <summary>
     /// Draws the multi-select allowed area selector UI.
     /// </summary>
     /// <param name="rect">The rectangle in which to draw.</param>
