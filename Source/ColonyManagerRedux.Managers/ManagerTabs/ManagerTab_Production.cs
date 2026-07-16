@@ -15,6 +15,7 @@ internal sealed class ManagerTab_Production(Manager manager)
     private const string ProductionOptions = "Production.Options";
     private const string ProductionIngredients = "Production.Ingredients";
     private const float RecipeRowHeight = 42f;
+    private const string TargetCountControlName = "ManagerTab_Production_TargetCount";
 
     public ManagerJob_Production SelectedProductionJob => SelectedJob!;
 
@@ -25,6 +26,7 @@ internal sealed class ManagerTab_Production(Manager manager)
     private readonly QuickSearchWidget _quickSearchWidget = new();
     private List<RecipeDef> _visibleRecipes = [];
     private readonly ScrollViewStatus _availableScrollViewStatus = new();
+    private string _targetCountInput = "";
 
     public override void PreOpen() => Refresh();
 
@@ -350,7 +352,7 @@ internal sealed class ManagerTab_Production(Manager manager)
         return pos.y - start.y;
     }
 
-    private static float DrawThreshold(ManagerJob_Production job, Vector2 pos, float width)
+    private float DrawThreshold(ManagerJob_Production job, Vector2 pos, float width)
     {
         var start = pos;
 
@@ -371,16 +373,29 @@ internal sealed class ManagerTab_Production(Manager manager)
     // ConsumeSurplus mode, this doesn't expose the cog icon that would let a player override
     // that auto-derived filter directly, nor the now-irrelevant "allow any threshold" toggle —
     // only the parts that stay meaningful when trigger == output: the current/target readout,
-    // the target-count slider, and the count-all-on-map toggle.
-    private static void DrawThresholdReadOnly(
-        ManagerJob_Production job,
-        ref Vector2 pos,
-        float width
-    )
+    // the target-count slider plus an exact-value text field, and the count-all-on-map toggle.
+    private void DrawThresholdReadOnly(ManagerJob_Production job, ref Vector2 pos, float width)
     {
         var trigger = job.TriggerThreshold;
 
-        var labelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        // The slider alone can only land on values a whole pixel apart, which is too coarse to
+        // reliably hit an exact target — pair it with a click-to-type field, mirroring the
+        // exact-count text field in WindowTriggerThresholdDetails (same re-sync-when-unfocused /
+        // red-on-invalid-parse pattern). Placed where that dialog's cog icon would otherwise sit,
+        // since that icon (and the dialog it opens) isn't available in MaintainStock mode.
+        const float TargetCountFieldWidth = 60f;
+        var labelRect = new Rect(
+            pos.x,
+            pos.y,
+            width - TargetCountFieldWidth - Margin,
+            ListEntryHeight
+        );
+        var targetCountFieldRect = new Rect(
+            labelRect.xMax + Margin,
+            pos.y,
+            TargetCountFieldWidth,
+            ListEntryHeight
+        );
         var label =
             "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(
                 trigger.GetCurrentCount(),
@@ -397,6 +412,27 @@ internal sealed class ManagerTab_Production(Manager manager)
         pos.y += SliderHeight;
         trigger.TargetCount = (int)
             Widgets.HorizontalSlider(sliderRect, trigger.TargetCount, 0, trigger.MaxUpperThreshold);
+
+        if (GUI.GetNameOfFocusedControl() != TargetCountControlName)
+        {
+            _targetCountInput = trigger.TargetCount.ToString(CultureInfo.InvariantCulture);
+        }
+        var oldColor = GUI.color;
+        if (int.TryParse(_targetCountInput, out var typedTargetCount))
+        {
+            trigger.TargetCount = typedTargetCount;
+            if (trigger.TargetCount > trigger.MaxUpperThreshold)
+            {
+                trigger.MaxUpperThreshold = trigger.TargetCount;
+            }
+        }
+        else
+        {
+            GUI.color = new Color(1f, 0f, 0f);
+        }
+        GUI.SetNextControlName(TargetCountControlName);
+        _targetCountInput = Widgets.TextField(targetCountFieldRect, _targetCountInput);
+        GUI.color = oldColor;
 
         var countAllOnMapRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
