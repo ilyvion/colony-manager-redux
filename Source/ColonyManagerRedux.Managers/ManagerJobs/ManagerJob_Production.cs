@@ -140,6 +140,93 @@ internal sealed class ManagerJob_Production
     ) => billStoreMode != jobStoreMode;
 
     /// <summary>
+    /// Splits a total <paramref name="shortfall"/> as evenly as possible across
+    /// <paramref name="tableCount"/> work tables, so <see cref="ProductionMode.MaintainStock"/>
+    /// bills can be scheduled to produce exactly the shortfall between them instead of each
+    /// running unbounded until a threshold poll notices and suspends them (the overshoot this
+    /// step exists to fix). Remainder is distributed to the first
+    /// <c>shortfall % tableCount</c> tables. Pure function, kept separate from
+    /// <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// </summary>
+    /// <returns>
+    /// An array of length <paramref name="tableCount"/>; empty if <paramref name="tableCount"/>
+    /// is zero or negative; all zeros if <paramref name="shortfall"/> is zero or negative.
+    /// </returns>
+    internal static int[] SplitShortfall(int shortfall, int tableCount)
+    {
+        if (tableCount <= 0)
+        {
+            return [];
+        }
+
+        var shares = new int[tableCount];
+        if (shortfall <= 0)
+        {
+            return shares;
+        }
+
+        var baseShare = shortfall / tableCount;
+        var remainder = shortfall % tableCount;
+        for (var i = 0; i < tableCount; i++)
+        {
+            shares[i] = baseShare + (i < remainder ? 1 : 0);
+        }
+        return shares;
+    }
+
+    /// <summary>
+    /// Converts a work table's item-count <paramref name="share"/> (from
+    /// <see cref="SplitShortfall"/>) into the number of bill iterations needed to produce it,
+    /// given how many items a single iteration of the recipe yields. Pure function, kept
+    /// separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// </summary>
+    /// <param name="share">The item-count share to convert, from <see cref="SplitShortfall"/>.</param>
+    /// <param name="yieldPerIteration">
+    /// Items produced per iteration. Treated as <c>1</c> if zero or negative, so a recipe with
+    /// an unknown/variable yield still gets a conservative (generous) iteration estimate rather
+    /// than a division error.
+    /// </param>
+    internal static int SharesToIterations(int share, int yieldPerIteration)
+    {
+        if (share <= 0)
+        {
+            return 0;
+        }
+
+        var yield = Math.Max(1, yieldPerIteration);
+        return (share + yield - 1) / yield;
+    }
+
+    /// <summary>
+    /// Pure comparison used to decide whether a <see cref="ProductionMode.MaintainStock"/>
+    /// managed bill's repeat mode/count is out of sync with its freshly computed
+    /// <paramref name="targetRepeatCount"/> and needs to be pushed to it, kept separate from
+    /// <see cref="GatherJobDataCoroutine"/> so it's unit-testable without a live
+    /// <see cref="Bill_Production"/>. Also catches bills still left in
+    /// <see cref="BillRepeatModeDefOf.Forever"/> mode from before this mode existed (or from an
+    /// older save), migrating them to <see cref="BillRepeatModeDefOf.RepeatCount"/> the next
+    /// time they're reconciled.
+    /// </summary>
+    internal static bool BillNeedsRepeatCountUpdate(
+        BillRepeatModeDef billRepeatMode,
+        int billRepeatCount,
+        int targetRepeatCount
+    ) => billRepeatMode != BillRepeatModeDefOf.RepeatCount || billRepeatCount != targetRepeatCount;
+
+    /// <summary>
+    /// The number of items a single iteration of <paramref name="recipe"/> is known to yield,
+    /// or <c>1</c> as a conservative estimate when the yield varies (e.g.
+    /// <c>RecipeProductResolver_ButcherAnimals</c>, <c>_MakeStoneBlocks</c>, <c>_Smelted</c>).
+    /// Used to convert a <see cref="ProductionMode.MaintainStock"/> work table's item-count
+    /// share into a <see cref="Bill_Production.repeatCount"/>. Since the split is recomputed
+    /// from fresh stock counts every <see cref="GatherJobDataCoroutine"/> pass rather than
+    /// trusted once, an inexact estimate self-corrects over successive passes instead of
+    /// compounding error.
+    /// </summary>
+    internal static int YieldPerIteration(RecipeDef recipe) =>
+        recipe.ProducedThingDef != null ? recipe.products[0].count : 1;
+
+    /// <summary>
     /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
     /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them).
     /// </summary>
@@ -153,6 +240,8 @@ internal sealed class ManagerJob_Production
         public List<Bill_Production> BillsNeedingSkillRangeUpdate = [];
         public List<Bill_Production> BillsNeedingIngredientRadiusUpdate = [];
         public List<Bill_Production> BillsNeedingStoreModeUpdate = [];
+        public Dictionary<Building_WorkTable, int> MaintainStockTablesNeedingNewBill = [];
+        public List<(Bill_Production Bill, int RepeatCount)> BillsNeedingRepeatCountUpdate = [];
     }
 
     private List<Bill_Production> _managedBills = [];
@@ -320,6 +409,31 @@ internal sealed class ManagerJob_Production
             }
         }
         _managedBills.Clear();
+    }
+
+    /// <summary>
+    /// Creates a new managed <see cref="Bill_Production"/> for <see cref="Recipe"/> on
+    /// <paramref name="workTable"/>, with every job-level setting
+    /// (<see cref="AllowedSkillRange"/>, <see cref="IngredientSearchRadius"/>,
+    /// <see cref="StoreMode"/>) applied, and registers it as managed. Callers still need to set
+    /// <see cref="Bill_Production.repeatMode"/>/<see cref="Bill_Production.repeatCount"/>
+    /// themselves — those differ by <see cref="ProductionMode"/>.
+    /// </summary>
+    private Bill_Production AddManagedBill(Building_WorkTable workTable)
+    {
+        var recipe = Recipe!;
+        var bill = recipe.UsesUnfinishedThing
+            ? new Bill_ProductionWithUft(recipe, null)
+            : new Bill_Production(recipe, null);
+        bill.allowedSkillRange = AllowedSkillRange;
+        bill.ingredientSearchRadius = IngredientSearchRadius;
+        bill.SetStoreMode(
+            StoreMode,
+            StoreMode == BillStoreModeDefOf.SpecificStockpile ? StoreGroup : null
+        );
+        workTable.billStack.AddBill(bill);
+        _managedBills.Add(bill);
+        return bill;
     }
 
     public override bool IsValid => base.IsValid && Recipe != null;
@@ -523,30 +637,79 @@ internal sealed class ManagerJob_Production
             )
         );
 
-        foreach (var workTable in inScopeWorkTables)
+        if (Mode == ProductionMode.MaintainStock)
         {
-            var managedBill = liveManagedBills.Find(b => b.billStack == workTable.billStack);
+            // Exact-fill scheduling: split the shortfall across every in-scope table and push
+            // each table's share to its bill as a RepeatCount, rather than letting every table
+            // run unbounded (Forever mode) until the next poll notices the threshold is met and
+            // suspends them all — that's what let multiple tables overshoot the target between
+            // polls. Recomputed from fresh stock counts every pass, so both an uneven starting
+            // point and a variable-yield recipe's inexact YieldPerIteration estimate
+            // self-correct over successive passes instead of compounding.
+            var shortfall = Math.Max(
+                0,
+                TriggerThreshold.TargetCount - TriggerThreshold.GetCurrentCount()
+            );
+            var yieldPerIteration = YieldPerIteration(Recipe);
+            var shares = SplitShortfall(shortfall, inScopeWorkTables.Count);
 
-            switch (
-                DecideBillAction(
-                    managedBill != null,
-                    managedBill?.suspended ?? false,
-                    triggerActive
-                )
-            )
+            for (var i = 0; i < inScopeWorkTables.Count; i++)
             {
-                case ProductionBillDecision.CreateNew:
-                    workData.WorkTablesNeedingNewBill.Add(workTable);
-                    break;
-                case ProductionBillDecision.Activate:
-                    workData.BillsToActivate.Add(managedBill!);
-                    break;
-                case ProductionBillDecision.Suspend:
-                    workData.BillsToSuspend.Add(managedBill!);
-                    break;
-                case ProductionBillDecision.None:
-                default:
-                    break;
+                var workTable = inScopeWorkTables[i];
+                var iterations = SharesToIterations(shares[i], yieldPerIteration);
+                var managedBill = liveManagedBills.Find(b => b.billStack == workTable.billStack);
+
+                if (managedBill == null)
+                {
+                    // No point adding a bill to an idle table just to have it sit at
+                    // repeatCount 0 — it'll be created once this table is actually given a
+                    // share of the shortfall.
+                    if (iterations > 0)
+                    {
+                        workData.MaintainStockTablesNeedingNewBill[workTable] = iterations;
+                    }
+                    continue;
+                }
+
+                if (
+                    BillNeedsRepeatCountUpdate(
+                        managedBill.repeatMode,
+                        managedBill.repeatCount,
+                        iterations
+                    )
+                )
+                {
+                    workData.BillsNeedingRepeatCountUpdate.Add((managedBill, iterations));
+                }
+            }
+        }
+        else
+        {
+            foreach (var workTable in inScopeWorkTables)
+            {
+                var managedBill = liveManagedBills.Find(b => b.billStack == workTable.billStack);
+
+                switch (
+                    DecideBillAction(
+                        managedBill != null,
+                        managedBill?.suspended ?? false,
+                        triggerActive
+                    )
+                )
+                {
+                    case ProductionBillDecision.CreateNew:
+                        workData.WorkTablesNeedingNewBill.Add(workTable);
+                        break;
+                    case ProductionBillDecision.Activate:
+                        workData.BillsToActivate.Add(managedBill!);
+                        break;
+                    case ProductionBillDecision.Suspend:
+                        workData.BillsToSuspend.Add(managedBill!);
+                        break;
+                    case ProductionBillDecision.None:
+                    default:
+                        break;
+                }
             }
         }
 
@@ -583,29 +746,47 @@ internal sealed class ManagerJob_Production
 
         foreach (var workTable in data.WorkTablesNeedingNewBill)
         {
-            var recipe = Recipe!;
-            var bill = recipe.UsesUnfinishedThing
-                ? new Bill_ProductionWithUft(recipe, null)
-                : new Bill_Production(recipe, null);
+            var bill = AddManagedBill(workTable);
             bill.repeatMode = BillRepeatModeDefOf.Forever;
-            bill.allowedSkillRange = AllowedSkillRange;
-            bill.ingredientSearchRadius = IngredientSearchRadius;
-            bill.SetStoreMode(
-                StoreMode,
-                StoreMode == BillStoreModeDefOf.SpecificStockpile ? StoreGroup : null
-            );
-            workTable.billStack.AddBill(bill);
-            _managedBills.Add(bill);
             workDone.Value = true;
 
             jobLog.AddDetail(
                 "ColonyManagerRedux.Production.Logs.BillAdded".Translate(
-                    recipe.LabelCap,
+                    Recipe!.LabelCap,
                     workTable.LabelCap
                 )
             );
 
             yield return new ResumeAfterTicks(ticksBetweenOperations);
+        }
+
+        foreach (var (workTable, repeatCount) in data.MaintainStockTablesNeedingNewBill)
+        {
+            var bill = AddManagedBill(workTable);
+            bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
+            bill.repeatCount = repeatCount;
+            workDone.Value = true;
+
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Production.Logs.BillAdded".Translate(
+                    Recipe!.LabelCap,
+                    workTable.LabelCap
+                )
+            );
+
+            yield return new ResumeAfterTicks(ticksBetweenOperations);
+        }
+
+        foreach (var (bill, repeatCount) in data.BillsNeedingRepeatCountUpdate)
+        {
+            bill.repeatMode = BillRepeatModeDefOf.RepeatCount;
+            bill.repeatCount = repeatCount;
+            // MaintainStock no longer uses suspend/resume (a repeatCount of 0 already leaves
+            // the bench idle) — but a bill migrating from the old Forever+suspend mechanism, or
+            // one left suspended from before, still needs to be unsuspended so RepeatCount mode
+            // can actually take over.
+            bill.suspended = false;
+            workDone.Value = true;
         }
 
         foreach (var bill in data.BillsToActivate)

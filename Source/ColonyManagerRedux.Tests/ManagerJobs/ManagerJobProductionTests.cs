@@ -188,4 +188,85 @@ internal static class ManagerJobProductionTests
         Assert
             .ThatCollection(SupportedOpsForMode(ProductionMode.ConsumeSurplus))
             .Does.Contain(Trigger_Threshold.Ops.HigherThan);
+
+    private static void AssertShares(int[] actual, params int[] expected)
+    {
+        Assert.ThatCollection(actual).Has.Count(expected.Length);
+        for (var i = 0; i < expected.Length; i++)
+        {
+            Assert.That(actual[i]).Is.EqualTo(expected[i]);
+        }
+    }
+
+    [Test]
+    public static void SplitShortfallDividesEvenlyWithNoRemainder() =>
+        AssertShares(SplitShortfall(15, 3), 5, 5, 5);
+
+    [Test]
+    public static void SplitShortfallDistributesRemainderToFirstTables() =>
+        AssertShares(SplitShortfall(16, 3), 6, 5, 5);
+
+    [Test]
+    public static void SplitShortfallWithZeroTablesIsEmpty() =>
+        Assert.ThatCollection(SplitShortfall(15, 0)).Is.Empty();
+
+    [Test]
+    public static void SplitShortfallWithZeroOrNegativeShortfallIsAllZero()
+    {
+        AssertShares(SplitShortfall(0, 3), 0, 0, 0);
+        AssertShares(SplitShortfall(-5, 3), 0, 0, 0);
+    }
+
+    [Test]
+    public static void SplitShortfallWithSingleTableGetsWholeShortfall() =>
+        AssertShares(SplitShortfall(15, 1), 15);
+
+    [Test]
+    public static void SplitShortfallSmallerThanTableCountGivesEarlyTablesOneEach() =>
+        AssertShares(SplitShortfall(2, 5), 1, 1, 0, 0, 0);
+
+    [Test]
+    public static void SharesToIterationsDividesExactly() =>
+        Assert.That(SharesToIterations(10, 5)).Is.EqualTo(2);
+
+    [Test]
+    public static void SharesToIterationsRoundsRemainderUp() =>
+        Assert.That(SharesToIterations(11, 5)).Is.EqualTo(3);
+
+    [Test]
+    public static void SharesToIterationsWithZeroShareIsZero() =>
+        Assert.That(SharesToIterations(0, 5)).Is.EqualTo(0);
+
+    [Test]
+    public static void SharesToIterationsWithNonPositiveYieldFallsBackToOne() =>
+        Assert.That(SharesToIterations(3, 0)).Is.EqualTo(3);
+
+    [Test]
+    public static void MatchingRepeatCountAndModeNeedsNoUpdate() =>
+        Assert.That(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.RepeatCount, 4, 4)).Is.False();
+
+    [Test]
+    public static void MismatchedRepeatCountNeedsUpdate() =>
+        Assert.That(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.RepeatCount, 4, 7)).Is.True();
+
+    [Test]
+    public static void ForeverModeAlwaysNeedsMigrationToRepeatCount() =>
+        Assert.That(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.Forever, 0, 0)).Is.True();
+
+    [Test]
+    public static void YieldPerIterationUsesProductCountForSingleProductRecipe()
+    {
+        var thingDef = new ThingDef { defName = "CMR_TestYieldProduct" };
+        var recipe = new RecipeDef { products = [new ThingDefCountClass(thingDef, 4)] };
+
+        Assert.That(YieldPerIteration(recipe)).Is.EqualTo(4);
+    }
+
+    [Test]
+    public static void YieldPerIterationFallsBackToOneForVariableYieldRecipe() =>
+        Assert
+            .That(
+                YieldPerIteration(new RecipeDef { specialProducts = [SpecialProductType.Smelted] })
+            )
+            .Is.EqualTo(1);
 }
