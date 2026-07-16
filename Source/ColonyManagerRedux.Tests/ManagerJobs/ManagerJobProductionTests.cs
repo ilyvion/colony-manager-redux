@@ -336,6 +336,12 @@ internal static class ManagerJobProductionTests
         {
             ingredients = [new IngredientCount { filter = ingredientFilter }],
             products = [new ThingDefCountClass(duster, 1)],
+            // A real, XML-loaded RecipeDef without a <fixedIngredientFilter> tag never runs the
+            // field initializer new RecipeDef() does here (defs are instantiated by the XML
+            // loader without running constructors), so it stays null. Match that explicitly,
+            // since a non-null-but-empty ThingFilter (what new RecipeDef() actually leaves it as)
+            // would disallow everything instead of imposing no extra restriction.
+            fixedIngredientFilter = null,
         };
         var filter = new ThingFilter();
 
@@ -351,7 +357,11 @@ internal static class ManagerJobProductionTests
         var wood = new ThingDef { defName = "CMR_TestFixedWood" };
         var fixedFilter = new ThingFilter();
         fixedFilter.SetAllow(wood, true);
-        var recipe = new RecipeDef { ingredients = [new IngredientCount { filter = fixedFilter }] };
+        var recipe = new RecipeDef
+        {
+            ingredients = [new IngredientCount { filter = fixedFilter }],
+            fixedIngredientFilter = null,
+        };
         var filter = new ThingFilter();
 
         ConfigureIngredientFilter(recipe, filter);
@@ -375,6 +385,7 @@ internal static class ManagerJobProductionTests
                 new IngredientCount { filter = cottonFilter },
                 new IngredientCount { filter = leatherFilter },
             ],
+            fixedIngredientFilter = null,
         };
         var filter = new ThingFilter();
 
@@ -401,6 +412,7 @@ internal static class ManagerJobProductionTests
                 new IngredientCount { filter = slot1Filter },
                 new IngredientCount { filter = slot2Filter },
             ],
+            fixedIngredientFilter = null,
         };
 
         var options = AllRecipeIngredientOptions(recipe).ToList();
@@ -408,6 +420,33 @@ internal static class ManagerJobProductionTests
         Assert.ThatCollection(options).Has.Count(2);
         Assert.ThatCollection(options).Does.Contain(cotton);
         Assert.ThatCollection(options).Does.Contain(leather);
+    }
+
+    // Regression test: "butcher creature"'s single ingredient slot only filters on the broad
+    // "Corpses" category, so before this fix AllRecipeIngredientOptions offered mechanoid corpses
+    // as a valid ingredient even though the recipe's fixedIngredientFilter explicitly disallows
+    // them (mechanoid/drone corpses are butchered by a separate recipe). Any def excluded by
+    // fixedIngredientFilter must not appear in the options, regardless of the slot's own filter.
+    [Test]
+    public static void AllRecipeIngredientOptionsExcludesDefsDisallowedByFixedIngredientFilter()
+    {
+        var fleshCorpse = new ThingDef { defName = "CMR_TestFleshCorpse" };
+        var mechanoidCorpse = new ThingDef { defName = "CMR_TestMechanoidCorpse" };
+        var slotFilter = new ThingFilter();
+        slotFilter.SetAllow(fleshCorpse, true);
+        slotFilter.SetAllow(mechanoidCorpse, true);
+        var fixedFilter = new ThingFilter();
+        fixedFilter.SetAllow(fleshCorpse, true);
+        var recipe = new RecipeDef
+        {
+            ingredients = [new IngredientCount { filter = slotFilter }],
+            fixedIngredientFilter = fixedFilter,
+        };
+
+        var options = AllRecipeIngredientOptions(recipe).ToList();
+
+        Assert.ThatCollection(options).Does.Contain(fleshCorpse);
+        Assert.ThatCollection(options).Does.Not.Contain(mechanoidCorpse);
     }
 
     [Test]

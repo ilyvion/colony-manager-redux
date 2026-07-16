@@ -549,9 +549,23 @@ internal sealed class ManagerJob_Production
     /// which resolves what a recipe produces instead of what it consumes. Used both to seed
     /// <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter (<see cref="ConfigureIngredientFilter"/>)
     /// and to default <see cref="AllowedIngredients"/>.
+    /// <para>
+    /// Each <see cref="IngredientCount.filter"/> is often broader than what the recipe actually
+    /// accepts — e.g. "butcher creature"'s single ingredient filter just says "Corpses", while
+    /// <see cref="RecipeDef.fixedIngredientFilter"/> narrows that down further (excluding
+    /// mechanoid/drone corpses and anything that doesn't produce meat). Vanilla bill ingredient
+    /// search always applies both, so this must too, or the UI ends up offering ingredients (like
+    /// mechanoid corpses) that the bill would never actually accept.
+    /// </para>
     /// </summary>
     internal static IEnumerable<ThingDef> AllRecipeIngredientOptions(RecipeDef recipe) =>
-        recipe.ingredients.SelectMany(ingredient => ingredient.filter.AllowedThingDefs).Distinct();
+        recipe
+            .ingredients.SelectMany(ingredient => ingredient.filter.AllowedThingDefs)
+            .Where(thingDef =>
+                recipe.fixedIngredientFilter == null
+                || recipe.fixedIngredientFilter.Allows(thingDef)
+            )
+            .Distinct();
 
     /// <summary>
     /// Groups <paramref name="ingredients"/> by the category directly above each item, i.e.
