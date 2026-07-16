@@ -80,6 +80,29 @@ internal sealed class ManagerJob_Production
         };
 
     /// <summary>
+    /// Which of the two mental models this job is serving: keeping a stock of the recipe's own
+    /// output topped up, or converting a surplus of some unrelated resource into the recipe's
+    /// output. See Step 5 of <c>Docs/ProductionManagerRework.md</c>.
+    /// </summary>
+    internal enum ProductionMode
+    {
+        /// <summary>
+        /// Trigger and output are the same thing (e.g. "keep 15 steel knives around") — the
+        /// trigger filter is auto-derived from <see cref="Recipe"/>'s own product resolver, and
+        /// managed bills are scheduled to produce exactly the shortfall. Default; today's only
+        /// behavior until Increment B adds exact-fill scheduling.
+        /// </summary>
+        MaintainStock,
+
+        /// <summary>
+        /// Trigger and output are unrelated (e.g. "when cotton > 100, turn it into cotton
+        /// dusters") — the trigger filter is independently configured by the player, and there's
+        /// no target amount to hit; bills just run for as long as the trigger condition holds.
+        /// </summary>
+        ConsumeSurplus,
+    }
+
+    /// <summary>
     /// Pure comparison used to decide whether a managed bill's <see cref="Bill.allowedSkillRange"/>
     /// is out of sync with the job's <see cref="AllowedSkillRange"/> and needs to be pushed to it,
     /// kept separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable without a
@@ -155,6 +178,44 @@ internal sealed class ManagerJob_Production
         }
     }
 
+    private ProductionMode _mode = ProductionMode.MaintainStock;
+
+    /// <summary>
+    /// See <see cref="ProductionMode"/>. Switching into <see cref="ProductionMode.MaintainStock"/>
+    /// re-derives the trigger filter from <see cref="Recipe"/>; switching into
+    /// <see cref="ProductionMode.ConsumeSurplus"/> leaves whatever filter is currently set
+    /// untouched, so toggling back and forth to compare doesn't discard a manually configured
+    /// filter.
+    /// </summary>
+    public ProductionMode Mode
+    {
+        get => _mode;
+        set
+        {
+            if (_mode == value)
+            {
+                return;
+            }
+
+            _mode = value;
+            TriggerThreshold.RestrictSupportedOps(SupportedOpsForMode(_mode));
+            ConfigureThresholdTriggerFilter();
+        }
+    }
+
+    /// <summary>
+    /// The <see cref="Trigger_Threshold.Ops"/> a job may use in each <see cref="ProductionMode"/>
+    /// — <see cref="ProductionMode.MaintainStock"/> can only add stock (matches
+    /// <c>ManagerJob_Mining</c>'s own reasoning for restricting to
+    /// <see cref="Trigger_Threshold.AccumulationOnlyOps"/>), while
+    /// <see cref="ProductionMode.ConsumeSurplus"/> needs <see cref="Trigger_Threshold.Ops.HigherThan"/>
+    /// (e.g. "cotton &gt; 100") and so supports every op.
+    /// </summary>
+    internal static IReadOnlyList<Trigger_Threshold.Ops> SupportedOpsForMode(ProductionMode mode) =>
+        mode == ProductionMode.MaintainStock
+            ? Trigger_Threshold.AccumulationOnlyOps
+            : Trigger_Threshold.AllOps;
+
     public WorkbenchAssignmentMode AssignmentMode = WorkbenchAssignmentMode.All;
     public Area? WorkbenchArea;
     public bool InvertWorkbenchArea;
@@ -223,7 +284,7 @@ internal sealed class ManagerJob_Production
     public ManagerJob_Production(Manager manager)
         : base(manager)
     {
-        Trigger = new Trigger_Threshold(this, Trigger_Threshold.AccumulationOnlyOps)
+        Trigger = new Trigger_Threshold(this, SupportedOpsForMode(_mode))
         {
             AllowAnyThresholdChanged = ConfigureThresholdTriggerFilter,
         };
@@ -232,6 +293,11 @@ internal sealed class ManagerJob_Production
 
     private void ConfigureThresholdTriggerFilter()
     {
+        if (_mode != ProductionMode.MaintainStock)
+        {
+            return;
+        }
+
         var resolver = _recipe != null ? RecipeProductResolvers.ResolverFor(_recipe) : null;
 
         if (!TriggerThreshold.AllowAnyThreshold)
@@ -270,6 +336,16 @@ internal sealed class ManagerJob_Production
 
         Scribe_Defs.Look(ref _recipe, "recipe");
         Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
+        Scribe_Values.Look(ref _mode, "mode", ProductionMode.MaintainStock);
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            // The constructor always restricts to MaintainStock's ops (before this field's
+            // saved value is loaded), so a loaded ConsumeSurplus job needs its trigger's
+            // SupportedOps widened back out now that the real mode is known — the raw `op`
+            // field itself already loaded correctly via Trigger_Threshold's own ExposeData,
+            // this just re-syncs which ops the UI is allowed to offer going forward.
+            TriggerThreshold.RestrictSupportedOps(SupportedOpsForMode(_mode));
+        }
         Scribe_Values.Look(ref AssignmentMode, "assignmentMode", WorkbenchAssignmentMode.All);
         Scribe_Values.Look(ref InvertWorkbenchArea, "invertWorkbenchArea");
         Scribe_Values.Look(ref AllowedSkillRange, "allowedSkillRange", new IntRange(0, 20));

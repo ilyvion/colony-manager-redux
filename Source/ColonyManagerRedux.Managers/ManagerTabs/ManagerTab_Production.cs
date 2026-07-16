@@ -217,6 +217,14 @@ internal sealed class ManagerTab_Production(Manager manager)
         );
         DrawSection(
             ProductionOptions,
+            "Mode",
+            ref position,
+            width,
+            DrawModeSelector,
+            "ColonyManagerRedux.Production.Mode".Translate()
+        );
+        DrawSection(
+            ProductionOptions,
             "Threshold",
             ref position,
             width,
@@ -270,11 +278,94 @@ internal sealed class ManagerTab_Production(Manager manager)
         return ListEntryHeight;
     }
 
+    // Same layout/widget as DrawAssignmentModeSelector: one DrawToggle cell per enum value, in a
+    // single row.
+    private static float DrawModeSelector(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var modes = (ManagerJob_Production.ProductionMode[])
+            Enum.GetValues(typeof(ManagerJob_Production.ProductionMode));
+        var cellWidth = width / modes.Length;
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+        foreach (var mode in modes)
+        {
+            Utilities.DrawToggle(
+                cellRect,
+                $"ColonyManagerRedux.Production.Mode.{mode}".Translate(),
+                $"ColonyManagerRedux.Production.Mode.{mode}.Tip".Translate(),
+                job.Mode == mode,
+                () => job.Mode = mode,
+                () => { },
+                wrap: false
+            );
+            cellRect.x += cellWidth;
+        }
+
+        pos.y += ListEntryHeight;
+        return pos.y - start.y;
+    }
+
     private static float DrawThreshold(ManagerJob_Production job, Vector2 pos, float width)
     {
         var start = pos;
-        job.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight, targets: []);
+
+        if (job.Mode == ManagerJob_Production.ProductionMode.MaintainStock)
+        {
+            DrawThresholdReadOnly(job, ref pos, width);
+        }
+        else
+        {
+            job.TriggerThreshold.DrawTriggerConfig(ref pos, width, ListEntryHeight, targets: []);
+        }
+
         return pos.y - start.y;
+    }
+
+    // MaintainStock mode auto-derives the trigger filter from the recipe (see
+    // ConfigureThresholdTriggerFilter), so unlike the full DrawTriggerConfig widget used in
+    // ConsumeSurplus mode, this doesn't expose the cog icon that would let a player override
+    // that auto-derived filter directly, nor the now-irrelevant "allow any threshold" toggle —
+    // only the parts that stay meaningful when trigger == output: the current/target readout,
+    // the target-count slider, and the count-all-on-map toggle.
+    private static void DrawThresholdReadOnly(
+        ManagerJob_Production job,
+        ref Vector2 pos,
+        float width
+    )
+    {
+        var trigger = job.TriggerThreshold;
+
+        var labelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        var label =
+            "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(
+                trigger.GetCurrentCount(),
+                trigger.TargetLabel
+            ) + ":";
+        var tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(
+            trigger.GetCurrentCount(),
+            trigger.TargetLabel
+        );
+        IlyvionWidgets.Label(labelRect, label, tooltip, TextAnchor.MiddleLeft);
+        pos.y += ListEntryHeight;
+
+        var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
+        pos.y += SliderHeight;
+        trigger.TargetCount = (int)
+            Widgets.HorizontalSlider(sliderRect, trigger.TargetCount, 0, trigger.MaxUpperThreshold);
+
+        var countAllOnMapRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        pos.y += ListEntryHeight;
+        var countAllOnMap = trigger.CountAllOnMap;
+        Utilities.DrawToggle(
+            countAllOnMapRect,
+            "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
+            "ColonyManagerRedux.Threshold.CountAllOnMap.Tip".Translate(),
+            ref countAllOnMap,
+            true
+        );
+        trigger.CountAllOnMap = countAllOnMap;
     }
 
     // Combines skill range, ingredient radius and store mode into a single section instead of
@@ -468,7 +559,7 @@ internal sealed class ManagerTab_Production(Manager manager)
                 SlotGroup.GetGroupLabel(groupLocal)
             );
 
-            if (!CanPossiblyStore(job.Recipe!, groupLocal))
+            if (!CanPossiblyStore(job, groupLocal))
             {
                 opts.Add(
                     new FloatMenuOption(
@@ -499,20 +590,31 @@ internal sealed class ManagerTab_Production(Manager manager)
     }
 
     // Mirrors vanilla RecipeWorkerCounter.CanPossiblyStore: checks the slot group's storage
-    // filter against whatever the recipe's registered RecipeProductResolver (see
+    // filter against whatever this job is actually tracking. In MaintainStock mode that's
+    // whatever the recipe's registered RecipeProductResolver (see
     // Docs/ProductionManagerRework.md Step 4) says the recipe produces — a single ThingDef for
     // simple recipes, or every def in a category for e.g. butchery/stonecutting. A recipe with
     // no registered resolver at all can't currently be tracked by this job, so it's treated as
-    // always compatible (matches vanilla's own fallback when CanCountProducts is false).
-    private static bool CanPossiblyStore(RecipeDef recipe, ISlotGroup slotGroup)
+    // always compatible (matches vanilla's own fallback when CanCountProducts is false). In
+    // ConsumeSurplus mode the resolver-derived filter is irrelevant (trigger and output aren't
+    // the same thing), so this checks the job's own, independently configured
+    // TriggerThreshold.ThresholdFilter instead.
+    private static bool CanPossiblyStore(ManagerJob_Production job, ISlotGroup slotGroup)
     {
-        if (RecipeProductResolvers.ResolverFor(recipe) is not { } resolver)
+        if (job.Mode != ManagerJob_Production.ProductionMode.MaintainStock)
+        {
+            return job.TriggerThreshold.ThresholdFilter.AllowedThingDefs.Any(
+                slotGroup.Settings.AllowedToAccept
+            );
+        }
+
+        if (RecipeProductResolvers.ResolverFor(job.Recipe!) is not { } resolver)
         {
             return true;
         }
 
         var filter = new ThingFilter();
-        resolver.ConfigureFilter(recipe, filter);
+        resolver.ConfigureFilter(job.Recipe!, filter);
         return filter.AllowedThingDefs.Any(slotGroup.Settings.AllowedToAccept);
     }
 

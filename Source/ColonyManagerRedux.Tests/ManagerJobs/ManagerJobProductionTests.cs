@@ -176,4 +176,16 @@ internal static class ManagerJobProductionTests
                 )
             )
             .Is.True();
+
+    [Test]
+    public static void MaintainStockModeOnlySupportsAccumulationOps() =>
+        Assert
+            .ThatCollection(SupportedOpsForMode(ProductionMode.MaintainStock))
+            .Does.Not.Contain(Trigger_Threshold.Ops.HigherThan);
+
+    [Test]
+    public static void ConsumeSurplusModeSupportsAllOps() =>
+        Assert
+            .ThatCollection(SupportedOpsForMode(ProductionMode.ConsumeSurplus))
+            .Does.Contain(Trigger_Threshold.Ops.HigherThan);
 }

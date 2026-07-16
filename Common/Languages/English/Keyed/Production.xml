@@ -3,6 +3,11 @@
     <ColonyManagerRedux.Production.Recipe>Recipe</ColonyManagerRedux.Production.Recipe>
     <ColonyManagerRedux.Production.NoRecipesFound>No recipes found.</ColonyManagerRedux.Production.NoRecipesFound>
     <ColonyManagerRedux.Production.ManagedBillCount>Managed bills: {0}</ColonyManagerRedux.Production.ManagedBillCount>
+    <ColonyManagerRedux.Production.Mode>Mode</ColonyManagerRedux.Production.Mode>
+    <ColonyManagerRedux.Production.Mode.MaintainStock>Maintain stock</ColonyManagerRedux.Production.Mode.MaintainStock>
+    <ColonyManagerRedux.Production.Mode.MaintainStock.Tip>Keep a stock of this recipe's own output topped up. The trigger is the recipe's output itself.</ColonyManagerRedux.Production.Mode.MaintainStock.Tip>
+    <ColonyManagerRedux.Production.Mode.ConsumeSurplus>Consume surplus</ColonyManagerRedux.Production.Mode.ConsumeSurplus>
+    <ColonyManagerRedux.Production.Mode.ConsumeSurplus.Tip>Run this recipe whenever a surplus of some other resource is available, independent of the recipe's own output. E.g. turn excess cotton into cotton dusters.</ColonyManagerRedux.Production.Mode.ConsumeSurplus.Tip>
     <ColonyManagerRedux.Production.WorkbenchScope>Workbenches</ColonyManagerRedux.Production.WorkbenchScope>
     <ColonyManagerRedux.Production.WorkbenchScope.All>All</ColonyManagerRedux.Production.WorkbenchScope.All>
     <ColonyManagerRedux.Production.WorkbenchScope.All.Tip>Every eligible workbench on the map is managed by this job.</ColonyManagerRedux.Production.WorkbenchScope.All.Tip>
