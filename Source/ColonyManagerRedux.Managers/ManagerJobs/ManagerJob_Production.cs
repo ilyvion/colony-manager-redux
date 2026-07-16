@@ -232,20 +232,16 @@ internal sealed class ManagerJob_Production
 
     private void ConfigureThresholdTriggerFilter()
     {
+        var resolver = _recipe != null ? RecipeProductResolvers.ResolverFor(_recipe) : null;
+
         if (!TriggerThreshold.AllowAnyThreshold)
         {
             TriggerThreshold.ParentFilter.SetDisallowAll();
-            if (_recipe?.ProducedThingDef is { } parentProducedThingDef)
-            {
-                TriggerThreshold.ParentFilter.SetAllow(parentProducedThingDef, true);
-            }
+            resolver?.ConfigureFilter(_recipe!, TriggerThreshold.ParentFilter);
         }
 
         TriggerThreshold.ThresholdFilter.SetDisallowAll();
-        if (_recipe?.ProducedThingDef is { } producedThingDef)
-        {
-            TriggerThreshold.ThresholdFilter.SetAllow(producedThingDef, true);
-        }
+        resolver?.ConfigureFilter(_recipe!, TriggerThreshold.ThresholdFilter);
     }
 
     private void RemoveAllManagedBills()

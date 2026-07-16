@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+    <ColonyManagerRedux.RecipeProductResolverDef>
+        <defName>CM_ResolveButcherAnimals</defName>
+        <resolverClass>ColonyManagerRedux.Managers.RecipeProductResolver_ButcherAnimals</resolverClass>
+    </ColonyManagerRedux.RecipeProductResolverDef>
+    <ColonyManagerRedux.RecipeProductResolverDef>
+        <defName>CM_ResolveMakeStoneBlocks</defName>
+        <resolverClass>ColonyManagerRedux.Managers.RecipeProductResolver_MakeStoneBlocks</resolverClass>
+    </ColonyManagerRedux.RecipeProductResolverDef>
+    <ColonyManagerRedux.RecipeProductResolverDef>
+        <defName>CM_ResolveSmelted</defName>
+        <resolverClass>ColonyManagerRedux.Managers.RecipeProductResolver_Smelted</resolverClass>
+    </ColonyManagerRedux.RecipeProductResolverDef>
+    <ColonyManagerRedux.RecipeProductResolverDef>
+        <defName>CM_ResolveSimpleProduct</defName>
+        <order>1000</order>
+        <resolverClass>ColonyManagerRedux.Managers.RecipeProductResolver_Simple</resolverClass>
+    </ColonyManagerRedux.RecipeProductResolverDef>
+</Defs>

@@ -46,7 +46,7 @@ internal sealed class ManagerTab_Production(Manager manager)
         _availableRecipes.AddRange(
             DefDatabase<RecipeDef>
                 .AllDefsListForReading.Where(r =>
-                    r.ProducedThingDef != null
+                    RecipeProductResolvers.ResolverFor(r) != null
                     && !recipesInUse.Contains(r)
                     && r.AllRecipeUsers.Any(builtWorkTableDefs.Contains)
                 )
@@ -498,16 +498,23 @@ internal sealed class ManagerTab_Production(Manager manager)
         return opts;
     }
 
-    // Mirrors vanilla RecipeWorkerCounter.CanPossiblyStore/CanCountProducts' default
-    // implementation: only recipes with a single, non-special product can be checked against a
-    // slot group's storage filter at all; anything else (including the special-product recipes
-    // like butchery/smelting/stonecutting that this codebase doesn't support tracking for yet,
-    // see Docs/ProductionManagerRework.md Step 4) is treated as always compatible.
-    private static bool CanPossiblyStore(RecipeDef recipe, ISlotGroup slotGroup) =>
-        recipe.specialProducts != null
-        || recipe.products == null
-        || recipe.products.Count != 1
-        || slotGroup.Settings.AllowedToAccept(recipe.products[0].thingDef);
+    // Mirrors vanilla RecipeWorkerCounter.CanPossiblyStore: checks the slot group's storage
+    // filter against whatever the recipe's registered RecipeProductResolver (see
+    // Docs/ProductionManagerRework.md Step 4) says the recipe produces — a single ThingDef for
+    // simple recipes, or every def in a category for e.g. butchery/stonecutting. A recipe with
+    // no registered resolver at all can't currently be tracked by this job, so it's treated as
+    // always compatible (matches vanilla's own fallback when CanCountProducts is false).
+    private static bool CanPossiblyStore(RecipeDef recipe, ISlotGroup slotGroup)
+    {
+        if (RecipeProductResolvers.ResolverFor(recipe) is not { } resolver)
+        {
+            return true;
+        }
+
+        var filter = new ThingFilter();
+        resolver.ConfigureFilter(recipe, filter);
+        return filter.AllowedThingDefs.Any(slotGroup.Settings.AllowedToAccept);
+    }
 
     private static float DrawStatus(ManagerJob_Production job, Vector2 pos, float width)
     {
