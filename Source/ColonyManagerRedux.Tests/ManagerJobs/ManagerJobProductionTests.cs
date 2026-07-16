@@ -189,6 +189,35 @@ internal static class ManagerJobProductionTests
             .ThatCollection(SupportedOpsForMode(ProductionMode.ConsumeSurplus))
             .Does.Contain(Trigger_Threshold.Ops.HigherThan);
 
+    [Test]
+    public static void EnteringMaintainStockClearsConsumeSurplusFilterInitialized() =>
+        Assert
+            .That(NextConsumeSurplusFilterInitialized(ProductionMode.MaintainStock))
+            .Is.EqualTo(false);
+
+    [Test]
+    public static void EnteringConsumeSurplusSetsConsumeSurplusFilterInitialized() =>
+        Assert
+            .That(NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus))
+            .Is.EqualTo(true);
+
+    // Regression test: toggling MaintainStock -> ConsumeSurplus -> MaintainStock ->
+    // ConsumeSurplus used to leave the second ConsumeSurplus entry believing its ingredient
+    // filter was already seeded (stale from the first entry), so it kept showing MaintainStock's
+    // output filter instead of re-deriving from the recipe's ingredients.
+    [Test]
+    public static void ConsumeSurplusFilterReseedsOnEverySeparateEntryAfterMaintainStock()
+    {
+        var initialized = NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus);
+        Assert.That(initialized).Is.EqualTo(true);
+
+        initialized = NextConsumeSurplusFilterInitialized(ProductionMode.MaintainStock);
+        Assert.That(initialized).Is.EqualTo(false);
+
+        initialized = NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus);
+        Assert.That(initialized).Is.EqualTo(true);
+    }
+
     private static void AssertShares(int[] actual, params int[] expected)
     {
         Assert.ThatCollection(actual).Has.Count(expected.Length);

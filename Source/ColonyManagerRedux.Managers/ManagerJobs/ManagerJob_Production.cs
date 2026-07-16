@@ -323,10 +323,11 @@ internal sealed class ManagerJob_Production
 
     /// <summary>
     /// See <see cref="ProductionMode"/>. Switching into <see cref="ProductionMode.MaintainStock"/>
-    /// re-derives the trigger filter from <see cref="Recipe"/>; switching into
-    /// <see cref="ProductionMode.ConsumeSurplus"/> leaves whatever filter is currently set
-    /// untouched, so toggling back and forth to compare doesn't discard a manually configured
-    /// filter.
+    /// always re-derives the trigger filter from <see cref="Recipe"/>'s output, discarding
+    /// whatever was there before; switching into <see cref="ProductionMode.ConsumeSurplus"/>
+    /// re-seeds it from the recipe's ingredients only the first time after that (see
+    /// <see cref="_consumeSurplusFilterInitialized"/>), so a player's manual edits survive
+    /// toggling back and forth to compare modes without a MaintainStock trip in between.
     /// </summary>
     public ProductionMode Mode
     {
@@ -473,12 +474,26 @@ internal sealed class ManagerJob_Production
     /// Whether <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter has already been
     /// seeded once (from <see cref="Recipe"/>'s raw-material ingredients) for the current
     /// <see cref="Recipe"/>. Set back to <see langword="false"/> whenever <see cref="Recipe"/>
-    /// changes, so switching recipes re-seeds instead of keeping a stale filter — but left
-    /// <see langword="true"/> across repeated <see cref="Mode"/> toggling, so a player's manual
-    /// edits to the filter (via the trigger's own config UI) survive comparing modes back and
-    /// forth.
+    /// changes, so switching recipes re-seeds instead of keeping a stale filter. Also cleared
+    /// whenever <see cref="ProductionMode.MaintainStock"/>'s branch below runs, since that
+    /// unconditionally overwrites the same shared <see cref="Trigger_Threshold.ThresholdFilter"/>
+    /// with the recipe's output — leaving this <see langword="true"/> across that would make the
+    /// next switch back into <see cref="ProductionMode.ConsumeSurplus"/> skip re-seeding and keep
+    /// showing the (now wrong) output filter instead of ingredients.
     /// </summary>
     private bool _consumeSurplusFilterInitialized;
+
+    /// <summary>
+    /// Pure state transition for <see cref="_consumeSurplusFilterInitialized"/>, extracted for
+    /// testability. Entering
+    /// <see cref="ProductionMode.MaintainStock"/> must reset this to <see langword="false"/>,
+    /// since that mode's branch unconditionally overwrites the same shared
+    /// <see cref="Trigger_Threshold.ThresholdFilter"/> with the recipe's output; otherwise the
+    /// next switch back into <see cref="ProductionMode.ConsumeSurplus"/> would skip re-seeding
+    /// and keep showing that (now wrong) output filter instead of ingredients.
+    /// </summary>
+    internal static bool NextConsumeSurplusFilterInitialized(ProductionMode mode) =>
+        mode == ProductionMode.ConsumeSurplus;
 
     private void ConfigureThresholdTriggerFilter()
     {
@@ -489,6 +504,8 @@ internal sealed class ManagerJob_Production
 
         if (_mode == ProductionMode.MaintainStock)
         {
+            _consumeSurplusFilterInitialized = NextConsumeSurplusFilterInitialized(_mode);
+
             var resolver = RecipeProductResolvers.ResolverFor(_recipe);
 
             if (!TriggerThreshold.AllowAnyThreshold)
@@ -512,7 +529,7 @@ internal sealed class ManagerJob_Production
         {
             return;
         }
-        _consumeSurplusFilterInitialized = true;
+        _consumeSurplusFilterInitialized = NextConsumeSurplusFilterInitialized(_mode);
 
         if (!TriggerThreshold.AllowAnyThreshold)
         {
