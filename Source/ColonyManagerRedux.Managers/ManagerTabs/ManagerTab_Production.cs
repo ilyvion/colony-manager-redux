@@ -60,14 +60,15 @@ internal sealed class ManagerTab_Production(Manager manager)
 
     // Multiple jobs can now target the same recipe (see Refresh's picker filter above), so the
     // default recipe-only sub-label (job.TargetsLabel) is no longer enough to tell them apart in
-    // the job list. Append the job's mode and current trigger status.
+    // the job list. Append the job's mode and target count (just the number, matching the
+    // "no numbers" at-a-glance level of detail other job types' sub-labels use).
     public override string GetSubLabel(ManagerJob job)
     {
         var productionJob = (ManagerJob_Production)job;
         var subLabel = base.GetSubLabel(job);
         subLabel +=
             $" | {$"ColonyManagerRedux.Production.Mode.{productionJob.Mode}".Translate()}"
-            + $" ({productionJob.TriggerThreshold.StatusTooltip})";
+            + $" ({productionJob.TriggerThreshold.TargetCount})";
         return subLabel;
     }
 
