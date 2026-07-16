@@ -30,14 +30,15 @@ internal sealed class ManagerTab_Production(Manager manager)
 
     protected override void Refresh()
     {
-        var recipesInUse = Manager
-            .JobTracker.JobsOfType<ManagerJob_Production>()
-            .Select(job => job.Recipe)
-            .ToHashSet();
-
         // Only offer recipes that can actually be worked right now; a recipe whose work table
         // hasn't been built yet would just sit idle. Jobs for such recipes can still be set up
         // via job import (e.g. from a template), which bypasses this picker entirely.
+        //
+        // A recipe already claimed by a job is still offered: a job's Mode/threshold give it a
+        // distinct purpose (e.g. one MaintainStock job keeping steel knives topped up alongside a
+        // separate ConsumeSurplus job turning excess cotton into dusters from the same recipe),
+        // and bill ownership/reconciliation is fully job-scoped (see ManagerJob_Production's
+        // _managedBills), so nothing here depends on recipes being claimed by at most one job.
         var builtWorkTableDefs = Manager
             .map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>()
             .Select(wt => wt.def)
@@ -48,12 +49,24 @@ internal sealed class ManagerTab_Production(Manager manager)
             DefDatabase<RecipeDef>
                 .AllDefsListForReading.Where(r =>
                     RecipeProductResolvers.ResolverFor(r) != null
-                    && !recipesInUse.Contains(r)
                     && r.AllRecipeUsers.Any(builtWorkTableDefs.Contains)
                 )
                 .OrderBy(r => r.LabelCap.ToString(), StringComparer.OrdinalIgnoreCase)
         );
         UpdateVisibleRecipes();
+    }
+
+    // Multiple jobs can now target the same recipe (see Refresh's picker filter above), so the
+    // default recipe-only sub-label (job.TargetsLabel) is no longer enough to tell them apart in
+    // the job list. Append the job's mode and current trigger status.
+    public override string GetSubLabel(ManagerJob job)
+    {
+        var productionJob = (ManagerJob_Production)job;
+        var subLabel = base.GetSubLabel(job);
+        subLabel +=
+            $" | {$"ColonyManagerRedux.Production.Mode.{productionJob.Mode}".Translate()}"
+            + $" ({productionJob.TriggerThreshold.StatusTooltip})";
+        return subLabel;
     }
 
     protected override void PostSelect()
