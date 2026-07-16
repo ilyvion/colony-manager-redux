@@ -271,6 +271,32 @@ internal static class ManagerJobProductionTests
             .Is.EqualTo(1);
 
     [Test]
+    public static void ExpectedYieldFromBillsSumsRepeatCountModeBillsTimesYieldPerIteration() =>
+        Assert
+            .That(
+                ExpectedYieldFromBills(
+                    [(BillRepeatModeDefOf.RepeatCount, 3), (BillRepeatModeDefOf.RepeatCount, 2)],
+                    yieldPerIteration: 4
+                )
+            )
+            .Is.EqualTo(20);
+
+    [Test]
+    public static void ExpectedYieldFromBillsIgnoresForeverModeBills() =>
+        Assert
+            .That(
+                ExpectedYieldFromBills(
+                    [(BillRepeatModeDefOf.RepeatCount, 3), (BillRepeatModeDefOf.Forever, 100)],
+                    yieldPerIteration: 4
+                )
+            )
+            .Is.EqualTo(12);
+
+    [Test]
+    public static void ExpectedYieldFromBillsWithNoBillsIsZero() =>
+        Assert.That(ExpectedYieldFromBills([], yieldPerIteration: 4)).Is.EqualTo(0);
+
+    [Test]
     public static void ConfigureIngredientFilterAllowsEachIngredientOptionNotTheProduct()
     {
         var cotton = new ThingDef { defName = "CMR_TestCotton" };

@@ -238,6 +238,44 @@ internal sealed class ManagerJob_Production
         recipe.ProducedThingDef != null ? recipe.products[0].count : 1;
 
     /// <summary>
+    /// Pure sum used by <see cref="ExpectedYield"/>: each RepeatCount-mode bill's
+    /// <paramref name="repeatCounts"/> entry (already that work table's share of the current
+    /// shortfall, see <see cref="GatherJobDataCoroutine"/>) times <paramref name="yieldPerIteration"/>.
+    /// Forever-mode bills (still-unmigrated ConsumeSurplus-style bills, see
+    /// <see cref="BillNeedsRepeatCountUpdate"/>) contribute nothing, since they have no fixed
+    /// target amount to project a yield from.
+    /// </summary>
+    internal static int ExpectedYieldFromBills(
+        IEnumerable<(BillRepeatModeDef RepeatMode, int RepeatCount)> repeatCounts,
+        int yieldPerIteration
+    ) =>
+        repeatCounts
+            .Where(b => b.RepeatMode == BillRepeatModeDefOf.RepeatCount)
+            .Sum(b => b.RepeatCount) * yieldPerIteration;
+
+    /// <summary>
+    /// Total items this job's managed bills are currently configured to produce. Only meaningful
+    /// for <see cref="ProductionMode.MaintainStock"/> — <see cref="ProductionMode.ConsumeSurplus"/>
+    /// bills run <see cref="BillRepeatModeDefOf.Forever"/> with no fixed target amount to project
+    /// a yield from, so this returns <c>0</c> for those.
+    /// </summary>
+    public int ExpectedYield =>
+        Mode != ProductionMode.MaintainStock || Recipe == null
+            ? 0
+            : ExpectedYieldFromBills(
+                _managedBills.Select(b => (b.repeatMode, b.repeatCount)),
+                YieldPerIteration(Recipe)
+            );
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Feeds the same generic "expected" machinery other job types use (dimmed segment on
+    /// <see cref="Trigger.DrawHorizontalProgressBars"/>/<see cref="Trigger.DrawVerticalProgressBars"/>,
+    /// "(+ N expected)" in <see cref="Trigger_Threshold.StatusTooltip"/>) with <see cref="ExpectedYield"/>.
+    /// </remarks>
+    public override int ExpectedAdditionalCount => ExpectedYield;
+
+    /// <summary>
     /// Carries the decisions made by <see cref="GatherJobDataCoroutine"/> (which doesn't touch
     /// the game) to <see cref="ExecuteJobDataCoroutine"/> (which applies them).
     /// </summary>

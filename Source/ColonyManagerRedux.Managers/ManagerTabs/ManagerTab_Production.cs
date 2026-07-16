@@ -396,11 +396,11 @@ internal sealed class ManagerTab_Production(Manager manager)
             TargetCountFieldWidth,
             ListEntryHeight
         );
-        var label =
-            "ColonyManagerRedux.Thresholds.ThresholdCount".Translate(
-                trigger.GetCurrentCount(),
-                trigger.TargetLabel
-            ) + ":";
+        // StatusTooltip already folds in "(+ N expected)" from ExpectedAdditionalCount when
+        // there's a shortfall being worked on (see ManagerJob_Production.ExpectedAdditionalCount),
+        // matching how Foraging/Mining/Forestry/Hunting surface expected yield in their own
+        // custom labels.
+        var label = trigger.StatusTooltip;
         var tooltip = "ColonyManagerRedux.Thresholds.ThresholdCountTooltip".Translate(
             trigger.GetCurrentCount(),
             trigger.TargetLabel
