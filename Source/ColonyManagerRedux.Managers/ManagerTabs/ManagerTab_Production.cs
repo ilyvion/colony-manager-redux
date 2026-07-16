@@ -68,7 +68,11 @@ internal sealed class ManagerTab_Production(Manager manager)
         var subLabel = base.GetSubLabel(job);
         subLabel +=
             $" | {$"ColonyManagerRedux.Production.Mode.{productionJob.Mode}".Translate()}"
-            + $" ({productionJob.TriggerThreshold.TargetCount})";
+            + (
+                productionJob.Mode == ManagerJob_Production.ProductionMode.MaintainStock
+                    ? $" ({productionJob.TriggerThreshold.TargetCount})"
+                    : $" ({productionJob.TriggerThreshold.OpString} {productionJob.TriggerThreshold.TargetCount})"
+            );
         return subLabel;
     }
 

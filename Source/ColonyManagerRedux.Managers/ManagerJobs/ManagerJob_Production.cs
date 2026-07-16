@@ -339,7 +339,9 @@ internal sealed class ManagerJob_Production
             }
 
             _mode = value;
-            TriggerThreshold.RestrictSupportedOps(SupportedOpsForMode(_mode));
+            var supportedOps = SupportedOpsForMode(_mode);
+            TriggerThreshold.RestrictSupportedOps(supportedOps);
+            TriggerThreshold.Op = supportedOps[0];
             ConfigureThresholdTriggerFilter();
         }
     }
@@ -355,7 +357,13 @@ internal sealed class ManagerJob_Production
     internal static IReadOnlyList<Trigger_Threshold.Ops> SupportedOpsForMode(ProductionMode mode) =>
         mode == ProductionMode.MaintainStock
             ? Trigger_Threshold.AccumulationOnlyOps
-            : Trigger_Threshold.AllOps;
+            :
+            [
+                Trigger_Threshold.Ops.HigherThan,
+                Trigger_Threshold.Ops.LowerThan,
+                Trigger_Threshold.Ops.Equals,
+                Trigger_Threshold.Ops.NotEquals,
+            ];
 
     public WorkbenchAssignmentMode AssignmentMode = WorkbenchAssignmentMode.All;
     public Area? WorkbenchArea;
