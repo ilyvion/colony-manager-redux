@@ -43,7 +43,8 @@ internal static class Resources
         Venerated = ContentFinder<Texture2D>.Get("UI/Icons/CMR_venerated"),
         PadlockClosed = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_closed"),
         PadlockOpen = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_open"),
-        Nuzzle = ContentFinder<Texture2D>.Get("UI/Icons/CMR_heart");
+        Nuzzle = ContentFinder<Texture2D>.Get("UI/Icons/CMR_heart"),
+        ManagedByColonyManagerIcon = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_MainIcon");
 
     public static Texture2D GetLifeStageIcon(int lifeStageIndex) =>
         lifeStageIndex switch

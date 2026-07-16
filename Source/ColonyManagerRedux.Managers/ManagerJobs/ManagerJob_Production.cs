@@ -298,6 +298,25 @@ internal sealed class ManagerJob_Production
 
     public IReadOnlyList<Bill_Production> ManagedBills => _managedBills;
 
+    /// <summary>
+    /// Finds the job among <paramref name="jobs"/> whose managed items (as given by
+    /// <paramref name="managedItemsSelector"/>) contain <paramref name="item"/>, if any. Used to
+    /// resolve a <see cref="Bill_Production"/>'s owning job on demand (e.g. for drawing a
+    /// "managed by" indicator on the bill's vanilla UI row) instead of maintaining a separate
+    /// reverse index that would need to be kept in sync across every mutation site. Generic over
+    /// both the job and item types (rather than fixed to <see cref="ManagerJob_Production"/>/
+    /// <see cref="Bill_Production"/>) so tests can exercise the matching logic with plain fakes —
+    /// constructing a real <see cref="Bill_Production"/> requires a loaded game
+    /// (<see cref="Bill.InitializeAfterClone"/> calls <c>Find.UniqueIDsManager</c>), which isn't
+    /// available to this test suite.
+    /// </summary>
+    internal static TJob? FindOwningJob<TJob, TItem>(
+        IEnumerable<TJob> jobs,
+        Func<TJob, IReadOnlyList<TItem>> managedItemsSelector,
+        TItem item
+    )
+        where TJob : class => jobs.FirstOrDefault(j => managedItemsSelector(j).Contains(item));
+
     private RecipeDef? _recipe;
 
     public RecipeDef? Recipe

@@ -22,4 +22,5 @@
     <ColonyManagerRedux.Production.SkillRange.Label>{0} skill range:</ColonyManagerRedux.Production.SkillRange.Label>
     <ColonyManagerRedux.Production.Logs.CurrentCount>Current count / target: {0} / {1}</ColonyManagerRedux.Production.Logs.CurrentCount>
     <ColonyManagerRedux.Production.Logs.BillAdded>Added a {0} bill to {1}.</ColonyManagerRedux.Production.Logs.BillAdded>
+    <ColonyManagerRedux.Production.ManagedByJob>Managed by Colony Manager Production Job ({0})</ColonyManagerRedux.Production.ManagedByJob>
 </LanguageData>

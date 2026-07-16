@@ -449,6 +449,49 @@ internal static class ManagerJobProductionTests
         Assert.ThatCollection(options).Does.Not.Contain(mechanoidCorpse);
     }
 
+    // Plain fakes, not real Bill_Production/ManagerJob_Production: constructing a real
+    // Bill_Production requires a loaded game (Bill.InitializeAfterClone calls
+    // Find.UniqueIDsManager), which isn't available to this test suite.
+    private sealed class FakeJob(List<object> managedItems)
+    {
+        public List<object> ManagedItems { get; } = managedItems;
+    }
+
+    [Test]
+    public static void FindOwningJobFindsJobThatManagesTheItem()
+    {
+        var item = new object();
+        var job = new FakeJob([item]);
+
+        var found = FindOwningJob([job], j => j.ManagedItems, item);
+
+        Assert.That(ReferenceEquals(found, job)).Is.True();
+    }
+
+    [Test]
+    public static void FindOwningJobReturnsNullWhenNoJobManagesTheItem()
+    {
+        var managedItem = new object();
+        var unmanagedItem = new object();
+        var job = new FakeJob([managedItem]);
+
+        var found = FindOwningJob([job], j => j.ManagedItems, unmanagedItem);
+
+        Assert.That(found is null).Is.True();
+    }
+
+    [Test]
+    public static void FindOwningJobReturnsTheCorrectJobAmongMultiple()
+    {
+        var item = new object();
+        var otherJob = new FakeJob([new object()]);
+        var owningJob = new FakeJob([item]);
+
+        var found = FindOwningJob([otherJob, owningJob], j => j.ManagedItems, item);
+
+        Assert.That(ReferenceEquals(found, owningJob)).Is.True();
+    }
+
     [Test]
     public static void BillNeedsIngredientFilterUpdateWithMatchingSetsNeedsNoUpdate()
     {
