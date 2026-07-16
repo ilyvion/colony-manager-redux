@@ -140,6 +140,17 @@ internal sealed class ManagerJob_Production
     ) => billStoreMode != jobStoreMode;
 
     /// <summary>
+    /// Pure comparison used to decide whether a managed bill's <see cref="Bill.ingredientFilter"/>
+    /// is out of sync with the job's <see cref="AllowedIngredients"/> and needs to be pushed to
+    /// it, kept separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable without
+    /// a live <see cref="Bill_Production"/>.
+    /// </summary>
+    internal static bool BillNeedsIngredientFilterUpdate(
+        IEnumerable<ThingDef> billAllowedIngredients,
+        HashSet<ThingDef> jobAllowedIngredients
+    ) => !jobAllowedIngredients.SetEquals(billAllowedIngredients);
+
+    /// <summary>
     /// Splits a total <paramref name="shortfall"/> as evenly as possible across
     /// <paramref name="tableCount"/> work tables, so <see cref="ProductionMode.MaintainStock"/>
     /// bills can be scheduled to produce exactly the shortfall between them instead of each
@@ -240,6 +251,7 @@ internal sealed class ManagerJob_Production
         public List<Bill_Production> BillsNeedingSkillRangeUpdate = [];
         public List<Bill_Production> BillsNeedingIngredientRadiusUpdate = [];
         public List<Bill_Production> BillsNeedingStoreModeUpdate = [];
+        public List<Bill_Production> BillsNeedingIngredientFilterUpdate = [];
         public Dictionary<Building_WorkTable, int> MaintainStockTablesNeedingNewBill = [];
         public List<(Bill_Production Bill, int RepeatCount)> BillsNeedingRepeatCountUpdate = [];
     }
@@ -264,6 +276,7 @@ internal sealed class ManagerJob_Production
             _recipe = value;
             _consumeSurplusFilterInitialized = false;
             ConfigureThresholdTriggerFilter();
+            ResetAllowedIngredientsToDefault();
             Notify_TargetsChanged();
         }
     }
@@ -339,6 +352,34 @@ internal sealed class ManagerJob_Production
     /// </summary>
     public ISlotGroup? StoreGroup;
 
+    /// <summary>
+    /// Which of <see cref="Recipe"/>'s raw-material options managed bills are actually allowed to
+    /// consume — mirrors <see cref="Bill.ingredientFilter"/>, applied to every bill this job
+    /// manages (see <see cref="AddManagedBill"/>). Distinct from
+    /// <see cref="Trigger_Threshold.ThresholdFilter"/> (what's counted to decide whether the job
+    /// should run at all): in <see cref="ProductionMode.MaintainStock"/> that filter is
+    /// output-typed and unrelated to ingredients, while in <see cref="ProductionMode.ConsumeSurplus"/>
+    /// it's ingredient-typed and, by default, kept in sync with this field (see
+    /// <see cref="Sync"/>/<see cref="SyncFilterAndAllowed"/>) — but a player can decouple them,
+    /// e.g. triggering on hay surplus while still only ever consuming meat for carnivore meals.
+    /// Reset to every ingredient option whenever <see cref="Recipe"/> changes.
+    /// </summary>
+    public HashSet<ThingDef> AllowedIngredients = [];
+
+    /// <summary>
+    /// Which of <see cref="AllowedIngredients"/>/<see cref="Trigger_Threshold.ThresholdFilter"/>
+    /// last changed, so the other's change handler doesn't fight back. Only consulted in
+    /// <see cref="ProductionMode.ConsumeSurplus"/> — see <see cref="AllowedIngredients"/>.
+    /// </summary>
+    public Utilities.SyncDirection Sync = Utilities.SyncDirection.AllowedToFilter;
+
+    /// <summary>
+    /// Whether <see cref="AllowedIngredients"/> and <see cref="Trigger_Threshold.ThresholdFilter"/>
+    /// should be kept in sync at all. Only meaningful (and only shown in the tab) in
+    /// <see cref="ProductionMode.ConsumeSurplus"/> — see <see cref="AllowedIngredients"/>.
+    /// </summary>
+    public bool SyncFilterAndAllowed = true;
+
     private string? _tmpWorkbenchAreaLabel;
 
     /// <summary>
@@ -379,6 +420,7 @@ internal sealed class ManagerJob_Production
             AllowAnyThresholdChanged = ConfigureThresholdTriggerFilter,
         };
         ConfigureThresholdTriggerFilter();
+        TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
     }
 
     /// <summary>
@@ -437,22 +479,101 @@ internal sealed class ManagerJob_Production
     }
 
     /// <summary>
-    /// Populates <paramref name="filter"/> with every <see cref="ThingDef"/> that could satisfy
-    /// any of <paramref name="recipe"/>'s ingredients — including fixed ingredients, since
-    /// <see cref="IngredientCount.IsFixedIngredient"/> is just the case where its own
-    /// <see cref="IngredientCount.filter"/> happens to allow exactly one def. Used to seed
-    /// <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter with the recipe's raw
-    /// materials, as opposed to <see cref="RecipeProductResolver"/>, which resolves what a
-    /// recipe produces.
+    /// Every <see cref="ThingDef"/> that could satisfy any of <paramref name="recipe"/>'s
+    /// ingredients — including fixed ingredients, since <see cref="IngredientCount.IsFixedIngredient"/>
+    /// is just the case where its own <see cref="IngredientCount.filter"/> happens to allow
+    /// exactly one def. This is the raw-material counterpart to <see cref="RecipeProductResolver"/>,
+    /// which resolves what a recipe produces instead of what it consumes. Used both to seed
+    /// <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter (<see cref="ConfigureIngredientFilter"/>)
+    /// and to default <see cref="AllowedIngredients"/>.
+    /// </summary>
+    internal static IEnumerable<ThingDef> AllRecipeIngredientOptions(RecipeDef recipe) =>
+        recipe.ingredients.SelectMany(ingredient => ingredient.filter.AllowedThingDefs).Distinct();
+
+    /// <summary>
+    /// Groups <paramref name="ingredients"/> by the category directly above each item, i.e.
+    /// <see cref="ThingDef.thingCategories"/>'s first entry — the same "direct member" link
+    /// <see cref="ThingCategoryDef.childThingDefs"/> uses, not a full ancestor chain. Recipes
+    /// vary too much to hardcode category shortcuts the way e.g. Foraging's "Edible"/"Mushrooms"
+    /// do, so the tab derives its shortcut groups from this instead. A def isn't assigned to more
+    /// than one group even if it has multiple <c>thingCategories</c>, to avoid a shortcut toggle
+    /// silently touching a def that appears to belong to a different group; defs with no category
+    /// at all are simply omitted from the result (they still appear in the full ingredient list).
+    /// </summary>
+    internal static ILookup<ThingCategoryDef, ThingDef> GroupIngredientsByCategory(
+        IEnumerable<ThingDef> ingredients
+    ) =>
+        ingredients
+            .Where(thingDef => thingDef.thingCategories is { Count: > 0 })
+            .ToLookup(thingDef => thingDef.thingCategories[0]);
+
+    /// <summary>
+    /// Populates <paramref name="filter"/> with every <see cref="ThingDef"/> from
+    /// <see cref="AllRecipeIngredientOptions"/>.
     /// </summary>
     internal static void ConfigureIngredientFilter(RecipeDef recipe, ThingFilter filter)
     {
-        foreach (var ingredient in recipe.ingredients)
+        foreach (var thingDef in AllRecipeIngredientOptions(recipe))
         {
-            foreach (var thingDef in ingredient.filter.AllowedThingDefs)
-            {
-                filter.SetAllow(thingDef, true);
-            }
+            filter.SetAllow(thingDef, true);
+        }
+    }
+
+    /// <summary>
+    /// Resets <see cref="AllowedIngredients"/> to every ingredient option for <see cref="Recipe"/>
+    /// (or empty, if there is none) — the "everything's allowed" default that matches an
+    /// unrestricted vanilla bill's behavior. Called whenever <see cref="Recipe"/> changes.
+    /// </summary>
+    private void ResetAllowedIngredientsToDefault()
+    {
+        AllowedIngredients.Clear();
+        if (_recipe != null)
+        {
+            AllowedIngredients.UnionWith(AllRecipeIngredientOptions(_recipe));
+        }
+    }
+
+    /// <summary>
+    /// Pushes a change to <see cref="Trigger_Threshold.ThresholdFilter"/> into
+    /// <see cref="AllowedIngredients"/>, when the two are meant to stay in sync. Only applies in
+    /// <see cref="ProductionMode.ConsumeSurplus"/> — in <see cref="ProductionMode.MaintainStock"/>
+    /// the threshold filter is output-typed and has nothing to do with ingredients.
+    /// </summary>
+    private void Notify_ThresholdFilterChanged()
+    {
+        if (
+            _recipe == null
+            || _mode != ProductionMode.ConsumeSurplus
+            || !SyncFilterAndAllowed
+            || Sync == Utilities.SyncDirection.AllowedToFilter
+        )
+        {
+            return;
+        }
+
+        foreach (var thingDef in AllRecipeIngredientOptions(_recipe))
+        {
+            _ = TriggerThreshold.ThresholdFilter.Allows(thingDef)
+                ? AllowedIngredients.Add(thingDef)
+                : AllowedIngredients.Remove(thingDef);
+        }
+        Notify_TargetsChanged();
+    }
+
+    /// <summary>
+    /// Sets whether <paramref name="thingDef"/> is in <see cref="AllowedIngredients"/>, and, when
+    /// <see cref="SyncFilterAndAllowed"/> and in <see cref="ProductionMode.ConsumeSurplus"/>,
+    /// pushes the same change into <see cref="Trigger_Threshold.ThresholdFilter"/>.
+    /// </summary>
+    public void SetIngredientAllowed(ThingDef thingDef, bool allow, bool sync = true)
+    {
+        _ = allow ? AllowedIngredients.Add(thingDef) : AllowedIngredients.Remove(thingDef);
+        Notify_TargetsChanged();
+
+        if (_mode == ProductionMode.ConsumeSurplus && SyncFilterAndAllowed && sync)
+        {
+            Sync = Utilities.SyncDirection.AllowedToFilter;
+            TriggerThreshold.ThresholdFilter.SetAllow(thingDef, allow);
         }
     }
 
@@ -472,7 +593,8 @@ internal sealed class ManagerJob_Production
     /// Creates a new managed <see cref="Bill_Production"/> for <see cref="Recipe"/> on
     /// <paramref name="workTable"/>, with every job-level setting
     /// (<see cref="AllowedSkillRange"/>, <see cref="IngredientSearchRadius"/>,
-    /// <see cref="StoreMode"/>) applied, and registers it as managed. Callers still need to set
+    /// <see cref="AllowedIngredients"/>, <see cref="StoreMode"/>) applied, and registers it as
+    /// managed. Callers still need to set
     /// <see cref="Bill_Production.repeatMode"/>/<see cref="Bill_Production.repeatCount"/>
     /// themselves — those differ by <see cref="ProductionMode"/>.
     /// </summary>
@@ -484,6 +606,7 @@ internal sealed class ManagerJob_Production
             : new Bill_Production(recipe, null);
         bill.allowedSkillRange = AllowedSkillRange;
         bill.ingredientSearchRadius = IngredientSearchRadius;
+        ApplyAllowedIngredients(bill);
         bill.SetStoreMode(
             StoreMode,
             StoreMode == BillStoreModeDefOf.SpecificStockpile ? StoreGroup : null
@@ -491,6 +614,19 @@ internal sealed class ManagerJob_Production
         workTable.billStack.AddBill(bill);
         _managedBills.Add(bill);
         return bill;
+    }
+
+    /// <summary>
+    /// Restricts <paramref name="bill"/>'s <see cref="Bill.ingredientFilter"/> to exactly
+    /// <see cref="AllowedIngredients"/>.
+    /// </summary>
+    private void ApplyAllowedIngredients(Bill_Production bill)
+    {
+        bill.ingredientFilter.SetDisallowAll();
+        foreach (var thingDef in AllowedIngredients)
+        {
+            bill.ingredientFilter.SetAllow(thingDef, true);
+        }
     }
 
     public override bool IsValid => base.IsValid && Recipe != null;
@@ -525,11 +661,19 @@ internal sealed class ManagerJob_Production
             // that seeding (possibly since edited by the player) produced — reconstructing the
             // flag from the loaded mode is exactly as accurate as persisting it separately.
             _consumeSurplusFilterInitialized = _mode == ProductionMode.ConsumeSurplus;
+
+            // Delegates aren't scribed; TriggerThreshold survives the load (it's part of this
+            // job's own object graph), but needs its callback re-wired same as the constructor
+            // does for a freshly created job.
+            TriggerThreshold.SettingsChanged = Notify_ThresholdFilterChanged;
         }
         Scribe_Values.Look(ref AssignmentMode, "assignmentMode", WorkbenchAssignmentMode.All);
         Scribe_Values.Look(ref InvertWorkbenchArea, "invertWorkbenchArea");
         Scribe_Values.Look(ref AllowedSkillRange, "allowedSkillRange", new IntRange(0, 20));
         Scribe_Values.Look(ref IngredientSearchRadius, "ingredientSearchRadius", 999f);
+        Scribe_Collections.Look(ref AllowedIngredients, "allowedIngredients", LookMode.Def);
+        Scribe_Values.Look(ref Sync, "sync", Utilities.SyncDirection.AllowedToFilter);
+        Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Defs.Look(ref StoreMode, "storeMode");
         StoreMode ??= BillStoreModeDefOf.BestStockpile;
 
@@ -689,6 +833,14 @@ internal sealed class ManagerJob_Production
                 || (
                     StoreMode == BillStoreModeDefOf.SpecificStockpile
                     && b.GetSlotGroup() != StoreGroup
+                )
+            )
+        );
+        workData.BillsNeedingIngredientFilterUpdate.AddRange(
+            liveManagedBills.Where(b =>
+                BillNeedsIngredientFilterUpdate(
+                    b.ingredientFilter.AllowedThingDefs,
+                    AllowedIngredients
                 )
             )
         );
@@ -885,6 +1037,12 @@ internal sealed class ManagerJob_Production
                 StoreMode,
                 StoreMode == BillStoreModeDefOf.SpecificStockpile ? StoreGroup : null
             );
+            workDone.Value = true;
+        }
+
+        foreach (var bill in data.BillsNeedingIngredientFilterUpdate)
+        {
+            ApplyAllowedIngredients(bill);
             workDone.Value = true;
         }
     }

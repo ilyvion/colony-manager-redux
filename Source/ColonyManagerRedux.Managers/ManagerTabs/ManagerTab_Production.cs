@@ -13,6 +13,7 @@ internal sealed class ManagerTab_Production(Manager manager)
     : ManagerTab<ManagerJob_Production, ManagerSettings_Production>(manager)
 {
     private const string ProductionOptions = "Production.Options";
+    private const string ProductionIngredients = "Production.Ingredients";
     private const float RecipeRowHeight = 42f;
 
     public ManagerJob_Production SelectedProductionJob => SelectedJob!;
@@ -191,7 +192,13 @@ internal sealed class ManagerTab_Production(Manager manager)
         var optionsColumnRect = new Rect(
             rect.xMin,
             rect.yMin,
-            rect.width,
+            rect.width * 3 / 5f,
+            rect.height - Margin - ButtonSize.y
+        );
+        var ingredientsColumnRect = new Rect(
+            optionsColumnRect.xMax,
+            rect.yMin,
+            rect.width * 2 / 5f,
             rect.height - Margin - ButtonSize.y
         );
         var buttonRect = new Rect(
@@ -249,6 +256,29 @@ internal sealed class ManagerTab_Production(Manager manager)
         );
         DrawSection(ProductionOptions, "Status", ref position, width, DrawStatus);
         Widgets_Section.EndSectionColumn(ProductionOptions, position);
+
+        Widgets_Section.BeginSectionColumn(
+            ingredientsColumnRect,
+            ProductionIngredients,
+            out var ingredientsPosition,
+            out var ingredientsWidth
+        );
+        DrawSection(
+            ProductionIngredients,
+            "Ingredients",
+            ref ingredientsPosition,
+            ingredientsWidth,
+            DrawIngredientShortcuts,
+            "ColonyManagerRedux.Production.Ingredients".Translate()
+        );
+        DrawSection(
+            ProductionIngredients,
+            "IngredientsList",
+            ref ingredientsPosition,
+            ingredientsWidth,
+            DrawIngredientList
+        );
+        Widgets_Section.EndSectionColumn(ProductionIngredients, ingredientsPosition);
 
         if (!SelectedProductionJob.IsManaged)
         {
@@ -367,6 +397,81 @@ internal sealed class ManagerTab_Production(Manager manager)
         );
         trigger.CountAllOnMap = countAllOnMap;
     }
+
+    // Which raw materials managed bills are actually allowed to consume (Bill.ingredientFilter),
+    // as opposed to DrawThreshold's filter (what's counted toward the trigger). The sync toggle
+    // is only shown in ConsumeSurplus mode: in MaintainStock the threshold filter is output-typed
+    // and has no relationship to ingredients at all, so syncing wouldn't mean anything there.
+    // Kept in its own section, separate from DrawIngredientList, matching Foraging's
+    // DrawPlantShortcuts/DrawPlantList split.
+    private static float DrawIngredientShortcuts(
+        ManagerJob_Production job,
+        Vector2 pos,
+        float width
+    )
+    {
+        var start = pos;
+
+        if (job.Mode == ManagerJob_Production.ProductionMode.ConsumeSurplus)
+        {
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
+                "ColonyManagerRedux.Production.SyncFilterAndAllowed.Tip".Translate(),
+                ref job.SyncFilterAndAllowed
+            );
+        }
+
+        var allIngredients = ManagerJob_Production.AllRecipeIngredientOptions(job.Recipe!).ToList();
+
+        void SetAllowed(ThingDef thingDef, bool allow)
+        {
+            job.SetIngredientAllowed(thingDef, allow);
+        }
+
+        var shortcutRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        DrawShortcutToggle(
+            allIngredients,
+            job.AllowedIngredients,
+            SetAllowed,
+            shortcutRect,
+            "ColonyManagerRedux.Shortcuts.All",
+            null
+        );
+        pos.y += ListEntryHeight;
+
+        foreach (
+            var category in ManagerJob_Production
+                .GroupIngredientsByCategory(allIngredients)
+                .OrderBy(g => g.Key.LabelCap.Resolve(), StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            shortcutRect.y = pos.y;
+            DrawShortcutToggle(
+                [.. category],
+                job.AllowedIngredients,
+                SetAllowed,
+                shortcutRect,
+                category.Key.LabelCap
+            );
+            pos.y += ListEntryHeight;
+        }
+
+        return pos.y - start.y;
+    }
+
+    private static float DrawIngredientList(ManagerJob_Production job, Vector2 pos, float width) =>
+        Utilities.DrawToggleDefList(
+            pos,
+            width,
+            ManagerJob_Production.AllRecipeIngredientOptions(job.Recipe!),
+            job.AllowedIngredients.Contains,
+            (thingDef, allow) => job.SetIngredientAllowed(thingDef, allow),
+            thingDef => thingDef.LabelCap,
+            thingDef => (TipSignal)thingDef.LabelCap,
+            (rect, thingDef) => Widgets.InfoCardButton(rect, thingDef)
+        );
 
     // Combines skill range, ingredient radius and store mode into a single section instead of
     // one section per setting; each sub-widget already carries its own inline label, so a

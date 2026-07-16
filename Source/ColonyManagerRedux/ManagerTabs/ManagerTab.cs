@@ -726,6 +726,43 @@ public abstract class ManagerTab(Manager manager)
         Rect rect,
         string labelKey,
         string? toolTipKey
+    ) =>
+        DrawShortcutToggleCore(
+            options,
+            selected,
+            setAllowed,
+            rect,
+            labelKey.Translate(),
+            toolTipKey != null ? toolTipKey.Translate() : string.Empty
+        );
+
+    /// <summary>
+    /// Like <see cref="DrawShortcutToggle{T}(List{T}, HashSet{T}, Action{T, bool}, Rect, string, string?)"/>,
+    /// but for groups that are derived at runtime instead of statically known ahead of time (e.g.
+    /// a recipe's ingredient categories), and so have no translation key of their own —
+    /// <paramref name="label"/> is used as-is instead of being resolved via <c>.Translate()</c>.
+    /// </summary>
+    /// <typeparam name="T">The type of the options.</typeparam>
+    /// <param name="options">The list of all available options in this group.</param>
+    /// <param name="selected">The set of currently selected options.</param>
+    /// <param name="setAllowed">The action called to set whether an option is allowed (selected).</param>
+    /// <param name="rect">The rectangle area in which to draw the toggle.</param>
+    /// <param name="label">The label to draw, already resolved to displayable text.</param>
+    protected static void DrawShortcutToggle<T>(
+        List<T> options,
+        HashSet<T> selected,
+        Action<T, bool> setAllowed,
+        Rect rect,
+        TaggedString label
+    ) => DrawShortcutToggleCore(options, selected, setAllowed, rect, label, string.Empty);
+
+    private static void DrawShortcutToggleCore<T>(
+        List<T> options,
+        HashSet<T> selected,
+        Action<T, bool> setAllowed,
+        Rect rect,
+        TaggedString label,
+        TipSignal tooltip
     )
     {
         if (options == null)
@@ -742,8 +779,8 @@ public abstract class ManagerTab(Manager manager)
 
         Utilities.DrawToggle(
             rect,
-            labelKey.Translate().Italic(),
-            toolTipKey != null ? toolTipKey.Translate() : string.Empty,
+            label.Italic(),
+            tooltip,
             allSelected,
             noneSelected,
             () => options.ForEach(p => setAllowed(p, true)),

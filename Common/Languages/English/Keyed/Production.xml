@@ -8,6 +8,8 @@
     <ColonyManagerRedux.Production.Mode.MaintainStock.Tip>Keep a stock of this recipe's own output topped up. The trigger is the recipe's output itself.</ColonyManagerRedux.Production.Mode.MaintainStock.Tip>
     <ColonyManagerRedux.Production.Mode.ConsumeSurplus>Consume surplus</ColonyManagerRedux.Production.Mode.ConsumeSurplus>
     <ColonyManagerRedux.Production.Mode.ConsumeSurplus.Tip>Run this recipe whenever a surplus of some other resource is available, independent of the recipe's own output. E.g. turn excess cotton into cotton dusters.</ColonyManagerRedux.Production.Mode.ConsumeSurplus.Tip>
+    <ColonyManagerRedux.Production.Ingredients>Ingredients</ColonyManagerRedux.Production.Ingredients>
+    <ColonyManagerRedux.Production.SyncFilterAndAllowed.Tip>Keep the allowed ingredients in sync with the trigger's threshold filter. Turn this off to trigger on one resource (e.g. hay) while consuming a different one (e.g. meat for carnivore meals).</ColonyManagerRedux.Production.SyncFilterAndAllowed.Tip>
     <ColonyManagerRedux.Production.WorkbenchScope>Workbenches</ColonyManagerRedux.Production.WorkbenchScope>
     <ColonyManagerRedux.Production.WorkbenchScope.All>All</ColonyManagerRedux.Production.WorkbenchScope.All>
     <ColonyManagerRedux.Production.WorkbenchScope.All.Tip>Every eligible workbench on the map is managed by this job.</ColonyManagerRedux.Production.WorkbenchScope.All.Tip>

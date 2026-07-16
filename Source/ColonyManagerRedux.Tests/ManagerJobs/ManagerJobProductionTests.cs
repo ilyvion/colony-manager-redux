@@ -328,4 +328,91 @@ internal static class ManagerJobProductionTests
         Assert.That(filter.Allows(cotton)).Is.True();
         Assert.That(filter.Allows(leather)).Is.True();
     }
+
+    [Test]
+    public static void AllRecipeIngredientOptionsUnionsAndDeduplicatesAcrossSlots()
+    {
+        var cotton = new ThingDef { defName = "CMR_TestCotton3" };
+        var leather = new ThingDef { defName = "CMR_TestLeather2" };
+        var slot1Filter = new ThingFilter();
+        slot1Filter.SetAllow(cotton, true);
+        slot1Filter.SetAllow(leather, true);
+        var slot2Filter = new ThingFilter();
+        slot2Filter.SetAllow(cotton, true);
+        var recipe = new RecipeDef
+        {
+            ingredients =
+            [
+                new IngredientCount { filter = slot1Filter },
+                new IngredientCount { filter = slot2Filter },
+            ],
+        };
+
+        var options = AllRecipeIngredientOptions(recipe).ToList();
+
+        Assert.ThatCollection(options).Has.Count(2);
+        Assert.ThatCollection(options).Does.Contain(cotton);
+        Assert.ThatCollection(options).Does.Contain(leather);
+    }
+
+    [Test]
+    public static void BillNeedsIngredientFilterUpdateWithMatchingSetsNeedsNoUpdate()
+    {
+        var cotton = new ThingDef { defName = "CMR_TestCotton4" };
+        var leather = new ThingDef { defName = "CMR_TestLeather3" };
+
+        Assert
+            .That(BillNeedsIngredientFilterUpdate([cotton, leather], [cotton, leather]))
+            .Is.False();
+    }
+
+    [Test]
+    public static void BillNeedsIngredientFilterUpdateWithMismatchedSetsNeedsUpdate()
+    {
+        var cotton = new ThingDef { defName = "CMR_TestCotton5" };
+        var leather = new ThingDef { defName = "CMR_TestLeather4" };
+
+        Assert.That(BillNeedsIngredientFilterUpdate([cotton], [cotton, leather])).Is.True();
+    }
+
+    [Test]
+    public static void GroupIngredientsByCategoryGroupsByDirectCategory()
+    {
+        var meat = new ThingCategoryDef { defName = "CMR_TestMeat" };
+        var vegetarian = new ThingCategoryDef { defName = "CMR_TestVegetarian" };
+        var bearMeat = new ThingDef { defName = "CMR_TestBearMeat", thingCategories = [meat] };
+        var twistedMeat = new ThingDef
+        {
+            defName = "CMR_TestTwistedMeat",
+            thingCategories = [meat],
+        };
+        var berries = new ThingDef { defName = "CMR_TestBerries", thingCategories = [vegetarian] };
+        var uncategorized = new ThingDef { defName = "CMR_TestUncategorized" };
+
+        var groups = GroupIngredientsByCategory([bearMeat, twistedMeat, berries, uncategorized]);
+
+        Assert.ThatCollection(groups[meat]).Has.Count(2);
+        Assert.ThatCollection(groups[meat]).Does.Contain(bearMeat);
+        Assert.ThatCollection(groups[meat]).Does.Contain(twistedMeat);
+        Assert.ThatCollection(groups[vegetarian]).Has.Count(1);
+        Assert.ThatCollection(groups[vegetarian]).Does.Contain(berries);
+        Assert.ThatCollection(groups.SelectMany(g => g)).Does.Not.Contain(uncategorized);
+    }
+
+    [Test]
+    public static void GroupIngredientsByCategoryUsesOnlyFirstCategoryForMultiCategoryItems()
+    {
+        var meat = new ThingCategoryDef { defName = "CMR_TestMeat2" };
+        var animalProducts = new ThingCategoryDef { defName = "CMR_TestAnimalProducts" };
+        var eggs = new ThingDef
+        {
+            defName = "CMR_TestEggs",
+            thingCategories = [animalProducts, meat],
+        };
+
+        var groups = GroupIngredientsByCategory([eggs]);
+
+        Assert.ThatCollection(groups[animalProducts]).Has.Count(1);
+        Assert.ThatCollection(groups[meat]).Has.Count(0);
+    }
 }
