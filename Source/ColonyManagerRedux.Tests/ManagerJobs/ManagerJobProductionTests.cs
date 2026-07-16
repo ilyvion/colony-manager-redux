@@ -269,4 +269,63 @@ internal static class ManagerJobProductionTests
                 YieldPerIteration(new RecipeDef { specialProducts = [SpecialProductType.Smelted] })
             )
             .Is.EqualTo(1);
+
+    [Test]
+    public static void ConfigureIngredientFilterAllowsEachIngredientOptionNotTheProduct()
+    {
+        var cotton = new ThingDef { defName = "CMR_TestCotton" };
+        var duster = new ThingDef { defName = "CMR_TestDuster" };
+        var ingredientFilter = new ThingFilter();
+        ingredientFilter.SetAllow(cotton, true);
+        var recipe = new RecipeDef
+        {
+            ingredients = [new IngredientCount { filter = ingredientFilter }],
+            products = [new ThingDefCountClass(duster, 1)],
+        };
+        var filter = new ThingFilter();
+
+        ConfigureIngredientFilter(recipe, filter);
+
+        Assert.That(filter.Allows(cotton)).Is.True();
+        Assert.That(filter.Allows(duster)).Is.False();
+    }
+
+    [Test]
+    public static void ConfigureIngredientFilterAllowsFixedIngredient()
+    {
+        var wood = new ThingDef { defName = "CMR_TestFixedWood" };
+        var fixedFilter = new ThingFilter();
+        fixedFilter.SetAllow(wood, true);
+        var recipe = new RecipeDef { ingredients = [new IngredientCount { filter = fixedFilter }] };
+        var filter = new ThingFilter();
+
+        ConfigureIngredientFilter(recipe, filter);
+
+        Assert.That(filter.Allows(wood)).Is.True();
+    }
+
+    [Test]
+    public static void ConfigureIngredientFilterUnionsMultipleIngredientSlots()
+    {
+        var cotton = new ThingDef { defName = "CMR_TestCotton2" };
+        var leather = new ThingDef { defName = "CMR_TestLeather" };
+        var cottonFilter = new ThingFilter();
+        cottonFilter.SetAllow(cotton, true);
+        var leatherFilter = new ThingFilter();
+        leatherFilter.SetAllow(leather, true);
+        var recipe = new RecipeDef
+        {
+            ingredients =
+            [
+                new IngredientCount { filter = cottonFilter },
+                new IngredientCount { filter = leatherFilter },
+            ],
+        };
+        var filter = new ThingFilter();
+
+        ConfigureIngredientFilter(recipe, filter);
+
+        Assert.That(filter.Allows(cotton)).Is.True();
+        Assert.That(filter.Allows(leather)).Is.True();
+    }
 }

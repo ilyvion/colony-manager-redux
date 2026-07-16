@@ -262,6 +262,7 @@ internal sealed class ManagerJob_Production
 
             RemoveAllManagedBills();
             _recipe = value;
+            _consumeSurplusFilterInitialized = false;
             ConfigureThresholdTriggerFilter();
             Notify_TargetsChanged();
         }
@@ -380,23 +381,79 @@ internal sealed class ManagerJob_Production
         ConfigureThresholdTriggerFilter();
     }
 
+    /// <summary>
+    /// Whether <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter has already been
+    /// seeded once (from <see cref="Recipe"/>'s raw-material ingredients) for the current
+    /// <see cref="Recipe"/>. Set back to <see langword="false"/> whenever <see cref="Recipe"/>
+    /// changes, so switching recipes re-seeds instead of keeping a stale filter — but left
+    /// <see langword="true"/> across repeated <see cref="Mode"/> toggling, so a player's manual
+    /// edits to the filter (via the trigger's own config UI) survive comparing modes back and
+    /// forth.
+    /// </summary>
+    private bool _consumeSurplusFilterInitialized;
+
     private void ConfigureThresholdTriggerFilter()
     {
-        if (_mode != ProductionMode.MaintainStock)
+        if (_recipe == null)
         {
             return;
         }
 
-        var resolver = _recipe != null ? RecipeProductResolvers.ResolverFor(_recipe) : null;
+        if (_mode == ProductionMode.MaintainStock)
+        {
+            var resolver = RecipeProductResolvers.ResolverFor(_recipe);
+
+            if (!TriggerThreshold.AllowAnyThreshold)
+            {
+                TriggerThreshold.ParentFilter.SetDisallowAll();
+                resolver?.ConfigureFilter(_recipe, TriggerThreshold.ParentFilter);
+            }
+
+            TriggerThreshold.ThresholdFilter.SetDisallowAll();
+            resolver?.ConfigureFilter(_recipe, TriggerThreshold.ThresholdFilter);
+            return;
+        }
+
+        // ConsumeSurplus: trigger and output are unrelated (e.g. "cotton > 100" driving a
+        // cotton-duster recipe), so there's nothing to auto-derive the filter from on every
+        // pass the way MaintainStock does above. Instead, seed it once with the recipe's raw
+        // material ingredients — the sensible default for "surplus of what feeds this recipe"
+        // — and leave it alone afterwards so a player's own edits aren't clobbered by toggling
+        // modes to compare them.
+        if (_consumeSurplusFilterInitialized)
+        {
+            return;
+        }
+        _consumeSurplusFilterInitialized = true;
 
         if (!TriggerThreshold.AllowAnyThreshold)
         {
             TriggerThreshold.ParentFilter.SetDisallowAll();
-            resolver?.ConfigureFilter(_recipe!, TriggerThreshold.ParentFilter);
+            ConfigureIngredientFilter(_recipe, TriggerThreshold.ParentFilter);
         }
 
         TriggerThreshold.ThresholdFilter.SetDisallowAll();
-        resolver?.ConfigureFilter(_recipe!, TriggerThreshold.ThresholdFilter);
+        ConfigureIngredientFilter(_recipe, TriggerThreshold.ThresholdFilter);
+    }
+
+    /// <summary>
+    /// Populates <paramref name="filter"/> with every <see cref="ThingDef"/> that could satisfy
+    /// any of <paramref name="recipe"/>'s ingredients — including fixed ingredients, since
+    /// <see cref="IngredientCount.IsFixedIngredient"/> is just the case where its own
+    /// <see cref="IngredientCount.filter"/> happens to allow exactly one def. Used to seed
+    /// <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter with the recipe's raw
+    /// materials, as opposed to <see cref="RecipeProductResolver"/>, which resolves what a
+    /// recipe produces.
+    /// </summary>
+    internal static void ConfigureIngredientFilter(RecipeDef recipe, ThingFilter filter)
+    {
+        foreach (var ingredient in recipe.ingredients)
+        {
+            foreach (var thingDef in ingredient.filter.AllowedThingDefs)
+            {
+                filter.SetAllow(thingDef, true);
+            }
+        }
     }
 
     private void RemoveAllManagedBills()
@@ -459,6 +516,15 @@ internal sealed class ManagerJob_Production
             // field itself already loaded correctly via Trigger_Threshold's own ExposeData,
             // this just re-syncs which ops the UI is allowed to offer going forward.
             TriggerThreshold.RestrictSupportedOps(SupportedOpsForMode(_mode));
+
+            // _consumeSurplusFilterInitialized isn't itself scribed: _mode only reaches
+            // ConsumeSurplus by going through the Mode setter at some point (this field starts
+            // at MaintainStock and Scribe assigns the backing field directly, bypassing the
+            // setter), and that setter always seeds the ingredient filter before ConsumeSurplus
+            // becomes observable. So a loaded ConsumeSurplus job's filter is already whatever
+            // that seeding (possibly since edited by the player) produced — reconstructing the
+            // flag from the loaded mode is exactly as accurate as persisting it separately.
+            _consumeSurplusFilterInitialized = _mode == ProductionMode.ConsumeSurplus;
         }
         Scribe_Values.Look(ref AssignmentMode, "assignmentMode", WorkbenchAssignmentMode.All);
         Scribe_Values.Look(ref InvertWorkbenchArea, "invertWorkbenchArea");
