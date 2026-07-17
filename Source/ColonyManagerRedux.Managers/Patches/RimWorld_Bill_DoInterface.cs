@@ -53,6 +53,11 @@ internal static class RimWorld_Bill_DoInterface
     // site at compile time — the actual overloads called are the 5-arg and 6-arg ones below, confirmed
     // via get_il on Bill.DoInterface. AccessTools.Method silently returns null for a signature that
     // doesn't match any overload, and Transpiler passing that null into CodeInstruction.Calls throws.
+    //
+    // ReorderUp, ReorderDown and Suspend all go through this exact same 5-arg overload (confirmed via
+    // get_il — same MethodInfo token at all three call sites), so a global call-site redirect can't
+    // tell them apart by signature alone. Reordering doesn't override anything a Production job
+    // manages, so it should stay usable even on a managed bill; only suppress Suspend.
     private static bool RedirectedButtonImage(
         Rect butRect,
         Texture2D tex,
@@ -60,7 +65,7 @@ internal static class RimWorld_Bill_DoInterface
         bool doMouseoverSound,
         string? tooltip
     ) =>
-        !SuppressManagedBillControls
+        (tex == TexButton.ReorderUp || tex == TexButton.ReorderDown || !SuppressManagedBillControls)
         && Widgets.ButtonImage(butRect, tex, baseColor, doMouseoverSound, tooltip);
 
     private static bool RedirectedButtonImage(
@@ -83,7 +88,7 @@ internal static class RimWorld_Bill_DoInterface
     // too so no vanilla tooltip shows there once the button is suppressed.
     private static void RedirectedTipRegionByKey(Rect rect, string key)
     {
-        if (!SuppressManagedBillControls)
+        if (key is "ReorderBillUpTip" or "ReorderBillDownTip" || !SuppressManagedBillControls)
         {
             TooltipHandler.TipRegionByKey(rect, key);
         }
