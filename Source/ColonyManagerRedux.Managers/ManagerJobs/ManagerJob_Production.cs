@@ -82,15 +82,14 @@ internal sealed class ManagerJob_Production
     /// <summary>
     /// Which of the two mental models this job is serving: keeping a stock of the recipe's own
     /// output topped up, or converting a surplus of some unrelated resource into the recipe's
-    /// output. See Step 5 of <c>Docs/ProductionManagerRework.md</c>.
+    /// output.
     /// </summary>
     internal enum ProductionMode
     {
         /// <summary>
         /// Trigger and output are the same thing (e.g. "keep 15 steel knives around") — the
         /// trigger filter is auto-derived from <see cref="Recipe"/>'s own product resolver, and
-        /// managed bills are scheduled to produce exactly the shortfall. Default; today's only
-        /// behavior until Increment B adds exact-fill scheduling.
+        /// managed bills are scheduled to produce exactly the shortfall. Default.
         /// </summary>
         MaintainStock,
 
@@ -676,12 +675,12 @@ internal sealed class ManagerJob_Production
     /// <summary>
     /// Whether a candidate recipe's resolved output overlaps <see cref="Recipe"/>'s currently
     /// tracked output, i.e. whether swapping to it would still track "the same thing, produced
-    /// a different way" (Step 5 of <c>Docs/ProductionManagerRework.md</c>, "recipe swap").
-    /// Compares whole output sets rather than a single <see cref="ThingDef"/> so it generalizes
-    /// to the category-based resolvers from Step 4 — e.g. two different butchery-style recipes
-    /// both resolve to the <see cref="ThingCategoryDefOf.MeatRaw"/> category and should match
-    /// each other even though neither has a literal <see cref="RecipeDef.products"/> entry. Pure
-    /// function, kept separate from <c>ManagerTab_Production</c> so it's unit-testable.
+    /// a different way" ("recipe swap"). Compares whole output sets rather than a single
+    /// <see cref="ThingDef"/> so it generalizes to category-based resolvers — e.g. two different
+    /// butchery-style recipes both resolve to the <see cref="ThingCategoryDefOf.MeatRaw"/>
+    /// category and should match each other even though neither has a literal
+    /// <see cref="RecipeDef.products"/> entry. Pure function, kept separate from
+    /// <c>ManagerTab_Production</c> so it's unit-testable.
     /// </summary>
     internal static bool RecipeSharesOutput(
         IEnumerable<ThingDef> candidateOutputs,
@@ -690,7 +689,7 @@ internal sealed class ManagerJob_Production
 
     /// <summary>
     /// How <see cref="AggregateLinkedDemand"/> combines multiple linked consumers' individual
-    /// demand for the same producer. See <c>Docs/ProductionManagerRework.md</c> Step 6.
+    /// demand for the same producer.
     /// </summary>
     internal enum LinkedDemandAggregation
     {
@@ -717,7 +716,6 @@ internal sealed class ManagerJob_Production
     /// so e.g. linking one "butcher creature" job supplies every allowed meat type at once
     /// instead of needing one link per meat def. Only meaningful for a value job in
     /// <see cref="ProductionMode.MaintainStock"/> — see <see cref="ComputeIngredientDemand"/>.
-    /// See <c>Docs/ProductionManagerRework.md</c> Step 6.
     /// </summary>
     public HashSet<ManagerJob_Production> LinkedProducers = [];
 
@@ -861,11 +859,9 @@ internal sealed class ManagerJob_Production
     /// The buffer of raw items (from <paramref name="coveredIngredients"/>) needed to fully
     /// refill a <see cref="ProductionMode.MaintainStock"/> consumer's own target from empty — the
     /// amount a linked producer should aim to keep in stock for this one consumer. Reuses
-    /// <see cref="SharesToIterations"/>/<see cref="YieldPerIteration"/> verbatim rather than the
-    /// old pre-Redux mod's <c>Math.Sqrt(count) * baseCount</c> heuristic (see
-    /// <c>Docs/ProductionManagerRework.md</c> Step 6), which produced a number with no
-    /// transparent relationship to the consumer's actual target. Pure function, kept separate
-    /// from <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// <see cref="SharesToIterations"/>/<see cref="YieldPerIteration"/> verbatim, so the result
+    /// stays in a transparent relationship to the consumer's actual target. Pure function, kept
+    /// separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
     /// </summary>
     internal static int ComputeIngredientDemand(
         RecipeDef consumerRecipe,
@@ -879,9 +875,9 @@ internal sealed class ManagerJob_Production
 
     /// <summary>
     /// Every <see cref="ThingDef"/> <paramref name="recipe"/> resolves to producing, via its
-    /// registered <see cref="RecipeProductResolver"/> (see <c>Docs/ProductionManagerRework.md</c>
-    /// Step 4) — empty if it has none. Used to determine which of a linked consumer's
-    /// <see cref="AllowedIngredients"/> a given producer job actually covers.
+    /// registered <see cref="RecipeProductResolver"/> — empty if it has none. Used to determine
+    /// which of a linked consumer's <see cref="AllowedIngredients"/> a given producer job
+    /// actually covers.
     /// </summary>
     internal static IEnumerable<ThingDef> ResolvedOutputDefs(RecipeDef recipe)
     {

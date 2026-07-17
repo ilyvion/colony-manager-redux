@@ -263,8 +263,7 @@ internal sealed class ManagerTab_Production(Manager manager)
             DrawThreshold,
             "ColonyManagerRedux.Threshold".Translate()
         );
-        // Only added when there's actually a link to show, same "avoid an empty section"
-        // precedent Step 5 used for the recipe-swap button.
+        // Only added when there's actually a link to show, avoiding an empty section otherwise.
         if (
             SelectedProductionJob.LinkedProducers.Count > 0
             || SelectedProductionJob.AutoTargetFromLinks
@@ -426,10 +425,9 @@ internal sealed class ManagerTab_Production(Manager manager)
         Widgets.Label(new Rect(pos.x, pos.y, width, textHeight), textString);
         pos.y += textHeight;
 
-        // Recipe swap (Docs/ProductionManagerRework.md Step 5): only meaningful in
-        // MaintainStock mode, where the trigger tracks the recipe's own output — in
-        // ConsumeSurplus mode trigger and output are deliberately unrelated, so "another recipe
-        // with the same output" isn't a meaningful notion there.
+        // Recipe swap: only meaningful in MaintainStock mode, where the trigger tracks the
+        // recipe's own output — in ConsumeSurplus mode trigger and output are deliberately
+        // unrelated, so "another recipe with the same output" isn't a meaningful notion there.
         if (job.Mode == ManagerJob_Production.ProductionMode.MaintainStock)
         {
             var swapCandidates = ComputeRecipeSwapCandidates(job);
@@ -460,8 +458,7 @@ internal sealed class ManagerTab_Production(Manager manager)
 
     // Candidate pool: recipes already offered in the Available tab (built, recipe-compatible
     // work table on the map, see Refresh()) whose resolver-derived output overlaps what this
-    // job is currently tracking. Reuses that pool instead of a fresh DefDatabase scan, per
-    // Docs/ProductionManagerRework.md Step 5.
+    // job is currently tracking. Reuses that pool instead of a fresh DefDatabase scan.
     private List<RecipeDef> ComputeRecipeSwapCandidates(ManagerJob_Production job)
     {
         var currentOutputs = job.TriggerThreshold.ThresholdFilter.AllowedThingDefs;
@@ -667,15 +664,13 @@ internal sealed class ManagerTab_Production(Manager manager)
         trigger.CountAllOnMap = countAllOnMap;
     }
 
-    // Job linking (Docs/ProductionManagerRework.md Step 6): a dedicated section so both
-    // directions of a link (a producer's "who consumes me" list and a consumer's "who do I
-    // link to" list) get equal, uncramped space instead of being squeezed into the Threshold
-    // section (producer side, previously here) or tacked onto the bottom of the ingredient list
-    // (consumer side, previously in DrawIngredientList) - neither of which had room for a
-    // multi-line row. Rendered right under Threshold since it's conceptually still about "what
-    // target this job is aiming for," just broken out for space. Call site (DoMainContent) only
-    // adds this section at all when there's something to show, same "avoid an empty section"
-    // precedent Step 5 used for the recipe-swap button.
+    // Job linking: a dedicated section so both directions of a link (a producer's "who consumes
+    // me" list and a consumer's "who do I link to" list) get equal, uncramped space instead of
+    // being squeezed into the Threshold section or the ingredient list, neither of which has
+    // room for a multi-line row. Rendered right under Threshold since it's conceptually still
+    // about "what target this job is aiming for," just broken out for space. Call site
+    // (DoMainContent) only adds this section at all when there's something to show, avoiding an
+    // empty section otherwise.
     private float DrawLinkedJobs(ManagerJob_Production job, Vector2 pos, float width)
     {
         var start = pos;
@@ -939,10 +934,10 @@ internal sealed class ManagerTab_Production(Manager manager)
         return pos.y - start.y;
     }
 
-    // Candidate recipes (Docs/ProductionManagerRework.md Step 6) that could supply the given
-    // ingredient, reusing _availableRecipes (already "has a resolver and a built work table",
-    // see Refresh()) the same way ComputeRecipeSwapCandidates does for Step 5 — just checking
-    // a single ThingDef instead of set-intersecting two filters.
+    // Candidate recipes that could supply the given ingredient, reusing _availableRecipes
+    // (already "has a resolver and a built work table", see Refresh()) the same way
+    // ComputeRecipeSwapCandidates does — just checking a single ThingDef instead of
+    // set-intersecting two filters.
     private List<RecipeDef> ComputeIngredientSourceCandidates(ThingDef ingredient)
     {
         var candidates = new List<RecipeDef>();
@@ -1067,11 +1062,11 @@ internal sealed class ManagerTab_Production(Manager manager)
         Refresh();
     }
 
-    // Every job (of any mode, per Docs/ProductionManagerRework.md Step 6 — a ConsumeSurplus
-    // consumer can still link a producer for documentation/traceability, it just never
-    // contributes a demand number) currently linking to this producer, paired with which of its
-    // currently-allowed ingredients this producer actually covers and the resulting combined
-    // demand (0 for a ConsumeSurplus consumer, which has no bounded demand to compute).
+    // Every job (of any mode — a ConsumeSurplus consumer can still link a producer for
+    // documentation/traceability, it just never contributes a demand number) currently linking
+    // to this producer, paired with which of its currently-allowed ingredients this producer
+    // actually covers and the resulting combined demand (0 for a ConsumeSurplus consumer, which
+    // has no bounded demand to compute).
     private List<(
         ManagerJob_Production Consumer,
         List<ThingDef> CoveredIngredients,
@@ -1404,9 +1399,9 @@ internal sealed class ManagerTab_Production(Manager manager)
 
     // Mirrors vanilla RecipeWorkerCounter.CanPossiblyStore: checks the slot group's storage
     // filter against whatever this job is actually tracking. In MaintainStock mode that's
-    // whatever the recipe's registered RecipeProductResolver (see
-    // Docs/ProductionManagerRework.md Step 4) says the recipe produces — a single ThingDef for
-    // simple recipes, or every def in a category for e.g. butchery/stonecutting. A recipe with
+    // whatever the recipe's registered RecipeProductResolver says the recipe produces — a
+    // single ThingDef for simple recipes, or every def in a category for e.g.
+    // butchery/stonecutting. A recipe with
     // no registered resolver at all can't currently be tracked by this job, so it's treated as
     // always compatible (matches vanilla's own fallback when CanCountProducts is false). In
     // ConsumeSurplus mode the resolver-derived filter is irrelevant (trigger and output aren't
