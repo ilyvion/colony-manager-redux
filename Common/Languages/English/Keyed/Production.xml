@@ -23,4 +23,6 @@
     <ColonyManagerRedux.Production.Logs.CurrentCount>Current count / target: {0} / {1}</ColonyManagerRedux.Production.Logs.CurrentCount>
     <ColonyManagerRedux.Production.Logs.BillAdded>Added a {0} bill to {1}.</ColonyManagerRedux.Production.Logs.BillAdded>
     <ColonyManagerRedux.Production.ManagedByJob>Managed by Colony Manager Production Job ({0})</ColonyManagerRedux.Production.ManagedByJob>
+    <ColonyManagerRedux.Production.OtherRecipesAvailable>Other recipes available</ColonyManagerRedux.Production.OtherRecipesAvailable>
+    <ColonyManagerRedux.Production.OtherRecipesAvailable.Tip>Switch to a different recipe that produces the same thing, keeping this job's trigger and history unchanged.</ColonyManagerRedux.Production.OtherRecipesAvailable.Tip>
 </LanguageData>

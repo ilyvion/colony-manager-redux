@@ -552,4 +552,30 @@ internal static class ManagerJobProductionTests
         Assert.ThatCollection(groups[animalProducts]).Has.Count(1);
         Assert.ThatCollection(groups[meat]).Has.Count(0);
     }
+
+    [Test]
+    public static void RecipeSharesOutputWithOverlappingSetsReturnsTrue()
+    {
+        var steel = new ThingDef { defName = "CMR_TestSteel" };
+        var plasteel = new ThingDef { defName = "CMR_TestPlasteel" };
+
+        Assert.That(RecipeSharesOutput([steel], [steel, plasteel])).Is.True();
+    }
+
+    [Test]
+    public static void RecipeSharesOutputWithDisjointSetsReturnsFalse()
+    {
+        var steel = new ThingDef { defName = "CMR_TestSteel2" };
+        var meat = new ThingDef { defName = "CMR_TestMeat3" };
+
+        Assert.That(RecipeSharesOutput([steel], [meat])).Is.False();
+    }
+
+    [Test]
+    public static void RecipeSharesOutputWithEmptyCandidateOutputsReturnsFalse()
+    {
+        var steel = new ThingDef { defName = "CMR_TestSteel3" };
+
+        Assert.That(RecipeSharesOutput([], [steel])).Is.False();
+    }
 }

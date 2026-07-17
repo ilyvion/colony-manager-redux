@@ -325,7 +325,7 @@ internal sealed class ManagerTab_Production(Manager manager)
     // Mirrors the level of detail vanilla's own Dialog_BillConfig shows for a recipe (icon,
     // description, work amount, ingredient requirements) — the plain recipe-name label this used
     // to be gave no way to tell recipes apart or judge them without leaving the tab.
-    private static float DrawRecipeInfo(ManagerJob_Production job, Vector2 pos, float width)
+    private float DrawRecipeInfo(ManagerJob_Production job, Vector2 pos, float width)
     {
         var start = pos;
         var recipe = job.Recipe!;
@@ -405,7 +405,95 @@ internal sealed class ManagerTab_Production(Manager manager)
         Widgets.Label(new Rect(pos.x, pos.y, width, textHeight), textString);
         pos.y += textHeight;
 
+        // Recipe swap (Docs/ProductionManagerRework.md Step 5): only meaningful in
+        // MaintainStock mode, where the trigger tracks the recipe's own output — in
+        // ConsumeSurplus mode trigger and output are deliberately unrelated, so "another recipe
+        // with the same output" isn't a meaningful notion there.
+        if (job.Mode == ManagerJob_Production.ProductionMode.MaintainStock)
+        {
+            var swapCandidates = ComputeRecipeSwapCandidates(job);
+            if (swapCandidates.Count > 0)
+            {
+                var swapRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+                if (
+                    Widgets.ButtonText(
+                        swapRect,
+                        "ColonyManagerRedux.Production.OtherRecipesAvailable".Translate()
+                    )
+                )
+                {
+                    Find.WindowStack.Add(
+                        new FloatMenu(BuildRecipeSwapOptions(job, swapCandidates))
+                    );
+                }
+                TooltipHandler.TipRegion(
+                    swapRect,
+                    "ColonyManagerRedux.Production.OtherRecipesAvailable.Tip".Translate()
+                );
+                pos.y += ListEntryHeight;
+            }
+        }
+
         return pos.y - start.y;
+    }
+
+    // Candidate pool: recipes already offered in the Available tab (built, recipe-compatible
+    // work table on the map, see Refresh()) whose resolver-derived output overlaps what this
+    // job is currently tracking. Reuses that pool instead of a fresh DefDatabase scan, per
+    // Docs/ProductionManagerRework.md Step 5.
+    private List<RecipeDef> ComputeRecipeSwapCandidates(ManagerJob_Production job)
+    {
+        var currentOutputs = job.TriggerThreshold.ThresholdFilter.AllowedThingDefs;
+        var candidates = new List<RecipeDef>();
+        foreach (var candidate in _availableRecipes)
+        {
+            if (candidate == job.Recipe)
+            {
+                continue;
+            }
+            if (RecipeProductResolvers.ResolverFor(candidate) is not { } resolver)
+            {
+                continue;
+            }
+
+            var filter = new ThingFilter();
+            resolver.ConfigureFilter(candidate, filter);
+            if (ManagerJob_Production.RecipeSharesOutput(filter.AllowedThingDefs, currentOutputs))
+            {
+                candidates.Add(candidate);
+            }
+        }
+        return candidates;
+    }
+
+    // Selecting an option is just job.Recipe = candidate — the setter already tears down and
+    // reseeds everything recipe-derived (see ManagerJob_Production.Recipe's setter), leaving
+    // the trigger's identity/history and all bill-config settings untouched.
+    private static List<FloatMenuOption> BuildRecipeSwapOptions(
+        ManagerJob_Production job,
+        List<RecipeDef> candidates
+    )
+    {
+        var opts = new List<FloatMenuOption>();
+        foreach (
+            var candidate in candidates.OrderBy(
+                r => r.LabelCap.ToString(),
+                StringComparer.OrdinalIgnoreCase
+            )
+        )
+        {
+            var candidateLocal = candidate;
+            var workstations = candidateLocal
+                .AllRecipeUsers.Select(td => td.LabelCap.ToString())
+                .ToCommaList();
+            opts.Add(
+                new FloatMenuOption(
+                    $"{candidateLocal.LabelCap} ({workstations})",
+                    () => job.Recipe = candidateLocal
+                )
+            );
+        }
+        return opts;
     }
 
     // Same layout/widget as DrawAssignmentModeSelector: one DrawToggle cell per enum value, in a

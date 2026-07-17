@@ -673,6 +673,21 @@ internal sealed class ManagerJob_Production
         }
     }
 
+    /// <summary>
+    /// Whether a candidate recipe's resolved output overlaps <see cref="Recipe"/>'s currently
+    /// tracked output, i.e. whether swapping to it would still track "the same thing, produced
+    /// a different way" (Step 5 of <c>Docs/ProductionManagerRework.md</c>, "recipe swap").
+    /// Compares whole output sets rather than a single <see cref="ThingDef"/> so it generalizes
+    /// to the category-based resolvers from Step 4 — e.g. two different butchery-style recipes
+    /// both resolve to the <see cref="ThingCategoryDefOf.MeatRaw"/> category and should match
+    /// each other even though neither has a literal <see cref="RecipeDef.products"/> entry. Pure
+    /// function, kept separate from <c>ManagerTab_Production</c> so it's unit-testable.
+    /// </summary>
+    internal static bool RecipeSharesOutput(
+        IEnumerable<ThingDef> candidateOutputs,
+        IEnumerable<ThingDef> currentOutputs
+    ) => candidateOutputs.Intersect(currentOutputs).Any();
+
     private void RemoveAllManagedBills()
     {
         foreach (var bill in _managedBills)
