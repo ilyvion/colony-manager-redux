@@ -868,4 +868,62 @@ internal static class ManagerJobProductionTests
 
         Assert.That(WouldCreateCycle(job, job, j => j.LinkedSources)).Is.True();
     }
+
+    // Counts ConfigureLinkableProductFilter calls so tests can assert on memoization instead of
+    // just the returned defs - a real resolver like RecipeProductResolver_ButcherAnimals does a
+    // full DefDatabase<ThingDef> scan in that method, which is exactly what shouldn't happen on
+    // every call once ResolvedOutputDefsFor has cached a recipe's result.
+    private sealed class CountingResolver(ThingDef output) : RecipeProductResolver
+    {
+        public int ConfigureLinkableProductFilterCallCount { get; private set; }
+        private readonly ThingDef _output = output;
+
+        public override bool CanResolve(RecipeDef recipe) => true;
+
+        public override void ConfigureFilter(RecipeDef recipe, ThingFilter filter) =>
+            filter.SetAllow(_output, true);
+
+        public override void ConfigureLinkableProductFilter(RecipeDef recipe, ThingFilter filter)
+        {
+            ConfigureLinkableProductFilterCallCount++;
+            filter.SetAllow(_output, true);
+        }
+    }
+
+    [Test]
+    public static void ResolvedOutputDefsForReturnsResolverOutput()
+    {
+        var meat = new ThingDef { defName = "CMR_TestResolvedOutputMeat" };
+        var recipe = new RecipeDef { defName = "CMR_TestResolvedOutputRecipe" };
+        var resolver = new CountingResolver(meat);
+
+        var result = ResolvedOutputDefsFor(resolver, recipe);
+
+        Assert.ThatCollection(result).Does.Contain(meat);
+    }
+
+    [Test]
+    public static void ResolvedOutputDefsForWithNoResolverReturnsEmpty()
+    {
+        var recipe = new RecipeDef { defName = "CMR_TestResolvedOutputNoResolverRecipe" };
+
+        var result = ResolvedOutputDefsFor(null, recipe);
+
+        Assert.ThatCollection(result).Is.Empty();
+    }
+
+    [Test]
+    public static void ResolvedOutputDefsForOnlyResolvesOnceThenServesFromCache()
+    {
+        var meat = new ThingDef { defName = "CMR_TestResolvedOutputMemoMeat" };
+        var recipe = new RecipeDef { defName = "CMR_TestResolvedOutputMemoRecipe" };
+        var resolver = new CountingResolver(meat);
+
+        var first = ResolvedOutputDefsFor(resolver, recipe).ToList();
+        var second = ResolvedOutputDefsFor(resolver, recipe).ToList();
+
+        Assert.That(resolver.ConfigureLinkableProductFilterCallCount).Is.EqualTo(1);
+        Assert.ThatCollection(first).Does.Contain(meat);
+        Assert.ThatCollection(second).Does.Contain(meat);
+    }
 }

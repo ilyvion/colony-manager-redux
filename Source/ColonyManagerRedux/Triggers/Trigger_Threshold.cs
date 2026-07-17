@@ -224,13 +224,19 @@ public sealed class Trigger_Threshold : Trigger
     private int targetCount;
 
     /// <summary>
-    /// Gets or sets the target count for the threshold.
+    /// Gets or sets the target count for the threshold. Negative values are clamped to 0 - a
+    /// negative target has no sensible meaning here and would otherwise flow unchanged into
+    /// shortfall/scheduling math that assumes a non-negative count.
     /// </summary>
     public int TargetCount
     {
         get => targetCount;
-        set => targetCount = value;
+        set => targetCount = ClampTargetCount(value);
     }
+
+    // Kept separate from the TargetCount setter so it's unit-testable without constructing a
+    // live Trigger_Threshold (its constructors require a real ManagerJob).
+    internal static int ClampTargetCount(int value) => Math.Max(0, value);
 
     /// <summary>
     /// Gets a label representing the operation and target count.

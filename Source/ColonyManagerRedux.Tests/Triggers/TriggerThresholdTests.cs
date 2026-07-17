@@ -155,4 +155,19 @@ internal static class TriggerThresholdTests
                 )
             )
             .Is.EqualTo(Trigger_Threshold.Ops.LowerThan);
+
+    // Regression guard: TargetCount's setter used to accept negative values unchanged, letting a
+    // typed "-5" in the manager tab's target-count field flow straight into shortfall/scheduling
+    // math that assumes a non-negative count.
+    [Test]
+    public static void ClampTargetCountClampsNegativeValueToZero() =>
+        Assert.That(Trigger_Threshold.ClampTargetCount(-5)).Is.EqualTo(0);
+
+    [Test]
+    public static void ClampTargetCountLeavesZeroUnchanged() =>
+        Assert.That(Trigger_Threshold.ClampTargetCount(0)).Is.EqualTo(0);
+
+    [Test]
+    public static void ClampTargetCountLeavesPositiveValueUnchanged() =>
+        Assert.That(Trigger_Threshold.ClampTargetCount(42)).Is.EqualTo(42);
 }

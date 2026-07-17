@@ -634,7 +634,7 @@ internal sealed class ManagerTab_Production(Manager manager)
                 _targetCountInput = trigger.TargetCount.ToString(CultureInfo.InvariantCulture);
             }
             var oldColor = GUI.color;
-            if (int.TryParse(_targetCountInput, out var typedTargetCount))
+            if (int.TryParse(_targetCountInput, out var typedTargetCount) && typedTargetCount >= 0)
             {
                 trigger.TargetCount = typedTargetCount;
                 if (trigger.TargetCount > trigger.MaxUpperThreshold)
@@ -1398,32 +1398,41 @@ internal sealed class ManagerTab_Production(Manager manager)
     }
 
     // Mirrors vanilla RecipeWorkerCounter.CanPossiblyStore: checks the slot group's storage
-    // filter against whatever this job is actually tracking. In MaintainStock mode that's
-    // whatever the recipe's registered RecipeProductResolver says the recipe produces — a
-    // single ThingDef for simple recipes, or every def in a category for e.g.
-    // butchery/stonecutting. A recipe with
-    // no registered resolver at all can't currently be tracked by this job, so it's treated as
-    // always compatible (matches vanilla's own fallback when CanCountProducts is false). In
-    // ConsumeSurplus mode the resolver-derived filter is irrelevant (trigger and output aren't
-    // the same thing), so this checks the job's own, independently configured
-    // TriggerThreshold.ThresholdFilter instead.
-    private static bool CanPossiblyStore(ManagerJob_Production job, ISlotGroup slotGroup)
-    {
-        if (job.Mode != ManagerJob_Production.ProductionMode.MaintainStock)
-        {
-            return job.TriggerThreshold.ThresholdFilter.AllowedThingDefs.Any(
-                slotGroup.Settings.AllowedToAccept
-            );
-        }
+    // filter against whatever the recipe's registered RecipeProductResolver says the recipe
+    // actually produces — a single ThingDef for simple recipes, or every def in a category for
+    // e.g. butchery/stonecutting. This is always the recipe's output, regardless of job mode:
+    // in ConsumeSurplus mode, TriggerThreshold.ThresholdFilter is seeded from the recipe's raw
+    // ingredients (what triggers the bill), not its product, so checking it here would filter
+    // stockpiles by the wrong side of the recipe. A recipe with no registered resolver at all
+    // can't currently be tracked by this job, so it's treated as always compatible (matches
+    // vanilla's own fallback when CanCountProducts is false).
+    private static bool CanPossiblyStore(ManagerJob_Production job, ISlotGroup slotGroup) =>
+        CanPossiblyStore(
+            RecipeProductResolvers.ResolverFor(job.Recipe!),
+            job.Recipe!,
+            slotGroup.Settings.AllowedToAccept
+        );
 
-        if (RecipeProductResolvers.ResolverFor(job.Recipe!) is not { } resolver)
+    /// <summary>
+    /// Same decision as <see cref="CanPossiblyStore(ManagerJob_Production, ISlotGroup)"/>, but
+    /// takes an already-resolved <paramref name="resolver"/> and a plain acceptance predicate
+    /// instead of a live job/slot group — kept separate so the resolver-vs-mode logic is
+    /// unit-testable without a live <see cref="DefDatabase{T}"/> or <see cref="ISlotGroup"/>.
+    /// </summary>
+    internal static bool CanPossiblyStore(
+        RecipeProductResolver? resolver,
+        RecipeDef recipe,
+        Func<ThingDef, bool> canAccept
+    )
+    {
+        if (resolver is null)
         {
             return true;
         }
 
         var filter = new ThingFilter();
-        resolver.ConfigureFilter(job.Recipe!, filter);
-        return filter.AllowedThingDefs.Any(slotGroup.Settings.AllowedToAccept);
+        resolver.ConfigureFilter(recipe, filter);
+        return filter.AllowedThingDefs.Any(canAccept);
     }
 
     private static float DrawStatus(ManagerJob_Production job, Vector2 pos, float width)

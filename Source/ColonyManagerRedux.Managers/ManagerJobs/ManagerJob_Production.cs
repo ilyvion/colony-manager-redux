@@ -873,22 +873,51 @@ internal sealed class ManagerJob_Production
         return iterations * IngredientCountPerIteration(consumerRecipe, coveredIngredients);
     }
 
+    // Keyed on RecipeDef, cached for the lifetime of the process (defs don't change without a
+    // full restart) - ResolvedOutputDefs is called once per linked producer per ingredient row
+    // on every GUI repaint (DrawIngredientLinkIcon/DrawLinkedProducers), and several resolvers'
+    // ConfigureLinkableProductFilter (e.g. RecipeProductResolver_ButcherAnimals) do a full
+    // DefDatabase<ThingDef> scan, so without this it re-scans the def database every frame. A
+    // plain dictionary rather than ilyvion.Laboratory's CachedValue/CachedValues: those key
+    // staleness off Find.TickManager.TicksGame, which is null outside a loaded map (e.g. at the
+    // main menu, or in this suite's own tests) - this cache is meant to never expire anyway.
+    private static readonly Dictionary<RecipeDef, ThingDef[]> _resolvedOutputDefsCache = [];
+
     /// <summary>
     /// Every <see cref="ThingDef"/> <paramref name="recipe"/> resolves to producing, via its
     /// registered <see cref="RecipeProductResolver"/> — empty if it has none. Used to determine
     /// which of a linked consumer's <see cref="AllowedIngredients"/> a given producer job
     /// actually covers.
     /// </summary>
-    internal static IEnumerable<ThingDef> ResolvedOutputDefs(RecipeDef recipe)
+    internal static IEnumerable<ThingDef> ResolvedOutputDefs(RecipeDef recipe) =>
+        ResolvedOutputDefsFor(RecipeProductResolvers.ResolverFor(recipe), recipe);
+
+    /// <summary>
+    /// Same as <see cref="ResolvedOutputDefs"/>, but takes an already-resolved
+    /// <paramref name="resolver"/> instead of looking one up via <see cref="RecipeProductResolvers"/>
+    /// (which needs a live <see cref="DefDatabase{T}"/>) — kept separate so the memoization
+    /// behavior is unit-testable against a directly-instantiated resolver.
+    /// </summary>
+    internal static IEnumerable<ThingDef> ResolvedOutputDefsFor(
+        RecipeProductResolver? resolver,
+        RecipeDef recipe
+    )
     {
-        if (RecipeProductResolvers.ResolverFor(recipe) is not { } resolver)
+        if (_resolvedOutputDefsCache.TryGetValue(recipe, out var cached))
+        {
+            return cached;
+        }
+
+        if (resolver is null)
         {
             return [];
         }
 
         var filter = new ThingFilter();
         resolver.ConfigureLinkableProductFilter(recipe, filter);
-        return filter.AllowedThingDefs;
+        var result = filter.AllowedThingDefs.ToArray();
+        _resolvedOutputDefsCache.Add(recipe, result);
+        return result;
     }
 
     /// <summary>
@@ -1138,8 +1167,17 @@ internal sealed class ManagerJob_Production
 
         // Cross-map import intentionally drops StoreGroup (see comment above); a same-map load
         // can also legitimately fail to resolve it if the zone/storage was deleted since saving.
-        // Mirrors vanilla Bill_Production.ValidateSettings' equivalent fallback.
-        if (StoreGroup == null && StoreMode == BillStoreModeDefOf.SpecificStockpile)
+        // Mirrors vanilla Bill_Production.ValidateSettings' equivalent fallback. Gated to
+        // PostLoadInit: during LoadingVars, Scribe_References.Look above hasn't resolved
+        // StoreGroup yet (it's still null even for a validly-saved SpecificStockpile), and
+        // running this check that early would downgrade StoreMode based on a StoreGroup that
+        // simply hasn't loaded yet - a downgrade that then sticks permanently, since
+        // Scribe_Defs.Look only actually reads from XML during LoadingVars/Saving.
+        if (
+            Scribe.mode == LoadSaveMode.PostLoadInit
+            && StoreGroup == null
+            && StoreMode == BillStoreModeDefOf.SpecificStockpile
+        )
         {
             StoreMode = BillStoreModeDefOf.BestStockpile;
         }
