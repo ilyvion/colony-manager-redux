@@ -53,6 +53,10 @@ internal sealed class ManagerTab_Production(Manager manager)
                 .AllDefsListForReading.Where(r =>
                     RecipeProductResolvers.ResolverFor(r) != null
                     && r.AllRecipeUsers.Any(builtWorkTableDefs.Contains)
+                    // Same gate work tables themselves use (research/ideology/faction
+                    // prerequisites) - a recipe that isn't actually addable as a bill yet
+                    // shouldn't be offered here either.
+                    && r.AvailableNow
                 )
                 .OrderBy(r => r.LabelCap.ToString(), StringComparer.OrdinalIgnoreCase)
         );
