@@ -688,6 +688,286 @@ internal sealed class ManagerJob_Production
         IEnumerable<ThingDef> currentOutputs
     ) => candidateOutputs.Intersect(currentOutputs).Any();
 
+    /// <summary>
+    /// How <see cref="AggregateLinkedDemand"/> combines multiple linked consumers' individual
+    /// demand for the same producer. See <c>Docs/ProductionManagerRework.md</c> Step 6.
+    /// </summary>
+    internal enum LinkedDemandAggregation
+    {
+        /// <summary>
+        /// Every linked consumer's demand is added together. Default — RimWorld can run
+        /// multiple consuming bills concurrently on separate work tables, so this is the only
+        /// option that avoids one consumer starving another when both draw the shared stock
+        /// down at once.
+        /// </summary>
+        Sum,
+
+        /// <summary>
+        /// Only the single largest linked consumer's demand is used. Deliberately not the
+        /// default: it economizes colonist effort at the cost of occasional contention between
+        /// consumers sharing the same producer.
+        /// </summary>
+        MaxOfConsumers,
+    }
+
+    /// <summary>
+    /// Every producer job this job links to, at the job level rather than per ingredient
+    /// <see cref="ThingDef"/> — linking a job once covers every currently-<see cref="AllowedIngredients"/>
+    /// def that producer's own <see cref="Recipe"/> resolves to (see <see cref="ResolvedOutputDefs"/>),
+    /// so e.g. linking one "butcher creature" job supplies every allowed meat type at once
+    /// instead of needing one link per meat def. Only meaningful for a value job in
+    /// <see cref="ProductionMode.MaintainStock"/> — see <see cref="ComputeIngredientDemand"/>.
+    /// See <c>Docs/ProductionManagerRework.md</c> Step 6.
+    /// </summary>
+    public HashSet<ManagerJob_Production> LinkedProducers = [];
+
+    /// <summary>
+    /// Whether this job's <see cref="Trigger_Threshold.TargetCount"/> is recomputed every
+    /// gather pass from every other job's <see cref="LinkedProducers"/> entry pointing
+    /// at this job (see <see cref="AggregateLinkedDemand"/>), instead of being left to the
+    /// player's own manual slider. Deliberately an explicit opt-in rather than "linked implies
+    /// automatic": a player may still want to hand-set a higher target (e.g. building a buffer
+    /// ahead of an expansion) even while linked from other jobs.
+    /// </summary>
+    public bool AutoTargetFromLinks;
+
+    /// <summary>
+    /// See <see cref="LinkedDemandAggregation"/>. Only consulted when
+    /// <see cref="AutoTargetFromLinks"/> is <see langword="true"/>.
+    /// </summary>
+    public LinkedDemandAggregation DemandAggregation = LinkedDemandAggregation.Sum;
+
+    /// <summary>
+    /// Whether <see cref="AllowedIngredients"/> is recomputed every gather pass to exactly the
+    /// ingredients that can produce something at least one linked consumer currently allows,
+    /// instead of being left to the player's own checkboxes. E.g. if one linked consumer only
+    /// allows bear meat and another only allows muffalo and ibex meat, a "butcher creature"
+    /// producer with this on restricts itself to bear/muffalo/ibex corpses instead of every
+    /// corpse regardless of whether anything downstream can use the result. Only meaningful for
+    /// resolvers with a real ingredient-to-output mapping (see
+    /// <see cref="RecipeProductResolver.IngredientsProducing"/>) - for every other recipe this is
+    /// a no-op, since there's nothing to narrow down. Deliberately an explicit opt-in, mirroring
+    /// <see cref="AutoTargetFromLinks"/>: overwriting a player's own ingredient choices as a side
+    /// effect of merely being linked would be surprising, and a player may still want a producer
+    /// to keep making ingredients nothing currently consumes (e.g. for trade).
+    /// </summary>
+    public bool AutoRestrictIngredientsFromLinks;
+
+    private int _linkedDemandBufferCount = 5;
+
+    /// <summary>
+    /// How many of this job's own product a linked producer should keep enough ingredient stock
+    /// to build from empty, instead of the full <see cref="Trigger_Threshold.TargetCount"/>.
+    /// Sizing a linked producer's stock for a full refill of a consumer that maintains e.g. 500
+    /// meals would mean permanently keeping 500 meals' worth of raw meat around "just in case,"
+    /// which is rarely what's wanted — a handful of iterations' worth of buffer is normally
+    /// enough to smooth over the gap until the producer job runs again. Always used clamped to
+    /// <c>[1, TargetCount]</c> at read time (see <see cref="GatherJobDataCoroutine"/> and the
+    /// tab's consumer-demand summary) rather than clamped on write, so a later drop in
+    /// <see cref="Trigger_Threshold.TargetCount"/> doesn't need this field kept in sync.
+    /// On change, every currently-<see cref="LinkedProducers"/> job is <c>Untouch</c>ed so
+    /// it recomputes its own <see cref="AutoTargetFromLinks"/> target on the very next gather
+    /// pass instead of waiting up to its own <see cref="UpdateInterval"/> (a full in-game day by
+    /// default) to notice - otherwise moving this slider appeared to do nothing until whatever
+    /// day-long window the linked producer happened to next be due for.
+    /// </summary>
+    public int LinkedDemandBufferCount
+    {
+        get => _linkedDemandBufferCount;
+        set
+        {
+            var producersToTouch = ProducersNeedingTouchOnBufferCountChange(
+                _linkedDemandBufferCount,
+                value,
+                LinkedProducers
+            );
+            _linkedDemandBufferCount = value;
+            foreach (var producer in producersToTouch)
+            {
+                producer.Untouch();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Which of <paramref name="linkedProducers"/> need <c>Untouch</c>ing after
+    /// <see cref="LinkedDemandBufferCount"/> changed from <paramref name="oldBufferCount"/> to
+    /// <paramref name="newBufferCount"/> - none if the value didn't actually change (e.g. a
+    /// slider re-set to its current position), otherwise every linked producer, since any of
+    /// them could be relying on the old buffer for its own computed target. Generic over
+    /// <typeparamref name="TJob"/> (rather than <see cref="ManagerJob_Production"/> directly),
+    /// the same trick <see cref="WouldCreateCycle{TJob}"/> uses, so it's unit-testable with plain
+    /// fakes instead of a live <see cref="Manager"/>.
+    /// </summary>
+    internal static IEnumerable<TJob> ProducersNeedingTouchOnBufferCountChange<TJob>(
+        int oldBufferCount,
+        int newBufferCount,
+        IEnumerable<TJob> linkedProducers
+    ) => oldBufferCount == newBufferCount ? [] : linkedProducers;
+
+    /// <summary>
+    /// <paramref name="bufferCount"/> clamped down to <paramref name="targetCount"/> when the
+    /// target itself has shrunk below the configured buffer (e.g. a linked consumer's target was
+    /// lowered after <see cref="LinkedDemandBufferCount"/> was set) - never clamped up, so a
+    /// target of <c>0</c> correctly yields <c>0</c> demand instead of the buffer's own minimum.
+    /// Pure function, kept separate from its call sites (<see cref="GatherJobDataCoroutine"/> and
+    /// the tab's consumer-demand summary) so it's independently unit-testable.
+    /// </summary>
+    internal static int EffectiveLinkedDemandBufferCount(int bufferCount, int targetCount) =>
+        Math.Min(bufferCount, targetCount);
+
+    /// <summary>
+    /// How many raw items are needed per iteration of <paramref name="recipe"/> to satisfy every
+    /// ingredient slot that any def in <paramref name="candidateIngredients"/> could fill,
+    /// summed across slots (mirrors <see cref="AllRecipeIngredientOptions"/>'s union-across-slots
+    /// approach). Uses vanilla's own <see cref="IngredientCount.CountRequiredOfFor"/> — which
+    /// converts a slot's raw <see cref="IngredientCount.GetBaseCount"/> (often a nutrition or
+    /// volume value, not an item count; e.g. a 0.5-nutrition meal slot needs 10 units of a
+    /// 0.05-nutrition meat, not 0) via the recipe's own <see cref="RecipeDef.IngredientValueGetter"/>
+    /// — instead of treating <see cref="IngredientCount.GetBaseCount"/> as an item count
+    /// directly, which silently truncated fractional nutrition/volume slots to <c>0</c>. Since a
+    /// slot is satisfied by any one matching def, not all of them, this can't just sum every
+    /// candidate's own required count (that would multiply demand by however many defs happen to
+    /// be allowed); instead it takes the highest per-slot requirement among the candidates — the
+    /// conservative "enough regardless of which specific item ends up being used" amount. Pure
+    /// function, kept separate from <see cref="ComputeIngredientDemand"/> so it's independently
+    /// unit-testable.
+    /// </summary>
+    internal static int IngredientCountPerIteration(
+        RecipeDef recipe,
+        IEnumerable<ThingDef> candidateIngredients
+    )
+    {
+        var candidates = candidateIngredients as ICollection<ThingDef> ?? [.. candidateIngredients];
+        if (candidates.Count == 0)
+        {
+            return 0;
+        }
+
+        var total = 0;
+        foreach (var ingredientCount in recipe.ingredients)
+        {
+            var matching = candidates.Where(ingredientCount.filter.Allows).ToList();
+            if (matching.Count == 0)
+            {
+                continue;
+            }
+            total += matching.Max(d => ingredientCount.CountRequiredOfFor(d, recipe));
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// The buffer of raw items (from <paramref name="coveredIngredients"/>) needed to fully
+    /// refill a <see cref="ProductionMode.MaintainStock"/> consumer's own target from empty — the
+    /// amount a linked producer should aim to keep in stock for this one consumer. Reuses
+    /// <see cref="SharesToIterations"/>/<see cref="YieldPerIteration"/> verbatim rather than the
+    /// old pre-Redux mod's <c>Math.Sqrt(count) * baseCount</c> heuristic (see
+    /// <c>Docs/ProductionManagerRework.md</c> Step 6), which produced a number with no
+    /// transparent relationship to the consumer's actual target. Pure function, kept separate
+    /// from <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// </summary>
+    internal static int ComputeIngredientDemand(
+        RecipeDef consumerRecipe,
+        int consumerTargetCount,
+        IEnumerable<ThingDef> coveredIngredients
+    )
+    {
+        var iterations = SharesToIterations(consumerTargetCount, YieldPerIteration(consumerRecipe));
+        return iterations * IngredientCountPerIteration(consumerRecipe, coveredIngredients);
+    }
+
+    /// <summary>
+    /// Every <see cref="ThingDef"/> <paramref name="recipe"/> resolves to producing, via its
+    /// registered <see cref="RecipeProductResolver"/> (see <c>Docs/ProductionManagerRework.md</c>
+    /// Step 4) — empty if it has none. Used to determine which of a linked consumer's
+    /// <see cref="AllowedIngredients"/> a given producer job actually covers.
+    /// </summary>
+    internal static IEnumerable<ThingDef> ResolvedOutputDefs(RecipeDef recipe)
+    {
+        if (RecipeProductResolvers.ResolverFor(recipe) is not { } resolver)
+        {
+            return [];
+        }
+
+        var filter = new ThingFilter();
+        resolver.ConfigureLinkableProductFilter(recipe, filter);
+        return filter.AllowedThingDefs;
+    }
+
+    /// <summary>
+    /// Pure filter used by <see cref="RecipeProductResolver.IngredientsProducing"/> overrides
+    /// that have a real, precomputed ingredient-to-output mapping (e.g. corpse ThingDef → meat
+    /// ThingDef for butchery) - kept here (rather than duplicated per resolver) so it's
+    /// independently unit-testable without a live <see cref="DefDatabase{T}"/>.
+    /// </summary>
+    internal static IEnumerable<ThingDef> FilterIngredientsProducingDesiredOutputs(
+        IEnumerable<ThingDef> candidateIngredients,
+        IReadOnlyDictionary<ThingDef, ThingDef> ingredientToOutput,
+        IReadOnlyCollection<ThingDef> desiredOutputs
+    ) =>
+        candidateIngredients.Where(candidate =>
+            ingredientToOutput.TryGetValue(candidate, out var output)
+            && desiredOutputs.Contains(output)
+        );
+
+    /// <summary>
+    /// Combines every linked consumer's individual <see cref="ComputeIngredientDemand"/> result
+    /// for the same producer into the single target count that producer should aim for, per
+    /// <see cref="LinkedDemandAggregation"/>. Pure function, kept separate from
+    /// <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// </summary>
+    internal static int AggregateLinkedDemand(
+        IEnumerable<int> consumerDemands,
+        LinkedDemandAggregation mode
+    ) =>
+        mode == LinkedDemandAggregation.Sum
+            ? consumerDemands.Sum()
+            : consumerDemands.DefaultIfEmpty(0).Max();
+
+    /// <summary>
+    /// Whether linking <paramref name="consumer"/> to <paramref name="candidateProducer"/>
+    /// would create a cycle in the linked-job graph (<paramref name="candidateProducer"/>
+    /// already depends, directly or transitively via its own <see cref="LinkedProducers"/>,
+    /// on <paramref name="consumer"/>). A plain DFS with a visited set to guard against a
+    /// pathological chain revisiting the same job twice. Generic over a
+    /// <paramref name="linkedSources"/> selector (rather than reading
+    /// <see cref="LinkedProducers"/> directly) so it's unit-testable with plain fakes,
+    /// the same trick <see cref="FindOwningJob{TJob, TItem}"/> uses.
+    /// </summary>
+    internal static bool WouldCreateCycle<TJob>(
+        TJob consumer,
+        TJob candidateProducer,
+        Func<TJob, IEnumerable<TJob>> linkedSources
+    )
+        where TJob : class
+    {
+        if (candidateProducer == consumer)
+        {
+            return true;
+        }
+
+        var visited = new HashSet<TJob> { candidateProducer };
+        var stack = new Stack<TJob>();
+        stack.Push(candidateProducer);
+        while (stack.Count > 0)
+        {
+            var current = stack.Pop();
+            foreach (var upstream in linkedSources(current))
+            {
+                if (upstream == consumer)
+                {
+                    return true;
+                }
+                if (visited.Add(upstream))
+                {
+                    stack.Push(upstream);
+                }
+            }
+        }
+        return false;
+    }
+
     private void RemoveAllManagedBills()
     {
         foreach (var bill in _managedBills)
@@ -746,7 +1026,17 @@ internal sealed class ManagerJob_Production
 
     public override WorkTypeDef? WorkTypeDef => Recipe?.requiredGiverWorkType;
 
-    public override void CleanUp(ManagerLog? jobLog = null) => RemoveAllManagedBills();
+    // Scrubs this job out of every other job's LinkedProducers so a deleted producer doesn't
+    // leave consumers holding a stale reference — demand computation would otherwise need
+    // defensive null-checks that this avoids needing at all.
+    public override void CleanUp(ManagerLog? jobLog = null)
+    {
+        RemoveAllManagedBills();
+        foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob_Production>())
+        {
+            _ = job.LinkedProducers.Remove(this);
+        }
+    }
 
     public override void ExposeData()
     {
@@ -788,6 +1078,14 @@ internal sealed class ManagerJob_Production
         Scribe_Defs.Look(ref StoreMode, "storeMode");
         StoreMode ??= BillStoreModeDefOf.BestStockpile;
 
+        Scribe_Values.Look(ref AutoTargetFromLinks, "autoTargetFromLinks");
+        Scribe_Values.Look(ref DemandAggregation, "demandAggregation", LinkedDemandAggregation.Sum);
+        Scribe_Values.Look(ref _linkedDemandBufferCount, "linkedDemandBufferCount", 5);
+        Scribe_Values.Look(
+            ref AutoRestrictIngredientsFromLinks,
+            "autoRestrictIngredientsFromLinks"
+        );
+
         if (Manager.ScribeSameMapData)
         {
             Scribe_References.Look(ref WorkbenchArea, "workbenchArea");
@@ -796,6 +1094,11 @@ internal sealed class ManagerJob_Production
                 "specificWorkbenches",
                 LookMode.Reference
             );
+
+            // Linked jobs have no cross-map/template identity the way an Area's label does
+            // (same reasoning as SpecificWorkbenches just above) — deliberately not scribed on
+            // cross-map import, and lost the same way SpecificWorkbenches is.
+            Scribe_Collections.Look(ref LinkedProducers, "linkedProducers", LookMode.Reference);
 
             // ISlotGroup itself isn't directly referenceable; mirrors vanilla
             // Bill_Production.SaveSlotReferencable/LoadSlotReferencable, which scribes either
@@ -955,6 +1258,78 @@ internal sealed class ManagerJob_Production
                 )
             )
         );
+
+        // Recomputed before triggerActive/JobState below, so a target bump from a linked
+        // consumer's growing demand is reflected in this very pass, not one pass late. Only
+        // MaintainStock consumers contribute a demand number (see ComputeIngredientDemand) —
+        // a ConsumeSurplus consumer's own target is meaningless for this purpose and is simply
+        // never matched here, since its recipe change/target don't drive a bounded need.
+        if (
+            Mode == ProductionMode.MaintainStock
+            && (AutoTargetFromLinks || AutoRestrictIngredientsFromLinks)
+        )
+        {
+            var myOutputs = ResolvedOutputDefs(Recipe).ToHashSet();
+            var linkedConsumers = Manager
+                .JobTracker.JobsOfType<ManagerJob_Production>()
+                .Where(consumer => consumer.LinkedProducers.Contains(this))
+                .ToList();
+
+            if (AutoTargetFromLinks)
+            {
+                var linkedDemands = linkedConsumers
+                    .Where(consumer => consumer.Mode == ProductionMode.MaintainStock)
+                    .Select(consumer =>
+                        ComputeIngredientDemand(
+                            consumer.Recipe!,
+                            EffectiveLinkedDemandBufferCount(
+                                consumer.LinkedDemandBufferCount,
+                                consumer.TriggerThreshold.TargetCount
+                            ),
+                            consumer.AllowedIngredients.Where(myOutputs.Contains)
+                        )
+                    );
+                TriggerThreshold.TargetCount = AggregateLinkedDemand(
+                    linkedDemands,
+                    DemandAggregation
+                );
+            }
+
+            // A ConsumeSurplus consumer still legitimately narrows what a producer should make
+            // (it has just as real an AllowedIngredients as a MaintainStock one), even though it
+            // can't contribute a target-count demand number above — so every linked consumer
+            // counts here regardless of mode, unlike the AutoTargetFromLinks branch.
+            if (
+                AutoRestrictIngredientsFromLinks
+                && RecipeProductResolvers.ResolverFor(Recipe) is { } resolver
+            )
+            {
+                var desiredOutputs = linkedConsumers
+                    .SelectMany(consumer => consumer.AllowedIngredients.Where(myOutputs.Contains))
+                    .ToHashSet();
+
+                // No linked consumer currently wants anything this producer makes - leave
+                // AllowedIngredients alone rather than restricting to an empty set, so a job
+                // that momentarily lost all its consumers (e.g. they were deleted) doesn't end
+                // up unable to produce anything with no UI-visible reason why.
+                if (desiredOutputs.Count > 0)
+                {
+                    var restricted = resolver
+                        .IngredientsProducing(
+                            Recipe,
+                            AllRecipeIngredientOptions(Recipe),
+                            desiredOutputs
+                        )
+                        .ToHashSet();
+                    if (!AllowedIngredients.SetEquals(restricted))
+                    {
+                        AllowedIngredients.Clear();
+                        AllowedIngredients.UnionWith(restricted);
+                        Notify_TargetsChanged();
+                    }
+                }
+            }
+        }
 
         var triggerActive = TriggerThreshold.State;
         JobState = triggerActive ? ManagerJobState.Active : ManagerJobState.Completed;

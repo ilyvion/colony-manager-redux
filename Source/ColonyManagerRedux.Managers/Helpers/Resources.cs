@@ -43,6 +43,8 @@ internal static class Resources
         Venerated = ContentFinder<Texture2D>.Get("UI/Icons/CMR_venerated"),
         PadlockClosed = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_closed"),
         PadlockOpen = ContentFinder<Texture2D>.Get("UI/Icons/CMR_padlock_open"),
+        LinkLinked = ContentFinder<Texture2D>.Get("UI/Icons/CMR_link_linked"),
+        LinkUnlinked = ContentFinder<Texture2D>.Get("UI/Icons/CMR_link_unlinked"),
         Nuzzle = ContentFinder<Texture2D>.Get("UI/Icons/CMR_heart"),
         ManagedByColonyManagerIcon = ContentFinder<Texture2D>.Get("UI/Buttons/CMR_MainIcon");
 

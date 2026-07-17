@@ -9,6 +9,30 @@ namespace ColonyManagerRedux.Tests;
 [TestSuite]
 internal static class ManagerJobProductionTests
 {
+    // RecipeDef.ingredientValueGetterClass is private (normally populated from XML/PostLoad) -
+    // these tests need to control which IngredientValueGetter a fake recipe uses to exercise
+    // both the item-count (Volume) and nutrition-conversion (Nutrition) code paths.
+    private static void SetIngredientValueGetterClass(RecipeDef recipe, Type type) =>
+        typeof(RecipeDef)
+            .GetField("ingredientValueGetterClass", BindingFlags.NonPublic | BindingFlags.Instance)
+            .SetValue(recipe, type);
+
+    // IngredientValueGetter_Nutrition.ValuePerUnitOf returns 0 unless
+    // ThingDef.IsNutritionGivingIngestible is true, which needs a non-null `ingestible` with its
+    // `parent` back-reference set (normally wired up by ThingDef.PostLoad, which a bare
+    // test-constructed def never goes through).
+    private static ThingDef NutritionGivingThingDef(string defName, float nutrition)
+    {
+        var thingDef = new ThingDef
+        {
+            defName = defName,
+            statBases = [new StatModifier { stat = StatDefOf.Nutrition, value = nutrition }],
+            ingestible = new IngestibleProperties(),
+        };
+        thingDef.ingestible.parent = thingDef;
+        return thingDef;
+    }
+
     [Test]
     public static void NoManagedBillAndInactiveTriggerDoesNothing() =>
         Assert
@@ -577,5 +601,271 @@ internal static class ManagerJobProductionTests
         var steel = new ThingDef { defName = "CMR_TestSteel3" };
 
         Assert.That(RecipeSharesOutput([], [steel])).Is.False();
+    }
+
+    [Test]
+    public static void IngredientCountPerIterationSumsMatchingSlotsOnly()
+    {
+        var steel = new ThingDef { defName = "CMR_TestLinkSteel" };
+        var wood = new ThingDef { defName = "CMR_TestLinkWood" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var woodFilter = new ThingFilter();
+        woodFilter.SetAllow(wood, true);
+        var steelSlot1 = new IngredientCount { filter = steelFilter };
+        steelSlot1.SetBaseCount(10);
+        var steelSlot2 = new IngredientCount { filter = steelFilter };
+        steelSlot2.SetBaseCount(5);
+        var woodSlot = new IngredientCount { filter = woodFilter };
+        woodSlot.SetBaseCount(20);
+        var recipe = new RecipeDef
+        {
+            ingredients = [steelSlot1, steelSlot2, woodSlot],
+            fixedIngredientFilter = null,
+        };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        // Neither def is IsStuff, so IngredientValueGetter_Volume.ValuePerUnitOf is 1 for both -
+        // CountRequiredOfFor reduces to the slot's raw base count, same as plain item-count
+        // recipes (e.g. steel/component builds) behave.
+        Assert.That(IngredientCountPerIteration(recipe, [steel])).Is.EqualTo(15);
+    }
+
+    [Test]
+    public static void IngredientCountPerIterationWithNoMatchingSlotIsZero()
+    {
+        var steel = new ThingDef { defName = "CMR_TestLinkSteel2" };
+        var wood = new ThingDef { defName = "CMR_TestLinkWood2" };
+        var woodFilter = new ThingFilter();
+        woodFilter.SetAllow(wood, true);
+        var woodSlot = new IngredientCount { filter = woodFilter };
+        woodSlot.SetBaseCount(20);
+        var recipe = new RecipeDef { ingredients = [woodSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        Assert.That(IngredientCountPerIteration(recipe, [steel])).Is.EqualTo(0);
+    }
+
+    // Regression test: this recipe's slot count (0.5) is a nutrition value, not an item count -
+    // treating it as one (the old `(int)ic.GetBaseCount()` behavior) truncated to 0, so a linked
+    // butcher job's target silently got set to 0 (see the bug this guards against: a "cook
+    // simple meal" job linked to "butcher creature" set the producer's target to 0 instead of
+    // the correct 10 raw meat, because 0.5 nutrition needed / 0.05 nutrition-per-meat was never
+    // computed - only the raw 0.5 was truncated to an int).
+    [Test]
+    public static void IngredientCountPerIterationConvertsNutritionToItemCount()
+    {
+        var meat = NutritionGivingThingDef("CMR_TestLinkMeat", 0.05f);
+        var rawFoodFilter = new ThingFilter();
+        rawFoodFilter.SetAllow(meat, true);
+        var rawFoodSlot = new IngredientCount { filter = rawFoodFilter };
+        rawFoodSlot.SetBaseCount(0.5f);
+        var recipe = new RecipeDef { ingredients = [rawFoodSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Nutrition));
+
+        // 0.5 nutrition needed / 0.05 nutrition per meat = 10 meat.
+        Assert.That(IngredientCountPerIteration(recipe, [meat])).Is.EqualTo(10);
+    }
+
+    // A slot is satisfied by any one matching def, not all of them at once - if two defs with
+    // different nutrition values both cover the same slot, demand must be based on whichever
+    // needs the most raw items (the conservative "enough regardless of which one is actually
+    // used" amount), not the sum of each def's own requirement (which would multiply demand by
+    // however many defs happen to be allowed).
+    [Test]
+    public static void IngredientCountPerIterationTakesWorstCaseAcrossCandidates()
+    {
+        var denseMeat = NutritionGivingThingDef("CMR_TestLinkDenseMeat", 0.1f);
+        var sparseMeat = NutritionGivingThingDef("CMR_TestLinkSparseMeat", 0.05f);
+        var rawFoodFilter = new ThingFilter();
+        rawFoodFilter.SetAllow(denseMeat, true);
+        rawFoodFilter.SetAllow(sparseMeat, true);
+        var rawFoodSlot = new IngredientCount { filter = rawFoodFilter };
+        rawFoodSlot.SetBaseCount(0.5f);
+        var recipe = new RecipeDef { ingredients = [rawFoodSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Nutrition));
+
+        // 0.5 / 0.1 = 5 for denseMeat, 0.5 / 0.05 = 10 for sparseMeat - take the worst case (10),
+        // not the sum (15).
+        Assert.That(IngredientCountPerIteration(recipe, [denseMeat, sparseMeat])).Is.EqualTo(10);
+    }
+
+    [Test]
+    public static void ComputeIngredientDemandScalesWithConsumerTarget()
+    {
+        var steel = new ThingDef { defName = "CMR_TestLinkSteel3" };
+        var component = new ThingDef { defName = "CMR_TestLinkComponent" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var steelSlot = new IngredientCount { filter = steelFilter };
+        steelSlot.SetBaseCount(10);
+        var recipe = new RecipeDef
+        {
+            ingredients = [steelSlot],
+            products = [new ThingDefCountClass(component, 1)],
+            fixedIngredientFilter = null,
+        };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        // 4 components needed, 1 produced per iteration -> 4 iterations -> 4 * 10 steel.
+        Assert.That(ComputeIngredientDemand(recipe, 4, [steel])).Is.EqualTo(40);
+    }
+
+    // Regression test: a linked producer's target was being sized to fully refill a consumer's
+    // *entire* target from empty (e.g. keeping enough raw meat in stock to cook 500 meals from
+    // scratch), which is a wildly oversized buffer for the common case - only the number of
+    // iterations configured via LinkedDemandBufferCount should count, capped down (never up) by
+    // however large the consumer's own target actually is.
+    [Test]
+    public static void EffectiveLinkedDemandBufferCountCapsToTargetButNeverExceedsIt()
+    {
+        Assert.That(EffectiveLinkedDemandBufferCount(5, 500)).Is.EqualTo(5);
+        Assert.That(EffectiveLinkedDemandBufferCount(5, 3)).Is.EqualTo(3);
+        Assert.That(EffectiveLinkedDemandBufferCount(5, 0)).Is.EqualTo(0);
+    }
+
+    // Regression test: changing LinkedDemandBufferCount on a consumer had no visible effect on a
+    // linked producer's computed target until that producer's own UpdateInterval next elapsed
+    // (a full in-game day by default), since nothing told the producer its demand might have
+    // changed. LinkedDemandBufferCount's setter now touches every linked producer when the value
+    // actually changes, so it recomputes on the very next gather pass instead.
+    [Test]
+    public static void ProducersNeedingTouchOnBufferCountChangeReturnsProducersOnRealChange()
+    {
+        var producer = new FakeLinkedJob();
+
+        var result = ProducersNeedingTouchOnBufferCountChange(5, 20, [producer]).ToList();
+
+        Assert.ThatCollection(result).Has.Count(1);
+        Assert.ThatCollection(result).Does.Contain(producer);
+    }
+
+    [Test]
+    public static void ProducersNeedingTouchOnBufferCountChangeReturnsNothingWhenUnchanged()
+    {
+        var producer = new FakeLinkedJob();
+
+        var result = ProducersNeedingTouchOnBufferCountChange(5, 5, [producer]);
+
+        Assert.ThatCollection(result).Is.Empty();
+    }
+
+    [Test]
+    public static void AggregateLinkedDemandSumsByDefault() =>
+        Assert
+            .That(AggregateLinkedDemand([20, 40, 60], LinkedDemandAggregation.Sum))
+            .Is.EqualTo(120);
+
+    [Test]
+    public static void AggregateLinkedDemandTakesHighestForMaxOfConsumers() =>
+        Assert
+            .That(AggregateLinkedDemand([20, 40, 60], LinkedDemandAggregation.MaxOfConsumers))
+            .Is.EqualTo(60);
+
+    [Test]
+    public static void AggregateLinkedDemandWithNoConsumersIsZero()
+    {
+        Assert.That(AggregateLinkedDemand([], LinkedDemandAggregation.Sum)).Is.EqualTo(0);
+        Assert
+            .That(AggregateLinkedDemand([], LinkedDemandAggregation.MaxOfConsumers))
+            .Is.EqualTo(0);
+    }
+
+    // Regression test: a linked producer restricted to what its consumers actually need should
+    // keep only the ingredients whose mapped output at least one consumer wants, not every
+    // ingredient the recipe could otherwise accept (e.g. "butcher creature" shouldn't keep
+    // accepting boar corpses just because it's still linked, if no linked consumer allows boar
+    // meat).
+    [Test]
+    public static void FilterIngredientsProducingDesiredOutputsKeepsOnlyMatchingIngredients()
+    {
+        var bearCorpse = new ThingDef { defName = "Corpse_Bear" };
+        var muffaloCorpse = new ThingDef { defName = "Corpse_Muffalo" };
+        var boarCorpse = new ThingDef { defName = "Corpse_Boar" };
+        var bearMeat = new ThingDef { defName = "Meat_Bear" };
+        var muffaloMeat = new ThingDef { defName = "Meat_Muffalo" };
+        var boarMeat = new ThingDef { defName = "Meat_Boar" };
+        var ingredientToOutput = new Dictionary<ThingDef, ThingDef>
+        {
+            [bearCorpse] = bearMeat,
+            [muffaloCorpse] = muffaloMeat,
+            [boarCorpse] = boarMeat,
+        };
+
+        var result = FilterIngredientsProducingDesiredOutputs(
+                [bearCorpse, muffaloCorpse, boarCorpse],
+                ingredientToOutput,
+                [bearMeat, muffaloMeat]
+            )
+            .ToList();
+
+        Assert.ThatCollection(result).Has.Count(2);
+        Assert.ThatCollection(result).Does.Contain(bearCorpse);
+        Assert.ThatCollection(result).Does.Contain(muffaloCorpse);
+    }
+
+    [Test]
+    public static void FilterIngredientsProducingDesiredOutputsExcludesUnmappedIngredients()
+    {
+        var fish = new ThingDef { defName = "Fish_Salmon" };
+        var bearMeat = new ThingDef { defName = "Meat_Bear" };
+        var ingredientToOutput = new Dictionary<ThingDef, ThingDef>();
+
+        var result = FilterIngredientsProducingDesiredOutputs(
+            [fish],
+            ingredientToOutput,
+            [bearMeat]
+        );
+
+        Assert.ThatCollection(result).Is.Empty();
+    }
+
+    // Plain fakes, not real ManagerJob_Production instances: constructing one requires a live
+    // Manager/Map, which isn't available to this test suite. WouldCreateCycle is generic over
+    // the linked-sources selector for exactly this reason (same trick FindOwningJob uses).
+    private sealed class FakeLinkedJob
+    {
+        public List<FakeLinkedJob> LinkedSources { get; } = [];
+    }
+
+    [Test]
+    public static void WouldCreateCycleDetectsDirectCycle()
+    {
+        var consumer = new FakeLinkedJob();
+        var producer = new FakeLinkedJob();
+        producer.LinkedSources.Add(consumer);
+
+        Assert.That(WouldCreateCycle(consumer, producer, j => j.LinkedSources)).Is.True();
+    }
+
+    [Test]
+    public static void WouldCreateCycleDetectsTransitiveCycleThroughAChain()
+    {
+        var consumer = new FakeLinkedJob();
+        var middle = new FakeLinkedJob();
+        var producer = new FakeLinkedJob();
+        middle.LinkedSources.Add(consumer);
+        producer.LinkedSources.Add(middle);
+
+        Assert.That(WouldCreateCycle(consumer, producer, j => j.LinkedSources)).Is.True();
+    }
+
+    [Test]
+    public static void WouldCreateCycleAllowsALegitimateNonCyclicChain()
+    {
+        var consumer = new FakeLinkedJob();
+        var producer = new FakeLinkedJob();
+        var unrelatedUpstream = new FakeLinkedJob();
+        producer.LinkedSources.Add(unrelatedUpstream);
+
+        Assert.That(WouldCreateCycle(consumer, producer, j => j.LinkedSources)).Is.False();
+    }
+
+    [Test]
+    public static void WouldCreateCycleRejectsLinkingAJobToItself()
+    {
+        var job = new FakeLinkedJob();
+
+        Assert.That(WouldCreateCycle(job, job, j => j.LinkedSources)).Is.True();
     }
 }

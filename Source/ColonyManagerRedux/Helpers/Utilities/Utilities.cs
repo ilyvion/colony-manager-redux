@@ -715,6 +715,16 @@ public static class Utilities
             }
 
             var allowed = isAllowed(item);
+
+            // Drawn (and hit-tested) before the toggle itself: DrawToggle's own ButtonInvisible
+            // covers the full toggleRect, not just its checkbox icon, so an extra icon drawn
+            // afterwards would visually sit on top but never actually receive clicks - the
+            // toggle's invisible button already consumes the event first. Consuming the click
+            // here first (only when actually over the extra icon's own, smaller rect) lets it
+            // take priority without changing the toggle's clickable area for every other pixel
+            // of the row.
+            drawExtraIcons?.Invoke(toggleRect, item, allowed);
+
             DrawToggle(
                 toggleRect,
                 label(item),
@@ -722,8 +732,6 @@ public static class Utilities
                 allowed,
                 () => setAllowed(item, !isAllowed(item))
             );
-
-            drawExtraIcons?.Invoke(toggleRect, item, allowed);
 
             rowRect.y += ListEntryHeight;
         }

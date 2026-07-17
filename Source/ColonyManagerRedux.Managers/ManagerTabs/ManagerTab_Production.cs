@@ -263,6 +263,23 @@ internal sealed class ManagerTab_Production(Manager manager)
             DrawThreshold,
             "ColonyManagerRedux.Threshold".Translate()
         );
+        // Only added when there's actually a link to show, same "avoid an empty section"
+        // precedent Step 5 used for the recipe-swap button.
+        if (
+            SelectedProductionJob.LinkedProducers.Count > 0
+            || SelectedProductionJob.AutoTargetFromLinks
+            || ComputeLinkedConsumerDemands(SelectedProductionJob).Count > 0
+        )
+        {
+            DrawSection(
+                ProductionOptions,
+                "LinkedJobs",
+                ref position,
+                width,
+                DrawLinkedJobs,
+                "ColonyManagerRedux.Production.LinkedJobs".Translate()
+            );
+        }
         DrawSection(
             ProductionOptions,
             "WorkbenchScope",
@@ -585,31 +602,57 @@ internal sealed class ManagerTab_Production(Manager manager)
         IlyvionWidgets.Label(labelRect, label, tooltip, TextAnchor.MiddleLeft);
         pos.y += ListEntryHeight;
 
-        var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
-        pos.y += SliderHeight;
-        trigger.TargetCount = (int)
-            Widgets.HorizontalSlider(sliderRect, trigger.TargetCount, 0, trigger.MaxUpperThreshold);
-
-        if (GUI.GetNameOfFocusedControl() != TargetCountControlName)
+        // While AutoTargetFromLinks is on, the target is recomputed from linked jobs' demand
+        // every gather pass (see ManagerJob_Production.GatherJobDataCoroutine) - the slider and
+        // text field are hidden rather than left editable-but-overwritten, since a player
+        // typing a value only to see it silently reverted a moment later reads as broken, not
+        // as "this field is computed."
+        if (job.AutoTargetFromLinks)
         {
-            _targetCountInput = trigger.TargetCount.ToString(CultureInfo.InvariantCulture);
-        }
-        var oldColor = GUI.color;
-        if (int.TryParse(_targetCountInput, out var typedTargetCount))
-        {
-            trigger.TargetCount = typedTargetCount;
-            if (trigger.TargetCount > trigger.MaxUpperThreshold)
-            {
-                trigger.MaxUpperThreshold = trigger.TargetCount;
-            }
+            var computedRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+            IlyvionWidgets.Label(
+                computedRect,
+                "ColonyManagerRedux.Production.AutoTargetFromLinks.ComputedTarget".Translate(
+                    trigger.TargetCount
+                ),
+                "ColonyManagerRedux.Production.AutoTargetFromLinks.ComputedTarget.Tip".Translate(),
+                TextAnchor.MiddleLeft
+            );
+            pos.y += ListEntryHeight;
         }
         else
         {
-            GUI.color = new Color(1f, 0f, 0f);
+            var sliderRect = new Rect(pos.x, pos.y, width, SliderHeight);
+            pos.y += SliderHeight;
+            trigger.TargetCount = (int)
+                Widgets.HorizontalSlider(
+                    sliderRect,
+                    trigger.TargetCount,
+                    0,
+                    trigger.MaxUpperThreshold
+                );
+
+            if (GUI.GetNameOfFocusedControl() != TargetCountControlName)
+            {
+                _targetCountInput = trigger.TargetCount.ToString(CultureInfo.InvariantCulture);
+            }
+            var oldColor = GUI.color;
+            if (int.TryParse(_targetCountInput, out var typedTargetCount))
+            {
+                trigger.TargetCount = typedTargetCount;
+                if (trigger.TargetCount > trigger.MaxUpperThreshold)
+                {
+                    trigger.MaxUpperThreshold = trigger.TargetCount;
+                }
+            }
+            else
+            {
+                GUI.color = new Color(1f, 0f, 0f);
+            }
+            GUI.SetNextControlName(TargetCountControlName);
+            _targetCountInput = Widgets.TextField(targetCountFieldRect, _targetCountInput);
+            GUI.color = oldColor;
         }
-        GUI.SetNextControlName(TargetCountControlName);
-        _targetCountInput = Widgets.TextField(targetCountFieldRect, _targetCountInput);
-        GUI.color = oldColor;
 
         var countAllOnMapRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         pos.y += ListEntryHeight;
@@ -622,6 +665,215 @@ internal sealed class ManagerTab_Production(Manager manager)
             true
         );
         trigger.CountAllOnMap = countAllOnMap;
+    }
+
+    // Job linking (Docs/ProductionManagerRework.md Step 6): a dedicated section so both
+    // directions of a link (a producer's "who consumes me" list and a consumer's "who do I
+    // link to" list) get equal, uncramped space instead of being squeezed into the Threshold
+    // section (producer side, previously here) or tacked onto the bottom of the ingredient list
+    // (consumer side, previously in DrawIngredientList) - neither of which had room for a
+    // multi-line row. Rendered right under Threshold since it's conceptually still about "what
+    // target this job is aiming for," just broken out for space. Call site (DoMainContent) only
+    // adds this section at all when there's something to show, same "avoid an empty section"
+    // precedent Step 5 used for the recipe-swap button.
+    private float DrawLinkedJobs(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        if (job.LinkedProducers.Count > 0)
+        {
+            DrawLinkedProducers(job, ref pos, width);
+        }
+
+        DrawLinkedConsumers(job, ref pos, width);
+
+        return pos.y - start.y;
+    }
+
+    // Consumer-side: how much of this job's own target a linked producer should keep enough
+    // stock buffered for, plus every producer job this job currently links an ingredient to.
+    private void DrawLinkedProducers(ManagerJob_Production job, ref Vector2 pos, float width)
+    {
+        if (job.Mode == ManagerJob_Production.ProductionMode.MaintainStock)
+        {
+            DrawLinkedDemandBufferCount(job, ref pos, width);
+        }
+
+        foreach (
+            var producer in job.LinkedProducers.OrderBy(
+                GetSubLabel,
+                StringComparer.OrdinalIgnoreCase
+            )
+        )
+        {
+            var covered =
+                producer.Recipe != null
+                    ? job
+                        .AllowedIngredients.Where(
+                            ManagerJob_Production.ResolvedOutputDefs(producer.Recipe).Contains
+                        )
+                        .ToList()
+                    : [];
+            var (summary, tooltip) = SummarizeCoveredIngredients(covered);
+            pos.y += DrawLinkRow(
+                pos,
+                width,
+                producer,
+                "ColonyManagerRedux.Production.LinkedRow.Supplies".Translate(summary),
+                tooltip
+            );
+        }
+    }
+
+    // How many of this job's own product a linked producer should keep enough ingredient stock
+    // to build from empty (ManagerJob_Production.LinkedDemandBufferCount) — clamped to
+    // [1, TargetCount] here purely for slider bounds; the field itself is clamped at read time
+    // instead (see that field's own doc comment), so this doesn't need to write back a clamped
+    // value on every frame.
+    private static void DrawLinkedDemandBufferCount(
+        ManagerJob_Production job,
+        ref Vector2 pos,
+        float width
+    )
+    {
+        var maxCount = Math.Max(1, job.TriggerThreshold.TargetCount);
+        var bufferCount = Math.Min(Math.Max(1, job.LinkedDemandBufferCount), maxCount);
+
+        var labelRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        IlyvionWidgets.Label(
+            labelRect,
+            "ColonyManagerRedux.Production.LinkedDemandBufferCount".Translate(bufferCount),
+            "ColonyManagerRedux.Production.LinkedDemandBufferCount.Tip".Translate(),
+            TextAnchor.MiddleLeft
+        );
+        pos.y += ListEntryHeight;
+
+        var sliderRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        job.LinkedDemandBufferCount = (int)
+            Widgets.HorizontalSlider(sliderRect, bufferCount, 1, maxCount);
+        pos.y += ListEntryHeight;
+    }
+
+    // Names beyond this many are collapsed into "and N more" inline, with the full list moved
+    // to the row's tooltip instead — a covered-ingredient list is very often "every allowed meat
+    // type" or similar, and spelling all of them out inline was the single biggest source of the
+    // section reading as an unreadable wall of text.
+    private const int MaxLinkedIngredientNamesShown = 3;
+
+    private static (string Summary, string? Tooltip) SummarizeCoveredIngredients(
+        List<ThingDef> covered
+    )
+    {
+        var names = covered.Select(t => t.LabelCap.ToString()).ToList();
+        if (names.Count <= MaxLinkedIngredientNamesShown)
+        {
+            return (names.ToCommaList(), null);
+        }
+
+        var shown = names.Take(MaxLinkedIngredientNamesShown).ToCommaList();
+        var summary = "ColonyManagerRedux.Production.LinkedRow.SuppliesMore".Translate(
+            shown,
+            names.Count - MaxLinkedIngredientNamesShown
+        );
+        return (summary, names.ToCommaList());
+    }
+
+    // Producer-side: the auto-target toggle/aggregation choice, plus every job currently linked
+    // to consume this job's output, each paired with the demand it's contributing.
+    private void DrawLinkedConsumers(ManagerJob_Production job, ref Vector2 pos, float width)
+    {
+        var consumerDemands = ComputeLinkedConsumerDemands(job);
+        // Kept visible even with zero current consumers as long as AutoTargetFromLinks is
+        // already on, so a job that lost all its linked consumers (e.g. they were deleted)
+        // still has a way to turn the toggle back off instead of getting stuck silently
+        // targeting zero with no UI to fix it.
+        if (consumerDemands.Count == 0 && !job.AutoTargetFromLinks)
+        {
+            return;
+        }
+
+        var toggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(
+            toggleRect,
+            "ColonyManagerRedux.Production.AutoTargetFromLinks".Translate(),
+            "ColonyManagerRedux.Production.AutoTargetFromLinks.Tip".Translate(),
+            ref job.AutoTargetFromLinks
+        );
+        pos.y += ListEntryHeight;
+
+        var restrictToggleRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(
+            restrictToggleRect,
+            "ColonyManagerRedux.Production.AutoRestrictIngredientsFromLinks".Translate(),
+            "ColonyManagerRedux.Production.AutoRestrictIngredientsFromLinks.Tip".Translate(),
+            ref job.AutoRestrictIngredientsFromLinks
+        );
+        pos.y += ListEntryHeight;
+
+        if (job.AutoTargetFromLinks)
+        {
+            var modes = (ManagerJob_Production.LinkedDemandAggregation[])
+                Enum.GetValues(typeof(ManagerJob_Production.LinkedDemandAggregation));
+            var cellWidth = width / modes.Length;
+            var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+            foreach (var mode in modes)
+            {
+                Utilities.DrawToggle(
+                    cellRect,
+                    $"ColonyManagerRedux.Production.DemandAggregation.{mode}".Translate(),
+                    $"ColonyManagerRedux.Production.DemandAggregation.{mode}.Tip".Translate(),
+                    job.DemandAggregation == mode,
+                    () => job.DemandAggregation = mode,
+                    () => { },
+                    wrap: false
+                );
+                cellRect.x += cellWidth;
+            }
+            pos.y += ListEntryHeight;
+        }
+
+        foreach (var (consumer, coveredIngredients, demand) in consumerDemands)
+        {
+            var (summary, tooltip) = SummarizeCoveredIngredients(coveredIngredients);
+            pos.y += DrawLinkRow(
+                pos,
+                width,
+                consumer,
+                "ColonyManagerRedux.Production.LinkedRow.SuppliesWithDemand".Translate(
+                    summary,
+                    demand
+                ),
+                tooltip
+            );
+        }
+    }
+
+    // Two-line row (job sub-label + italic detail) mirroring DrawAvailableRecipeList's own row
+    // style, shared by both directions of a job link so they read as one visual idiom instead of
+    // two competing single-line summaries. An optional tooltip carries the full, untruncated
+    // ingredient list when SummarizeCoveredIngredients has collapsed it for the inline detail.
+    private float DrawLinkRow(
+        Vector2 pos,
+        float width,
+        ManagerJob target,
+        string detail,
+        string? tooltip = null
+    )
+    {
+        var text = $"{GetSubLabel(target)}\n<i>{detail}</i>";
+        var height = Text.CalcHeight(text, width);
+        var rowRect = new Rect(pos.x, pos.y, width, height);
+        Widgets.DrawHighlightIfMouseover(rowRect);
+        if (tooltip != null)
+        {
+            TooltipHandler.TipRegion(rowRect, tooltip);
+        }
+        if (Widgets.ButtonInvisible(rowRect))
+        {
+            Selected = target;
+        }
+        IlyvionWidgets.Label(rowRect, text, TextAnchor.UpperLeft);
+        return height;
     }
 
     // Which raw materials managed bills are actually allowed to consume (Bill.ingredientFilter),
@@ -687,8 +939,182 @@ internal sealed class ManagerTab_Production(Manager manager)
         return pos.y - start.y;
     }
 
-    private static float DrawIngredientList(ManagerJob_Production job, Vector2 pos, float width) =>
-        Utilities.DrawToggleDefList(
+    // Candidate recipes (Docs/ProductionManagerRework.md Step 6) that could supply the given
+    // ingredient, reusing _availableRecipes (already "has a resolver and a built work table",
+    // see Refresh()) the same way ComputeRecipeSwapCandidates does for Step 5 — just checking
+    // a single ThingDef instead of set-intersecting two filters.
+    private List<RecipeDef> ComputeIngredientSourceCandidates(ThingDef ingredient)
+    {
+        var candidates = new List<RecipeDef>();
+        foreach (var candidate in _availableRecipes)
+        {
+            if (ManagerJob_Production.ResolvedOutputDefs(candidate).Contains(ingredient))
+            {
+                candidates.Add(candidate);
+            }
+        }
+        return candidates;
+    }
+
+    // Existing MaintainStock jobs (other than the consumer itself, and excluding any already
+    // linked - those are offered as "unlink" instead) whose resolved output includes the given
+    // ingredient and wouldn't create a cycle if linked to.
+    private List<ManagerJob_Production> ComputeExistingProducerCandidates(
+        ManagerJob_Production consumer,
+        ThingDef ingredient
+    )
+    {
+        var candidates = new List<ManagerJob_Production>();
+        foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob_Production>())
+        {
+            if (
+                job == consumer
+                || job.Mode != ManagerJob_Production.ProductionMode.MaintainStock
+                || job.Recipe == null
+                || consumer.LinkedProducers.Contains(job)
+                || !ManagerJob_Production.ResolvedOutputDefs(job.Recipe).Contains(ingredient)
+            )
+            {
+                continue;
+            }
+
+            if (ManagerJob_Production.WouldCreateCycle(consumer, job, j => j.LinkedProducers))
+            {
+                continue;
+            }
+
+            candidates.Add(job);
+        }
+        return candidates;
+    }
+
+    // FloatMenu idiom, same shape as BuildRecipeSwapOptions/BuildStoreModeOptions: unlink any
+    // currently-linked producer that covers this ingredient, link to an existing eligible job
+    // (job-level - covers every currently-allowed ingredient that job produces, not just this
+    // one row), or create a new one.
+    private List<FloatMenuOption> BuildIngredientLinkOptions(
+        ManagerJob_Production job,
+        ThingDef ingredient
+    )
+    {
+        var opts = new List<FloatMenuOption>();
+
+        foreach (
+            var linked in job
+                .LinkedProducers.Where(p =>
+                    p.Recipe != null
+                    && ManagerJob_Production.ResolvedOutputDefs(p.Recipe).Contains(ingredient)
+                )
+                .OrderBy(GetSubLabel, StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            var linkedLocal = linked;
+            opts.Add(
+                new FloatMenuOption(
+                    "ColonyManagerRedux.Production.Unlink".Translate(GetSubLabel(linkedLocal)),
+                    () => job.LinkedProducers.Remove(linkedLocal)
+                )
+            );
+        }
+
+        foreach (
+            var producer in ComputeExistingProducerCandidates(job, ingredient)
+                .OrderBy(GetSubLabel, StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            var producerLocal = producer;
+            opts.Add(
+                new FloatMenuOption(
+                    "ColonyManagerRedux.Production.LinkToExisting".Translate(
+                        GetSubLabel(producerLocal)
+                    ),
+                    () => job.LinkedProducers.Add(producerLocal)
+                )
+            );
+        }
+
+        foreach (
+            var recipe in ComputeIngredientSourceCandidates(ingredient)
+                .OrderBy(r => r.LabelCap.ToString(), StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            var recipeLocal = recipe;
+            opts.Add(
+                new FloatMenuOption(
+                    "ColonyManagerRedux.Production.CreateLinkedJob".Translate(recipeLocal.LabelCap),
+                    () => CreateLinkedProducerJob(job, recipeLocal)
+                )
+            );
+        }
+
+        return opts;
+    }
+
+    // The new job defaults both AutoTargetFromLinks and AutoRestrictIngredientsFromLinks to
+    // true: that's the entire point of choosing "create new job" from a link menu, so requiring
+    // manual steps to enable them would be poor UX. Immediately managed (not left in the
+    // Available-tab-style unmanaged state) so it starts working right away, same as clicking a
+    // row in the Available tab followed by "Manage" would.
+    private void CreateLinkedProducerJob(ManagerJob_Production consumer, RecipeDef recipe)
+    {
+        var producer = (ManagerJob_Production)MakeNewJob()!;
+        producer.Recipe = recipe;
+        producer.AutoTargetFromLinks = true;
+        producer.AutoRestrictIngredientsFromLinks = true;
+        producer.IsManaged = true;
+        Manager.JobTracker.Add(producer);
+        _ = consumer.LinkedProducers.Add(producer);
+        Refresh();
+    }
+
+    // Every job (of any mode, per Docs/ProductionManagerRework.md Step 6 — a ConsumeSurplus
+    // consumer can still link a producer for documentation/traceability, it just never
+    // contributes a demand number) currently linking to this producer, paired with which of its
+    // currently-allowed ingredients this producer actually covers and the resulting combined
+    // demand (0 for a ConsumeSurplus consumer, which has no bounded demand to compute).
+    private List<(
+        ManagerJob_Production Consumer,
+        List<ThingDef> CoveredIngredients,
+        int Demand
+    )> ComputeLinkedConsumerDemands(ManagerJob_Production producer)
+    {
+        if (producer.Recipe == null)
+        {
+            return [];
+        }
+
+        var myOutputs = ManagerJob_Production.ResolvedOutputDefs(producer.Recipe).ToHashSet();
+        var result = new List<(ManagerJob_Production, List<ThingDef>, int)>();
+        foreach (var consumer in Manager.JobTracker.JobsOfType<ManagerJob_Production>())
+        {
+            if (!consumer.LinkedProducers.Contains(producer))
+            {
+                continue;
+            }
+
+            var covered = consumer.AllowedIngredients.Where(myOutputs.Contains).ToList();
+            var demand =
+                consumer.Mode == ManagerJob_Production.ProductionMode.MaintainStock
+                && consumer.Recipe != null
+                    ? ManagerJob_Production.ComputeIngredientDemand(
+                        consumer.Recipe,
+                        ManagerJob_Production.EffectiveLinkedDemandBufferCount(
+                            consumer.LinkedDemandBufferCount,
+                            consumer.TriggerThreshold.TargetCount
+                        ),
+                        covered
+                    )
+                    : 0;
+            result.Add((consumer, covered, demand));
+        }
+        return result;
+    }
+
+    private float DrawIngredientList(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        pos.y += Utilities.DrawToggleDefList(
             pos,
             width,
             ManagerJob_Production.AllRecipeIngredientOptions(job.Recipe!),
@@ -696,8 +1122,64 @@ internal sealed class ManagerTab_Production(Manager manager)
             (thingDef, allow) => job.SetIngredientAllowed(thingDef, allow),
             thingDef => thingDef.LabelCap,
             thingDef => (TipSignal)thingDef.LabelCap,
-            (rect, thingDef) => Widgets.InfoCardButton(rect, thingDef)
+            (rect, thingDef) => Widgets.InfoCardButton(rect, thingDef),
+            (rect, thingDef, _) => DrawIngredientLinkIcon(job, rect, thingDef)
         );
+
+        return pos.y - start.y;
+    }
+
+    // Drawn to the left of DrawToggleDefList's own checkbox icon (one SmallIconSize+Margin slot
+    // further left, the same slot DrawToggle's "expensive" icon would occupy) — filled when a
+    // currently-linked producer covers this ingredient, outlined when linkable but not covered
+    // by any current link, absent entirely when no producing recipe exists for this def at all.
+    // Linking is job-level (see ManagerJob_Production.LinkedProducers): the icon reflects
+    // whether *any* linked producer happens to cover this specific row, not a per-row link of
+    // its own.
+    private void DrawIngredientLinkIcon(ManagerJob_Production job, Rect rowRect, ThingDef thingDef)
+    {
+        // Linking only makes sense once this job actually exists as a manageable job - an
+        // unmanaged job (still being set up from the Available tab) has no stable identity for
+        // another job's LinkedProducers to point at yet.
+        if (!job.IsManaged)
+        {
+            return;
+        }
+
+        var coveringProducers = job
+            .LinkedProducers.Where(p =>
+                p.Recipe != null
+                && ManagerJob_Production.ResolvedOutputDefs(p.Recipe).Contains(thingDef)
+            )
+            .ToList();
+        var linked = coveringProducers.Count > 0;
+        if (!linked && ComputeIngredientSourceCandidates(thingDef).Count == 0)
+        {
+            return;
+        }
+
+        var iconRect = new Rect(
+            rowRect.xMax - (2 * (SmallIconSize + Margin)),
+            0f,
+            SmallIconSize,
+            SmallIconSize
+        ).CenteredOnYIn(rowRect);
+
+        GUI.DrawTexture(iconRect, linked ? Resources.LinkLinked : Resources.LinkUnlinked);
+        TooltipHandler.TipRegion(
+            iconRect,
+            linked
+                ? "ColonyManagerRedux.Production.IngredientLinked.Tip".Translate(
+                    coveringProducers.Select(GetSubLabel).ToCommaList()
+                )
+                : "ColonyManagerRedux.Production.IngredientNotLinked.Tip".Translate()
+        );
+        Widgets.DrawHighlightIfMouseover(iconRect);
+        if (Widgets.ButtonInvisible(iconRect))
+        {
+            Find.WindowStack.Add(new FloatMenu(BuildIngredientLinkOptions(job, thingDef)));
+        }
+    }
 
     // Combines skill range, ingredient radius and store mode into a single section instead of
     // one section per setting; each sub-widget already carries its own inline label, so a
