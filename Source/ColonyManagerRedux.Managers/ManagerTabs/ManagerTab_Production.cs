@@ -859,12 +859,64 @@ internal sealed class ManagerTab_Production(Manager manager)
 
     private static float DrawStatus(ManagerJob_Production job, Vector2 pos, float width)
     {
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        var start = pos;
+
+        var headerRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Widgets.Label(
-            rowRect,
+            headerRect,
             "ColonyManagerRedux.Production.ManagedBillCount".Translate(job.ManagedBills.Count)
         );
-        return ListEntryHeight;
+        pos.y += ListEntryHeight;
+
+        // AddManagedBill only ever puts one managed bill on a given work table's billStack
+        // (see the job's own liveManagedBills.Find(b => b.billStack == workTable.billStack)
+        // matching elsewhere in this class), so each managed bill maps to exactly one distinct
+        // work table — no grouping/counting needed here.
+        foreach (var bill in job.ManagedBills)
+        {
+            if (bill.billStack.billGiver is not Building_WorkTable workTable)
+            {
+                continue;
+            }
+
+            var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+            if (!Widgets_Section.CanCull(rowRect.y, rowRect.height))
+            {
+                Widgets.DrawHighlightIfMouseover(rowRect);
+                if (Widgets.ButtonInvisible(rowRect))
+                {
+                    CameraJumper.TryJumpAndSelect(workTable);
+                    // Selecting alone only shows the "Bills" tab button, same as clicking the
+                    // work table in the world would — it doesn't open the tab itself. CurTabs
+                    // (what OpenTab searches) is computed live from the current selection, so
+                    // this is safe to call immediately after TryJumpAndSelect.
+                    _ = InspectPaneUtility.OpenTab(typeof(ITab_Bills));
+                }
+
+                var iconRect = new Rect(rowRect.x, rowRect.y, ListEntryHeight, ListEntryHeight);
+                Widgets.DefIcon(iconRect, workTable.def);
+
+                var labelRect = new Rect(
+                    iconRect.xMax + Margin,
+                    rowRect.y,
+                    rowRect.width - iconRect.width - (2 * Margin),
+                    rowRect.height
+                );
+                Text.Anchor = TextAnchor.MiddleLeft;
+                Widgets.Label(labelRect, workTable.LabelCap);
+                Text.Anchor = TextAnchor.UpperLeft;
+
+                // Same "hover to pan/point the camera" behavior as DrawSpecificWorkbenches.
+                if (Mouse.IsOver(rowRect) && !Find.CameraDriver.IsPanning())
+                {
+                    CameraJumper.TryJump(workTable);
+                }
+            }
+
+            pos.y += ListEntryHeight;
+        }
+
+        return pos.y - start.y;
     }
 
     private static float DrawWorkbenchScope(ManagerJob_Production job, Vector2 pos, float width)
