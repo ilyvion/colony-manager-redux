@@ -134,4 +134,36 @@ internal static class RecipeProductResolverTests
         );
         Assert.That(filter.Allows(nonSmeltableStuff)).Is.False();
     }
+
+    [Test]
+    public static void RepresentativeThingDefReturnsFirstAllowedDefFromResolverFilter()
+    {
+        var thingDef = new ThingDef { defName = "CMR_TestProduct3" };
+        var recipe = new RecipeDef { products = [new ThingDefCountClass(thingDef, 1)] };
+
+        var result = RecipeProductResolvers.RepresentativeThingDef(
+            new RecipeProductResolver_Simple(),
+            recipe
+        );
+
+        Assert.That(result?.defName).Is.EqualTo(thingDef.defName);
+    }
+
+    [Test]
+    public static void RepresentativeThingDefReturnsNullForEmptyResolverFilter()
+    {
+        var result = RecipeProductResolvers.RepresentativeThingDef(
+            new RecipeProductResolver_ButcherAnimals_EmptyFilter(),
+            new RecipeDef()
+        );
+
+        Assert.That(result?.defName).Is.Null();
+    }
+
+    private sealed class RecipeProductResolver_ButcherAnimals_EmptyFilter : RecipeProductResolver
+    {
+        public override bool CanResolve(RecipeDef recipe) => true;
+
+        public override void ConfigureFilter(RecipeDef recipe, ThingFilter filter) { }
+    }
 }

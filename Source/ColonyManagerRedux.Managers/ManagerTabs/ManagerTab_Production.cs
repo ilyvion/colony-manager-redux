@@ -1,6 +1,7 @@
 // ManagerTab_Production.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
+using System.Text;
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
 using static ColonyManagerRedux.Constants;
@@ -321,11 +322,90 @@ internal sealed class ManagerTab_Production(Manager manager)
         }
     }
 
+    // Mirrors the level of detail vanilla's own Dialog_BillConfig shows for a recipe (icon,
+    // description, work amount, ingredient requirements) — the plain recipe-name label this used
+    // to be gave no way to tell recipes apart or judge them without leaving the tab.
     private static float DrawRecipeInfo(ManagerJob_Production job, Vector2 pos, float width)
     {
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Widgets.Label(rowRect, job.Recipe!.LabelCap);
-        return ListEntryHeight;
+        var start = pos;
+        var recipe = job.Recipe!;
+
+        // Mirrors Dialog_BillConfig's own icon pick (RecipeDef.UIIconThing/UIIcon) so the icon
+        // shown here matches what players already see in the bill dialog; e.g. butchery recipes
+        // set uiIconThing explicitly (to a nice cut of meat) rather than leaving it to fall back
+        // to ProducedThingDef, which is null for them anyway. Only recipes with neither (mostly
+        // other category-based resolvers, like stonecutting/smelting) fall back to the
+        // resolver's own representative def.
+        Def? iconDef =
+            recipe.UIIconThing != null || recipe.UIIcon != null
+                ? recipe
+                : RecipeProductResolvers.RepresentativeThingDef(recipe);
+        if (iconDef != null)
+        {
+            var iconRect = new Rect(pos.x, pos.y, RecipeRowHeight, RecipeRowHeight);
+            Widgets.DefIcon(iconRect, iconDef);
+            if (
+                ((iconDef as RecipeDef)?.UIIconThing ?? iconDef as ThingDef) is { } infoCardDef
+                && ColonyManagerReduxMod.Settings.ShowInfoCardButtonsWherePossible
+            )
+            {
+                var infoRect = new Rect(
+                    iconRect.xMax - SmallIconSize,
+                    iconRect.yMax - SmallIconSize,
+                    SmallIconSize,
+                    SmallIconSize
+                );
+                _ = Widgets.InfoCardButton(infoRect, infoCardDef);
+            }
+        }
+
+        var labelRect = new Rect(
+            pos.x + RecipeRowHeight + Margin,
+            pos.y,
+            width - RecipeRowHeight - Margin,
+            RecipeRowHeight
+        );
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(labelRect, recipe.LabelCap);
+        Text.Anchor = TextAnchor.UpperLeft;
+        pos.y += RecipeRowHeight + Margin;
+
+        // Built as a single StringBuilder and drawn with one Label call, same as
+        // Dialog_BillConfig does, so line spacing matches the bill dialog instead of leaving
+        // large gaps from separately-positioned Label calls at ListEntryHeight.
+        var text = new StringBuilder();
+        if (!recipe.description.NullOrEmpty())
+        {
+            _ = text.AppendLine(recipe.description);
+            _ = text.AppendLine();
+        }
+
+        _ = text.AppendLine(
+            "WorkAmount".Translate() + ": " + recipe.WorkAmountTotal(null).ToStringWorkAmount()
+        );
+        _ = text.AppendLine("BillRequires".Translate() + ":");
+        foreach (var ingredientCount in recipe.ingredients)
+        {
+            if (ingredientCount.filter.Summary.NullOrEmpty())
+            {
+                continue;
+            }
+
+            _ = text.AppendLine(
+                " - "
+                    + recipe.IngredientValueGetter.BillRequirementsDescription(
+                        recipe,
+                        ingredientCount
+                    )
+            );
+        }
+
+        var textString = text.ToString().TrimEnd();
+        var textHeight = Text.CalcHeight(textString, width);
+        Widgets.Label(new Rect(pos.x, pos.y, width, textHeight), textString);
+        pos.y += textHeight;
+
+        return pos.y - start.y;
     }
 
     // Same layout/widget as DrawAssignmentModeSelector: one DrawToggle cell per enum value, in a
