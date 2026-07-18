@@ -4,7 +4,7 @@
 using ColonyManagerRedux.AnimalGenetics.Core;
 using RimTestRedux;
 
-namespace ColonyManagerRedux.Tests;
+namespace ColonyManagerRedux.AnimalGenetics.Tests;
 
 [TestSuite]
 internal static class ManagerJobLivestockAnimalGeneticsTests

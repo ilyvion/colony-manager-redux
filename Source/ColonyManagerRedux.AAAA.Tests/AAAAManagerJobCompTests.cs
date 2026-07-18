@@ -4,7 +4,7 @@
 using ColonyManagerRedux.AAAA.Core;
 using RimTestRedux;
 
-namespace ColonyManagerRedux.Tests;
+namespace ColonyManagerRedux.AAAA.Tests;
 
 [TestSuite]
 internal static class AAAAManagerJobCompTests

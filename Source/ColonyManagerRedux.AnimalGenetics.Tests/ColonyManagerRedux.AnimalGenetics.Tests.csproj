@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <UseLaboratory>true</UseLaboratory>
+        <RootNamespace>ColonyManagerRedux.AnimalGenetics.Tests</RootNamespace>
+        <AssemblyName>ColonyManagerRedux.AnimalGenetics.Tests</AssemblyName>
+        <OutputPath>../../Integrations/AnimalGenetics/$(RimWorldVersion)/Assemblies</OutputPath>
+    </PropertyGroup>
+    <!--
+        Dev-only test assembly for the AnimalGenetics integration, built and run in-game via
+        RimTest Redux (see https://github.com/ilyvion/rimtest-redux). Its output is deployed
+        alongside ColonyManagerRedux.AnimalGenetics.dll into
+        Integrations/AnimalGenetics/<version>/Assemblies, which LoadFolders.xml only loads when
+        the Animal Genetics mod (Mlie.AnimalGenetics) is active, so these tests are only
+        discovered when there's an Animal Genetics install for them to actually exercise.
+
+        It's listed in ColonyManagerRedux.sln so it always builds locally (default Configuration
+        is Debug, see .vscode/build_config.sh), but ColonyManagerRedux.sln deliberately omits a
+        Release|Any CPU.Build.0 line for this project's GUID, so a Release-configuration build
+        (what CI/release always use, per rimworld-utils' build_mod.yml) skips building it
+        entirely; its output never lands in a shipped release.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.AnimalGenetics\ColonyManagerRedux.AnimalGenetics.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="$(ProjectDependenciesBasePath)\RimTest\Source\RimTestRedux\RimTestRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+    </ItemGroup>
+</Project>

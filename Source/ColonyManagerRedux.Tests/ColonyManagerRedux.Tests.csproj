@@ -22,14 +22,6 @@
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </ProjectReference>
-        <ProjectReference Include="..\ColonyManagerRedux.AnimalGenetics\ColonyManagerRedux.AnimalGenetics.csproj">
-            <CopyLocal>False</CopyLocal>
-            <Private>false</Private>
-        </ProjectReference>
-        <ProjectReference Include="..\ColonyManagerRedux.AAAA\ColonyManagerRedux.AAAA.csproj">
-            <CopyLocal>False</CopyLocal>
-            <Private>false</Private>
-        </ProjectReference>
         <ProjectReference Include="$(ProjectDependenciesBasePath)\RimTest\Source\RimTestRedux\RimTestRedux.csproj">
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
