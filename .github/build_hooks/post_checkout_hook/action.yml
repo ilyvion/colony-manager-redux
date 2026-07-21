@@ -6,3 +6,7 @@ runs:
           with:
               repository: "ilyvion/ilyvion-laboratory"
               path: "ilyvion.Laboratory"
+
+        - name: Move to parent, where it's expected
+          shell: bash
+          run: mv ilyvion.Laboratory ..
