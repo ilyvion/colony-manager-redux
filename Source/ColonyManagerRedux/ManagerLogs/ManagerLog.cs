@@ -1,5 +1,5 @@
 // ManagerLog.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
 

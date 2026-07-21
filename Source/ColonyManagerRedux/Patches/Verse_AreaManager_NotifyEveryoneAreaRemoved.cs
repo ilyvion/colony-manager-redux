@@ -1,5 +1,5 @@
 // Verse_AreaManager_NotifyEveryoneAreaRemoved.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 

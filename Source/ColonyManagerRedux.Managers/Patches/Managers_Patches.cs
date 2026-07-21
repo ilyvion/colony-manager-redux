@@ -1,3 +1,6 @@
+// Managers_Patches.cs
+// Copyright (c) 2026 Alexander Krivács Schrøder
+
 namespace ColonyManagerRedux.Managers.Patches;
 
 [StaticConstructorOnStartup]

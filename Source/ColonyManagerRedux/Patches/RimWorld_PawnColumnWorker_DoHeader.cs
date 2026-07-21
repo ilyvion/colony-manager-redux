@@ -1,5 +1,5 @@
 // RimWorld_PawnColumnWorker_DoHeader.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using System.Reflection.Emit;
 

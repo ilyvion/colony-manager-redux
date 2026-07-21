@@ -1,4 +1,7 @@
-﻿using ColonyManagerRedux.AAAA.Core;
+﻿// AAAA_Patches.cs
+// Copyright (c) 2025 Alexander Krivács Schrøder
+
+using ColonyManagerRedux.AAAA.Core;
 using seekiworks_AllowedAreaAutomaticAdapter;
 
 namespace ColonyManagerRedux.AAAA.Patches;

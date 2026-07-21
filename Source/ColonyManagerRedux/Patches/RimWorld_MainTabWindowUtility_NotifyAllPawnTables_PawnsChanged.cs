@@ -1,5 +1,5 @@
 // RimWorld_MainTabWindowUtility_NotifyAllPawnTables_PawnsChanged.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 

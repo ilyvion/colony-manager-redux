@@ -1,6 +1,6 @@
 // Chapter.cs
 // Copyright Karel Kroeze, 2020-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Collections;
 using ilyvion.Laboratory.UI;

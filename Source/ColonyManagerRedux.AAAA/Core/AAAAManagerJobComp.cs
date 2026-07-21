@@ -1,3 +1,6 @@
+// AAAAManagerJobComp.cs
+// Copyright (c) 2025–2026 Alexander Krivács Schrøder
+
 using System.Text.RegularExpressions;
 using seekiworks_AllowedAreaAutomaticAdapter;
 

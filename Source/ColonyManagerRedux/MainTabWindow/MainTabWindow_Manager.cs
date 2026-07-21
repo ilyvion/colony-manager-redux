@@ -1,5 +1,6 @@
 ﻿// MainTabWindow_Manager.cs
 // Copyright Karel Kroeze, 2018-2020
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
 using static ColonyManagerRedux.Constants;

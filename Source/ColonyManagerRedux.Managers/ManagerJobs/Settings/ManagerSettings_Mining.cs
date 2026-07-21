@@ -1,5 +1,5 @@
 // ManagerSettings_Mining.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
 using Task = ColonyManagerRedux.Managers.ManagerJob_Mining.Task;

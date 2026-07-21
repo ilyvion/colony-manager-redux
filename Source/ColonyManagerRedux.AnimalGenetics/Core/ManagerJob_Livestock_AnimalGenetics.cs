@@ -1,7 +1,7 @@
 // ManagerJob_Livestock_AnimalGenetics.cs
 // Copyright gregorycurrie
 // Copyright Mlie
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
 

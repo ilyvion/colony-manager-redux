@@ -1,5 +1,5 @@
 // ManagerTab_Logs.cs
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;

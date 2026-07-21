@@ -1,5 +1,6 @@
 ﻿// Calendar.cs
 // Copyright Karel Kroeze, 2019-2020
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 

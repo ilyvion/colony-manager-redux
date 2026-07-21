@@ -1,5 +1,5 @@
 // Verse_WorldComponent_GravshipController_InitiateTakeoff.cs
-// Copyright (c) 2025 Alexander Krivács Schrøder
+// Copyright (c) 2025–2026 Alexander Krivács Schrøder
 
 #if !v1_5
 namespace ColonyManagerRedux;

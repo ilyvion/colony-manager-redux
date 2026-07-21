@@ -1,3 +1,6 @@
+// RimWorld_BillProduction_DoConfigInterface.cs
+// Copyright (c) 2026 Alexander Krivács Schrøder
+
 namespace ColonyManagerRedux.Managers.Patches;
 
 [HarmonyPatch(typeof(Bill_Production), "DoConfigInterface")]

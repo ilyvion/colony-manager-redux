@@ -1,6 +1,6 @@
 ﻿// Alerts.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024–2025 Alexander Krivács Schrøder
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 

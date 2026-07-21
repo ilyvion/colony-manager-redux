@@ -1,6 +1,6 @@
 ﻿// StockpileGUI.cs
 // Copyright Karel Kroeze, 2018-2020
-// Copyright (c) 2024 Alexander Krivács Schrøder
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using System.Diagnostics.CodeAnalysis;
 using ilyvion.Laboratory.Extensions;

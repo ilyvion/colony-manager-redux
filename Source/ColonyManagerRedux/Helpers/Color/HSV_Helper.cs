@@ -1,5 +1,6 @@
 ﻿// HSV_Helper.cs
 // Copyright Karel Kroeze, 2016-2020
+// Copyright (c) 2024 Alexander Krivács Schrøder
 
 namespace ColonyManagerRedux;
 

@@ -1,3 +1,6 @@
+// CompProperties_AAAAManagerJob.cs
+// Copyright (c) 2025 Alexander Krivács Schrøder
+
 namespace ColonyManagerRedux.AAAA.Core;
 
 internal sealed class CompProperties_AAAAManagerJob : ManagerJobCompProperties
