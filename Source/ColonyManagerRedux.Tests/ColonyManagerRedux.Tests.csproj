@@ -5,6 +5,15 @@
         <AssemblyName>ColonyManagerRedux.Tests</AssemblyName>
     </PropertyGroup>
     <!--
+        Without the RimTestRedux reference (see below), this project has no Publicize items of
+        its own, so Krafs.Publicizer's generated IgnoresAccessChecksToAttribute merely shadows
+        the one already made public inside the referenced ColonyManagerRedux assembly; CS0436 is
+        harmless here.
+    -->
+    <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6'">
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+    </PropertyGroup>
+    <!--
         Dev-only test assembly, built and run in-game via RimTest Redux (see
         https://github.com/ilyvion/rimtest-redux). It's listed in ColonyManagerRedux.sln so it
         always builds locally (default Configuration is Debug, see .vscode/build_config.sh),
@@ -12,6 +21,10 @@
         project's GUID, so a Release-configuration build (what CI/release always use, per
         rimworld-utils' build_mod.yml) skips building it entirely; its output never lands in a
         shipped release.
+
+        RimTest Redux only supports RimWorld 1.6, so for any other RimWorldVersion this project
+        builds as an empty assembly: both the test sources and the RimTestRedux reference are
+        excluded below.
     -->
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
@@ -22,9 +35,14 @@
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </ProjectReference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
         <ProjectReference Include="$(ProjectDependenciesBasePath)\RimTest\Source\RimTestRedux\RimTestRedux.csproj">
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </ProjectReference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RimWorldVersion)' != '1.6'">
+        <Compile Remove="**/*.cs" />
     </ItemGroup>
 </Project>
