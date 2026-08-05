@@ -82,18 +82,14 @@ internal sealed class ManagerJob_Hunting
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 var cachedValue = managerJob.GetYieldInDesignationsCache();
-                yield return cachedValue
-                    .DoUpdateIfNeeded(force: true)
-                    .ResumeWhenOtherCoroutineIsCompleted();
+                yield return cachedValue.ForceUpdate().ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = cachedValue.Value;
             }
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryCorpses)
             {
                 var cachedValue = managerJob.GetYieldInCorpsesCache();
-                yield return cachedValue
-                    .DoUpdateIfNeeded(force: true)
-                    .ResumeWhenOtherCoroutineIsCompleted();
+                yield return cachedValue.ForceUpdate().ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = cachedValue.Value;
             }
@@ -629,15 +625,11 @@ internal sealed class ManagerJob_Hunting
         // get the total count of meat in storage, expected meat in corpses and
         // expected meat in designations.
         var corpsesCachedValue = GetYieldInCorpsesCache();
-        yield return corpsesCachedValue
-            .DoUpdateIfNeeded(force: true)
-            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return corpsesCachedValue.ForceUpdate().ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         var designationsCachedValue = GetYieldInDesignationsCache();
-        yield return designationsCachedValue
-            .DoUpdateIfNeeded(force: true)
-            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return designationsCachedValue.ForceUpdate().ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         var count = new Boxed<int>(

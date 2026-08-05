@@ -80,7 +80,7 @@ internal sealed class ManagerJob_Foraging
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 yield return managerJob
-                    .CachedCurrentDesignatedCount.DoUpdateIfNeeded(force: true)
+                    .CachedCurrentDesignatedCount.ForceUpdate()
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob.CachedCurrentDesignatedCount.Value;
@@ -450,7 +450,7 @@ internal sealed class ManagerJob_Foraging
 
         // designate plants until trigger is met.
         yield return CachedCurrentDesignatedCount
-            .DoUpdateIfNeeded(force: true)
+            .ForceUpdate()
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
         var count = new Boxed<int>(

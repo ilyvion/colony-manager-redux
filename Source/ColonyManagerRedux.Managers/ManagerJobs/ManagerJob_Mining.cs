@@ -107,7 +107,7 @@ internal sealed class ManagerJob_Mining
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryDesignated)
             {
                 yield return managerJob
-                    .DesignatedCachedValue.DoUpdateIfNeeded(force: true)
+                    .DesignatedCachedValue.ForceUpdate()
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob.DesignatedCachedValue.Value;
@@ -115,7 +115,7 @@ internal sealed class ManagerJob_Mining
             else if (chapterDef == ManagerJobHistoryChapterDefOf.CM_HistoryChunks)
             {
                 yield return managerJob
-                    .ChunksCachedValue.DoUpdateIfNeeded(force: true)
+                    .ChunksCachedValue.ForceUpdate()
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
                 count.Value = managerJob.ChunksCachedValue.Value;
@@ -1354,13 +1354,9 @@ internal sealed class ManagerJob_Mining
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // update counts
-        yield return ChunksCachedValue
-            .DoUpdateIfNeeded(force: true)
-            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return ChunksCachedValue.ForceUpdate().ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
-        yield return DesignatedCachedValue
-            .DoUpdateIfNeeded(force: true)
-            .ResumeWhenOtherCoroutineIsCompleted();
+        yield return DesignatedCachedValue.ForceUpdate().ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate work until trigger is met.

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+
+- ilyvion's Laboratory: v0.23
+
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
+
 ### Fixed
 
 - Importing a Mining job could silently uncheck some of its allowed minerals or deconstructible buildings on import, even though they were correctly marked as allowed in the exported file — this mostly showed up with minerals that weren't currently present as unmined rock on the map you imported into, such as biome-restricted stone types. Importing a Mining job now always restores its full allowed list as saved.
@@ -314,8 +321,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 - ilyvion's Laboratory: v0.13
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -402,8 +410,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 - ilyvion's Laboratory: v0.11
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
@@ -447,8 +456,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependencies
 
 - ilyvion's Laboratory: v0.6
-    > [!IMPORTANT]  
-    > This release requires an update to ilyvion's Laboratory!
+
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
 
 ### Added
 
