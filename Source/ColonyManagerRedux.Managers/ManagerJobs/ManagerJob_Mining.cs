@@ -211,7 +211,7 @@ internal sealed class ManagerJob_Mining
             if (_mineralsLockedToMap != value)
             {
                 _mineralsLockedToMap = value;
-                AllMinerals = null; // reset cached minerals
+                RefreshAllBuildingsAndMinerals();
             }
         }
     }
@@ -227,7 +227,7 @@ internal sealed class ManagerJob_Mining
             if (_buildingsLockedToMap != value)
             {
                 _buildingsLockedToMap = value;
-                AllDeconstructibleBuildings = null; // reset cached buildings
+                RefreshAllBuildingsAndMinerals();
             }
         }
     }

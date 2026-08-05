@@ -136,7 +136,7 @@ internal sealed class ManagerJob_Foraging
             if (_plantsLockedToMap != value)
             {
                 _plantsLockedToMap = value;
-                AllPlants = null; // reset cached plants
+                RefreshAllPlants();
             }
         }
     }
@@ -875,11 +875,7 @@ internal sealed class ManagerJob_Foraging
         {
             var parentFilter = TriggerThreshold.ParentFilter;
             parentFilter.SetDisallowAll();
-            foreach (
-                var harvestedThingDef in Utilities_Plants
-                    .GetForagingPlants(Manager)
-                    .Select(p => p.plant.harvestedThingDef)
-            )
+            foreach (var harvestedThingDef in AllPlants.Select(p => p.plant.harvestedThingDef))
             {
                 parentFilter.SetAllow(harvestedThingDef, true);
             }

@@ -153,7 +153,7 @@ internal sealed class ManagerJob_Hunting
             if (_animalsLockedToMap != value)
             {
                 _animalsLockedToMap = value;
-                AllAnimals = null; // reset cached animals
+                RefreshAllAnimals();
             }
         }
     }
@@ -1208,11 +1208,7 @@ internal sealed class ManagerJob_Hunting
             TriggerThreshold.ParentFilter.SetDisallowAll();
             if (TargetResource == HuntingTargetResource.Meat)
             {
-                foreach (
-                    var item in Utilities_Hunting
-                        .GetMapPawnKindDefs(Manager, false)
-                        .Where(IsValidResource)
-                )
+                foreach (var item in AllAnimals.Where(IsValidResource))
                 {
                     TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.meatDef, true);
                 }
@@ -1232,11 +1228,7 @@ internal sealed class ManagerJob_Hunting
             }
             else
             {
-                foreach (
-                    var item in Utilities_Hunting
-                        .GetMapPawnKindDefs(Manager, false)
-                        .Where(IsValidResource)
-                )
+                foreach (var item in AllAnimals.Where(IsValidResource))
                 {
                     TriggerThreshold.ParentFilter.SetAllow(item.RaceProps.leatherDef, true);
                 }

@@ -156,7 +156,7 @@ internal sealed class ManagerJob_Forestry
             if (_plantsLockedToMap != value)
             {
                 _plantsLockedToMap = value;
-                AllPlants = null; // reset cached plants
+                RefreshAllTrees();
             }
         }
     }
@@ -470,7 +470,7 @@ internal sealed class ManagerJob_Forestry
                 return;
             }
 
-            TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef!, setAllow.Value);
+            TriggerThreshold.ThresholdFilter.SetAllow(harvestedThingDef, setAllow.Value);
         }
     }
 
