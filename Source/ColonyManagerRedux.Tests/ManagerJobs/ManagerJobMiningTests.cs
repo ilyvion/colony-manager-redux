@@ -211,4 +211,31 @@ internal static class ManagerJobMiningTests
         Assert
             .That(ManagerJob_Mining.IsDesignatedForRemoval(Deconstruct, Mine, Deconstruct))
             .Is.True();
+
+    [Test]
+    public static void LoadingVarsShouldResetLockedToMapCaches() =>
+        // Regression: _mineralsLockedToMap/_buildingsLockedToMap are loaded straight into
+        // their backing fields during LoadingVars, bypassing the property setters that
+        // invalidate AllMinerals/AllDeconstructibleBuildings. Without a reset here, imported
+        // jobs kept the constructor-time cache and PostImport silently dropped allowed
+        // minerals/buildings that weren't spawned on the map at construction time.
+        Assert
+            .That(ManagerJob_Mining.ShouldResetLockedToMapCaches(LoadSaveMode.LoadingVars))
+            .Is.True();
+
+    [Test]
+    public static void SavingDoesNotResetLockedToMapCaches() =>
+        Assert.That(ManagerJob_Mining.ShouldResetLockedToMapCaches(LoadSaveMode.Saving)).Is.False();
+
+    [Test]
+    public static void PostLoadInitDoesNotResetLockedToMapCaches() =>
+        Assert
+            .That(ManagerJob_Mining.ShouldResetLockedToMapCaches(LoadSaveMode.PostLoadInit))
+            .Is.False();
+
+    [Test]
+    public static void InactiveDoesNotResetLockedToMapCaches() =>
+        Assert
+            .That(ManagerJob_Mining.ShouldResetLockedToMapCaches(LoadSaveMode.Inactive))
+            .Is.False();
 }

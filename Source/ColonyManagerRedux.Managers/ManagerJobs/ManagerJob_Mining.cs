@@ -333,6 +333,14 @@ internal sealed class ManagerJob_Mining
         _ = AllowedBuildings.RemoveWhere(b => !AllDeconstructibleBuildings.Contains(b));
     }
 
+    // _mineralsLockedToMap/_buildingsLockedToMap are loaded directly into their backing
+    // fields, bypassing the property setters that would otherwise invalidate the
+    // AllMinerals/AllDeconstructibleBuildings caches. LoadingVars is the only mode in which
+    // those fields' values can change, so it's the only mode in which the caches need
+    // resetting.
+    internal static bool ShouldResetLockedToMapCaches(LoadSaveMode mode) =>
+        mode == LoadSaveMode.LoadingVars;
+
     public List<Designation> Designations => [.. _designations];
 
     public override bool IsValid => base.IsValid && TriggerThreshold != null;
@@ -669,6 +677,16 @@ internal sealed class ManagerJob_Mining
             "buildingsLockedToMap",
             ColonyManagerReduxMod.Settings.NewJobsShouldBeResourceLocked
         );
+        if (ShouldResetLockedToMapCaches(Scribe.mode))
+        {
+            // _mineralsLockedToMap/_buildingsLockedToMap were just loaded directly into
+            // their backing fields above, bypassing the property setters that invalidate
+            // these caches. The constructor already populated them using the pre-load
+            // default lock state, so they must be reset here to pick up the loaded values
+            // before ConfigureThresholdTriggerParentFilter() reads them during PostLoadInit.
+            AllMinerals = null;
+            AllDeconstructibleBuildings = null;
+        }
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref HaulMapChunks, "haulMapChunks", true);
         Scribe_Values.Look(ref HaulMinedChunks, "haulMinedChunks", true);

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Importing a Mining job could silently uncheck some of its allowed minerals or deconstructible buildings on import, even though they were correctly marked as allowed in the exported file — this mostly showed up with minerals that weren't currently present as unmined rock on the map you imported into, such as biome-restricted stone types. Importing a Mining job now always restores its full allowed list as saved.
+
 ## [0.16.0] - 2026-07-17
 
 ### Added
