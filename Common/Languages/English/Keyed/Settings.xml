@@ -34,6 +34,12 @@
     <ColonyManagerRedux.ManagerSettings.AutoApplyDefaultTemplateOnFirstStation.Tip>When enabled, the default job template (if any is set below) is automatically applied the first time a manager station is built on a map, saving you from having to set up jobs from scratch. You can save a template from the Import/Export manager tab.</ColonyManagerRedux.ManagerSettings.AutoApplyDefaultTemplateOnFirstStation.Tip>
     <ColonyManagerRedux.ManagerSettings.DefaultTemplate>Default template</ColonyManagerRedux.ManagerSettings.DefaultTemplate>
     <ColonyManagerRedux.ManagerSettings.DefaultTemplate.None>None</ColonyManagerRedux.ManagerSettings.DefaultTemplate.None>
+    <ColonyManagerRedux.ManagerSettings.GravshipSettings>Gravship settings</ColonyManagerRedux.ManagerSettings.GravshipSettings>
+    <ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution>When a gravship lands where there are also local manager jobs</ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution>
+    <ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.AlwaysAsk>Always ask</ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.AlwaysAsk>
+    <ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.KeepLocalJobs>Only keep local jobs</ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.KeepLocalJobs>
+    <ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.KeepGravshipJobs>Only keep gravship jobs</ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.KeepGravshipJobs>
+    <ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.MergeJobs>Always keep both (merge)</ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.MergeJobs>
     <ColonyManagerRedux.ManagerSettings.AlertSettings>Alert settings</ColonyManagerRedux.ManagerSettings.AlertSettings>
     <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert>Show an alert when no pawn has been assigned to managing</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert>
     <ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip>Show an alert when a map has manager tasks configured, but no pawn has been assigned to managing, nor has an AI manager yet been built.</ColonyManagerRedux.ManagerSettings.AlertSettings.ShowNoManagerAlert.Tip>

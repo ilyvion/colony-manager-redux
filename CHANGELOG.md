@@ -17,10 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The manager database facility now also links to Vanilla Gravship Expanded's gravjumper and gravhulk engines.
+- When a gravship carrying manager jobs of its own lands on a map that already has manager jobs configured, you're now asked which jobs to keep: the map's existing jobs, the gravship's jobs, both, or a job-by-job pick of your own choosing. A new 'Gravship settings' section in the mod settings lets you force a specific choice ('only keep local jobs', 'only keep gravship jobs', or 'always keep both') instead of being asked every time; when a forced choice is in effect, an in-game message tells you which jobs were kept as a reminder of why it's happening that way.
 
 ### Fixed
 
 - Importing a Mining job could silently uncheck some of its allowed minerals or deconstructible buildings on import, even though they were correctly marked as allowed in the exported file — this mostly showed up with minerals that weren't currently present as unmined rock on the map you imported into, such as biome-restricted stone types. Importing a Mining job now always restores its full allowed list as saved.
+- A gravship landing on a map that already had its own manager jobs used to always merge both sets together, which could duplicate jobs (e.g. two mining jobs for the same resource) and trigger spurious history-update warnings in the log. See the 'Added' entry above for the new behavior.
 
 ## [0.16.0] - 2026-07-17
 

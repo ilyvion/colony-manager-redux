@@ -52,6 +52,17 @@ public class UpdateInterval(int ticks, string label)
             throw new ArgumentNullException(nameof(job));
         }
 
+        var originalColor = GUI.color;
+        var originalFont = Text.Font;
+        var originalAnchor = Text.Anchor;
+
+        using var _ = new DoOnDispose(() =>
+        {
+            GUI.color = originalColor;
+            Text.Font = originalFont;
+            Text.Anchor = originalAnchor;
+        });
+
         var nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
 
         string lastUpdateTooltip;

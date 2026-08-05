@@ -299,6 +299,21 @@ public class Settings : ModSettings
         internal set => _showNoTableNeededAlert = value;
     }
 
+#if !v1_5
+    private GravshipJobConflictResolution _gravshipJobConflictResolution =
+        GravshipJobConflictResolution.AlwaysAsk;
+
+    /// <summary>
+    /// Gets how to resolve manager jobs conflicting between a landing gravship and the map it's
+    /// landing on.
+    /// </summary>
+    public GravshipJobConflictResolution GravshipJobConflictResolution
+    {
+        get => _gravshipJobConflictResolution;
+        internal set => _gravshipJobConflictResolution = value;
+    }
+#endif // !v1_5
+
     private HashSet<ManagerDef> _disabledManagers = [];
 
     /// <summary>
@@ -540,6 +555,14 @@ public class Settings : ModSettings
                 settings.DrawTemplateSettings,
                 "ColonyManagerRedux.ManagerSettings.TemplateSettings".Translate()
             );
+#if !v1_5
+            Widgets_Section.Section(
+                ref position,
+                width,
+                settings.DrawGravshipSettings,
+                "ColonyManagerRedux.ManagerSettings.GravshipSettings".Translate()
+            );
+#endif // !v1_5
 
             Widgets_Section.EndSectionColumn("Shared.Settings", position);
         }
@@ -1111,6 +1134,44 @@ public class Settings : ModSettings
         return pos.y - start.y;
     }
 
+#if !v1_5
+    private static readonly GravshipJobConflictResolution[] _gravshipJobConflictResolutions =
+        (GravshipJobConflictResolution[])Enum.GetValues(typeof(GravshipJobConflictResolution));
+
+    private float DrawGravshipSettings(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        var rect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        pos.y += ListEntryHeight;
+
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Widgets.Label(
+            rect.TrimLeft(Margin),
+            "ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution".Translate()
+        );
+        Text.Anchor = TextAnchor.MiddleRight;
+        Widgets.Label(
+            rect.TrimRight(Margin),
+            $"ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.{_gravshipJobConflictResolution}".Translate()
+        );
+        Text.Anchor = TextAnchor.UpperLeft;
+
+        Widgets.DrawHighlightIfMouseover(rect);
+        if (Widgets.ButtonInvisible(rect))
+        {
+            var options = _gravshipJobConflictResolutions.Select(resolution => new FloatMenuOption(
+                $"ColonyManagerRedux.ManagerSettings.GravshipJobConflictResolution.{resolution}".Translate(),
+                () => GravshipJobConflictResolution = resolution
+            ));
+
+            Find.WindowStack.Add(new FloatMenu([.. options]));
+        }
+
+        return pos.y - start.y;
+    }
+#endif // !v1_5
+
     private const int MaxOperationsPerTick = 30;
     private const int MaxTicksBetweenOperations = 60;
 
@@ -1412,6 +1473,14 @@ public class Settings : ModSettings
         );
         Scribe_Values.Look(ref _showNoTableNeededAlert, "showNoTableNeededAlert", true);
 
+#if !v1_5
+        Scribe_Values.Look(
+            ref _gravshipJobConflictResolution,
+            "gravshipJobConflictResolution",
+            GravshipJobConflictResolution.AlwaysAsk
+        );
+#endif // !v1_5
+
         Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
         Scribe_Collections.Look(ref _disabledManagers, "disabledManagers", LookMode.Def);
 
@@ -1573,3 +1642,33 @@ public sealed class CoroutineSettingsMethodAttribute : Attribute
     /// </summary>
     public bool HasTicksBetweenOperationsSetting { get; set; } = true;
 }
+
+#if !v1_5
+/// <summary>
+/// Determines how manager jobs are resolved when a landing gravship's manager database and the
+/// map it's landing on both have manager jobs configured.
+/// </summary>
+public enum GravshipJobConflictResolution
+{
+    /// <summary>
+    /// Ask the player which jobs to keep every time a conflict occurs.
+    /// </summary>
+    AlwaysAsk,
+
+    /// <summary>
+    /// Always keep only the jobs already on the map, discarding the gravship's jobs.
+    /// </summary>
+    KeepLocalJobs,
+
+    /// <summary>
+    /// Always keep only the jobs carried by the gravship, discarding the map's existing jobs.
+    /// </summary>
+    KeepGravshipJobs,
+
+    /// <summary>
+    /// Always keep both the map's existing jobs and the gravship's jobs, importing the gravship's
+    /// jobs alongside the map's without removing anything.
+    /// </summary>
+    MergeJobs,
+}
+#endif // !v1_5

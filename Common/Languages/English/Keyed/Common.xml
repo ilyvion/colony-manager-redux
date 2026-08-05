@@ -131,4 +131,16 @@
     <ColonyManagerRedux.Misc.Some>some</ColonyManagerRedux.Misc.Some>
     <ColonyManagerRedux.Misc.All>all</ColonyManagerRedux.Misc.All>
     <ColonyManagerRedux.Misc.NoManagerDatabaseOnShip>Because there is no manager database on the ship, the manager jobs that are associated with the current map will not be brought over to the new map.</ColonyManagerRedux.Misc.NoManagerDatabaseOnShip>
+    <ColonyManagerRedux.Gravship.JobConflictTitle>Manager job conflict</ColonyManagerRedux.Gravship.JobConflictTitle>
+    <ColonyManagerRedux.Gravship.JobConflictText>The gravship that just landed carries {0} manager job(s) of its own, but this map already has {1} manager job(s) configured. Which ones do you want to keep?</ColonyManagerRedux.Gravship.JobConflictText>
+    <ColonyManagerRedux.Gravship.KeepLocalJobs>Keep local jobs</ColonyManagerRedux.Gravship.KeepLocalJobs>
+    <ColonyManagerRedux.Gravship.KeepGravshipJobs>Keep gravship jobs</ColonyManagerRedux.Gravship.KeepGravshipJobs>
+    <ColonyManagerRedux.Gravship.KeepBothJobs>Keep both</ColonyManagerRedux.Gravship.KeepBothJobs>
+    <ColonyManagerRedux.Gravship.ChooseIndividually>Choose individually...</ColonyManagerRedux.Gravship.ChooseIndividually>
+    <ColonyManagerRedux.Gravship.KeptLocalJobsMessage>Keeping local manager jobs only, as per the chosen settings.</ColonyManagerRedux.Gravship.KeptLocalJobsMessage>
+    <ColonyManagerRedux.Gravship.KeptGravshipJobsMessage>Keeping gravship manager jobs only, as per the chosen settings.</ColonyManagerRedux.Gravship.KeptGravshipJobsMessage>
+    <ColonyManagerRedux.Gravship.JobPickerTitle>Choose manager jobs to keep</ColonyManagerRedux.Gravship.JobPickerTitle>
+    <ColonyManagerRedux.Gravship.JobPickerText>Check off which of the map's local manager jobs and which of the gravship's manager jobs to keep. Unchecked jobs will be discarded.</ColonyManagerRedux.Gravship.JobPickerText>
+    <ColonyManagerRedux.Gravship.LocalJobs>Local jobs</ColonyManagerRedux.Gravship.LocalJobs>
+    <ColonyManagerRedux.Gravship.GravshipJobs>Gravship jobs</ColonyManagerRedux.Gravship.GravshipJobs>
 </LanguageData>
