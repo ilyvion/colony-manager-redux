@@ -34,14 +34,47 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         {
             _ = sb.Append("\n\n");
             var yield = string.Empty;
-            // stone chunks
-            yield = resource.IsChunk()
-                ? $"\n{resource.label}"
-                    + $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}"
-                    + $"\n - {resource.butcherProducts.Select(tc => tc.Label).ToCommaList()}"
-                // other
-                : $"{resource.label} x{mineral.building.mineableYield * Find.Storyteller.difficulty.mineYieldFactor}"
+#pragma warning disable IDE0045
+            if (resource.IsChunk())
+            {
+                if (
+                    !resource.butcherProducts.NullOrEmpty() && !resource.smeltProducts.NullOrEmpty()
+                )
+                {
+                    yield =
+                        $"\n{resource.label}"
+                        + $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}"
+                        + $"\n - {resource.butcherProducts.Select(tc => tc.Label).ToCommaList()}"
+                        + $"\n - {resource.smeltProducts.Select(tc => tc.Label).ToCommaList()}";
+                }
+                else if (!resource.butcherProducts.NullOrEmpty())
+                {
+                    yield =
+                        $"\n{resource.label}"
+                        + $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}"
+                        + $"\n - {resource.butcherProducts.Select(tc => tc.Label).ToCommaList()}";
+                }
+                else if (!resource.smeltProducts.NullOrEmpty())
+                {
+                    yield =
+                        $"\n{resource.label}"
+                        + $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}"
+                        + $"\n - {resource.smeltProducts.Select(tc => tc.Label).ToCommaList()}";
+                }
+                else
+                {
+                    yield =
+                        $"\n{resource.label}"
+                        + $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}";
+                }
+            }
+            else
+            {
+                yield =
+                    $"{resource.label} x{mineral.building.mineableYield * Find.Storyteller.difficulty.mineYieldFactor}"
                     + $"\n - {"ColonyManagerRedux.Info.ChanceToDrop".Translate(mineral.building.mineableDropChance.ToStringPercent())}";
+            }
+#pragma warning restore
 
             _ = sb.Append(I18n.YieldOne(yield));
         }
