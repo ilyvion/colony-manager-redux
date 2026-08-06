@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Defs>
+    <ilyvion.Laboratory.UpdateDef>
+        <defName>CMR_ChangeLog</defName>
+        <mode>ChangeLog</mode>
+        <changeLogPath>CHANGELOG.md</changeLogPath>
+    </ilyvion.Laboratory.UpdateDef>
+</Defs>
