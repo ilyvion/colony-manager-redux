@@ -123,4 +123,73 @@ internal static class ManagerJobHuntingTests
                 ManagerJob_Hunting.ShouldRemoveForAreaCleanup(hasThing: true, inAllowedArea: false)
             )
             .Is.True();
+
+    [Test]
+    public static void AllowedAnimalCorpseIsAlwaysUnforbidden() =>
+        // An animal corpse that's already on the allowed list is unforbidden regardless of the
+        // "also unforbid disallowed animals"/"including human corpses" settings.
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldUnforbidCorpse(
+                    unforbidAllCorpses: false,
+                    unforbidHumanCorpses: false,
+                    isAllowedAnimal: true,
+                    isHumanlike: false
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void DisallowedAnimalCorpseIsUnforbiddenOnlyWhenUnforbidAllCorpsesIsSet() =>
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldUnforbidCorpse(
+                    unforbidAllCorpses: true,
+                    unforbidHumanCorpses: false,
+                    isAllowedAnimal: false,
+                    isHumanlike: false
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void DisallowedAnimalCorpseIsNotUnforbiddenWithoutUnforbidAllCorpses() =>
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldUnforbidCorpse(
+                    unforbidAllCorpses: false,
+                    unforbidHumanCorpses: false,
+                    isAllowedAnimal: false,
+                    isHumanlike: false
+                )
+            )
+            .Is.False();
+
+    // Regression guard: "also unforbid corpses of disallowed animals" must not implicitly
+    // unforbid human corpses too — that requires the separate "including human corpses" toggle.
+    [Test]
+    public static void HumanCorpseIsNotUnforbiddenByUnforbidAllCorpsesAlone() =>
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldUnforbidCorpse(
+                    unforbidAllCorpses: true,
+                    unforbidHumanCorpses: false,
+                    isAllowedAnimal: false,
+                    isHumanlike: true
+                )
+            )
+            .Is.False();
+
+    [Test]
+    public static void HumanCorpseIsUnforbiddenWhenUnforbidHumanCorpsesIsSet() =>
+        Assert
+            .That(
+                ManagerJob_Hunting.ShouldUnforbidCorpse(
+                    unforbidAllCorpses: true,
+                    unforbidHumanCorpses: true,
+                    isAllowedAnimal: false,
+                    isHumanlike: true
+                )
+            )
+            .Is.True();
 }

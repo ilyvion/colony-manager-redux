@@ -575,6 +575,17 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 "ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip".Translate(),
                 ref job.UnforbidAllCorpses
             );
+
+            if (job.UnforbidAllCorpses)
+            {
+                Utilities.DrawToggle(
+                    ref pos,
+                    width,
+                    "ColonyManagerRedux.Hunting.UnforbidHumanCorpses".Translate(),
+                    "ColonyManagerRedux.Hunting.UnforbidHumanCorpses.Tip".Translate(),
+                    ref job.UnforbidHumanCorpses
+                );
+            }
         }
 
         return pos.y - start.y;

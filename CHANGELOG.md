@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The Hunting job's 'Also unforbid corpses of disallowed animals' setting used to also unforbid human corpses, since it didn't check whether a corpse belonged to a colonist, raider, or other human first. It now leaves human corpses forbidden unless you also check the new 'including human corpses' checkbox that appears underneath it, which is unchecked by default.
+
 ## [0.17.0] - 2026-08-06
 
 ### Dependencies

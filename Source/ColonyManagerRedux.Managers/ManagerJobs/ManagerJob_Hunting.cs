@@ -141,6 +141,8 @@ internal sealed class ManagerJob_Hunting
     public ref bool UnforbidCorpses => ref _unforbidCorpses;
     private bool _unforbidAllCorpses = true;
     public ref bool UnforbidAllCorpses => ref _unforbidAllCorpses;
+    private bool _unforbidHumanCorpses;
+    public ref bool UnforbidHumanCorpses => ref _unforbidHumanCorpses;
 
     private List<Designation> _designations = [];
 
@@ -203,6 +205,7 @@ internal sealed class ManagerJob_Hunting
 
             _unforbidCorpses = huntingSettings.DefaultUnforbidCorpses;
             _unforbidAllCorpses = huntingSettings.DefaultUnforbidAllCorpses;
+            _unforbidHumanCorpses = huntingSettings.DefaultUnforbidHumanCorpses;
 
             SyncFilterAndAllowed = huntingSettings.DefaultSyncFilterAndAllowed;
 
@@ -284,7 +287,12 @@ internal sealed class ManagerJob_Hunting
             return corpses.Where(thing =>
                 thing?.InnerPawn != null
                 && Utilities.IsInAllowedArea(HuntingGrounds, thing.Position, InvertHuntingGrounds)
-                && (_unforbidAllCorpses || AllowedAnimals.Contains(thing.InnerPawn.kindDef))
+                && ShouldUnforbidCorpse(
+                    _unforbidAllCorpses,
+                    _unforbidHumanCorpses,
+                    AllowedAnimals.Contains(thing.InnerPawn.kindDef),
+                    thing.InnerPawn.RaceProps.Humanlike
+                )
             );
         }
     }
@@ -385,6 +393,7 @@ internal sealed class ManagerJob_Hunting
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
         Scribe_Values.Look(ref _unforbidCorpses, "unforbidCorpses", true);
         Scribe_Values.Look(ref _unforbidAllCorpses, "unforbidAllCorpses", true);
+        Scribe_Values.Look(ref _unforbidHumanCorpses, "unforbidHumanCorpses", false);
         Scribe_Values.Look(
             ref _animalsLockedToMap,
             "animalsLockedToMap",
@@ -742,6 +751,20 @@ internal sealed class ManagerJob_Hunting
     /// </summary>
     internal static bool ShouldRemoveForAreaCleanup(bool hasThing, bool inAllowedArea) =>
         !hasThing || !inAllowedArea;
+
+    /// <summary>
+    /// Decides whether a corpse is eligible to be unforbidden, given the job's corpse-unforbid
+    /// settings. Unforbidding a disallowed animal's corpse (<paramref name="unforbidAllCorpses"/>)
+    /// is gated separately from unforbidding a humanlike corpse
+    /// (<paramref name="unforbidHumanCorpses"/>), so that "also unforbid corpses of disallowed
+    /// animals" does not implicitly sweep up human corpses too.
+    /// </summary>
+    internal static bool ShouldUnforbidCorpse(
+        bool unforbidAllCorpses,
+        bool unforbidHumanCorpses,
+        bool isAllowedAnimal,
+        bool isHumanlike
+    ) => (unforbidAllCorpses || isAllowedAnimal) && (unforbidHumanCorpses || !isHumanlike);
 
     /// <summary>
     /// Decides which designations need to be removed because their target has vanished or has

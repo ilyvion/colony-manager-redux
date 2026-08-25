@@ -17,6 +17,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
     public bool DefaultAllowTwistedMeat;
     public bool DefaultUnforbidCorpses = true;
     public bool DefaultUnforbidAllCorpses = true;
+    public bool DefaultUnforbidHumanCorpses;
 
     public override void DoTabContents(Rect rect)
     {
@@ -141,6 +142,17 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
             ref DefaultUnforbidAllCorpses
         );
 
+        if (DefaultUnforbidAllCorpses)
+        {
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Hunting.UnforbidHumanCorpses".Translate(),
+                "ColonyManagerRedux.Hunting.UnforbidHumanCorpses.Tip".Translate(),
+                ref DefaultUnforbidHumanCorpses
+            );
+        }
+
         return pos.y - start.y;
     }
 
@@ -158,5 +170,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
         Scribe_Values.Look(ref DefaultAllowInsectMeat, "defaultAllowInsectMeat", false);
         Scribe_Values.Look(ref DefaultAllowTwistedMeat, "defaultAllowTwistedMeat", false);
         Scribe_Values.Look(ref DefaultUnforbidCorpses, "defaultUnforbidCorpses", true);
+        Scribe_Values.Look(ref DefaultUnforbidAllCorpses, "defaultUnforbidAllCorpses", true);
+        Scribe_Values.Look(ref DefaultUnforbidHumanCorpses, "defaultUnforbidHumanCorpses", false);
     }
 }
