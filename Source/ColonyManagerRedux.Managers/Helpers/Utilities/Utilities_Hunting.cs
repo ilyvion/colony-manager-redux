@@ -39,8 +39,8 @@ internal static class Utilities_Hunting
     {
         if (map != null)
         {
-            // Get all the wild animals on the map
-            var wild = map.Biome.AllWildAnimals;
+            // Get all the wild animals on the map.
+            var wild = GetWildAnimalsSafely(() => map.Biome.AllWildAnimals, map);
             var visible = map
                 .mapPawns.AllPawns.Where(p =>
                     (!animalsOnly || (p.RaceProps?.Animal ?? false))
@@ -64,6 +64,35 @@ internal static class Utilities_Hunting
             return DefDatabase<PawnKindDef>.AllDefsListForReading.Where(pkd =>
                 !animalsOnly || (pkd.RaceProps?.Animal ?? false)
             );
+        }
+    }
+
+    /// <summary>
+    /// Calls <paramref name="getWildAnimals"/> (normally <c>map.Biome.AllWildAnimals</c>) and
+    /// returns an empty sequence instead of propagating an <see cref="ArgumentOutOfRangeException"/>.
+    /// <c>Map.Biome</c> resolves the map's world tile via <c>Find.WorldGrid[map.Tile]</c>, which
+    /// throws that exception for maps whose tile isn't (yet) registered in the world grid, e.g.
+    /// camp maps still being generated/loaded; without this guard that exception aborts the
+    /// entire <see cref="Manager"/> map component load. Split out from
+    /// <see cref="GetMapPawnKindDefs"/> so the fallback behavior is unit-testable without a live
+    /// <see cref="Map"/>.
+    /// </summary>
+    internal static IEnumerable<PawnKindDef> GetWildAnimalsSafely(
+        Func<IEnumerable<PawnKindDef>> getWildAnimals,
+        object? mapForLogging = null
+    )
+    {
+        try
+        {
+            return getWildAnimals();
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"Could not determine biome for map {mapForLogging} to get wild animals; "
+                    + $"skipping. Exception: {ex}"
+            );
+            return [];
         }
     }
 

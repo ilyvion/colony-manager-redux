@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - The Hunting job's 'Also unforbid corpses of disallowed animals' setting used to also unforbid human corpses, since it didn't check whether a corpse belonged to a colonist, raider, or other human first. It now leaves human corpses forbidden unless you also check the new 'including human corpses' checkbox that appears underneath it, which is unchecked by default.
+- Maps that don't yet have a proper world tile assigned, such as camp maps still being generated or loaded (reported alongside other mods that add camp-like maps), could fail to load with an out-of-range error, potentially corrupting the save. The Hunting job now treats such a map as having no wild animals instead of crashing.
 
 ## [0.17.0] - 2026-08-06
 

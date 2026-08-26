@@ -46,6 +46,29 @@ internal static class UtilitiesHuntingTests
     }
 
     [Test]
+    public static void GetWildAnimalsSafelyReturnsResultWhenAccessorSucceeds()
+    {
+        var muffalo = Kind("Muffalo");
+
+        var result = Utilities_Hunting.GetWildAnimalsSafely(() => [muffalo]);
+
+        Assert.ThatCollection(result).Has.Count(1);
+    }
+
+    // Regression test for a crash reported against maps (e.g. abandoned camps) whose world tile
+    // isn't registered yet: map.Biome throws ArgumentOutOfRangeException, which used to abort
+    // the whole Manager map component load instead of just leaving the wild animal list empty.
+    [Test]
+    public static void GetWildAnimalsSafelyReturnsEmptyWhenAccessorThrowsArgumentOutOfRange() =>
+        Assert
+            .ThatCollection(
+                Utilities_Hunting.GetWildAnimalsSafely(IEnumerable<PawnKindDef> () =>
+                    throw new ArgumentOutOfRangeException("tile")
+                )
+            )
+            .Is.Empty();
+
+    [Test]
     public static void CombineAndOrderPawnKindSourcesHandlesAllEmptySources() =>
         Assert
             .ThatCollection(
