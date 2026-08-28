@@ -170,4 +170,39 @@ internal static class TriggerThresholdTests
     [Test]
     public static void ClampTargetCountLeavesPositiveValueUnchanged() =>
         Assert.That(Trigger_Threshold.ClampTargetCount(42)).Is.EqualTo(42);
+
+    // Regression guard: a freshly constructed ThingFilter defaults AllowedHitPointsPercents and
+    // AllowedQualityLevels to their zeroed struct value (0%-0% hitpoints, no quality levels
+    // allowed) rather than "allow everything".
+    [Test]
+    public static void CreateThresholdFilterAllowsFullHitPointsRange() =>
+        Assert
+            .That(
+                Trigger_Threshold.CreateThresholdFilter(() => { }).AllowedHitPointsPercents
+                    == FloatRange.ZeroToOne
+            )
+            .Is.True();
+
+    [Test]
+    public static void CreateThresholdFilterAllowsFullQualityRange() =>
+        Assert
+            .That(
+                Trigger_Threshold.CreateThresholdFilter(() => { }).AllowedQualityLevels
+                    == QualityRange.All
+            )
+            .Is.True();
+
+    [Test]
+    public static void CreateThresholdFilterProducesFilterThatCountsFullHitPointsThing() =>
+        Assert
+            .That(
+                Utilities.ShouldCountThing(
+                    false,
+                    default,
+                    true,
+                    1f,
+                    Trigger_Threshold.CreateThresholdFilter(() => { })
+                )
+            )
+            .Is.True();
 }

@@ -171,7 +171,14 @@ public sealed class Trigger_Threshold : Trigger
     public bool CountAllOnMap
     {
         get => countAllOnMap;
-        set => countAllOnMap = value;
+        set
+        {
+            if (countAllOnMap != value)
+            {
+                countAllOnMap = value;
+                _cachedCurrentCount.Invalidate();
+            }
+        }
     }
 
     private int maxUpperThreshold;
@@ -237,6 +244,20 @@ public sealed class Trigger_Threshold : Trigger
     // Kept separate from the TargetCount setter so it's unit-testable without constructing a
     // live Trigger_Threshold (its constructors require a real ManagerJob).
     internal static int ClampTargetCount(int value) => Math.Max(0, value);
+
+    // Kept separate from the constructor so it's unit-testable without constructing a live
+    // Trigger_Threshold. A freshly constructed ThingFilter leaves AllowedHitPointsPercents and
+    // AllowedQualityLevels at their zeroed struct default (0%-0% hitpoints, no quality levels
+    // allowed) rather than "allow everything", so a job created in the current session (before
+    // any save/load round trip re-populates them) would otherwise reject every item.
+    internal static ThingFilter CreateThresholdFilter(Action settingsChangedCallback)
+    {
+        var filter = new ThingFilter(settingsChangedCallback);
+        filter.SetDisallowAll();
+        filter.AllowedHitPointsPercents = FloatRange.ZeroToOne;
+        filter.AllowedQualityLevels = QualityRange.All;
+        return filter;
+    }
 
     /// <summary>
     /// Gets a label representing the operation and target count.
@@ -311,8 +332,7 @@ public sealed class Trigger_Threshold : Trigger
 
         ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
 
-        thresholdFilter = new ThingFilter(ThresholdFilter_SettingsChanged);
-        ThresholdFilter.SetDisallowAll();
+        thresholdFilter = CreateThresholdFilter(ThresholdFilter_SettingsChanged);
 
         op = DefaultOp;
         maxUpperThreshold = job.MaxUpperThreshold;
@@ -618,6 +638,7 @@ public sealed class Trigger_Threshold : Trigger
         var countAllOnMapRect = new Rect(cur.x, cur.y, width, entryHeight);
         cur.y += entryHeight;
 
+        var currentCountAllOnMap = countAllOnMap;
         Utilities.DrawToggle(
             countAllOnMapRect,
             "ColonyManagerRedux.Threshold.CountAllOnMap".Translate(),
@@ -625,6 +646,10 @@ public sealed class Trigger_Threshold : Trigger
             ref countAllOnMap,
             true
         );
+        if (currentCountAllOnMap != countAllOnMap)
+        {
+            _cachedCurrentCount.Invalidate();
+        }
         targetCount = (int)
             Widgets.HorizontalSlider(thresholdRect, targetCount, 0, maxUpperThreshold);
     }

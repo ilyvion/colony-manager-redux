@@ -87,14 +87,14 @@ public class CompManagerJobHistory : ManagerJobComp
             // we only want to run one history update coroutine at any one time, even if many
             // get scheduled to run at once
             _queuedToRecord++;
-            ColonyManagerReduxMod.Instance.LogDebug($"Queueing @ {_queuedToRecord}");
+            // ColonyManagerReduxMod.Instance.LogDebug($"Queueing @ {_queuedToRecord}");
             yield return new ResumeWhenTrue(() => !_isRecordingHistory);
             _queuedToRecord--;
-            ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
+            // ColonyManagerReduxMod.Instance.LogDebug($"Done queueing @ {_queuedToRecord}");
         }
         else
         {
-            ColonyManagerReduxMod.Instance.LogDebug("No queueing");
+            // ColonyManagerReduxMod.Instance.LogDebug("No queueing");
         }
         _isRecordingHistory = true;
         using var _ = new DoOnDispose(() =>
@@ -104,9 +104,9 @@ public class CompManagerJobHistory : ManagerJobComp
             {
                 _reportedSkippedUpdateTick = false;
                 _currentUpdateTick = null;
-                ColonyManagerReduxMod.Instance.LogDebug(
-                    $"Reset _reportedSkippedUpdateTick and _currentUpdateTick"
-                );
+                // ColonyManagerReduxMod.Instance.LogDebug(
+                //     $"Reset _reportedSkippedUpdateTick and _currentUpdateTick"
+                // );
             }
         });
 
@@ -115,7 +115,7 @@ public class CompManagerJobHistory : ManagerJobComp
                 DoHistoryUpdateCoroutine
             );
 
-        ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
+        //ColonyManagerReduxMod.Instance.LogDebug($"Doing history for {Parent.Label}");
 
         var coroutineStartTick = Find.TickManager.TicksGame;
 
@@ -151,11 +151,11 @@ public class CompManagerJobHistory : ManagerJobComp
                 .Worker.GetCountForHistoryChapterCoroutine(Parent, tick, chapterDef, count)
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
-            ColonyManagerReduxMod.Instance.LogDebug(
-                $"{nameof(HistoryWorker.GetCountForHistoryChapterCoroutine)} for chapter "
-                    + $"{chapterDef.defName} took "
-                    + $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete"
-            );
+            // ColonyManagerReduxMod.Instance.LogDebug(
+            //     $"{nameof(HistoryWorker.GetCountForHistoryChapterCoroutine)} for chapter "
+            //         + $"{chapterDef.defName} took "
+            //         + $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete"
+            // );
             chapterCounts[i] = count.Value;
 
             preChapterTick = Find.TickManager.TicksGame;
@@ -163,11 +163,11 @@ public class CompManagerJobHistory : ManagerJobComp
                 .Worker.GetTargetForHistoryChapterCoroutine(Parent, tick, chapterDef, count)
                 .ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
-            ColonyManagerReduxMod.Instance.LogDebug(
-                $"{nameof(HistoryWorker.GetTargetForHistoryChapterCoroutine)} for chapter "
-                    + $"{chapterDef.defName} took "
-                    + $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete"
-            );
+            // ColonyManagerReduxMod.Instance.LogDebug(
+            //     $"{nameof(HistoryWorker.GetTargetForHistoryChapterCoroutine)} for chapter "
+            //         + $"{chapterDef.defName} took "
+            //         + $"{Find.TickManager.TicksGame - preChapterTick} ticks to complete"
+            // );
             chapterTargets[i] = count.Value;
         }
 
@@ -175,9 +175,9 @@ public class CompManagerJobHistory : ManagerJobComp
 
         var coroutineEndTick = Find.TickManager.TicksGame;
         var tickCount = coroutineEndTick - coroutineStartTick;
-        ColonyManagerReduxMod.Instance.LogDebug(
-            $"{nameof(DoHistoryUpdateCoroutine)} took {tickCount} ticks to complete"
-        );
+        // ColonyManagerReduxMod.Instance.LogDebug(
+        //     $"{nameof(DoHistoryUpdateCoroutine)} took {tickCount} ticks to complete"
+        // );
     }
 
     /// <inheritdoc/>

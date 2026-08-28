@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The 'count everything on the map' option on a job's threshold could report fewer items than leaving it off, instead of only ever adding to the count. This happened for resource-type items such as steel, since enabling it switched to a stricter counting method that also excluded forbidden items, instead of adding unstored items on top of what was already in storage.
+- The same 'count everything on the map' option still undercounted for items whose hit points were never saved (e.g. some map-generated resource stacks), because they load with a placeholder hit-points value that produced a negative hit-points percentage and failed the threshold's hit-points filter even at its default, unrestricted setting.
+
 ## [0.17.1] - 2026-08-26
 
 ### Fixed

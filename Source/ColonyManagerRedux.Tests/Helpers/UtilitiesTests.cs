@@ -27,7 +27,7 @@ internal static class UtilitiesTests
         // excluded just because they don't fall inside the filter's quality range.
         var filter = NewFilter(QualityCategory.Legendary, QualityCategory.Legendary, 0f);
         Assert
-            .That(Utilities.ShouldCountThing(false, QualityCategory.Awful, 0.5f, filter))
+            .That(Utilities.ShouldCountThing(false, QualityCategory.Awful, true, 0.5f, filter))
             .Is.True();
     }
 
@@ -35,7 +35,9 @@ internal static class UtilitiesTests
     public static void ExcludesThingWithQualityOutsideAllowedRange()
     {
         var filter = NewFilter(QualityCategory.Good, QualityCategory.Legendary, 0f);
-        Assert.That(Utilities.ShouldCountThing(true, QualityCategory.Poor, 1f, filter)).Is.False();
+        Assert
+            .That(Utilities.ShouldCountThing(true, QualityCategory.Poor, true, 1f, filter))
+            .Is.False();
     }
 
     [Test]
@@ -43,7 +45,7 @@ internal static class UtilitiesTests
     {
         var filter = NewFilter(QualityCategory.Good, QualityCategory.Legendary, 0f);
         Assert
-            .That(Utilities.ShouldCountThing(true, QualityCategory.Excellent, 1f, filter))
+            .That(Utilities.ShouldCountThing(true, QualityCategory.Excellent, true, 1f, filter))
             .Is.True();
     }
 
@@ -53,15 +55,111 @@ internal static class UtilitiesTests
         // Regression guard for the bug where damaged items matching the filter were skipped
         // while items that didn't match were counted (i.e. the check was inverted).
         var filter = NewFilter(QualityCategory.Awful, QualityCategory.Legendary, 0.75f);
-        Assert.That(Utilities.ShouldCountThing(false, default, 0.5f, filter)).Is.False();
+        Assert.That(Utilities.ShouldCountThing(false, default, true, 0.5f, filter)).Is.False();
     }
 
     [Test]
     public static void CountsThingAtOrAboveAllowedHitPointsPercent()
     {
         var filter = NewFilter(QualityCategory.Awful, QualityCategory.Legendary, 0.75f);
-        Assert.That(Utilities.ShouldCountThing(false, default, 0.9f, filter)).Is.True();
+        Assert.That(Utilities.ShouldCountThing(false, default, true, 0.9f, filter)).Is.True();
     }
+
+    [Test]
+    public static void CountsThingWithUntrackedHitPointsWhenFilterRangeIsUnrestricted()
+    {
+        // Regression guard for countAllOnMap undercounting: a thing whose hit points were never
+        // saved (e.g. scattered map-gen resources) loads with HitPoints == -1, producing a
+        // negative hitPointsPercent. Mirroring ThingFilter.Allows, the default 0%-100% range
+        // must not care about hit points at all, so this must still be counted.
+        var filter = NewFilter(QualityCategory.Awful, QualityCategory.Legendary, 0f, 1f);
+        Assert.That(Utilities.ShouldCountThing(false, default, true, -0.01f, filter)).Is.True();
+    }
+
+    [Test]
+    public static void CountsThingRegardlessOfHitPointsPercentWhenDefDoesNotUseHitPoints()
+    {
+        var filter = NewFilter(QualityCategory.Awful, QualityCategory.Legendary, 0.75f);
+        Assert.That(Utilities.ShouldCountThing(false, default, false, 0f, filter)).Is.True();
+    }
+
+    [Test]
+    public static void DisabledCountAllOnMapCountsStorageOnlyResourceViaCounter() =>
+        // Regression guard for the bug where enabling countAllOnMap could report FEWER
+        // items than leaving it disabled: for a resource whose stored portion is already
+        // covered by the resource counter, the map-wide scan must skip storage (it's
+        // already counted) regardless of countAllOnMap.
+        Assert
+            .That(
+                Utilities.ShouldSkipDueToStorageState(
+                    usedResourceCounter: true,
+                    countAllOnMap: false,
+                    isInAnyStorage: true
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void EnabledCountAllOnMapStillSkipsStoredResourceToAvoidDoubleCounting() =>
+        Assert
+            .That(
+                Utilities.ShouldSkipDueToStorageState(
+                    usedResourceCounter: true,
+                    countAllOnMap: true,
+                    isInAnyStorage: true
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void EnabledCountAllOnMapCountsResourceOutsideStorage() =>
+        // The whole point of countAllOnMap: things outside storage are added on top of
+        // whatever the resource counter already reported for the stored portion.
+        Assert
+            .That(
+                Utilities.ShouldSkipDueToStorageState(
+                    usedResourceCounter: true,
+                    countAllOnMap: true,
+                    isInAnyStorage: false
+                )
+            )
+            .Is.False();
+
+    [Test]
+    public static void DisabledCountAllOnMapSkipsNonResourceThingOutsideStorage() =>
+        Assert
+            .That(
+                Utilities.ShouldSkipDueToStorageState(
+                    usedResourceCounter: false,
+                    countAllOnMap: false,
+                    isInAnyStorage: false
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void DisabledCountAllOnMapCountsNonResourceThingInStorage() =>
+        Assert
+            .That(
+                Utilities.ShouldSkipDueToStorageState(
+                    usedResourceCounter: false,
+                    countAllOnMap: false,
+                    isInAnyStorage: true
+                )
+            )
+            .Is.False();
+
+    [Test]
+    public static void EnabledCountAllOnMapCountsNonResourceThingRegardlessOfStorage() =>
+        Assert
+            .That(
+                Utilities.ShouldSkipDueToStorageState(
+                    usedResourceCounter: false,
+                    countAllOnMap: true,
+                    isInAnyStorage: false
+                )
+            )
+            .Is.False();
 
     [Test]
     public static void SaturatingIntSumOfEmptySequenceIsZero() =>

@@ -165,56 +165,78 @@ public static class Utilities
             }
 
             // if it counts as a resource and we're not limited to a single stockpile,
-            // use the ingame counter (e.g. only steel in stockpiles.)
-            if (!countAllOnMap && thingDef.CountAsResource && stockpile == null)
+            // use the ingame counter for what's already in storage (e.g. only steel in
+            // stockpiles.) When countAllOnMap is set, this only accounts for the stored
+            // portion - matching things elsewhere on the map are added below, so that
+            // enabling countAllOnMap can only ever add to this count, never replace it.
+            var usedResourceCounter = thingDef.CountAsResource && stockpile == null;
+            if (usedResourceCounter)
             {
                 // we don't need to bother with quality / hitpoints as these are
                 // non-existant/irrelevant for resources.
                 count.Value += map.resourceCounter.GetCount(thingDef);
-            }
-            else
-            {
-                // otherwise, go look for stuff that matches our filters.
-                List<Thing> thingList = [.. map.listerThings.ThingsOfDef(thingDef)];
 
-                // if filtered by stockpile, filter the thinglist accordingly.
-                if (stockpile != null)
-                {
-                    var areaSlotGroup = stockpile.slotGroup;
-                    thingList.RemoveWhere(t => t.Position.GetSlotGroup(map) != areaSlotGroup);
-                }
-
-                foreach (var t in thingList)
+                if (!countAllOnMap)
                 {
                     if (++loopingIndex > 0 && loopingIndex % operationsPerTick == 0)
                     {
                         yield return new ResumeAfterTicks(ticksBetweenOperations);
                     }
-
-                    if (t.IsForbidden(Faction.OfPlayer) || t.Position.Fogged(map))
-                    {
-                        continue;
-                    }
-
-                    if (!countAllOnMap && !t.IsInAnyStorage())
-                    {
-                        continue;
-                    }
-
-                    if (
-                        !ShouldCountThing(
-                            t.TryGetQuality(out var quality),
-                            quality,
-                            (float)t.HitPoints / t.MaxHitPoints,
-                            filter
-                        )
-                    )
-                    {
-                        continue;
-                    }
-
-                    count.Value += t.stackCount;
+                    continue;
                 }
+            }
+
+            // otherwise, go look for stuff that matches our filters - either everything
+            // (for non-resource things, or the map-wide portion on top of the resource
+            // counter above), or just what's in the given stockpile.
+            List<Thing> thingList = [.. map.listerThings.ThingsOfDef(thingDef)];
+
+            // if filtered by stockpile, filter the thinglist accordingly.
+            if (stockpile != null)
+            {
+                var areaSlotGroup = stockpile.slotGroup;
+                thingList.RemoveWhere(t => t.Position.GetSlotGroup(map) != areaSlotGroup);
+            }
+
+            foreach (var t in thingList)
+            {
+                if (++loopingIndex > 0 && loopingIndex % operationsPerTick == 0)
+                {
+                    yield return new ResumeAfterTicks(ticksBetweenOperations);
+                }
+
+                if (t.IsForbidden(Faction.OfPlayer) || t.Position.Fogged(map))
+                {
+                    continue;
+                }
+
+                if (
+                    ShouldSkipDueToStorageState(
+                        usedResourceCounter,
+                        countAllOnMap,
+                        t.IsInAnyStorage()
+                    )
+                )
+                {
+                    continue;
+                }
+
+                var hasQuality = t.TryGetQuality(out var quality);
+                var hitPointsPercent = (float)t.HitPoints / t.MaxHitPoints;
+                if (
+                    !ShouldCountThing(
+                        hasQuality,
+                        quality,
+                        thingDef.useHitPoints,
+                        hitPointsPercent,
+                        filter
+                    )
+                )
+                {
+                    continue;
+                }
+
+                count.Value += t.stackCount;
             }
 
             if (++loopingIndex > 0 && loopingIndex % operationsPerTick == 0)
@@ -227,22 +249,53 @@ public static class Utilities
     /// <summary>
     /// Determines whether a thing with the given quality/hit-points state passes
     /// <paramref name="filter"/>'s quality and hit-points-percent restrictions. Pure function
-    /// extracted from <see cref="CountProductsCoroutine"/> so this filtering logic (the subject of
-    /// a past regression where damaged items were counted backwards) is unit-testable without a
-    /// live <see cref="Thing"/>.
+    /// extracted from <see cref="CountProductsCoroutine"/> so this filtering logic is
+    /// unit-testable without a live <see cref="Thing"/>. Mirrors <see cref="ThingFilter.Allows(Thing)"/>'s
+    /// own semantics: the hit-points check is skipped entirely when the thing doesn't use hit
+    /// points, and the computed percent is clamped to 0-1 before being checked - a thing whose
+    /// hit points weren't tracked at save time loads with <c>HitPoints == -1</c>, which must not
+    /// fail the (unrestricted, by default) 0%-100% range just because the raw percent is negative.
     /// </summary>
     /// <param name="hasQuality">Whether the thing has a quality category (per <c>Thing.TryGetQuality</c>).</param>
     /// <param name="quality">The thing's quality category, if <paramref name="hasQuality"/> is true.</param>
+    /// <param name="useHitPoints">Whether the thing's def tracks hit points (<c>ThingDef.useHitPoints</c>).</param>
     /// <param name="hitPointsPercent">The thing's current hit points as a fraction of its max hit points.</param>
     /// <param name="filter">The filter whose quality/hit-points restrictions to check against.</param>
     internal static bool ShouldCountThing(
         bool hasQuality,
         QualityCategory quality,
+        bool useHitPoints,
         float hitPointsPercent,
         ThingFilter filter
-    ) =>
-        (!hasQuality || filter.AllowedQualityLevels.Includes(quality))
-        && filter.AllowedHitPointsPercents.IncludesEpsilon(hitPointsPercent);
+    )
+    {
+        var qualityOk = !hasQuality || filter.AllowedQualityLevels.Includes(quality);
+        var hitPointsOk =
+            !useHitPoints
+            || filter.AllowedHitPointsPercents.IncludesEpsilon(Mathf.Clamp01(hitPointsPercent));
+        return qualityOk && hitPointsOk;
+    }
+
+    /// <summary>
+    /// Determines whether a thing should be skipped from <see cref="CountProductsCoroutine"/>'s
+    /// map-wide scan based on where it is relative to storage. Pure function extracted so this
+    /// storage-membership logic - the subject of a past regression where enabling
+    /// <c>countAllOnMap</c> could count fewer things than leaving it disabled - is
+    /// unit-testable without a live <see cref="Thing"/>.
+    /// </summary>
+    /// <param name="usedResourceCounter">
+    /// Whether the stored portion of this thing's count was already accounted for via
+    /// <c>Map.resourceCounter</c> (i.e. it's a resource, and the count isn't restricted to a
+    /// single stockpile) - in which case this scan must only add things outside storage, to
+    /// avoid double-counting.
+    /// </param>
+    /// <param name="countAllOnMap">Whether things outside storage should be counted at all.</param>
+    /// <param name="isInAnyStorage">Whether the thing is currently in storage.</param>
+    internal static bool ShouldSkipDueToStorageState(
+        bool usedResourceCounter,
+        bool countAllOnMap,
+        bool isInAnyStorage
+    ) => usedResourceCounter ? isInAnyStorage : !countAllOnMap && !isInAnyStorage;
 
     /// <summary>
     /// Draws a toggle UI element for reachability, allowing the user to enable or disable reachability checks.
