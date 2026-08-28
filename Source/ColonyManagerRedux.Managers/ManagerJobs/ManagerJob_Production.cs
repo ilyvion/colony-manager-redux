@@ -1068,7 +1068,6 @@ internal sealed class ManagerJob_Production
         base.ExposeData();
 
         Scribe_Defs.Look(ref _recipe, "recipe");
-        Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
         Scribe_Values.Look(ref _mode, "mode", ProductionMode.MaintainStock);
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
@@ -1113,6 +1112,8 @@ internal sealed class ManagerJob_Production
 
         if (Manager.ScribeSameMapData)
         {
+            Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
+
             Scribe_References.Look(ref WorkbenchArea, "workbenchArea");
             Scribe_Collections.Look(
                 ref SpecificWorkbenches,
