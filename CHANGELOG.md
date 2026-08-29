@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A Production job's managed bills were saved unconditionally, even though the underlying bill references only mean anything on the map they were created on. This baked the source map's real bill IDs into exported job templates and left a broken reference behind when a gravship carrying such a job took off or landed, crashing the Manager tab whenever it tried to draw that job's progress bar.
+
 ## [0.17.2] - 2026-08-28
 
 ### Fixed
