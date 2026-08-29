@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.3] - 2026-08-29
+
 ### Fixed
 
 - A Production job's managed bills were saved unconditionally, even though the underlying bill references only mean anything on the map they were created on. This baked the source map's real bill IDs into exported job templates and left a broken reference behind when a gravship carrying such a job took off or landed, crashing the Manager tab whenever it tried to draw that job's progress bar.
@@ -611,7 +613,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.2...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.3...HEAD
+[0.17.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.2..v0.17.3
 [0.17.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.1..v0.17.2
 [0.17.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.0..v0.17.1
 [0.17.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.16.0..v0.17.0
