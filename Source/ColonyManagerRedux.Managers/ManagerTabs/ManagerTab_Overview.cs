@@ -9,13 +9,46 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(manager)
+internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(manager), IExposable
 {
     public const float OverviewWidthRatio = .6f;
+
+    internal enum OverviewGroupMode
+    {
+        None,
+        JobType,
+        Status,
+        Manual,
+    }
+
+    internal sealed record OverviewJobGroup<T>(
+        string Key,
+        string? Header,
+        Texture2D? Icon,
+        List<T> Jobs
+    );
 
     private float _overviewHeight = 9999f;
     private Vector2 _overviewScrollPosition = Vector2.zero;
     private readonly List<Pawn> _workers = [];
+
+    private readonly QuickSearchWidget _quickSearchWidget = new();
+    private OverviewGroupMode _groupMode = OverviewGroupMode.None;
+    private HashSet<ManagerDef> _hiddenJobTypes = [];
+    private HashSet<string> _collapsedGroups = [];
+
+    public void ExposeData()
+    {
+        Scribe_Values.Look(ref _groupMode, "groupMode", OverviewGroupMode.None);
+        Scribe_Collections.Look(ref _hiddenJobTypes, "hiddenJobTypes", LookMode.Def);
+        Scribe_Collections.Look(ref _collapsedGroups, "collapsedGroups", LookMode.Value);
+
+        if (Scribe.mode == LoadSaveMode.LoadingVars)
+        {
+            _hiddenJobTypes ??= [];
+            _collapsedGroups ??= [];
+        }
+    }
 
     private SkillDef? SkillDef { get; set; }
 
@@ -102,6 +135,327 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         GUI.EndGroup();
     }
 
+    private List<ManagerJob> GetFilteredJobs()
+    {
+        var jobs = Manager.JobTracker.JobsOfType<ManagerJob>();
+
+        if (_hiddenJobTypes.Count > 0)
+        {
+            jobs = jobs.Where(job => !_hiddenJobTypes.Contains(job.Def));
+        }
+
+        if (_quickSearchWidget.filter.Active)
+        {
+            jobs = jobs.Where(job =>
+                _quickSearchWidget.filter.Matches(job.Label)
+                || _quickSearchWidget.filter.Matches(job.TargetsLabel)
+                || _quickSearchWidget.filter.Matches(job.Tab.Label)
+            );
+        }
+
+        return [.. jobs];
+    }
+
+    private static string? GetManualGroup(ManagerJob job) =>
+        job.CompOfType<CompManagerJobOverview>()?.ManualGroup;
+
+    private static void SetManualGroup(ManagerJob job, string? value)
+    {
+        if (job.CompOfType<CompManagerJobOverview>() is { } comp)
+        {
+            comp.ManualGroup = value;
+        }
+    }
+
+    private List<OverviewJobGroup<ManagerJob>> GetGroups(List<ManagerJob> jobs) =>
+        GetGroups(
+            _groupMode,
+            jobs,
+            job => job.Def,
+            job => job.CausedException != null,
+            job => job.IsSuspended,
+            job => job.IsCompleted,
+            GetManualGroup,
+            "ColonyManagerRedux.Overview.Status.NeedsAttention".Translate(),
+            "ColonyManagerRedux.Overview.Status.Active".Translate(),
+            "ColonyManagerRedux.Overview.Status.Suspended".Translate(),
+            "ColonyManagerRedux.Overview.Status.Completed".Translate(),
+            "ColonyManagerRedux.Overview.ManualGroup.Ungrouped".Translate(),
+            Resources.Warning
+        );
+
+    /// <summary>
+    /// Partitions <paramref name="jobs"/> into <see cref="OverviewJobGroup{T}"/>s according to
+    /// <paramref name="mode"/>. Kept generic and free of GUI/game-state dependencies (job
+    /// properties are read via delegates) so it can be unit tested directly.
+    /// </summary>
+    internal static List<OverviewJobGroup<T>> GetGroups<T>(
+        OverviewGroupMode mode,
+        List<T> jobs,
+        Func<T, ManagerDef> getDef,
+        Func<T, bool> hasException,
+        Func<T, bool> isSuspended,
+        Func<T, bool> isCompleted,
+        Func<T, string?> getManualGroup,
+        string needsAttentionLabel,
+        string activeLabel,
+        string suspendedLabel,
+        string completedLabel,
+        string ungroupedLabel,
+        Texture2D? needsAttentionIcon
+    )
+    {
+        switch (mode)
+        {
+            case OverviewGroupMode.JobType:
+                return
+                [
+                    .. jobs.GroupBy(getDef)
+                        .OrderBy(g => g.Key.order)
+                        .Select(g => new OverviewJobGroup<T>(
+                            $"type:{g.Key.defName}",
+                            g.Key.label.CapitalizeFirst(),
+                            g.Key.icon,
+                            [.. g]
+                        )),
+                ];
+
+            case OverviewGroupMode.Status:
+            {
+                // Bucket priority mirrors Utilities.DrawStampButton's per-job stamp icon
+                // (exception > suspended > completed > active).
+                var groups = new List<OverviewJobGroup<T>>();
+                var needsAttention = jobs.Where(hasException).ToList();
+                var suspended = jobs.Where(job => !hasException(job) && isSuspended(job)).ToList();
+                var completed = jobs.Where(job =>
+                        !hasException(job) && !isSuspended(job) && isCompleted(job)
+                    )
+                    .ToList();
+                var active = jobs.Where(job =>
+                        !hasException(job) && !isSuspended(job) && !isCompleted(job)
+                    )
+                    .ToList();
+
+                if (needsAttention.Count > 0)
+                {
+                    groups.Add(
+                        new(
+                            "status:attention",
+                            needsAttentionLabel,
+                            needsAttentionIcon,
+                            needsAttention
+                        )
+                    );
+                }
+                if (active.Count > 0)
+                {
+                    groups.Add(new("status:active", activeLabel, null, active));
+                }
+                if (completed.Count > 0)
+                {
+                    groups.Add(new("status:completed", completedLabel, null, completed));
+                }
+                if (suspended.Count > 0)
+                {
+                    groups.Add(new("status:suspended", suspendedLabel, null, suspended));
+                }
+                return groups;
+            }
+
+            case OverviewGroupMode.Manual:
+            {
+                var groups = jobs.Where(job => getManualGroup(job) != null)
+                    .GroupBy(job => getManualGroup(job))
+                    .OrderBy(g => g.Key, StringComparer.OrdinalIgnoreCase)
+                    .Select(g => new OverviewJobGroup<T>($"manual:{g.Key}", g.Key, null, [.. g]))
+                    .ToList();
+
+                var ungrouped = jobs.Where(job => getManualGroup(job) == null).ToList();
+                if (ungrouped.Count > 0)
+                {
+                    groups.Add(new("manual:__ungrouped__", ungroupedLabel, null, ungrouped));
+                }
+                return groups;
+            }
+
+            case OverviewGroupMode.None:
+            default:
+                return [new OverviewJobGroup<T>("all", null, null, jobs)];
+        }
+    }
+
+    private void DrawGroupByButton(Rect rect)
+    {
+        Widgets.DrawHighlightIfMouseover(rect);
+        using var _ = GUIScope.TextAnchor(TextAnchor.MiddleCenter);
+        Widgets.Label(
+            rect,
+            "ColonyManagerRedux.Overview.GroupBy".Translate(
+                $"ColonyManagerRedux.Overview.GroupBy.{_groupMode}".Translate()
+            )
+        );
+
+        if (!Widgets.ButtonInvisible(rect))
+        {
+            return;
+        }
+
+        var options = Enum.GetValues(typeof(OverviewGroupMode))
+            .Cast<OverviewGroupMode>()
+            .Select(mode => new FloatMenuOption(
+                $"ColonyManagerRedux.Overview.GroupBy.{mode}".Translate(),
+                () => _groupMode = mode
+            ))
+            .ToList();
+        Find.WindowStack.Add(new FloatMenu(options));
+    }
+
+    private void DrawCollapseExpandAllGroupsButton(
+        Rect rect,
+        List<OverviewJobGroup<ManagerJob>> groups
+    )
+    {
+        if (_groupMode == OverviewGroupMode.None)
+        {
+            return;
+        }
+
+        var groupKeys = groups.Where(g => g.Header != null).Select(g => g.Key).ToList();
+        if (groupKeys.Count == 0)
+        {
+            return;
+        }
+
+        var allCollapsed = groupKeys.All(_collapsedGroups.Contains);
+
+        Widgets.DrawHighlightIfMouseover(rect);
+        GUI.DrawTexture(
+            rect.ContractedBy(2f),
+            allCollapsed ? TexButton.Reveal : TexButton.Collapse
+        );
+        TooltipHandler.TipRegion(
+            rect,
+            allCollapsed
+                ? "ColonyManagerRedux.Overview.CollapseAllGroups.ExpandAll".Translate()
+                : "ColonyManagerRedux.Overview.CollapseAllGroups.CollapseAll".Translate()
+        );
+
+        if (!Widgets.ButtonInvisible(rect))
+        {
+            return;
+        }
+
+        foreach (var key in groupKeys)
+        {
+            _ = allCollapsed ? _collapsedGroups.Remove(key) : _collapsedGroups.Add(key);
+        }
+    }
+
+    private void DrawJobTypeFilterRow(Rect rect)
+    {
+        var jobTypes = Manager
+            .JobTracker.JobsOfType<ManagerJob>()
+            .Select(job => job.Def)
+            .Distinct()
+            .OrderBy(def => def.order)
+            .ToList();
+
+        var iconRect = new Rect(rect.x, rect.y, rect.height, rect.height);
+
+        var allHidden = jobTypes.All(_hiddenJobTypes.Contains);
+        if (!allHidden)
+        {
+            Widgets.DrawHighlightSelected(iconRect);
+        }
+        Widgets.DrawHighlightIfMouseover(iconRect);
+        using (GUIScope.Color(allHidden ? Color.gray : Color.white))
+        {
+            GUI.DrawTexture(
+                iconRect.ContractedBy(2f),
+                allHidden ? Resources.EyeClosed : Resources.EyeOpen
+            );
+        }
+        TooltipHandler.TipRegion(
+            iconRect,
+            allHidden
+                ? "ColonyManagerRedux.Overview.JobTypeFilter.ShowAll".Translate()
+                : "ColonyManagerRedux.Overview.JobTypeFilter.HideAll".Translate()
+        );
+        if (Widgets.ButtonInvisible(iconRect))
+        {
+            _hiddenJobTypes.Clear();
+            if (!allHidden)
+            {
+                foreach (var jobType in jobTypes)
+                {
+                    _ = _hiddenJobTypes.Add(jobType);
+                }
+            }
+        }
+        iconRect.x += iconRect.width + (Margin / 2f);
+
+        foreach (var jobType in jobTypes)
+        {
+            var hidden = _hiddenJobTypes.Contains(jobType);
+            if (!hidden)
+            {
+                Widgets.DrawHighlightSelected(iconRect);
+            }
+            Widgets.DrawHighlightIfMouseover(iconRect);
+
+            using (GUIScope.Color(hidden ? Color.gray : Color.white))
+            {
+                GUI.DrawTexture(iconRect.ContractedBy(2f), jobType.icon);
+            }
+
+            TooltipHandler.TipRegion(
+                iconRect,
+                hidden
+                    ? "ColonyManagerRedux.Overview.JobTypeFilter.Show".Translate(
+                        jobType.label.CapitalizeFirst()
+                    )
+                    : "ColonyManagerRedux.Overview.JobTypeFilter.Hide".Translate(
+                        jobType.label.CapitalizeFirst()
+                    )
+            );
+
+            if (Widgets.ButtonInvisible(iconRect))
+            {
+                _ = hidden ? _hiddenJobTypes.Remove(jobType) : _hiddenJobTypes.Add(jobType);
+            }
+
+            iconRect.x += iconRect.width + (Margin / 2f);
+        }
+    }
+
+    private void DrawGroupHeader(
+        ref Vector2 position,
+        float width,
+        OverviewJobGroup<ManagerJob> group
+    )
+    {
+        var collapsed = _collapsedGroups.Contains(group.Key);
+        var headerRect = new Rect(position.x, position.y, width, ListEntryHeight);
+
+        GUI.DrawTexture(headerRect, Resources.SlightlyDarkBackground);
+        Widgets.DrawHighlightIfMouseover(headerRect);
+
+        using (GUIScope.TextAnchor(TextAnchor.MiddleLeft))
+        {
+            Widgets.Label(
+                headerRect.TrimLeft(Margin).TrimRight(Margin),
+                (collapsed ? "▶ " : "▼ ") + group.Header + $" ({group.Jobs.Count})"
+            );
+        }
+
+        if (Widgets.ButtonInvisible(headerRect))
+        {
+            _ = collapsed ? _collapsedGroups.Remove(group.Key) : _collapsedGroups.Add(group.Key);
+        }
+
+        position.y += headerRect.height;
+    }
+
     public void DrawOverview(Rect rect)
     {
         if (Manager.JobTracker.HasNoJobs)
@@ -111,24 +465,101 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             Widgets.Label(rect, "ColonyManagerRedux.Overview.NoJobs".Translate());
             Text.Anchor = TextAnchor.UpperLeft;
             GUI.color = Color.white;
+            return;
         }
-        else
+
+        const float groupByButtonWidth = 160f;
+        const float halfMargin = Margin / 2f;
+
+        var searchRect = new Rect(
+            rect.x + Margin,
+            rect.y + halfMargin,
+            rect.width - (2 * Margin),
+            QuickSearchWidget.WidgetHeight
+        );
+        _quickSearchWidget.OnGUI(searchRect, () => { });
+
+        // Computed here (rather than after the toolbar below) so the collapse/expand-all-groups
+        // button can know the current set of groups; this means job-type-filter and group-by
+        // clicks in the toolbar below take effect on the next GUI frame rather than this one.
+        var filteredJobs = GetFilteredJobs();
+        var groups = GetGroups(filteredJobs);
+
+        var filterRowRect = new Rect(
+            rect.x + Margin,
+            searchRect.yMax + halfMargin,
+            rect.width - (2 * Margin) - groupByButtonWidth - Margin - ListEntryHeight - Margin,
+            ListEntryHeight
+        );
+        DrawJobTypeFilterRow(filterRowRect);
+
+        var collapseAllGroupsRect = new Rect(
+            filterRowRect.xMax + Margin,
+            filterRowRect.y,
+            ListEntryHeight,
+            ListEntryHeight
+        );
+        DrawCollapseExpandAllGroupsButton(collapseAllGroupsRect, groups);
+
+        var groupByRect = new Rect(
+            collapseAllGroupsRect.xMax + Margin,
+            filterRowRect.y,
+            groupByButtonWidth,
+            ListEntryHeight
+        );
+        DrawGroupByButton(groupByRect);
+
+        var listRect = new Rect(
+            rect.x,
+            filterRowRect.yMax + halfMargin,
+            rect.width,
+            rect.yMax - filterRowRect.yMax - halfMargin
+        );
+
+        if (filteredJobs.Count == 0)
         {
-            var viewRect = rect;
-            var contentRect = viewRect.AtZero();
-            contentRect.height = _overviewHeight;
-            if (_overviewHeight > viewRect.height)
+            Text.Anchor = TextAnchor.MiddleCenter;
+            GUI.color = Color.grey;
+            Widgets.Label(listRect, "ColonyManagerRedux.Overview.NoMatchingJobs".Translate());
+            Text.Anchor = TextAnchor.UpperLeft;
+            GUI.color = Color.white;
+            return;
+        }
+
+        var viewRect = listRect;
+        var contentRect = viewRect.AtZero();
+        contentRect.height = _overviewHeight;
+        if (_overviewHeight > viewRect.height)
+        {
+            contentRect.width -= GenUI.ScrollBarWidth;
+        }
+
+        IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
+        {
+            Widgets.DrawRectFast(filterRowRect, ColorLibrary.HotPink.ToTransparent(.5f));
+            Widgets.DrawRectFast(collapseAllGroupsRect, ColorLibrary.Indigo.ToTransparent(.5f));
+            Widgets.DrawRectFast(groupByRect, ColorLibrary.NavyBlue.ToTransparent(.5f));
+            Widgets.DrawRectFast(listRect, ColorLibrary.Salmon.ToTransparent(.5f));
+            Widgets.DrawRectFast(viewRect, ColorLibrary.Plum.ToTransparent(.5f));
+        });
+
+        Widgets.BeginScrollView(viewRect, ref _overviewScrollPosition, contentRect);
+
+        var cur = Vector2.zero;
+
+        foreach (var group in groups)
+        {
+            if (group.Header != null)
             {
-                contentRect.width -= GenUI.ScrollBarWidth;
+                DrawGroupHeader(ref cur, contentRect.width, group);
+                if (_collapsedGroups.Contains(group.Key))
+                {
+                    continue;
+                }
             }
 
-            GUI.BeginGroup(viewRect);
-            Widgets.BeginScrollView(viewRect, ref _overviewScrollPosition, contentRect);
-
-            var cur = Vector2.zero;
-
             var alternate = false;
-            foreach (var job in Manager.JobTracker.JobsOfType<ManagerJob>())
+            foreach (var job in group.Jobs)
             {
                 var row = new Rect(cur.x, cur.y, contentRect.width, 0f);
                 DrawOverviewListEntry(job, ref cur, contentRect.width);
@@ -167,12 +598,69 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                     Selected = Selected != job ? job : null;
                 }
             }
-
-            Widgets.EndScrollView();
-            GUI.EndGroup();
-
-            _overviewHeight = cur.y;
         }
+
+        Widgets.EndScrollView();
+
+        _overviewHeight = cur.y;
+    }
+
+    private void DrawManualGroupButton(Rect rect, ManagerJob job)
+    {
+        var manualGroup = GetManualGroup(job);
+
+        using (GUIScope.Color(manualGroup != null ? Color.white : Color.gray))
+        {
+            GUI.DrawTexture(rect, Resources.Tag);
+        }
+
+        TooltipHandler.TipRegion(
+            rect,
+            manualGroup != null
+                ? "ColonyManagerRedux.Overview.ManualGroup.AssignedTooltip".Translate(manualGroup)
+                : "ColonyManagerRedux.Overview.ManualGroup.UnassignedTooltip".Translate()
+        );
+
+        if (!Widgets.ButtonInvisible(rect))
+        {
+            return;
+        }
+
+        var existingGroups = Manager
+            .JobTracker.JobsOfType<ManagerJob>()
+            .Select(GetManualGroup)
+            .OfType<string>()
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .OrderBy(g => g, StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        var options = new List<FloatMenuOption>();
+        foreach (var group in existingGroups)
+        {
+            options.Add(new FloatMenuOption(group, () => SetManualGroup(job, group)));
+        }
+
+        options.Add(
+            new FloatMenuOption(
+                "ColonyManagerRedux.Overview.ManualGroup.NewGroup".Translate(),
+                () =>
+                    Find.WindowStack.Add(
+                        new Dialog_NewManualGroup(existingGroups, name => SetManualGroup(job, name))
+                    )
+            )
+        );
+
+        if (manualGroup != null)
+        {
+            options.Add(
+                new FloatMenuOption(
+                    "ColonyManagerRedux.Overview.ManualGroup.RemoveFromGroup".Translate(),
+                    () => SetManualGroup(job, null)
+                )
+            );
+        }
+
+        Find.WindowStack.Add(new FloatMenu(options));
     }
 
     private void DrawOverviewListEntry(ManagerJob job, ref Vector2 position, float width)
@@ -205,7 +693,9 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             - (StatusRectWidth + (4 * Margin))
             - (2 * Margin)
             - LargeIconSize
-            - LargeListEntryHeight;
+            - LargeListEntryHeight
+            - SmallIconSize
+            - Margin;
 
         // create label string
         var subLabel = tab.GetSubLabel(job);
@@ -215,8 +705,9 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         Rect iconRect = new(Margin, Margin, LargeIconSize, LargeIconSize);
 
         Rect labelRect = new(iconRect.xMax + Margin, iconRect.y, labelWidth, labelSize.y);
+        Rect groupRect = new(labelRect.xMax + Margin, iconRect.y, SmallIconSize, SmallIconSize);
         Rect statusRect = new(
-            labelRect.xMax + Margin,
+            groupRect.xMax + Margin,
             Margin,
             StatusRectWidth + Margin,
             LargeListEntryHeight
@@ -258,6 +749,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         labelRect = labelRect.CenteredOnYIn(rowRect);
         iconRect = iconRect.CenteredOnYIn(rowRect);
+        groupRect = groupRect.CenteredOnYIn(rowRect);
 
         IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
@@ -272,6 +764,8 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
         // draw label
         IlyvionWidgets.Label(labelRect, label, subLabel, TextAnchor.MiddleLeft);
+
+        DrawManualGroupButton(groupRect, job);
 
         // if the bill has a manager job, give some more info.
         if (tab.Enabled)

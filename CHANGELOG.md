@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The Overview tab can now be searched and filtered: a search box at the top matches against a job's name and targets, and a row of job-type icons lets you hide job types you don't want to see. A new 'Group by' option organizes the list into collapsible sections by job type, by status (needing attention, active, or suspended), or by your own manual groups. Each job now has a small tag button that lets you assign it to a manual group of your choosing, or create a new one.
+
 ### Changed
 
 - Default settings for new jobs (e.g. default target counts, culling, and threshold settings) have been moved out of each job's own settings tab and into a new, single 'Job Defaults' tab, right after the 'Shared' tab. Pick a job type from the list on the left to edit its defaults on the right, the same way you pick a job in a manager tab. This makes the settings window considerably less cluttered, since the Foraging, Forestry, Hunting, Mining, and Livestock settings tabs, which contained nothing but new-job defaults, no longer appear at all. Any settings previously configured carry over automatically to their new Job Defaults entries the first time you load the mod after updating.

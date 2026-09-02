@@ -8,4 +8,26 @@
     <ColonyManagerRedux.Overview.NoJobSelected>No job selected</ColonyManagerRedux.Overview.NoJobSelected>
     <ColonyManagerRedux.Overview.NoJobDetails>No job details</ColonyManagerRedux.Overview.NoJobDetails>
     <ColonyManagerRedux.Overview.NoCurrentJob>no current job</ColonyManagerRedux.Overview.NoCurrentJob>
+    <ColonyManagerRedux.Overview.NoMatchingJobs>No jobs match the current search and filters.</ColonyManagerRedux.Overview.NoMatchingJobs>
+    <ColonyManagerRedux.Overview.GroupBy>Group by: {0}</ColonyManagerRedux.Overview.GroupBy>
+    <ColonyManagerRedux.Overview.GroupBy.None>None</ColonyManagerRedux.Overview.GroupBy.None>
+    <ColonyManagerRedux.Overview.GroupBy.JobType>Job type</ColonyManagerRedux.Overview.GroupBy.JobType>
+    <ColonyManagerRedux.Overview.GroupBy.Status>Status</ColonyManagerRedux.Overview.GroupBy.Status>
+    <ColonyManagerRedux.Overview.GroupBy.Manual>Manual group</ColonyManagerRedux.Overview.GroupBy.Manual>
+    <ColonyManagerRedux.Overview.CollapseAllGroups.CollapseAll>Collapse all groups</ColonyManagerRedux.Overview.CollapseAllGroups.CollapseAll>
+    <ColonyManagerRedux.Overview.CollapseAllGroups.ExpandAll>Expand all groups</ColonyManagerRedux.Overview.CollapseAllGroups.ExpandAll>
+    <ColonyManagerRedux.Overview.JobTypeFilter.HideAll>Hide all job types</ColonyManagerRedux.Overview.JobTypeFilter.HideAll>
+    <ColonyManagerRedux.Overview.JobTypeFilter.ShowAll>Show all job types</ColonyManagerRedux.Overview.JobTypeFilter.ShowAll>
+    <ColonyManagerRedux.Overview.JobTypeFilter.Show>{0} jobs: show</ColonyManagerRedux.Overview.JobTypeFilter.Show>
+    <ColonyManagerRedux.Overview.JobTypeFilter.Hide>{0} jobs: hide</ColonyManagerRedux.Overview.JobTypeFilter.Hide>
+    <ColonyManagerRedux.Overview.Status.NeedsAttention>Needs attention</ColonyManagerRedux.Overview.Status.NeedsAttention>
+    <ColonyManagerRedux.Overview.Status.Active>Active</ColonyManagerRedux.Overview.Status.Active>
+    <ColonyManagerRedux.Overview.Status.Suspended>Suspended</ColonyManagerRedux.Overview.Status.Suspended>
+    <ColonyManagerRedux.Overview.Status.Completed>Completed</ColonyManagerRedux.Overview.Status.Completed>
+    <ColonyManagerRedux.Overview.ManualGroup.Ungrouped>Ungrouped</ColonyManagerRedux.Overview.ManualGroup.Ungrouped>
+    <ColonyManagerRedux.Overview.ManualGroup.NewGroup>New group...</ColonyManagerRedux.Overview.ManualGroup.NewGroup>
+    <ColonyManagerRedux.Overview.ManualGroup.RemoveFromGroup>Remove from group</ColonyManagerRedux.Overview.ManualGroup.RemoveFromGroup>
+    <ColonyManagerRedux.Overview.ManualGroup.AssignedTooltip>In group: {0}\n\nClick to change this job's group.</ColonyManagerRedux.Overview.ManualGroup.AssignedTooltip>
+    <ColonyManagerRedux.Overview.ManualGroup.UnassignedTooltip>Not in a group.\n\nClick to assign this job to a group.</ColonyManagerRedux.Overview.ManualGroup.UnassignedTooltip>
+    <ColonyManagerRedux.Overview.ManualGroup.NameInUse>A group named '{0}' already exists.</ColonyManagerRedux.Overview.ManualGroup.NameInUse>
 </LanguageData>

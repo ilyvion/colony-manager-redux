@@ -29,6 +29,9 @@ internal static class Resources
         Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh"),
         Warning = ContentFinder<Texture2D>.Get("UI/Icons/CMR_warning"),
         ClawIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw"),
+        Tag = ContentFinder<Texture2D>.Get("UI/Icons/CMR_Tag"),
+        EyeOpen = ContentFinder<Texture2D>.Get("UI/Icons/CMR_EyeOpen"),
+        EyeClosed = ContentFinder<Texture2D>.Get("UI/Icons/CMR_EyeClosed"),
         // livestock header icons
         StageC = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-3"),
         StageB = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stage-2"),

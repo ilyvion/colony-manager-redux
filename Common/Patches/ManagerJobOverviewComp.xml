@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <!-- Adds CompProperties_ManagerJobOverview to every job-producing ManagerDef's jobComps,
+         so job types don't need to declare it themselves. -->
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[managerJobClass]/jobComps</xpath>
+        <value>
+            <li Class="ColonyManagerRedux.CompProperties_ManagerJobOverview" />
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>Defs/ColonyManagerRedux.ManagerDef[managerJobClass and not(jobComps)]</xpath>
+        <value>
+            <jobComps>
+                <li Class="ColonyManagerRedux.CompProperties_ManagerJobOverview" />
+            </jobComps>
+        </value>
+    </Operation>
+</Patch>
