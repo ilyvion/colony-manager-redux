@@ -1,4 +1,4 @@
-[![RimWorld 1.5](https://img.shields.io/badge/RimWorld-1.5-brightgreen.svg)](http://rimworldgame.com/) [![Build](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml)
+[![RimWorld 1.5](https://img.shields.io/badge/RimWorld-1.5-brightgreen.svg)](http://rimworldgame.com/) [![RimWorld 1.6](https://img.shields.io/badge/RimWorld-1.6-brightgreen.svg)](http://rimworldgame.com/) [![Build](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml/badge.svg)](https://github.com/ilyvion/colony-manager-redux/actions/workflows/ci.yml)
 
 > [!IMPORTANT]  
 > You might be used to downloading people's GitHub mods by using the **Code -> Download ZIP** method, but this won't work on my repos[^badpractice]; I make use of proper releases and you can always find the latest version of the mod for download on the [Releases page](https://github.com/ilyvion/colony-manager-redux/releases/latest).
@@ -17,9 +17,11 @@ Out of the box, the mod has the following manager jobs:
 **Hunting**: Set how much meat you want, and which kinds of animals you want to hunt, and watch your hunters take care of it.  
 **Forestry**: Set how much wood you want, and which kinds of trees you want to chop, and the plant cutters take care of the rest.  
 **Forestry (clearing)**: Mark an area for clearing, like the immediate outside of your colony, and watch your enemies having nothing to take cover behind the next time you're raided!  
-**Livestock**: Takes care of taming, culling (butchering or releasing excess), training and corralling your animals according to your specifications.  
+**Livestock**: Takes care of taming, culling (butchering, releasing, or sterilizing excess), training and corralling your animals according to your specifications.  
 **Foraging**: Set how much you want of berries/herbal medicine/mushrooms, and watch your colonists go out and collect it.  
-**Resource gathering**: Set how much steel/silver/gold/jade/stone/etc. you want, and watch your colonists haul chunks for processing and mine the resources you're after automatically.
+**Resource gathering**: Set how much steel/silver/gold/jade/stone/etc. you want, and watch your colonists haul chunks for processing and mine the resources you're after automatically.  
+**Power**: Keeps an eye on your colony's power production, consumption and battery storage, and warns you if things are looking unbalanced.  
+**Production**: Pick a recipe and the manager keeps a work table running it for you, either maintaining a stock of what it produces or consuming a surplus of some other resource; production jobs can even be chained together so raw materials flow automatically down a production chain.
 
 ## Background
 
@@ -33,11 +35,13 @@ It would be way too much to list it all here, but here are some highlights:
 
 -   As mentioned in the introduction, adding a new manager job/tab by third parties is now directly supported by making them Def-based. More on this farther down.
 -   Added comprehensive mod settings to let players configure many more aspects of the mod
--   Importing and exporting jobs is back
+-   Importing and exporting jobs is back, and you can also save a set of jobs as a reusable template to apply to future colonies
 -   You can disable the recording of historical data, which is a bit of a performance drain (it is on by default)
 -   Jobs log their activities so you can go back and look at what the mod's been doing (the 100 last logs are kept by default)
 -   The manager work now has a much higher priority (placed between Warden and Handle) instead of being relegated to less important than Research, as managing the colony is important work.
 -   Guest animals (such as those from Royalty quests) are now properly handled by the relevant parts of the livestock job (such as limiting them to the set area) without involving them fully (they don't get counted against the target population and won't be automatically slaughtered, e.g.)
+-   A gravship carrying manager jobs takes its jobs with it when it launches and lands, and asks which set of jobs to keep if the map it lands on already has its own
+-   Optional integrations add extra functionality when the AAAA mod (area evacuation on danger) or the Animal Genetics mod are also loaded
 -   _A lot_ of small and not so small changes have been made to the UI; again, check the change log for all the details.
 -   _A lot_ of small and not so small bugs have been fixed.
 
@@ -59,7 +63,7 @@ It most likely means that you've updated this mod but not ilyvion's Laboratory. 
 
 ## Translations
 
--   _None yet_
+-   [Chinese](https://steamcommunity.com/sharedfiles/filedetails/?id=3371946696) by [Akiu](https://steamcommunity.com/profiles/76561198986560305)
 
 Want your translation in this list? Release a translation mod (i.e. a mod with only a Languages folder, [i]not a copy of this entire mod + the translation[/i]) for this mod, and notify me of its existence, and I'll add it to the list.
 
