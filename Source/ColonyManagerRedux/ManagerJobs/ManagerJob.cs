@@ -114,6 +114,38 @@ public abstract class ManagerJob<TSettings, TWorkData>(Manager manager)
 }
 
 /// <summary>
+/// Represents a manager job with specific settings of type <typeparamref name="TSettings"/> and
+/// default settings of type <typeparamref name="TDefaultSettings"/>, whose asynchronous work is
+/// split into a gather phase and an execute phase as in
+/// <see cref="ManagerJob{TSettings, TWorkData}"/>.
+/// </summary>
+/// <typeparam name="TSettings">The type of settings associated with this manager job.</typeparam>
+/// <typeparam name="TDefaultSettings">
+/// The type of default settings associated with this manager job's job type.
+/// </typeparam>
+/// <typeparam name="TWorkData">The type used to carry the gather phase's decisions to the execute phase.</typeparam>
+[HotSwappable]
+#pragma warning disable CA1005 // Three type parameters are needed to expose both settings kinds
+public abstract class ManagerJob<TSettings, TDefaultSettings, TWorkData>(Manager manager)
+    : ManagerJob<TSettings, TWorkData>(manager)
+    where TSettings : ManagerSettings
+    where TDefaultSettings : ManagerDefaultSettings
+#pragma warning restore CA1005
+{
+    /// <summary>
+    /// Gets the manager default settings for this job's job type.
+    /// </summary>
+    public TDefaultSettings ManagerDefaultSettings =>
+        ColonyManagerReduxMod.Settings.ManagerDefaultSettingsFor<TDefaultSettings>(Def)
+        ?? throw new InvalidOperationException(
+            $"Type {GetType().Name} claims to have a "
+                + $"manager default settings type of {typeof(TDefaultSettings).Name}, but no such "
+                + "type has been registered. Did you remember to add your default settings type "
+                + "to your ManagerDef with a managerDefaultSettingsClass value?"
+        );
+}
+
+/// <summary>
 /// Represents a base class for all manager jobs, providing core functionality for job management,
 /// serialization, and interaction with the manager system.
 /// </summary>

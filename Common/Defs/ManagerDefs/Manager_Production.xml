@@ -4,7 +4,6 @@
         <defName>CM_ProductionManager</defName>
         <order>750</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Production</managerJobClass>
-        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Production</managerSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Production</managerTabClass>
         <label>production</label>
     </ColonyManagerRedux.ManagerDef>

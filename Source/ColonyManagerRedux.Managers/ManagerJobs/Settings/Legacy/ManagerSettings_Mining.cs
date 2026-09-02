@@ -1,0 +1,258 @@
+// ManagerSettings_Mining.cs
+// Copyright (c) 2024–2026 Alexander Krivács Schrøder
+
+using static ColonyManagerRedux.Constants;
+using Task = ColonyManagerRedux.Managers.ManagerJob_Mining.Task;
+
+namespace ColonyManagerRedux.Managers;
+
+/// <summary>
+/// Not referenced by any <see cref="ManagerDef.managerSettingsClass"/> any more; kept only so
+/// Scribe can still deserialize this type by name out of a save written before default job
+/// values moved to <see cref="ManagerDefaultSettings_Mining"/>, for
+/// <see cref="ManagerDefaultSettings_Mining.MigrateFrom"/> to read from.
+/// </summary>
+[HotSwappable]
+internal sealed class ManagerSettings_Mining : ManagerSettings
+{
+    public bool DefaultSyncFilterAndAllowed = true;
+
+    public bool DefaultDeconstructBuildings;
+    public bool DefaultDeconstructAncientDangerWhenFogged;
+
+    public bool DefaultAllowMining = true;
+    public bool DefaultTakeOwnershipOfMiningJobs;
+    public bool DefaultControlDeepDrills;
+
+    public bool DefaultHaulMapChunks = true;
+    public bool DefaultHaulMinedChunks = true;
+
+    public bool DefaultMineThickRoofs = true;
+    public bool DefaultCheckRoofSupport = true;
+    public bool DefaultCheckRoofSupportAdvanced;
+    public bool DefaultCheckRoomDivision = true;
+
+    public List<Task> DefaultTaskPriorityOrder =
+    [
+        Task.HaulChunks,
+        Task.DeconstructBuildings,
+        Task.Mine,
+    ];
+
+    public override void DoTabContents(Rect rect)
+    {
+        var panelRect = new Rect(rect.xMin, rect.yMin, rect.width, rect.height - Margin);
+
+        Widgets_Section.BeginSectionColumn(
+            panelRect,
+            "Mining.Settings",
+            out var position,
+            out var width
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawSyncFilterAndAllowed,
+            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawTaskPriorityOrder,
+            "ColonyManagerRedux.ManagerSettings.DefaultTaskPriorityOrder".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawMining,
+            "ColonyManagerRedux.Mining.ManagerSettings.DefaultMining".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawHaulChunks,
+            "ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks".Translate()
+        );
+        Widgets_Section.Section(ref position, width, DrawDeconstructBuildings);
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawRoofRoomChecks,
+            "ColonyManagerRedux.Mining.ManagerSettings.DefaultHealthAndSafety".Translate()
+        );
+        Widgets_Section.EndSectionColumn("Mining.Settings", position);
+    }
+
+    public float DrawSyncFilterAndAllowed(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.Mining.SyncFilterAndAllowed.Tip".Translate(),
+            ref DefaultSyncFilterAndAllowed
+        );
+
+        return ListEntryHeight;
+    }
+
+    public float DrawTaskPriorityOrder(Vector2 pos, float width) =>
+        ManagerTab_Mining.DrawTaskPriorityOrder(DefaultTaskPriorityOrder, pos, width);
+
+    public float DrawMining(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.AllowMining".Translate(),
+            "ColonyManagerRedux.Mining.AllowMining.Tip".Translate(),
+            ref DefaultAllowMining
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs".Translate(),
+            "ColonyManagerRedux.Mining.TakeOwnershipOfMiningJobs.Tip".Translate(),
+            ref DefaultTakeOwnershipOfMiningJobs
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.ControlDeepDrills".Translate(),
+            "ColonyManagerRedux.Mining.ControlDeepDrills.Tip".Translate(),
+            ref DefaultControlDeepDrills
+        );
+
+        return rowRect.yMax - pos.y;
+    }
+
+    public float DrawHaulChunks(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.HaulMapChunks".Translate(),
+            "ColonyManagerRedux.Mining.HaulMapChunks.Tip".Translate(),
+            ref DefaultHaulMapChunks
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.HaulMinedChunks".Translate(),
+            "ColonyManagerRedux.Mining.HaulMinedChunks.Tip".Translate(),
+            ref DefaultHaulMinedChunks
+        );
+
+        return rowRect.yMax - pos.y;
+    }
+
+    public float DrawDeconstructBuildings(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.DeconstructBuildings".Translate(),
+            "ColonyManagerRedux.Mining.DeconstructBuildings.Tip".Translate(),
+            ref DefaultDeconstructBuildings
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged".Translate(),
+            "ColonyManagerRedux.Mining.DeconstructAncientDangerWhenFogged.Tip".Translate(),
+            ref DefaultDeconstructAncientDangerWhenFogged
+        );
+
+        return rowRect.yMax - pos.y;
+    }
+
+    public float DrawRoofRoomChecks(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.MineThickRoofs".Translate(),
+            "ColonyManagerRedux.Mining.MineThickRoofs.Tip".Translate(),
+            ref DefaultMineThickRoofs
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.CheckRoofSupport".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoofSupport.Tip".Translate(),
+            ref DefaultCheckRoofSupport
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoofSupportAdvanced.Tip".Translate(),
+            ref DefaultCheckRoofSupportAdvanced,
+            true
+        );
+
+        rowRect.y += ListEntryHeight;
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.Mining.CheckRoomDivision".Translate(),
+            "ColonyManagerRedux.Mining.CheckRoomDivision.Tip".Translate(),
+            ref DefaultCheckRoomDivision,
+            true
+        );
+
+        return rowRect.yMax - pos.y;
+    }
+
+    public override void ExposeData()
+    {
+        base.ExposeData();
+
+        Scribe_Values.Look(ref DefaultSyncFilterAndAllowed, "defaultSyncFilterAndAllowed", true);
+
+        Scribe_Values.Look(ref DefaultDeconstructBuildings, "defaultDeconstructBuildings", false);
+        Scribe_Values.Look(
+            ref DefaultDeconstructAncientDangerWhenFogged,
+            "defaultDeconstructAncientDangerWhenFogged",
+            false
+        );
+
+        Scribe_Values.Look(
+            ref DefaultTakeOwnershipOfMiningJobs,
+            "defaultTakeOwnershipOfMiningJobs",
+            false
+        );
+        Scribe_Values.Look(ref DefaultHaulMapChunks, "defaultHaulMapChunks", true);
+        Scribe_Values.Look(ref DefaultHaulMinedChunks, "defaultHaulMinedChunks", true);
+        Scribe_Values.Look(ref DefaultControlDeepDrills, "defaultControlDeepDrills", false);
+
+        Scribe_Values.Look(ref DefaultMineThickRoofs, "defaultMineThickRoofs", true);
+        Scribe_Values.Look(ref DefaultCheckRoofSupport, "defaultCheckRoofSupport", true);
+        Scribe_Values.Look(
+            ref DefaultCheckRoofSupportAdvanced,
+            "defaultCheckRoofSupportAdvanced",
+            false
+        );
+        Scribe_Values.Look(ref DefaultCheckRoomDivision, "defaultCheckRoomDivision", true);
+        Scribe_Collections.Look(
+            ref DefaultTaskPriorityOrder,
+            "defaultTaskPriorityOrder",
+            LookMode.Value
+        );
+
+        if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
+                DefaultTaskPriorityOrder,
+                [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+            );
+        }
+    }
+}

@@ -1,4 +1,4 @@
-// ManagerSettings_Mining.cs
+// ManagerDefaultSettings_Mining.cs
 // Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -7,7 +7,7 @@ using Task = ColonyManagerRedux.Managers.ManagerJob_Mining.Task;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerSettings_Mining : ManagerSettings
+internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
 
@@ -248,5 +248,31 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
                 [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
             );
         }
+    }
+
+    public override bool MigrateFrom(ManagerSettings legacy)
+    {
+        if (legacy is not ManagerSettings_Mining old)
+        {
+            return false;
+        }
+
+        DefaultSyncFilterAndAllowed = old.DefaultSyncFilterAndAllowed;
+        DefaultDeconstructBuildings = old.DefaultDeconstructBuildings;
+        DefaultDeconstructAncientDangerWhenFogged = old.DefaultDeconstructAncientDangerWhenFogged;
+        DefaultAllowMining = old.DefaultAllowMining;
+        DefaultTakeOwnershipOfMiningJobs = old.DefaultTakeOwnershipOfMiningJobs;
+        DefaultControlDeepDrills = old.DefaultControlDeepDrills;
+        DefaultHaulMapChunks = old.DefaultHaulMapChunks;
+        DefaultHaulMinedChunks = old.DefaultHaulMinedChunks;
+        DefaultMineThickRoofs = old.DefaultMineThickRoofs;
+        DefaultCheckRoofSupport = old.DefaultCheckRoofSupport;
+        DefaultCheckRoofSupportAdvanced = old.DefaultCheckRoofSupportAdvanced;
+        DefaultCheckRoomDivision = old.DefaultCheckRoomDivision;
+        DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
+            [.. old.DefaultTaskPriorityOrder],
+            [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+        );
+        return true;
     }
 }

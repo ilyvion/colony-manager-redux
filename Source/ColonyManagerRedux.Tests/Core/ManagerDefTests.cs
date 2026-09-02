@@ -15,7 +15,8 @@ internal static class ManagerDefTests
                 ManagerDef.ValidateManagerDefTypes(
                     typeof(ManagerJob),
                     typeof(ManagerTab),
-                    typeof(ManagerSettings)
+                    typeof(ManagerSettings),
+                    typeof(ManagerDefaultSettings)
                 )
             )
             .Is.Empty();
@@ -27,7 +28,8 @@ internal static class ManagerDefTests
                 ManagerDef.ValidateManagerDefTypes(
                     null,
                     typeof(ManagerTab),
-                    typeof(ManagerSettings)
+                    typeof(ManagerSettings),
+                    typeof(ManagerDefaultSettings)
                 )
             )
             .Is.Empty();
@@ -39,7 +41,8 @@ internal static class ManagerDefTests
                 ManagerDef.ValidateManagerDefTypes(
                     typeof(object),
                     typeof(ManagerTab),
-                    typeof(ManagerSettings)
+                    typeof(ManagerSettings),
+                    typeof(ManagerDefaultSettings)
                 )
             )
             .Has.Count(1);
@@ -47,36 +50,91 @@ internal static class ManagerDefTests
     [Test]
     public static void NullManagerTabClassProducesError() =>
         Assert
-            .ThatCollection(ManagerDef.ValidateManagerDefTypes(null, null, typeof(ManagerSettings)))
+            .ThatCollection(
+                ManagerDef.ValidateManagerDefTypes(
+                    null,
+                    null,
+                    typeof(ManagerSettings),
+                    typeof(ManagerDefaultSettings)
+                )
+            )
             .Has.Count(1);
 
     [Test]
     public static void NonManagerTabTypeProducesError() =>
         Assert
             .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(null, typeof(object), typeof(ManagerSettings))
+                ManagerDef.ValidateManagerDefTypes(
+                    null,
+                    typeof(object),
+                    typeof(ManagerSettings),
+                    typeof(ManagerDefaultSettings)
+                )
             )
             .Has.Count(1);
 
     [Test]
     public static void NullManagerSettingsClassIsValid() =>
         Assert
-            .ThatCollection(ManagerDef.ValidateManagerDefTypes(null, typeof(ManagerTab), null))
+            .ThatCollection(
+                ManagerDef.ValidateManagerDefTypes(
+                    null,
+                    typeof(ManagerTab),
+                    null,
+                    typeof(ManagerDefaultSettings)
+                )
+            )
             .Is.Empty();
 
     [Test]
     public static void NonManagerSettingsTypeProducesError() =>
         Assert
             .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(null, typeof(ManagerTab), typeof(object))
+                ManagerDef.ValidateManagerDefTypes(
+                    null,
+                    typeof(ManagerTab),
+                    typeof(object),
+                    typeof(ManagerDefaultSettings)
+                )
             )
             .Has.Count(1);
 
     [Test]
-    public static void AllInvalidTypesProduceThreeErrors() =>
+    public static void NullManagerDefaultSettingsClassIsValid() =>
         Assert
             .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(typeof(object), null, typeof(object))
+                ManagerDef.ValidateManagerDefTypes(
+                    null,
+                    typeof(ManagerTab),
+                    typeof(ManagerSettings),
+                    null
+                )
             )
-            .Has.Count(3);
+            .Is.Empty();
+
+    [Test]
+    public static void NonManagerDefaultSettingsTypeProducesError() =>
+        Assert
+            .ThatCollection(
+                ManagerDef.ValidateManagerDefTypes(
+                    null,
+                    typeof(ManagerTab),
+                    typeof(ManagerSettings),
+                    typeof(object)
+                )
+            )
+            .Has.Count(1);
+
+    [Test]
+    public static void AllInvalidTypesProduceFourErrors() =>
+        Assert
+            .ThatCollection(
+                ManagerDef.ValidateManagerDefTypes(
+                    typeof(object),
+                    null,
+                    typeof(object),
+                    typeof(object)
+                )
+            )
+            .Has.Count(4);
 }

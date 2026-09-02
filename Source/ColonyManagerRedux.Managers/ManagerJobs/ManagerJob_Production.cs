@@ -6,7 +6,7 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed class ManagerJob_Production
-    : ManagerJob<ManagerSettings_Production, ManagerJob_Production.ProductionWorkData>
+    : ManagerJob<ManagerSettings, ManagerJob_Production.ProductionWorkData>
 {
     /// <summary>
     /// The decision for a single eligible bill giver, computed by

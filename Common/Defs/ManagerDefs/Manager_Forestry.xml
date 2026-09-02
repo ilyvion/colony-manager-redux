@@ -4,7 +4,7 @@
         <defName>CM_ForestryManager</defName>
         <order>400</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Forestry</managerJobClass>
-        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Forestry</managerSettingsClass>
+        <managerDefaultSettingsClass>ColonyManagerRedux.Managers.ManagerDefaultSettings_Forestry</managerDefaultSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Forestry</managerTabClass>
         <iconPath>UI/Icons/CMR_Tree</iconPath>
         <label>forestry</label>

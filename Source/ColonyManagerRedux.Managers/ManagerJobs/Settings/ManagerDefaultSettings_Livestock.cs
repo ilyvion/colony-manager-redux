@@ -1,4 +1,4 @@
-// ManagerSettings_Livestock.cs
+// ManagerDefaultSettings_Livestock.cs
 // Copyright (c) 2024–2026 Alexander Krivács Schrøder
 
 using ilyvion.Laboratory.UI;
@@ -13,7 +13,7 @@ namespace ColonyManagerRedux.Managers;
 internal sealed class PawnKindSettings : IExposable
 {
     private PawnKindDef? _def;
-    internal ManagerSettings_Livestock settings;
+    internal ManagerDefaultSettings_Livestock settings;
 
     public int[] DefaultCountTargets = [.. Utilities_Livestock.AgeSexArray.Select(_ => 5)];
 
@@ -45,7 +45,7 @@ internal sealed class PawnKindSettings : IExposable
 
     private string[] _newCounts = [.. Utilities_Livestock.AgeSexArray.Select(_ => "5")];
 
-#pragma warning disable CS8618 // Set by ManagerSettings_Livestock/scribe
+#pragma warning disable CS8618 // Set by ManagerDefaultSettings_Livestock/scribe
     public PawnKindSettings() { }
 #pragma warning restore CS8618
 
@@ -76,6 +76,41 @@ internal sealed class PawnKindSettings : IExposable
         DefaultTrainerMode = copyFrom.DefaultTrainerMode;
 
         EnabledTrainingTargets = [.. copyFrom.EnabledTrainingTargets];
+    }
+
+    /// <summary>
+    /// Copies values out of the pre-Job-Defaults-tab <see cref="LegacyPawnKindSettings_Livestock"/>
+    /// equivalent of this class, mirroring the field list of the
+    /// <see cref="PawnKindSettings(PawnKindDef, PawnKindSettings)"/> copy constructor above.
+    /// </summary>
+    internal void MigrateFrom(LegacyPawnKindSettings_Livestock old, PawnKindDef? pawnKindDef = null)
+    {
+        _def = pawnKindDef;
+        Array.Copy(old.DefaultCountTargets, DefaultCountTargets, DefaultCountTargets.Length);
+        DefaultTryTameMore = old.DefaultTryTameMore;
+        DefaultTamePastTargets = old.DefaultTamePastTargets;
+        DefaultCullingStrategy = old.DefaultCullingStrategy;
+        DefaultCullTrained = old.DefaultCullTrained;
+        DefaultCullPregnant = old.DefaultCullPregnant;
+        DefaultCullBonded = old.DefaultCullBonded;
+        DefaultAvoidCullingMilkable = old.DefaultAvoidCullingMilkable;
+        DefaultAvoidCullingMilkableThreshold = old.DefaultAvoidCullingMilkableThreshold;
+        DefaultAvoidCullingShearable = old.DefaultAvoidCullingShearable;
+        DefaultAvoidCullingShearableThreshold = old.DefaultAvoidCullingShearableThreshold;
+        DefaultAvoidCullingNamed = old.DefaultAvoidCullingNamed;
+        DefaultUnassignTraining = old.DefaultUnassignTraining;
+        DefaultTrainYoung = old.DefaultTrainYoung;
+        DefaultMasterMode = old.DefaultMasterMode;
+        DefaultRespectBonds = old.DefaultRespectBonds;
+        DefaultSetFollow = old.DefaultSetFollow;
+        DefaultFollowDrafted = old.DefaultFollowDrafted;
+        DefaultFollowFieldwork = old.DefaultFollowFieldwork;
+        DefaultFollowTraining = old.DefaultFollowTraining;
+        DefaultTrainerMode = old.DefaultTrainerMode;
+
+        EnabledTrainingTargets = [.. old.EnabledTrainingTargets];
+
+        _newCounts = [.. DefaultCountTargets.Select(v => v.ToString(CultureInfo.InvariantCulture))];
     }
 
     public void DoSettingPanelContents(Rect panelRect)
@@ -793,7 +828,7 @@ internal sealed class PawnKindSettings : IExposable
 }
 
 [HotSwappable]
-internal sealed class ManagerSettings_Livestock : ManagerSettings
+internal sealed class ManagerDefaultSettings_Livestock : ManagerDefaultSettings
 {
     private PawnKindSettings defaults = new();
     private Dictionary<PawnKindDef, PawnKindSettings> overrides = [];
@@ -927,5 +962,26 @@ internal sealed class ManagerSettings_Livestock : ManagerSettings
         _currentLivestockSettingsTab = -1;
         currentOverrideTab = null;
         _ = overrides.Remove(pawnKind);
+    }
+
+    public override bool MigrateFrom(ManagerSettings legacy)
+    {
+        if (legacy is not ManagerSettings_Livestock old)
+        {
+            return false;
+        }
+
+        defaults.MigrateFrom(old.defaults);
+        defaults.settings = this;
+
+        overrides.Clear();
+        foreach (var (pawnKind, legacyOverride) in old.overrides)
+        {
+            var migratedOverride = new PawnKindSettings { settings = this };
+            migratedOverride.MigrateFrom(legacyOverride, pawnKind);
+            overrides[pawnKind] = migratedOverride;
+        }
+
+        return true;
     }
 }

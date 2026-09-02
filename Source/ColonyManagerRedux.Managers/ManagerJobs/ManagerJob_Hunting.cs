@@ -10,7 +10,11 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed class ManagerJob_Hunting
-    : ManagerJob<ManagerSettings_Hunting, ManagerJob_Hunting.HuntingWorkData>
+    : ManagerJob<
+        ManagerSettings,
+        ManagerDefaultSettings_Hunting,
+        ManagerJob_Hunting.HuntingWorkData
+    >
 {
     // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
     // Gathering only ever decides on one of these paths per run (mirroring the branches that
@@ -197,7 +201,7 @@ internal sealed class ManagerJob_Hunting
 
     public override void PostMake()
     {
-        var huntingSettings = ManagerSettings;
+        var huntingSettings = ManagerDefaultSettings;
         if (huntingSettings != null)
         {
             _targetResource = huntingSettings.DefaultTargetResource;

@@ -9,7 +9,7 @@ namespace ColonyManagerRedux;
 /// Base class for manager job settings tabs, providing serialization and UI logic.
 /// </summary>
 [HotSwappable]
-public abstract class ManagerSettings : Tab, IExposable
+public abstract class ManagerSettings : Tab, IExposable, IManagerDefOwnedSettings
 {
 #pragma warning disable CS8618 // Set by ManagerDefMaker
     private ManagerDef def;

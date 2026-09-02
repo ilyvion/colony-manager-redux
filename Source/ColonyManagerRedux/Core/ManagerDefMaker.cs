@@ -61,6 +61,20 @@ internal static class ManagerDefMaker
         settings.PostMake();
         return settings;
     }
+
+    public static ManagerDefaultSettings? MakeManagerDefaultSettings(ManagerDef def)
+    {
+        if (def.managerDefaultSettingsClass == null)
+        {
+            return null;
+        }
+
+        var defaultSettings = (ManagerDefaultSettings)
+            Activator.CreateInstance(def.managerDefaultSettingsClass);
+        defaultSettings.Def = def;
+        defaultSettings.PostMake();
+        return defaultSettings;
+    }
 }
 
 /// <summary>

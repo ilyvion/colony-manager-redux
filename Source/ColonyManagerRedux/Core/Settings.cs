@@ -20,8 +20,10 @@ namespace ColonyManagerRedux;
 public class Settings : ModSettings
 {
     private readonly SharedManagerSettings _sharedManagerSettings;
+    private readonly JobDefaultsTab _jobDefaultsTab;
     private readonly PerformanceSettings _performanceSettings;
     private List<ManagerSettings> _managerSettings = [];
+    private List<ManagerDefaultSettings> _managerDefaultSettings = [];
     private Tab _currentManagerSettings;
 
     private bool _doVerboseLogging;
@@ -497,6 +499,7 @@ public class Settings : ModSettings
             field ??=
             [
                 .. Gen.YieldSingle<Tab>(_sharedManagerSettings)
+                    .Concat(Gen.YieldSingle<Tab>(_jobDefaultsTab))
                     .Concat(Gen.YieldSingle<Tab>(_performanceSettings))
                     .Concat(_managerSettings.Where(m => m.Show))
                     .Select(m => new TabRecord(m, () => ref _currentManagerSettings)),
@@ -568,6 +571,94 @@ public class Settings : ModSettings
         }
     }
 
+    private sealed class JobDefaultsTab(Settings settings) : Tab
+    {
+        public override string Title => "ColonyManagerRedux.JobDefaultsTabLabel".Translate();
+
+        private ManagerDef? _selected;
+
+        private readonly ScrollViewStatus _jobDefListScrollViewStatus = new();
+
+        private static List<ManagerDef> DefsWithDefaultSettings =>
+            [
+                .. DefDatabase<ManagerDef>
+                    .AllDefs.Where(d =>
+                        d.managerDefaultSettingsClass != null
+                        && !ColonyManagerReduxMod.Settings.DisabledManagers.Contains(d)
+                    )
+                    .OrderBy(d => d.order),
+            ];
+
+        public override void DoTabContents(Rect canvas)
+        {
+            var leftRow = new Rect(0f, 0f, ManagerTab.DefaultLeftRowSize, canvas.height);
+            var contentCanvas = new Rect(
+                leftRow.xMax + Margin,
+                0f,
+                canvas.width - leftRow.width - Margin,
+                canvas.height
+            );
+
+            var defs = DefsWithDefaultSettings;
+            if (_selected == null || !defs.Contains(_selected))
+            {
+                _selected = defs.FirstOrDefault();
+            }
+
+            DoJobDefList(leftRow, defs);
+
+            if (
+                _selected != null
+                && settings.ManagerDefaultSettingsFor<ManagerDefaultSettings>(_selected)
+                    is ManagerDefaultSettings defaultSettings
+            )
+            {
+                using var _g = GUIScope.WidgetGroup(contentCanvas);
+                defaultSettings.DoTabContents(contentCanvas.AtZero());
+            }
+        }
+
+        private void DoJobDefList(Rect rect, List<ManagerDef> defs)
+        {
+            Widgets.DrawMenuSection(rect);
+
+            using var scrollView = GUIScope.ScrollView(rect, _jobDefListScrollViewStatus);
+            using var _g = GUIScope.WidgetGroup(scrollView.ViewRect);
+
+            var y = 0f;
+            for (var i = 0; i < defs.Count; i++)
+            {
+                var def = defs[i];
+                var row = new Rect(0f, y, scrollView.ViewRect.width, ListEntryHeight);
+
+                Widgets.DrawHighlightIfMouseover(row);
+                if (_selected == def)
+                {
+                    Widgets.DrawHighlightSelected(row);
+                }
+                if (i % 2 == 1)
+                {
+                    Widgets.DrawAltRect(row);
+                }
+
+                IlyvionWidgets.Label(
+                    row.TrimLeft(Margin).TrimRight(Margin),
+                    def.label.CapitalizeFirst(),
+                    TextAnchor.MiddleLeft
+                );
+
+                if (Widgets.ButtonInvisible(row))
+                {
+                    _selected = def;
+                }
+
+                y += row.height;
+            }
+
+            scrollView.Height = y;
+        }
+    }
+
     private sealed class PerformanceSettings(Settings settings) : Tab
     {
         public override string Title =>
@@ -624,8 +715,10 @@ public class Settings : ModSettings
     {
         ColonyManagerReduxMod.Instance.LogDebug("Loading manager job defs");
         _managerSettings.AddRange(MakeManagerSettings());
+        _managerDefaultSettings.AddRange(MakeManagerDefaultSettings());
 
         _currentManagerSettings = _sharedManagerSettings = new(this);
+        _jobDefaultsTab = new(this);
         _performanceSettings = new(this);
     }
 
@@ -654,9 +747,34 @@ public class Settings : ModSettings
         }
     }
 
+    private static IEnumerable<ManagerDefaultSettings> MakeManagerDefaultSettings()
+    {
+        foreach (
+            var managerDef in DefDatabase<ManagerDef>
+                .AllDefs.Where(m => m.managerDefaultSettingsClass != null)
+                .OrderBy(m => m.order)
+        )
+        {
+            ManagerDefaultSettings? managerDefaultSettings = null;
+            try
+            {
+                managerDefaultSettings = ManagerDefMaker.MakeManagerDefaultSettings(managerDef)!;
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogError(
+                    $"Could not create {nameof(ManagerDefaultSettings)} instance for "
+                        + $"{managerDef.defName} because it threw an exception: \n{err}"
+                );
+                continue;
+            }
+            yield return managerDefaultSettings;
+        }
+    }
+
     internal void DoSettingsWindowContents(Rect rect)
     {
-        var rowCount = (int)Math.Ceiling((double)(_managerSettings.Count + 1) / 5);
+        var rowCount = (int)Math.Ceiling((double)(_managerSettings.Count + 2) / 5);
         rect.yMin += (rowCount * SectionHeaderHeight) + Margin;
         Widgets.DrawMenuSection(rect);
         _ = TabDrawer.DrawTabs(rect, TabList, rowCount, null);
@@ -1482,6 +1600,7 @@ public class Settings : ModSettings
 #endif // !v1_5
 
         Scribe_Collections.Look(ref _managerSettings, "jobSettings", LookMode.Deep);
+        Scribe_Collections.Look(ref _managerDefaultSettings, "jobDefaultSettings", LookMode.Deep);
         Scribe_Collections.Look(ref _disabledManagers, "disabledManagers", LookMode.Def);
 
         Scribe_Values.Look(ref _operationsPerTick, "operationsPerTick", 10);
@@ -1507,7 +1626,7 @@ public class Settings : ModSettings
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
             _managerSettings ??= [.. MakeManagerSettings()];
-            EnsureManagerSettingsAreCorrect();
+            _managerDefaultSettings ??= [.. MakeManagerDefaultSettings()];
 
             _disabledManagers ??= [];
             _customUpdateIntervalTickList ??= [];
@@ -1515,48 +1634,127 @@ public class Settings : ModSettings
             _coroutineOperationsPerTick ??= [];
             _coroutineTicksBetweenOperations ??= [];
         }
+        else if (Scribe.mode == LoadSaveMode.PostLoadInit)
+        {
+            // Migrate before reconciling: reconciliation below prunes any jobSettings entry
+            // whose def no longer has a managerSettingsClass, which is exactly what identifies a
+            // legacy entry here. Migration must run in PostLoadInit (not LoadingVars, where the
+            // rest of this method's own reconciliation historically ran) so that legacy entries'
+            // own PostLoadInit-conditioned fixups (e.g. ManagerSettings_Livestock's old
+            // defaultButcherExcess-to-cullingStrategy conversion) have already applied by the
+            // time their values are copied out.
+            MigrateLegacyManagerDefaultSettings();
+
+            EnsureManagerSettingsAreCorrect();
+            EnsureManagerDefaultSettingsAreCorrect();
+        }
     }
 
-    private void EnsureManagerSettingsAreCorrect()
+    /// <summary>
+    /// One-time migration for a save written before default-value settings for a job (target
+    /// counts, culling behavior, etc.) moved out of that job's own <see cref="ManagerSettings"/>
+    /// subclass into a dedicated <see cref="ManagerDefaultSettings"/> subclass. The old
+    /// per-job classes (e.g. ManagerSettings_Foraging) still exist, unreferenced by any
+    /// <see cref="ManagerDef.managerSettingsClass"/>, purely so Scribe can still deserialize old
+    /// save data into them here, for <see cref="ManagerDefaultSettings.MigrateFrom"/> to read.
+    /// A migrated legacy entry is removed from <see cref="_managerSettings"/> so it's neither
+    /// migrated again nor saved again; since no <see cref="ManagerDef"/> references these legacy
+    /// classes any more, nothing ever re-creates one.
+    /// </summary>
+    private void MigrateLegacyManagerDefaultSettings()
     {
-        var allManagerDefs = DefDatabase<ManagerDef>
-            .AllDefs.Where(m => m.managerSettingsClass != null)
-            .ToHashSet();
+        List<ManagerSettings>? migrated = null;
+        foreach (var legacy in _managerSettings)
+        {
+            if (legacy == null || legacy.Def == null)
+            {
+                continue;
+            }
+
+            var def = legacy.Def;
+            var target = _managerDefaultSettings.Find(s => s.Def == def);
+            if (target == null || !target.MigrateFrom(legacy))
+            {
+                continue;
+            }
+
+            migrated ??= [];
+            migrated.Add(legacy);
+            ColonyManagerReduxMod.Instance.LogMessage(
+                $"Migrated legacy default settings for {def} to the new Job Defaults format"
+            );
+        }
+
+        if (migrated != null)
+        {
+            _ = _managerSettings.RemoveAll(migrated.Contains);
+        }
+    }
+
+    private void EnsureManagerSettingsAreCorrect() =>
+        EnsureManagerDefSettingsAreCorrect(
+            _managerSettings,
+            m => m.managerSettingsClass != null,
+            d => ManagerDefMaker.MakeManagerSettings(d)!
+        );
+
+    private void EnsureManagerDefaultSettingsAreCorrect() =>
+        EnsureManagerDefSettingsAreCorrect(
+            _managerDefaultSettings,
+            m => m.managerDefaultSettingsClass != null,
+            d => ManagerDefMaker.MakeManagerDefaultSettings(d)!
+        );
+
+    /// <summary>
+    /// Reconciles a list of per-<see cref="ManagerDef"/> settings entries (either
+    /// <see cref="ManagerSettings"/> or <see cref="ManagerDefaultSettings"/>) against the
+    /// currently registered defs: entries whose def no longer exists (or is otherwise invalid)
+    /// are removed, and entries missing for a registered def are created via
+    /// <paramref name="factory"/>.
+    /// </summary>
+    private static void EnsureManagerDefSettingsAreCorrect<TSettings>(
+        List<TSettings> settingsList,
+        Func<ManagerDef, bool> hasSettingsClass,
+        Func<ManagerDef, TSettings> factory
+    )
+        where TSettings : class, IManagerDefOwnedSettings
+    {
+        var allManagerDefs = DefDatabase<ManagerDef>.AllDefs.Where(hasSettingsClass).ToHashSet();
 
         // remove settings that should no longer be here
-        for (var i = _managerSettings.Count - 1; i >= 0; i--)
+        for (var i = settingsList.Count - 1; i >= 0; i--)
         {
-            var item = _managerSettings[i];
+            var item = settingsList[i];
             if (item == null)
             {
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i} is null");
-                _managerSettings.RemoveAt(i);
+                settingsList.RemoveAt(i);
             }
             else if (item.Def == null)
             {
                 ColonyManagerReduxMod.Instance.LogWarning($"Job settings entry {i}'s Def is null");
-                _managerSettings.RemoveAt(i);
+                settingsList.RemoveAt(i);
             }
             else if (!ShouldKeepManagerSettingsEntry(item.Def, allManagerDefs))
             {
                 ColonyManagerReduxMod.Instance.LogWarning(
                     $"Job settings exist for {item.Def} but no such ManagerDef was found"
                 );
-                _managerSettings.RemoveAt(i);
+                settingsList.RemoveAt(i);
             }
         }
 
         // add any settings that are missing
-        var presentManagerDefs = _managerSettings.Select(s => s.Def).ToHashSet();
+        var presentManagerDefs = settingsList.Select(s => s.Def).ToHashSet();
         foreach (var missingDef in FindMissingManagerDefs(allManagerDefs, presentManagerDefs))
         {
             ColonyManagerReduxMod.Instance.LogMessage(
                 $"Creating new settings instance for {missingDef} since it was missing"
             );
-            _managerSettings.Add(ManagerDefMaker.MakeManagerSettings(missingDef)!);
+            settingsList.Add(factory(missingDef));
         }
 
-        _managerSettings.SortBy(j => j.Def.order);
+        settingsList.SortBy(s => s.Def.order);
     }
 
     /// <summary>
@@ -1589,9 +1787,31 @@ public class Settings : ModSettings
         where T : ManagerSettings => _managerSettings.Find(s => s.Def == def) as T;
 
     /// <summary>
+    /// Gets the manager default settings for a specific manager definition.
+    /// </summary>
+    /// <typeparam name="T">The type of manager default settings.</typeparam>
+    /// <param name="def">The manager definition.</param>
+    /// <returns>The manager default settings instance, or null if not found.</returns>
+    public T? ManagerDefaultSettingsFor<T>(ManagerDef def)
+        where T : ManagerDefaultSettings => _managerDefaultSettings.Find(s => s.Def == def) as T;
+
+    /// <summary>
     /// Resets the tab list before opening the settings window.
     /// </summary>
     internal void PreOpen() => TabList = null;
+}
+
+/// <summary>
+/// Implemented by per-<see cref="ManagerDef"/> settings entries (<see cref="ManagerSettings"/>
+/// and <see cref="ManagerDefaultSettings"/>) so their storage/reconciliation logic in
+/// <see cref="Settings"/> can be shared between the two.
+/// </summary>
+internal interface IManagerDefOwnedSettings
+{
+    /// <summary>
+    /// Gets the manager definition this settings entry belongs to.
+    /// </summary>
+    ManagerDef Def { get; }
 }
 
 /// <summary>

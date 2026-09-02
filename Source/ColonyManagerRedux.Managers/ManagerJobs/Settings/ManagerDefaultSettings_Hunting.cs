@@ -1,4 +1,4 @@
-// ManagerSettings_Hunting.cs
+// ManagerDefaultSettings_Hunting.cs
 // Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerSettings_Hunting : ManagerSettings
+internal sealed class ManagerDefaultSettings_Hunting : ManagerDefaultSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
     public ManagerJob_Hunting.HuntingTargetResource DefaultTargetResource = ManagerJob_Hunting
@@ -172,5 +172,23 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
         Scribe_Values.Look(ref DefaultUnforbidCorpses, "defaultUnforbidCorpses", true);
         Scribe_Values.Look(ref DefaultUnforbidAllCorpses, "defaultUnforbidAllCorpses", true);
         Scribe_Values.Look(ref DefaultUnforbidHumanCorpses, "defaultUnforbidHumanCorpses", false);
+    }
+
+    public override bool MigrateFrom(ManagerSettings legacy)
+    {
+        if (legacy is not ManagerSettings_Hunting old)
+        {
+            return false;
+        }
+
+        DefaultSyncFilterAndAllowed = old.DefaultSyncFilterAndAllowed;
+        DefaultTargetResource = old.DefaultTargetResource;
+        DefaultAllowHumanLikeMeat = old.DefaultAllowHumanLikeMeat;
+        DefaultAllowInsectMeat = old.DefaultAllowInsectMeat;
+        DefaultAllowTwistedMeat = old.DefaultAllowTwistedMeat;
+        DefaultUnforbidCorpses = old.DefaultUnforbidCorpses;
+        DefaultUnforbidAllCorpses = old.DefaultUnforbidAllCorpses;
+        DefaultUnforbidHumanCorpses = old.DefaultUnforbidHumanCorpses;
+        return true;
     }
 }

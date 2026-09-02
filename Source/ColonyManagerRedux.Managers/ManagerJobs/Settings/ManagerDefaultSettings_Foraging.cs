@@ -1,4 +1,4 @@
-// ManagerSettings_Foraging.cs
+// ManagerDefaultSettings_Foraging.cs
 // Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerSettings_Foraging : ManagerSettings
+internal sealed class ManagerDefaultSettings_Foraging : ManagerDefaultSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
     public bool DefaultForceFullyMature;
@@ -64,5 +64,17 @@ internal sealed class ManagerSettings_Foraging : ManagerSettings
 
         Scribe_Values.Look(ref DefaultSyncFilterAndAllowed, "defaultSyncFilterAndAllowed", true);
         Scribe_Values.Look(ref DefaultForceFullyMature, "defaultForceFullyMature", false);
+    }
+
+    public override bool MigrateFrom(ManagerSettings legacy)
+    {
+        if (legacy is not ManagerSettings_Foraging old)
+        {
+            return false;
+        }
+
+        DefaultSyncFilterAndAllowed = old.DefaultSyncFilterAndAllowed;
+        DefaultForceFullyMature = old.DefaultForceFullyMature;
+        return true;
     }
 }

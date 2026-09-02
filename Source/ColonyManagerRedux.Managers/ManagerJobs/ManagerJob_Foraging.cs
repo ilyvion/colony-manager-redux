@@ -10,7 +10,11 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed class ManagerJob_Foraging
-    : ManagerJob<ManagerSettings_Foraging, ManagerJob_Foraging.ForagingWorkData>
+    : ManagerJob<
+        ManagerSettings,
+        ManagerDefaultSettings_Foraging,
+        ManagerJob_Foraging.ForagingWorkData
+    >
 {
     // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
     // Gathering only ever decides on one of these paths per run (mirroring the branches that
@@ -178,7 +182,7 @@ internal sealed class ManagerJob_Foraging
 
     public override void PostMake()
     {
-        var foragingSettings = ManagerSettings;
+        var foragingSettings = ManagerDefaultSettings;
         if (foragingSettings != null)
         {
             SyncFilterAndAllowed = foragingSettings.DefaultSyncFilterAndAllowed;

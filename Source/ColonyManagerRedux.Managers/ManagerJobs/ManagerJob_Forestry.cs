@@ -10,7 +10,11 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed class ManagerJob_Forestry
-    : ManagerJob<ManagerSettings_Forestry, ManagerJob_Forestry.ForestryWorkData>
+    : ManagerJob<
+        ManagerSettings,
+        ManagerDefaultSettings_Forestry,
+        ManagerJob_Forestry.ForestryWorkData
+    >
 {
     // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
     // Gathering only ever decides on one of these paths per run (mirroring the branches that
@@ -201,7 +205,7 @@ internal sealed class ManagerJob_Forestry
 
     public override void PostMake()
     {
-        var forestrySettings = ManagerSettings;
+        var forestrySettings = ManagerDefaultSettings;
         if (forestrySettings != null)
         {
             _type = forestrySettings.DefaultForestryJobType;

@@ -4,7 +4,7 @@
         <defName>CM_HuntingManager</defName>
         <order>300</order>
         <managerJobClass>ColonyManagerRedux.Managers.ManagerJob_Hunting</managerJobClass>
-        <managerSettingsClass>ColonyManagerRedux.Managers.ManagerSettings_Hunting</managerSettingsClass>
+        <managerDefaultSettingsClass>ColonyManagerRedux.Managers.ManagerDefaultSettings_Hunting</managerDefaultSettingsClass>
         <managerTabClass>ColonyManagerRedux.Managers.ManagerTab_Hunting</managerTabClass>
         <iconPath>UI/Icons/CMR_Hunting</iconPath>
         <label>hunting</label>

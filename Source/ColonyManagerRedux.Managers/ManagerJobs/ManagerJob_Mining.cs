@@ -11,7 +11,7 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed class ManagerJob_Mining
-    : ManagerJob<ManagerSettings_Mining, ManagerJob_Mining.MiningWorkData>,
+    : ManagerJob<ManagerSettings, ManagerDefaultSettings_Mining, ManagerJob_Mining.MiningWorkData>,
         INotifyStoneChunkMined
 {
     // What GatherJobDataCoroutine decided needs to happen; ExecuteJobDataCoroutine applies it.
@@ -305,7 +305,7 @@ internal sealed class ManagerJob_Mining
 
     public override void PostMake()
     {
-        var miningSettings = ManagerSettings;
+        var miningSettings = ManagerDefaultSettings;
         if (miningSettings != null)
         {
             SyncFilterAndAllowed = miningSettings.DefaultSyncFilterAndAllowed;
@@ -730,7 +730,7 @@ internal sealed class ManagerJob_Mining
             TriggerThreshold.AllowAnyThresholdChanged = ConfigureThresholdTriggerParentFilter;
 
             TaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
-                TaskPriorityOrder ?? ManagerSettings.DefaultTaskPriorityOrder,
+                TaskPriorityOrder ?? ManagerDefaultSettings.DefaultTaskPriorityOrder,
                 [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
             );
         }

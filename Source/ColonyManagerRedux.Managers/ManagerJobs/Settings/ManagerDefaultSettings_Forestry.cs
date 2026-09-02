@@ -1,4 +1,4 @@
-// ManagerSettings_Forestry.cs
+// ManagerDefaultSettings_Forestry.cs
 // Copyright (c) 2024–2025 Alexander Krivács Schrøder
 
 using static ColonyManagerRedux.Constants;
@@ -6,7 +6,7 @@ using static ColonyManagerRedux.Constants;
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
-internal sealed class ManagerSettings_Forestry : ManagerSettings
+internal sealed class ManagerDefaultSettings_Forestry : ManagerDefaultSettings
 {
     public bool DefaultSyncFilterAndAllowed = true;
     public ManagerJob_Forestry.ForestryJobType DefaultForestryJobType = ManagerJob_Forestry
@@ -109,5 +109,18 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
             ManagerJob_Forestry.ForestryJobType.Logging
         );
         Scribe_Values.Look(ref DefaultAllowSaplings, "defaultAllowSaplings", false);
+    }
+
+    public override bool MigrateFrom(ManagerSettings legacy)
+    {
+        if (legacy is not ManagerSettings_Forestry old)
+        {
+            return false;
+        }
+
+        DefaultSyncFilterAndAllowed = old.DefaultSyncFilterAndAllowed;
+        DefaultForestryJobType = old.DefaultForestryJobType;
+        DefaultAllowSaplings = old.DefaultAllowSaplings;
+        return true;
     }
 }

@@ -11,7 +11,11 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed partial class ManagerJob_Livestock
-    : ManagerJob<ManagerSettings_Livestock, ManagerJob_Livestock.LivestockWorkData>
+    : ManagerJob<
+        ManagerSettings,
+        ManagerDefaultSettings_Livestock,
+        ManagerJob_Livestock.LivestockWorkData
+    >
 {
     // What GatherJobDataCoroutine decides needs to happen; ExecuteJobDataCoroutine applies it.
     // Unlike some other migrated jobs, Livestock doesn't branch on a single "Kind" - culling,
@@ -297,7 +301,7 @@ internal sealed partial class ManagerJob_Livestock
 
     public override void PostMake()
     {
-        var livestockSettings = ManagerSettings;
+        var livestockSettings = ManagerDefaultSettings;
         if (livestockSettings == null)
         {
             return;

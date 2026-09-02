@@ -1,0 +1,182 @@
+// ManagerSettings_Hunting.cs
+// Copyright (c) 2024–2025 Alexander Krivács Schrøder
+
+using static ColonyManagerRedux.Constants;
+
+namespace ColonyManagerRedux.Managers;
+
+/// <summary>
+/// Not referenced by any <see cref="ManagerDef.managerSettingsClass"/> any more; kept only so
+/// Scribe can still deserialize this type by name out of a save written before default job
+/// values moved to <see cref="ManagerDefaultSettings_Hunting"/>, for
+/// <see cref="ManagerDefaultSettings_Hunting.MigrateFrom"/> to read from.
+/// </summary>
+[HotSwappable]
+internal sealed class ManagerSettings_Hunting : ManagerSettings
+{
+    public bool DefaultSyncFilterAndAllowed = true;
+    public ManagerJob_Hunting.HuntingTargetResource DefaultTargetResource = ManagerJob_Hunting
+        .HuntingTargetResource
+        .Meat;
+    public bool DefaultAllowHumanLikeMeat;
+    public bool DefaultAllowInsectMeat;
+    public bool DefaultAllowTwistedMeat;
+    public bool DefaultUnforbidCorpses = true;
+    public bool DefaultUnforbidAllCorpses = true;
+    public bool DefaultUnforbidHumanCorpses;
+
+    public override void DoTabContents(Rect rect)
+    {
+        var panelRect = new Rect(rect.xMin, rect.yMin, rect.width, rect.height - Margin);
+
+        Widgets_Section.BeginSectionColumn(
+            panelRect,
+            "Hunting.Settings",
+            out var position,
+            out var width
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawTargetResource,
+            "ColonyManagerRedux.Hunting.ManagerSettings.DefaultTargetResource".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawSyncFilterAndAllowed,
+            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+        );
+        Widgets_Section.Section(
+            ref position,
+            width,
+            DrawAllowWeirdMeat,
+            "ColonyManagerRedux.ManagerSettings.DefaultThresholdSettings".Translate()
+        );
+        Widgets_Section.Section(ref position, width, DrawUnforbidCorpses);
+        Widgets_Section.EndSectionColumn("Hunting.Settings", position);
+    }
+
+    public float DrawSyncFilterAndAllowed(Vector2 pos, float width)
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
+        Utilities.DrawToggle(
+            rowRect,
+            "ColonyManagerRedux.SyncFilterAndAllowed".Translate(),
+            "ColonyManagerRedux.Hunting.SyncFilterAndAllowed.Tip".Translate(),
+            ref DefaultSyncFilterAndAllowed
+        );
+
+        return ListEntryHeight;
+    }
+
+    public float DrawTargetResource(Vector2 pos, float width)
+    {
+        var targetResource = (ManagerJob_Hunting.HuntingTargetResource[])
+            Enum.GetValues(typeof(ManagerJob_Hunting.HuntingTargetResource));
+
+        var cellWidth = width / targetResource.Length;
+
+        var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
+
+        foreach (var type in targetResource)
+        {
+            Utilities.DrawToggle(
+                cellRect,
+                $"ColonyManagerRedux.Hunting.TargetResource.{type}".Translate(),
+                $"ColonyManagerRedux.Hunting.TargetResource.{type}.Tip".Translate(),
+                DefaultTargetResource == type,
+                () => DefaultTargetResource = type,
+                () => { },
+                wrap: false
+            );
+            cellRect.x += cellWidth;
+        }
+
+        return ListEntryHeight;
+    }
+
+    public float DrawAllowWeirdMeat(Vector2 pos, float width)
+    {
+        var start = pos;
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Hunting.AllowHumanMeat".Translate(),
+            "ColonyManagerRedux.Hunting.AllowHumanMeat.Tip".Translate(),
+            ref DefaultAllowHumanLikeMeat
+        );
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Hunting.AllowInsectMeat".Translate(),
+            "ColonyManagerRedux.Hunting.AllowInsectMeat.Tip".Translate(),
+            ref DefaultAllowInsectMeat
+        );
+
+        if (ModsConfig.AnomalyActive)
+        {
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Hunting.AllowTwistedMeat".Translate(),
+                "ColonyManagerRedux.Hunting.AllowTwistedMeat.Tip".Translate(),
+                ref DefaultAllowTwistedMeat
+            );
+        }
+
+        return pos.y - start.y;
+    }
+
+    public float DrawUnforbidCorpses(Vector2 pos, float width)
+    {
+        var start = pos;
+
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Hunting.UnforbidCorpses".Translate(),
+            "ColonyManagerRedux.Hunting.UnforbidCorpses.Tip".Translate(),
+            ref DefaultUnforbidCorpses
+        );
+        Utilities.DrawToggle(
+            ref pos,
+            width,
+            "ColonyManagerRedux.Hunting.UnforbidAllCorpses".Translate(),
+            "ColonyManagerRedux.Hunting.UnforbidAllCorpses.Tip".Translate(),
+            ref DefaultUnforbidAllCorpses
+        );
+
+        if (DefaultUnforbidAllCorpses)
+        {
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Hunting.UnforbidHumanCorpses".Translate(),
+                "ColonyManagerRedux.Hunting.UnforbidHumanCorpses.Tip".Translate(),
+                ref DefaultUnforbidHumanCorpses
+            );
+        }
+
+        return pos.y - start.y;
+    }
+
+    public override void ExposeData()
+    {
+        base.ExposeData();
+
+        Scribe_Values.Look(ref DefaultSyncFilterAndAllowed, "defaultSyncFilterAndAllowed", true);
+        Scribe_Values.Look(
+            ref DefaultTargetResource,
+            "defaultTargetResource",
+            ManagerJob_Hunting.HuntingTargetResource.Meat
+        );
+        Scribe_Values.Look(ref DefaultAllowHumanLikeMeat, "defaultAllowHumanLikeMeat", false);
+        Scribe_Values.Look(ref DefaultAllowInsectMeat, "defaultAllowInsectMeat", false);
+        Scribe_Values.Look(ref DefaultAllowTwistedMeat, "defaultAllowTwistedMeat", false);
+        Scribe_Values.Look(ref DefaultUnforbidCorpses, "defaultUnforbidCorpses", true);
+        Scribe_Values.Look(ref DefaultUnforbidAllCorpses, "defaultUnforbidAllCorpses", true);
+        Scribe_Values.Look(ref DefaultUnforbidHumanCorpses, "defaultUnforbidHumanCorpses", false);
+    }
+}

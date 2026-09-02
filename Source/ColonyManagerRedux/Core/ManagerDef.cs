@@ -29,6 +29,12 @@ public class ManagerDef : Def
     public Type? managerSettingsClass;
 
     /// <summary>
+    /// The type of the manager default settings class, responsible for rendering this manager's
+    /// default job settings in the Job Defaults tab.
+    /// </summary>
+    public Type? managerDefaultSettingsClass;
+
+    /// <summary>
     /// The list of job component properties for this manager.
     /// </summary>
     public List<ManagerJobCompProperties> jobComps = [];
@@ -79,7 +85,8 @@ public class ManagerDef : Def
             var item in ValidateManagerDefTypes(
                 managerJobClass,
                 managerTabClass,
-                managerSettingsClass
+                managerSettingsClass,
+                managerDefaultSettingsClass
             )
         )
         {
@@ -112,7 +119,8 @@ public class ManagerDef : Def
     internal static IEnumerable<string> ValidateManagerDefTypes(
         Type? managerJobClass,
         Type? managerTabClass,
-        Type? managerSettingsClass
+        Type? managerSettingsClass,
+        Type? managerDefaultSettingsClass = null
     )
     {
         if (managerJobClass != null && !typeof(ManagerJob).IsAssignableFrom(managerJobClass))
@@ -135,6 +143,14 @@ public class ManagerDef : Def
         )
         {
             yield return $"{nameof(managerSettingsClass)} is not a subclass of {nameof(ManagerSettings)}";
+        }
+
+        if (
+            managerDefaultSettingsClass != null
+            && !typeof(ManagerDefaultSettings).IsAssignableFrom(managerDefaultSettingsClass)
+        )
+        {
+            yield return $"{nameof(managerDefaultSettingsClass)} is not a subclass of {nameof(ManagerDefaultSettings)}";
         }
     }
 }

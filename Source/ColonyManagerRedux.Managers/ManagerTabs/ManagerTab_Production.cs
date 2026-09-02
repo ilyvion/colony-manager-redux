@@ -11,7 +11,7 @@ namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
 internal sealed class ManagerTab_Production(Manager manager)
-    : ManagerTab<ManagerJob_Production, ManagerSettings_Production>(manager)
+    : ManagerTab<ManagerJob_Production>(manager)
 {
     private const string ProductionOptions = "Production.Options";
     private const string ProductionIngredients = "Production.Ingredients";
