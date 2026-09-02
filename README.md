@@ -6,11 +6,9 @@
 > [!IMPORTANT]  
 > This mod depends on [ilyvion's Laboratory](https://github.com/ilyvion/ilyvion-laboratory) to work. If you're installing this mod manually (i.e. not from the Steam Workshop), make sure you install it too. Also, whenever this mod requires an update to ilyvion's Laboratory to function properly, I will make sure to announce that in the change notes, so when you update this mod, either also always update ilyvion's Laboratory, to be safe, or track which version you have so you know when to update.
 
-**Colony Manager Redux** is ilyvion's new and improved take on Fluffy's Colony Manager. Why did I make my own custom version? This version may never have seen the light of day if Fluffy had kept updating the original (though it's understandable why it's been hard), but after a long time without updates (nearly two years at the time of this writing) it felt like the space was primed for a replacement/new contender. I've put enough effort and care into this project at this point that I consider it an entirely separate project from the original, and will not be removing it or deprecating it should the original Colony Manager make a comeback.
+**Colony Manager Redux** lets you assign tedious managerial tasks to your colonists instead of doing them by hand. You configure the resource you want and how much of it to maintain, and the mod, along with a colonist with the manager work type, takes care of the rest. It's a spiritual successor to Fluffy's Colony Manager, built as a separate, actively maintained project.
 
 ## Features
-
-The purpose of the mod is to let you assign certain tedious managerial tasks to your colonists instead of you having to do them manually. The main principle of the mod is that you configure the resource you want, and how many of that resource you want to maintain, and then the mod, along with a colonist with the manager work type, makes sure that these targets are met.
 
 Out of the box, the mod has the following manager jobs:
 
@@ -19,31 +17,23 @@ Out of the box, the mod has the following manager jobs:
 **Forestry (clearing)**: Mark an area for clearing, like the immediate outside of your colony, and watch your enemies having nothing to take cover behind the next time you're raided!  
 **Livestock**: Takes care of taming, culling (butchering, releasing, or sterilizing excess), training and corralling your animals according to your specifications.  
 **Foraging**: Set how much you want of berries/herbal medicine/mushrooms, and watch your colonists go out and collect it.  
-**Resource gathering**: Set how much steel/silver/gold/jade/stone/etc. you want, and watch your colonists haul chunks for processing and mine the resources you're after automatically.  
+**Resource gathering**: Set how much steel/silver/gold/jade/stone/etc. you want, and watch your colonists haul chunks for processing, mine, and run deep drills to get the resources you're after automatically.  
 **Power**: Keeps an eye on your colony's power production, consumption and battery storage, and warns you if things are looking unbalanced.  
 **Production**: Pick a recipe and the manager keeps a work table running it for you, either maintaining a stock of what it produces or consuming a surplus of some other resource; production jobs can even be chained together so raw materials flow automatically down a production chain.
 
-## Background
+Manager jobs and tabs are Def-based, so third party mods can add their own; see [For modders](#for-modders) below.
 
-One of the biggest issues I had with the original was that its tabs and manager jobs were hard-coded, so initially I was going to leave it mostly as it was, but with the ability for third party modders to add their own manager tabs/jobs. But, as is often the case when I get really into a project, I got completely absorbed into the project, came up with a ton of new ideas, and spent a whole month implementing everything I could think of. The result is this mod.
+Beyond the jobs themselves, the mod includes:
 
-I also intend to keep adding features (and feature requests) and fixing bugs going forward, so make sure you report any bugs you encounter and request any new features you want!
+-   A dedicated **Job Defaults** settings tab to configure the defaults new jobs start with, plus extensive per-job settings and performance settings to control how much work the mod does per tick.
+-   **Import/export** for individual jobs, plus reusable **templates** you can save and automatically apply to future colonies.
+-   **Activity logging** and **history graphs** for each job, so you can see what the mod's been doing and how your stockpiles have trended over time.
+-   Manager work is a high-priority work type (placed between Warden and Handle), since managing the colony is important work.
+-   If a gravship has a manager database facility built on it, its manager jobs travel with it when it launches and lands, and you're asked which set of jobs to keep if the map it lands on already has its own.
+-   Guest animals (such as those from Royalty quests) are handled by the livestock job without being fully managed — they're not counted against targets and won't be automatically slaughtered.
+-   Optional integrations add extra functionality when [AAAA](https://steamcommunity.com/sharedfiles/filedetails/?id=3264193512) (area evacuation on danger) or [Animal Genetics](https://steamcommunity.com/sharedfiles/filedetails/?id=2830943477) are also loaded.
 
-To see how much has changed since the original, you don't have to look any further than the [change log](CHANGELOG.md). Any change I made that had an impact on the behavior of the mod has been dilligently documented there.
-
-It would be way too much to list it all here, but here are some highlights:
-
--   As mentioned in the introduction, adding a new manager job/tab by third parties is now directly supported by making them Def-based. More on this farther down.
--   Added comprehensive mod settings to let players configure many more aspects of the mod
--   Importing and exporting jobs is back, and you can also save a set of jobs as a reusable template to apply to future colonies
--   You can disable the recording of historical data, which is a bit of a performance drain (it is on by default)
--   Jobs log their activities so you can go back and look at what the mod's been doing (the 100 last logs are kept by default)
--   The manager work now has a much higher priority (placed between Warden and Handle) instead of being relegated to less important than Research, as managing the colony is important work.
--   Guest animals (such as those from Royalty quests) are now properly handled by the relevant parts of the livestock job (such as limiting them to the set area) without involving them fully (they don't get counted against the target population and won't be automatically slaughtered, e.g.)
--   A gravship carrying manager jobs takes its jobs with it when it launches and lands, and asks which set of jobs to keep if the map it lands on already has its own
--   Optional integrations add extra functionality when the AAAA mod (area evacuation on danger) or the Animal Genetics mod are also loaded
--   _A lot_ of small and not so small changes have been made to the UI; again, check the change log for all the details.
--   _A lot_ of small and not so small bugs have been fixed.
+I intend to keep adding features (and feature requests) and fixing bugs going forward, so make sure you report any bugs you encounter and request any new features you want! See the [change log](CHANGELOG.md) for a full history of changes.
 
 The mod can be added to a game at any time. Removing the mod should be fine as well, at least it has been in my own testing. There will be a fairly large list of once-off errors when first loading such a save, however, due to the way Rimworld's save system works.
 
@@ -67,7 +57,7 @@ It most likely means that you've updated this mod but not ilyvion's Laboratory. 
 
 Want your translation in this list? Release a translation mod (i.e. a mod with only a Languages folder, [i]not a copy of this entire mod + the translation[/i]) for this mod, and notify me of its existence, and I'll add it to the list.
 
-The original Colony Manager had some translations to various languages, but when I updated the mod, I added, changed and removed enough translations that it doesn't feel worthwhile to include these anymore. Plus, as mentioned above, I'd prefer translations to be separate mods to reduce my own maintenance load. You can find the old translation files from the original under the [OldLanguages](OldLanguages) directory.
+Translations from the original Colony Manager are no longer included, since too much has changed for them to stay accurate.
 
 ## License
 

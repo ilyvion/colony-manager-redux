@@ -4,7 +4,7 @@
     <url>https://github.com/ilyvion/colony-manager-redux</url>
     <name>Colony Manager Redux</name>
     <author>ilyvion, Fluffy</author>
-    <description>New and Improved version of Fluffy's Colony Manager</description>
+    <description>Assign tedious managerial tasks to your colonists instead of doing them by hand: set a target for a resource and a colonist with the manager work type keeps it stocked automatically. Includes manager jobs for hunting, forestry, forestry clearing, livestock, foraging, resource gathering, power, and production, plus job templates, import/export, activity logs, history graphs, and gravship support. A spiritual successor to Fluffy's Colony Manager.</description>
     <supportedVersions>
         <li>1.5</li>
         <li>1.6</li>
