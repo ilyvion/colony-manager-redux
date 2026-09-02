@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+    <Operation Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="CM_BasicManagerStation"]/comps</xpath>
+        <value>
+            <li Class="EasyUpgrades.CompProperties_Upgradable">
+                <compClass>EasyUpgrades.CompUpgrade</compClass>
+                <linkedThing>CM_ManagerStation</linkedThing>
+                <keyedTooltipString>EU.UpgradeManagerStation</keyedTooltipString>
+                <researchPrerequisite>ManagingSoftware</researchPrerequisite>
+                <!-- WoodLog here is not a literal wood cost: EasyUpgrades.CompUpgrade treats WoodLog
+                     as a sentinel and substitutes it with the thing's actual stuff at upgrade time,
+                     covering the 25-unit stuff-cost delta between the two desks regardless of what
+                     material this particular desk was built from. -->
+                <additionalRequiredResources>
+                    <WoodLog>25</WoodLog>
+                    <Steel>50</Steel>
+                    <Silver>1</Silver>
+                </additionalRequiredResources>
+            </li>
+        </value>
+    </Operation>
+    <Operation Class="PatchOperationAdd">
+        <xpath>/Defs/ThingDef[defName="CM_ManagerStation"]/comps</xpath>
+        <value>
+            <li Class="EasyUpgrades.CompProperties_Upgradable">
+                <compClass>EasyUpgrades.CompDowngrade</compClass>
+                <linkedThing>CM_BasicManagerStation</linkedThing>
+                <keyedTooltipString>EU.DowngradeManagerStation</keyedTooltipString>
+                <!-- See the WoodLog note on the CompUpgrade comp above; EasyUpgrades.CompDowngrade
+                     applies the same thing.Stuff substitution to refundedResources. -->
+                <refundedResources>
+                    <WoodLog>25</WoodLog>
+                    <Steel>50</Steel>
+                    <Silver>1</Silver>
+                </refundedResources>
+            </li>
+        </value>
+    </Operation>
+</Patch>

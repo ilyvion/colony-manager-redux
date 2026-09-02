@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The Overview tab can now be searched and filtered: a search box at the top matches against a job's name and targets, and a row of job-type icons lets you hide job types you don't want to see. A new 'Group by' option organizes the list into collapsible sections by job type, by status (needing attention, active, or suspended), or by your own manual groups. Each job now has a small tag button that lets you assign it to a manual group of your choosing, or create a new one.
+- If Easy Upgrades is active, the basic manager desk can now be upgraded in place into the powered manager desk (and downgraded back again), instead of having to be deconstructed and rebuilt from scratch.
 
 ### Changed
 
