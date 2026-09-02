@@ -54,7 +54,7 @@ internal sealed class ManagerTab_Power(Manager manager)
                     job.IsManaged = true;
                     job.IsSuspended = ShouldStartSuspended(
                         ManagerSettings.AutoSuspendOnNonHomeMaps,
-                        Manager.map.IsPlayerHome
+                        MapIsActuallyPlayerHome(Manager.map)
                     );
                     Selected = job;
                 }
@@ -87,6 +87,36 @@ internal sealed class ManagerTab_Power(Manager manager)
         bool autoSuspendOnNonHomeMaps,
         bool mapIsPlayerHome
     ) => autoSuspendOnNonHomeMaps && !mapIsPlayerHome;
+
+    /// <summary>
+    /// Pure decision behind <see cref="MapIsActuallyPlayerHome(Map)"/>: a map counts as a real player
+    /// home if the player owns a settleable world object there, or - as a fallback for a map
+    /// whose world object doesn't reflect that yet - the player's grav engine is physically on
+    /// it. Kept separate so it's unit-testable without live <see cref="Map"/>/GravshipUtility types.
+    /// </summary>
+    internal static bool MapIsActuallyPlayerHome(
+        bool hasPlayerOwnedHomeMapParent,
+        bool playerHasGravEngineOnMap
+    ) => hasPlayerOwnedHomeMapParent || playerHasGravEngineOnMap;
+
+    /// <summary>
+    /// Whether <paramref name="map"/> is a real player home, as opposed to
+    /// <see cref="Map.IsPlayerHome"/>, which unconditionally reports <c>true</c> for any map
+    /// that was ever generated as part of a gravship landing (<c>Map.wasSpawnedViaGravShipLanding</c>)
+    /// - including a hostile event/quest site the gravship merely landed on or was diverted to,
+    /// not just maps the player actually settled.
+    /// </summary>
+    internal static bool MapIsActuallyPlayerHome(Map map) =>
+#if !v1_5
+        MapIsActuallyPlayerHome(
+            map.Parent != null
+                && map.Parent.Faction == Faction.OfPlayer
+                && map.Parent.def.canBePlayerHome,
+            GravshipUtility.PlayerHasGravEngine(map)
+        );
+#else
+        map.IsPlayerHome;
+#endif
 
     public static void OnPowerResearchedFinished()
     {

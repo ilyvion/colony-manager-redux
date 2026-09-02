@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The Power manager job's 'Auto-suspend Power job on non-home maps' setting failed to suspend the job on any map a gravship had landed on, even a hostile quest/event site with no colony of yours on it, because RimWorld itself always reports such maps as a 'player home,' which the setting relied on. It now checks the map's actual ownership (and whether your grav engine is physically there) instead, so the job starts suspended and the 'need manager workspace or AI manager' alert stays quiet on maps like that.
+
 ## [0.17.3] - 2026-08-29
 
 ### Fixed

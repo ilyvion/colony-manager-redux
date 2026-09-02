@@ -30,6 +30,42 @@ internal static class ManagerJobPowerTests
             .Is.True();
 
     [Test]
+    public static void MapIsActuallyPlayerHomeIsTrueWhenPlayerOwnsTheMapParent() =>
+        Assert
+            .That(
+                ManagerTab_Power.MapIsActuallyPlayerHome(
+                    hasPlayerOwnedHomeMapParent: true,
+                    playerHasGravEngineOnMap: false
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void MapIsActuallyPlayerHomeIsTrueWhenGravEngineIsPhysicallyOnTheMap() =>
+        Assert
+            .That(
+                ManagerTab_Power.MapIsActuallyPlayerHome(
+                    hasPlayerOwnedHomeMapParent: false,
+                    playerHasGravEngineOnMap: true
+                )
+            )
+            .Is.True();
+
+    [Test]
+    public static void MapIsActuallyPlayerHomeIsFalseForAHostileEventSiteAGravshipLandedOn() =>
+        // A map's world object doesn't become player-owned just because a gravship landed on or
+        // was diverted to it (e.g. a hostile quest/event site) - unlike Map.IsPlayerHome, which
+        // unconditionally reports true for any such map via wasSpawnedViaGravShipLanding.
+        Assert
+            .That(
+                ManagerTab_Power.MapIsActuallyPlayerHome(
+                    hasPlayerOwnedHomeMapParent: false,
+                    playerHasGravEngineOnMap: false
+                )
+            )
+            .Is.False();
+
+    [Test]
     public static void TrimListToIsNoOpWhenListAlreadyAtTargetLength()
     {
         List<int> list = [1, 2, 3];
