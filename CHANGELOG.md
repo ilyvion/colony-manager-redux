@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-09-04
+
 ### Added
 
 - The Overview tab can now be searched and filtered: a search box at the top matches against a job's name and targets, and a row of job-type icons lets you hide job types you don't want to see. A new 'Group by' option organizes the list into collapsible sections by job type, by status (needing attention, active, or suspended), or by your own manual groups. Each job now has a small tag button that lets you assign it to a manual group of your choosing, or create a new one.
@@ -627,7 +629,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.3...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.3..v0.18.0
 [0.17.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.2..v0.17.3
 [0.17.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.1..v0.17.2
 [0.17.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.0..v0.17.1
