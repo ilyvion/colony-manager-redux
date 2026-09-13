@@ -89,4 +89,63 @@ internal static class ManagerJobTests
         Assert.That(descending[0]).Is.EqualTo("high");
         Assert.That(ascending[0]).Is.EqualTo("low");
     }
+
+    [Test]
+    public static void UntouchedStateReportsElapsedSinceCreation()
+    {
+        var elapsed = ManagerJob.ComputeTicksSinceLastUpdate(
+            lastActionTick: -1,
+            jobCreatedTick: 1000,
+            forceUpdateRequested: false,
+            currentTick: 1500
+        );
+
+        Assert.That(elapsed).Is.EqualTo(500);
+    }
+
+    [Test]
+    public static void TouchedStateReportsElapsedSinceLastAction()
+    {
+        var elapsed = ManagerJob.ComputeTicksSinceLastUpdate(
+            lastActionTick: 1200,
+            jobCreatedTick: 1000,
+            forceUpdateRequested: false,
+            currentTick: 1500
+        );
+
+        Assert.That(elapsed).Is.EqualTo(300);
+    }
+
+    [Test]
+    public static void ForceUpdateStateReportsNoElapsedTimeForLongDormantJob()
+    {
+        // Regression guard: Untouch() (the "Force update job" action) used to leave
+        // jobCreatedTick as its original, possibly years-old value, so a long-dormant job would
+        // report years of elapsed time via the jobCreatedTick fallback below, instantly
+        // tripping the "jobs not updating" alert. Untouch() now sets forceUpdateRequested
+        // instead, which this simulates directly, without touching jobCreatedTick at all.
+        var elapsed = ManagerJob.ComputeTicksSinceLastUpdate(
+            lastActionTick: -1,
+            jobCreatedTick: 1000,
+            forceUpdateRequested: true,
+            currentTick: 5_000_000
+        );
+
+        Assert.That(elapsed).Is.EqualTo(0);
+    }
+
+    [Test]
+    public static void TouchedStateIgnoresForceUpdateRequested()
+    {
+        // Touch() clears forceUpdateRequested, but even if it didn't, a non-negative
+        // lastActionTick must always take priority over the force-update fallback.
+        var elapsed = ManagerJob.ComputeTicksSinceLastUpdate(
+            lastActionTick: 1200,
+            jobCreatedTick: 1000,
+            forceUpdateRequested: true,
+            currentTick: 1500
+        );
+
+        Assert.That(elapsed).Is.EqualTo(300);
+    }
 }

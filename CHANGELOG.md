@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- On a job that's been queued for a forced update and is waiting to run, the update-interval icon now shows a distinct '- ! -' indicator, with its own tooltip, instead of looking the same as a job that has never updated at all.
+
+### Fixed
+
+- Force-updating a job (via the update-interval icon's right-click menu) that had been dormant for a long time immediately triggered a red 'Manager jobs are not updating' alert claiming it hadn't been updated in years, even though it was about to run right away.
+
 ## [0.18.0] - 2026-09-04
 
 ### Added

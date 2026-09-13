@@ -24,6 +24,7 @@
     <!-- Jobs -->
     <ColonyManagerRedux.Job.New>New job</ColonyManagerRedux.Job.New>
     <ColonyManagerRedux.Job.NeverUpdatedTooltip>This job has never been updated.</ColonyManagerRedux.Job.NeverUpdatedTooltip>
+    <ColonyManagerRedux.Job.ForceUpdatePendingTooltip>This job has been queued for a forced update, and will be updated when a manager next does updates.</ColonyManagerRedux.Job.ForceUpdatePendingTooltip>
     <ColonyManagerRedux.Job.LastUpdatedTooltip>This job was last updated {0} ago.</ColonyManagerRedux.Job.LastUpdatedTooltip>
     <ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>It is scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedTooltip>
     <ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip>As the job is suspended, it won't currently be updated, but if it weren't suspended it would be scheduled to be updated every {0}.</ColonyManagerRedux.Job.ScheduledToBeUpdatedSuspendedTooltip>

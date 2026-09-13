@@ -88,6 +88,19 @@ public class UpdateInterval(int ticks, string label)
 
             lastUpdateTooltip = "";
         }
+        else if (job.IsForceUpdatePending)
+        {
+            GUI.color = nextUpdateColor;
+            Text.Font = GameFont.Medium;
+            Text.Anchor = TextAnchor.MiddleCenter;
+            Widgets.Label(canvas, "- ! -");
+            GUI.color = Color.white;
+            Text.Font = GameFont.Small;
+            Text.Anchor = TextAnchor.LowerLeft;
+
+            lastUpdateTooltip =
+                "ColonyManagerRedux.Job.ForceUpdatePendingTooltip".Translate() + " ";
+        }
         else if (job.HasBeenUpdated)
         {
             // how many hours have passed since the last update?

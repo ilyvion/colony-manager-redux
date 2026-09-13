@@ -171,14 +171,28 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
 
     private int _jobCreatedTick = Find.TickManager.TicksGame;
     private int _lastActionTick = -1;
+    private bool _forceUpdateRequested;
 
     /// <summary>
     /// Gets the number of ticks since the job was last updated.
     /// </summary>
     public int TicksSinceLastUpdate =>
-        _lastActionTick < 0
-            ? Find.TickManager.TicksGame - _jobCreatedTick
-            : Find.TickManager.TicksGame - _lastActionTick;
+        ComputeTicksSinceLastUpdate(
+            _lastActionTick,
+            _jobCreatedTick,
+            _forceUpdateRequested,
+            Find.TickManager.TicksGame
+        );
+
+    internal static int ComputeTicksSinceLastUpdate(
+        int lastActionTick,
+        int jobCreatedTick,
+        bool forceUpdateRequested,
+        int currentTick
+    ) =>
+        lastActionTick < 0
+            ? (forceUpdateRequested ? 0 : currentTick - jobCreatedTick)
+            : currentTick - lastActionTick;
 
     /// <summary>
     /// Gets the number of ticks since the job should have last been updated.
@@ -189,6 +203,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// Gets a value indicating whether the job has been updated at least once.
     /// </summary>
     public bool HasBeenUpdated => _lastActionTick != -1;
+
+    /// <summary>
+    /// Gets a value indicating whether a force update has been requested (via <see cref="Untouch"/>)
+    /// and is still awaiting the job actually being processed.
+    /// </summary>
+    public bool IsForceUpdatePending => _forceUpdateRequested;
 
     internal Manager _manager;
 
@@ -312,7 +332,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public bool ShouldDoNow => IsManaged && ShouldUpdate;
 
     private bool ShouldUpdate =>
-        _lastActionTick < 0
+        _forceUpdateRequested
+        || _lastActionTick < 0
         || ((_lastActionTick + UpdateInterval.Ticks) < Find.TickManager.TicksGame);
 
     /// <summary>
@@ -527,6 +548,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
                 "jobCreatedTick",
                 _lastActionTick < 0 ? Find.TickManager.TicksGame : _lastActionTick
             );
+            Scribe_Values.Look(ref _forceUpdateRequested, "forceUpdateRequested");
             Scribe_Values.Look(ref Priority, "priority");
             Scribe_Values.Look(ref _isSuspended, "isSuspended");
             Scribe_Values.Look(ref _jobState, "jobState");
@@ -1084,6 +1106,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             .AppendLine("Active: " + IsSuspended)
             .AppendLine("JobCreatedTick: " + _jobCreatedTick)
             .AppendLine("LastActionTick: " + _lastActionTick)
+            .AppendLine("ForceUpdateRequested: " + _forceUpdateRequested)
             .AppendLine("Interval: " + UpdateInterval.Label)
             .AppendLine("TicksSinceLastUpdate: " + TicksSinceLastUpdate)
             .AppendLine("TicksSinceShouldUpdate: " + TicksSinceShouldUpdate)
@@ -1098,12 +1121,17 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// <summary>
     /// Updates the last action tick to the current game tick, marking the job as recently updated.
     /// </summary>
-    public void Touch() => _lastActionTick = Find.TickManager.TicksGame;
+    public void Touch()
+    {
+        _lastActionTick = Find.TickManager.TicksGame;
+        _forceUpdateRequested = false;
+    }
 
     /// <summary>
-    /// Resets the last action tick, marking the job as not having been updated.
+    /// Requests that the job be force-updated: treated as due for an update right away, and as
+    /// freshly updated for outdated-tracking purposes, until it is next actually processed.
     /// </summary>
-    public void Untouch() => _lastActionTick = -1;
+    public void Untouch() => _forceUpdateRequested = true;
 
     /// <inheritdoc/>
     public string GetUniqueLoadID() => $"ColonyManagerRedux_ManagerJob_{Manager.id}_{_loadID}";
