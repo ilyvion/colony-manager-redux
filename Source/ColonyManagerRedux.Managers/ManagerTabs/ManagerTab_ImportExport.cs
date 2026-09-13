@@ -479,8 +479,7 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
 
         DoJobList(infoRect);
 
-        GUI.SetNextControlName("ManagerJobsNameField");
-        var name = Widgets.TextField(nameRect, _saveName);
+        var name = Widgets_TextField.TextField(nameRect, _saveName, "ManagerJobsNameField");
         if (GenText.IsValidFilename(name))
         {
             _saveName = name;

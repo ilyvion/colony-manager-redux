@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Force-updating a job (via the update-interval icon's right-click menu) that had been dormant for a long time immediately triggered a red 'Manager jobs are not updating' alert claiming it hadn't been updated in years, even though it was about to run right away.
 - The 'previous update hasn't finished yet' history warning didn't say which job it was about, and could get permanently stuck firing after loading a save, even with nothing actually wrong. The message now names the affected job, and loading a save no longer leaves it falsely believing an update is still in progress.
 - Opening the Overview tab drew every job's row every frame regardless of whether it was actually visible in the scrolled list, so a large number of jobs could tank your framerate just from having the tab open. Off-screen rows are no longer drawn.
+- Clicking outside of most of the mod's text boxes (target counts, livestock counts, reserved stock amounts, the export/template save name) didn't remove focus from them, unlike vanilla text boxes. They now lose focus when you click elsewhere, matching expected behavior.
 
 ## [0.18.0] - 2026-09-04
 

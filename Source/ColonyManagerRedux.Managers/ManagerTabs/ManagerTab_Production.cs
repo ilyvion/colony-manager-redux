@@ -655,8 +655,11 @@ internal sealed class ManagerTab_Production(Manager manager)
             {
                 GUI.color = new Color(1f, 0f, 0f);
             }
-            GUI.SetNextControlName(TargetCountControlName);
-            _targetCountInput = Widgets.TextField(targetCountFieldRect, _targetCountInput);
+            _targetCountInput = Widgets_TextField.TextField(
+                targetCountFieldRect,
+                _targetCountInput,
+                TargetCountControlName
+            );
             GUI.color = oldColor;
         }
 
@@ -1311,7 +1314,11 @@ internal sealed class ManagerTab_Production(Manager manager)
         {
             GUI.color = new Color(1f, 1f, 1f, 0.5f);
         }
-        buffer = Widgets.TextField(fieldRect, buffer);
+        buffer = Widgets_TextField.TextField(
+            fieldRect,
+            buffer,
+            $"ReservedStockOverride_{job.GetUniqueLoadID()}_{ingredientDef.defName}"
+        );
         GUI.color = oldColor;
         var hasGlobalDefault = job.ManagerSettings.ReservedStock.ContainsKey(ingredientDef);
         if (int.TryParse(buffer, out var parsed) && parsed >= 0)

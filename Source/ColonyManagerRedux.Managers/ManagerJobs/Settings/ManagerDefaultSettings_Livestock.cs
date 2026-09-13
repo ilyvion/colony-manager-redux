@@ -258,7 +258,11 @@ internal sealed class PawnKindSettings : IExposable
             GUI.color = Color.red;
         }
 
-        _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);
+        _newCounts[ageSexIndex] = Widgets_TextField.TextField(
+            rect.ContractedBy(1f),
+            _newCounts[ageSexIndex],
+            $"DefaultCount_{_def?.defName}_{ageSexIndex}"
+        );
         GUI.color = Color.white;
     }
 

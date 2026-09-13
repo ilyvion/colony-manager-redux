@@ -159,8 +159,7 @@ public class WindowTriggerThresholdDetails(Trigger_Threshold trigger) : Window
         }
 
         // draw the input field
-        GUI.SetNextControlName(TargetCountControlName);
-        _input = Widgets.TextField(buttonRect, _input);
+        _input = Widgets_TextField.TextField(buttonRect, _input, TargetCountControlName);
         TooltipHandler.TipRegion(buttonRect, opTooltip);
         GUI.color = oldColor;
 

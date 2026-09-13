@@ -105,7 +105,11 @@ internal sealed class ManagerSettings_Production : ManagerSettings
         {
             buffer = ReservedStock[thingDef].ToString(CultureInfo.InvariantCulture);
         }
-        buffer = Widgets.TextField(fieldRect, buffer);
+        buffer = Widgets_TextField.TextField(
+            fieldRect,
+            buffer,
+            $"ReservedStock_{thingDef.defName}"
+        );
         if (int.TryParse(buffer, out var parsed) && parsed >= 0)
         {
             ReservedStock[thingDef] = parsed;

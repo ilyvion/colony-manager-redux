@@ -226,7 +226,11 @@ internal sealed class LegacyPawnKindSettings_Livestock : IExposable
             GUI.color = Color.red;
         }
 
-        _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);
+        _newCounts[ageSexIndex] = Widgets_TextField.TextField(
+            rect.ContractedBy(1f),
+            _newCounts[ageSexIndex],
+            $"LegacyDefaultCount_{_def?.defName}_{ageSexIndex}"
+        );
         GUI.color = Color.white;
     }
 

@@ -320,7 +320,11 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             GUI.color = Color.red;
         }
 
-        _newCounts[ageSexIndex] = Widgets.TextField(rect.ContractedBy(1f), _newCounts[ageSexIndex]);
+        _newCounts[ageSexIndex] = Widgets_TextField.TextField(
+            rect.ContractedBy(1f),
+            _newCounts[ageSexIndex],
+            $"{job.GetUniqueLoadID()}_Count_{ageSexIndex}"
+        );
         GUI.color = Color.white;
     }
 
