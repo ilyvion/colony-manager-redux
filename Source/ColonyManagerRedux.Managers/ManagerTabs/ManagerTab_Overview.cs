@@ -28,8 +28,13 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         List<T> Jobs
     );
 
-    private float _overviewHeight = 9999f;
-    private Vector2 _overviewScrollPosition = Vector2.zero;
+    private readonly ScrollViewStatus _overviewScrollViewStatus = new();
+
+    // Row heights are variable (depend on each job's comps), so a row's height can only be
+    // measured by actually drawing it. Cache the last measured height per job so that, on later
+    // frames, off-screen rows can be culled without drawing them; rows we haven't measured yet
+    // are never culled, so their real height gets established on first draw.
+    private readonly Dictionary<ManagerJob, float> _overviewRowHeights = [];
     private readonly List<Pawn> _workers = [];
 
     private readonly QuickSearchWidget _quickSearchWidget = new();
@@ -526,24 +531,16 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             return;
         }
 
-        var viewRect = listRect;
-        var contentRect = viewRect.AtZero();
-        contentRect.height = _overviewHeight;
-        if (_overviewHeight > viewRect.height)
-        {
-            contentRect.width -= GenUI.ScrollBarWidth;
-        }
-
         IlyvionDebugViewSettings.DrawIfUIHelpers(() =>
         {
             Widgets.DrawRectFast(filterRowRect, ColorLibrary.HotPink.ToTransparent(.5f));
             Widgets.DrawRectFast(collapseAllGroupsRect, ColorLibrary.Indigo.ToTransparent(.5f));
             Widgets.DrawRectFast(groupByRect, ColorLibrary.NavyBlue.ToTransparent(.5f));
             Widgets.DrawRectFast(listRect, ColorLibrary.Salmon.ToTransparent(.5f));
-            Widgets.DrawRectFast(viewRect, ColorLibrary.Plum.ToTransparent(.5f));
         });
 
-        Widgets.BeginScrollView(viewRect, ref _overviewScrollPosition, contentRect);
+        using var scrollView = GUIScope.ScrollView(listRect, _overviewScrollViewStatus);
+        using var _g = GUIScope.WidgetGroup(scrollView.ViewRect);
 
         var cur = Vector2.zero;
 
@@ -551,7 +548,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         {
             if (group.Header != null)
             {
-                DrawGroupHeader(ref cur, contentRect.width, group);
+                DrawGroupHeader(ref cur, scrollView.ViewRect.width, group);
                 if (_collapsedGroups.Contains(group.Key))
                 {
                     continue;
@@ -561,48 +558,54 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             var alternate = false;
             foreach (var job in group.Jobs)
             {
-                var row = new Rect(cur.x, cur.y, contentRect.width, 0f);
-                DrawOverviewListEntry(job, ref cur, contentRect.width);
-                row.height = cur.y - row.y;
+                var row = CullingScrollList.DrawRow(
+                    scrollView,
+                    ref cur,
+                    _overviewRowHeights,
+                    job,
+                    job,
+                    DrawOverviewListEntry
+                );
 
-                // highlights
-                if (alternate)
+                if (row is { } drawnRow)
                 {
-                    Widgets.DrawAltRect(row);
+                    // highlights
+                    if (alternate)
+                    {
+                        Widgets.DrawAltRect(drawnRow);
+                    }
+
+                    if (job == Selected)
+                    {
+                        Widgets.DrawHighlightSelected(drawnRow);
+                    }
+
+                    Widgets.DrawHighlightIfMouseover(drawnRow);
+
+                    if (job.CausedException is Exception ex)
+                    {
+                        Widgets.DrawBox(drawnRow, 2, Resources.Error);
+
+                        TooltipHandler.TipRegion(
+                            drawnRow,
+                            new TipSignal(
+                                "ColonyManagerRedux.Job.CausedException".Translate(
+                                    job.CausedExceptionText
+                                )
+                            )
+                        );
+                    }
+
+                    if (Widgets.ButtonInvisible(drawnRow))
+                    {
+                        Selected = Selected != job ? job : null;
+                    }
                 }
                 alternate = !alternate;
-
-                if (job == Selected)
-                {
-                    Widgets.DrawHighlightSelected(row);
-                }
-
-                Widgets.DrawHighlightIfMouseover(row);
-
-                if (job.CausedException is Exception ex)
-                {
-                    Widgets.DrawBox(row, 2, Resources.Error);
-
-                    TooltipHandler.TipRegion(
-                        row,
-                        new TipSignal(
-                            "ColonyManagerRedux.Job.CausedException".Translate(
-                                job.CausedExceptionText
-                            )
-                        )
-                    );
-                }
-
-                if (Widgets.ButtonInvisible(row))
-                {
-                    Selected = Selected != job ? job : null;
-                }
             }
         }
 
-        Widgets.EndScrollView();
-
-        _overviewHeight = cur.y;
+        scrollView.Height = cur.y;
     }
 
     private void DrawManualGroupButton(Rect rect, ManagerJob job)

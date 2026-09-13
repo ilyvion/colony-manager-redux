@@ -812,35 +812,34 @@ public abstract class ManagerTab(Manager manager)
 
         foreach (var job in ManagerJobs)
         {
-            var estimatedHeight = _jobRowHeights.TryGetValue(job.LoadID, out var cachedHeight)
-                ? cachedHeight
-                : float.MaxValue;
-            var row = new Rect(0f, cur.y, scrollView.ViewRect.width, estimatedHeight);
+            var row = CullingScrollList.DrawRow(
+                scrollView,
+                ref cur,
+                _jobRowHeights,
+                job.LoadID,
+                job,
+                (j, ref c, w) => DrawLocalListEntry(j, ref c, w, null)
+            );
 
-            if (!scrollView.CanCull(row.height, cur.y))
+            if (row is { } drawnRow)
             {
-                DrawLocalListEntry(job, ref cur, scrollView.ViewRect.width, null);
-
-                row.height = cur.y - row.y;
-                _jobRowHeights[job.LoadID] = row.height;
-
-                Widgets.DrawHighlightIfMouseover(row);
+                Widgets.DrawHighlightIfMouseover(drawnRow);
                 if (Selected == job)
                 {
-                    Widgets.DrawHighlightSelected(row);
+                    Widgets.DrawHighlightSelected(drawnRow);
                 }
 
                 if (i % 2 == 1)
                 {
-                    Widgets.DrawAltRect(row);
+                    Widgets.DrawAltRect(drawnRow);
                 }
 
                 if (job.CausedException is Exception ex)
                 {
-                    Widgets.DrawBox(row, 2, Resources.Error);
+                    Widgets.DrawBox(drawnRow, 2, Resources.Error);
 
                     TooltipHandler.TipRegion(
-                        row,
+                        drawnRow,
                         new TipSignal(
                             "ColonyManagerRedux.Job.CausedException".Translate(
                                 job.CausedExceptionText
@@ -849,7 +848,7 @@ public abstract class ManagerTab(Manager manager)
                     );
                 }
 
-                if (Widgets.ButtonInvisible(row))
+                if (Widgets.ButtonInvisible(drawnRow))
                 {
                     if (Selected != job)
                     {
@@ -860,10 +859,6 @@ public abstract class ManagerTab(Manager manager)
                         Selected = null;
                     }
                 }
-            }
-            else
-            {
-                cur.y += estimatedHeight;
             }
 
             i++;
