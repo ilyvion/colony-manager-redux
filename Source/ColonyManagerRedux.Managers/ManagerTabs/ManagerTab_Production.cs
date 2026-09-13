@@ -905,7 +905,9 @@ internal sealed class ManagerTab_Production(Manager manager)
             );
         }
 
-        var allIngredients = ManagerJob_Production.AllRecipeIngredientOptions(job.Recipe!).ToList();
+        var allIngredients = ManagerJob_Production
+            .OptionalRecipeIngredientOptions(job.Recipe!)
+            .ToList();
 
         void SetAllowed(ThingDef thingDef, bool allow)
         {
@@ -1121,7 +1123,7 @@ internal sealed class ManagerTab_Production(Manager manager)
         pos.y += Utilities.DrawToggleDefList(
             pos,
             width,
-            ManagerJob_Production.AllRecipeIngredientOptions(job.Recipe!),
+            ManagerJob_Production.OptionalRecipeIngredientOptions(job.Recipe!),
             job.AllowedIngredients.Contains,
             (thingDef, allow) => job.SetIngredientAllowed(thingDef, allow),
             thingDef => thingDef.LabelCap,

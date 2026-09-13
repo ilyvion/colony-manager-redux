@@ -473,6 +473,73 @@ internal static class ManagerJobProductionTests
         Assert.ThatCollection(options).Does.Not.Contain(mechanoidCorpse);
     }
 
+    // Regression test: RecipeDefGenerator only ever populates fixedIngredientFilter for a
+    // stuff-based ingredient slot (see ThingDef.MadeFromStuff); a plain cost-list recipe like a
+    // weapon's steel/component cost (e.g. Gun_SniperRifle's generated "Make_Gun_SniperRifle")
+    // leaves it as its default, allow-nothing ThingFilter. Before this fix, AllRecipeIngredientOptions
+    // consulted that empty filter for every slot regardless, so a recipe like this ended up with
+    // zero ingredient options at all, even though its own ingredient slots require exactly one
+    // real, always-required ThingDef each. A slot whose own filter allows exactly one def
+    // (IngredientCount.IsFixedIngredient) must bypass fixedIngredientFilter entirely, exactly as
+    // vanilla's own ingredient-matching logic does.
+    [Test]
+    public static void AllRecipeIngredientOptionsIncludesFixedIngredientsEvenWithEmptyFixedIngredientFilter()
+    {
+        var steel = new ThingDef { defName = "CMR_TestSteel" };
+        var component = new ThingDef { defName = "CMR_TestComponent" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var componentFilter = new ThingFilter();
+        componentFilter.SetAllow(component, true);
+        var recipe = new RecipeDef
+        {
+            ingredients =
+            [
+                new IngredientCount { filter = steelFilter },
+                new IngredientCount { filter = componentFilter },
+            ],
+            fixedIngredientFilter = new ThingFilter(),
+        };
+
+        var options = AllRecipeIngredientOptions(recipe).ToList();
+
+        Assert.ThatCollection(options).Has.Count(2);
+        Assert.ThatCollection(options).Does.Contain(steel);
+        Assert.ThatCollection(options).Does.Contain(component);
+    }
+
+    // Regression test: a fixed ingredient (e.g. a weapon's steel/component cost) is always
+    // required, so it shouldn't appear as something a player can opt in or out of alongside a
+    // recipe's genuinely optional ingredients (e.g. butchery's choice of animal).
+    [Test]
+    public static void OptionalRecipeIngredientOptionsExcludesFixedIngredients()
+    {
+        var steel = new ThingDef { defName = "CMR_TestSteel" };
+        var bearMeat = new ThingDef { defName = "CMR_TestBearMeat" };
+        var muffaloMeat = new ThingDef { defName = "CMR_TestMuffaloMeat" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var meatFilter = new ThingFilter();
+        meatFilter.SetAllow(bearMeat, true);
+        meatFilter.SetAllow(muffaloMeat, true);
+        var recipe = new RecipeDef
+        {
+            ingredients =
+            [
+                new IngredientCount { filter = steelFilter },
+                new IngredientCount { filter = meatFilter },
+            ],
+            fixedIngredientFilter = null,
+        };
+
+        var options = OptionalRecipeIngredientOptions(recipe).ToList();
+
+        Assert.ThatCollection(options).Has.Count(2);
+        Assert.ThatCollection(options).Does.Contain(bearMeat);
+        Assert.ThatCollection(options).Does.Contain(muffaloMeat);
+        Assert.ThatCollection(options).Does.Not.Contain(steel);
+    }
+
     // Plain fakes, not real Bill_Production/ManagerJob_Production: constructing a real
     // Bill_Production requires a loaded game (Bill.InitializeAfterClone calls
     // Find.UniqueIDsManager), which isn't available to this test suite.

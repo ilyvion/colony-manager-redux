@@ -647,9 +647,7 @@ internal sealed class ManagerJob_Production
 
     /// <summary>
     /// Every <see cref="ThingDef"/> that could satisfy any of <paramref name="recipe"/>'s
-    /// ingredients — including fixed ingredients, since <see cref="IngredientCount.IsFixedIngredient"/>
-    /// is just the case where its own <see cref="IngredientCount.filter"/> happens to allow
-    /// exactly one def. This is the raw-material counterpart to <see cref="RecipeProductResolver"/>,
+    /// ingredients. This is the raw-material counterpart to <see cref="RecipeProductResolver"/>,
     /// which resolves what a recipe produces instead of what it consumes. Used both to seed
     /// <see cref="ProductionMode.ConsumeSurplus"/>'s trigger filter (<see cref="ConfigureIngredientFilter"/>)
     /// and to default <see cref="AllowedIngredients"/>.
@@ -661,15 +659,47 @@ internal sealed class ManagerJob_Production
     /// search always applies both, so this must too, or the UI ends up offering ingredients (like
     /// mechanoid corpses) that the bill would never actually accept.
     /// </para>
+    /// <para>
+    /// A slot where <see cref="IngredientCount.IsFixedIngredient"/> is true (its own filter allows
+    /// exactly one def, as generated for a plain cost-list ingredient like a weapon's steel/
+    /// component cost) skips the <see cref="RecipeDef.fixedIngredientFilter"/> check entirely,
+    /// mirroring vanilla's own <c>IsFixedIngredient || fixedIngredientFilter.Allows(...)</c> gate.
+    /// <see cref="RecipeDef.fixedIngredientFilter"/> is only ever populated for stuff-based
+    /// ingredients (a thing made from a stuff category); a generated recipe with no stuff
+    /// ingredient leaves it as its default, allow-nothing <see cref="ThingFilter"/>, so consulting
+    /// it for a fixed ingredient would wrongly exclude that ingredient entirely.
+    /// </para>
     /// </summary>
     internal static IEnumerable<ThingDef> AllRecipeIngredientOptions(RecipeDef recipe) =>
         recipe
-            .ingredients.SelectMany(ingredient => ingredient.filter.AllowedThingDefs)
-            .Where(thingDef =>
-                recipe.fixedIngredientFilter == null
-                || recipe.fixedIngredientFilter.Allows(thingDef)
+            .ingredients.SelectMany(ingredient =>
+                ingredient.IsFixedIngredient
+                    ? ingredient.filter.AllowedThingDefs
+                    : ingredient.filter.AllowedThingDefs.Where(thingDef =>
+                        recipe.fixedIngredientFilter == null
+                        || recipe.fixedIngredientFilter.Allows(thingDef)
+                    )
             )
             .Distinct();
+
+    /// <summary>
+    /// The subset of <see cref="AllRecipeIngredientOptions"/> a player can actually choose to
+    /// allow or disallow via <see cref="AllowedIngredients"/>: excludes any <see cref="ThingDef"/>
+    /// named by a fixed (<see cref="IngredientCount.IsFixedIngredient"/>) ingredient slot, since
+    /// that ingredient is always required — e.g. a sniper rifle can't be made while disallowing
+    /// components, so there's nothing to toggle. Reserved stock still uses
+    /// <see cref="AllRecipeIngredientOptions"/> directly, since reserving stock of a fixed
+    /// ingredient is exactly the point.
+    /// </summary>
+    internal static IEnumerable<ThingDef> OptionalRecipeIngredientOptions(RecipeDef recipe)
+    {
+        var fixedIngredients = recipe
+            .ingredients.Where(ingredient => ingredient.IsFixedIngredient)
+            .SelectMany(ingredient => ingredient.filter.AllowedThingDefs)
+            .ToHashSet();
+        return AllRecipeIngredientOptions(recipe)
+            .Where(thingDef => !fixedIngredients.Contains(thingDef));
+    }
 
     /// <summary>
     /// Groups <paramref name="ingredients"/> by the category directly above each item, i.e.
