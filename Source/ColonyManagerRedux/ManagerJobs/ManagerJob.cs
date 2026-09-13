@@ -592,6 +592,39 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     }
 
     /// <summary>
+    /// Called to finalize initialization of the manager job and its comps (called from MapComponent).
+    /// </summary>
+    protected internal void FinalizeInitInt()
+    {
+        try
+        {
+            FinalizeInit();
+        }
+        catch (Exception err)
+        {
+            ColonyManagerReduxMod.Instance.LogException(
+                $"ManagerJob caused exception during {nameof(FinalizeInit)}",
+                err
+            );
+        }
+
+        foreach (var comp in _comps)
+        {
+            try
+            {
+                comp.FinalizeInit();
+            }
+            catch (Exception err)
+            {
+                ColonyManagerReduxMod.Instance.LogException(
+                    $"ManagerJobComp caused exception during {nameof(ManagerJobComp.FinalizeInit)}",
+                    err
+                );
+            }
+        }
+    }
+
+    /// <summary>
     /// Called to finalize initialization of the manager job (called from MapComponent).
     /// </summary>
     protected internal virtual void FinalizeInit() { }

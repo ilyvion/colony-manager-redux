@@ -241,17 +241,7 @@ public class Manager : MapComponent, ILoadReferenceable
 
         foreach (var job in _jobTracker.Jobs)
         {
-            try
-            {
-                job.FinalizeInit();
-            }
-            catch (Exception err)
-            {
-                ColonyManagerReduxMod.Instance.LogException(
-                    $"ManagerJob caused exception during {nameof(ManagerJob.FinalizeInit)}",
-                    err
-                );
-            }
+            job.FinalizeInitInt();
         }
 
         foreach (var comp in _comps)

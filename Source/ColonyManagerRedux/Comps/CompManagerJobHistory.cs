@@ -53,7 +53,8 @@ public class CompManagerJobHistory : ManagerJobComp
         if (!_reportedSkippedUpdateTick && _queuedToRecord > 0 && _currentUpdateTick != ticksGame)
         {
             ColonyManagerReduxMod.Instance.LogWarning(
-                "It was time for a history update, but the previous update hasn't finished yet. "
+                $"It was time for a history update for job '{Parent.Label}' (ID "
+                    + $"{Parent.GetUniqueLoadID()}), but the previous update hasn't finished yet. "
                     + "This means that your history updates are taking longer than "
                     + History.PeriodTickInterval(Period.Day)
                     + " ticks, which either means you have a "
@@ -78,6 +79,20 @@ public class CompManagerJobHistory : ManagerJobComp
 
     private static bool _isRecordingHistory;
     private static int _queuedToRecord;
+
+    /// <inheritdoc/>
+    protected internal override void FinalizeInit()
+    {
+        // _isRecordingHistory/_queuedToRecord are static so only one history update coroutine
+        // runs at a time across all jobs, but that means their state outlives any single Game: a
+        // coroutine still in flight when a save is loaded would otherwise leave
+        // _isRecordingHistory stuck true forever, since the GameComponent-owned coroutine list it
+        // belonged to is gone and will never resume it to reset the flag. FinalizeInit runs for
+        // every job on every map as part of loading, before ticking (and thus any coroutine)
+        // starts, so resetting here is always safe.
+        _isRecordingHistory = false;
+        _queuedToRecord = 0;
+    }
 
     [CoroutineSettingsMethod]
     private Coroutine DoHistoryUpdateCoroutine(HistoryWorker worker, int tick)

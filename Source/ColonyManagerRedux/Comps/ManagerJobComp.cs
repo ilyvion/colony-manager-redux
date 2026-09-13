@@ -111,4 +111,9 @@ public abstract class ManagerJobComp
 
     /// <inheritdoc/>
     public override string ToString() => string.Concat(GetType().Name, "(parent=", Parent, ")");
+
+    /// <summary>
+    /// Called to finalize initialization of the manager job comp (called from MapComponent).
+    /// </summary>
+    protected internal virtual void FinalizeInit() { }
 }
