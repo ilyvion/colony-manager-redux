@@ -4,6 +4,7 @@
 using System.Text;
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
+using Verse.Sound;
 using static ColonyManagerRedux.Constants;
 using TabRecord = ilyvion.Laboratory.UI.TabRecord;
 
@@ -294,6 +295,14 @@ internal sealed class ManagerTab_Production(Manager manager)
             width,
             DrawJobSettings,
             "ColonyManagerRedux.Production.JobSettings".Translate()
+        );
+        DrawSection(
+            ProductionOptions,
+            "ReservedStock",
+            ref position,
+            width,
+            DrawReservedStock,
+            "ColonyManagerRedux.Production.ReservedStock".Translate()
         );
         DrawSection(ProductionOptions, "Status", ref position, width, DrawStatus);
         Widgets_Section.EndSectionColumn(ProductionOptions, position);
@@ -1191,6 +1200,169 @@ internal sealed class ManagerTab_Production(Manager manager)
         pos.y += DrawStoreMode(job, pos, width);
 
         return pos.y - start.y;
+    }
+
+    // Every ingredient this job could actually consume that also has a configured reserve
+    // (global default or job-level override) — the set worth showing an editable row for. An
+    // ingredient with neither can still be given a job-only reserve via DrawReservedStock's
+    // "Add reserved resource" button, at which point it starts showing up here too.
+    private static List<ThingDef> ComputeRelevantReservedIngredients(ManagerJob_Production job) =>
+        job.Recipe == null
+            ? []
+            :
+            [
+                .. ManagerJob_Production
+                    .AllRecipeIngredientOptions(job.Recipe)
+                    .Where(td =>
+                        job.ReservedStockOverrides.ContainsKey(td)
+                        || job.ManagerSettings.ReservedStock.ContainsKey(td)
+                    )
+                    .OrderBy(td => td.LabelCap.ToString(), StringComparer.OrdinalIgnoreCase),
+            ];
+
+    private readonly Dictionary<ThingDef, string> _reservedStockInputBuffers = [];
+
+    private float DrawReservedStock(ManagerJob_Production job, Vector2 pos, float width)
+    {
+        var start = pos;
+
+        foreach (var ingredientDef in ComputeRelevantReservedIngredients(job))
+        {
+            pos.y += DrawReservedStockRow(job, ingredientDef, pos, width);
+        }
+
+        var addRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        if (
+            Widgets.ButtonText(
+                addRect,
+                "ColonyManagerRedux.Production.AddReservedStock".Translate()
+            )
+        )
+        {
+            Find.WindowStack.Add(new FloatMenu(BuildAddJobReservedStockOptions(job)));
+        }
+        pos.y += ListEntryHeight;
+
+        return pos.y - start.y;
+    }
+
+    // Lets a job reserve stock of one of its own ingredients even when that ingredient has no
+    // mod-wide default reserve set at all — only ingredients not already shown as a row (no
+    // override and no global default) are offered here.
+    private static List<FloatMenuOption> BuildAddJobReservedStockOptions(ManagerJob_Production job)
+    {
+        var opts = new List<FloatMenuOption>();
+        var relevant = ComputeRelevantReservedIngredients(job).ToHashSet();
+        foreach (
+            var ingredientDef in ManagerJob_Production
+                .AllRecipeIngredientOptions(job.Recipe!)
+                .Where(td => !relevant.Contains(td))
+                .OrderBy(td => td.LabelCap.ToString(), StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            var ingredientDefLocal = ingredientDef;
+            opts.Add(
+                new FloatMenuOption(
+                    ingredientDefLocal.LabelCap,
+                    () => job.ReservedStockOverrides[ingredientDefLocal] = 0
+                )
+            );
+        }
+        return opts;
+    }
+
+    private float DrawReservedStockRow(
+        ManagerJob_Production job,
+        ThingDef ingredientDef,
+        Vector2 pos,
+        float width
+    )
+    {
+        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+
+        var isOverridden = job.ReservedStockOverrides.ContainsKey(ingredientDef);
+        var resetRect = new Rect(
+            rowRect.xMax - ListEntryHeight,
+            rowRect.y,
+            ListEntryHeight,
+            ListEntryHeight
+        );
+        var fieldRect = new Rect(resetRect.xMin - 60f - Margin, rowRect.y, 60f, ListEntryHeight);
+        var iconRect = new Rect(rowRect.x, rowRect.y, ListEntryHeight, ListEntryHeight);
+        var labelRect = new Rect(
+            iconRect.xMax + Margin,
+            rowRect.y,
+            fieldRect.xMin - iconRect.xMax - (2 * Margin),
+            ListEntryHeight
+        );
+
+        Widgets.DefIcon(iconRect, ingredientDef);
+        IlyvionWidgets.Label(labelRect, ingredientDef.LabelCap, TextAnchor.MiddleLeft);
+
+        if (!_reservedStockInputBuffers.TryGetValue(ingredientDef, out var buffer))
+        {
+            buffer = job.GetEffectiveReservedStock(ingredientDef)
+                .ToString(CultureInfo.InvariantCulture);
+        }
+        var oldColor = GUI.color;
+        if (!isOverridden)
+        {
+            GUI.color = new Color(1f, 1f, 1f, 0.5f);
+        }
+        buffer = Widgets.TextField(fieldRect, buffer);
+        GUI.color = oldColor;
+        var hasGlobalDefault = job.ManagerSettings.ReservedStock.ContainsKey(ingredientDef);
+        if (int.TryParse(buffer, out var parsed) && parsed >= 0)
+        {
+            // Only actually record an override once it differs from the global default (or one
+            // already exists) — otherwise the mere act of drawing this row (which seeds the
+            // buffer from the effective/global value) would silently create a no-op override on
+            // the very first frame, permanently hiding the "not yet overridden" grey styling. A
+            // row with no global default at all (added via "Add reserved resource") has nothing
+            // to compare against, so any parsed value is recorded as an override.
+            var globalDefault = job.ManagerSettings.ReservedStock.GetValueOrDefault(
+                ingredientDef,
+                0
+            );
+            if (isOverridden || !hasGlobalDefault || parsed != globalDefault)
+            {
+                job.ReservedStockOverrides[ingredientDef] = parsed;
+                isOverridden = true;
+            }
+        }
+        _reservedStockInputBuffers[ingredientDef] = buffer;
+
+        TooltipHandler.TipRegion(
+            fieldRect,
+            "ColonyManagerRedux.Production.ReservedStock.JobOverride.Tip".Translate()
+        );
+
+        if (isOverridden)
+        {
+            if (
+                Widgets.ButtonImage(
+                    resetRect,
+                    TexButton.Delete,
+                    Color.white,
+                    GenUI.SubtleMouseoverColor
+                )
+            )
+            {
+                _ = job.ReservedStockOverrides.Remove(ingredientDef);
+                _ = _reservedStockInputBuffers.Remove(ingredientDef);
+                SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+            }
+            TooltipHandler.TipRegion(
+                resetRect,
+                (
+                    hasGlobalDefault
+                        ? "ColonyManagerRedux.Production.ReservedStock.ResetToGlobal"
+                        : "ColonyManagerRedux.Production.ReservedStock.Remove"
+                ).Translate()
+            );
+        }
+
+        return ListEntryHeight;
     }
 
     private static float DrawSkillRange(ManagerJob_Production job, Vector2 pos, float width)

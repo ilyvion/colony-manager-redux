@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - On a job that's been queued for a forced update and is waiting to run, the update-interval icon now shows a distinct '- ! -' indicator, with its own tooltip, instead of looking the same as a job that has never updated at all.
+- Production jobs can now reserve a minimum stock of a raw material that bills should never dip into, e.g. always leaving at least 500 steel available for other things besides production. Set a default amount for a resource in the Production manager's new settings tab, applying it to every job that consumes that resource; a job can also set its own reserve amount for a specific ingredient in its 'Reserved stock' section, overriding the default (or reserving stock of an ingredient that has no default at all).
 
 ### Fixed
 

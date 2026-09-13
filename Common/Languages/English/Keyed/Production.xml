@@ -46,4 +46,10 @@
     <ColonyManagerRedux.Production.DemandAggregation.Sum.Tip>Target enough to satisfy every linked job at once. Safer against multiple jobs depleting stock at the same time, at the cost of more production.</ColonyManagerRedux.Production.DemandAggregation.Sum.Tip>
     <ColonyManagerRedux.Production.DemandAggregation.MaxOfConsumers>Highest single demand</ColonyManagerRedux.Production.DemandAggregation.MaxOfConsumers>
     <ColonyManagerRedux.Production.DemandAggregation.MaxOfConsumers.Tip>Target only as much as the single most demanding linked job needs. Economizes colonist effort, at the risk of occasional shortfalls when multiple linked jobs draw stock down at once.</ColonyManagerRedux.Production.DemandAggregation.MaxOfConsumers.Tip>
+    <ColonyManagerRedux.Production.ReservedStock>Reserved stock</ColonyManagerRedux.Production.ReservedStock>
+    <ColonyManagerRedux.Production.ReservedStock.Tip>Set how much of a resource production bills should never consume, leaving the rest available for other things (e.g. leave at least 500 steel around). Applies to every production job involving that resource; a job can be configured to override the amount.</ColonyManagerRedux.Production.ReservedStock.Tip>
+    <ColonyManagerRedux.Production.AddReservedStock>Add reserved resource...</ColonyManagerRedux.Production.AddReservedStock>
+    <ColonyManagerRedux.Production.ReservedStock.JobOverride.Tip>How much of this ingredient this job's bills should never consume. Defaults to the default reserved stock amount until edited here.</ColonyManagerRedux.Production.ReservedStock.JobOverride.Tip>
+    <ColonyManagerRedux.Production.ReservedStock.ResetToGlobal>Reset to the default reserved stock amount</ColonyManagerRedux.Production.ReservedStock.ResetToGlobal>
+    <ColonyManagerRedux.Production.ReservedStock.Remove>Remove this job's reserved stock amount</ColonyManagerRedux.Production.ReservedStock.Remove>
 </LanguageData>

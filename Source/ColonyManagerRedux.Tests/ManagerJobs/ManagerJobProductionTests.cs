@@ -691,6 +691,75 @@ internal static class ManagerJobProductionTests
     }
 
     [Test]
+    public static void MaxIterationsWithinReserveIsUnboundedWhenReserveIsNotSet()
+    {
+        var steel = new ThingDef { defName = "CMR_TestReserveSteel1" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var steelSlot = new IngredientCount { filter = steelFilter };
+        steelSlot.SetBaseCount(10);
+        var recipe = new RecipeDef { ingredients = [steelSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        Assert
+            .That(MaxIterationsWithinReserve(recipe, steel, 100, reservedAmount: 0))
+            .Is.EqualTo(int.MaxValue);
+    }
+
+    [Test]
+    public static void MaxIterationsWithinReserveIsUnboundedWhenRecipeDoesNotConsumeIngredient()
+    {
+        var steel = new ThingDef { defName = "CMR_TestReserveSteel2" };
+        var wood = new ThingDef { defName = "CMR_TestReserveWood2" };
+        var woodFilter = new ThingFilter();
+        woodFilter.SetAllow(wood, true);
+        var woodSlot = new IngredientCount { filter = woodFilter };
+        woodSlot.SetBaseCount(10);
+        var recipe = new RecipeDef { ingredients = [woodSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        Assert
+            .That(MaxIterationsWithinReserve(recipe, steel, 100, reservedAmount: 50))
+            .Is.EqualTo(int.MaxValue);
+    }
+
+    [Test]
+    public static void MaxIterationsWithinReserveDividesUsableStockByPerIterationCost()
+    {
+        var steel = new ThingDef { defName = "CMR_TestReserveSteel3" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var steelSlot = new IngredientCount { filter = steelFilter };
+        steelSlot.SetBaseCount(10);
+        var recipe = new RecipeDef { ingredients = [steelSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        // 600 in stock, 500 reserved -> 100 usable / 10 per iteration = 10 iterations.
+        Assert
+            .That(MaxIterationsWithinReserve(recipe, steel, 600, reservedAmount: 500))
+            .Is.EqualTo(10);
+    }
+
+    [Test]
+    public static void MaxIterationsWithinReserveIsZeroWhenStockIsAtOrBelowReserve()
+    {
+        var steel = new ThingDef { defName = "CMR_TestReserveSteel4" };
+        var steelFilter = new ThingFilter();
+        steelFilter.SetAllow(steel, true);
+        var steelSlot = new IngredientCount { filter = steelFilter };
+        steelSlot.SetBaseCount(10);
+        var recipe = new RecipeDef { ingredients = [steelSlot], fixedIngredientFilter = null };
+        SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
+
+        Assert
+            .That(MaxIterationsWithinReserve(recipe, steel, 500, reservedAmount: 500))
+            .Is.EqualTo(0);
+        Assert
+            .That(MaxIterationsWithinReserve(recipe, steel, 400, reservedAmount: 500))
+            .Is.EqualTo(0);
+    }
+
+    [Test]
     public static void ComputeIngredientDemandScalesWithConsumerTarget()
     {
         var steel = new ThingDef { defName = "CMR_TestLinkSteel3" };

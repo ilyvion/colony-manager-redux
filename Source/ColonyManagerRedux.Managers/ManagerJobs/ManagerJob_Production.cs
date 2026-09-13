@@ -6,7 +6,7 @@ namespace ColonyManagerRedux.Managers;
 [HotSwappable]
 [CoroutineSettingsType]
 internal sealed class ManagerJob_Production
-    : ManagerJob<ManagerSettings, ManagerJob_Production.ProductionWorkData>
+    : ManagerJob<ManagerSettings_Production, ManagerJob_Production.ProductionWorkData>
 {
     /// <summary>
     /// The decision for a single eligible bill giver, computed by
@@ -444,6 +444,92 @@ internal sealed class ManagerJob_Production
     /// <see cref="ProductionMode.ConsumeSurplus"/> — see <see cref="AllowedIngredients"/>.
     /// </summary>
     public bool SyncFilterAndAllowed = true;
+
+    /// <summary>
+    /// Per-job overrides of <see cref="ManagerSettings_Production.ReservedStock"/> — how many of a
+    /// given raw material this job's bills should never consume, regardless of the mod-wide
+    /// default. Only ingredients actually worth tuning per job need an entry here; every other
+    /// ingredient falls back to the global default (see <see cref="GetEffectiveReservedStock"/>).
+    /// </summary>
+    public Dictionary<ThingDef, int> ReservedStockOverrides = [];
+
+    /// <summary>
+    /// How many of <paramref name="thingDef"/> this job's bills should never consume — its
+    /// <see cref="ReservedStockOverrides"/> entry if one exists, otherwise the mod-wide
+    /// <see cref="ManagerSettings_Production.ReservedStock"/> default, or <c>0</c> if neither
+    /// configures a reserve for it.
+    /// </summary>
+    public int GetEffectiveReservedStock(ThingDef thingDef) =>
+        ReservedStockOverrides.TryGetValue(thingDef, out var overrideAmount)
+            ? overrideAmount
+            : ManagerSettings.ReservedStock.GetValueOrDefault(thingDef, 0);
+
+    /// <summary>
+    /// The largest number of <paramref name="recipe"/> iterations that could run without dropping
+    /// <paramref name="ingredientDef"/>'s stock (<paramref name="availableCount"/>) below
+    /// <paramref name="reservedAmount"/> — the per-ingredient counterpart to
+    /// <see cref="SharesToIterations"/>'s per-output view of the same recipe. Pure function, kept
+    /// separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// </summary>
+    /// <returns>
+    /// <see cref="int.MaxValue"/> if <paramref name="reservedAmount"/> is zero or negative (no
+    /// reserve configured) or <paramref name="recipe"/> doesn't actually consume
+    /// <paramref name="ingredientDef"/> at all, so callers can <see cref="Math.Min(int, int)"/> it
+    /// against another cap without special-casing "no reserve" separately.
+    /// </returns>
+    internal static int MaxIterationsWithinReserve(
+        RecipeDef recipe,
+        ThingDef ingredientDef,
+        int availableCount,
+        int reservedAmount
+    )
+    {
+        if (reservedAmount <= 0)
+        {
+            return int.MaxValue;
+        }
+
+        var perIteration = IngredientCountPerIteration(recipe, [ingredientDef]);
+        if (perIteration <= 0)
+        {
+            return int.MaxValue;
+        }
+
+        var usable = Math.Max(0, availableCount - reservedAmount);
+        return usable / perIteration;
+    }
+
+    /// <summary>
+    /// The largest number of <see cref="Recipe"/> iterations this job's bills could still run
+    /// without dropping any of <see cref="AllowedIngredients"/> below its
+    /// <see cref="GetEffectiveReservedStock"/> reserve — <see cref="int.MaxValue"/> if none of
+    /// them has a reserve configured. Counts every reserved ingredient's current stock across the
+    /// whole map (not just this job's own trigger stockpile), since a reserve is a colony-wide
+    /// safety net ("leave enough steel for other things"), not something scoped to wherever this
+    /// job happens to be counting its own output from.
+    /// </summary>
+    private int ReserveCappedIterations(RecipeDef recipe)
+    {
+        var cap = int.MaxValue;
+        foreach (var ingredientDef in AllowedIngredients)
+        {
+            var reserved = GetEffectiveReservedStock(ingredientDef);
+            if (reserved <= 0)
+            {
+                continue;
+            }
+
+            var filter = new ThingFilter();
+            filter.SetAllow(ingredientDef, true);
+            var available = Manager.map.CountProducts(filter, countAllOnMap: true);
+
+            cap = Math.Min(
+                cap,
+                MaxIterationsWithinReserve(recipe, ingredientDef, available, reserved)
+            );
+        }
+        return cap;
+    }
 
     private string? _tmpWorkbenchAreaLabel;
 
@@ -1099,6 +1185,13 @@ internal sealed class ManagerJob_Production
         Scribe_Collections.Look(ref AllowedIngredients, "allowedIngredients", LookMode.Def);
         Scribe_Values.Look(ref Sync, "sync", Utilities.SyncDirection.AllowedToFilter);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
+        Scribe_Collections.Look(
+            ref ReservedStockOverrides,
+            "reservedStockOverrides",
+            LookMode.Def,
+            LookMode.Value
+        );
+        ReservedStockOverrides ??= [];
         Scribe_Defs.Look(ref StoreMode, "storeMode");
         StoreMode ??= BillStoreModeDefOf.BestStockpile;
 
@@ -1366,7 +1459,8 @@ internal sealed class ManagerJob_Production
             }
         }
 
-        var triggerActive = TriggerThreshold.State;
+        var reserveCappedIterations = ReserveCappedIterations(Recipe);
+        var triggerActive = TriggerThreshold.State && reserveCappedIterations > 0;
         JobState = triggerActive ? ManagerJobState.Active : ManagerJobState.Completed;
 
         jobLog.AddDetail(
@@ -1390,6 +1484,15 @@ internal sealed class ManagerJob_Production
                 TriggerThreshold.TargetCount - TriggerThreshold.GetCurrentCount()
             );
             var yieldPerIteration = YieldPerIteration(Recipe);
+
+            // Never schedule more than ReservedStock (global or per-job, see
+            // GetEffectiveReservedStock) allows a reserved ingredient to give up, on top of the
+            // output-side shortfall computed above.
+            if (reserveCappedIterations < int.MaxValue)
+            {
+                shortfall = Math.Min(shortfall, reserveCappedIterations * yieldPerIteration);
+            }
+
             var shares = SplitShortfall(shortfall, inScopeWorkTables.Count);
 
             for (var i = 0; i < inScopeWorkTables.Count; i++)
