@@ -2,6 +2,8 @@
 <LanguageData>
     <ColonyManagerRedux.Production.Recipe>Recipe</ColonyManagerRedux.Production.Recipe>
     <ColonyManagerRedux.Production.NoRecipesFound>No recipes found.</ColonyManagerRedux.Production.NoRecipesFound>
+    <ColonyManagerRedux.Production.GroupByWorkbench>Group by workbench</ColonyManagerRedux.Production.GroupByWorkbench>
+    <ColonyManagerRedux.Production.GroupByWorkbench.Tip>Group the available recipes by the workbench they're made at. A recipe usable at more than one workbench will be listed under each of them.</ColonyManagerRedux.Production.GroupByWorkbench.Tip>
     <ColonyManagerRedux.Production.ManagedBillCount>Managed bills: {0}</ColonyManagerRedux.Production.ManagedBillCount>
     <ColonyManagerRedux.Production.Mode>Mode</ColonyManagerRedux.Production.Mode>
     <ColonyManagerRedux.Production.Mode.MaintainStock>Maintain stock</ColonyManagerRedux.Production.Mode.MaintainStock>

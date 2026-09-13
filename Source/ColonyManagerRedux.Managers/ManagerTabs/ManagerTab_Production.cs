@@ -25,10 +25,13 @@ internal sealed class ManagerTab_Production(Manager manager)
     protected override bool ShouldHaveNewJobButton => false;
 
     private readonly List<RecipeDef> _availableRecipes = [];
+    private HashSet<ThingDef> _builtWorkTableDefs = [];
     private readonly QuickSearchWidget _quickSearchWidget = new();
     private List<RecipeDef> _visibleRecipes = [];
     private readonly ScrollViewStatus _availableScrollViewStatus = new();
     private string _targetCountInput = "";
+    private bool _groupByWorkbench;
+    private readonly HashSet<ThingDef> _collapsedWorkbenchGroups = [];
 
     public override void PreOpen() => Refresh();
 
@@ -43,17 +46,19 @@ internal sealed class ManagerTab_Production(Manager manager)
         // separate ConsumeSurplus job turning excess cotton into dusters from the same recipe),
         // and bill ownership/reconciliation is fully job-scoped (see ManagerJob_Production's
         // _managedBills), so nothing here depends on recipes being claimed by at most one job.
-        var builtWorkTableDefs = Manager
-            .map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>()
-            .Select(wt => wt.def)
-            .ToHashSet();
+        _builtWorkTableDefs =
+        [
+            .. Manager
+                .map.listerBuildings.allBuildingsColonist.OfType<Building_WorkTable>()
+                .Select(wt => wt.def),
+        ];
 
         _availableRecipes.Clear();
         _availableRecipes.AddRange(
             DefDatabase<RecipeDef>
                 .AllDefsListForReading.Where(r =>
                     RecipeProductResolvers.ResolverFor(r) != null
-                    && r.AllRecipeUsers.Any(builtWorkTableDefs.Contains)
+                    && r.AllRecipeUsers.Any(_builtWorkTableDefs.Contains)
                     // Same gate work tables themselves use (research/ideology/faction
                     // prerequisites) - a recipe that isn't actually addable as a bill yet
                     // shouldn't be offered here either.
@@ -136,17 +141,155 @@ internal sealed class ManagerTab_Production(Manager manager)
             ]
             : _availableRecipes;
 
+    // Bundles a workbench and the (possibly cross-listed, see GroupRecipesByWorkbench) recipes
+    // available at it. Kept generic-free and free of GUI/game-state dependencies so
+    // GroupRecipesByWorkbench can be unit tested directly.
+    internal readonly record struct RecipeWorkbenchGroup(
+        ThingDef Workbench,
+        List<RecipeDef> Recipes
+    );
+
+    // A recipe usable at multiple built workbench types (recipe.AllRecipeUsers) is listed under
+    // every one of them rather than just its first, so it's findable regardless of which
+    // workbench a player is thinking of.
+    internal static List<RecipeWorkbenchGroup> GroupRecipesByWorkbench(
+        List<RecipeDef> recipes,
+        HashSet<ThingDef> builtWorkTableDefs
+    ) =>
+        [
+            .. recipes
+                .SelectMany(recipe =>
+                    recipe
+                        .AllRecipeUsers.Where(builtWorkTableDefs.Contains)
+                        .Select(workbench => (Workbench: workbench, Recipe: recipe))
+                )
+                .GroupBy(pair => pair.Workbench)
+                .OrderBy(g => g.Key.LabelCap.ToString(), StringComparer.OrdinalIgnoreCase)
+                .Select(g => new RecipeWorkbenchGroup(g.Key, [.. g.Select(pair => pair.Recipe)])),
+        ];
+
+    private void DrawGroupByWorkbenchButton(Rect rect)
+    {
+        if (_groupByWorkbench)
+        {
+            Widgets.DrawHighlightSelected(rect);
+        }
+        Widgets.DrawHighlightIfMouseover(rect);
+        using (GUIScope.TextAnchor(TextAnchor.MiddleCenter))
+        {
+            Widgets.Label(rect, "ColonyManagerRedux.Production.GroupByWorkbench".Translate());
+        }
+        TooltipHandler.TipRegion(
+            rect,
+            "ColonyManagerRedux.Production.GroupByWorkbench.Tip".Translate()
+        );
+
+        if (Widgets.ButtonInvisible(rect))
+        {
+            _groupByWorkbench = !_groupByWorkbench;
+        }
+    }
+
+    private void DrawWorkbenchGroupHeader(
+        ScrollViewScope scrollView,
+        ref Vector2 cur,
+        RecipeWorkbenchGroup group
+    )
+    {
+        var headerRect = new Rect(0f, cur.y, scrollView.ViewRect.width, ListEntryHeight);
+
+        if (!scrollView.CanCull(headerRect.height, headerRect.y))
+        {
+            var collapsed = _collapsedWorkbenchGroups.Contains(group.Workbench);
+
+            GUI.DrawTexture(headerRect, Resources.SlightlyDarkBackground);
+            Widgets.DrawHighlightIfMouseover(headerRect);
+
+            using (GUIScope.TextAnchor(TextAnchor.MiddleLeft))
+            {
+                Widgets.Label(
+                    headerRect.TrimLeft(Margin).TrimRight(Margin),
+                    (collapsed ? "▶ " : "▼ ")
+                        + group.Workbench.LabelCap
+                        + $" ({group.Recipes.Count})"
+                );
+            }
+
+            if (Widgets.ButtonInvisible(headerRect))
+            {
+                _ = collapsed
+                    ? _collapsedWorkbenchGroups.Remove(group.Workbench)
+                    : _collapsedWorkbenchGroups.Add(group.Workbench);
+            }
+        }
+
+        cur.y += headerRect.height;
+    }
+
+    private void DrawRecipeRow(
+        ScrollViewScope scrollView,
+        RecipeDef recipe,
+        ref Vector2 cur,
+        int index
+    )
+    {
+        var rowRect = new Rect(0f, cur.y, scrollView.ViewRect.width, RecipeRowHeight);
+
+        if (!scrollView.CanCull(rowRect.height, rowRect.y))
+        {
+            if (index % 2 == 0)
+            {
+                Widgets.DrawAltRect(rowRect);
+            }
+            Widgets.DrawHighlightIfMouseover(rowRect);
+
+            if (Widgets.ButtonInvisible(rowRect))
+            {
+                var job = (ManagerJob_Production)MakeNewJob()!;
+                job.Recipe = recipe;
+                Selected = job;
+            }
+
+            var workstations = recipe
+                .AllRecipeUsers.Select(td => td.LabelCap.ToString())
+                .ToCommaList();
+            var labelRect = new Rect(
+                rowRect.x + Margin,
+                rowRect.y,
+                rowRect.width - (2 * Margin),
+                rowRect.height
+            );
+            IlyvionWidgets.Label(
+                labelRect,
+                $"{recipe.LabelCap}\n<i>{workstations}</i>",
+                TextAnchor.MiddleLeft
+            );
+        }
+
+        cur.y += RecipeRowHeight;
+    }
+
     private void DrawAvailableRecipeList(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
 
+        const float groupByButtonWidth = 160f;
+
         var searchRect = new Rect(
             Margin,
             Margin,
-            rect.width - (2 * Margin),
+            rect.width - (3 * Margin) - groupByButtonWidth,
             QuickSearchWidget.WidgetHeight
         );
         _quickSearchWidget.OnGUI(searchRect, UpdateVisibleRecipes);
+
+        var groupByRect = new Rect(
+            searchRect.xMax + Margin,
+            Margin,
+            groupByButtonWidth,
+            QuickSearchWidget.WidgetHeight
+        );
+        DrawGroupByWorkbenchButton(groupByRect);
 
         var listRect = new Rect(
             0f,
@@ -157,43 +300,29 @@ internal sealed class ManagerTab_Production(Manager manager)
 
         using var scrollView = GUIScope.ScrollView(listRect, _availableScrollViewStatus);
         var cur = Vector2.zero;
-        for (var i = 0; i < _visibleRecipes.Count; i++)
+
+        if (_groupByWorkbench)
         {
-            var recipe = _visibleRecipes[i];
-            var rowRect = new Rect(0f, cur.y, scrollView.ViewRect.width, RecipeRowHeight);
-
-            if (!scrollView.CanCull(rowRect.height, rowRect.y))
+            foreach (var group in GroupRecipesByWorkbench(_visibleRecipes, _builtWorkTableDefs))
             {
-                if (i % 2 == 0)
+                DrawWorkbenchGroupHeader(scrollView, ref cur, group);
+                if (_collapsedWorkbenchGroups.Contains(group.Workbench))
                 {
-                    Widgets.DrawAltRect(rowRect);
-                }
-                Widgets.DrawHighlightIfMouseover(rowRect);
-
-                if (Widgets.ButtonInvisible(rowRect))
-                {
-                    var job = (ManagerJob_Production)MakeNewJob()!;
-                    job.Recipe = recipe;
-                    Selected = job;
+                    continue;
                 }
 
-                var workstations = recipe
-                    .AllRecipeUsers.Select(td => td.LabelCap.ToString())
-                    .ToCommaList();
-                var labelRect = new Rect(
-                    rowRect.x + Margin,
-                    rowRect.y,
-                    rowRect.width - (2 * Margin),
-                    rowRect.height
-                );
-                IlyvionWidgets.Label(
-                    labelRect,
-                    $"{recipe.LabelCap}\n<i>{workstations}</i>",
-                    TextAnchor.MiddleLeft
-                );
+                for (var i = 0; i < group.Recipes.Count; i++)
+                {
+                    DrawRecipeRow(scrollView, group.Recipes[i], ref cur, i);
+                }
             }
-
-            cur.y += RecipeRowHeight;
+        }
+        else
+        {
+            for (var i = 0; i < _visibleRecipes.Count; i++)
+            {
+                DrawRecipeRow(scrollView, _visibleRecipes[i], ref cur, i);
+            }
         }
 
         if (_visibleRecipes.Count == 0)

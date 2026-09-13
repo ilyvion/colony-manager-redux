@@ -51,4 +51,65 @@ internal static class ManagerTabProductionTests
 
         Assert.That(CanPossiblyStore(null, recipe, _ => false)).Is.True();
     }
+
+    [Test]
+    public static void GroupRecipesByWorkbenchCrossListsARecipeUsableAtMultipleWorkbenches()
+    {
+        var tableA = new ThingDef { defName = "CMR_TestWorkbenchA", label = "table a" };
+        var tableB = new ThingDef { defName = "CMR_TestWorkbenchB", label = "table b" };
+        var recipe = new RecipeDef
+        {
+            defName = "CMR_TestGroupRecipe",
+            recipeUsers = [tableA, tableB],
+        };
+
+        var groups = GroupRecipesByWorkbench([recipe], [tableA, tableB]);
+
+        Assert.That(groups.Count).Is.EqualTo(2);
+        Assert.That(groups.All(g => g.Recipes.Contains(recipe))).Is.True();
+    }
+
+    [Test]
+    public static void GroupRecipesByWorkbenchExcludesWorkbenchesThatArentBuilt()
+    {
+        var built = new ThingDef { defName = "CMR_TestWorkbenchBuilt", label = "built table" };
+        var notBuilt = new ThingDef
+        {
+            defName = "CMR_TestWorkbenchNotBuilt",
+            label = "unbuilt table",
+        };
+        var recipe = new RecipeDef
+        {
+            defName = "CMR_TestGroupRecipeUnbuilt",
+            recipeUsers = [built, notBuilt],
+        };
+
+        var groups = GroupRecipesByWorkbench([recipe], [built]);
+
+        Assert.That(groups.Count).Is.EqualTo(1);
+        Assert.That(groups[0].Workbench == built).Is.True();
+    }
+
+    [Test]
+    public static void GroupRecipesByWorkbenchOrdersGroupsByWorkbenchLabel()
+    {
+        var tableB = new ThingDef { defName = "CMR_TestWorkbenchOrderB", label = "b table" };
+        var tableA = new ThingDef { defName = "CMR_TestWorkbenchOrderA", label = "a table" };
+        var recipeB = new RecipeDef
+        {
+            defName = "CMR_TestGroupRecipeOrderB",
+            recipeUsers = [tableB],
+        };
+        var recipeA = new RecipeDef
+        {
+            defName = "CMR_TestGroupRecipeOrderA",
+            recipeUsers = [tableA],
+        };
+
+        var groups = GroupRecipesByWorkbench([recipeB, recipeA], [tableA, tableB]);
+
+        Assert.That(groups.Count).Is.EqualTo(2);
+        Assert.That(groups[0].Workbench == tableA).Is.True();
+        Assert.That(groups[1].Workbench == tableB).Is.True();
+    }
 }
