@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - On a job that's been queued for a forced update and is waiting to run, the update-interval icon now shows a distinct '- ! -' indicator, with its own tooltip, instead of looking the same as a job that has never updated at all.
 - Production jobs can now reserve a minimum stock of a raw material that bills should never dip into, e.g. always leaving at least 500 steel available for other things besides production. Set a default amount for a resource in the Production manager's new settings tab, applying it to every job that consumes that resource; a job can also set its own reserve amount for a specific ingredient in its 'Reserved stock' section, overriding the default (or reserving stock of an ingredient that has no default at all).
 - The Production tab's recipe list can now be grouped by workbench with a new 'Group by workbench' button, making it easier to find a recipe in a long list. A recipe usable at more than one workbench is listed under each of them.
+- When the Overview tab's job list is grouped (by job type, status, or manual group), each group header now has its own suspend/resume, force update, and update interval buttons, letting you apply that action to every job in the group at once instead of one job at a time.
+- Manual groups on the Overview tab can now be renamed from a button on their group header, instead of only being nameable when first created.
 
 ### Fixed
 

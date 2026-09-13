@@ -27,6 +27,7 @@ internal static class Resources
         ),
         Error = SolidColorMaterials.NewSolidColorTexture(ColorLibrary.LogError),
         Refresh = ContentFinder<Texture2D>.Get("UI/Icons/CMR_refresh"),
+        Stopwatch = ContentFinder<Texture2D>.Get("UI/Icons/CMR_stopwatch"),
         Warning = ContentFinder<Texture2D>.Get("UI/Icons/CMR_warning"),
         ClawIcon = ContentFinder<Texture2D>.Get("UI/Icons/CMR_claw"),
         Tag = ContentFinder<Texture2D>.Get("UI/Icons/CMR_Tag"),

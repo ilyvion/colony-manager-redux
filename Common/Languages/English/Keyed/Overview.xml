@@ -30,4 +30,12 @@
     <ColonyManagerRedux.Overview.ManualGroup.AssignedTooltip>In group: {0}\n\nClick to change this job's group.</ColonyManagerRedux.Overview.ManualGroup.AssignedTooltip>
     <ColonyManagerRedux.Overview.ManualGroup.UnassignedTooltip>Not in a group.\n\nClick to assign this job to a group.</ColonyManagerRedux.Overview.ManualGroup.UnassignedTooltip>
     <ColonyManagerRedux.Overview.ManualGroup.NameInUse>A group named '{0}' already exists.</ColonyManagerRedux.Overview.ManualGroup.NameInUse>
+    <ColonyManagerRedux.Overview.ManualGroup.CreateGroup>Create group</ColonyManagerRedux.Overview.ManualGroup.CreateGroup>
+    <ColonyManagerRedux.Overview.ManualGroup.RenameGroup>Rename group</ColonyManagerRedux.Overview.ManualGroup.RenameGroup>
+    <ColonyManagerRedux.Overview.ManualGroup.RenameGroupTooltip>Rename this group</ColonyManagerRedux.Overview.ManualGroup.RenameGroupTooltip>
+    <ColonyManagerRedux.Overview.GroupActions.SuspendAll>Suspend all jobs in this group</ColonyManagerRedux.Overview.GroupActions.SuspendAll>
+    <ColonyManagerRedux.Overview.GroupActions.ResumeAll>Resume all jobs in this group</ColonyManagerRedux.Overview.GroupActions.ResumeAll>
+    <ColonyManagerRedux.Overview.GroupActions.ForceUpdateAll>Force update all jobs in this group now</ColonyManagerRedux.Overview.GroupActions.ForceUpdateAll>
+    <ColonyManagerRedux.Overview.GroupActions.SetUpdateIntervalAll>Set the update interval for all jobs in this group</ColonyManagerRedux.Overview.GroupActions.SetUpdateIntervalAll>
+    <ColonyManagerRedux.Overview.GroupActions.SetUpdateIntervalAllTo>Set update interval to {0} for all jobs in this group</ColonyManagerRedux.Overview.GroupActions.SetUpdateIntervalAllTo>
 </LanguageData>

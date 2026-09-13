@@ -21,6 +21,8 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
         Manual,
     }
 
+    private const string ManualUngroupedKey = "manual:__ungrouped__";
+
     internal sealed record OverviewJobGroup<T>(
         string Key,
         string? Header,
@@ -278,7 +280,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                 var ungrouped = jobs.Where(job => getManualGroup(job) == null).ToList();
                 if (ungrouped.Count > 0)
                 {
-                    groups.Add(new("manual:__ungrouped__", ungroupedLabel, null, ungrouped));
+                    groups.Add(new(ManualUngroupedKey, ungroupedLabel, null, ungrouped));
                 }
                 return groups;
             }
@@ -441,24 +443,199 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
     {
         var collapsed = _collapsedGroups.Contains(group.Key);
         var headerRect = new Rect(position.x, position.y, width, ListEntryHeight);
+        var isRenamableManualGroup =
+            _groupMode == OverviewGroupMode.Manual && group.Key != ManualUngroupedKey;
 
         GUI.DrawTexture(headerRect, Resources.SlightlyDarkBackground);
-        Widgets.DrawHighlightIfMouseover(headerRect);
+
+        var actionCount = isRenamableManualGroup ? 4 : 3;
+        var actionsWidth = (actionCount * StampSize) + ((actionCount - 1) * Margin) + Margin;
+        var actionsRect = new Rect(
+            headerRect.xMax - actionsWidth,
+            headerRect.y,
+            actionsWidth,
+            headerRect.height
+        );
+        var toggleRect = headerRect.TrimRight(actionsWidth);
+
+        Widgets.DrawHighlightIfMouseover(toggleRect);
 
         using (GUIScope.TextAnchor(TextAnchor.MiddleLeft))
         {
             Widgets.Label(
-                headerRect.TrimLeft(Margin).TrimRight(Margin),
+                toggleRect.TrimLeft(Margin).TrimRight(Margin),
                 (collapsed ? "▶ " : "▼ ") + group.Header + $" ({group.Jobs.Count})"
             );
         }
 
-        if (Widgets.ButtonInvisible(headerRect))
+        if (Widgets.ButtonInvisible(toggleRect))
         {
             _ = collapsed ? _collapsedGroups.Remove(group.Key) : _collapsedGroups.Add(group.Key);
         }
 
+        DrawGroupActions(actionsRect, group, isRenamableManualGroup);
+
         position.y += headerRect.height;
+    }
+
+    private void DrawGroupActions(
+        Rect rect,
+        OverviewJobGroup<ManagerJob> group,
+        bool isRenamableManualGroup
+    )
+    {
+        var iconRect = new Rect(rect.x, rect.y, StampSize, StampSize).CenteredOnYIn(rect);
+
+        DrawGroupSuspendToggleButton(iconRect, group.Jobs);
+        iconRect.x += iconRect.width + Margin;
+
+        DrawGroupForceUpdateButton(iconRect, group.Jobs);
+        iconRect.x += iconRect.width + Margin;
+
+        DrawGroupUpdateIntervalButton(iconRect, group.Jobs);
+
+        if (isRenamableManualGroup)
+        {
+            iconRect.x += iconRect.width + Margin;
+            DrawGroupRenameButton(iconRect, group);
+        }
+    }
+
+    private void DrawGroupRenameButton(Rect rect, OverviewJobGroup<ManagerJob> group)
+    {
+        TooltipHandler.TipRegion(
+            rect,
+            "ColonyManagerRedux.Overview.ManualGroup.RenameGroupTooltip".Translate()
+        );
+
+        // TexButton.Rename has more internal padding than this row's custom icons, so it's drawn
+        // oversized to read at the same visual weight as its neighbors. The hover tint still keys
+        // off the original (unexpanded) rect so it doesn't bleed into the neighboring icon.
+        var drawRect = rect.ExpandedBy(7f);
+        drawRect.y += 1f;
+        GUI.color = Mouse.IsOver(rect) ? GenUI.MouseoverColor : Color.white;
+        GUI.DrawTexture(drawRect, TexButton.Rename);
+        GUI.color = Color.white;
+
+        if (!Widgets.ButtonInvisible(rect))
+        {
+            return;
+        }
+
+        var currentName = group.Header;
+        var otherGroups = Manager
+            .JobTracker.JobsOfType<ManagerJob>()
+            .Select(GetManualGroup)
+            .OfType<string>()
+            .Where(g => !string.Equals(g, currentName, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        Find.WindowStack.Add(
+            new Dialog_ManualGroupName(
+                "ColonyManagerRedux.Overview.ManualGroup.RenameGroup".Translate(),
+                otherGroups,
+                currentName,
+                newName =>
+                {
+                    foreach (var job in group.Jobs)
+                    {
+                        SetManualGroup(job, newName);
+                    }
+                }
+            )
+        );
+    }
+
+    /// <summary>
+    /// Whether every job in <paramref name="jobs"/> is suspended - kept generic and free of
+    /// GUI/game-state dependencies so it can be unit tested directly.
+    /// </summary>
+    internal static bool AllSuspended<T>(List<T> jobs, Func<T, bool> isSuspended) =>
+        jobs.All(isSuspended);
+
+    /// <summary>
+    /// Selects the jobs in <paramref name="jobs"/> that a "force update all" group action should
+    /// actually touch - jobs that are suspended or already due/pending an update are left alone,
+    /// mirroring the enable condition of the per-job "Force update" <see cref="FloatMenuOption"/>
+    /// in <see cref="UpdateInterval.Draw"/>. Kept generic and free of
+    /// GUI/game-state dependencies so it can be unit tested directly.
+    /// </summary>
+    internal static List<T> JobsEligibleForForceUpdate<T>(
+        List<T> jobs,
+        Func<T, bool> isSuspended,
+        Func<T, bool> shouldDoNow
+    ) => [.. jobs.Where(job => !isSuspended(job) && !shouldDoNow(job))];
+
+    private static void DrawGroupSuspendToggleButton(Rect rect, List<ManagerJob> jobs)
+    {
+        var allSuspended = AllSuspended(jobs, job => job.IsSuspended);
+
+        TooltipHandler.TipRegion(
+            rect,
+            allSuspended
+                ? "ColonyManagerRedux.Overview.GroupActions.ResumeAll".Translate()
+                : "ColonyManagerRedux.Overview.GroupActions.SuspendAll".Translate()
+        );
+
+        if (Utilities.DrawGroupStampButton(rect, allSuspended))
+        {
+            foreach (var job in jobs)
+            {
+                job.IsSuspended = !allSuspended;
+            }
+        }
+    }
+
+    private static void DrawGroupForceUpdateButton(Rect rect, List<ManagerJob> jobs)
+    {
+        TooltipHandler.TipRegion(
+            rect,
+            "ColonyManagerRedux.Overview.GroupActions.ForceUpdateAll".Translate()
+        );
+
+        if (Widgets.ButtonImage(rect, Resources.Refresh))
+        {
+            foreach (
+                var job in JobsEligibleForForceUpdate(
+                    jobs,
+                    job => job.IsSuspended,
+                    job => job.ShouldDoNow
+                )
+            )
+            {
+                job.Untouch();
+            }
+        }
+    }
+
+    private static void DrawGroupUpdateIntervalButton(Rect rect, List<ManagerJob> jobs)
+    {
+        TooltipHandler.TipRegion(
+            rect,
+            "ColonyManagerRedux.Overview.GroupActions.SetUpdateIntervalAll".Translate()
+        );
+
+        if (!Widgets.ButtonImage(rect, Resources.Stopwatch))
+        {
+            return;
+        }
+
+        var options = Utilities
+            .UpdateIntervalOptions.Select(interval => new FloatMenuOption(
+                "ColonyManagerRedux.Overview.GroupActions.SetUpdateIntervalAllTo".Translate(
+                    interval.Label.UncapitalizeFirst()
+                ),
+                () =>
+                {
+                    foreach (var job in jobs)
+                    {
+                        job.UpdateInterval = interval;
+                    }
+                }
+            ))
+            .ToList();
+        Find.WindowStack.Add(new FloatMenu(options));
     }
 
     public void DrawOverview(Rect rect)
@@ -648,7 +825,12 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
                 "ColonyManagerRedux.Overview.ManualGroup.NewGroup".Translate(),
                 () =>
                     Find.WindowStack.Add(
-                        new Dialog_NewManualGroup(existingGroups, name => SetManualGroup(job, name))
+                        new Dialog_ManualGroupName(
+                            "ColonyManagerRedux.Overview.ManualGroup.CreateGroup".Translate(),
+                            existingGroups,
+                            null,
+                            name => SetManualGroup(job, name)
+                        )
                     )
             )
         );

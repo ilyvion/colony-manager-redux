@@ -24,6 +24,12 @@ internal static class ManagerTabOverviewTests
         public string? Group { get; } = group;
     }
 
+    private readonly struct TestGroupActionJob(bool isSuspended, bool shouldDoNow)
+    {
+        public bool IsSuspended { get; } = isSuspended;
+        public bool ShouldDoNow { get; } = shouldDoNow;
+    }
+
     private static List<OverviewJobGroup<TestJob>> RunGetGroups(
         OverviewGroupMode mode,
         List<TestJob> jobs
@@ -225,5 +231,50 @@ internal static class ManagerTabOverviewTests
 
         Assert.ThatCollection(groups).Has.Count(1);
         Assert.That(groups[0].Header).Is.EqualTo("Alpha");
+    }
+
+    [Test]
+    public static void AllSuspendedIsTrueOnlyWhenEveryJobIsSuspended()
+    {
+        var allSuspended = new List<TestGroupActionJob>
+        {
+            new(isSuspended: true, shouldDoNow: false),
+            new(isSuspended: true, shouldDoNow: false),
+        };
+        var mixed = new List<TestGroupActionJob>
+        {
+            new(isSuspended: true, shouldDoNow: false),
+            new(isSuspended: false, shouldDoNow: false),
+        };
+        var noneSuspended = new List<TestGroupActionJob>
+        {
+            new(isSuspended: false, shouldDoNow: false),
+        };
+
+        Assert.That(AllSuspended(allSuspended, job => job.IsSuspended)).Is.True();
+        Assert.That(AllSuspended(mixed, job => job.IsSuspended)).Is.False();
+        Assert.That(AllSuspended(noneSuspended, job => job.IsSuspended)).Is.False();
+    }
+
+    [Test]
+    public static void JobsEligibleForForceUpdateExcludesSuspendedAndAlreadyDueJobs()
+    {
+        var jobs = new List<TestGroupActionJob>
+        {
+            new(isSuspended: false, shouldDoNow: false), // eligible
+            new(isSuspended: true, shouldDoNow: false), // suspended - excluded
+            new(isSuspended: false, shouldDoNow: true), // already due/pending - excluded
+            new(isSuspended: true, shouldDoNow: true), // both - excluded
+        };
+
+        var eligible = JobsEligibleForForceUpdate(
+            jobs,
+            job => job.IsSuspended,
+            job => job.ShouldDoNow
+        );
+
+        Assert.ThatCollection(eligible).Has.Count(1);
+        Assert.That(eligible[0].IsSuspended).Is.False();
+        Assert.That(eligible[0].ShouldDoNow).Is.False();
     }
 }

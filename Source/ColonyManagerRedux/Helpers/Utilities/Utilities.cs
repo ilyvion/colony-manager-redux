@@ -336,6 +336,19 @@ public static class Utilities
             );
 
     /// <summary>
+    /// Draws a stamp button representing the suspended state of a group of jobs, showing a
+    /// "start" icon when every job in the group is suspended and a "suspend" icon otherwise.
+    /// </summary>
+    /// <param name="stampRect">The rectangle in which to draw the button.</param>
+    /// <param name="allSuspended">Whether every job in the group is currently suspended.</param>
+    /// <returns>True if the button was clicked; otherwise, false.</returns>
+    public static bool DrawGroupStampButton(Rect stampRect, bool allSuspended) =>
+        Widgets.ButtonImage(
+            stampRect,
+            allSuspended ? Resources.StampStart : Resources.StampSuspended
+        );
+
+    /// <summary>
     /// Draws a toggle UI element at the specified position, allowing the user to enable or disable a boolean value.
     /// </summary>
     /// <param name="pos">The position vector for the toggle UI element (will be updated).</param>
