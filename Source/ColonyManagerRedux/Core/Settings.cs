@@ -1672,7 +1672,7 @@ public class Settings : ModSettings
             }
 
             var def = legacy.Def;
-            var target = _managerDefaultSettings.Find(s => s.Def == def);
+            var target = FindManagerDefaultSettingsFor(_managerDefaultSettings, def);
             if (target == null || !target.MigrateFrom(legacy))
             {
                 continue;
@@ -1690,6 +1690,15 @@ public class Settings : ModSettings
             _ = _managerSettings.RemoveAll(migrated.Contains);
         }
     }
+
+    // Migration runs in PostLoadInit before EnsureManagerDefaultSettingsAreCorrect(), which is
+    // what normally strips null/invalid entries left behind by Scribe's Deep collection loading
+    // — so, unlike the other Def-keyed lookups on these lists, this one must tolerate nulls in
+    // settingsList itself.
+    internal static ManagerDefaultSettings? FindManagerDefaultSettingsFor(
+        List<ManagerDefaultSettings> settingsList,
+        ManagerDef def
+    ) => settingsList.Find(s => s != null && s.Def == def);
 
     private void EnsureManagerSettingsAreCorrect() =>
         EnsureManagerDefSettingsAreCorrect(

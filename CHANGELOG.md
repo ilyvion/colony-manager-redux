@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- The mod's settings could fail to load with an error for some players, caused by leftover invalid entries from migrating an old save's job default settings to the newer format.
+
 ## [0.19.0] - 2026-09-14
 
 ### Added

@@ -171,4 +171,30 @@ internal static class ManagerDefaultSettingsMigrationTests
         var target = new ManagerDefaultSettings_Livestock();
         Assert.That(target.MigrateFrom(new ManagerSettings_Foraging())).Is.False();
     }
+
+    // Migration runs before EnsureManagerDefaultSettingsAreCorrect() has a chance to strip
+    // null/invalid entries that Scribe's Deep collection loading can leave behind, so the lookup
+    // it uses must not throw on a null entry (see PostLoadInit NullReferenceException regression).
+    [Test]
+    public static void FindManagerDefaultSettingsForSkipsNullEntries()
+    {
+        var def = new ManagerDef { defName = "MigrationTestManagerDef" };
+        var target = new ManagerDefaultSettings_Foraging { Def = def };
+        List<ManagerDefaultSettings> settingsList = [null!, target];
+
+        var found = Settings.FindManagerDefaultSettingsFor(settingsList, def);
+
+        Assert.That(ReferenceEquals(found, target)).Is.True();
+    }
+
+    [Test]
+    public static void FindManagerDefaultSettingsForReturnsNullWhenOnlyNullEntriesPresent()
+    {
+        var def = new ManagerDef { defName = "MigrationTestManagerDefMissing" };
+        List<ManagerDefaultSettings> settingsList = [null!];
+
+        var found = Settings.FindManagerDefaultSettingsFor(settingsList, def);
+
+        Assert.That(found is null).Is.True();
+    }
 }
