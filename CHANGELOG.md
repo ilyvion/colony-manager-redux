@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-09-14
+
 ### Added
 
 - On a job that's been queued for a forced update and is waiting to run, the update-interval icon now shows a distinct '- ! -' indicator, with its own tooltip, instead of looking the same as a job that has never updated at all.
@@ -644,7 +646,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.18.0..v0.19.0
 [0.18.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.3..v0.18.0
 [0.17.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.2..v0.17.3
 [0.17.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.1..v0.17.2
