@@ -16,5 +16,6 @@
         <li IfModActive="seekiworksmod.no17">Integrations/AAAA/1.6</li>
         <li IfModActive="seekiworksmod.no17">Integrations/AAAA/Common</li>
         <li IfModActive="Mlie.EasyUpgrades">Integrations/EasyUpgrades/Common</li>
+        <li IfModActive="ilyvion.rimtestredux">Integrations/RimTestRedux/1.6</li>
     </v1.6>
 </loadFolders>
