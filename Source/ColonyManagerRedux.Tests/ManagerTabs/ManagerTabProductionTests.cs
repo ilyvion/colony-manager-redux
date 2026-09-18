@@ -112,4 +112,26 @@ internal static class ManagerTabProductionTests
         Assert.That(groups[0].Workbench == tableA).Is.True();
         Assert.That(groups[1].Workbench == tableB).Is.True();
     }
+
+    // Regression guard: DrawRecipeRow used to reserve a fixed row height regardless of how many
+    // workbenches this label listed, so a recipe usable at many workbenches would wrap onto more
+    // lines than the row had room for and spill into the row below it. The row height is now
+    // measured from this same label text (see DrawRecipeRow's use of Text.CalcHeight), so the
+    // wiring between BuildRecipeRowLabel and what actually gets measured/drawn matters.
+    [Test]
+    public static void BuildRecipeRowLabelListsWorkbenchesInAllRecipeUsersOrder()
+    {
+        var tableA = new ThingDef { defName = "CMR_TestLabelWorkbenchA", label = "Table A" };
+        var tableB = new ThingDef { defName = "CMR_TestLabelWorkbenchB", label = "Table B" };
+        var recipe = new RecipeDef
+        {
+            defName = "CMR_TestLabelRecipe",
+            label = "Test Recipe",
+            recipeUsers = [tableA, tableB],
+        };
+
+        var label = BuildRecipeRowLabel(recipe);
+
+        Assert.That(label).Is.EqualTo("Test Recipe\n<i>Table A, Table B</i>");
+    }
 }

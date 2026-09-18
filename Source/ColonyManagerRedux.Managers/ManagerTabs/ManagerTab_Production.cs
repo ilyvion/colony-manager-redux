@@ -33,6 +33,11 @@ internal sealed class ManagerTab_Production(Manager manager)
     private bool _groupByWorkbench;
     private readonly HashSet<ThingDef> _collapsedWorkbenchGroups = [];
 
+    // A recipe's row height depends on how many lines its workbench list wraps onto, so it can
+    // only be measured by actually drawing it. Cache the last measured height per recipe the
+    // same way DoJobList's _jobRowHeights does.
+    private readonly Dictionary<RecipeDef, float> _recipeRowHeights = [];
+
     public override void PreOpen() => Refresh();
 
     protected override void Refresh()
@@ -226,6 +231,14 @@ internal sealed class ManagerTab_Production(Manager manager)
         cur.y += headerRect.height;
     }
 
+    // Kept generic-free and free of GUI/game-state dependencies so it can be unit tested
+    // directly, same as GroupRecipesByWorkbench above.
+    internal static string BuildRecipeRowLabel(RecipeDef recipe)
+    {
+        var workstations = recipe.AllRecipeUsers.Select(td => td.LabelCap.ToString()).ToCommaList();
+        return $"{recipe.LabelCap}\n<i>{workstations}</i>";
+    }
+
     private void DrawRecipeRow(
         ScrollViewScope scrollView,
         RecipeDef recipe,
@@ -233,40 +246,41 @@ internal sealed class ManagerTab_Production(Manager manager)
         int index
     )
     {
-        var rowRect = new Rect(0f, cur.y, scrollView.ViewRect.width, RecipeRowHeight);
+        var row = CullingScrollList.DrawRow(
+            scrollView,
+            ref cur,
+            _recipeRowHeights,
+            recipe,
+            recipe,
+            (r, ref c, width) =>
+            {
+                var labelText = BuildRecipeRowLabel(r);
+                var labelWidth = width - (2 * Margin);
+                var labelHeight = Mathf.Max(
+                    RecipeRowHeight,
+                    Text.CalcHeight(labelText, labelWidth)
+                );
+                var labelRect = new Rect(c.x + Margin, c.y, labelWidth, labelHeight);
+                IlyvionWidgets.Label(labelRect, labelText, TextAnchor.MiddleLeft);
+                c.y += labelHeight;
+            }
+        );
 
-        if (!scrollView.CanCull(rowRect.height, rowRect.y))
+        if (row is { } drawnRow)
         {
             if (index % 2 == 0)
             {
-                Widgets.DrawAltRect(rowRect);
+                Widgets.DrawAltRect(drawnRow);
             }
-            Widgets.DrawHighlightIfMouseover(rowRect);
+            Widgets.DrawHighlightIfMouseover(drawnRow);
 
-            if (Widgets.ButtonInvisible(rowRect))
+            if (Widgets.ButtonInvisible(drawnRow))
             {
                 var job = (ManagerJob_Production)MakeNewJob()!;
                 job.Recipe = recipe;
                 Selected = job;
             }
-
-            var workstations = recipe
-                .AllRecipeUsers.Select(td => td.LabelCap.ToString())
-                .ToCommaList();
-            var labelRect = new Rect(
-                rowRect.x + Margin,
-                rowRect.y,
-                rowRect.width - (2 * Margin),
-                rowRect.height
-            );
-            IlyvionWidgets.Label(
-                labelRect,
-                $"{recipe.LabelCap}\n<i>{workstations}</i>",
-                TextAnchor.MiddleLeft
-            );
         }
-
-        cur.y += RecipeRowHeight;
     }
 
     private void DrawAvailableRecipeList(Rect rect)

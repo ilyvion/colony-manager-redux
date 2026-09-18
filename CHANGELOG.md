@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The mod's settings could fail to load with an error for some players, caused by leftover invalid entries from migrating an old save's job default settings to the newer format.
 - The Power tab's production/consumption breakdown could show a building's count and wattage next to the wrong building's name, most noticeably after adding, removing, or reordering mods that add power-consuming or power-producing buildings.
+- In the Production tab's recipe list, a recipe usable at many workbenches could list more workbenches than its row had room for, spilling its text into the row below instead of growing the row to fit.
 
 ## [0.19.0] - 2026-09-14
 
