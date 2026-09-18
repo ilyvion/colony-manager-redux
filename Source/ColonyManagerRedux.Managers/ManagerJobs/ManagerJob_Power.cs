@@ -38,11 +38,11 @@ internal sealed class ManagerJob_Power
 #pragma warning disable IDE0028 // Simplify collection initialization
         private readonly ConditionalWeakTable<
             ManagerJob_Power,
-            CachedValue<(int current, int)[]>
+            CachedValue<(int current, int target)[]>
         > cachedTrades = new();
 #pragma warning restore IDE0028 // Simplify collection initialization
 
-        private CachedValue<(int current, int)[]> GetCachedTradeForJob(
+        private CachedValue<(int current, int target)[]> GetCachedTradeForJob(
             ManagerJob_Power managerJob
         ) => cachedTrades.GetValue(managerJob, _ => new([]));
 
@@ -122,11 +122,13 @@ internal sealed class ManagerJob_Power
                 _ = cachedTrade.Update(trade);
             }
             managerJob.tradingHistory.UpdateThingCountAndMax(
-                [.. managerJob._traders.Select(list => list.Count)],
-                [.. managerJob._traders.Select(list => 0)]
+                TraderDefs.Select((def, i) => (def, managerJob._traders[i].Count, 0))
             );
 
-            managerJob.tradingHistory.Update(tick, trade);
+            managerJob.tradingHistory.Update(
+                tick,
+                [.. TraderDefs.Select((def, i) => (def, trade[i].current, trade[i].target))]
+            );
         }
     }
 
@@ -532,7 +534,7 @@ internal sealed class ManagerJob_Power
             ),
         ];
 
-    private (int current, int)[] GetCurrentTrade() =>
+    private (int current, int target)[] GetCurrentTrade() =>
         [
             .. _traders.Select(list =>
                 ((int)list.Sum(trader => trader.PowerOn ? trader.PowerOutput : 0f), 0)

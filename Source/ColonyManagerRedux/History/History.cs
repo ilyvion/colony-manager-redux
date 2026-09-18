@@ -99,6 +99,28 @@ public partial class History : IExposable
     // each chapter holds the history for all periods.
     internal List<Chapter> _chapters = [];
 
+    // Lazily built lookup from ThingDef to chapter for Update/UpdateThingCountAndMax, so those
+    // hot paths don't do an O(n) Find per value. Not scribed; rebuilt on first access after
+    // being invalidated by anything that changes _chapters' contents.
+    private Dictionary<ThingDef, Chapter> ChaptersByThingDef
+    {
+        get
+        {
+            if (field == null || field.Count == 0)
+            {
+                field = [];
+                foreach (var chapter in _chapters)
+                {
+                    if (chapter.ThingDefCount.thingDef != null)
+                    {
+                        field[chapter.ThingDefCount.thingDef] = chapter;
+                    }
+                }
+            }
+            return field;
+        }
+    }
+
     // for scribe.
     /// <summary>
     /// Default constructor for scribing only.
@@ -228,6 +250,7 @@ public partial class History : IExposable
             // set chapters shown to the newly loaded chapters (instead of the default created empty chapters).
             _chaptersShown.Clear();
             _chaptersShown.AddRange(_chapters);
+            ChaptersByThingDef.Clear();
         }
     }
 
@@ -432,27 +455,32 @@ public partial class History : IExposable
     }
 
     /// <summary>
-    /// Updates the history with new counts and targets for each chapter.
+    /// Updates the history with new counts and targets for each chapter, joining
+    /// <paramref name="values"/> to chapters by <see cref="ThingDefCountClass.thingDef"/> rather
+    /// than by position, since a chapter's index can drift out of step with the current
+    /// <see cref="ThingDef"/> ordering (e.g. after mods adding/removing power buildings shift
+    /// <c>DefDatabase&lt;ThingDef&gt;</c>'s ordering) even though the chapters themselves survive.
     /// </summary>
     /// <param name="tick">The current tick.</param>
-    /// <param name="counts">The counts and targets for each chapter.</param>
-    public void Update(int tick, params (int count, int target)[] counts)
+    /// <param name="values">The thing def, count and target for each chapter.</param>
+    public void Update(int tick, params (ThingDef thingDef, int count, int target)[] values)
     {
-        if (counts == null)
+        if (values == null)
         {
-            throw new ArgumentNullException(nameof(counts));
+            throw new ArgumentNullException(nameof(values));
         }
 
-        if (counts.Length != _chapters.Count)
+        foreach (var (thingDef, count, target) in values)
         {
-            ColonyManagerReduxMod.Instance.LogWarning(
-                $"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}"
-            );
-        }
+            if (!ChaptersByThingDef.TryGetValue(thingDef, out var chapter))
+            {
+                ColonyManagerReduxMod.Instance.LogWarning(
+                    $"History updated with a value for {thingDef}, which has no matching chapter"
+                );
+                continue;
+            }
 
-        for (var i = 0; i < counts.Length; i++)
-        {
-            _chapters[i].Add(counts[i].count, counts[i].target, tick);
+            chapter.Add(count, target, tick);
         }
     }
 
@@ -511,34 +539,32 @@ public partial class History : IExposable
     }
 
     /// <summary>
-    /// Updates the thing counts and maximums for each chapter.
+    /// Updates the thing count and maximum for each chapter, joining <paramref name="values"/>
+    /// to chapters by <see cref="ThingDefCountClass.thingDef"/> rather than by position - see
+    /// <see cref="Update(int, ValueTuple{ThingDef, int, int}[])"/> for why.
     /// </summary>
-    /// <param name="counts">The thing counts for each chapter.</param>
-    /// <param name="maxes">The maximum values for each chapter.</param>
-    public void UpdateThingCountAndMax(int[] counts, int[] maxes)
+    /// <param name="values">The thing def, count and maximum for each chapter.</param>
+    public void UpdateThingCountAndMax(IEnumerable<(ThingDef thingDef, int count, int max)> values)
     {
-        if (counts == null)
+        if (values == null)
         {
-            throw new ArgumentNullException(nameof(counts));
-        }
-        if (maxes == null)
-        {
-            throw new ArgumentNullException(nameof(maxes));
+            throw new ArgumentNullException(nameof(values));
         }
 
-        if (counts.Length != _chapters.Count || maxes.Length != _chapters.Count)
+        foreach (var (thingDef, count, max) in values)
         {
-            ColonyManagerReduxMod.Instance.LogWarning(
-                $"History updated with incorrect number of chapters; got {counts.Length}, expected {_chapters.Count}"
-            );
-        }
-
-        for (var i = 0; i < maxes.Length; i++)
-        {
-            if (_chapters[i].ThingDefCount.count != counts[i])
+            if (!ChaptersByThingDef.TryGetValue(thingDef, out var chapter))
             {
-                _chapters[i].TrueMax = maxes[i];
-                _chapters[i].ThingDefCount.count = counts[i];
+                ColonyManagerReduxMod.Instance.LogWarning(
+                    $"History updated with a value for {thingDef}, which has no matching chapter"
+                );
+                continue;
+            }
+
+            if (chapter.ThingDefCount.count != count)
+            {
+                chapter.TrueMax = max;
+                chapter.ThingDefCount.count = count;
             }
         }
     }
@@ -636,6 +662,8 @@ public partial class History : IExposable
                 _chapters.Add(chapter);
             }
         }
+
+        ChaptersByThingDef.Clear();
     }
 }
 
