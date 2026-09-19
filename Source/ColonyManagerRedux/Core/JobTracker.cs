@@ -174,6 +174,11 @@ public class JobTracker(Manager manager) : IExposable
 
         _ = JobList.Remove(job);
         CleanPriorities();
+
+        foreach (var comp in _manager.AllCompsForReading)
+        {
+            comp.Notify_JobDeleted(job);
+        }
     }
 
     /// <summary>

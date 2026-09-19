@@ -109,6 +109,18 @@ public class ManagerLog : IExposable
     /// <returns>True if this log is for the given job; otherwise, false.</returns>
     public bool IsForJob(ManagerJob job) => _originatingJob == job;
 
+    /// <summary>
+    /// Releases this log entry's reference to the specified job, if it is the originating job.
+    /// </summary>
+    /// <param name="job">The job to forget.</param>
+    public void ForgetJob(ManagerJob job)
+    {
+        if (_originatingJob == job)
+        {
+            _originatingJob = null;
+        }
+    }
+
 #pragma warning disable CS8618 // Only for scribing
     /// <summary>
     /// Default constructor for scribing only.
@@ -138,6 +150,11 @@ public class ManagerLog : IExposable
     /// <inheritdoc/>
     public void ExposeData()
     {
+        if (Scribe.mode == LoadSaveMode.Saving && _originatingJob != null && !HasJob)
+        {
+            _originatingJob = null;
+        }
+
         Scribe_Defs.Look(ref _originatingDef, "originatingDef");
         Scribe_References.Look(ref _originatingJob, "originatingJob");
         Scribe_Values.Look(ref _label, "label");

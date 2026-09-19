@@ -33,6 +33,14 @@ internal partial class ManagerTab_Logs
             }
         }
 
+        public override void Notify_JobDeleted(ManagerJob job)
+        {
+            foreach (var log in _logs)
+            {
+                log.ForgetJob(job);
+            }
+        }
+
         public override void PostExposeData()
         {
             base.PostExposeData();

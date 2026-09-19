@@ -46,6 +46,12 @@ public abstract class ManagerComp
     public virtual void CompUpdate() { }
 
     /// <summary>
+    /// Called after a job has been deleted from the manager's job tracker.
+    /// </summary>
+    /// <param name="job">The deleted job.</param>
+    public virtual void Notify_JobDeleted(ManagerJob job) { }
+
+    /// <summary>
     /// Called to expose data for saving/loading. Override to provide custom serialization logic.
     /// </summary>
     public virtual void PostExposeData() { }

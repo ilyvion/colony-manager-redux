@@ -47,7 +47,9 @@ public class Manager : MapComponent, ILoadReferenceable
     /// </summary>
     public List<CellRect> AncientDangerRects => _ancientDangerRects;
 
+#pragma warning disable IDE0032 // Use auto property
     private readonly List<ManagerComp> _comps;
+#pragma warning restore IDE0032 // Use auto property
 
     /// <summary>
     /// Controls whether data specific to the current map (such as references to Things, areas, and per-map state)
@@ -589,4 +591,9 @@ public class Manager : MapComponent, ILoadReferenceable
     /// <returns>An enumerable of components of type <typeparamref name="T"/>.</returns>
     public IEnumerable<T> CompsOfType<T>()
         where T : class => _comps?.Where(c => c is T).Cast<T>() ?? [];
+
+    /// <summary>
+    /// Gets all manager components attached to this manager. Do not modify the returned list.
+    /// </summary>
+    public List<ManagerComp> AllCompsForReading => _comps;
 }
