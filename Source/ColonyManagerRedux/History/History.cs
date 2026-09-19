@@ -602,6 +602,7 @@ public partial class History : IExposable
     {
         // So we don't modify a list passed to us
         List<ThingDef> traderDefs = [.. newTraderDefs];
+        var previouslyKnown = _chapters.ToHashSet();
 
         // get range of colors if not set
         // default to white for single line
@@ -664,6 +665,12 @@ public partial class History : IExposable
         }
 
         ChaptersByThingDef.Clear();
+
+        _ = _chaptersShown.RemoveAll(c => !_chapters.Contains(c));
+        _chaptersShown.AddRange(
+            _chapters.Where(c => !_chaptersShown.Contains(c) && !previouslyKnown.Contains(c))
+        );
+        graphRenderer = null;
     }
 }
 

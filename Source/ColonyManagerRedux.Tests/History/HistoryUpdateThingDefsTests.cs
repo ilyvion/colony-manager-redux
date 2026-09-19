@@ -82,6 +82,46 @@ internal static class HistoryUpdateThingDefsTests
             .Is.False();
     }
 
+    // Chapters added or removed after construction must be reflected in the shown-chapters set,
+    // or the plot never displays new chapters and keeps drawing removed ones.
+    [Test]
+    public static void ShownChaptersTrackAddedAndRemovedChapters()
+    {
+        var stays = Def("Stays");
+        var removed = Def("Removed");
+        var added = Def("Added");
+        var history = new History();
+        var staysChapter = NewChapter(stays);
+        history._chapters.Add(staysChapter);
+        history._chapters.Add(NewChapter(removed));
+        history._chaptersShown.AddRange(history._chapters);
+
+        history.UpdateThingDefs([stays, added]);
+
+        Assert.ThatCollection(history._chaptersShown).Has.Count(2);
+        Assert.That(history._chaptersShown.Contains(staysChapter)).Is.True();
+        Assert.That(history._chaptersShown.All(history._chapters.Contains)).Is.True();
+    }
+
+    // A chapter the player has hidden via the legend must stay hidden across an update.
+    [Test]
+    public static void HiddenChapterStaysHiddenAcrossUpdate()
+    {
+        var first = Def("First");
+        var second = Def("Second");
+        var history = new History();
+        var firstChapter = NewChapter(first);
+        var secondChapter = NewChapter(second);
+        history._chapters.Add(firstChapter);
+        history._chapters.Add(secondChapter);
+        history._chaptersShown.Add(firstChapter);
+
+        history.UpdateThingDefs([first, second, Def("Third")]);
+
+        Assert.That(history._chaptersShown.Contains(secondChapter)).Is.False();
+        Assert.That(history._chaptersShown.Contains(firstChapter)).Is.True();
+    }
+
     // A no-op call (new set exactly matches existing chapters' defs) should still leave the
     // chapter count unchanged, even though the reconciliation loop walks/removes/re-adds nothing.
     [Test]
