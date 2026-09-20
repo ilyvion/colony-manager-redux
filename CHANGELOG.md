@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-09-20
+
 ### Fixed
 
 - The mod's settings could fail to load with an error for some players, caused by leftover invalid entries from migrating an old save's job default settings to the newer format.
@@ -653,7 +655,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.1...HEAD
+[0.19.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.0..v0.19.1
 [0.19.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.18.0..v0.19.0
 [0.18.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.3..v0.18.0
 [0.17.3]: https://github.com/ilyvion/colony-manager-redux/compare/v0.17.2..v0.17.3
