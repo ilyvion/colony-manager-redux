@@ -1,1 +1,0 @@
-../../rimworld-utils/update_originals.sh

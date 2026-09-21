@@ -2,4 +2,5 @@ These directories/files are only here to ensure the assemblies with dependencies
 
 For reference:
 
--   2830943477: Animal Genetics (Continued)
+- 2830943477: Animal Genetics (Continued)
+- 3264193512: AAAA(Allowed Area Automatic Adapter)
