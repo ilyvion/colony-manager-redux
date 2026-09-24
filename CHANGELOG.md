@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The Livestock job's Training section can now limit training to a set number of animals. Animals that already have (or have finished) one of the training targets count toward the limit and keep their slot; once the limit is reached, no other animals are assigned training. When there's room, choose whether to pick the oldest or youngest animals first, and optionally prefer named animals and/or animals bonded to a colonist. You can also have the limit ignore animals nearing the end of their lifespan (at a configurable percentage of their life expectancy): they no longer take up a slot, so younger animals can be trained in their place, and their existing training is left alone.
 
+### Fixed
+
+- A manager job that had recorded no history yet could fail to load its history when the save was loaded.
+- Jobs that sort targets by distance from your base could throw an error on a map with no colonists and no home area.
+- Colonists could be stopped from working at a manager station by a powered AI manager on the map you were viewing, rather than the one on their own map.
+- Landing a gravship with a Power job could log an error when the job was replaced.
+
 ## [0.19.1] - 2026-09-20
 
 ### Fixed

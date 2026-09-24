@@ -43,8 +43,8 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
 
         // Don't issue manager work when there's an active AI manager.
         if (
-            Find
-                .CurrentMap.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
+            pawn
+                .Map.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
                 .Any(b => b.Powered)
         )
         {

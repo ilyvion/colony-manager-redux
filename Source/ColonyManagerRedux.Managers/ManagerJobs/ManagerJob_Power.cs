@@ -260,9 +260,10 @@ internal sealed class ManagerJob_Power
 
     public override WorkTypeDef? WorkTypeDef => ManagerWorkTypeDefOf.Managing;
 
-    public override void CleanUp(ManagerLog? jobLog) =>
-        // The power job is never removed/cleaned up
-        throw new NotImplementedException();
+    public override void CleanUp(ManagerLog? jobLog)
+    {
+        // The power job is a map-wide singleton with nothing to clean up.
+    }
 
     /// <summary>
     /// Decides what a run of the job should do based on whether any powered manager station is

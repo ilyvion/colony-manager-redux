@@ -1,7 +1,6 @@
 // ManagerScene.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using ColonyManagerRedux.Managers;
 using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
@@ -92,6 +91,15 @@ internal sealed class ManagerScene : IDisposable
         return thing;
     }
 
+    /// <summary>Spawns a free colonist and removes it again on dispose.</summary>
+    public Pawn SpawnColonist(IntVec3 cell)
+    {
+        var pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Colonist, Faction.OfPlayer);
+        _ = GenSpawn.Spawn(pawn, cell, Map);
+        _things.Add(pawn);
+        return pawn;
+    }
+
     /// <summary>Spawns a colony-owned building and removes it again on dispose.</summary>
     public Building SpawnBuilding(ThingDef def, IntVec3 cell)
     {
@@ -150,8 +158,7 @@ internal sealed class ManagerScene : IDisposable
     {
         foreach (var job in Manager.JobTracker.Jobs.ToList())
         {
-            // The Power job is a map-wide singleton whose CleanUp deliberately throws.
-            Manager.JobTracker.Delete(job, cleanup: job is not ManagerJob_Power);
+            Manager.JobTracker.Delete(job);
         }
         _jobs.Clear();
 

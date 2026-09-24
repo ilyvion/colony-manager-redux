@@ -1112,7 +1112,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
         else
         {
-            _reachabilityCache.Add(key, new CachedValue<bool>(result, ReachabilityCacheTicks));
+            var cache = new CachedValue<bool>(result, ReachabilityCacheTicks);
+            _ = cache.Update(result);
+            _reachabilityCache.Add(key, cache);
         }
 
         return result;

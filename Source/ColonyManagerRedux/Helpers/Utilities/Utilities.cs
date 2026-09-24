@@ -926,22 +926,47 @@ public static class Utilities
         if (_tmpHomeCells.Count > 0)
         {
             position = AverageCell(_tmpHomeCells);
-            var standableCell = position;
-
-            // find the closest traversable cell to the center
-            for (var i = 0; !standableCell.Walkable(map); i++)
-            {
-                standableCell = position + GenRadial.RadialPattern[i];
-            }
-
-            return standableCell;
+            return FindNearestWalkableCell(position, cell => cell.Walkable(map));
         }
         else
         {
             // Just return the position of a pawn (or, if nobody is alive, the map center)
-            return map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer)?.RandomElement().Position
-                ?? map.Center;
+            return PawnPositionOrCenter(
+                map.mapPawns.SpawnedPawnsInFaction(Faction.OfPlayer),
+                map.Center
+            );
         }
+    }
+
+    /// <summary>
+    /// The position of a random pawn in <paramref name="pawns"/>, or <paramref name="mapCenter"/>
+    /// when the list is empty.
+    /// </summary>
+    internal static IntVec3 PawnPositionOrCenter(IReadOnlyList<Pawn> pawns, IntVec3 mapCenter) =>
+        pawns.Count > 0 ? pawns[Rand.Range(0, pawns.Count)].Position : mapCenter;
+
+    /// <summary>
+    /// Finds the walkable cell closest to <paramref name="position"/> by scanning
+    /// <see cref="GenRadial.RadialPattern"/>. Returns <paramref name="position"/> itself when it is
+    /// walkable, and also when no cell in the pattern is.
+    /// </summary>
+    internal static IntVec3 FindNearestWalkableCell(IntVec3 position, Func<IntVec3, bool> walkable)
+    {
+        if (walkable(position))
+        {
+            return position;
+        }
+
+        for (var i = 0; i < GenRadial.RadialPattern.Length; i++)
+        {
+            var candidate = position + GenRadial.RadialPattern[i];
+            if (walkable(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return position;
     }
 
     /// <summary>
@@ -1040,6 +1065,39 @@ public static class Utilities
         return (int)sum;
     }
 
+    internal static string FormatInts(IEnumerable<int> values) =>
+        string.Join(":", values.Select(i => i.ToString(CultureInfo.InvariantCulture)));
+
+    internal static int[] ParseInts(string? text) =>
+        string.IsNullOrEmpty(text)
+            ? []
+            : [.. text!.Split(':').Select(v => int.Parse(v, CultureInfo.InvariantCulture))];
+
+    internal static string FormatIntTuples(IEnumerable<(int, int)> values) =>
+        string.Join(
+            ":",
+            values.Select(v =>
+                $"{v.Item1.ToString(CultureInfo.InvariantCulture)},{v.Item2.ToString(CultureInfo.InvariantCulture)}"
+            )
+        );
+
+    internal static (int, int)[] ParseIntTuples(string? text) =>
+        string.IsNullOrEmpty(text)
+            ? []
+            :
+            [
+                .. text!
+                    .Split(':')
+                    .Select(v =>
+                    {
+                        var parts = v.Split(',');
+                        return (
+                            int.Parse(parts[0], CultureInfo.InvariantCulture),
+                            int.Parse(parts[1], CultureInfo.InvariantCulture)
+                        );
+                    }),
+            ];
+
     internal static void Scribe_IntArray(ref CircularBuffer<int> values, string label)
     {
         var capacity = 0;
@@ -1047,17 +1105,14 @@ public static class Utilities
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             capacity = values.Capacity;
-            text = values.Join(i => i.ToString(CultureInfo.InvariantCulture), ":");
+            text = FormatInts(values);
         }
 
         Scribe_Values.Look(ref capacity, $"{label}Capacity", History.EntriesPerInterval);
         Scribe_Values.Look(ref text, label);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            values = new CircularBuffer<int>(
-                capacity,
-                text?.Split(':').Select(int.Parse).ToArray() ?? []
-            );
+            values = new CircularBuffer<int>(capacity, ParseInts(text));
         }
     }
 
@@ -1068,26 +1123,14 @@ public static class Utilities
         if (Scribe.mode == LoadSaveMode.Saving)
         {
             capacity = values.Capacity;
-            text = values.Join(i => $"{i.Item1},{i.Item2}", ":");
+            text = FormatIntTuples(values);
         }
 
         Scribe_Values.Look(ref capacity, $"{label}Capacity", History.EntriesPerInterval);
         Scribe_Values.Look(ref text, label);
         if (Scribe.mode == LoadSaveMode.LoadingVars)
         {
-            values = new CircularBuffer<(int, int)>(
-                capacity,
-                text?.Split(':')
-                    .Select(v =>
-                    {
-                        var values = v.Split(',');
-                        var count = int.Parse(values[0], CultureInfo.InvariantCulture);
-                        var target = int.Parse(values[1], CultureInfo.InvariantCulture);
-                        return (count, target);
-                    })
-                    .ToArray()
-                    ?? []
-            );
+            values = new CircularBuffer<(int, int)>(capacity, ParseIntTuples(text));
         }
     }
 
