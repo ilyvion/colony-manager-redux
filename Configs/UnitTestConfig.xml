@@ -1,0 +1,6 @@
+<TestConfig>
+    <!-- The RimBridge dev mod logs its own startup timing as a warning while the first map generates. -->
+    <warningsAllowed>
+        <li>\[RimBridge\]</li>
+    </warningsAllowed>
+</TestConfig>
