@@ -639,4 +639,129 @@ internal static class ManagerJobLivestockTests
 
         Assert.ThatCollection(result).Is.Empty();
     }
+
+    private sealed class Trainee(
+        string name,
+        long age,
+        bool trained = false,
+        bool eligible = true,
+        bool named = false,
+        bool bonded = false
+    )
+    {
+        public string Name { get; } = name;
+        public long Age { get; } = age;
+        public bool Trained { get; } = trained;
+        public bool Eligible { get; } = eligible;
+        public bool Named { get; } = named;
+        public bool Bonded { get; } = bonded;
+    }
+
+    private static string[] SelectForLimit(
+        int limit,
+        ManagerJob_Livestock.TrainingPriority priority,
+        bool prioritizeNamed,
+        bool prioritizeBonded,
+        params Trainee[] animals
+    ) =>
+        [
+            .. ManagerJob_Livestock
+                .SelectAnimalsForTrainingLimit(
+                    limit,
+                    animals,
+                    a => a.Trained,
+                    a => a.Eligible,
+                    a => a.Named,
+                    a => a.Bonded,
+                    a => a.Age,
+                    priority,
+                    prioritizeNamed,
+                    prioritizeBonded
+                )
+                .Select(a => a.Name),
+        ];
+
+    [Test]
+    public static void TrainingLimitKeepsAlreadyTrainedAnimalsAndFillsRemainingSlots()
+    {
+        var result = SelectForLimit(
+            2,
+            ManagerJob_Livestock.TrainingPriority.Oldest,
+            false,
+            false,
+            new Trainee("Old", 300),
+            new Trainee("Trained", 100, trained: true),
+            new Trainee("Young", 200)
+        );
+
+        Assert.ThatCollection(result).Has.Count(2);
+        Assert.That(result[0]).Is.EqualTo("Trained");
+        Assert.That(result[1]).Is.EqualTo("Old");
+    }
+
+    [Test]
+    public static void TrainingLimitNeverDropsTrainedAnimalsOverTheLimit()
+    {
+        var result = SelectForLimit(
+            1,
+            ManagerJob_Livestock.TrainingPriority.Oldest,
+            false,
+            false,
+            new Trainee("A", 100, trained: true),
+            new Trainee("B", 200, trained: true),
+            new Trainee("C", 300)
+        );
+
+        Assert.ThatCollection(result).Has.Count(2);
+        Assert.ThatCollection(result).Does.Not.Contain("C");
+    }
+
+    [Test]
+    public static void TrainingLimitSkipsIneligibleAnimals()
+    {
+        var result = SelectForLimit(
+            2,
+            ManagerJob_Livestock.TrainingPriority.Oldest,
+            false,
+            false,
+            new Trainee("Ineligible", 500, eligible: false),
+            new Trainee("Eligible", 100)
+        );
+
+        Assert.ThatCollection(result).Has.Count(1);
+        Assert.That(result[0]).Is.EqualTo("Eligible");
+    }
+
+    [Test]
+    public static void TrainingLimitYoungestPriorityPicksYoungestFirst()
+    {
+        var result = SelectForLimit(
+            1,
+            ManagerJob_Livestock.TrainingPriority.Youngest,
+            false,
+            false,
+            new Trainee("Old", 300),
+            new Trainee("Young", 100)
+        );
+
+        Assert.That(result[0]).Is.EqualTo("Young");
+    }
+
+    [Test]
+    public static void TrainingLimitPrioritizesBondedThenNamedOverAge()
+    {
+        var result = SelectForLimit(
+            2,
+            ManagerJob_Livestock.TrainingPriority.Oldest,
+            true,
+            true,
+            new Trainee("Oldest", 900),
+            new Trainee("Named", 100, named: true),
+            new Trainee("Bonded", 50, bonded: true)
+        );
+
+        Assert.ThatCollection(result).Has.Count(2);
+        Assert.That(result[0]).Is.EqualTo("Bonded");
+        Assert.That(result[1]).Is.EqualTo("Named");
+    }
 }

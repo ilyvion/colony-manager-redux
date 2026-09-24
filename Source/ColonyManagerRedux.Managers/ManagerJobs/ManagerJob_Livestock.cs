@@ -165,6 +165,12 @@ internal sealed partial class ManagerJob_Livestock
         Sterilize,
     }
 
+    public enum TrainingPriority
+    {
+        Oldest,
+        Youngest,
+    }
+
     public bool CullTrained;
     public bool CullPregnant;
     public bool CullBonded;
@@ -1214,6 +1220,8 @@ internal sealed partial class ManagerJob_Livestock
         var ticksBetweenOperations =
             ColonyManagerReduxMod.Settings.GetTicksBetweenOperationsForCoroutine(PlanTrainingJobs);
 
+        var allowedAnimals = GetAnimalsAllowedToTrain();
+
         foreach (var ageSex in Utilities_Livestock.AgeSexArray)
         {
             // skip juveniles if TrainYoung is not enabled.
@@ -1234,6 +1242,8 @@ internal sealed partial class ManagerJob_Livestock
                         // only assign training, unless unassign is ticked.
                         animal.training.GetWanted(def) != trainingDef
                         && (trainingDef || Training.UnassignTraining)
+                        // only assign training to animals within the training limit.
+                        && (!trainingDef || allowedAnimals?.Contains(animal) != false)
                     )
                     {
                         data.TrainingsToSet.Add((animal, def, trainingDef));
@@ -1242,6 +1252,100 @@ internal sealed partial class ManagerJob_Livestock
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
         }
+    }
+
+    /// <summary>
+    /// The animals that may be assigned new training when the training limit is enabled, or
+    /// <see langword="null"/> when there is no limit.
+    /// </summary>
+    private HashSet<Pawn>? GetAnimalsAllowedToTrain()
+    {
+        if (!Training.LimitAnimals || !Training.AnyEnabled)
+        {
+            return null;
+        }
+
+        var enabledDefs = TrainingTracker.TrainableDefs.Where(d => Training[d]).ToList();
+        var tame = Utilities_Livestock
+            .AgeSexArray.SelectMany(ageSex => TriggerPawnKind.pawnKind!.GetTame(Manager, ageSex))
+            .ToList();
+
+        return
+        [
+            .. SelectAnimalsForTrainingLimit(
+                Training.AnimalLimit,
+                tame,
+                p => enabledDefs.Any(d => p.training.HasLearned(d) || p.training.GetWanted(d)),
+                p =>
+                    (
+                        Training.TrainYoung
+                        || !p.ageTracker.CurLifeStage.developmentalStage.Juvenile()
+                    ) && enabledDefs.Any(d => p.training.CanAssignToTrain(d, out _).Accepted),
+                p => p.Name?.Numerical == false,
+                p => p.BondedWithColonist(),
+                p => p.ageTracker.AgeBiologicalTicks,
+                Training.Priority,
+                Training.PrioritizeNamed,
+                Training.PrioritizeBonded
+            ),
+        ];
+    }
+
+    /// <summary>
+    /// Picks the animals that count toward the training limit: every animal that already has
+    /// (or is working towards) a training target, plus enough of the eligible remaining animals,
+    /// in priority order, to fill up to <paramref name="limit"/> animals in total. Animals
+    /// already trained are never dropped, even if they exceed the limit.
+    /// </summary>
+    internal static List<T> SelectAnimalsForTrainingLimit<T>(
+        int limit,
+        IEnumerable<T> animals,
+        Func<T, bool> hasTargetTraining,
+        Func<T, bool> isEligible,
+        Func<T, bool> isNamed,
+        Func<T, bool> isBonded,
+        Func<T, long> ageBiologicalTicks,
+        TrainingPriority priority,
+        bool prioritizeNamed,
+        bool prioritizeBonded
+    )
+    {
+        var selected = new List<T>();
+        var candidates = new List<T>();
+        foreach (var animal in animals)
+        {
+            if (hasTargetTraining(animal))
+            {
+                selected.Add(animal);
+            }
+            else if (isEligible(animal))
+            {
+                candidates.Add(animal);
+            }
+        }
+
+        var slots = limit - selected.Count;
+        if (slots <= 0)
+        {
+            return selected;
+        }
+
+        var ordered = candidates.OrderBy(a => 0);
+        if (prioritizeBonded)
+        {
+            ordered = ordered.ThenByDescending(isBonded);
+        }
+        if (prioritizeNamed)
+        {
+            ordered = ordered.ThenByDescending(isNamed);
+        }
+        ordered =
+            priority == TrainingPriority.Oldest
+                ? ordered.ThenByDescending(ageBiologicalTicks)
+                : ordered.ThenBy(ageBiologicalTicks);
+
+        selected.AddRange(ordered.Take(slots));
+        return selected;
     }
 
     [CoroutineSettingsMethod]
@@ -1977,6 +2081,11 @@ internal sealed partial class ManagerJob_Livestock
         public DefMap<TrainableDef, bool> TrainingTargets = new();
         public bool TrainYoung;
         public bool UnassignTraining;
+        public bool LimitAnimals;
+        public int AnimalLimit = 3;
+        public TrainingPriority Priority;
+        public bool PrioritizeNamed;
+        public bool PrioritizeBonded;
 
         public bool AnyEnabled
         {
@@ -2009,6 +2118,11 @@ internal sealed partial class ManagerJob_Livestock
         {
             Scribe_Values.Look(ref TrainYoung, "trainYoung");
             Scribe_Values.Look(ref UnassignTraining, "unassignTraining");
+            Scribe_Values.Look(ref LimitAnimals, "limitAnimals");
+            Scribe_Values.Look(ref AnimalLimit, "animalLimit", 3);
+            Scribe_Values.Look(ref Priority, "priority");
+            Scribe_Values.Look(ref PrioritizeNamed, "prioritizeNamed");
+            Scribe_Values.Look(ref PrioritizeBonded, "prioritizeBonded");
             Scribe_Deep.Look(ref TrainingTargets, "trainingTargets");
         }
 

@@ -57,6 +57,16 @@
     <ColonyManagerRedux.Livestock.UnassignTraining.Tip>Unassign other existing training targets for animals that don't match these settings</ColonyManagerRedux.Livestock.UnassignTraining.Tip>
     <ColonyManagerRedux.Livestock.TrainYoung>Train young animals</ColonyManagerRedux.Livestock.TrainYoung>
     <ColonyManagerRedux.Livestock.TrainYoung.Tip>When assigning training to animals, also include juvenile animals</ColonyManagerRedux.Livestock.TrainYoung.Tip>
+    <ColonyManagerRedux.Livestock.LimitTrainedAnimals>Only train this many animals</ColonyManagerRedux.Livestock.LimitTrainedAnimals>
+    <ColonyManagerRedux.Livestock.LimitTrainedAnimals.Tip>Limit training to a set number of animals. Animals that already have (or have finished) one of the training targets count toward the limit and keep their slot; once the limit is reached, no other animals are assigned training.</ColonyManagerRedux.Livestock.LimitTrainedAnimals.Tip>
+    <ColonyManagerRedux.Livestock.TrainingPriority>Train first</ColonyManagerRedux.Livestock.TrainingPriority>
+    <ColonyManagerRedux.Livestock.TrainingPriority.Tip>Which animals to pick first when there's room for more animals to train</ColonyManagerRedux.Livestock.TrainingPriority.Tip>
+    <ColonyManagerRedux.Livestock.TrainingPriority.Oldest>Oldest animals</ColonyManagerRedux.Livestock.TrainingPriority.Oldest>
+    <ColonyManagerRedux.Livestock.TrainingPriority.Youngest>Youngest animals</ColonyManagerRedux.Livestock.TrainingPriority.Youngest>
+    <ColonyManagerRedux.Livestock.PrioritizeNamed>Named first</ColonyManagerRedux.Livestock.PrioritizeNamed>
+    <ColonyManagerRedux.Livestock.PrioritizeNamed.Tip>Pick animals with a real (non-numerical) name before other animals</ColonyManagerRedux.Livestock.PrioritizeNamed.Tip>
+    <ColonyManagerRedux.Livestock.PrioritizeBonded>Bonded first</ColonyManagerRedux.Livestock.PrioritizeBonded>
+    <ColonyManagerRedux.Livestock.PrioritizeBonded.Tip>Pick animals bonded to a colonist before other animals</ColonyManagerRedux.Livestock.PrioritizeBonded.Tip>
     <ColonyManagerRedux.Livestock.SendToCullingArea>Restrict animals marked for culling</ColonyManagerRedux.Livestock.SendToCullingArea>
     <ColonyManagerRedux.Livestock.SendToCullingArea.Tip>Restrict animals designated for culling to a specific area</ColonyManagerRedux.Livestock.SendToCullingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToMilkingArea>Restrict animals ready to be milked</ColonyManagerRedux.Livestock.SendToMilkingArea>

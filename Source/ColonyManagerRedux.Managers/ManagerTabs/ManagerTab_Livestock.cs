@@ -19,6 +19,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
     private readonly List<PawnKindDef> _availablePawnKinds = [];
 
     private string[] _newCounts = ["", "", "", ""];
+    private string _trainingLimitBuffer = "";
 
     private Vector2 _scrollPosition = Vector2.zero;
     private PawnKindDef? _selectedAvailable;
@@ -1449,6 +1450,85 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             ref job.Training.TrainYoung
         );
         height += ListEntryHeight;
+
+        var limitRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
+        var limitFieldWidth = 60f;
+        var limitToggleRect = new Rect(
+            limitRect.x,
+            limitRect.y,
+            job.Training.LimitAnimals ? width - limitFieldWidth - Margin : width,
+            ListEntryHeight
+        );
+        DrawToggle(
+            limitToggleRect,
+            "ColonyManagerRedux.Livestock.LimitTrainedAnimals".Translate(),
+            "ColonyManagerRedux.Livestock.LimitTrainedAnimals.Tip".Translate(),
+            ref job.Training.LimitAnimals
+        );
+        if (job.Training.LimitAnimals)
+        {
+            var fieldRect = new Rect(
+                limitRect.xMax - limitFieldWidth,
+                limitRect.y,
+                limitFieldWidth,
+                ListEntryHeight
+            ).ContractedBy(1f);
+            var limit = job.Training.AnimalLimit;
+            Widgets.TextFieldNumeric(fieldRect, ref limit, ref _trainingLimitBuffer, 0f, 9999f);
+            job.Training.AnimalLimit = limit;
+        }
+        height += ListEntryHeight;
+
+        if (job.Training.LimitAnimals)
+        {
+            var priorityRect = new Rect(pos.x, pos.y + height, width, ListEntryHeight);
+            var labelRect = new Rect(priorityRect) { width = priorityRect.width / 2f };
+            var buttonRect = new Rect(priorityRect)
+            {
+                x = priorityRect.x + labelRect.width,
+                width = priorityRect.width - labelRect.width,
+            };
+            IlyvionWidgets.Label(
+                labelRect,
+                "ColonyManagerRedux.Livestock.TrainingPriority".Translate(),
+                "ColonyManagerRedux.Livestock.TrainingPriority.Tip".Translate(),
+                TextAnchor.MiddleLeft
+            );
+            if (
+                Widgets.ButtonText(
+                    buttonRect,
+                    $"ColonyManagerRedux.Livestock.TrainingPriority.{job.Training.Priority}".Translate()
+                )
+            )
+            {
+                Find.WindowStack.Add(
+                    new FloatMenu([
+                        .. Enum.GetValues(typeof(TrainingPriority))
+                            .Cast<TrainingPriority>()
+                            .Select(priority => new FloatMenuOption(
+                                $"ColonyManagerRedux.Livestock.TrainingPriority.{priority}".Translate(),
+                                () => job.Training.Priority = priority
+                            )),
+                    ])
+                );
+            }
+            height += ListEntryHeight;
+
+            var halfWidth = (width - Margin) / 2f;
+            DrawToggle(
+                new Rect(pos.x, pos.y + height, halfWidth, ListEntryHeight),
+                "ColonyManagerRedux.Livestock.PrioritizeNamed".Translate(),
+                "ColonyManagerRedux.Livestock.PrioritizeNamed.Tip".Translate(),
+                ref job.Training.PrioritizeNamed
+            );
+            DrawToggle(
+                new Rect(pos.x + halfWidth + Margin, pos.y + height, halfWidth, ListEntryHeight),
+                "ColonyManagerRedux.Livestock.PrioritizeBonded".Translate(),
+                "ColonyManagerRedux.Livestock.PrioritizeBonded.Tip".Translate(),
+                ref job.Training.PrioritizeBonded
+            );
+            height += ListEntryHeight;
+        }
 
         return height;
     }

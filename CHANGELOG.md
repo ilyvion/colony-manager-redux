@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The Livestock job's Training section can now limit training to a set number of animals. Animals that already have (or have finished) one of the training targets count toward the limit and keep their slot; once the limit is reached, no other animals are assigned training. When there's room, choose whether to pick the oldest or youngest animals first, and optionally prefer named animals and/or animals bonded to a colonist.
+
 ## [0.19.1] - 2026-09-20
 
 ### Fixed
