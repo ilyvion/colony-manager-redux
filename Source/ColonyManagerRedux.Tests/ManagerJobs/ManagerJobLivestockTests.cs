@@ -646,7 +646,8 @@ internal static class ManagerJobLivestockTests
         bool trained = false,
         bool eligible = true,
         bool named = false,
-        bool bonded = false
+        bool bonded = false,
+        bool ignored = false
     )
     {
         public string Name { get; } = name;
@@ -655,6 +656,7 @@ internal static class ManagerJobLivestockTests
         public bool Eligible { get; } = eligible;
         public bool Named { get; } = named;
         public bool Bonded { get; } = bonded;
+        public bool Ignored { get; } = ignored;
     }
 
     private static string[] SelectForLimit(
@@ -671,6 +673,7 @@ internal static class ManagerJobLivestockTests
                     animals,
                     a => a.Trained,
                     a => a.Eligible,
+                    a => a.Ignored,
                     a => a.Named,
                     a => a.Bonded,
                     a => a.Age,
@@ -763,5 +766,39 @@ internal static class ManagerJobLivestockTests
         Assert.ThatCollection(result).Has.Count(2);
         Assert.That(result[0]).Is.EqualTo("Bonded");
         Assert.That(result[1]).Is.EqualTo("Named");
+    }
+
+    [Test]
+    public static void TrainingLimitIgnoredAnimalsDoNotCountTowardTheLimit()
+    {
+        var result = SelectForLimit(
+            2,
+            ManagerJob_Livestock.TrainingPriority.Oldest,
+            false,
+            false,
+            new Trainee("Ancient", 900, trained: true, ignored: true),
+            new Trainee("Trained", 100, trained: true),
+            new Trainee("Young", 200)
+        );
+
+        Assert.ThatCollection(result).Has.Count(2);
+        Assert.ThatCollection(result).Does.Not.Contain("Ancient");
+        Assert.That(result[1]).Is.EqualTo("Young");
+    }
+
+    [Test]
+    public static void TrainingLimitIgnoredAnimalsAreNotPicked()
+    {
+        var result = SelectForLimit(
+            2,
+            ManagerJob_Livestock.TrainingPriority.Oldest,
+            false,
+            false,
+            new Trainee("Ancient", 900, ignored: true),
+            new Trainee("Young", 200)
+        );
+
+        Assert.ThatCollection(result).Has.Count(1);
+        Assert.That(result[0]).Is.EqualTo("Young");
     }
 }

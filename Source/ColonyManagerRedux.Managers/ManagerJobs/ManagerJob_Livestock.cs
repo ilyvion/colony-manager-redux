@@ -1291,6 +1291,10 @@ internal sealed partial class ManagerJob_Livestock
                         Training.TrainYoung
                         || !p.ageTracker.CurLifeStage.developmentalStage.Juvenile()
                     ) && enabledDefs.Any(d => p.training.CanAssignToTrain(d, out _).Accepted),
+                p =>
+                    Training.IgnoreNearingEndOfLife
+                    && p.ageTracker.AgeBiologicalYearsFloat
+                        >= p.RaceProps.lifeExpectancy * Training.EndOfLifeThreshold,
                 p => p.Name?.Numerical == false,
                 p => p.BondedWithColonist(),
                 p => p.ageTracker.AgeBiologicalTicks,
@@ -1305,13 +1309,15 @@ internal sealed partial class ManagerJob_Livestock
     /// Picks the animals that count toward the training limit: every animal that already has
     /// (or is working towards) a training target, plus enough of the eligible remaining animals,
     /// in priority order, to fill up to <paramref name="limit"/> animals in total. Animals
-    /// already trained are never dropped, even if they exceed the limit.
+    /// already trained are never dropped, even if they exceed the limit. Animals for which
+    /// <paramref name="isIgnored"/> holds neither count toward the limit nor get picked.
     /// </summary>
     internal static List<T> SelectAnimalsForTrainingLimit<T>(
         int limit,
         IEnumerable<T> animals,
         Func<T, bool> hasTargetTraining,
         Func<T, bool> isEligible,
+        Func<T, bool> isIgnored,
         Func<T, bool> isNamed,
         Func<T, bool> isBonded,
         Func<T, long> ageBiologicalTicks,
@@ -1324,6 +1330,11 @@ internal sealed partial class ManagerJob_Livestock
         var candidates = new List<T>();
         foreach (var animal in animals)
         {
+            if (isIgnored(animal))
+            {
+                continue;
+            }
+
             if (hasTargetTraining(animal))
             {
                 selected.Add(animal);
@@ -2096,6 +2107,8 @@ internal sealed partial class ManagerJob_Livestock
         public TrainingPriority Priority;
         public bool PrioritizeNamed;
         public bool PrioritizeBonded;
+        public bool IgnoreNearingEndOfLife;
+        public float EndOfLifeThreshold = 0.8f;
 
         public bool AnyEnabled
         {
@@ -2133,6 +2146,8 @@ internal sealed partial class ManagerJob_Livestock
             Scribe_Values.Look(ref Priority, "priority");
             Scribe_Values.Look(ref PrioritizeNamed, "prioritizeNamed");
             Scribe_Values.Look(ref PrioritizeBonded, "prioritizeBonded");
+            Scribe_Values.Look(ref IgnoreNearingEndOfLife, "ignoreNearingEndOfLife");
+            Scribe_Values.Look(ref EndOfLifeThreshold, "endOfLifeThreshold", 0.8f);
             Scribe_Deep.Look(ref TrainingTargets, "trainingTargets");
         }
 

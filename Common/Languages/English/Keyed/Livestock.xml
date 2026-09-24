@@ -67,6 +67,9 @@
     <ColonyManagerRedux.Livestock.PrioritizeNamed.Tip>Pick animals with a real (non-numerical) name before other animals</ColonyManagerRedux.Livestock.PrioritizeNamed.Tip>
     <ColonyManagerRedux.Livestock.PrioritizeBonded>Bonded first</ColonyManagerRedux.Livestock.PrioritizeBonded>
     <ColonyManagerRedux.Livestock.PrioritizeBonded.Tip>Pick animals bonded to a colonist before other animals</ColonyManagerRedux.Livestock.PrioritizeBonded.Tip>
+    <ColonyManagerRedux.Livestock.IgnoreNearingEndOfLife>Ignore animals nearing end of life</ColonyManagerRedux.Livestock.IgnoreNearingEndOfLife>
+    <ColonyManagerRedux.Livestock.IgnoreNearingEndOfLife.Tip>Animals that are close to their natural lifespan don't count toward the training limit, freeing up their slot for other animals, and are not picked for new training. Their existing training is left alone.</ColonyManagerRedux.Livestock.IgnoreNearingEndOfLife.Tip>
+    <ColonyManagerRedux.Livestock.EndOfLifeThreshold>Ignore animals older than {0} of their lifespan</ColonyManagerRedux.Livestock.EndOfLifeThreshold>
     <ColonyManagerRedux.Livestock.SendToCullingArea>Restrict animals marked for culling</ColonyManagerRedux.Livestock.SendToCullingArea>
     <ColonyManagerRedux.Livestock.SendToCullingArea.Tip>Restrict animals designated for culling to a specific area</ColonyManagerRedux.Livestock.SendToCullingArea.Tip>
     <ColonyManagerRedux.Livestock.SendToMilkingArea>Restrict animals ready to be milked</ColonyManagerRedux.Livestock.SendToMilkingArea>

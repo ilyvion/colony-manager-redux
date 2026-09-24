@@ -1528,6 +1528,33 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 ref job.Training.PrioritizeBonded
             );
             height += ListEntryHeight;
+
+            DrawToggle(
+                new Rect(pos.x, pos.y + height, width, ListEntryHeight),
+                "ColonyManagerRedux.Livestock.IgnoreNearingEndOfLife".Translate(),
+                "ColonyManagerRedux.Livestock.IgnoreNearingEndOfLife.Tip".Translate(),
+                ref job.Training.IgnoreNearingEndOfLife
+            );
+            height += ListEntryHeight;
+
+            if (job.Training.IgnoreNearingEndOfLife)
+            {
+                IlyvionWidgets.Label(
+                    new Rect(pos.x + Margin, pos.y + height, width, ListEntryHeight),
+                    "ColonyManagerRedux.Livestock.EndOfLifeThreshold".Translate(
+                        job.Training.EndOfLifeThreshold.ToString("0%", CultureInfo.InvariantCulture)
+                    )
+                );
+                height += ListEntryHeight;
+
+                job.Training.EndOfLifeThreshold = Widgets.HorizontalSlider(
+                    new Rect(pos.x, pos.y + height, width, SliderHeight),
+                    job.Training.EndOfLifeThreshold,
+                    0.1f,
+                    1f
+                );
+                height += SliderHeight;
+            }
         }
 
         return height;
