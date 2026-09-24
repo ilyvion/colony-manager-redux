@@ -462,11 +462,21 @@ internal sealed partial class ManagerJob_Livestock
 #endif
             pawnKind, td, out visible);
 
+    // Because .NET's lexer/parser is stupid, we can't fix this issue except by duplicating the whole
+    // god damned doc comment.
+#if v1_5
+    /// <summary>
+    /// Same as <see cref="CanBeTrained(PawnKindDef, TrainableDef, out bool)"/>, but with
+    /// <c>ModsConfig.OdysseyActive</c> passed in explicitly so this logic is
+    /// unit-testable without depending on which DLCs happen to be active.
+    /// </summary>
+#else
     /// <summary>
     /// Same as <see cref="CanBeTrained(PawnKindDef, TrainableDef, out bool)"/>, but with
     /// <see cref="ModsConfig.OdysseyActive"/> passed in explicitly so this logic is
     /// unit-testable without depending on which DLCs happen to be active.
     /// </summary>
+#endif
     internal static AcceptanceReport CanBeTrained(
         bool odysseyActive,
         PawnKindDef pawnKind,
