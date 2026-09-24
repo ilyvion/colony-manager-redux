@@ -174,36 +174,50 @@ internal static class Utilities_Livestock
 
     public static MasterMode GetMasterMode(this Pawn pawn)
     {
+        var primary = pawn.equipment.Primary;
+        return ComposeMasterMode(
+            pawn.workSettings.WorkIsActive(WorkTypeDefOf.Hunting),
+            pawn.workSettings.WorkIsActive(WorkTypeDefOf.Handling),
+            primary != null,
+            primary?.def.IsMeleeWeapon ?? false,
+            primary?.def.IsRangedWeapon ?? false,
+            pawn.WorkTagIsDisabled(WorkTags.Violent)
+        );
+    }
+
+    internal static MasterMode ComposeMasterMode(
+        bool hunting,
+        bool handling,
+        bool hasPrimary,
+        bool primaryIsMelee,
+        bool primaryIsRanged,
+        bool violentDisabled
+    )
+    {
         var mode = MasterMode.Manual;
 
-        if (pawn.workSettings.WorkIsActive(WorkTypeDefOf.Hunting))
+        if (hunting)
         {
             mode |= MasterMode.Hunters;
         }
 
-        if (pawn.workSettings.WorkIsActive(WorkTypeDefOf.Handling))
+        if (handling)
         {
             mode |= MasterMode.Trainers;
         }
 
-        if (pawn.equipment.Primary?.def.IsMeleeWeapon ?? true) // no weapon = melee
+        // no weapon = melee
+        if (!hasPrimary || primaryIsMelee)
         {
             mode |= MasterMode.Melee;
         }
 
-        if (pawn.equipment.Primary?.def.IsRangedWeapon ?? false)
+        if (primaryIsRanged)
         {
             mode |= MasterMode.Ranged;
         }
 
-        if (!pawn.WorkTagIsDisabled(WorkTags.Violent))
-        {
-            mode |= MasterMode.Violent;
-        }
-        else
-        {
-            mode |= MasterMode.NonViolent;
-        }
+        mode |= violentDisabled ? MasterMode.NonViolent : MasterMode.Violent;
 
         return mode;
     }
@@ -264,7 +278,7 @@ internal static class Utilities_Livestock
         if (tameCache.TryGetValue(key, out var pawns))
         {
             _ = pawns.RemoveAll(p => p.DestroyedOrNull() || p.Dead);
-            return pawns!;
+            return pawns;
         }
 
         List<Pawn> getter()
@@ -316,30 +330,25 @@ internal static class Utilities_Livestock
         return getter();
     }
 
-    public static IEnumerable<Pawn> GetTrainers(
-        this PawnKindDef pawnkind,
-        Map map,
-        MasterMode mode
-    ) =>
-        pawnkind
-            .GetMasterOptions(map, mode)
-            .Where(p =>
-                // skill high enough to handle (copied from StatWorker_MinimumHandlingSkill)
-                // NOTE: This does NOT apply postprocessing, so scenario and other offsets DO NOT apply.
-                // we can't actually use StatRequests because they're hardcoded for either Things or BuildableDefs.
-                p.skills.GetSkill(SkillDefOf.Animals).Level
-                >= Mathf.Clamp(
-                    GenMath.LerpDouble(0.3f, 1f, 0f, 9f,
+    public static IEnumerable<Pawn> GetTrainers(this PawnKindDef pawnkind, Map map, MasterMode mode)
+    {
 #if v1_5
-                        pawnkind.RaceProps.wildness
+        var wildness = pawnkind.RaceProps.wildness;
 #else
-                        pawnkind.race.statBases.GetStatValueFromList(StatDefOf.Wildness, 0f)
+        var wildness = pawnkind.race.statBases.GetStatValueFromList(StatDefOf.Wildness, 0f);
 #endif
-                    ),
-                    0f,
-                    20f
-                )
-            );
+        var minimumSkill = MinimumHandlingSkill(wildness);
+
+        // skill high enough to handle (copied from StatWorker_MinimumHandlingSkill)
+        // NOTE: This does NOT apply postprocessing, so scenario and other offsets DO NOT apply.
+        // we can't actually use StatRequests because they're hardcoded for either Things or BuildableDefs.
+        return pawnkind
+            .GetMasterOptions(map, mode)
+            .Where(p => p.skills.GetSkill(SkillDefOf.Animals).Level >= minimumSkill);
+    }
+
+    internal static float MinimumHandlingSkill(float wildness) =>
+        Mathf.Clamp(GenMath.LerpDouble(0.3f, 1f, 0f, 9f, wildness), 0f, 20f);
 
     public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
     {
@@ -502,18 +511,20 @@ internal static class Utilities_Livestock
         return ret;
     }
 
-    public static int TicksTillHarvestable(this CompHasGatherableBodyResource comp)
+    public static int TicksTillHarvestable(this CompHasGatherableBodyResource comp) =>
+        comp.parent is not Pawn pawn
+            ? throw new ArgumentException("harvestable should always be on a Pawn")
+            : TicksTillHarvestable(
+                comp.GatherResourcesIntervalDays,
+                comp.Fullness,
+                PawnUtility.BodyResourceGrowthSpeed(pawn)
+            );
+
+    internal static int TicksTillHarvestable(float intervalDays, float fullness, float growthSpeed)
     {
-        var growthRatePerTick = 1f / (comp.GatherResourcesIntervalDays * GenDate.TicksPerDay);
+        var growthRatePerTick = 1f / (intervalDays * GenDate.TicksPerDay) * growthSpeed;
 
-        if (comp.parent is not Pawn)
-        {
-            throw new ArgumentException("harvestable should always be on a Pawn");
-        }
-
-        growthRatePerTick *= PawnUtility.BodyResourceGrowthSpeed((Pawn)comp.parent);
-
-        return Mathf.CeilToInt((1 - comp.Fullness) / growthRatePerTick);
+        return Mathf.CeilToInt((1 - fullness) / growthRatePerTick);
     }
 
     public static bool VisiblyPregnant(this Pawn pawn) =>

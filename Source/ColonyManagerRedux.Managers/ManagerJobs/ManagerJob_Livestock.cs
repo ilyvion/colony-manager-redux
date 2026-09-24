@@ -1246,14 +1246,14 @@ internal sealed partial class ManagerJob_Livestock
                 {
                     var trainingDef = Training[def];
 
-                    if ( // only train if allowed.
-                        animal.training.CanAssignToTrain(def, out _).Accepted
-                        &&
-                        // only assign training, unless unassign is ticked.
-                        animal.training.GetWanted(def) != trainingDef
-                        && (trainingDef || Training.UnassignTraining)
-                        // only assign training to animals within the training limit.
-                        && (!trainingDef || allowedAnimals?.Contains(animal) != false)
+                    if (
+                        ShouldSetTraining(
+                            animal.training.CanAssignToTrain(def, out _).Accepted,
+                            animal.training.GetWanted(def),
+                            trainingDef,
+                            Training.UnassignTraining,
+                            allowedAnimals?.Contains(animal)
+                        )
                     )
                     {
                         data.TrainingsToSet.Add((animal, def, trainingDef));
@@ -1263,6 +1263,26 @@ internal sealed partial class ManagerJob_Livestock
             }
         }
     }
+
+    /// <summary>
+    /// Decides whether an animal's "wanted" flag for a trainable should be changed to
+    /// <paramref name="target"/>. <paramref name="withinLimit"/> is <see langword="null"/> when
+    /// there is no training limit.
+    /// </summary>
+    internal static bool ShouldSetTraining(
+        bool canAssign,
+        bool currentlyWanted,
+        bool target,
+        bool unassignTraining,
+        bool? withinLimit
+    ) =>
+        // only train if allowed.
+        canAssign
+        // only assign training, unless unassign is ticked.
+        && currentlyWanted != target
+        && (target || unassignTraining)
+        // only assign training to animals within the training limit.
+        && (!target || withinLimit != false);
 
     /// <summary>
     /// The animals that may be assigned new training when the training limit is enabled, or
@@ -1437,61 +1457,29 @@ internal sealed partial class ManagerJob_Livestock
                 )
             )
             {
-                var currentArea = animal.playerSettings.AreaRestrictionInPawnCurrentMap;
-
-                // culling
-                if (SendToCullingArea && CullingStrategyAction.IsAlreadyCulling(animal))
+                var decision = DecideArea(
+                    SendToCullingArea,
+                    CullingStrategyAction.IsAlreadyCulling(animal),
+                    SendToMilkingArea,
+                    () => animal.GetComp<CompMilkable>()?.TicksTillHarvestable(),
+                    SendToShearingArea,
+                    () => animal.GetComp<CompShearable>()?.TicksTillHarvestable(),
+                    UpdateInterval.Ticks,
+                    SendToTrainingArea,
+                    SendToTrainedArea,
+                    animal.training.NextTrainableToTrain() != null,
+                    RestrictToArea,
+                    animal.playerSettings.AreaRestrictionInPawnCurrentMap,
+                    CullingArea,
+                    MilkArea,
+                    ShearArea,
+                    TrainingArea,
+                    TrainedArea,
+                    RestrictArea[i]
+                );
+                if (decision is var (area, reason))
                 {
-                    // Note: unlike the other branches below, this one is planned unconditionally
-                    // whenever it applies, even if currentArea already equals CullingArea - this
-                    // matches a pre-existing quirk of the original single-phase code, which
-                    // always re-applied and logged here (workDone was the only thing actually
-                    // gated on a real change). Preserved as-is rather than "fixed" during this
-                    // mechanical migration.
-                    data.AreasToSet.Add((animal, CullingArea, AreaAssignReason.Culling));
-                }
-                // milking
-                else if (
-                    SendToMilkingArea
-                    && animal.GetComp<CompMilkable>() != null
-                    && animal.GetComp<CompMilkable>().TicksTillHarvestable() < UpdateInterval.Ticks
-                    && currentArea != MilkArea
-                )
-                {
-                    data.AreasToSet.Add((animal, MilkArea, AreaAssignReason.Milking));
-                }
-                // shearing
-                else if (
-                    SendToShearingArea
-                    && animal.GetComp<CompShearable>() != null
-                    && animal.GetComp<CompShearable>().TicksTillHarvestable() < UpdateInterval.Ticks
-                    && currentArea != ShearArea
-                )
-                {
-                    data.AreasToSet.Add((animal, ShearArea, AreaAssignReason.Shearing));
-                }
-                // training
-                else if (
-                    SendToTrainingArea
-                    && animal.training.NextTrainableToTrain() != null
-                    && currentArea != TrainingArea
-                )
-                {
-                    data.AreasToSet.Add((animal, TrainingArea, AreaAssignReason.Training));
-                }
-                // trained
-                else if (
-                    SendToTrainedArea
-                    && animal.training.NextTrainableToTrain() == null
-                    && currentArea != TrainedArea
-                )
-                {
-                    data.AreasToSet.Add((animal, TrainedArea, AreaAssignReason.Trained));
-                }
-                // all
-                else if (RestrictToArea && currentArea != RestrictArea[i])
-                {
-                    data.AreasToSet.Add((animal, RestrictArea[i], AreaAssignReason.Restrict));
+                    data.AreasToSet.Add((animal, area, reason));
                 }
 
                 if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
@@ -1500,6 +1488,66 @@ internal sealed partial class ManagerJob_Livestock
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// Decides which single area, if any, an animal should be assigned to. The reasons are
+    /// checked in priority order (culling, milking, shearing, training, trained, restrict) and
+    /// the first applicable one wins. Every reason but culling is skipped when the animal is
+    /// already in that reason's area, letting a lower-priority reason apply instead.
+    /// </summary>
+    internal static (TArea? Area, AreaAssignReason Reason)? DecideArea<TArea>(
+        bool sendToCulling,
+        bool alreadyCulling,
+        bool sendToMilking,
+        Func<int?> milkTicks,
+        bool sendToShearing,
+        Func<int?> shearTicks,
+        int updateIntervalTicks,
+        bool sendToTraining,
+        bool sendToTrained,
+        bool hasTrainableToTrain,
+        bool restrictToArea,
+        TArea? currentArea,
+        TArea? cullingArea,
+        TArea? milkArea,
+        TArea? shearArea,
+        TArea? trainingArea,
+        TArea? trainedArea,
+        TArea? restrictArea
+    )
+        where TArea : class
+    {
+        // Culling is planned unconditionally whenever it applies, even if currentArea already
+        // equals cullingArea; the other branches only apply on an actual change.
+        if (sendToCulling && alreadyCulling)
+        {
+            return (cullingArea, AreaAssignReason.Culling);
+        }
+
+        if (sendToMilking && milkTicks() < updateIntervalTicks && currentArea != milkArea)
+        {
+            return (milkArea, AreaAssignReason.Milking);
+        }
+
+        if (sendToShearing && shearTicks() < updateIntervalTicks && currentArea != shearArea)
+        {
+            return (shearArea, AreaAssignReason.Shearing);
+        }
+
+        if (sendToTraining && hasTrainableToTrain && currentArea != trainingArea)
+        {
+            return (trainingArea, AreaAssignReason.Training);
+        }
+
+        if (sendToTrained && !hasTrainableToTrain && currentArea != trainedArea)
+        {
+            return (trainedArea, AreaAssignReason.Trained);
+        }
+
+        return restrictToArea && currentArea != restrictArea
+            ? (restrictArea, AreaAssignReason.Restrict)
+            : null;
     }
 
     private static string BuildAreaLogMessage(AreaAssignReason reason, Pawn animal, Area? area) =>

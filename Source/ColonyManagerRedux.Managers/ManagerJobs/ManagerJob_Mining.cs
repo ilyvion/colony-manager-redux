@@ -1307,6 +1307,51 @@ internal sealed class ManagerJob_Mining
         }
     }
 
+    internal enum InactivePhase
+    {
+        /// <summary>The job has just completed and needs cleaning up.</summary>
+        Complete,
+
+        /// <summary>The job was already completed but deep drills still need checking.</summary>
+        RecheckDrills,
+
+        /// <summary>Nothing to do.</summary>
+        Nothing,
+    }
+
+    internal enum ActivePhase
+    {
+        Reduce,
+        AddNothingEnabled,
+        AddCannotAddMore,
+        Add,
+    }
+
+    /// <summary>
+    /// Decides what to do when the trigger says the quota is met.
+    /// </summary>
+    internal static InactivePhase DecideInactivePhase(
+        ManagerJobState currentState,
+        bool controlDeepDrills
+    ) =>
+        currentState != ManagerJobState.Completed ? InactivePhase.Complete
+        : controlDeepDrills ? InactivePhase.RecheckDrills
+        : InactivePhase.Nothing;
+
+    /// <summary>
+    /// Decides what to do when the trigger says the quota is not met.
+    /// </summary>
+    internal static ActivePhase DecideActivePhase(
+        Trigger_Threshold.Directive directive,
+        bool shouldRemoveMore,
+        bool anyTaskEnabled,
+        bool canAddMore
+    ) =>
+        directive != Trigger_Threshold.Directive.Increase || shouldRemoveMore ? ActivePhase.Reduce
+        : !anyTaskEnabled ? ActivePhase.AddNothingEnabled
+        : !canAddMore ? ActivePhase.AddCannotAddMore
+        : ActivePhase.Add;
+
     [CoroutineSettingsMethod(HasOperationsPerTickSetting = false)]
     protected override Coroutine GatherJobDataCoroutine(
         ManagerLog jobLog,
@@ -1315,14 +1360,15 @@ internal sealed class ManagerJob_Mining
     {
         if (!TriggerThreshold.State)
         {
-            if (JobState != ManagerJobState.Completed)
+            var inactivePhase = DecideInactivePhase(JobState, ControlDeepDrills);
+            if (inactivePhase == InactivePhase.Complete)
             {
                 JobState = ManagerJobState.Completed;
                 jobLog.AddDetail("ColonyManagerRedux.Logs.JobCompleted".Translate());
 
                 data.Value = new MiningWorkData { Kind = MiningWorkKind.CleanUpAndDisableDrills };
             }
-            else if (ControlDeepDrills)
+            else if (inactivePhase == InactivePhase.RecheckDrills)
             {
                 // The quota is still met, but a deep drill placed on a new
                 // deposit after the job completed wouldn't have been caught
@@ -1382,10 +1428,13 @@ internal sealed class ManagerJob_Mining
         }
 
         var directive = TriggerThreshold.GetDirective(count.Value);
-        if (
-            directive != Trigger_Threshold.Directive.Increase
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
-        )
+        var activePhase = DecideActivePhase(
+            directive,
+            ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count),
+            HaulMapChunks || DeconstructBuildings || AllowMining,
+            ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+        );
+        if (activePhase == ActivePhase.Reduce)
         {
             workData.Kind = MiningWorkKind.ReduceDesignations;
 
@@ -1398,13 +1447,13 @@ internal sealed class ManagerJob_Mining
 
         workData.Kind = MiningWorkKind.AddDesignations;
 
-        if (!HaulMapChunks && !DeconstructBuildings && !AllowMining)
+        if (activePhase == ActivePhase.AddNothingEnabled)
         {
             data.Value = workData;
             yield break;
         }
 
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        if (activePhase == ActivePhase.AddCannotAddMore)
         {
             jobLog.AddDetail(
                 "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(

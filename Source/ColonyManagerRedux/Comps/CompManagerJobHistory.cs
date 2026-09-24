@@ -50,7 +50,14 @@ public class CompManagerJobHistory : ManagerJobComp
 
         var ticksGame = Find.TickManager.TicksGame;
 
-        if (!_reportedSkippedUpdateTick && _queuedToRecord > 0 && _currentUpdateTick != ticksGame)
+        if (
+            ShouldSkipUpdate(
+                _reportedSkippedUpdateTick,
+                _queuedToRecord,
+                _currentUpdateTick,
+                ticksGame
+            )
+        )
         {
             ColonyManagerReduxMod.Instance.LogWarning(
                 $"It was time for a history update for job '{Parent.Label}' (ID "
@@ -76,6 +83,13 @@ public class CompManagerJobHistory : ManagerJobComp
             debugHandle: "DoHistoryUpdateCoroutine"
         );
     }
+
+    internal static bool ShouldSkipUpdate(
+        bool alreadyReported,
+        int queuedToRecord,
+        int? currentUpdateTick,
+        int ticksGame
+    ) => !alreadyReported && queuedToRecord > 0 && currentUpdateTick != ticksGame;
 
     private static bool _isRecordingHistory;
     private static int _queuedToRecord;

@@ -21,9 +21,18 @@ internal partial class ManagerTab_Logs
                 ColonyManagerReduxMod.Settings.ManagerSettingsFor<ManagerSettings_Logs>(
                     ManagerDefOf.CM_LogsManager
                 )!;
-            _logs = new(logSettings.KeepLogCount > 0 ? logSettings.KeepLogCount : 1);
-            _enabled = logSettings.KeepLogCount > 0;
+            var (capacity, enabled) = ComputeCapacity(logSettings.KeepLogCount);
+            _logs = new(capacity);
+            _enabled = enabled;
         }
+
+        internal static (int Capacity, bool Enabled) ComputeCapacity(int keepLogCount) =>
+            (keepLogCount > 0 ? keepLogCount : 1, keepLogCount > 0);
+
+        internal static List<T> ResizeKeepingNewest<T>(
+            IReadOnlyList<T> oldestToNewest,
+            int newCapacity
+        ) => [.. oldestToNewest.Skip(Math.Max(0, oldestToNewest.Count - newCapacity))];
 
         public void AddLog(ManagerLog log)
         {
@@ -52,10 +61,11 @@ internal partial class ManagerTab_Logs
                     ColonyManagerReduxMod.Settings.ManagerSettingsFor<ManagerSettings_Logs>(
                         ManagerDefOf.CM_LogsManager
                     )!;
-                _enabled = logSettings.KeepLogCount > 0;
+                var (capacity, enabled) = ComputeCapacity(logSettings.KeepLogCount);
+                _enabled = enabled;
                 if (_logs == null)
                 {
-                    _logs = new(logSettings.KeepLogCount);
+                    _logs = new(capacity);
                 }
                 else if (!_enabled)
                 {
@@ -65,10 +75,10 @@ internal partial class ManagerTab_Logs
                 {
                     // The KeepLogCount setting has changed; we need to resize the logs buffer.
                     var oldLogs = _logs;
-                    _logs = new(logSettings.KeepLogCount);
-                    foreach (var log in oldLogs.Reverse().Take(logSettings.KeepLogCount))
+                    _logs = new(capacity);
+                    foreach (var log in ResizeKeepingNewest([.. oldLogs], capacity))
                     {
-                        _logs.PushFront(log);
+                        _logs.PushBack(log);
                     }
                 }
             }

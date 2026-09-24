@@ -171,14 +171,17 @@ internal partial class ManagerTab_Overview
 
         public override int GetOptimalWidth(PawnTable table) => GetMaxWidth(table);
 
+        internal static int ComparePawnSuitability(
+            (int priority, float skill) a,
+            (int priority, float skill) b
+        ) => a.priority != b.priority ? a.priority - b.priority : (int)(b.skill - a.skill);
+
         public override int Compare(Pawn a, Pawn b)
         {
             var aValues = PawnComparisonValue(a);
             var bValues = PawnComparisonValue(b);
 
-            return aValues.priority != bValues.priority
-                ? aValues.priority - bValues.priority
-                : (int)(bValues.skill - aValues.skill);
+            return ComparePawnSuitability(aValues, bValues);
 
             (int priority, float skill) PawnComparisonValue(Pawn pawn)
             {

@@ -1661,10 +1661,16 @@ public class Settings : ModSettings
     /// migrated again nor saved again; since no <see cref="ManagerDef"/> references these legacy
     /// classes any more, nothing ever re-creates one.
     /// </summary>
-    private void MigrateLegacyManagerDefaultSettings()
+    private void MigrateLegacyManagerDefaultSettings() =>
+        MigrateLegacyManagerDefaultSettings(_managerSettings, _managerDefaultSettings);
+
+    internal static void MigrateLegacyManagerDefaultSettings(
+        List<ManagerSettings> managerSettings,
+        List<ManagerDefaultSettings> managerDefaultSettings
+    )
     {
         List<ManagerSettings>? migrated = null;
-        foreach (var legacy in _managerSettings)
+        foreach (var legacy in managerSettings)
         {
             if (legacy == null || legacy.Def == null)
             {
@@ -1672,7 +1678,7 @@ public class Settings : ModSettings
             }
 
             var def = legacy.Def;
-            var target = FindManagerDefaultSettingsFor(_managerDefaultSettings, def);
+            var target = FindManagerDefaultSettingsFor(managerDefaultSettings, def);
             if (target == null || !target.MigrateFrom(legacy))
             {
                 continue;
@@ -1687,7 +1693,7 @@ public class Settings : ModSettings
 
         if (migrated != null)
         {
-            _ = _managerSettings.RemoveAll(migrated.Contains);
+            _ = managerSettings.RemoveAll(migrated.Contains);
         }
     }
 
@@ -1703,33 +1709,31 @@ public class Settings : ModSettings
     private void EnsureManagerSettingsAreCorrect() =>
         EnsureManagerDefSettingsAreCorrect(
             _managerSettings,
-            m => m.managerSettingsClass != null,
+            [.. DefDatabase<ManagerDef>.AllDefs.Where(m => m.managerSettingsClass != null)],
             d => ManagerDefMaker.MakeManagerSettings(d)!
         );
 
     private void EnsureManagerDefaultSettingsAreCorrect() =>
         EnsureManagerDefSettingsAreCorrect(
             _managerDefaultSettings,
-            m => m.managerDefaultSettingsClass != null,
+            [.. DefDatabase<ManagerDef>.AllDefs.Where(m => m.managerDefaultSettingsClass != null)],
             d => ManagerDefMaker.MakeManagerDefaultSettings(d)!
         );
 
     /// <summary>
     /// Reconciles a list of per-<see cref="ManagerDef"/> settings entries (either
     /// <see cref="ManagerSettings"/> or <see cref="ManagerDefaultSettings"/>) against the
-    /// currently registered defs: entries whose def no longer exists (or is otherwise invalid)
-    /// are removed, and entries missing for a registered def are created via
-    /// <paramref name="factory"/>.
+    /// currently registered defs (<paramref name="allManagerDefs"/>, those that have a settings
+    /// class): entries whose def no longer exists (or is otherwise invalid) are removed, and
+    /// entries missing for a registered def are created via <paramref name="factory"/>.
     /// </summary>
-    private static void EnsureManagerDefSettingsAreCorrect<TSettings>(
+    internal static void EnsureManagerDefSettingsAreCorrect<TSettings>(
         List<TSettings> settingsList,
-        Func<ManagerDef, bool> hasSettingsClass,
+        HashSet<ManagerDef> allManagerDefs,
         Func<ManagerDef, TSettings> factory
     )
         where TSettings : class, IManagerDefOwnedSettings
     {
-        var allManagerDefs = DefDatabase<ManagerDef>.AllDefs.Where(hasSettingsClass).ToHashSet();
-
         // remove settings that should no longer be here
         for (var i = settingsList.Count - 1; i >= 0; i--)
         {

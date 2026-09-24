@@ -332,9 +332,22 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public bool ShouldDoNow => IsManaged && ShouldUpdate;
 
     private bool ShouldUpdate =>
-        _forceUpdateRequested
-        || _lastActionTick < 0
-        || ((_lastActionTick + UpdateInterval.Ticks) < Find.TickManager.TicksGame);
+        ComputeShouldUpdate(
+            _forceUpdateRequested,
+            _lastActionTick,
+            UpdateInterval.Ticks,
+            Find.TickManager.TicksGame
+        );
+
+    internal static bool ComputeShouldUpdate(
+        bool forceUpdateRequested,
+        int lastActionTick,
+        int intervalTicks,
+        int currentTick
+    ) =>
+        forceUpdateRequested
+        || lastActionTick < 0
+        || (lastActionTick + intervalTicks) < currentTick;
 
     /// <summary>
     /// Gets or sets a value indicating whether this manager job is currently suspended.
