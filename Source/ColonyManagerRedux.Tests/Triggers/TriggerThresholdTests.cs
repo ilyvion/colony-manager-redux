@@ -1,208 +1,213 @@
 // TriggerThresholdTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class TriggerThresholdTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class TriggerThresholdTests
 {
     [Test]
     public static void LowerThanPassesWhenCountBelowTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.LowerThan, 5, 10)).Is.False();
+        Expect.AreEqual(false, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.LowerThan, 5, 10));
 
     [Test]
     public static void LowerThanFailsWhenCountAtTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.LowerThan, 10, 10)).Is.True();
+        Expect.AreEqual(true, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.LowerThan, 10, 10));
 
     [Test]
     public static void LowerThanFailsWhenCountAboveTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.LowerThan, 15, 10)).Is.True();
+        Expect.AreEqual(true, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.LowerThan, 15, 10));
 
     [Test]
     public static void EqualsPassesWhenCountMatchesTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.Equals, 10, 10)).Is.True();
+        Expect.AreEqual(true, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.Equals, 10, 10));
 
     [Test]
     public static void EqualsFailsWhenCountDiffersFromTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.Equals, 9, 10)).Is.False();
+        Expect.AreEqual(false, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.Equals, 9, 10));
 
     [Test]
     public static void HigherThanPassesWhenCountAboveTarget() =>
-        Assert
-            .That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.HigherThan, 15, 10))
-            .Is.False();
+        Expect.AreEqual(
+            false,
+            Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.HigherThan, 15, 10)
+        );
 
     [Test]
     public static void HigherThanFailsWhenCountAtTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.HigherThan, 10, 10)).Is.True();
+        Expect.AreEqual(true, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.HigherThan, 10, 10));
 
     [Test]
     public static void HigherThanFailsWhenCountBelowTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.HigherThan, 5, 10)).Is.True();
+        Expect.AreEqual(true, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.HigherThan, 5, 10));
 
     [Test]
     public static void NotEqualsPassesWhenCountDiffersFromTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.NotEquals, 9, 10)).Is.True();
+        Expect.AreEqual(true, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.NotEquals, 9, 10));
 
     [Test]
     public static void NotEqualsFailsWhenCountMatchesTarget() =>
-        Assert.That(Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.NotEquals, 10, 10)).Is.False();
+        Expect.AreEqual(false, Trigger_Threshold.Evaluate(Trigger_Threshold.Ops.NotEquals, 10, 10));
 
     [Test]
     public static void UnrecognizedOperatorReturnsNull() =>
-        Assert.That(Trigger_Threshold.Evaluate((Trigger_Threshold.Ops)999, 10, 10)).Is.Null();
+        Expect.IsTrue(Trigger_Threshold.Evaluate((Trigger_Threshold.Ops)999, 10, 10) == null);
 
     [Test]
     public static void LowerThanDirectiveIsIncreaseWhenCountBelowTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.LowerThan, 5, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Increase);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Increase,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.LowerThan, 5, 10)
+        );
 
     [Test]
     public static void LowerThanDirectiveIsHoldWhenCountAtTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.LowerThan, 10, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.LowerThan, 10, 10)
+        );
 
     [Test]
     public static void LowerThanDirectiveIsHoldWhenCountAboveTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.LowerThan, 15, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.LowerThan, 15, 10)
+        );
 
     [Test]
     public static void EqualsDirectiveIsIncreaseWhenCountBelowTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.Equals, 9, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Increase);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Increase,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.Equals, 9, 10)
+        );
 
     [Test]
     public static void EqualsDirectiveIsHoldWhenCountAtTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.Equals, 10, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.Equals, 10, 10)
+        );
 
     [Test]
     public static void EqualsDirectiveIsDecreaseWhenCountAboveTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.Equals, 11, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Decrease);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Decrease,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.Equals, 11, 10)
+        );
 
     [Test]
     public static void HigherThanDirectiveIsHoldWhenCountBelowTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.HigherThan, 5, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.HigherThan, 5, 10)
+        );
 
     [Test]
     public static void HigherThanDirectiveIsHoldWhenCountAtTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.HigherThan, 10, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.HigherThan, 10, 10)
+        );
 
     [Test]
     public static void HigherThanDirectiveIsDecreaseWhenCountAboveTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.HigherThan, 15, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Decrease);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Decrease,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.HigherThan, 15, 10)
+        );
 
     [Test]
     public static void NotEqualsDirectiveIsHoldWhenCountBelowTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.NotEquals, 9, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.NotEquals, 9, 10)
+        );
 
     [Test]
     public static void NotEqualsDirectiveIsIncreaseWhenCountAtTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.NotEquals, 10, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Increase);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Increase,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.NotEquals, 10, 10)
+        );
 
     [Test]
     public static void NotEqualsDirectiveIsHoldWhenCountAboveTarget() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.NotEquals, 11, 10))
-            .Is.EqualTo(Trigger_Threshold.Directive.Hold);
+        Expect.AreEqual(
+            Trigger_Threshold.Directive.Hold,
+            Trigger_Threshold.EvaluateDirective(Trigger_Threshold.Ops.NotEquals, 11, 10)
+        );
 
     [Test]
     public static void UnrecognizedOperatorDirectiveReturnsNull() =>
-        Assert
-            .That(Trigger_Threshold.EvaluateDirective((Trigger_Threshold.Ops)999, 10, 10))
-            .Is.Null();
+        Expect.IsTrue(
+            Trigger_Threshold.EvaluateDirective((Trigger_Threshold.Ops)999, 10, 10) == null
+        );
 
     [Test]
     public static void MigrateUnsupportedOpKeepsSupportedOp() =>
-        Assert
-            .That(
-                Trigger_Threshold.MigrateUnsupportedOp(
-                    Trigger_Threshold.Ops.Equals,
-                    Trigger_Threshold.AccumulationOnlyOps,
-                    Trigger_Threshold.Ops.LowerThan
-                )
+        Expect.AreEqual(
+            Trigger_Threshold.Ops.Equals,
+            Trigger_Threshold.MigrateUnsupportedOp(
+                Trigger_Threshold.Ops.Equals,
+                Trigger_Threshold.AccumulationOnlyOps,
+                Trigger_Threshold.Ops.LowerThan
             )
-            .Is.EqualTo(Trigger_Threshold.Ops.Equals);
+        );
 
     [Test]
     public static void MigrateUnsupportedOpFallsBackToGivenFallback() =>
-        Assert
-            .That(
-                Trigger_Threshold.MigrateUnsupportedOp(
-                    Trigger_Threshold.Ops.HigherThan,
-                    Trigger_Threshold.AccumulationOnlyOps,
-                    Trigger_Threshold.Ops.LowerThan
-                )
+        Expect.AreEqual(
+            Trigger_Threshold.Ops.LowerThan,
+            Trigger_Threshold.MigrateUnsupportedOp(
+                Trigger_Threshold.Ops.HigherThan,
+                Trigger_Threshold.AccumulationOnlyOps,
+                Trigger_Threshold.Ops.LowerThan
             )
-            .Is.EqualTo(Trigger_Threshold.Ops.LowerThan);
+        );
 
     // Regression guard: TargetCount's setter used to accept negative values unchanged, letting a
     // typed "-5" in the manager tab's target-count field flow straight into shortfall/scheduling
     // math that assumes a non-negative count.
     [Test]
     public static void ClampTargetCountClampsNegativeValueToZero() =>
-        Assert.That(Trigger_Threshold.ClampTargetCount(-5)).Is.EqualTo(0);
+        Expect.AreEqual(0, Trigger_Threshold.ClampTargetCount(-5));
 
     [Test]
     public static void ClampTargetCountLeavesZeroUnchanged() =>
-        Assert.That(Trigger_Threshold.ClampTargetCount(0)).Is.EqualTo(0);
+        Expect.AreEqual(0, Trigger_Threshold.ClampTargetCount(0));
 
     [Test]
     public static void ClampTargetCountLeavesPositiveValueUnchanged() =>
-        Assert.That(Trigger_Threshold.ClampTargetCount(42)).Is.EqualTo(42);
+        Expect.AreEqual(42, Trigger_Threshold.ClampTargetCount(42));
 
     // Regression guard: a freshly constructed ThingFilter defaults AllowedHitPointsPercents and
     // AllowedQualityLevels to their zeroed struct value (0%-0% hitpoints, no quality levels
     // allowed) rather than "allow everything".
     [Test]
     public static void CreateThresholdFilterAllowsFullHitPointsRange() =>
-        Assert
-            .That(
-                Trigger_Threshold.CreateThresholdFilter(() => { }).AllowedHitPointsPercents
-                    == FloatRange.ZeroToOne
-            )
-            .Is.True();
+        Expect.IsTrue(
+            Trigger_Threshold.CreateThresholdFilter(() => { }).AllowedHitPointsPercents
+                == FloatRange.ZeroToOne
+        );
 
     [Test]
     public static void CreateThresholdFilterAllowsFullQualityRange() =>
-        Assert
-            .That(
-                Trigger_Threshold.CreateThresholdFilter(() => { }).AllowedQualityLevels
-                    == QualityRange.All
-            )
-            .Is.True();
+        Expect.IsTrue(
+            Trigger_Threshold.CreateThresholdFilter(() => { }).AllowedQualityLevels
+                == QualityRange.All
+        );
 
     [Test]
     public static void CreateThresholdFilterProducesFilterThatCountsFullHitPointsThing() =>
-        Assert
-            .That(
-                Utilities.ShouldCountThing(
-                    false,
-                    default,
-                    true,
-                    1f,
-                    Trigger_Threshold.CreateThresholdFilter(() => { })
-                )
+        Expect.IsTrue(
+            Utilities.ShouldCountThing(
+                false,
+                default,
+                true,
+                1f,
+                Trigger_Threshold.CreateThresholdFilter(() => { })
             )
-            .Is.True();
+        );
 }

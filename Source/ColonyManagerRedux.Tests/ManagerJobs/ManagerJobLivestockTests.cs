@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerJobLivestockTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerJobLivestockTests
 {
     private readonly struct Animal(string name, int learnedTraitCount, long ageBiologicalTicks)
     {
@@ -37,9 +37,9 @@ internal static class ManagerJobLivestockTests
             new Animal("Untrained", learnedTraitCount: 0, ageBiologicalTicks: 100)
         );
 
-        Assert.ThatCollection(order).Has.Count(2);
-        Assert.That(order[0]).Is.EqualTo("Untrained");
-        Assert.That(order[1]).Is.EqualTo("Trained");
+        Expect.AreEqual(2, order.Length);
+        Expect.AreEqual("Untrained", order[0]);
+        Expect.AreEqual("Trained", order[1]);
     }
 
     [Test]
@@ -51,9 +51,9 @@ internal static class ManagerJobLivestockTests
             new Animal("Old", learnedTraitCount: 0, ageBiologicalTicks: 200)
         );
 
-        Assert.ThatCollection(order).Has.Count(2);
-        Assert.That(order[0]).Is.EqualTo("Old");
-        Assert.That(order[1]).Is.EqualTo("Young");
+        Expect.AreEqual(2, order.Length);
+        Expect.AreEqual("Old", order[0]);
+        Expect.AreEqual("Young", order[1]);
     }
 
     [Test]
@@ -65,9 +65,9 @@ internal static class ManagerJobLivestockTests
             new Animal("Old", learnedTraitCount: 0, ageBiologicalTicks: 200)
         );
 
-        Assert.ThatCollection(order).Has.Count(2);
-        Assert.That(order[0]).Is.EqualTo("Young");
-        Assert.That(order[1]).Is.EqualTo("Old");
+        Expect.AreEqual(2, order.Length);
+        Expect.AreEqual("Young", order[0]);
+        Expect.AreEqual("Old", order[1]);
     }
 
     [Test]
@@ -80,84 +80,78 @@ internal static class ManagerJobLivestockTests
             new Animal("UntrainedYoung", learnedTraitCount: 0, ageBiologicalTicks: 10)
         );
 
-        Assert.ThatCollection(order).Has.Count(2);
-        Assert.That(order[0]).Is.EqualTo("UntrainedYoung");
-        Assert.That(order[1]).Is.EqualTo("TrainedOld");
+        Expect.AreEqual(2, order.Length);
+        Expect.AreEqual("UntrainedYoung", order[0]);
+        Expect.AreEqual("TrainedOld", order[1]);
     }
 
     [Test]
     public static void EligibleAnimalIsIncludedWhenAllTogglesAreOff() =>
-        Assert
-            .That(
-                ManagerJob_Livestock.IsEligibleForCulling(
-                    alreadyCulling: false,
-                    alreadyCulled: false,
-                    cullTrained: false,
-                    isTrained: false,
-                    cullPregnant: false,
-                    isPregnant: false,
-                    cullBonded: false,
-                    isBonded: false,
-                    avoidMilkable: false,
-                    milkFullness: 1f,
-                    milkThreshold: 0f,
-                    avoidShearable: false,
-                    woolFullness: 1f,
-                    woolThreshold: 0f,
-                    avoidNamed: false,
-                    isNamed: false
-                )
+        Expect.IsTrue(
+            ManagerJob_Livestock.IsEligibleForCulling(
+                alreadyCulling: false,
+                alreadyCulled: false,
+                cullTrained: false,
+                isTrained: false,
+                cullPregnant: false,
+                isPregnant: false,
+                cullBonded: false,
+                isBonded: false,
+                avoidMilkable: false,
+                milkFullness: 1f,
+                milkThreshold: 0f,
+                avoidShearable: false,
+                woolFullness: 1f,
+                woolThreshold: 0f,
+                avoidNamed: false,
+                isNamed: false
             )
-            .Is.True();
+        );
 
     [Test]
     public static void AlreadyCullingOrCulledAnimalsAreAlwaysExcluded()
     {
-        Assert
-            .That(
-                ManagerJob_Livestock.IsEligibleForCulling(
-                    alreadyCulling: true,
-                    alreadyCulled: false,
-                    cullTrained: true,
-                    isTrained: false,
-                    cullPregnant: true,
-                    isPregnant: false,
-                    cullBonded: true,
-                    isBonded: false,
-                    avoidMilkable: false,
-                    milkFullness: 0f,
-                    milkThreshold: 1f,
-                    avoidShearable: false,
-                    woolFullness: 0f,
-                    woolThreshold: 1f,
-                    avoidNamed: false,
-                    isNamed: false
-                )
+        Expect.IsFalse(
+            ManagerJob_Livestock.IsEligibleForCulling(
+                alreadyCulling: true,
+                alreadyCulled: false,
+                cullTrained: true,
+                isTrained: false,
+                cullPregnant: true,
+                isPregnant: false,
+                cullBonded: true,
+                isBonded: false,
+                avoidMilkable: false,
+                milkFullness: 0f,
+                milkThreshold: 1f,
+                avoidShearable: false,
+                woolFullness: 0f,
+                woolThreshold: 1f,
+                avoidNamed: false,
+                isNamed: false
             )
-            .Is.False();
+        );
 
-        Assert
-            .That(
-                ManagerJob_Livestock.IsEligibleForCulling(
-                    alreadyCulling: false,
-                    alreadyCulled: true,
-                    cullTrained: true,
-                    isTrained: false,
-                    cullPregnant: true,
-                    isPregnant: false,
-                    cullBonded: true,
-                    isBonded: false,
-                    avoidMilkable: false,
-                    milkFullness: 0f,
-                    milkThreshold: 1f,
-                    avoidShearable: false,
-                    woolFullness: 0f,
-                    woolThreshold: 1f,
-                    avoidNamed: false,
-                    isNamed: false
-                )
+        Expect.IsFalse(
+            ManagerJob_Livestock.IsEligibleForCulling(
+                alreadyCulling: false,
+                alreadyCulled: true,
+                cullTrained: true,
+                isTrained: false,
+                cullPregnant: true,
+                isPregnant: false,
+                cullBonded: true,
+                isBonded: false,
+                avoidMilkable: false,
+                milkFullness: 0f,
+                milkThreshold: 1f,
+                avoidShearable: false,
+                woolFullness: 0f,
+                woolThreshold: 1f,
+                avoidNamed: false,
+                isNamed: false
             )
-            .Is.False();
+        );
     }
 
     [Test]
@@ -185,10 +179,10 @@ internal static class ManagerJobLivestockTests
             );
         }
 
-        Assert.That(Eligible(false, false, false)).Is.False();
-        Assert.That(Eligible(true, false, false)).Is.False();
-        Assert.That(Eligible(true, true, false)).Is.False();
-        Assert.That(Eligible(true, true, true)).Is.True();
+        Expect.IsFalse(Eligible(false, false, false));
+        Expect.IsFalse(Eligible(true, false, false));
+        Expect.IsFalse(Eligible(true, true, false));
+        Expect.IsTrue(Eligible(true, true, true));
     }
 
     [Test]
@@ -216,9 +210,9 @@ internal static class ManagerJobLivestockTests
             );
         }
 
-        Assert.That(Eligible(false, true)).Is.True();
-        Assert.That(Eligible(true, false)).Is.True();
-        Assert.That(Eligible(true, true)).Is.False();
+        Expect.IsTrue(Eligible(false, true));
+        Expect.IsTrue(Eligible(true, false));
+        Expect.IsFalse(Eligible(true, true));
     }
 
     [Test]
@@ -252,37 +246,37 @@ internal static class ManagerJobLivestockTests
         }
 
         // Exactly at threshold is not "below", so avoidance still excludes the animal.
-        Assert.That(Eligible(1f, 1f, 0f, 1f)).Is.False();
-        Assert.That(Eligible(0f, 1f, 1f, 1f)).Is.False();
+        Expect.IsFalse(Eligible(1f, 1f, 0f, 1f));
+        Expect.IsFalse(Eligible(0f, 1f, 1f, 1f));
 
         // Strictly below both thresholds is included.
-        Assert.That(Eligible(0.5f, 1f, 0.5f, 1f)).Is.True();
+        Expect.IsTrue(Eligible(0.5f, 1f, 0.5f, 1f));
     }
 
     [Test]
     public static void CullingTargetDifferenceMath()
     {
-        Assert.That(ManagerJob_Livestock.CalculateCullingTargetDifference(10, 0, 10)).Is.EqualTo(0);
-        Assert.That(ManagerJob_Livestock.CalculateCullingTargetDifference(15, 0, 10)).Is.EqualTo(5);
-        Assert.That(ManagerJob_Livestock.CalculateCullingTargetDifference(5, 3, 10)).Is.EqualTo(-8);
-        Assert.That(ManagerJob_Livestock.CalculateCullingTargetDifference(12, 2, 10)).Is.EqualTo(0);
+        Expect.AreEqual(0, ManagerJob_Livestock.CalculateCullingTargetDifference(10, 0, 10));
+        Expect.AreEqual(5, ManagerJob_Livestock.CalculateCullingTargetDifference(15, 0, 10));
+        Expect.AreEqual(-8, ManagerJob_Livestock.CalculateCullingTargetDifference(5, 3, 10));
+        Expect.AreEqual(0, ManagerJob_Livestock.CalculateCullingTargetDifference(12, 2, 10));
     }
 
     [Test]
     public static void TamingTargetDifferenceMath()
     {
-        Assert.That(ManagerJob_Livestock.CalculateTamingTargetDifference(10, 10, 0)).Is.EqualTo(0);
-        Assert.That(ManagerJob_Livestock.CalculateTamingTargetDifference(10, 4, 0)).Is.EqualTo(6);
-        Assert.That(ManagerJob_Livestock.CalculateTamingTargetDifference(10, 8, 5)).Is.EqualTo(-3);
+        Expect.AreEqual(0, ManagerJob_Livestock.CalculateTamingTargetDifference(10, 10, 0));
+        Expect.AreEqual(6, ManagerJob_Livestock.CalculateTamingTargetDifference(10, 4, 0));
+        Expect.AreEqual(-3, ManagerJob_Livestock.CalculateTamingTargetDifference(10, 8, 5));
     }
 
     [Test]
     public static void RoughlyEquallyDistributedFollowerCounts()
     {
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 3, 3])).Is.True();
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 4])).Is.True();
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 5])).Is.False();
-        Assert.That(ManagerJob_Livestock.IsRoughlyEquallyDistributed([7])).Is.True();
+        Expect.IsTrue(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 3, 3]));
+        Expect.IsTrue(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 4]));
+        Expect.IsFalse(ManagerJob_Livestock.IsRoughlyEquallyDistributed([3, 5]));
+        Expect.IsTrue(ManagerJob_Livestock.IsRoughlyEquallyDistributed([7]));
     }
 
     [Test]
@@ -295,7 +289,7 @@ internal static class ManagerJobLivestockTests
             followerCount: _ => 3
         );
 
-        Assert.That(chosen).Is.EqualTo("Alice");
+        Expect.AreEqual("Alice", chosen);
     }
 
     [Test]
@@ -310,7 +304,7 @@ internal static class ManagerJobLivestockTests
             followerCount: name => name == "Alice" ? 5 : 1
         );
 
-        Assert.That(chosen).Is.EqualTo("Bob");
+        Expect.AreEqual("Bob", chosen);
     }
 
     [Test]
@@ -323,7 +317,7 @@ internal static class ManagerJobLivestockTests
             followerCount: name => name == "Alice" ? 2 : 1
         );
 
-        Assert.That(chosen).Is.EqualTo("Bob");
+        Expect.AreEqual("Bob", chosen);
     }
 
     [Test]
@@ -342,7 +336,7 @@ internal static class ManagerJobLivestockTests
                 }
         );
 
-        Assert.That(chosen).Is.EqualTo("Bob");
+        Expect.AreEqual("Bob", chosen);
     }
 
     [Test]
@@ -350,55 +344,50 @@ internal static class ManagerJobLivestockTests
     {
         // Initial state (_lastPruneTick starts at -PruneIntervalTicks) should trigger a prune
         // immediately at tick 0.
-        Assert
-            .That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(0, -5000, 5000))
-            .Is.True();
+        Expect.IsTrue(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(0, -5000, 5000));
 
-        Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(5000, 0, 5000)).Is.True();
-        Assert.That(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(4999, 0, 5000)).Is.False();
+        Expect.IsTrue(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(5000, 0, 5000));
+        Expect.IsFalse(ManagerJob_Livestock.LivestockCachesComp.ShouldPrune(4999, 0, 5000));
     }
 
     [Test]
     public static void FormatAgeSexBucketOmitsCulledSuffixWhenCullingRemovesAnimals() =>
-        Assert
-            .That(
-                ManagerJob_Livestock.FormatAgeSexBucket(
-                    tame: 5,
-                    culled: 2,
-                    target: 5,
-                    cullingRemovesAnimals: true
-                )
+        Expect.AreEqual(
+            "3/5, ",
+            ManagerJob_Livestock.FormatAgeSexBucket(
+                tame: 5,
+                culled: 2,
+                target: 5,
+                cullingRemovesAnimals: true
             )
-            .Is.EqualTo("3/5, ");
+        );
 
     [Test]
     public static void FormatAgeSexBucketShowsCulledSuffixWhenCullingDoesNotRemoveAnimals() =>
         // When culling doesn't actually remove the animal (e.g. it's marked for slaughter but
         // still alive/present), the still-pending cull count is surfaced via a "(+N)" suffix so
         // the label doesn't silently undercount what's actually on the map.
-        Assert
-            .That(
-                ManagerJob_Livestock.FormatAgeSexBucket(
-                    tame: 5,
-                    culled: 2,
-                    target: 5,
-                    cullingRemovesAnimals: false
-                )
+        Expect.AreEqual(
+            "3/5(+2), ",
+            ManagerJob_Livestock.FormatAgeSexBucket(
+                tame: 5,
+                culled: 2,
+                target: 5,
+                cullingRemovesAnimals: false
             )
-            .Is.EqualTo("3/5(+2), ");
+        );
 
     [Test]
     public static void FormatAgeSexBucketWithNoCullsOmitsSuffixEvenWhenNotRemoving() =>
-        Assert
-            .That(
-                ManagerJob_Livestock.FormatAgeSexBucket(
-                    tame: 5,
-                    culled: 0,
-                    target: 5,
-                    cullingRemovesAnimals: false
-                )
+        Expect.AreEqual(
+            "5/5(+0), ",
+            ManagerJob_Livestock.FormatAgeSexBucket(
+                tame: 5,
+                culled: 0,
+                target: 5,
+                cullingRemovesAnimals: false
             )
-            .Is.EqualTo("5/5(+0), ");
+        );
 
     private static PawnKindDef PawnKind(RaceProperties raceProps) =>
         new() { race = new ThingDef { race = raceProps } };
@@ -416,8 +405,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.False();
-        Assert.That(visible).Is.False();
+        Expect.IsFalse(report.Accepted);
+        Expect.IsFalse(visible);
     }
 
 #if !v1_5
@@ -434,8 +423,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.False();
-        Assert.That(visible).Is.False();
+        Expect.IsFalse(report.Accepted);
+        Expect.IsFalse(visible);
     }
 
     [Test]
@@ -451,8 +440,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.True();
-        Assert.That(visible).Is.True();
+        Expect.IsTrue(report.Accepted);
+        Expect.IsTrue(visible);
     }
 #endif
 
@@ -476,8 +465,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.False();
-        Assert.That(visible).Is.True();
+        Expect.IsFalse(report.Accepted);
+        Expect.IsTrue(visible);
     }
 
     [Test]
@@ -500,8 +489,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.False();
-        Assert.That(visible).Is.False();
+        Expect.IsFalse(report.Accepted);
+        Expect.IsFalse(visible);
     }
 
     [Test]
@@ -522,8 +511,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.False();
-        Assert.That(visible).Is.True();
+        Expect.IsFalse(report.Accepted);
+        Expect.IsTrue(visible);
     }
 
     [Test]
@@ -551,8 +540,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.False();
-        Assert.That(visible).Is.True();
+        Expect.IsFalse(report.Accepted);
+        Expect.IsTrue(visible);
     }
 
     [Test]
@@ -580,8 +569,8 @@ internal static class ManagerJobLivestockTests
             out var visible
         );
 
-        Assert.That(report.Accepted).Is.True();
-        Assert.That(visible).Is.True();
+        Expect.IsTrue(report.Accepted);
+        Expect.IsTrue(visible);
     }
 
     // Regression guard for the gather/execute split (issue #27): stopping a culling/taming
@@ -599,11 +588,11 @@ internal static class ManagerJobLivestockTests
             selector: s => s
         );
 
-        Assert.ThatCollection(result).Has.Count(4);
-        Assert.That(result[0]).Is.EqualTo("d");
-        Assert.That(result[1]).Is.EqualTo("c");
-        Assert.That(result[2]).Is.EqualTo("b");
-        Assert.That(result[3]).Is.EqualTo("a");
+        Expect.AreEqual(4, result.Count);
+        Expect.AreEqual("d", result[0]);
+        Expect.AreEqual("c", result[1]);
+        Expect.AreEqual("b", result[2]);
+        Expect.AreEqual("a", result[3]);
     }
 
     [Test]
@@ -611,9 +600,9 @@ internal static class ManagerJobLivestockTests
     {
         var result = ManagerJob_Livestock.TakeLastReversed(["a", "b"], count: 10, selector: s => s);
 
-        Assert.ThatCollection(result).Has.Count(2);
-        Assert.That(result[0]).Is.EqualTo("b");
-        Assert.That(result[1]).Is.EqualTo("a");
+        Expect.AreEqual(2, result.Count);
+        Expect.AreEqual("b", result[0]);
+        Expect.AreEqual("a", result[1]);
     }
 
     [Test]
@@ -625,7 +614,7 @@ internal static class ManagerJobLivestockTests
             selector: s => s
         );
 
-        Assert.ThatCollection(result).Is.Empty();
+        Expect.IsEmpty(result);
     }
 
     [Test]
@@ -637,7 +626,7 @@ internal static class ManagerJobLivestockTests
             selector: s => s
         );
 
-        Assert.ThatCollection(result).Is.Empty();
+        Expect.IsEmpty(result);
     }
 
     private sealed class Trainee(
@@ -697,9 +686,9 @@ internal static class ManagerJobLivestockTests
             new Trainee("Young", 200)
         );
 
-        Assert.ThatCollection(result).Has.Count(2);
-        Assert.That(result[0]).Is.EqualTo("Trained");
-        Assert.That(result[1]).Is.EqualTo("Old");
+        Expect.AreEqual(2, result.Length);
+        Expect.AreEqual("Trained", result[0]);
+        Expect.AreEqual("Old", result[1]);
     }
 
     [Test]
@@ -715,8 +704,8 @@ internal static class ManagerJobLivestockTests
             new Trainee("C", 300)
         );
 
-        Assert.ThatCollection(result).Has.Count(2);
-        Assert.ThatCollection(result).Does.Not.Contain("C");
+        Expect.AreEqual(2, result.Length);
+        Expect.IsFalse(result.Contains("C"));
     }
 
     [Test]
@@ -731,8 +720,8 @@ internal static class ManagerJobLivestockTests
             new Trainee("Eligible", 100)
         );
 
-        Assert.ThatCollection(result).Has.Count(1);
-        Assert.That(result[0]).Is.EqualTo("Eligible");
+        Expect.AreEqual(1, result.Length);
+        Expect.AreEqual("Eligible", result[0]);
     }
 
     [Test]
@@ -747,7 +736,7 @@ internal static class ManagerJobLivestockTests
             new Trainee("Young", 100)
         );
 
-        Assert.That(result[0]).Is.EqualTo("Young");
+        Expect.AreEqual("Young", result[0]);
     }
 
     [Test]
@@ -763,9 +752,9 @@ internal static class ManagerJobLivestockTests
             new Trainee("Bonded", 50, bonded: true)
         );
 
-        Assert.ThatCollection(result).Has.Count(2);
-        Assert.That(result[0]).Is.EqualTo("Bonded");
-        Assert.That(result[1]).Is.EqualTo("Named");
+        Expect.AreEqual(2, result.Length);
+        Expect.AreEqual("Bonded", result[0]);
+        Expect.AreEqual("Named", result[1]);
     }
 
     [Test]
@@ -781,9 +770,9 @@ internal static class ManagerJobLivestockTests
             new Trainee("Young", 200)
         );
 
-        Assert.ThatCollection(result).Has.Count(2);
-        Assert.ThatCollection(result).Does.Not.Contain("Ancient");
-        Assert.That(result[1]).Is.EqualTo("Young");
+        Expect.AreEqual(2, result.Length);
+        Expect.IsFalse(result.Contains("Ancient"));
+        Expect.AreEqual("Young", result[1]);
     }
 
     [Test]
@@ -798,7 +787,7 @@ internal static class ManagerJobLivestockTests
             new Trainee("Young", 200)
         );
 
-        Assert.ThatCollection(result).Has.Count(1);
-        Assert.That(result[0]).Is.EqualTo("Young");
+        Expect.AreEqual(1, result.Length);
+        Expect.AreEqual("Young", result[0]);
     }
 }

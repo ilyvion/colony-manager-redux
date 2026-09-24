@@ -1,32 +1,32 @@
 // ManagerTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerTests
 {
     [Test]
     public static void FindLowestUnusedIdReturnsZeroWhenNoneUsed() =>
-        Assert.That(Manager.FindLowestUnusedId([])).Is.EqualTo(0);
+        Expect.AreEqual(0, Manager.FindLowestUnusedId([]));
 
     [Test]
     public static void FindLowestUnusedIdReturnsFirstGapAfterContiguousRun() =>
-        Assert.That(Manager.FindLowestUnusedId([0, 1, 2, 3])).Is.EqualTo(4);
+        Expect.AreEqual(4, Manager.FindLowestUnusedId([0, 1, 2, 3]));
 
     [Test]
     public static void FindLowestUnusedIdReturnsGapInMiddle() =>
-        Assert.That(Manager.FindLowestUnusedId([0, 1, 3])).Is.EqualTo(2);
+        Expect.AreEqual(2, Manager.FindLowestUnusedId([0, 1, 3]));
 
     [Test]
     public static void FindLowestUnusedIdReturnsZeroWhenZeroNotUsed() =>
-        Assert.That(Manager.FindLowestUnusedId([1, 2, 3])).Is.EqualTo(0);
+        Expect.AreEqual(0, Manager.FindLowestUnusedId([1, 2, 3]));
 
     [Test]
     public static void FindLowestUnusedIdHandlesDuplicateAndUnorderedInput() =>
-        Assert.That(Manager.FindLowestUnusedId([3, 1, 1, 0, 3, 2])).Is.EqualTo(4);
+        Expect.AreEqual(4, Manager.FindLowestUnusedId([3, 1, 1, 0, 3, 2]));
 
     // Regression guard for the CHANGELOG [Unreleased] fix: an ID being requested before a
     // manager had finished loading, or the internal ID counter wrapping back to 0 after
@@ -36,125 +36,105 @@ internal static class ManagerTests
     {
         var used = new[] { 0, 1, 2, 4, 5 };
         var result = Manager.FindLowestUnusedId(used);
-        Assert.ThatCollection(used).Does.Not.Contain(result);
-        Assert.That(result).Is.EqualTo(3);
+        Expect.IsFalse(used.Contains(result));
+        Expect.AreEqual(3, result);
     }
 
     [Test]
     public static void ShouldApplyDefaultTemplateFalseWhenAlreadyChecked() =>
-        Assert
-            .That(
-                Manager.ShouldApplyDefaultTemplate(
-                    alreadyChecked: true,
-                    autoApplyEnabled: true,
-                    templateName: "Foo",
-                    templateExists: _ => true
-                )
+        Expect.IsFalse(
+            Manager.ShouldApplyDefaultTemplate(
+                alreadyChecked: true,
+                autoApplyEnabled: true,
+                templateName: "Foo",
+                templateExists: _ => true
             )
-            .Is.False();
+        );
 
     [Test]
     public static void ShouldApplyDefaultTemplateFalseWhenAutoApplyDisabled() =>
-        Assert
-            .That(
-                Manager.ShouldApplyDefaultTemplate(
-                    alreadyChecked: false,
-                    autoApplyEnabled: false,
-                    templateName: "Foo",
-                    templateExists: _ => true
-                )
+        Expect.IsFalse(
+            Manager.ShouldApplyDefaultTemplate(
+                alreadyChecked: false,
+                autoApplyEnabled: false,
+                templateName: "Foo",
+                templateExists: _ => true
             )
-            .Is.False();
+        );
 
     [Test]
     public static void ShouldApplyDefaultTemplateFalseWhenTemplateNameNullOrEmpty()
     {
-        Assert
-            .That(
-                Manager.ShouldApplyDefaultTemplate(
-                    alreadyChecked: false,
-                    autoApplyEnabled: true,
-                    templateName: null,
-                    templateExists: _ => true
-                )
+        Expect.IsFalse(
+            Manager.ShouldApplyDefaultTemplate(
+                alreadyChecked: false,
+                autoApplyEnabled: true,
+                templateName: null,
+                templateExists: _ => true
             )
-            .Is.False();
+        );
 
-        Assert
-            .That(
-                Manager.ShouldApplyDefaultTemplate(
-                    alreadyChecked: false,
-                    autoApplyEnabled: true,
-                    templateName: "",
-                    templateExists: _ => true
-                )
+        Expect.IsFalse(
+            Manager.ShouldApplyDefaultTemplate(
+                alreadyChecked: false,
+                autoApplyEnabled: true,
+                templateName: "",
+                templateExists: _ => true
             )
-            .Is.False();
+        );
     }
 
     [Test]
     public static void ShouldApplyDefaultTemplateFalseWhenTemplateDoesNotExist() =>
-        Assert
-            .That(
-                Manager.ShouldApplyDefaultTemplate(
-                    alreadyChecked: false,
-                    autoApplyEnabled: true,
-                    templateName: "Foo",
-                    templateExists: _ => false
-                )
+        Expect.IsFalse(
+            Manager.ShouldApplyDefaultTemplate(
+                alreadyChecked: false,
+                autoApplyEnabled: true,
+                templateName: "Foo",
+                templateExists: _ => false
             )
-            .Is.False();
+        );
 
     [Test]
     public static void ShouldApplyDefaultTemplateTrueWhenAllConditionsSatisfied() =>
-        Assert
-            .That(
-                Manager.ShouldApplyDefaultTemplate(
-                    alreadyChecked: false,
-                    autoApplyEnabled: true,
-                    templateName: "Foo",
-                    templateExists: _ => true
-                )
+        Expect.IsTrue(
+            Manager.ShouldApplyDefaultTemplate(
+                alreadyChecked: false,
+                autoApplyEnabled: true,
+                templateName: "Foo",
+                templateExists: _ => true
             )
-            .Is.True();
+        );
 
     [Test]
     public static void ShouldSkipDefaultTemplateForModMismatchTrueOnlyWhenBothTrue()
     {
-        Assert
-            .That(
-                Manager.ShouldSkipDefaultTemplateForModMismatch(
-                    wouldApply: true,
-                    modMismatchDetected: true
-                )
+        Expect.IsTrue(
+            Manager.ShouldSkipDefaultTemplateForModMismatch(
+                wouldApply: true,
+                modMismatchDetected: true
             )
-            .Is.True();
+        );
 
-        Assert
-            .That(
-                Manager.ShouldSkipDefaultTemplateForModMismatch(
-                    wouldApply: true,
-                    modMismatchDetected: false
-                )
+        Expect.IsFalse(
+            Manager.ShouldSkipDefaultTemplateForModMismatch(
+                wouldApply: true,
+                modMismatchDetected: false
             )
-            .Is.False();
+        );
 
-        Assert
-            .That(
-                Manager.ShouldSkipDefaultTemplateForModMismatch(
-                    wouldApply: false,
-                    modMismatchDetected: true
-                )
+        Expect.IsFalse(
+            Manager.ShouldSkipDefaultTemplateForModMismatch(
+                wouldApply: false,
+                modMismatchDetected: true
             )
-            .Is.False();
+        );
 
-        Assert
-            .That(
-                Manager.ShouldSkipDefaultTemplateForModMismatch(
-                    wouldApply: false,
-                    modMismatchDetected: false
-                )
+        Expect.IsFalse(
+            Manager.ShouldSkipDefaultTemplateForModMismatch(
+                wouldApply: false,
+                modMismatchDetected: false
             )
-            .Is.False();
+        );
     }
 }

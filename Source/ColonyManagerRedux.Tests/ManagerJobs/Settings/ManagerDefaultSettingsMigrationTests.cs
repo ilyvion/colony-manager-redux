@@ -2,15 +2,15 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
 // Guards against a save written before default-value settings for a job moved out of that job's
 // ManagerSettings subclass into a dedicated ManagerDefaultSettings subclass losing those values:
 // MigrateFrom must copy every field the old class held, under its new name.
-[TestSuite]
-internal static class ManagerDefaultSettingsMigrationTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerDefaultSettingsMigrationTests
 {
     [Test]
     public static void ForagingMigrateFromCopiesAllFields()
@@ -22,16 +22,16 @@ internal static class ManagerDefaultSettingsMigrationTests
         };
         var target = new ManagerDefaultSettings_Foraging();
 
-        Assert.That(target.MigrateFrom(old)).Is.True();
-        Assert.That(target.DefaultSyncFilterAndAllowed).Is.False();
-        Assert.That(target.DefaultForceFullyMature).Is.True();
+        Expect.IsTrue(target.MigrateFrom(old));
+        Expect.IsFalse(target.DefaultSyncFilterAndAllowed);
+        Expect.IsTrue(target.DefaultForceFullyMature);
     }
 
     [Test]
     public static void ForagingMigrateFromRejectsUnrelatedLegacyType()
     {
         var target = new ManagerDefaultSettings_Foraging();
-        Assert.That(target.MigrateFrom(new ManagerSettings_Hunting())).Is.False();
+        Expect.IsFalse(target.MigrateFrom(new ManagerSettings_Hunting()));
     }
 
     [Test]
@@ -45,12 +45,13 @@ internal static class ManagerDefaultSettingsMigrationTests
         };
         var target = new ManagerDefaultSettings_Forestry();
 
-        Assert.That(target.MigrateFrom(old)).Is.True();
-        Assert.That(target.DefaultSyncFilterAndAllowed).Is.False();
-        Assert
-            .That(target.DefaultForestryJobType)
-            .Is.EqualTo(ManagerJob_Forestry.ForestryJobType.ClearArea);
-        Assert.That(target.DefaultAllowSaplings).Is.True();
+        Expect.IsTrue(target.MigrateFrom(old));
+        Expect.IsFalse(target.DefaultSyncFilterAndAllowed);
+        Expect.AreEqual(
+            ManagerJob_Forestry.ForestryJobType.ClearArea,
+            target.DefaultForestryJobType
+        );
+        Expect.IsTrue(target.DefaultAllowSaplings);
     }
 
     [Test]
@@ -69,17 +70,18 @@ internal static class ManagerDefaultSettingsMigrationTests
         };
         var target = new ManagerDefaultSettings_Hunting();
 
-        Assert.That(target.MigrateFrom(old)).Is.True();
-        Assert.That(target.DefaultSyncFilterAndAllowed).Is.False();
-        Assert
-            .That(target.DefaultTargetResource)
-            .Is.EqualTo(ManagerJob_Hunting.HuntingTargetResource.Leather);
-        Assert.That(target.DefaultAllowHumanLikeMeat).Is.True();
-        Assert.That(target.DefaultAllowInsectMeat).Is.True();
-        Assert.That(target.DefaultAllowTwistedMeat).Is.True();
-        Assert.That(target.DefaultUnforbidCorpses).Is.False();
-        Assert.That(target.DefaultUnforbidAllCorpses).Is.False();
-        Assert.That(target.DefaultUnforbidHumanCorpses).Is.True();
+        Expect.IsTrue(target.MigrateFrom(old));
+        Expect.IsFalse(target.DefaultSyncFilterAndAllowed);
+        Expect.AreEqual(
+            ManagerJob_Hunting.HuntingTargetResource.Leather,
+            target.DefaultTargetResource
+        );
+        Expect.IsTrue(target.DefaultAllowHumanLikeMeat);
+        Expect.IsTrue(target.DefaultAllowInsectMeat);
+        Expect.IsTrue(target.DefaultAllowTwistedMeat);
+        Expect.IsFalse(target.DefaultUnforbidCorpses);
+        Expect.IsFalse(target.DefaultUnforbidAllCorpses);
+        Expect.IsTrue(target.DefaultUnforbidHumanCorpses);
     }
 
     [Test]
@@ -103,27 +105,26 @@ internal static class ManagerDefaultSettingsMigrationTests
         };
         var target = new ManagerDefaultSettings_Mining();
 
-        Assert.That(target.MigrateFrom(old)).Is.True();
-        Assert.That(target.DefaultSyncFilterAndAllowed).Is.False();
-        Assert.That(target.DefaultDeconstructBuildings).Is.True();
-        Assert.That(target.DefaultDeconstructAncientDangerWhenFogged).Is.True();
-        Assert.That(target.DefaultAllowMining).Is.False();
-        Assert.That(target.DefaultTakeOwnershipOfMiningJobs).Is.True();
-        Assert.That(target.DefaultControlDeepDrills).Is.True();
-        Assert.That(target.DefaultHaulMapChunks).Is.False();
-        Assert.That(target.DefaultHaulMinedChunks).Is.False();
-        Assert.That(target.DefaultMineThickRoofs).Is.False();
-        Assert.That(target.DefaultCheckRoofSupport).Is.False();
-        Assert.That(target.DefaultCheckRoofSupportAdvanced).Is.True();
-        Assert.That(target.DefaultCheckRoomDivision).Is.False();
+        Expect.IsTrue(target.MigrateFrom(old));
+        Expect.IsFalse(target.DefaultSyncFilterAndAllowed);
+        Expect.IsTrue(target.DefaultDeconstructBuildings);
+        Expect.IsTrue(target.DefaultDeconstructAncientDangerWhenFogged);
+        Expect.IsFalse(target.DefaultAllowMining);
+        Expect.IsTrue(target.DefaultTakeOwnershipOfMiningJobs);
+        Expect.IsTrue(target.DefaultControlDeepDrills);
+        Expect.IsFalse(target.DefaultHaulMapChunks);
+        Expect.IsFalse(target.DefaultHaulMinedChunks);
+        Expect.IsFalse(target.DefaultMineThickRoofs);
+        Expect.IsFalse(target.DefaultCheckRoofSupport);
+        Expect.IsTrue(target.DefaultCheckRoofSupportAdvanced);
+        Expect.IsFalse(target.DefaultCheckRoomDivision);
         // The old priority order only listed one task; migration must still fill in every task
         // that exists now, same as a fresh load does.
-        Assert
-            .ThatCollection(target.DefaultTaskPriorityOrder)
-            .Does.Contain(ManagerJob_Mining.Task.Mine);
-        Assert
-            .ThatCollection(target.DefaultTaskPriorityOrder)
-            .Has.Count(Enum.GetValues(typeof(ManagerJob_Mining.Task)).Length);
+        Expect.IsTrue(target.DefaultTaskPriorityOrder.Contains(ManagerJob_Mining.Task.Mine));
+        Expect.AreEqual(
+            Enum.GetValues(typeof(ManagerJob_Mining.Task)).Length,
+            target.DefaultTaskPriorityOrder.Count
+        );
     }
 
     [Test]
@@ -137,13 +138,14 @@ internal static class ManagerDefaultSettingsMigrationTests
 
         var target = new ManagerDefaultSettings_Livestock();
 
-        Assert.That(target.MigrateFrom(old)).Is.True();
+        Expect.IsTrue(target.MigrateFrom(old));
         // No override exists for this pawn kind, so this falls back to the migrated defaults.
         var migratedDefaults = target.GetSettingsFor(unrelatedPawnKind);
-        Assert.That(migratedDefaults.DefaultTryTameMore).Is.True();
-        Assert
-            .That(migratedDefaults.DefaultCullingStrategy)
-            .Is.EqualTo(ManagerJob_Livestock.LivestockCullingStrategy.None);
+        Expect.IsTrue(migratedDefaults.DefaultTryTameMore);
+        Expect.AreEqual(
+            ManagerJob_Livestock.LivestockCullingStrategy.None,
+            migratedDefaults.DefaultCullingStrategy
+        );
     }
 
     [Test]
@@ -159,17 +161,17 @@ internal static class ManagerDefaultSettingsMigrationTests
 
         var target = new ManagerDefaultSettings_Livestock();
 
-        Assert.That(target.MigrateFrom(old)).Is.True();
-        Assert.That(target.GetSettingsFor(overriddenPawnKind).DefaultTamePastTargets).Is.True();
+        Expect.IsTrue(target.MigrateFrom(old));
+        Expect.IsTrue(target.GetSettingsFor(overriddenPawnKind).DefaultTamePastTargets);
         // The override must not have leaked into the defaults used by every other pawn kind.
-        Assert.That(target.GetSettingsFor(unrelatedPawnKind).DefaultTamePastTargets).Is.False();
+        Expect.IsFalse(target.GetSettingsFor(unrelatedPawnKind).DefaultTamePastTargets);
     }
 
     [Test]
     public static void LivestockMigrateFromRejectsUnrelatedLegacyType()
     {
         var target = new ManagerDefaultSettings_Livestock();
-        Assert.That(target.MigrateFrom(new ManagerSettings_Foraging())).Is.False();
+        Expect.IsFalse(target.MigrateFrom(new ManagerSettings_Foraging()));
     }
 
     // Migration runs before EnsureManagerDefaultSettingsAreCorrect() has a chance to strip
@@ -184,7 +186,7 @@ internal static class ManagerDefaultSettingsMigrationTests
 
         var found = Settings.FindManagerDefaultSettingsFor(settingsList, def);
 
-        Assert.That(ReferenceEquals(found, target)).Is.True();
+        Expect.IsTrue(ReferenceEquals(found, target));
     }
 
     [Test]
@@ -195,6 +197,6 @@ internal static class ManagerDefaultSettingsMigrationTests
 
         var found = Settings.FindManagerDefaultSettingsFor(settingsList, def);
 
-        Assert.That(found is null).Is.True();
+        Expect.IsTrue(found is null);
     }
 }

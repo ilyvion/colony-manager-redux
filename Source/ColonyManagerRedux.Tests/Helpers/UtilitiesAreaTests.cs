@@ -1,71 +1,51 @@
 // UtilitiesAreaTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class UtilitiesAreaTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class UtilitiesAreaTests
 {
     [Test]
     public static void NoAreaIsAlwaysAllowedRegardlessOfInvert()
     {
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(
-                    hasArea: false,
-                    areaContainsPosition: false,
-                    invert: false
-                )
-            )
-            .Is.True();
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: false, invert: true)
-            )
-            .Is.True();
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: true, invert: false)
-            )
-            .Is.True();
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: true, invert: true)
-            )
-            .Is.True();
+        Expect.IsTrue(
+            Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: false, invert: false)
+        );
+        Expect.IsTrue(
+            Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: false, invert: true)
+        );
+        Expect.IsTrue(
+            Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: true, invert: false)
+        );
+        Expect.IsTrue(
+            Utilities.IsInAllowedArea(hasArea: false, areaContainsPosition: true, invert: true)
+        );
     }
 
     [Test]
     public static void InsideAreaIsAllowedWhenNotInverted() =>
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: true, invert: false)
-            )
-            .Is.True();
+        Expect.IsTrue(
+            Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: true, invert: false)
+        );
 
     [Test]
     public static void InsideAreaIsDisallowedWhenInverted() =>
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: true, invert: true)
-            )
-            .Is.False();
+        Expect.IsFalse(
+            Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: true, invert: true)
+        );
 
     [Test]
     public static void OutsideAreaIsDisallowedWhenNotInverted() =>
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: false, invert: false)
-            )
-            .Is.False();
+        Expect.IsFalse(
+            Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: false, invert: false)
+        );
 
     [Test]
     public static void OutsideAreaIsAllowedWhenInverted() =>
-        Assert
-            .That(
-                Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: false, invert: true)
-            )
-            .Is.True();
+        Expect.IsTrue(
+            Utilities.IsInAllowedArea(hasArea: true, areaContainsPosition: false, invert: true)
+        );
 }

@@ -1,13 +1,13 @@
 // ManagerTabProductionTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 using static ColonyManagerRedux.Managers.ManagerTab_Production;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerTabProductionTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerTabProductionTests
 {
     private sealed class FakeResolver(ThingDef output) : RecipeProductResolver
     {
@@ -30,7 +30,7 @@ internal static class ManagerTabProductionTests
         var recipe = new RecipeDef { defName = "CMR_TestCanStoreRecipe" };
         var resolver = new FakeResolver(meal);
 
-        Assert.That(CanPossiblyStore(resolver, recipe, def => def == meal)).Is.True();
+        Expect.IsTrue(CanPossiblyStore(resolver, recipe, def => def == meal));
     }
 
     [Test]
@@ -41,7 +41,7 @@ internal static class ManagerTabProductionTests
         var recipe = new RecipeDef { defName = "CMR_TestCanStoreRecipe2" };
         var resolver = new FakeResolver(meal);
 
-        Assert.That(CanPossiblyStore(resolver, recipe, def => def == rawFood)).Is.False();
+        Expect.IsFalse(CanPossiblyStore(resolver, recipe, def => def == rawFood));
     }
 
     [Test]
@@ -49,7 +49,7 @@ internal static class ManagerTabProductionTests
     {
         var recipe = new RecipeDef { defName = "CMR_TestCanStoreRecipeNoResolver" };
 
-        Assert.That(CanPossiblyStore(null, recipe, _ => false)).Is.True();
+        Expect.IsTrue(CanPossiblyStore(null, recipe, _ => false));
     }
 
     [Test]
@@ -65,8 +65,8 @@ internal static class ManagerTabProductionTests
 
         var groups = GroupRecipesByWorkbench([recipe], [tableA, tableB]);
 
-        Assert.That(groups.Count).Is.EqualTo(2);
-        Assert.That(groups.All(g => g.Recipes.Contains(recipe))).Is.True();
+        Expect.AreEqual(2, groups.Count);
+        Expect.IsTrue(groups.All(g => g.Recipes.Contains(recipe)));
     }
 
     [Test]
@@ -86,8 +86,8 @@ internal static class ManagerTabProductionTests
 
         var groups = GroupRecipesByWorkbench([recipe], [built]);
 
-        Assert.That(groups.Count).Is.EqualTo(1);
-        Assert.That(groups[0].Workbench == built).Is.True();
+        Expect.AreEqual(1, groups.Count);
+        Expect.IsTrue(groups[0].Workbench == built);
     }
 
     [Test]
@@ -108,9 +108,9 @@ internal static class ManagerTabProductionTests
 
         var groups = GroupRecipesByWorkbench([recipeB, recipeA], [tableA, tableB]);
 
-        Assert.That(groups.Count).Is.EqualTo(2);
-        Assert.That(groups[0].Workbench == tableA).Is.True();
-        Assert.That(groups[1].Workbench == tableB).Is.True();
+        Expect.AreEqual(2, groups.Count);
+        Expect.IsTrue(groups[0].Workbench == tableA);
+        Expect.IsTrue(groups[1].Workbench == tableB);
     }
 
     // Regression guard: DrawRecipeRow used to reserve a fixed row height regardless of how many
@@ -132,6 +132,6 @@ internal static class ManagerTabProductionTests
 
         var label = BuildRecipeRowLabel(recipe);
 
-        Assert.That(label).Is.EqualTo("Test Recipe\n<i>Table A, Table B</i>");
+        Expect.AreEqual("Test Recipe\n<i>Table A, Table B</i>", label);
     }
 }

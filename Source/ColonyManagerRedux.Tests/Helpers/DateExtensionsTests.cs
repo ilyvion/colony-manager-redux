@@ -1,25 +1,25 @@
 // DateExtensionsTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
 [HotSwappable]
-[TestSuite]
-internal static class DateExtensionsTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class DateExtensionsTests
 {
     [Test]
     public static void NegativeTicksReturnZeroLiteral() =>
-        Assert.That((-1).ToStringTicksToPeriodVerboseFull()).Is.EqualTo("0");
+        Expect.AreEqual("0", (-1).ToStringTicksToPeriodVerboseFull());
 
     [Test]
     public static void NegativeTicksReturnZeroLiteralEvenWithHoursDisallowed() =>
-        Assert.That((-1).ToStringTicksToPeriodVerboseFull(allowHours: false)).Is.EqualTo("0");
+        Expect.AreEqual("0", (-1).ToStringTicksToPeriodVerboseFull(allowHours: false));
 
     [Test]
     public static void DescribeHoursPartHidesZeroHoursWhenLargerUnitPresent() =>
-        Assert.That(DateExtensions.DescribeHoursPart(0f, hasLargerUnit: true).show).Is.False();
+        Expect.IsFalse(DateExtensions.DescribeHoursPart(0f, hasLargerUnit: true).show);
 
     [Test]
     public static void DescribeHoursPartShowsWholeHoursWhenLargerUnitPresent()
@@ -28,15 +28,15 @@ internal static class DateExtensionsTests
             4.9f,
             hasLargerUnit: true
         );
-        Assert.That(show).Is.True();
-        Assert.That(wholeNumber).Is.True();
+        Expect.IsTrue(show);
+        Expect.IsTrue(wholeNumber);
         // Truncates (via (int) cast), doesn't round, once a larger unit already absorbed the rest.
-        Assert.That(whole).Is.EqualTo(4);
+        Expect.AreEqual(4, whole);
     }
 
     [Test]
     public static void DescribeHoursPartHidesNonPositiveHoursWithoutLargerUnit() =>
-        Assert.That(DateExtensions.DescribeHoursPart(0f, hasLargerUnit: false).show).Is.False();
+        Expect.IsFalse(DateExtensions.DescribeHoursPart(0f, hasLargerUnit: false).show);
 
     [Test]
     public static void DescribeHoursPartRoundsWholeHoursAboveOneWithoutLargerUnit()
@@ -46,9 +46,9 @@ internal static class DateExtensionsTests
             2.6f,
             hasLargerUnit: false
         );
-        Assert.That(show).Is.True();
-        Assert.That(wholeNumber).Is.True();
-        Assert.That(whole).Is.EqualTo(3);
+        Expect.IsTrue(show);
+        Expect.IsTrue(wholeNumber);
+        Expect.AreEqual(3, whole);
     }
 
     [Test]
@@ -60,9 +60,9 @@ internal static class DateExtensionsTests
             0.96f,
             hasLargerUnit: false
         );
-        Assert.That(show).Is.True();
-        Assert.That(wholeNumber).Is.True();
-        Assert.That(whole).Is.EqualTo(1);
+        Expect.IsTrue(show);
+        Expect.IsTrue(wholeNumber);
+        Expect.AreEqual(1, whole);
     }
 
     [Test]
@@ -72,8 +72,8 @@ internal static class DateExtensionsTests
             0.5f,
             hasLargerUnit: false
         );
-        Assert.That(show).Is.True();
-        Assert.That(wholeNumber).Is.False();
-        Assert.That(fractional).Is.EqualTo(0.5f);
+        Expect.IsTrue(show);
+        Expect.IsFalse(wholeNumber);
+        Expect.AreEqual(0.5f, fractional);
     }
 }

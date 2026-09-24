@@ -3,23 +3,20 @@
         <UseLaboratory>true</UseLaboratory>
         <RootNamespace>ColonyManagerRedux.Tests</RootNamespace>
         <AssemblyName>ColonyManagerRedux.Tests</AssemblyName>
-        <OutputPath>../../Integrations/RimTestRedux/$(RimWorldVersion)/Assemblies</OutputPath>
     </PropertyGroup>
     <!--
-        Without the RimTestRedux reference (see below), this project has no Publicize items of
-        its own, so Krafs.Publicizer's generated IgnoresAccessChecksToAttribute merely shadows
-        the one already made public inside the referenced ColonyManagerRedux assembly; CS0436 is
+        Without the DevTools reference (see below), this project has no Publicize items of its
+        own, so Krafs.Publicizer's generated IgnoresAccessChecksToAttribute merely shadows the
+        one already made public inside the referenced ColonyManagerRedux assembly; CS0436 is
         harmless here.
     -->
     <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6'">
         <NoWarn>$(NoWarn);CS0436</NoWarn>
     </PropertyGroup>
     <!--
-        Dev-only test assembly, built and run in-game via RimTest Redux (see
-        https://github.com/ilyvion/rimtest-redux). Its output is placed in
-        Integrations/RimTestRedux/<version>/Assemblies, which LoadFolders.xml only loads when
-        RimTest Redux (ilyvion.rimtestredux) is active, so launching ColonyManagerRedux without
-        RimTest Redux never touches this assembly.
+        Dev-only test assembly, built and run in-game via DevTools. Its output is placed in
+        1.6/Assemblies next to the mod assembly, where DevTools discovers its [TestFixture]
+        classes.
 
         It's listed in ColonyManagerRedux.sln so it always builds locally (default Configuration
         is Debug, see .vscode/build_config.sh), but ColonyManagerRedux.sln deliberately omits a
@@ -27,9 +24,9 @@
         (what CI/release always use, per rimworld-utils' build_mod.yml) skips building it
         entirely; its output never lands in a shipped release.
 
-        RimTest Redux only supports RimWorld 1.6, so for any other RimWorldVersion this project
-        builds as an empty assembly: both the test sources and the RimTestRedux reference are
-        excluded below.
+        DevTools only supports RimWorld 1.6, so for any other RimWorldVersion this project
+        builds as an empty assembly: both the test sources and the DevTools reference are
+        excluded below. DevTools.dll is built into 1.6/Assemblies.
     -->
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
@@ -42,7 +39,10 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
-        <ProjectReference Include="$(ProjectDependenciesBasePath)\RimTest\Source\RimTestRedux\RimTestRedux.csproj">
+        <ProjectReference
+            Include="$(ProjectDependenciesBasePath)\Third-Party\DevTools\DevTools\DevTools.csproj"
+            AdditionalProperties="OutDir=$(MSBuildThisFileDirectory)..\..\1.6\Assemblies\"
+        >
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </ProjectReference>

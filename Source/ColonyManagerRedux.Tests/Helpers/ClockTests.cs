@@ -1,13 +1,13 @@
 // ClockTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
 [HotSwappable]
-[TestSuite]
-internal static class ClockTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ClockTests
 {
     private static readonly Rect SquareCanvas = new(0f, 0f, 100f, 100f);
 
@@ -17,34 +17,34 @@ internal static class ClockTests
     public static void HourZeroPointsToTopOfCanvas()
     {
         var (from, to) = Clock.ComputeHandlePoints(SquareCanvas, 0f, 0f, 1f);
-        Assert.That(Round(from).x).Is.EqualTo(50f);
-        Assert.That(Round(from).y).Is.EqualTo(50f);
-        Assert.That(Round(to).x).Is.EqualTo(50f);
-        Assert.That(Round(to).y).Is.EqualTo(0f);
+        Expect.AreEqual(50f, Round(from).x);
+        Expect.AreEqual(50f, Round(from).y);
+        Expect.AreEqual(50f, Round(to).x);
+        Expect.AreEqual(0f, Round(to).y);
     }
 
     [Test]
     public static void HourThreePointsRight()
     {
         var (_, to) = Clock.ComputeHandlePoints(SquareCanvas, 3f, 0f, 1f);
-        Assert.That(Round(to).x).Is.EqualTo(100f);
-        Assert.That(Round(to).y).Is.EqualTo(50f);
+        Expect.AreEqual(100f, Round(to).x);
+        Expect.AreEqual(50f, Round(to).y);
     }
 
     [Test]
     public static void HourSixPointsToBottomOfCanvas()
     {
         var (_, to) = Clock.ComputeHandlePoints(SquareCanvas, 6f, 0f, 1f);
-        Assert.That(Round(to).x).Is.EqualTo(50f);
-        Assert.That(Round(to).y).Is.EqualTo(100f);
+        Expect.AreEqual(50f, Round(to).x);
+        Expect.AreEqual(100f, Round(to).y);
     }
 
     [Test]
     public static void HourNinePointsLeft()
     {
         var (_, to) = Clock.ComputeHandlePoints(SquareCanvas, 9f, 0f, 1f);
-        Assert.That(Round(to).x).Is.EqualTo(0f);
-        Assert.That(Round(to).y).Is.EqualTo(50f);
+        Expect.AreEqual(0f, Round(to).x);
+        Expect.AreEqual(50f, Round(to).y);
     }
 
     [Test]
@@ -52,18 +52,18 @@ internal static class ClockTests
     {
         var (_, hourZeroTo) = Clock.ComputeHandlePoints(SquareCanvas, 0f, 0f, 1f);
         var (_, hourTwelveTo) = Clock.ComputeHandlePoints(SquareCanvas, 12f, 0f, 1f);
-        Assert.That(Round(hourZeroTo).x).Is.EqualTo(Round(hourTwelveTo).x);
-        Assert.That(Round(hourZeroTo).y).Is.EqualTo(Round(hourTwelveTo).y);
+        Expect.AreEqual(Round(hourTwelveTo).x, Round(hourZeroTo).x);
+        Expect.AreEqual(Round(hourTwelveTo).y, Round(hourZeroTo).y);
     }
 
     [Test]
     public static void StartAndEndScaleAlongTheHandleDirection()
     {
         var (from, to) = Clock.ComputeHandlePoints(SquareCanvas, 3f, 0.2f, 0.8f);
-        Assert.That(Round(from).x).Is.EqualTo(60f);
-        Assert.That(Round(from).y).Is.EqualTo(50f);
-        Assert.That(Round(to).x).Is.EqualTo(90f);
-        Assert.That(Round(to).y).Is.EqualTo(50f);
+        Expect.AreEqual(60f, Round(from).x);
+        Expect.AreEqual(50f, Round(from).y);
+        Expect.AreEqual(90f, Round(to).x);
+        Expect.AreEqual(50f, Round(to).y);
     }
 
     [Test]
@@ -73,7 +73,7 @@ internal static class ClockTests
         // not 100 (half the width) -- an easy mistake if width were used directly.
         var wideCanvas = new Rect(0f, 0f, 200f, 100f);
         var (_, to) = Clock.ComputeHandlePoints(wideCanvas, 3f, 0f, 1f);
-        Assert.That(Round(to).x).Is.EqualTo(150f);
-        Assert.That(Round(to).y).Is.EqualTo(50f);
+        Expect.AreEqual(150f, Round(to).x);
+        Expect.AreEqual(50f, Round(to).y);
     }
 }

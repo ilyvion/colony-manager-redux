@@ -1,12 +1,12 @@
 // UtilitiesBuildGridRectsTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class UtilitiesBuildGridRectsTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class UtilitiesBuildGridRectsTests
 {
     [Test]
     public static void GridRectsAreIndexedByRowThenColumn()
@@ -16,8 +16,8 @@ internal static class UtilitiesBuildGridRectsTests
 
         var rects = Utilities.BuildGridRects(new Vector2(100f, 200f), widths, heights);
 
-        Assert.That(rects.GetLength(0)).Is.EqualTo(2);
-        Assert.That(rects.GetLength(1)).Is.EqualTo(3);
+        Expect.AreEqual(2, rects.GetLength(0));
+        Expect.AreEqual(3, rects.GetLength(1));
     }
 
     [Test]
@@ -29,14 +29,14 @@ internal static class UtilitiesBuildGridRectsTests
         var rects = Utilities.BuildGridRects(new Vector2(100f, 200f), widths, heights);
 
         // row 0, col 0 sits exactly at pos.
-        Assert.That(rects[0, 0].x).Is.EqualTo(100f);
-        Assert.That(rects[0, 0].y).Is.EqualTo(200f);
+        Expect.AreEqual(100f, rects[0, 0].x);
+        Expect.AreEqual(200f, rects[0, 0].y);
 
         // col 2 is offset by the running sum of the preceding column widths (10 + 20).
-        Assert.That(rects[0, 2].x).Is.EqualTo(130f);
+        Expect.AreEqual(130f, rects[0, 2].x);
 
         // row 1 is offset by the running sum of the preceding row heights (5).
-        Assert.That(rects[1, 0].y).Is.EqualTo(205f);
+        Expect.AreEqual(205f, rects[1, 0].y);
     }
 
     [Test]
@@ -47,8 +47,8 @@ internal static class UtilitiesBuildGridRectsTests
 
         var rects = Utilities.BuildGridRects(Vector2.zero, widths, heights);
 
-        Assert.That(rects[0, 1].width).Is.EqualTo(20f);
-        Assert.That(rects[1, 2].height).Is.EqualTo(15f);
+        Expect.AreEqual(20f, rects[0, 1].width);
+        Expect.AreEqual(15f, rects[1, 2].height);
     }
 
     // DrawAreaRestrictionsSection relies on columnMargin to leave a gap between adjacent
@@ -61,8 +61,8 @@ internal static class UtilitiesBuildGridRectsTests
 
         var rects = Utilities.BuildGridRects(Vector2.zero, widths, heights, columnMargin: 3f);
 
-        Assert.That(rects[0, 0].width).Is.EqualTo(7f);
-        Assert.That(rects[0, 1].width).Is.EqualTo(17f);
-        Assert.That(rects[0, 0].height).Is.EqualTo(5f);
+        Expect.AreEqual(7f, rects[0, 0].width);
+        Expect.AreEqual(17f, rects[0, 1].width);
+        Expect.AreEqual(5f, rects[0, 0].height);
     }
 }

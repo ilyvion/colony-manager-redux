@@ -1,12 +1,12 @@
 // HistoryChapterTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class HistoryChapterTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class HistoryChapterTests
 {
     private static History.Chapter NewChapter(int entriesPerInterval) =>
         new(new DirectHistoryLabel("test"), entriesPerInterval, Color.white);
@@ -21,10 +21,10 @@ internal static class HistoryChapterTests
         chapter.Add(20, 0, 1 * interval);
 
         // The buffer starts with a single default (0) entry, then each Add appends.
-        Assert.ThatCollection(chapter.ValuesFor(Period.Day)).Has.Count(3);
-        Assert.That(chapter.ValuesFor(Period.Day)[0]).Is.EqualTo(0);
-        Assert.That(chapter.ValuesFor(Period.Day)[1]).Is.EqualTo(10);
-        Assert.That(chapter.ValuesFor(Period.Day)[2]).Is.EqualTo(20);
+        Expect.AreEqual(3, chapter.ValuesFor(Period.Day).Length);
+        Expect.AreEqual(0, chapter.ValuesFor(Period.Day)[0]);
+        Expect.AreEqual(10, chapter.ValuesFor(Period.Day)[1]);
+        Expect.AreEqual(20, chapter.ValuesFor(Period.Day)[2]);
     }
 
     [Test]
@@ -37,10 +37,10 @@ internal static class HistoryChapterTests
         chapter.Add(40, 0, 3 * interval); // evicts the oldest (0): [10, 20, 30] -> [20, 30, 40]
 
         var values = chapter.ValuesFor(Period.Day);
-        Assert.ThatCollection(values).Has.Count(3);
-        Assert.That(values[0]).Is.EqualTo(20);
-        Assert.That(values[1]).Is.EqualTo(30);
-        Assert.That(values[2]).Is.EqualTo(40);
+        Expect.AreEqual(3, values.Length);
+        Expect.AreEqual(20, values[0]);
+        Expect.AreEqual(30, values[1]);
+        Expect.AreEqual(40, values[2]);
     }
 
     [Test]
@@ -50,7 +50,7 @@ internal static class HistoryChapterTests
         chapter.Add(10, 100, 0 * interval);
         chapter.Add(20, 0, 1 * interval);
 
-        Assert.That(chapter.Max(Period.Day)).Is.EqualTo(100);
+        Expect.AreEqual(100, chapter.Max(Period.Day));
     }
 
     [Test]
@@ -60,8 +60,8 @@ internal static class HistoryChapterTests
         chapter.Add(10, 0, 0 * interval);
         chapter.Add(20, 0, 1 * interval);
 
-        Assert.That(chapter.HasTargets(Period.Day)).Is.False();
-        Assert.That(chapter.TargetsFor(Period.Day) is null).Is.True();
+        Expect.IsFalse(chapter.HasTargets(Period.Day));
+        Expect.IsTrue(chapter.TargetsFor(Period.Day) is null);
     }
 
     [Test]
@@ -73,15 +73,15 @@ internal static class HistoryChapterTests
         chapter.Add(30, 100, 2 * interval); // target changes to 100 from this point on
         chapter.Add(40, 100, 3 * interval);
 
-        Assert.That(chapter.HasTargets(Period.Day)).Is.True();
+        Expect.IsTrue(chapter.HasTargets(Period.Day));
 
         var targets = chapter.TargetsFor(Period.Day)!;
-        Assert.ThatCollection(targets).Has.Count(5);
-        Assert.That(targets[0]).Is.EqualTo(0);
-        Assert.That(targets[1]).Is.EqualTo(0);
-        Assert.That(targets[2]).Is.EqualTo(0);
-        Assert.That(targets[3]).Is.EqualTo(100);
-        Assert.That(targets[4]).Is.EqualTo(100);
+        Expect.AreEqual(5, targets.Length);
+        Expect.AreEqual(0, targets[0]);
+        Expect.AreEqual(0, targets[1]);
+        Expect.AreEqual(0, targets[2]);
+        Expect.AreEqual(100, targets[3]);
+        Expect.AreEqual(100, targets[4]);
     }
 
     [Test]
@@ -100,14 +100,14 @@ internal static class HistoryChapterTests
 
         var values = chapter.ValuesFor(Period.Day);
         var targets = chapter.TargetsFor(Period.Day)!;
-        Assert.ThatCollection(values).Has.Count(5);
-        Assert.That(values[0]).Is.EqualTo(20);
-        Assert.That(values[4]).Is.EqualTo(60);
+        Expect.AreEqual(5, values.Length);
+        Expect.AreEqual(20, values[0]);
+        Expect.AreEqual(60, values[4]);
 
-        Assert.ThatCollection(targets).Has.Count(5);
-        Assert.That(targets[0]).Is.EqualTo(0);
-        Assert.That(targets[1]).Is.EqualTo(100);
-        Assert.That(targets[4]).Is.EqualTo(100);
+        Expect.AreEqual(5, targets.Length);
+        Expect.AreEqual(0, targets[0]);
+        Expect.AreEqual(100, targets[1]);
+        Expect.AreEqual(100, targets[4]);
     }
 
     [Test]
@@ -121,8 +121,8 @@ internal static class HistoryChapterTests
         chapter.Clear();
 
         var values = chapter.ValuesFor(Period.Day);
-        Assert.ThatCollection(values).Has.Count(1);
-        Assert.That(values[0]).Is.EqualTo(0);
+        Expect.AreEqual(1, values.Length);
+        Expect.AreEqual(0, values[0]);
     }
 
     [Test]
@@ -135,7 +135,7 @@ internal static class HistoryChapterTests
         chapter.Clear();
 
         // With no recorded data, TrueMax falls back to its floor of 1.
-        Assert.That(chapter.TrueMax).Is.EqualTo(1);
+        Expect.AreEqual(1, chapter.TrueMax);
     }
 
     [Test]
@@ -145,11 +145,11 @@ internal static class HistoryChapterTests
         chapter.Add(10, 0, 0 * interval);
         chapter.Add(20, 100, 1 * interval);
 
-        Assert.That(chapter.HasTargets(Period.Day)).Is.True();
+        Expect.IsTrue(chapter.HasTargets(Period.Day));
 
         chapter.Clear();
 
-        Assert.That(chapter.HasTargets(Period.Day)).Is.False();
-        Assert.That(chapter.TargetsFor(Period.Day) is null).Is.True();
+        Expect.IsFalse(chapter.HasTargets(Period.Day));
+        Expect.IsTrue(chapter.TargetsFor(Period.Day) is null);
     }
 }

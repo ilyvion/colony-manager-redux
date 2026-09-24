@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class UtilitiesLivestockTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class UtilitiesLivestockTests
 {
     // Pins down the AgeAndSex <-> IsAdult/IsMale mapping. A code comment on the enum warns its
     // values are save-critical ("do not change them without the proper care"); this guards
@@ -15,17 +15,17 @@ internal static class UtilitiesLivestockTests
     [Test]
     public static void AgeAndSexIsAdultAndIsMaleMappingIsPinned()
     {
-        Assert.That(AgeAndSex.AdultFemale.IsAdult()).Is.True();
-        Assert.That(AgeAndSex.AdultFemale.IsMale()).Is.False();
+        Expect.IsTrue(AgeAndSex.AdultFemale.IsAdult());
+        Expect.IsFalse(AgeAndSex.AdultFemale.IsMale());
 
-        Assert.That(AgeAndSex.AdultMale.IsAdult()).Is.True();
-        Assert.That(AgeAndSex.AdultMale.IsMale()).Is.True();
+        Expect.IsTrue(AgeAndSex.AdultMale.IsAdult());
+        Expect.IsTrue(AgeAndSex.AdultMale.IsMale());
 
-        Assert.That(AgeAndSex.JuvenileFemale.IsAdult()).Is.False();
-        Assert.That(AgeAndSex.JuvenileFemale.IsMale()).Is.False();
+        Expect.IsFalse(AgeAndSex.JuvenileFemale.IsAdult());
+        Expect.IsFalse(AgeAndSex.JuvenileFemale.IsMale());
 
-        Assert.That(AgeAndSex.JuvenileMale.IsAdult()).Is.False();
-        Assert.That(AgeAndSex.JuvenileMale.IsMale()).Is.True();
+        Expect.IsFalse(AgeAndSex.JuvenileMale.IsAdult());
+        Expect.IsTrue(AgeAndSex.JuvenileMale.IsMale());
     }
 
     [Test]
@@ -33,19 +33,11 @@ internal static class UtilitiesLivestockTests
     {
         // lifeStageIndex >= 2 is adult, per the deliberate simplification documented at the call
         // site.
-        Assert
-            .That(Utilities_Livestock.IsOfAgeSex(Gender.Male, 2, AgeAndSex.AdultMale))
-            .Is.True();
-        Assert.That(Utilities_Livestock.IsOfAgeSex(Gender.Male, 1, AgeAndSex.AdultMale)).Is.False();
-        Assert
-            .That(Utilities_Livestock.IsOfAgeSex(Gender.Male, 1, AgeAndSex.JuvenileMale))
-            .Is.True();
-        Assert
-            .That(Utilities_Livestock.IsOfAgeSex(Gender.Female, 2, AgeAndSex.AdultFemale))
-            .Is.True();
-        Assert
-            .That(Utilities_Livestock.IsOfAgeSex(Gender.Female, 1, AgeAndSex.JuvenileFemale))
-            .Is.True();
+        Expect.IsTrue(Utilities_Livestock.IsOfAgeSex(Gender.Male, 2, AgeAndSex.AdultMale));
+        Expect.IsFalse(Utilities_Livestock.IsOfAgeSex(Gender.Male, 1, AgeAndSex.AdultMale));
+        Expect.IsTrue(Utilities_Livestock.IsOfAgeSex(Gender.Male, 1, AgeAndSex.JuvenileMale));
+        Expect.IsTrue(Utilities_Livestock.IsOfAgeSex(Gender.Female, 2, AgeAndSex.AdultFemale));
+        Expect.IsTrue(Utilities_Livestock.IsOfAgeSex(Gender.Female, 1, AgeAndSex.JuvenileFemale));
     }
 
     [Test]
@@ -53,9 +45,7 @@ internal static class UtilitiesLivestockTests
     {
         // Deliberate simplification documented at the call site: anything non-male counts as
         // female, including Gender.None.
-        Assert
-            .That(Utilities_Livestock.IsOfAgeSex(Gender.None, 2, AgeAndSex.AdultFemale))
-            .Is.True();
-        Assert.That(Utilities_Livestock.IsOfAgeSex(Gender.None, 2, AgeAndSex.AdultMale)).Is.False();
+        Expect.IsTrue(Utilities_Livestock.IsOfAgeSex(Gender.None, 2, AgeAndSex.AdultFemale));
+        Expect.IsFalse(Utilities_Livestock.IsOfAgeSex(Gender.None, 2, AgeAndSex.AdultMale));
     }
 }

@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class RecipeProductResolverTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class RecipeProductResolverTests
 {
     [Test]
     public static void SimpleResolverResolvesRecipeWithSingleProduct()
@@ -15,12 +15,12 @@ internal static class RecipeProductResolverTests
         var thingDef = new ThingDef { defName = "CMR_TestProduct" };
         var recipe = new RecipeDef { products = [new ThingDefCountClass(thingDef, 1)] };
 
-        Assert.That(new RecipeProductResolver_Simple().CanResolve(recipe)).Is.True();
+        Expect.IsTrue(new RecipeProductResolver_Simple().CanResolve(recipe));
     }
 
     [Test]
     public static void SimpleResolverDoesNotResolveRecipeWithNoProduct() =>
-        Assert.That(new RecipeProductResolver_Simple().CanResolve(new RecipeDef())).Is.False();
+        Expect.IsFalse(new RecipeProductResolver_Simple().CanResolve(new RecipeDef()));
 
     [Test]
     public static void SimpleResolverConfiguresFilterWithProducedThingDef()
@@ -31,31 +31,24 @@ internal static class RecipeProductResolverTests
 
         new RecipeProductResolver_Simple().ConfigureFilter(recipe, filter);
 
-        Assert.That(filter.Allows(thingDef)).Is.True();
+        Expect.IsTrue(filter.Allows(thingDef));
     }
 
     [Test]
     public static void ButcherAnimalsResolverResolvesMatchingWorkerCounterClass() =>
-        Assert
-            .That(
-                new RecipeProductResolver_ButcherAnimals().CanResolve(
-                    new RecipeDef
-                    {
-                        workerCounterClass = typeof(RecipeWorkerCounter_ButcherAnimals),
-                    }
-                )
+        Expect.IsTrue(
+            new RecipeProductResolver_ButcherAnimals().CanResolve(
+                new RecipeDef { workerCounterClass = typeof(RecipeWorkerCounter_ButcherAnimals) }
             )
-            .Is.True();
+        );
 
     [Test]
     public static void ButcherAnimalsResolverDoesNotResolveOtherWorkerCounterClass() =>
-        Assert
-            .That(
-                new RecipeProductResolver_ButcherAnimals().CanResolve(
-                    new RecipeDef { workerCounterClass = typeof(RecipeWorkerCounter) }
-                )
+        Expect.IsFalse(
+            new RecipeProductResolver_ButcherAnimals().CanResolve(
+                new RecipeDef { workerCounterClass = typeof(RecipeWorkerCounter) }
             )
-            .Is.False();
+        );
 
     [Test]
     public static void ButcherAnimalsResolverConfiguresFilterWithMeatRawCategory()
@@ -65,31 +58,24 @@ internal static class RecipeProductResolverTests
         new RecipeProductResolver_ButcherAnimals().ConfigureFilter(new RecipeDef(), filter);
 
         var meatDef = ThingCategoryDefOf.MeatRaw.DescendantThingDefs.First();
-        Assert.That(filter.Allows(meatDef)).Is.True();
+        Expect.IsTrue(filter.Allows(meatDef));
     }
 
     [Test]
     public static void MakeStoneBlocksResolverResolvesMatchingWorkerCounterClass() =>
-        Assert
-            .That(
-                new RecipeProductResolver_MakeStoneBlocks().CanResolve(
-                    new RecipeDef
-                    {
-                        workerCounterClass = typeof(RecipeWorkerCounter_MakeStoneBlocks),
-                    }
-                )
+        Expect.IsTrue(
+            new RecipeProductResolver_MakeStoneBlocks().CanResolve(
+                new RecipeDef { workerCounterClass = typeof(RecipeWorkerCounter_MakeStoneBlocks) }
             )
-            .Is.True();
+        );
 
     [Test]
     public static void MakeStoneBlocksResolverDoesNotResolveOtherWorkerCounterClass() =>
-        Assert
-            .That(
-                new RecipeProductResolver_MakeStoneBlocks().CanResolve(
-                    new RecipeDef { workerCounterClass = typeof(RecipeWorkerCounter) }
-                )
+        Expect.IsFalse(
+            new RecipeProductResolver_MakeStoneBlocks().CanResolve(
+                new RecipeDef { workerCounterClass = typeof(RecipeWorkerCounter) }
             )
-            .Is.False();
+        );
 
     [Test]
     public static void MakeStoneBlocksResolverConfiguresFilterWithStoneBlocksCategory()
@@ -99,25 +85,23 @@ internal static class RecipeProductResolverTests
         new RecipeProductResolver_MakeStoneBlocks().ConfigureFilter(new RecipeDef(), filter);
 
         var blocksDef = ThingCategoryDefOf.StoneBlocks.DescendantThingDefs.First();
-        Assert.That(filter.Allows(blocksDef)).Is.True();
+        Expect.IsTrue(filter.Allows(blocksDef));
 
         var meatDef = ThingCategoryDefOf.MeatRaw.DescendantThingDefs.First();
-        Assert.That(filter.Allows(meatDef)).Is.False();
+        Expect.IsFalse(filter.Allows(meatDef));
     }
 
     [Test]
     public static void SmeltedResolverResolvesRecipeWithSmeltedSpecialProduct() =>
-        Assert
-            .That(
-                new RecipeProductResolver_Smelted().CanResolve(
-                    new RecipeDef { specialProducts = [SpecialProductType.Smelted] }
-                )
+        Expect.IsTrue(
+            new RecipeProductResolver_Smelted().CanResolve(
+                new RecipeDef { specialProducts = [SpecialProductType.Smelted] }
             )
-            .Is.True();
+        );
 
     [Test]
     public static void SmeltedResolverDoesNotResolveRecipeWithoutSmeltedSpecialProduct() =>
-        Assert.That(new RecipeProductResolver_Smelted().CanResolve(new RecipeDef())).Is.False();
+        Expect.IsFalse(new RecipeProductResolver_Smelted().CanResolve(new RecipeDef()));
 
     [Test]
     public static void SmeltedResolverConfiguresFilterWithSmeltableStuff()
@@ -126,13 +110,13 @@ internal static class RecipeProductResolverTests
 
         new RecipeProductResolver_Smelted().ConfigureFilter(new RecipeDef(), filter);
 
-        Assert.That(filter.Allows(ThingDefOf.Steel)).Is.True();
-        Assert.That(filter.Allows(ThingDefOf.Silver)).Is.True();
+        Expect.IsTrue(filter.Allows(ThingDefOf.Steel));
+        Expect.IsTrue(filter.Allows(ThingDefOf.Silver));
 
         var nonSmeltableStuff = DefDatabase<ThingDef>.AllDefsListForReading.First(d =>
             d.IsStuff && !d.smeltable
         );
-        Assert.That(filter.Allows(nonSmeltableStuff)).Is.False();
+        Expect.IsFalse(filter.Allows(nonSmeltableStuff));
     }
 
     [Test]
@@ -146,7 +130,7 @@ internal static class RecipeProductResolverTests
             recipe
         );
 
-        Assert.That(result?.defName).Is.EqualTo(thingDef.defName);
+        Expect.AreEqual(thingDef.defName, result?.defName);
     }
 
     [Test]
@@ -157,7 +141,7 @@ internal static class RecipeProductResolverTests
             new RecipeDef()
         );
 
-        Assert.That(result?.defName).Is.Null();
+        Expect.IsNull(result?.defName);
     }
 
     private sealed class RecipeProductResolver_ButcherAnimals_EmptyFilter : RecipeProductResolver

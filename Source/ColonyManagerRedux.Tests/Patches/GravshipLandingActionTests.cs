@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 #if !v1_5
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class GravshipLandingActionTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class GravshipLandingActionTests
 {
     [Test]
     public static void NoLocalJobsAlwaysImports()
@@ -25,7 +25,7 @@ internal static class GravshipLandingActionTests
                     gravshipJobCount: 3,
                     resolution
                 );
-            Assert.That(action).Is.EqualTo(GravshipLandingAction.Import);
+            Expect.AreEqual(GravshipLandingAction.Import, action);
         }
     }
 
@@ -44,7 +44,7 @@ internal static class GravshipLandingActionTests
                     gravshipJobCount: 0,
                     resolution
                 );
-            Assert.That(action).Is.EqualTo(GravshipLandingAction.Import);
+            Expect.AreEqual(GravshipLandingAction.Import, action);
         }
     }
 
@@ -56,7 +56,7 @@ internal static class GravshipLandingActionTests
             gravshipJobCount: 0,
             GravshipJobConflictResolution.AlwaysAsk
         );
-        Assert.That(action).Is.EqualTo(GravshipLandingAction.Import);
+        Expect.AreEqual(GravshipLandingAction.Import, action);
     }
 
     [Test]
@@ -67,7 +67,7 @@ internal static class GravshipLandingActionTests
             gravshipJobCount: 1,
             GravshipJobConflictResolution.AlwaysAsk
         );
-        Assert.That(action).Is.EqualTo(GravshipLandingAction.Ask);
+        Expect.AreEqual(GravshipLandingAction.Ask, action);
     }
 
     [Test]
@@ -78,7 +78,7 @@ internal static class GravshipLandingActionTests
             gravshipJobCount: 1,
             GravshipJobConflictResolution.KeepLocalJobs
         );
-        Assert.That(action).Is.EqualTo(GravshipLandingAction.KeepLocalOnly);
+        Expect.AreEqual(GravshipLandingAction.KeepLocalOnly, action);
     }
 
     [Test]
@@ -89,7 +89,7 @@ internal static class GravshipLandingActionTests
             gravshipJobCount: 1,
             GravshipJobConflictResolution.KeepGravshipJobs
         );
-        Assert.That(action).Is.EqualTo(GravshipLandingAction.KeepGravshipOnly);
+        Expect.AreEqual(GravshipLandingAction.KeepGravshipOnly, action);
     }
 
     [Test]
@@ -100,7 +100,7 @@ internal static class GravshipLandingActionTests
             gravshipJobCount: 1,
             GravshipJobConflictResolution.MergeJobs
         );
-        Assert.That(action).Is.EqualTo(GravshipLandingAction.Import);
+        Expect.AreEqual(GravshipLandingAction.Import, action);
     }
 }
 #endif // !v1_5

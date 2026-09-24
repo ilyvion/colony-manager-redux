@@ -2,68 +2,58 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerJobPowerTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerJobPowerTests
 {
     [Test]
     public static void ShouldStartSuspendedIsFalseWhenSettingIsDisabled() =>
         // Old behavior, kept as the default: the auto-created Power job never starts suspended
         // unless the player opts in via the setting - see GitHub issue #18.
-        Assert
-            .That(ManagerTab_Power.ShouldStartSuspended(false, mapIsPlayerHome: false))
-            .Is.False();
+        Expect.IsFalse(ManagerTab_Power.ShouldStartSuspended(false, mapIsPlayerHome: false));
 
     [Test]
     public static void ShouldStartSuspendedIsFalseOnHomeMapsEvenWhenSettingIsEnabled() =>
-        Assert.That(ManagerTab_Power.ShouldStartSuspended(true, mapIsPlayerHome: true)).Is.False();
+        Expect.IsFalse(ManagerTab_Power.ShouldStartSuspended(true, mapIsPlayerHome: true));
 
     [Test]
     public static void ShouldStartSuspendedIsTrueOnNonHomeMapsWhenSettingIsEnabled() =>
         // A quest site or other map the player is just visiting shouldn't start nagging about an
         // auto-created Power job the moment it exists - see GitHub issue #18.
-        Assert
-            .That(ManagerTab_Power.ShouldStartSuspended(true, mapIsPlayerHome: false))
-            .Is.True();
+        Expect.IsTrue(ManagerTab_Power.ShouldStartSuspended(true, mapIsPlayerHome: false));
 
     [Test]
     public static void MapIsActuallyPlayerHomeIsTrueWhenPlayerOwnsTheMapParent() =>
-        Assert
-            .That(
-                ManagerTab_Power.MapIsActuallyPlayerHome(
-                    hasPlayerOwnedHomeMapParent: true,
-                    playerHasGravEngineOnMap: false
-                )
+        Expect.IsTrue(
+            ManagerTab_Power.MapIsActuallyPlayerHome(
+                hasPlayerOwnedHomeMapParent: true,
+                playerHasGravEngineOnMap: false
             )
-            .Is.True();
+        );
 
     [Test]
     public static void MapIsActuallyPlayerHomeIsTrueWhenGravEngineIsPhysicallyOnTheMap() =>
-        Assert
-            .That(
-                ManagerTab_Power.MapIsActuallyPlayerHome(
-                    hasPlayerOwnedHomeMapParent: false,
-                    playerHasGravEngineOnMap: true
-                )
+        Expect.IsTrue(
+            ManagerTab_Power.MapIsActuallyPlayerHome(
+                hasPlayerOwnedHomeMapParent: false,
+                playerHasGravEngineOnMap: true
             )
-            .Is.True();
+        );
 
     [Test]
     public static void MapIsActuallyPlayerHomeIsFalseForAHostileEventSiteAGravshipLandedOn() =>
         // A map's world object doesn't become player-owned just because a gravship landed on or
         // was diverted to it (e.g. a hostile quest/event site) - unlike Map.IsPlayerHome, which
         // unconditionally reports true for any such map via wasSpawnedViaGravShipLanding.
-        Assert
-            .That(
-                ManagerTab_Power.MapIsActuallyPlayerHome(
-                    hasPlayerOwnedHomeMapParent: false,
-                    playerHasGravEngineOnMap: false
-                )
+        Expect.IsFalse(
+            ManagerTab_Power.MapIsActuallyPlayerHome(
+                hasPlayerOwnedHomeMapParent: false,
+                playerHasGravEngineOnMap: false
             )
-            .Is.False();
+        );
 
     [Test]
     public static void TrimListToIsNoOpWhenListAlreadyAtTargetLength()
@@ -71,7 +61,7 @@ internal static class ManagerJobPowerTests
         List<int> list = [1, 2, 3];
         ManagerJob_Power.TrimListTo(list, 3);
 
-        Assert.ThatCollection(list).Has.Count(3);
+        Expect.AreEqual(3, list.Count);
     }
 
     [Test]
@@ -84,11 +74,11 @@ internal static class ManagerJobPowerTests
         List<int> list = [1, 2, 3, 4];
         ManagerJob_Power.TrimListTo(list, 3);
 
-        Assert.ThatCollection(list).Has.Count(3);
-        Assert.ThatCollection(list).Does.Contain(1);
-        Assert.ThatCollection(list).Does.Contain(2);
-        Assert.ThatCollection(list).Does.Contain(3);
-        Assert.ThatCollection(list).Does.Not.Contain(4);
+        Expect.AreEqual(3, list.Count);
+        Expect.IsTrue(list.Contains(1));
+        Expect.IsTrue(list.Contains(2));
+        Expect.IsTrue(list.Contains(3));
+        Expect.IsFalse(list.Contains(4));
     }
 
     [Test]
@@ -97,8 +87,8 @@ internal static class ManagerJobPowerTests
         List<int> list = [1, 2, 3, 4, 5];
         ManagerJob_Power.TrimListTo(list, 1);
 
-        Assert.ThatCollection(list).Has.Count(1);
-        Assert.That(list[0]).Is.EqualTo(1);
+        Expect.AreEqual(1, list.Count);
+        Expect.AreEqual(1, list[0]);
     }
 
     [Test]
@@ -107,21 +97,21 @@ internal static class ManagerJobPowerTests
         List<int> list = [1, 2, 3];
         ManagerJob_Power.TrimListTo(list, 0);
 
-        Assert.ThatCollection(list).Is.Empty();
+        Expect.IsEmpty(list);
     }
 
     [Test]
     public static void PickSurvivorKeepsCurrentWhenThereAreNoOthers()
     {
         var survivor = ManagerJob_Power.PickSurvivor("this", [], _ => true);
-        Assert.That(survivor).Is.EqualTo("this");
+        Expect.AreEqual("this", survivor);
     }
 
     [Test]
     public static void PickSurvivorSwitchesToTheOnlineOtherJob()
     {
         var survivor = ManagerJob_Power.PickSurvivor("this", ["other"], j => j == "other");
-        Assert.That(survivor).Is.EqualTo("other");
+        Expect.AreEqual("other", survivor);
     }
 
     [Test]
@@ -135,61 +125,57 @@ internal static class ManagerJobPowerTests
             ["offline1", "online1", "online2"],
             j => j.StartsWith("online", StringComparison.Ordinal)
         );
-        Assert.That(survivor).Is.EqualTo("online1");
+        Expect.AreEqual("online1", survivor);
     }
 
     [Test]
     public static void PickSurvivorKeepsCurrentWhenNoOtherIsOnline()
     {
         var survivor = ManagerJob_Power.PickSurvivor("this", ["offline1", "offline2"], _ => false);
-        Assert.That(survivor).Is.EqualTo("this");
+        Expect.AreEqual("this", survivor);
     }
 
     [Test]
     public static void DeterminePowerJobOutcomeIsNoPoweredStationOnlineWhenNoneOnline() =>
-        Assert
-            .That(
-                ManagerJob_Power.DeterminePowerJobOutcome(
-                    anyPoweredStationOnline: false,
-                    recordHistoricalData: true
-                )
+        Expect.AreEqual(
+            ManagerJob_Power.PowerJobOutcome.NoPoweredStationOnline,
+            ManagerJob_Power.DeterminePowerJobOutcome(
+                anyPoweredStationOnline: false,
+                recordHistoricalData: true
             )
-            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.NoPoweredStationOnline);
+        );
 
     [Test]
     public static void DeterminePowerJobOutcomeIsNoPoweredStationOnlineEvenWhenHistoricalDataDisabled() =>
         // No online station takes priority over the historical-data setting - matches the old
         // TryDoJobCoroutine's ordering, where the "any station online" check yield-broke first.
-        Assert
-            .That(
-                ManagerJob_Power.DeterminePowerJobOutcome(
-                    anyPoweredStationOnline: false,
-                    recordHistoricalData: false
-                )
+        Expect.AreEqual(
+            ManagerJob_Power.PowerJobOutcome.NoPoweredStationOnline,
+            ManagerJob_Power.DeterminePowerJobOutcome(
+                anyPoweredStationOnline: false,
+                recordHistoricalData: false
             )
-            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.NoPoweredStationOnline);
+        );
 
     [Test]
     public static void DeterminePowerJobOutcomeIsHistoricalDataRecordingDisabledWhenOnlineButSettingOff() =>
-        Assert
-            .That(
-                ManagerJob_Power.DeterminePowerJobOutcome(
-                    anyPoweredStationOnline: true,
-                    recordHistoricalData: false
-                )
+        Expect.AreEqual(
+            ManagerJob_Power.PowerJobOutcome.HistoricalDataRecordingDisabled,
+            ManagerJob_Power.DeterminePowerJobOutcome(
+                anyPoweredStationOnline: true,
+                recordHistoricalData: false
             )
-            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.HistoricalDataRecordingDisabled);
+        );
 
     [Test]
     public static void DeterminePowerJobOutcomeIsRefreshListsWhenOnlineAndRecordingEnabled() =>
-        Assert
-            .That(
-                ManagerJob_Power.DeterminePowerJobOutcome(
-                    anyPoweredStationOnline: true,
-                    recordHistoricalData: true
-                )
+        Expect.AreEqual(
+            ManagerJob_Power.PowerJobOutcome.RefreshLists,
+            ManagerJob_Power.DeterminePowerJobOutcome(
+                anyPoweredStationOnline: true,
+                recordHistoricalData: true
             )
-            .Is.EqualTo(ManagerJob_Power.PowerJobOutcome.RefreshLists);
+        );
 
     private readonly struct Trader(float powerOutput)
     {
@@ -204,8 +190,8 @@ internal static class ManagerJobPowerTests
             (Trader t) => t.PowerOutput
         );
 
-        Assert.That(producers).Is.EqualTo(0);
-        Assert.That(consumers).Is.EqualTo(0);
+        Expect.AreEqual(0, producers);
+        Expect.AreEqual(0, consumers);
     }
 
     [Test]
@@ -218,8 +204,8 @@ internal static class ManagerJobPowerTests
             t => t.PowerOutput
         );
 
-        Assert.That(producers).Is.EqualTo(2);
-        Assert.That(consumers).Is.EqualTo(0);
+        Expect.AreEqual(2, producers);
+        Expect.AreEqual(0, consumers);
     }
 
     [Test]
@@ -232,8 +218,8 @@ internal static class ManagerJobPowerTests
             t => t.PowerOutput
         );
 
-        Assert.That(producers).Is.EqualTo(0);
-        Assert.That(consumers).Is.EqualTo(2);
+        Expect.AreEqual(0, producers);
+        Expect.AreEqual(2, consumers);
     }
 
     [Test]
@@ -247,8 +233,8 @@ internal static class ManagerJobPowerTests
             t => t.PowerOutput
         );
 
-        Assert.That(producers).Is.EqualTo(2);
-        Assert.That(consumers).Is.EqualTo(2);
+        Expect.AreEqual(2, producers);
+        Expect.AreEqual(2, consumers);
     }
 
     [Test]
@@ -263,8 +249,8 @@ internal static class ManagerJobPowerTests
             t => t.PowerOutput
         );
 
-        Assert.That(producers).Is.EqualTo(1);
-        Assert.That(consumers).Is.EqualTo(1);
+        Expect.AreEqual(1, producers);
+        Expect.AreEqual(1, consumers);
     }
 
     private readonly struct Battery(float storedEnergyMax)
@@ -274,48 +260,45 @@ internal static class ManagerJobPowerTests
 
     [Test]
     public static void SumNestedOfEmptyOuterListIsZero() =>
-        Assert.That(ManagerJob_Power.SumNested<Battery>([], b => b.StoredEnergyMax)).Is.EqualTo(0f);
+        Expect.AreEqual(0f, ManagerJob_Power.SumNested<Battery>([], b => b.StoredEnergyMax));
 
     [Test]
     public static void SumNestedOfEmptyInnerListsIsZero() =>
-        Assert
-            .That(
-                ManagerJob_Power.SumNested<Battery>(
-                    [
-                        [],
-                        [],
-                    ],
-                    b => b.StoredEnergyMax
-                )
+        Expect.AreEqual(
+            0f,
+            ManagerJob_Power.SumNested<Battery>(
+                [
+                    [],
+                    [],
+                ],
+                b => b.StoredEnergyMax
             )
-            .Is.EqualTo(0f);
+        );
 
     [Test]
     public static void SumNestedOfSingleGroupSingleItemReturnsThatValue() =>
-        Assert
-            .That(
-                ManagerJob_Power.SumNested(
-                    [
-                        [new Battery(500f)],
-                    ],
-                    b => b.StoredEnergyMax
-                )
+        Expect.AreEqual(
+            500f,
+            ManagerJob_Power.SumNested(
+                [
+                    [new Battery(500f)],
+                ],
+                b => b.StoredEnergyMax
             )
-            .Is.EqualTo(500f);
+        );
 
     [Test]
     public static void SumNestedAcrossMultipleGroupsSumsAllItems() =>
         // Mirrors the batteries-max history chapter: multiple battery-type groups, each
         // containing multiple batteries, must all contribute to a single flat sum.
-        Assert
-            .That(
-                ManagerJob_Power.SumNested(
-                    [
-                        [new Battery(500f), new Battery(500f)],
-                        [new Battery(1000f)],
-                    ],
-                    b => b.StoredEnergyMax
-                )
+        Expect.AreEqual(
+            2000f,
+            ManagerJob_Power.SumNested(
+                [
+                    [new Battery(500f), new Battery(500f)],
+                    [new Battery(1000f)],
+                ],
+                b => b.StoredEnergyMax
             )
-            .Is.EqualTo(2000f);
+        );
 }

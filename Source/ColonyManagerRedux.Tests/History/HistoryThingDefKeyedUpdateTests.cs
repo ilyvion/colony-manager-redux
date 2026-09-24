@@ -1,12 +1,12 @@
 // HistoryThingDefKeyedUpdateTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class HistoryThingDefKeyedUpdateTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class HistoryThingDefKeyedUpdateTests
 {
     private static ThingDef Def(string defName) => new() { defName = defName };
 
@@ -32,8 +32,8 @@ internal static class HistoryThingDefKeyedUpdateTests
 
         var gasChapter = history._chapters.Single(c => c.ThingDefCount.thingDef == gas);
         var uraniumChapter = history._chapters.Single(c => c.ThingDefCount.thingDef == uranium);
-        Assert.That(gasChapter.Last(Period.Day).count).Is.EqualTo(3);
-        Assert.That(uraniumChapter.Last(Period.Day).count).Is.EqualTo(7);
+        Expect.AreEqual(3, gasChapter.Last(Period.Day).count);
+        Expect.AreEqual(7, uraniumChapter.Last(Period.Day).count);
     }
 
     [Test]
@@ -49,7 +49,7 @@ internal static class HistoryThingDefKeyedUpdateTests
 
         var gasChapter = history._chapters.Single(c => c.ThingDefCount.thingDef == gas);
         var uraniumChapter = history._chapters.Single(c => c.ThingDefCount.thingDef == uranium);
-        Assert.That(gasChapter.ThingDefCount.count).Is.EqualTo(3);
-        Assert.That(uraniumChapter.ThingDefCount.count).Is.EqualTo(1);
+        Expect.AreEqual(3, gasChapter.ThingDefCount.count);
+        Expect.AreEqual(1, uraniumChapter.ThingDefCount.count);
     }
 }

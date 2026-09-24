@@ -1,140 +1,133 @@
 // ManagerDefTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerDefTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerDefTests
 {
     [Test]
     public static void AllValidTypesProduceNoErrors() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
-                    typeof(ManagerJob),
-                    typeof(ManagerTab),
-                    typeof(ManagerSettings),
-                    typeof(ManagerDefaultSettings)
-                )
+        Expect.IsEmpty(
+            ManagerDef.ValidateManagerDefTypes(
+                typeof(ManagerJob),
+                typeof(ManagerTab),
+                typeof(ManagerSettings),
+                typeof(ManagerDefaultSettings)
             )
-            .Is.Empty();
+        );
 
     [Test]
     public static void NullManagerJobClassIsValid() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
-                    null,
-                    typeof(ManagerTab),
-                    typeof(ManagerSettings),
-                    typeof(ManagerDefaultSettings)
-                )
+        Expect.IsEmpty(
+            ManagerDef.ValidateManagerDefTypes(
+                null,
+                typeof(ManagerTab),
+                typeof(ManagerSettings),
+                typeof(ManagerDefaultSettings)
             )
-            .Is.Empty();
+        );
 
     [Test]
     public static void NonManagerJobTypeProducesError() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
+        Expect.AreEqual(
+            1,
+            ManagerDef
+                .ValidateManagerDefTypes(
                     typeof(object),
                     typeof(ManagerTab),
                     typeof(ManagerSettings),
                     typeof(ManagerDefaultSettings)
                 )
-            )
-            .Has.Count(1);
+                .Count()
+        );
 
     [Test]
     public static void NullManagerTabClassProducesError() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
+        Expect.AreEqual(
+            1,
+            ManagerDef
+                .ValidateManagerDefTypes(
                     null,
                     null,
                     typeof(ManagerSettings),
                     typeof(ManagerDefaultSettings)
                 )
-            )
-            .Has.Count(1);
+                .Count()
+        );
 
     [Test]
     public static void NonManagerTabTypeProducesError() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
+        Expect.AreEqual(
+            1,
+            ManagerDef
+                .ValidateManagerDefTypes(
                     null,
                     typeof(object),
                     typeof(ManagerSettings),
                     typeof(ManagerDefaultSettings)
                 )
-            )
-            .Has.Count(1);
+                .Count()
+        );
 
     [Test]
     public static void NullManagerSettingsClassIsValid() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
-                    null,
-                    typeof(ManagerTab),
-                    null,
-                    typeof(ManagerDefaultSettings)
-                )
+        Expect.IsEmpty(
+            ManagerDef.ValidateManagerDefTypes(
+                null,
+                typeof(ManagerTab),
+                null,
+                typeof(ManagerDefaultSettings)
             )
-            .Is.Empty();
+        );
 
     [Test]
     public static void NonManagerSettingsTypeProducesError() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
+        Expect.AreEqual(
+            1,
+            ManagerDef
+                .ValidateManagerDefTypes(
                     null,
                     typeof(ManagerTab),
                     typeof(object),
                     typeof(ManagerDefaultSettings)
                 )
-            )
-            .Has.Count(1);
+                .Count()
+        );
 
     [Test]
     public static void NullManagerDefaultSettingsClassIsValid() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
-                    null,
-                    typeof(ManagerTab),
-                    typeof(ManagerSettings),
-                    null
-                )
+        Expect.IsEmpty(
+            ManagerDef.ValidateManagerDefTypes(
+                null,
+                typeof(ManagerTab),
+                typeof(ManagerSettings),
+                null
             )
-            .Is.Empty();
+        );
 
     [Test]
     public static void NonManagerDefaultSettingsTypeProducesError() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
+        Expect.AreEqual(
+            1,
+            ManagerDef
+                .ValidateManagerDefTypes(
                     null,
                     typeof(ManagerTab),
                     typeof(ManagerSettings),
                     typeof(object)
                 )
-            )
-            .Has.Count(1);
+                .Count()
+        );
 
     [Test]
     public static void AllInvalidTypesProduceFourErrors() =>
-        Assert
-            .ThatCollection(
-                ManagerDef.ValidateManagerDefTypes(
-                    typeof(object),
-                    null,
-                    typeof(object),
-                    typeof(object)
-                )
-            )
-            .Has.Count(4);
+        Expect.AreEqual(
+            4,
+            ManagerDef
+                .ValidateManagerDefTypes(typeof(object), null, typeof(object), typeof(object))
+                .Count()
+        );
 }

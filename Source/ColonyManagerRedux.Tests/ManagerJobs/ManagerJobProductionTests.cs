@@ -1,13 +1,13 @@
 // ManagerJobProductionTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 using static ColonyManagerRedux.Managers.ManagerJob_Production;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerJobProductionTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerJobProductionTests
 {
     // RecipeDef.ingredientValueGetterClass is private (normally populated from XML/PostLoad) -
     // these tests need to control which IngredientValueGetter a fake recipe uses to exercise
@@ -35,195 +35,161 @@ internal static class ManagerJobProductionTests
 
     [Test]
     public static void NoManagedBillAndInactiveTriggerDoesNothing() =>
-        Assert
-            .That(
-                DecideBillAction(
-                    hasManagedBill: false,
-                    managedBillSuspended: false,
-                    triggerActive: false
-                )
+        Expect.AreEqual(
+            ProductionBillDecision.None,
+            DecideBillAction(
+                hasManagedBill: false,
+                managedBillSuspended: false,
+                triggerActive: false
             )
-            .Is.EqualTo(ProductionBillDecision.None);
+        );
 
     [Test]
     public static void NoManagedBillAndActiveTriggerCreatesNewBill() =>
-        Assert
-            .That(
-                DecideBillAction(
-                    hasManagedBill: false,
-                    managedBillSuspended: false,
-                    triggerActive: true
-                )
+        Expect.AreEqual(
+            ProductionBillDecision.CreateNew,
+            DecideBillAction(
+                hasManagedBill: false,
+                managedBillSuspended: false,
+                triggerActive: true
             )
-            .Is.EqualTo(ProductionBillDecision.CreateNew);
+        );
 
     [Test]
     public static void SuspendedManagedBillWithActiveTriggerIsActivated() =>
-        Assert
-            .That(
-                DecideBillAction(
-                    hasManagedBill: true,
-                    managedBillSuspended: true,
-                    triggerActive: true
-                )
-            )
-            .Is.EqualTo(ProductionBillDecision.Activate);
+        Expect.AreEqual(
+            ProductionBillDecision.Activate,
+            DecideBillAction(hasManagedBill: true, managedBillSuspended: true, triggerActive: true)
+        );
 
     [Test]
     public static void ActiveManagedBillWithActiveTriggerIsLeftAlone() =>
-        Assert
-            .That(
-                DecideBillAction(
-                    hasManagedBill: true,
-                    managedBillSuspended: false,
-                    triggerActive: true
-                )
-            )
-            .Is.EqualTo(ProductionBillDecision.None);
+        Expect.AreEqual(
+            ProductionBillDecision.None,
+            DecideBillAction(hasManagedBill: true, managedBillSuspended: false, triggerActive: true)
+        );
 
     [Test]
     public static void ActiveManagedBillWithInactiveTriggerIsSuspended() =>
-        Assert
-            .That(
-                DecideBillAction(
-                    hasManagedBill: true,
-                    managedBillSuspended: false,
-                    triggerActive: false
-                )
+        Expect.AreEqual(
+            ProductionBillDecision.Suspend,
+            DecideBillAction(
+                hasManagedBill: true,
+                managedBillSuspended: false,
+                triggerActive: false
             )
-            .Is.EqualTo(ProductionBillDecision.Suspend);
+        );
 
     [Test]
     public static void SuspendedManagedBillWithInactiveTriggerIsLeftAlone() =>
-        Assert
-            .That(
-                DecideBillAction(
-                    hasManagedBill: true,
-                    managedBillSuspended: true,
-                    triggerActive: false
-                )
-            )
-            .Is.EqualTo(ProductionBillDecision.None);
+        Expect.AreEqual(
+            ProductionBillDecision.None,
+            DecideBillAction(hasManagedBill: true, managedBillSuspended: true, triggerActive: false)
+        );
 
     [Test]
     public static void AllModeIsAlwaysInScope() =>
-        Assert
-            .That(
-                IsWorkTableInScope(
-                    WorkbenchAssignmentMode.All,
-                    inArea: false,
-                    isSpecificallySelected: false
-                )
+        Expect.IsTrue(
+            IsWorkTableInScope(
+                WorkbenchAssignmentMode.All,
+                inArea: false,
+                isSpecificallySelected: false
             )
-            .Is.True();
+        );
 
     [Test]
     public static void AreaModeFollowsAreaMembership()
     {
-        Assert
-            .That(
-                IsWorkTableInScope(
-                    WorkbenchAssignmentMode.Area,
-                    inArea: true,
-                    isSpecificallySelected: false
-                )
+        Expect.IsTrue(
+            IsWorkTableInScope(
+                WorkbenchAssignmentMode.Area,
+                inArea: true,
+                isSpecificallySelected: false
             )
-            .Is.True();
-        Assert
-            .That(
-                IsWorkTableInScope(
-                    WorkbenchAssignmentMode.Area,
-                    inArea: false,
-                    isSpecificallySelected: true
-                )
+        );
+        Expect.IsFalse(
+            IsWorkTableInScope(
+                WorkbenchAssignmentMode.Area,
+                inArea: false,
+                isSpecificallySelected: true
             )
-            .Is.False();
+        );
     }
 
     [Test]
     public static void SpecificModeFollowsExplicitSelection()
     {
-        Assert
-            .That(
-                IsWorkTableInScope(
-                    WorkbenchAssignmentMode.Specific,
-                    inArea: true,
-                    isSpecificallySelected: false
-                )
+        Expect.IsFalse(
+            IsWorkTableInScope(
+                WorkbenchAssignmentMode.Specific,
+                inArea: true,
+                isSpecificallySelected: false
             )
-            .Is.False();
-        Assert
-            .That(
-                IsWorkTableInScope(
-                    WorkbenchAssignmentMode.Specific,
-                    inArea: false,
-                    isSpecificallySelected: true
-                )
+        );
+        Expect.IsTrue(
+            IsWorkTableInScope(
+                WorkbenchAssignmentMode.Specific,
+                inArea: false,
+                isSpecificallySelected: true
             )
-            .Is.True();
+        );
     }
 
     [Test]
     public static void MatchingSkillRangeNeedsNoUpdate() =>
-        Assert.That(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(0, 20))).Is.False();
+        Expect.IsFalse(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(0, 20)));
 
     [Test]
     public static void MismatchedSkillRangeNeedsUpdate() =>
-        Assert.That(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(5, 15))).Is.True();
+        Expect.IsTrue(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(5, 15)));
 
     [Test]
     public static void MatchingIngredientRadiusNeedsNoUpdate() =>
-        Assert.That(BillNeedsIngredientRadiusUpdate(999f, 999f)).Is.False();
+        Expect.IsFalse(BillNeedsIngredientRadiusUpdate(999f, 999f));
 
     [Test]
     public static void MismatchedIngredientRadiusNeedsUpdate() =>
-        Assert.That(BillNeedsIngredientRadiusUpdate(999f, 12f)).Is.True();
+        Expect.IsTrue(BillNeedsIngredientRadiusUpdate(999f, 12f));
 
     [Test]
     public static void MatchingStoreModeNeedsNoUpdate() =>
-        Assert
-            .That(
-                BillNeedsStoreModeUpdate(
-                    BillStoreModeDefOf.BestStockpile,
-                    BillStoreModeDefOf.BestStockpile
-                )
+        Expect.IsFalse(
+            BillNeedsStoreModeUpdate(
+                BillStoreModeDefOf.BestStockpile,
+                BillStoreModeDefOf.BestStockpile
             )
-            .Is.False();
+        );
 
     [Test]
     public static void MismatchedStoreModeNeedsUpdate() =>
-        Assert
-            .That(
-                BillNeedsStoreModeUpdate(
-                    BillStoreModeDefOf.DropOnFloor,
-                    BillStoreModeDefOf.BestStockpile
-                )
+        Expect.IsTrue(
+            BillNeedsStoreModeUpdate(
+                BillStoreModeDefOf.DropOnFloor,
+                BillStoreModeDefOf.BestStockpile
             )
-            .Is.True();
+        );
 
     [Test]
     public static void MaintainStockModeOnlySupportsAccumulationOps() =>
-        Assert
-            .ThatCollection(SupportedOpsForMode(ProductionMode.MaintainStock))
-            .Does.Not.Contain(Trigger_Threshold.Ops.HigherThan);
+        Expect.IsFalse(
+            SupportedOpsForMode(ProductionMode.MaintainStock)
+                .Contains(Trigger_Threshold.Ops.HigherThan)
+        );
 
     [Test]
     public static void ConsumeSurplusModeSupportsAllOps() =>
-        Assert
-            .ThatCollection(SupportedOpsForMode(ProductionMode.ConsumeSurplus))
-            .Does.Contain(Trigger_Threshold.Ops.HigherThan);
+        Expect.IsTrue(
+            SupportedOpsForMode(ProductionMode.ConsumeSurplus)
+                .Contains(Trigger_Threshold.Ops.HigherThan)
+        );
 
     [Test]
     public static void EnteringMaintainStockClearsConsumeSurplusFilterInitialized() =>
-        Assert
-            .That(NextConsumeSurplusFilterInitialized(ProductionMode.MaintainStock))
-            .Is.EqualTo(false);
+        Expect.AreEqual(false, NextConsumeSurplusFilterInitialized(ProductionMode.MaintainStock));
 
     [Test]
     public static void EnteringConsumeSurplusSetsConsumeSurplusFilterInitialized() =>
-        Assert
-            .That(NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus))
-            .Is.EqualTo(true);
+        Expect.AreEqual(true, NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus));
 
     // Regression test: toggling MaintainStock -> ConsumeSurplus -> MaintainStock ->
     // ConsumeSurplus used to leave the second ConsumeSurplus entry believing its ingredient
@@ -233,21 +199,21 @@ internal static class ManagerJobProductionTests
     public static void ConsumeSurplusFilterReseedsOnEverySeparateEntryAfterMaintainStock()
     {
         var initialized = NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus);
-        Assert.That(initialized).Is.EqualTo(true);
+        Expect.AreEqual(true, initialized);
 
         initialized = NextConsumeSurplusFilterInitialized(ProductionMode.MaintainStock);
-        Assert.That(initialized).Is.EqualTo(false);
+        Expect.AreEqual(false, initialized);
 
         initialized = NextConsumeSurplusFilterInitialized(ProductionMode.ConsumeSurplus);
-        Assert.That(initialized).Is.EqualTo(true);
+        Expect.AreEqual(true, initialized);
     }
 
     private static void AssertShares(int[] actual, params int[] expected)
     {
-        Assert.ThatCollection(actual).Has.Count(expected.Length);
+        Expect.AreEqual(expected.Length, actual.Length);
         for (var i = 0; i < expected.Length; i++)
         {
-            Assert.That(actual[i]).Is.EqualTo(expected[i]);
+            Expect.AreEqual(expected[i], actual[i]);
         }
     }
 
@@ -261,7 +227,7 @@ internal static class ManagerJobProductionTests
 
     [Test]
     public static void SplitShortfallWithZeroTablesIsEmpty() =>
-        Assert.ThatCollection(SplitShortfall(15, 0)).Is.Empty();
+        Expect.IsEmpty(SplitShortfall(15, 0));
 
     [Test]
     public static void SplitShortfallWithZeroOrNegativeShortfallIsAllZero()
@@ -280,31 +246,31 @@ internal static class ManagerJobProductionTests
 
     [Test]
     public static void SharesToIterationsDividesExactly() =>
-        Assert.That(SharesToIterations(10, 5)).Is.EqualTo(2);
+        Expect.AreEqual(2, SharesToIterations(10, 5));
 
     [Test]
     public static void SharesToIterationsRoundsRemainderUp() =>
-        Assert.That(SharesToIterations(11, 5)).Is.EqualTo(3);
+        Expect.AreEqual(3, SharesToIterations(11, 5));
 
     [Test]
     public static void SharesToIterationsWithZeroShareIsZero() =>
-        Assert.That(SharesToIterations(0, 5)).Is.EqualTo(0);
+        Expect.AreEqual(0, SharesToIterations(0, 5));
 
     [Test]
     public static void SharesToIterationsWithNonPositiveYieldFallsBackToOne() =>
-        Assert.That(SharesToIterations(3, 0)).Is.EqualTo(3);
+        Expect.AreEqual(3, SharesToIterations(3, 0));
 
     [Test]
     public static void MatchingRepeatCountAndModeNeedsNoUpdate() =>
-        Assert.That(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.RepeatCount, 4, 4)).Is.False();
+        Expect.IsFalse(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.RepeatCount, 4, 4));
 
     [Test]
     public static void MismatchedRepeatCountNeedsUpdate() =>
-        Assert.That(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.RepeatCount, 4, 7)).Is.True();
+        Expect.IsTrue(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.RepeatCount, 4, 7));
 
     [Test]
     public static void ForeverModeAlwaysNeedsMigrationToRepeatCount() =>
-        Assert.That(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.Forever, 0, 0)).Is.True();
+        Expect.IsTrue(BillNeedsRepeatCountUpdate(BillRepeatModeDefOf.Forever, 0, 0));
 
     [Test]
     public static void YieldPerIterationUsesProductCountForSingleProductRecipe()
@@ -312,42 +278,39 @@ internal static class ManagerJobProductionTests
         var thingDef = new ThingDef { defName = "CMR_TestYieldProduct" };
         var recipe = new RecipeDef { products = [new ThingDefCountClass(thingDef, 4)] };
 
-        Assert.That(YieldPerIteration(recipe)).Is.EqualTo(4);
+        Expect.AreEqual(4, YieldPerIteration(recipe));
     }
 
     [Test]
     public static void YieldPerIterationFallsBackToOneForVariableYieldRecipe() =>
-        Assert
-            .That(
-                YieldPerIteration(new RecipeDef { specialProducts = [SpecialProductType.Smelted] })
-            )
-            .Is.EqualTo(1);
+        Expect.AreEqual(
+            1,
+            YieldPerIteration(new RecipeDef { specialProducts = [SpecialProductType.Smelted] })
+        );
 
     [Test]
     public static void ExpectedYieldFromBillsSumsRepeatCountModeBillsTimesYieldPerIteration() =>
-        Assert
-            .That(
-                ExpectedYieldFromBills(
-                    [(BillRepeatModeDefOf.RepeatCount, 3), (BillRepeatModeDefOf.RepeatCount, 2)],
-                    yieldPerIteration: 4
-                )
+        Expect.AreEqual(
+            20,
+            ExpectedYieldFromBills(
+                [(BillRepeatModeDefOf.RepeatCount, 3), (BillRepeatModeDefOf.RepeatCount, 2)],
+                yieldPerIteration: 4
             )
-            .Is.EqualTo(20);
+        );
 
     [Test]
     public static void ExpectedYieldFromBillsIgnoresForeverModeBills() =>
-        Assert
-            .That(
-                ExpectedYieldFromBills(
-                    [(BillRepeatModeDefOf.RepeatCount, 3), (BillRepeatModeDefOf.Forever, 100)],
-                    yieldPerIteration: 4
-                )
+        Expect.AreEqual(
+            12,
+            ExpectedYieldFromBills(
+                [(BillRepeatModeDefOf.RepeatCount, 3), (BillRepeatModeDefOf.Forever, 100)],
+                yieldPerIteration: 4
             )
-            .Is.EqualTo(12);
+        );
 
     [Test]
     public static void ExpectedYieldFromBillsWithNoBillsIsZero() =>
-        Assert.That(ExpectedYieldFromBills([], yieldPerIteration: 4)).Is.EqualTo(0);
+        Expect.AreEqual(0, ExpectedYieldFromBills([], yieldPerIteration: 4));
 
     [Test]
     public static void ConfigureIngredientFilterAllowsEachIngredientOptionNotTheProduct()
@@ -371,8 +334,8 @@ internal static class ManagerJobProductionTests
 
         ConfigureIngredientFilter(recipe, filter);
 
-        Assert.That(filter.Allows(cotton)).Is.True();
-        Assert.That(filter.Allows(duster)).Is.False();
+        Expect.IsTrue(filter.Allows(cotton));
+        Expect.IsFalse(filter.Allows(duster));
     }
 
     [Test]
@@ -390,7 +353,7 @@ internal static class ManagerJobProductionTests
 
         ConfigureIngredientFilter(recipe, filter);
 
-        Assert.That(filter.Allows(wood)).Is.True();
+        Expect.IsTrue(filter.Allows(wood));
     }
 
     [Test]
@@ -415,8 +378,8 @@ internal static class ManagerJobProductionTests
 
         ConfigureIngredientFilter(recipe, filter);
 
-        Assert.That(filter.Allows(cotton)).Is.True();
-        Assert.That(filter.Allows(leather)).Is.True();
+        Expect.IsTrue(filter.Allows(cotton));
+        Expect.IsTrue(filter.Allows(leather));
     }
 
     [Test]
@@ -441,9 +404,9 @@ internal static class ManagerJobProductionTests
 
         var options = AllRecipeIngredientOptions(recipe).ToList();
 
-        Assert.ThatCollection(options).Has.Count(2);
-        Assert.ThatCollection(options).Does.Contain(cotton);
-        Assert.ThatCollection(options).Does.Contain(leather);
+        Expect.AreEqual(2, options.Count);
+        Expect.IsTrue(options.Contains(cotton));
+        Expect.IsTrue(options.Contains(leather));
     }
 
     // Regression test: "butcher creature"'s single ingredient slot only filters on the broad
@@ -469,8 +432,8 @@ internal static class ManagerJobProductionTests
 
         var options = AllRecipeIngredientOptions(recipe).ToList();
 
-        Assert.ThatCollection(options).Does.Contain(fleshCorpse);
-        Assert.ThatCollection(options).Does.Not.Contain(mechanoidCorpse);
+        Expect.IsTrue(options.Contains(fleshCorpse));
+        Expect.IsFalse(options.Contains(mechanoidCorpse));
     }
 
     // Regression test: RecipeDefGenerator only ever populates fixedIngredientFilter for a
@@ -503,9 +466,9 @@ internal static class ManagerJobProductionTests
 
         var options = AllRecipeIngredientOptions(recipe).ToList();
 
-        Assert.ThatCollection(options).Has.Count(2);
-        Assert.ThatCollection(options).Does.Contain(steel);
-        Assert.ThatCollection(options).Does.Contain(component);
+        Expect.AreEqual(2, options.Count);
+        Expect.IsTrue(options.Contains(steel));
+        Expect.IsTrue(options.Contains(component));
     }
 
     // Regression test: a fixed ingredient (e.g. a weapon's steel/component cost) is always
@@ -534,10 +497,10 @@ internal static class ManagerJobProductionTests
 
         var options = OptionalRecipeIngredientOptions(recipe).ToList();
 
-        Assert.ThatCollection(options).Has.Count(2);
-        Assert.ThatCollection(options).Does.Contain(bearMeat);
-        Assert.ThatCollection(options).Does.Contain(muffaloMeat);
-        Assert.ThatCollection(options).Does.Not.Contain(steel);
+        Expect.AreEqual(2, options.Count);
+        Expect.IsTrue(options.Contains(bearMeat));
+        Expect.IsTrue(options.Contains(muffaloMeat));
+        Expect.IsFalse(options.Contains(steel));
     }
 
     // Plain fakes, not real Bill_Production/ManagerJob_Production: constructing a real
@@ -556,7 +519,7 @@ internal static class ManagerJobProductionTests
 
         var found = FindOwningJob([job], j => j.ManagedItems, item);
 
-        Assert.That(ReferenceEquals(found, job)).Is.True();
+        Expect.IsTrue(ReferenceEquals(found, job));
     }
 
     [Test]
@@ -568,7 +531,7 @@ internal static class ManagerJobProductionTests
 
         var found = FindOwningJob([job], j => j.ManagedItems, unmanagedItem);
 
-        Assert.That(found is null).Is.True();
+        Expect.IsTrue(found is null);
     }
 
     [Test]
@@ -580,7 +543,7 @@ internal static class ManagerJobProductionTests
 
         var found = FindOwningJob([otherJob, owningJob], j => j.ManagedItems, item);
 
-        Assert.That(ReferenceEquals(found, owningJob)).Is.True();
+        Expect.IsTrue(ReferenceEquals(found, owningJob));
     }
 
     [Test]
@@ -589,9 +552,7 @@ internal static class ManagerJobProductionTests
         var cotton = new ThingDef { defName = "CMR_TestCotton4" };
         var leather = new ThingDef { defName = "CMR_TestLeather3" };
 
-        Assert
-            .That(BillNeedsIngredientFilterUpdate([cotton, leather], [cotton, leather]))
-            .Is.False();
+        Expect.IsFalse(BillNeedsIngredientFilterUpdate([cotton, leather], [cotton, leather]));
     }
 
     [Test]
@@ -600,7 +561,7 @@ internal static class ManagerJobProductionTests
         var cotton = new ThingDef { defName = "CMR_TestCotton5" };
         var leather = new ThingDef { defName = "CMR_TestLeather4" };
 
-        Assert.That(BillNeedsIngredientFilterUpdate([cotton], [cotton, leather])).Is.True();
+        Expect.IsTrue(BillNeedsIngredientFilterUpdate([cotton], [cotton, leather]));
     }
 
     [Test]
@@ -619,12 +580,12 @@ internal static class ManagerJobProductionTests
 
         var groups = GroupIngredientsByCategory([bearMeat, twistedMeat, berries, uncategorized]);
 
-        Assert.ThatCollection(groups[meat]).Has.Count(2);
-        Assert.ThatCollection(groups[meat]).Does.Contain(bearMeat);
-        Assert.ThatCollection(groups[meat]).Does.Contain(twistedMeat);
-        Assert.ThatCollection(groups[vegetarian]).Has.Count(1);
-        Assert.ThatCollection(groups[vegetarian]).Does.Contain(berries);
-        Assert.ThatCollection(groups.SelectMany(g => g)).Does.Not.Contain(uncategorized);
+        Expect.AreEqual(2, groups[meat].Count());
+        Expect.IsTrue(groups[meat].Contains(bearMeat));
+        Expect.IsTrue(groups[meat].Contains(twistedMeat));
+        Expect.AreEqual(1, groups[vegetarian].Count());
+        Expect.IsTrue(groups[vegetarian].Contains(berries));
+        Expect.IsFalse(groups.SelectMany(g => g).Contains(uncategorized));
     }
 
     [Test]
@@ -640,8 +601,8 @@ internal static class ManagerJobProductionTests
 
         var groups = GroupIngredientsByCategory([eggs]);
 
-        Assert.ThatCollection(groups[animalProducts]).Has.Count(1);
-        Assert.ThatCollection(groups[meat]).Has.Count(0);
+        Expect.AreEqual(1, groups[animalProducts].Count());
+        Expect.AreEqual(0, groups[meat].Count());
     }
 
     [Test]
@@ -650,7 +611,7 @@ internal static class ManagerJobProductionTests
         var steel = new ThingDef { defName = "CMR_TestSteel" };
         var plasteel = new ThingDef { defName = "CMR_TestPlasteel" };
 
-        Assert.That(RecipeSharesOutput([steel], [steel, plasteel])).Is.True();
+        Expect.IsTrue(RecipeSharesOutput([steel], [steel, plasteel]));
     }
 
     [Test]
@@ -659,7 +620,7 @@ internal static class ManagerJobProductionTests
         var steel = new ThingDef { defName = "CMR_TestSteel2" };
         var meat = new ThingDef { defName = "CMR_TestMeat3" };
 
-        Assert.That(RecipeSharesOutput([steel], [meat])).Is.False();
+        Expect.IsFalse(RecipeSharesOutput([steel], [meat]));
     }
 
     [Test]
@@ -667,7 +628,7 @@ internal static class ManagerJobProductionTests
     {
         var steel = new ThingDef { defName = "CMR_TestSteel3" };
 
-        Assert.That(RecipeSharesOutput([], [steel])).Is.False();
+        Expect.IsFalse(RecipeSharesOutput([], [steel]));
     }
 
     [Test]
@@ -695,7 +656,7 @@ internal static class ManagerJobProductionTests
         // Neither def is IsStuff, so IngredientValueGetter_Volume.ValuePerUnitOf is 1 for both -
         // CountRequiredOfFor reduces to the slot's raw base count, same as plain item-count
         // recipes (e.g. steel/component builds) behave.
-        Assert.That(IngredientCountPerIteration(recipe, [steel])).Is.EqualTo(15);
+        Expect.AreEqual(15, IngredientCountPerIteration(recipe, [steel]));
     }
 
     [Test]
@@ -710,7 +671,7 @@ internal static class ManagerJobProductionTests
         var recipe = new RecipeDef { ingredients = [woodSlot], fixedIngredientFilter = null };
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
 
-        Assert.That(IngredientCountPerIteration(recipe, [steel])).Is.EqualTo(0);
+        Expect.AreEqual(0, IngredientCountPerIteration(recipe, [steel]));
     }
 
     // Regression test: this recipe's slot count (0.5) is a nutrition value, not an item count -
@@ -731,7 +692,7 @@ internal static class ManagerJobProductionTests
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Nutrition));
 
         // 0.5 nutrition needed / 0.05 nutrition per meat = 10 meat.
-        Assert.That(IngredientCountPerIteration(recipe, [meat])).Is.EqualTo(10);
+        Expect.AreEqual(10, IngredientCountPerIteration(recipe, [meat]));
     }
 
     // A slot is satisfied by any one matching def, not all of them at once - if two defs with
@@ -754,7 +715,7 @@ internal static class ManagerJobProductionTests
 
         // 0.5 / 0.1 = 5 for denseMeat, 0.5 / 0.05 = 10 for sparseMeat - take the worst case (10),
         // not the sum (15).
-        Assert.That(IngredientCountPerIteration(recipe, [denseMeat, sparseMeat])).Is.EqualTo(10);
+        Expect.AreEqual(10, IngredientCountPerIteration(recipe, [denseMeat, sparseMeat]));
     }
 
     [Test]
@@ -768,9 +729,10 @@ internal static class ManagerJobProductionTests
         var recipe = new RecipeDef { ingredients = [steelSlot], fixedIngredientFilter = null };
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
 
-        Assert
-            .That(MaxIterationsWithinReserve(recipe, steel, 100, reservedAmount: 0))
-            .Is.EqualTo(int.MaxValue);
+        Expect.AreEqual(
+            int.MaxValue,
+            MaxIterationsWithinReserve(recipe, steel, 100, reservedAmount: 0)
+        );
     }
 
     [Test]
@@ -785,9 +747,10 @@ internal static class ManagerJobProductionTests
         var recipe = new RecipeDef { ingredients = [woodSlot], fixedIngredientFilter = null };
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
 
-        Assert
-            .That(MaxIterationsWithinReserve(recipe, steel, 100, reservedAmount: 50))
-            .Is.EqualTo(int.MaxValue);
+        Expect.AreEqual(
+            int.MaxValue,
+            MaxIterationsWithinReserve(recipe, steel, 100, reservedAmount: 50)
+        );
     }
 
     [Test]
@@ -802,9 +765,7 @@ internal static class ManagerJobProductionTests
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
 
         // 600 in stock, 500 reserved -> 100 usable / 10 per iteration = 10 iterations.
-        Assert
-            .That(MaxIterationsWithinReserve(recipe, steel, 600, reservedAmount: 500))
-            .Is.EqualTo(10);
+        Expect.AreEqual(10, MaxIterationsWithinReserve(recipe, steel, 600, reservedAmount: 500));
     }
 
     [Test]
@@ -818,12 +779,8 @@ internal static class ManagerJobProductionTests
         var recipe = new RecipeDef { ingredients = [steelSlot], fixedIngredientFilter = null };
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
 
-        Assert
-            .That(MaxIterationsWithinReserve(recipe, steel, 500, reservedAmount: 500))
-            .Is.EqualTo(0);
-        Assert
-            .That(MaxIterationsWithinReserve(recipe, steel, 400, reservedAmount: 500))
-            .Is.EqualTo(0);
+        Expect.AreEqual(0, MaxIterationsWithinReserve(recipe, steel, 500, reservedAmount: 500));
+        Expect.AreEqual(0, MaxIterationsWithinReserve(recipe, steel, 400, reservedAmount: 500));
     }
 
     [Test]
@@ -844,7 +801,7 @@ internal static class ManagerJobProductionTests
         SetIngredientValueGetterClass(recipe, typeof(IngredientValueGetter_Volume));
 
         // 4 components needed, 1 produced per iteration -> 4 iterations -> 4 * 10 steel.
-        Assert.That(ComputeIngredientDemand(recipe, 4, [steel])).Is.EqualTo(40);
+        Expect.AreEqual(40, ComputeIngredientDemand(recipe, 4, [steel]));
     }
 
     // Regression test: a linked producer's target was being sized to fully refill a consumer's
@@ -855,9 +812,9 @@ internal static class ManagerJobProductionTests
     [Test]
     public static void EffectiveLinkedDemandBufferCountCapsToTargetButNeverExceedsIt()
     {
-        Assert.That(EffectiveLinkedDemandBufferCount(5, 500)).Is.EqualTo(5);
-        Assert.That(EffectiveLinkedDemandBufferCount(5, 3)).Is.EqualTo(3);
-        Assert.That(EffectiveLinkedDemandBufferCount(5, 0)).Is.EqualTo(0);
+        Expect.AreEqual(5, EffectiveLinkedDemandBufferCount(5, 500));
+        Expect.AreEqual(3, EffectiveLinkedDemandBufferCount(5, 3));
+        Expect.AreEqual(0, EffectiveLinkedDemandBufferCount(5, 0));
     }
 
     // Regression test: changing LinkedDemandBufferCount on a consumer had no visible effect on a
@@ -872,8 +829,8 @@ internal static class ManagerJobProductionTests
 
         var result = ProducersNeedingTouchOnBufferCountChange(5, 20, [producer]).ToList();
 
-        Assert.ThatCollection(result).Has.Count(1);
-        Assert.ThatCollection(result).Does.Contain(producer);
+        Expect.AreEqual(1, result.Count);
+        Expect.IsTrue(result.Contains(producer));
     }
 
     [Test]
@@ -883,28 +840,25 @@ internal static class ManagerJobProductionTests
 
         var result = ProducersNeedingTouchOnBufferCountChange(5, 5, [producer]);
 
-        Assert.ThatCollection(result).Is.Empty();
+        Expect.IsEmpty(result);
     }
 
     [Test]
     public static void AggregateLinkedDemandSumsByDefault() =>
-        Assert
-            .That(AggregateLinkedDemand([20, 40, 60], LinkedDemandAggregation.Sum))
-            .Is.EqualTo(120);
+        Expect.AreEqual(120, AggregateLinkedDemand([20, 40, 60], LinkedDemandAggregation.Sum));
 
     [Test]
     public static void AggregateLinkedDemandTakesHighestForMaxOfConsumers() =>
-        Assert
-            .That(AggregateLinkedDemand([20, 40, 60], LinkedDemandAggregation.MaxOfConsumers))
-            .Is.EqualTo(60);
+        Expect.AreEqual(
+            60,
+            AggregateLinkedDemand([20, 40, 60], LinkedDemandAggregation.MaxOfConsumers)
+        );
 
     [Test]
     public static void AggregateLinkedDemandWithNoConsumersIsZero()
     {
-        Assert.That(AggregateLinkedDemand([], LinkedDemandAggregation.Sum)).Is.EqualTo(0);
-        Assert
-            .That(AggregateLinkedDemand([], LinkedDemandAggregation.MaxOfConsumers))
-            .Is.EqualTo(0);
+        Expect.AreEqual(0, AggregateLinkedDemand([], LinkedDemandAggregation.Sum));
+        Expect.AreEqual(0, AggregateLinkedDemand([], LinkedDemandAggregation.MaxOfConsumers));
     }
 
     // Regression test: a linked producer restricted to what its consumers actually need should
@@ -935,9 +889,9 @@ internal static class ManagerJobProductionTests
             )
             .ToList();
 
-        Assert.ThatCollection(result).Has.Count(2);
-        Assert.ThatCollection(result).Does.Contain(bearCorpse);
-        Assert.ThatCollection(result).Does.Contain(muffaloCorpse);
+        Expect.AreEqual(2, result.Count);
+        Expect.IsTrue(result.Contains(bearCorpse));
+        Expect.IsTrue(result.Contains(muffaloCorpse));
     }
 
     [Test]
@@ -953,7 +907,7 @@ internal static class ManagerJobProductionTests
             [bearMeat]
         );
 
-        Assert.ThatCollection(result).Is.Empty();
+        Expect.IsEmpty(result);
     }
 
     // Plain fakes, not real ManagerJob_Production instances: constructing one requires a live
@@ -971,7 +925,7 @@ internal static class ManagerJobProductionTests
         var producer = new FakeLinkedJob();
         producer.LinkedSources.Add(consumer);
 
-        Assert.That(WouldCreateCycle(consumer, producer, j => j.LinkedSources)).Is.True();
+        Expect.IsTrue(WouldCreateCycle(consumer, producer, j => j.LinkedSources));
     }
 
     [Test]
@@ -983,7 +937,7 @@ internal static class ManagerJobProductionTests
         middle.LinkedSources.Add(consumer);
         producer.LinkedSources.Add(middle);
 
-        Assert.That(WouldCreateCycle(consumer, producer, j => j.LinkedSources)).Is.True();
+        Expect.IsTrue(WouldCreateCycle(consumer, producer, j => j.LinkedSources));
     }
 
     [Test]
@@ -994,7 +948,7 @@ internal static class ManagerJobProductionTests
         var unrelatedUpstream = new FakeLinkedJob();
         producer.LinkedSources.Add(unrelatedUpstream);
 
-        Assert.That(WouldCreateCycle(consumer, producer, j => j.LinkedSources)).Is.False();
+        Expect.IsFalse(WouldCreateCycle(consumer, producer, j => j.LinkedSources));
     }
 
     [Test]
@@ -1002,7 +956,7 @@ internal static class ManagerJobProductionTests
     {
         var job = new FakeLinkedJob();
 
-        Assert.That(WouldCreateCycle(job, job, j => j.LinkedSources)).Is.True();
+        Expect.IsTrue(WouldCreateCycle(job, job, j => j.LinkedSources));
     }
 
     // Counts ConfigureLinkableProductFilter calls so tests can assert on memoization instead of
@@ -1035,7 +989,7 @@ internal static class ManagerJobProductionTests
 
         var result = ResolvedOutputDefsFor(resolver, recipe);
 
-        Assert.ThatCollection(result).Does.Contain(meat);
+        Expect.IsTrue(result.Contains(meat));
     }
 
     [Test]
@@ -1045,7 +999,7 @@ internal static class ManagerJobProductionTests
 
         var result = ResolvedOutputDefsFor(null, recipe);
 
-        Assert.ThatCollection(result).Is.Empty();
+        Expect.IsEmpty(result);
     }
 
     [Test]
@@ -1058,8 +1012,8 @@ internal static class ManagerJobProductionTests
         var first = ResolvedOutputDefsFor(resolver, recipe).ToList();
         var second = ResolvedOutputDefsFor(resolver, recipe).ToList();
 
-        Assert.That(resolver.ConfigureLinkableProductFilterCallCount).Is.EqualTo(1);
-        Assert.ThatCollection(first).Does.Contain(meat);
-        Assert.ThatCollection(second).Does.Contain(meat);
+        Expect.AreEqual(1, resolver.ConfigureLinkableProductFilterCallCount);
+        Expect.IsTrue(first.Contains(meat));
+        Expect.IsTrue(second.Contains(meat));
     }
 }

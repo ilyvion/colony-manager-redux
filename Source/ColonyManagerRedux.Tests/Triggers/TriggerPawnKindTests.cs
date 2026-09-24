@@ -2,50 +2,50 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class TriggerPawnKindTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class TriggerPawnKindTests
 {
     [Test]
     public static void ComputeRemainingCountsSubtractsCulledFromTame() =>
-        Assert
-            .ThatCollection(Trigger_PawnKind.ComputeRemainingCounts([5, 5, 5, 5], [1, 2, 3, 4]))
-            .Does.Contain(4);
+        Expect.IsTrue(
+            Trigger_PawnKind.ComputeRemainingCounts([5, 5, 5, 5], [1, 2, 3, 4]).Contains(4)
+        );
 
     [Test]
     public static void ComputeRemainingCountsMatchesElementwise()
     {
         var result = Trigger_PawnKind.ComputeRemainingCounts([5, 5, 5, 5], [1, 2, 3, 4]);
 
-        Assert.ThatCollection(result).Has.Count(4);
-        Assert.That(result[0]).Is.EqualTo(4);
-        Assert.That(result[1]).Is.EqualTo(3);
-        Assert.That(result[2]).Is.EqualTo(2);
-        Assert.That(result[3]).Is.EqualTo(1);
+        Expect.AreEqual(4, result.Length);
+        Expect.AreEqual(4, result[0]);
+        Expect.AreEqual(3, result[1]);
+        Expect.AreEqual(2, result[2]);
+        Expect.AreEqual(1, result[3]);
     }
 
     [Test]
     public static void ComputeRemainingCountsCanGoNegativeWhenCulledExceedsTame() =>
         // No clamping in the original code - pin down that this is intentional (used for progress
         // bars, which are expected to tolerate a temporary over-culled state).
-        Assert.That(Trigger_PawnKind.ComputeRemainingCounts([2], [5])[0]).Is.EqualTo(-3);
+        Expect.AreEqual(-3, Trigger_PawnKind.ComputeRemainingCounts([2], [5])[0]);
 
     [Test]
     public static void AllTargetsMetTrueForEmptyArrays() =>
-        Assert.That(Trigger_PawnKind.AllTargetsMet([], [])).Is.True();
+        Expect.IsTrue(Trigger_PawnKind.AllTargetsMet([], []));
 
     [Test]
     public static void AllTargetsMetTrueWhenEveryTargetMatches() =>
-        Assert.That(Trigger_PawnKind.AllTargetsMet([5, 5, 5, 5], [5, 5, 5, 5])).Is.True();
+        Expect.IsTrue(Trigger_PawnKind.AllTargetsMet([5, 5, 5, 5], [5, 5, 5, 5]));
 
     [Test]
     public static void AllTargetsMetFalseOnSingleMismatch() =>
-        Assert.That(Trigger_PawnKind.AllTargetsMet([5, 5, 5, 5], [5, 5, 4, 5])).Is.False();
+        Expect.IsFalse(Trigger_PawnKind.AllTargetsMet([5, 5, 5, 5], [5, 5, 4, 5]));
 
     [Test]
     public static void AllTargetsMetFalseWhenAllMismatched() =>
-        Assert.That(Trigger_PawnKind.AllTargetsMet([5, 5, 5, 5], [1, 2, 3, 4])).Is.False();
+        Expect.IsFalse(Trigger_PawnKind.AllTargetsMet([5, 5, 5, 5], [1, 2, 3, 4]));
 }

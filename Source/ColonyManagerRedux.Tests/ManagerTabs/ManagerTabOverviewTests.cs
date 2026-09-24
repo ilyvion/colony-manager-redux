@@ -1,13 +1,13 @@
 // ManagerTabOverviewTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 using static ColonyManagerRedux.Managers.ManagerTab_Overview;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerTabOverviewTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerTabOverviewTests
 {
     private readonly struct TestJob(
         ManagerDef def,
@@ -67,9 +67,9 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.None, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(1);
-        Assert.That(groups[0].Header).Is.Null();
-        Assert.ThatCollection(groups[0].Jobs).Has.Count(2);
+        Expect.AreEqual(1, groups.Count);
+        Expect.IsNull(groups[0].Header);
+        Expect.AreEqual(2, groups[0].Jobs.Count);
     }
 
     [Test]
@@ -98,11 +98,11 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.JobType, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(2);
-        Assert.That(groups[0].Header).Is.EqualTo("Forestry");
-        Assert.ThatCollection(groups[0].Jobs).Has.Count(1);
-        Assert.That(groups[1].Header).Is.EqualTo("Hunting");
-        Assert.ThatCollection(groups[1].Jobs).Has.Count(2);
+        Expect.AreEqual(2, groups.Count);
+        Expect.AreEqual("Forestry", groups[0].Header);
+        Expect.AreEqual(1, groups[0].Jobs.Count);
+        Expect.AreEqual("Hunting", groups[1].Header);
+        Expect.AreEqual(2, groups[1].Jobs.Count);
     }
 
     [Test]
@@ -124,8 +124,8 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.Status, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(1);
-        Assert.That(groups[0].Header).Is.EqualTo("Needs attention");
+        Expect.AreEqual(1, groups.Count);
+        Expect.AreEqual("Needs attention", groups[0].Header);
     }
 
     [Test]
@@ -146,8 +146,8 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.Status, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(1);
-        Assert.That(groups[0].Header).Is.EqualTo("Suspended");
+        Expect.AreEqual(1, groups.Count);
+        Expect.AreEqual("Suspended", groups[0].Header);
     }
 
     [Test]
@@ -167,11 +167,11 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.Status, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(2);
-        Assert.That(groups[0].Header).Is.EqualTo("Active");
-        Assert.ThatCollection(groups[0].Jobs).Has.Count(1);
-        Assert.That(groups[1].Header).Is.EqualTo("Completed");
-        Assert.ThatCollection(groups[1].Jobs).Has.Count(1);
+        Expect.AreEqual(2, groups.Count);
+        Expect.AreEqual("Active", groups[0].Header);
+        Expect.AreEqual(1, groups[0].Jobs.Count);
+        Expect.AreEqual("Completed", groups[1].Header);
+        Expect.AreEqual(1, groups[1].Jobs.Count);
     }
 
     [Test]
@@ -187,8 +187,8 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.Status, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(1);
-        Assert.That(groups[0].Header).Is.EqualTo("Active");
+        Expect.AreEqual(1, groups.Count);
+        Expect.AreEqual("Active", groups[0].Header);
     }
 
     [Test]
@@ -209,11 +209,11 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.Manual, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(3);
-        Assert.That(groups[0].Header).Is.EqualTo("Alpha");
-        Assert.That(groups[1].Header).Is.EqualTo("Beta");
-        Assert.That(groups[2].Header).Is.EqualTo("Ungrouped");
-        Assert.ThatCollection(groups[2].Jobs).Has.Count(1);
+        Expect.AreEqual(3, groups.Count);
+        Expect.AreEqual("Alpha", groups[0].Header);
+        Expect.AreEqual("Beta", groups[1].Header);
+        Expect.AreEqual("Ungrouped", groups[2].Header);
+        Expect.AreEqual(1, groups[2].Jobs.Count);
     }
 
     [Test]
@@ -229,8 +229,8 @@ internal static class ManagerTabOverviewTests
 
         var groups = RunGetGroups(OverviewGroupMode.Manual, jobs);
 
-        Assert.ThatCollection(groups).Has.Count(1);
-        Assert.That(groups[0].Header).Is.EqualTo("Alpha");
+        Expect.AreEqual(1, groups.Count);
+        Expect.AreEqual("Alpha", groups[0].Header);
     }
 
     [Test]
@@ -251,9 +251,9 @@ internal static class ManagerTabOverviewTests
             new(isSuspended: false, shouldDoNow: false),
         };
 
-        Assert.That(AllSuspended(allSuspended, job => job.IsSuspended)).Is.True();
-        Assert.That(AllSuspended(mixed, job => job.IsSuspended)).Is.False();
-        Assert.That(AllSuspended(noneSuspended, job => job.IsSuspended)).Is.False();
+        Expect.IsTrue(AllSuspended(allSuspended, job => job.IsSuspended));
+        Expect.IsFalse(AllSuspended(mixed, job => job.IsSuspended));
+        Expect.IsFalse(AllSuspended(noneSuspended, job => job.IsSuspended));
     }
 
     [Test]
@@ -273,8 +273,8 @@ internal static class ManagerTabOverviewTests
             job => job.ShouldDoNow
         );
 
-        Assert.ThatCollection(eligible).Has.Count(1);
-        Assert.That(eligible[0].IsSuspended).Is.False();
-        Assert.That(eligible[0].ShouldDoNow).Is.False();
+        Expect.AreEqual(1, eligible.Count);
+        Expect.IsFalse(eligible[0].IsSuspended);
+        Expect.IsFalse(eligible[0].ShouldDoNow);
     }
 }

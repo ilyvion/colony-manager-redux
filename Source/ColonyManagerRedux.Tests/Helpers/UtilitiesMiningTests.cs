@@ -2,13 +2,13 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 using Task = ColonyManagerRedux.Managers.ManagerJob_Mining.Task;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class UtilitiesMiningTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class UtilitiesMiningTests
 {
     private static readonly List<Task> AllTasks =
     [
@@ -24,10 +24,10 @@ internal static class UtilitiesMiningTests
 
         var result = Utilities_Mining.EnsureAllEnumValuesPresent(current, AllTasks);
 
-        Assert.ThatCollection(result).Has.Count(3);
-        Assert.ThatCollection(result).Does.Contain(Task.Mine);
-        Assert.ThatCollection(result).Does.Contain(Task.HaulChunks);
-        Assert.ThatCollection(result).Does.Contain(Task.DeconstructBuildings);
+        Expect.AreEqual(3, result.Count);
+        Expect.IsTrue(result.Contains(Task.Mine));
+        Expect.IsTrue(result.Contains(Task.HaulChunks));
+        Expect.IsTrue(result.Contains(Task.DeconstructBuildings));
     }
 
     [Test]
@@ -37,10 +37,10 @@ internal static class UtilitiesMiningTests
 
         var result = Utilities_Mining.EnsureAllEnumValuesPresent(current, AllTasks);
 
-        Assert.ThatCollection(result).Has.Count(3);
-        Assert.That(result[0]).Is.EqualTo(Task.Mine);
-        Assert.That(result[1]).Is.EqualTo(Task.HaulChunks);
-        Assert.That(result[2]).Is.EqualTo(Task.DeconstructBuildings);
+        Expect.AreEqual(3, result.Count);
+        Expect.AreEqual(Task.Mine, result[0]);
+        Expect.AreEqual(Task.HaulChunks, result[1]);
+        Expect.AreEqual(Task.DeconstructBuildings, result[2]);
     }
 
     [Test]
@@ -48,10 +48,10 @@ internal static class UtilitiesMiningTests
     {
         var result = Utilities_Mining.EnsureAllEnumValuesPresent([], AllTasks);
 
-        Assert.ThatCollection(result).Has.Count(3);
-        Assert.That(result[0]).Is.EqualTo(Task.HaulChunks);
-        Assert.That(result[1]).Is.EqualTo(Task.DeconstructBuildings);
-        Assert.That(result[2]).Is.EqualTo(Task.Mine);
+        Expect.AreEqual(3, result.Count);
+        Expect.AreEqual(Task.HaulChunks, result[0]);
+        Expect.AreEqual(Task.DeconstructBuildings, result[1]);
+        Expect.AreEqual(Task.Mine, result[2]);
     }
 
     [Test]
@@ -59,9 +59,9 @@ internal static class UtilitiesMiningTests
     {
         var result = Utilities_Mining.EnsureAllEnumValuesPresent(null, AllTasks);
 
-        Assert.ThatCollection(result).Has.Count(3);
-        Assert.That(result[0]).Is.EqualTo(Task.HaulChunks);
-        Assert.That(result[1]).Is.EqualTo(Task.DeconstructBuildings);
-        Assert.That(result[2]).Is.EqualTo(Task.Mine);
+        Expect.AreEqual(3, result.Count);
+        Expect.AreEqual(Task.HaulChunks, result[0]);
+        Expect.AreEqual(Task.DeconstructBuildings, result[1]);
+        Expect.AreEqual(Task.Mine, result[2]);
     }
 }

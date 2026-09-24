@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.AAAA.Core;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.AAAA.Tests;
 
-[TestSuite]
-internal static class AAAAManagerJobCompTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class AAAAManagerJobCompTests
 {
     /// <summary>
     /// An <see cref="ICollection{T}"/> that throws part way through <see cref="Add"/> once it has
@@ -45,7 +45,7 @@ internal static class AAAAManagerJobCompTests
     public static void SuccessfulSwapReplacesContentsAndReportsNoFailures()
     {
         var backing = new List<string> { "old1", "old2" };
-        ICollection<string> collection = backing;
+        var collection = backing;
         var swapFailed = false;
         var restoreFailed = false;
 
@@ -56,11 +56,11 @@ internal static class AAAAManagerJobCompTests
             _ => restoreFailed = true
         );
 
-        Assert.That(swapFailed).Is.False();
-        Assert.That(restoreFailed).Is.False();
-        Assert.ThatCollection(collection).Has.Count(3);
-        Assert.ThatCollection(collection).Does.Contain("new1");
-        Assert.ThatCollection(collection).Does.Contain("new3");
+        Expect.IsFalse(swapFailed);
+        Expect.IsFalse(restoreFailed);
+        Expect.AreEqual(3, collection.Count);
+        Expect.IsTrue(collection.Contains("new1"));
+        Expect.IsTrue(collection.Contains("new3"));
     }
 
     [Test]
@@ -80,11 +80,11 @@ internal static class AAAAManagerJobCompTests
             _ => restoreFailed = true
         );
 
-        Assert.That(swapFailed).Is.True();
-        Assert.That(restoreFailed).Is.False();
-        Assert.ThatCollection(backing).Has.Count(2);
-        Assert.ThatCollection(backing).Does.Contain("old1");
-        Assert.ThatCollection(backing).Does.Contain("old2");
+        Expect.IsTrue(swapFailed);
+        Expect.IsFalse(restoreFailed);
+        Expect.AreEqual(2, backing.Count);
+        Expect.IsTrue(backing.Contains("old1"));
+        Expect.IsTrue(backing.Contains("old2"));
     }
 
     [Test]
@@ -103,8 +103,8 @@ internal static class AAAAManagerJobCompTests
             _ => restoreFailed = true
         );
 
-        Assert.That(swapFailed).Is.True();
-        Assert.That(restoreFailed).Is.True();
+        Expect.IsTrue(swapFailed);
+        Expect.IsTrue(restoreFailed);
     }
 
     [Test]
@@ -114,8 +114,8 @@ internal static class AAAAManagerJobCompTests
 
         var found = AAAAManagerJobCompField.TryGetAreaToRestore(previousAreas, out var area);
 
-        Assert.That(found).Is.True();
-        Assert.That(area).Is.EqualTo("old1");
+        Expect.IsTrue(found);
+        Expect.AreEqual("old1", area);
     }
 
     [Test]
@@ -128,23 +128,19 @@ internal static class AAAAManagerJobCompTests
 
         var found = AAAAManagerJobCompField.TryGetAreaToRestore(previousAreas, out var area);
 
-        Assert.That(found).Is.False();
-        Assert.That(area is null).Is.True();
+        Expect.IsFalse(found);
+        Expect.IsTrue(area is null);
     }
 
     private const string Suffix = " \\(Safe\\)";
 
     [Test]
     public static void MatchesSafeAreaLabelMatchesPlainLabelWithSuffix() =>
-        Assert
-            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("Home (Safe)", "Home", Suffix))
-            .Is.True();
+        Expect.IsTrue(AAAAManagerJobCompField.MatchesSafeAreaLabel("Home (Safe)", "Home", Suffix));
 
     [Test]
     public static void MatchesSafeAreaLabelIsCaseInsensitive() =>
-        Assert
-            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("HOME (SAFE)", "home", Suffix))
-            .Is.True();
+        Expect.IsTrue(AAAAManagerJobCompField.MatchesSafeAreaLabel("HOME (SAFE)", "home", Suffix));
 
     [Test]
     public static void MatchesSafeAreaLabelEscapesRegexMetacharactersInAreaLabel()
@@ -152,32 +148,29 @@ internal static class AAAAManagerJobCompTests
         // Regression guard for commit 3466824: an area label containing regex metacharacters
         // must be escaped, not interpreted as a pattern, or this either throws or silently
         // matches the wrong areas.
-        Assert
-            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("a.b*c (Safe)", "a.b*c", Suffix))
-            .Is.True();
-        Assert
-            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("aXbXXXc (Safe)", "a.b*c", Suffix))
-            .Is.False();
+        Expect.IsTrue(
+            AAAAManagerJobCompField.MatchesSafeAreaLabel("a.b*c (Safe)", "a.b*c", Suffix)
+        );
+        Expect.IsFalse(
+            AAAAManagerJobCompField.MatchesSafeAreaLabel("aXbXXXc (Safe)", "a.b*c", Suffix)
+        );
     }
 
     [Test]
     public static void MatchesSafeAreaLabelHandlesParenthesesInAreaLabel() =>
         // e.g. an area literally named "Home (1)".
-        Assert
-            .That(
-                AAAAManagerJobCompField.MatchesSafeAreaLabel("Home (1) (Safe)", "Home (1)", Suffix)
-            )
-            .Is.True();
+        Expect.IsTrue(
+            AAAAManagerJobCompField.MatchesSafeAreaLabel("Home (1) (Safe)", "Home (1)", Suffix)
+        );
 
     [Test]
     public static void MatchesSafeAreaLabelRejectsLabelWithoutSuffix() =>
-        Assert
-            .That(AAAAManagerJobCompField.MatchesSafeAreaLabel("Home", "Home", Suffix))
-            .Is.False();
+        Expect.IsFalse(AAAAManagerJobCompField.MatchesSafeAreaLabel("Home", "Home", Suffix));
 
     [Test]
     public static void BuildSafeAreaPatternEscapesAreaLabel() =>
-        Assert
-            .That(AAAAManagerJobCompField.BuildSafeAreaPattern("a.b*c", Suffix))
-            .Is.EqualTo("a\\.b\\*c \\(Safe\\)");
+        Expect.AreEqual(
+            "a\\.b\\*c \\(Safe\\)",
+            AAAAManagerJobCompField.BuildSafeAreaPattern("a.b*c", Suffix)
+        );
 }

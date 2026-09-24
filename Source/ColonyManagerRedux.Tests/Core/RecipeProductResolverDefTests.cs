@@ -1,12 +1,12 @@
 // RecipeProductResolverDefTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class RecipeProductResolverDefTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class RecipeProductResolverDefTests
 {
     private sealed class FakeResolver : RecipeProductResolver
     {
@@ -17,23 +17,21 @@ internal static class RecipeProductResolverDefTests
 
     [Test]
     public static void ValidResolverClassProducesNoErrors() =>
-        Assert
-            .ThatCollection(
-                RecipeProductResolverDef.ValidateRecipeProductResolverDefTypes(typeof(FakeResolver))
-            )
-            .Is.Empty();
+        Expect.IsEmpty(
+            RecipeProductResolverDef.ValidateRecipeProductResolverDefTypes(typeof(FakeResolver))
+        );
 
     [Test]
     public static void NullResolverClassProducesError() =>
-        Assert
-            .ThatCollection(RecipeProductResolverDef.ValidateRecipeProductResolverDefTypes(null))
-            .Has.Count(1);
+        Expect.AreEqual(
+            1,
+            RecipeProductResolverDef.ValidateRecipeProductResolverDefTypes(null).Count()
+        );
 
     [Test]
     public static void NonResolverTypeProducesError() =>
-        Assert
-            .ThatCollection(
-                RecipeProductResolverDef.ValidateRecipeProductResolverDefTypes(typeof(object))
-            )
-            .Has.Count(1);
+        Expect.AreEqual(
+            1,
+            RecipeProductResolverDef.ValidateRecipeProductResolverDefTypes(typeof(object)).Count()
+        );
 }

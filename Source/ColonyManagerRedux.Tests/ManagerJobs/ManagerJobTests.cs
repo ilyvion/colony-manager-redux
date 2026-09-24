@@ -1,12 +1,12 @@
 // ManagerJobTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class ManagerJobTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class ManagerJobTests
 {
     [Test]
     public static void SortsByScoreDescendingForSimpleIntSorter()
@@ -18,10 +18,10 @@ internal static class ManagerJobTests
             sorter: (thing, _) => thing
         );
 
-        Assert.ThatCollection(result).Has.Count(3);
-        Assert.That(result[0]).Is.EqualTo("c");
-        Assert.That(result[1]).Is.EqualTo("b");
-        Assert.That(result[2]).Is.EqualTo("a");
+        Expect.AreEqual(3, result.Count);
+        Expect.AreEqual("c", result[0]);
+        Expect.AreEqual("b", result[1]);
+        Expect.AreEqual("a", result[2]);
     }
 
     [Test]
@@ -34,7 +34,7 @@ internal static class ManagerJobTests
             sorter: (thing, _) => thing
         );
 
-        Assert.ThatCollection(result).Is.Empty();
+        Expect.IsEmpty(result);
     }
 
     [Test]
@@ -47,8 +47,8 @@ internal static class ManagerJobTests
             sorter: (thing, distance) => thing / distance
         );
 
-        Assert.ThatCollection(result).Has.Count(1);
-        Assert.That(result[0]).Is.EqualTo("only");
+        Expect.AreEqual(1, result.Count);
+        Expect.AreEqual("only", result[0]);
     }
 
     [Test]
@@ -64,8 +64,8 @@ internal static class ManagerJobTests
             sorter: (yield, distance) => yield / distance
         );
 
-        Assert.That(result[0]).Is.EqualTo("close-low-yield");
-        Assert.That(result[1]).Is.EqualTo("far-high-yield");
+        Expect.AreEqual("close-low-yield", result[0]);
+        Expect.AreEqual("far-high-yield", result[1]);
     }
 
     [Test]
@@ -86,8 +86,8 @@ internal static class ManagerJobTests
             sorter: (yield, distance) => -(yield / distance)
         );
 
-        Assert.That(descending[0]).Is.EqualTo("high");
-        Assert.That(ascending[0]).Is.EqualTo("low");
+        Expect.AreEqual("high", descending[0]);
+        Expect.AreEqual("low", ascending[0]);
     }
 
     [Test]
@@ -100,7 +100,7 @@ internal static class ManagerJobTests
             currentTick: 1500
         );
 
-        Assert.That(elapsed).Is.EqualTo(500);
+        Expect.AreEqual(500, elapsed);
     }
 
     [Test]
@@ -113,7 +113,7 @@ internal static class ManagerJobTests
             currentTick: 1500
         );
 
-        Assert.That(elapsed).Is.EqualTo(300);
+        Expect.AreEqual(300, elapsed);
     }
 
     [Test]
@@ -131,7 +131,7 @@ internal static class ManagerJobTests
             currentTick: 5_000_000
         );
 
-        Assert.That(elapsed).Is.EqualTo(0);
+        Expect.AreEqual(0, elapsed);
     }
 
     [Test]
@@ -146,6 +146,6 @@ internal static class ManagerJobTests
             currentTick: 1500
         );
 
-        Assert.That(elapsed).Is.EqualTo(300);
+        Expect.AreEqual(300, elapsed);
     }
 }

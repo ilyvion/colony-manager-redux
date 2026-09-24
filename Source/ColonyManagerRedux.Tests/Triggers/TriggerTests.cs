@@ -1,23 +1,23 @@
 // TriggerTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
 [HotSwappable]
-[TestSuite]
-internal static class TriggerTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class TriggerTests
 {
     [Test]
     public static void ProgressBarMetricsUsesTwentyPercentPastTargetWhenItsTheLargestCandidate()
     {
         // maxValue=10 -> (int)(10*1.2)=12 beats maxValue+1=11 and currentValue=5.
         var (max, unit, markPosition, barSpan) = Trigger.ComputeProgressBarMetrics(5f, 10f, 120f);
-        Assert.That(max).Is.EqualTo(12f);
-        Assert.That(unit).Is.EqualTo(10f);
-        Assert.That(markPosition).Is.EqualTo(100f);
-        Assert.That(barSpan).Is.EqualTo(50f);
+        Expect.AreEqual(12f, max);
+        Expect.AreEqual(10f, unit);
+        Expect.AreEqual(100f, markPosition);
+        Expect.AreEqual(50f, barSpan);
     }
 
     [Test]
@@ -26,10 +26,10 @@ internal static class TriggerTests
         // maxValue=2 -> (int)(2*1.2)=2, but maxValue+1=3 is larger, and currentValue=1
         // doesn't exceed either.
         var (max, unit, markPosition, barSpan) = Trigger.ComputeProgressBarMetrics(1f, 2f, 30f);
-        Assert.That(max).Is.EqualTo(3f);
-        Assert.That(unit).Is.EqualTo(10f);
-        Assert.That(markPosition).Is.EqualTo(20f);
-        Assert.That(barSpan).Is.EqualTo(10f);
+        Expect.AreEqual(3f, max);
+        Expect.AreEqual(10f, unit);
+        Expect.AreEqual(20f, markPosition);
+        Expect.AreEqual(10f, barSpan);
     }
 
     [Test]
@@ -38,10 +38,10 @@ internal static class TriggerTests
         // currentValue=100 exceeds both maxValue*1.2 (12) and maxValue+1 (11), so it
         // becomes the logical max, keeping the bar from clipping an overshot value.
         var (max, unit, markPosition, barSpan) = Trigger.ComputeProgressBarMetrics(100f, 10f, 100f);
-        Assert.That(max).Is.EqualTo(100f);
-        Assert.That(unit).Is.EqualTo(1f);
-        Assert.That(markPosition).Is.EqualTo(10f);
-        Assert.That(barSpan).Is.EqualTo(100f);
+        Expect.AreEqual(100f, max);
+        Expect.AreEqual(1f, unit);
+        Expect.AreEqual(10f, markPosition);
+        Expect.AreEqual(100f, barSpan);
     }
 
     [Test]
@@ -49,10 +49,10 @@ internal static class TriggerTests
     {
         // maxValue=0 -> (int)(0*1.2)=0, so maxValue+1=1 is the only positive candidate.
         var (max, unit, markPosition, barSpan) = Trigger.ComputeProgressBarMetrics(0f, 0f, 50f);
-        Assert.That(max).Is.EqualTo(1f);
-        Assert.That(unit).Is.EqualTo(50f);
-        Assert.That(markPosition).Is.EqualTo(0f);
-        Assert.That(barSpan).Is.EqualTo(0f);
+        Expect.AreEqual(1f, max);
+        Expect.AreEqual(50f, unit);
+        Expect.AreEqual(0f, markPosition);
+        Expect.AreEqual(0f, barSpan);
     }
 
     [Test]
@@ -63,8 +63,8 @@ internal static class TriggerTests
         // barSpan, exactly matching the pre-extraction behavior. Documented here as a
         // known quirk, not fixed, since fixing it is out of scope for this extraction.
         var (max, _, _, barSpan) = Trigger.ComputeProgressBarMetrics(-5f, 10f, 120f);
-        Assert.That(max).Is.EqualTo(12f);
-        Assert.That(barSpan).Is.LessThan(0f);
+        Expect.AreEqual(12f, max);
+        Expect.LessThan(barSpan, 0f);
     }
 
     [Test]
@@ -79,11 +79,11 @@ internal static class TriggerTests
             10f,
             120f
         );
-        Assert.That(max).Is.EqualTo(withoutExpected.max);
-        Assert.That(unit).Is.EqualTo(withoutExpected.unit);
-        Assert.That(markPosition).Is.EqualTo(withoutExpected.markPosition);
-        Assert.That(barSpan).Is.EqualTo(withoutExpected.barSpan);
-        Assert.That(expectedBarSpan).Is.EqualTo(barSpan);
+        Expect.AreEqual(withoutExpected.max, max);
+        Expect.AreEqual(withoutExpected.unit, unit);
+        Expect.AreEqual(withoutExpected.markPosition, markPosition);
+        Expect.AreEqual(withoutExpected.barSpan, barSpan);
+        Expect.AreEqual(barSpan, expectedBarSpan);
     }
 
     [Test]
@@ -98,11 +98,11 @@ internal static class TriggerTests
             10f,
             120f
         );
-        Assert.That(max).Is.EqualTo(12f);
-        Assert.That(unit).Is.EqualTo(10f);
-        Assert.That(markPosition).Is.EqualTo(100f);
-        Assert.That(barSpan).Is.EqualTo(50f);
-        Assert.That(expectedBarSpan).Is.EqualTo(80f);
+        Expect.AreEqual(12f, max);
+        Expect.AreEqual(10f, unit);
+        Expect.AreEqual(100f, markPosition);
+        Expect.AreEqual(50f, barSpan);
+        Expect.AreEqual(80f, expectedBarSpan);
     }
 
     [Test]
@@ -117,8 +117,8 @@ internal static class TriggerTests
             10f,
             120f
         );
-        Assert.That(max).Is.EqualTo(18f);
-        Assert.That(unit).Is.EqualTo(120f / 18f);
-        Assert.That(expectedBarSpan).Is.EqualTo(120f);
+        Expect.AreEqual(18f, max);
+        Expect.AreEqual(120f / 18f, unit);
+        Expect.AreEqual(120f, expectedBarSpan);
     }
 }

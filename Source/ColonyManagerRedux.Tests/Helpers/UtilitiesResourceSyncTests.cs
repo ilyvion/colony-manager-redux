@@ -2,12 +2,12 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class UtilitiesResourceSyncTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class UtilitiesResourceSyncTests
 {
     private sealed class Animal(string name, string resource)
     {
@@ -27,7 +27,7 @@ internal static class UtilitiesResourceSyncTests
             "Leather"
         );
 
-        Assert.That(setAllow).Is.True();
+        Expect.IsTrue(setAllow);
     }
 
     [Test]
@@ -40,20 +40,18 @@ internal static class UtilitiesResourceSyncTests
             "Leather"
         );
 
-        Assert.That(setAllow).Is.False();
+        Expect.IsFalse(setAllow);
     }
 
     [Test]
     public static void ResourceStaysAllowedForEmptyAllowedSetOnlyIfVacuouslyTrueIsExpected() =>
         // Documents current (LINQ .Any) behavior: an empty allowed set can never satisfy .Any,
         // so the resource is always disallowed once the last producer is removed.
-        Assert
-            .That(
-                Utilities_ResourceSync.ShouldResourceStayAllowed(
-                    [],
-                    (Animal a) => a.Resource,
-                    "Leather"
-                )
+        Expect.IsFalse(
+            Utilities_ResourceSync.ShouldResourceStayAllowed(
+                [],
+                (Animal a) => a.Resource,
+                "Leather"
             )
-            .Is.False();
+        );
 }

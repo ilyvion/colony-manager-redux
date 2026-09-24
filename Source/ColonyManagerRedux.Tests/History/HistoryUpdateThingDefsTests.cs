@@ -1,12 +1,12 @@
 // HistoryUpdateThingDefsTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class HistoryUpdateThingDefsTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class HistoryUpdateThingDefsTests
 {
     private static ThingDef Def(string defName) => new() { defName = defName };
 
@@ -17,6 +17,7 @@ internal static class HistoryUpdateThingDefsTests
     // set (e.g. a power trader/battery building that no longer exists) must be removed, not
     // crash or leave the list in a state with the wrong chapter count.
     [Test]
+    [WarningsAllowed("Removing thingDef chapter")]
     public static void RemovesChapterForDefNoLongerPresent()
     {
         var stays = Def("Stays");
@@ -27,8 +28,8 @@ internal static class HistoryUpdateThingDefsTests
 
         history.UpdateThingDefs([stays]);
 
-        Assert.ThatCollection(history._chapters).Has.Count(1);
-        Assert.That(ReferenceEquals(history._chapters[0].ThingDefCount.thingDef, stays)).Is.True();
+        Expect.AreEqual(1, history._chapters.Count);
+        Expect.IsTrue(ReferenceEquals(history._chapters[0].ThingDefCount.thingDef, stays));
     }
 
     [Test]
@@ -47,18 +48,19 @@ internal static class HistoryUpdateThingDefsTests
         var newDef = Def("New");
         history.UpdateThingDefs([existing, newDef]);
 
-        Assert.ThatCollection(history._chapters).Has.Count(2);
+        Expect.AreEqual(2, history._chapters.Count);
         var newChapter = history._chapters[1];
-        Assert.That(ReferenceEquals(newChapter.ThingDefCount.thingDef, newDef)).Is.True();
+        Expect.IsTrue(ReferenceEquals(newChapter.ThingDefCount.thingDef, newDef));
 
         var values = newChapter.ValuesFor(Period.Day);
-        Assert.ThatCollection(values).Has.Count(3);
-        Assert.That(values[0]).Is.EqualTo(0);
-        Assert.That(values[1]).Is.EqualTo(0);
-        Assert.That(values[2]).Is.EqualTo(0);
+        Expect.AreEqual(3, values.Length);
+        Expect.AreEqual(0, values[0]);
+        Expect.AreEqual(0, values[1]);
+        Expect.AreEqual(0, values[2]);
     }
 
     [Test]
+    [WarningsAllowed("Removing thingDef chapter")]
     public static void HandlesSimultaneousRemovalAndAdditionInSingleCall()
     {
         var stays = Def("Stays");
@@ -70,21 +72,18 @@ internal static class HistoryUpdateThingDefsTests
 
         history.UpdateThingDefs([stays, added]);
 
-        Assert.ThatCollection(history._chapters).Has.Count(2);
-        Assert
-            .That(history._chapters.Any(c => ReferenceEquals(c.ThingDefCount.thingDef, stays)))
-            .Is.True();
-        Assert
-            .That(history._chapters.Any(c => ReferenceEquals(c.ThingDefCount.thingDef, added)))
-            .Is.True();
-        Assert
-            .That(history._chapters.Any(c => ReferenceEquals(c.ThingDefCount.thingDef, removed)))
-            .Is.False();
+        Expect.AreEqual(2, history._chapters.Count);
+        Expect.IsTrue(history._chapters.Any(c => ReferenceEquals(c.ThingDefCount.thingDef, stays)));
+        Expect.IsTrue(history._chapters.Any(c => ReferenceEquals(c.ThingDefCount.thingDef, added)));
+        Expect.IsFalse(
+            history._chapters.Any(c => ReferenceEquals(c.ThingDefCount.thingDef, removed))
+        );
     }
 
     // Chapters added or removed after construction must be reflected in the shown-chapters set,
     // or the plot never displays new chapters and keeps drawing removed ones.
     [Test]
+    [WarningsAllowed("Removing thingDef chapter")]
     public static void ShownChaptersTrackAddedAndRemovedChapters()
     {
         var stays = Def("Stays");
@@ -98,9 +97,9 @@ internal static class HistoryUpdateThingDefsTests
 
         history.UpdateThingDefs([stays, added]);
 
-        Assert.ThatCollection(history._chaptersShown).Has.Count(2);
-        Assert.That(history._chaptersShown.Contains(staysChapter)).Is.True();
-        Assert.That(history._chaptersShown.All(history._chapters.Contains)).Is.True();
+        Expect.AreEqual(2, history._chaptersShown.Count);
+        Expect.IsTrue(history._chaptersShown.Contains(staysChapter));
+        Expect.IsTrue(history._chaptersShown.All(history._chapters.Contains));
     }
 
     // A chapter the player has hidden via the legend must stay hidden across an update.
@@ -118,8 +117,8 @@ internal static class HistoryUpdateThingDefsTests
 
         history.UpdateThingDefs([first, second, Def("Third")]);
 
-        Assert.That(history._chaptersShown.Contains(secondChapter)).Is.False();
-        Assert.That(history._chaptersShown.Contains(firstChapter)).Is.True();
+        Expect.IsFalse(history._chaptersShown.Contains(secondChapter));
+        Expect.IsTrue(history._chaptersShown.Contains(firstChapter));
     }
 
     // A no-op call (new set exactly matches existing chapters' defs) should still leave the
@@ -135,9 +134,9 @@ internal static class HistoryUpdateThingDefsTests
 
         history.UpdateThingDefs([first, second]);
 
-        Assert.ThatCollection(history._chapters).Has.Count(2);
-        Assert.That(ReferenceEquals(history._chapters[0].ThingDefCount.thingDef, first)).Is.True();
-        Assert.That(ReferenceEquals(history._chapters[1].ThingDefCount.thingDef, second)).Is.True();
+        Expect.AreEqual(2, history._chapters.Count);
+        Expect.IsTrue(ReferenceEquals(history._chapters[0].ThingDefCount.thingDef, first));
+        Expect.IsTrue(ReferenceEquals(history._chapters[1].ThingDefCount.thingDef, second));
     }
 
     // When exactly one def is passed in and there are no surviving chapters, the "single chapter"
@@ -150,8 +149,8 @@ internal static class HistoryUpdateThingDefsTests
 
         history.UpdateThingDefs([only]);
 
-        Assert.ThatCollection(history._chapters).Has.Count(1);
-        Assert.That(history._chapters[0].LineColor == Color.white).Is.True();
+        Expect.AreEqual(1, history._chapters.Count);
+        Expect.IsTrue(history._chapters[0].LineColor == Color.white);
     }
 
     // Explicit colors shorter than the total chapter count must wrap around via
@@ -171,8 +170,8 @@ internal static class HistoryUpdateThingDefsTests
         // colors[1 % 2] == green and addedB gets colors[2 % 2] == red.
         history.UpdateThingDefs([existing, addedA, addedB], colors);
 
-        Assert.ThatCollection(history._chapters).Has.Count(3);
-        Assert.That(history._chapters[1].LineColor == Color.green).Is.True();
-        Assert.That(history._chapters[2].LineColor == Color.red).Is.True();
+        Expect.AreEqual(3, history._chapters.Count);
+        Expect.IsTrue(history._chapters[1].LineColor == Color.green);
+        Expect.IsTrue(history._chapters[2].LineColor == Color.red);
     }
 }

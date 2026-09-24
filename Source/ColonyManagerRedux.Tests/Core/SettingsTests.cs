@@ -1,241 +1,231 @@
 // SettingsTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class SettingsTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class SettingsTests
 {
     [Test]
     public static void CanAddMoreDesignationsIsAlwaysTrueWhenLimitIsZero() =>
-        Assert.That(Settings.CanAddMoreDesignations(0, 1_000_000)).Is.True();
+        Expect.IsTrue(Settings.CanAddMoreDesignations(0, 1_000_000));
 
     [Test]
     public static void CanAddMoreDesignationsIsTrueWhenBelowLimit() =>
-        Assert.That(Settings.CanAddMoreDesignations(10, 5)).Is.True();
+        Expect.IsTrue(Settings.CanAddMoreDesignations(10, 5));
 
     [Test]
     public static void CanAddMoreDesignationsIsFalseWhenAtLimit() =>
-        Assert.That(Settings.CanAddMoreDesignations(10, 10)).Is.False();
+        Expect.IsFalse(Settings.CanAddMoreDesignations(10, 10));
 
     [Test]
     public static void CanAddMoreDesignationsIsFalseWhenAboveLimit() =>
-        Assert.That(Settings.CanAddMoreDesignations(10, 11)).Is.False();
+        Expect.IsFalse(Settings.CanAddMoreDesignations(10, 11));
 
     [Test]
     public static void ShouldRemoveMoreDesignationsIsAlwaysFalseWhenLimitIsZero() =>
-        Assert.That(Settings.ShouldRemoveMoreDesignations(0, 1_000_000)).Is.False();
+        Expect.IsFalse(Settings.ShouldRemoveMoreDesignations(0, 1_000_000));
 
     [Test]
     public static void ShouldRemoveMoreDesignationsIsFalseWhenBelowLimit() =>
-        Assert.That(Settings.ShouldRemoveMoreDesignations(10, 5)).Is.False();
+        Expect.IsFalse(Settings.ShouldRemoveMoreDesignations(10, 5));
 
     [Test]
     public static void ShouldRemoveMoreDesignationsIsFalseWhenAtLimit() =>
-        Assert.That(Settings.ShouldRemoveMoreDesignations(10, 10)).Is.False();
+        Expect.IsFalse(Settings.ShouldRemoveMoreDesignations(10, 10));
 
     [Test]
     public static void ShouldRemoveMoreDesignationsIsTrueWhenAboveLimit() =>
-        Assert.That(Settings.ShouldRemoveMoreDesignations(10, 11)).Is.True();
+        Expect.IsTrue(Settings.ShouldRemoveMoreDesignations(10, 11));
 
     [Test]
     public static void ShouldKeepManagerSettingsEntryIsTrueWhenDefStillValid() =>
-        Assert
-            .That(Settings.ShouldKeepManagerSettingsEntry("Hunting", ["Hunting", "Mining"]))
-            .Is.True();
+        Expect.IsTrue(Settings.ShouldKeepManagerSettingsEntry("Hunting", ["Hunting", "Mining"]));
 
     [Test]
     public static void ShouldKeepManagerSettingsEntryIsFalseWhenDefNoLongerValid() =>
-        Assert.That(Settings.ShouldKeepManagerSettingsEntry("Hunting", ["Mining"])).Is.False();
+        Expect.IsFalse(Settings.ShouldKeepManagerSettingsEntry("Hunting", ["Mining"]));
 
     [Test]
     public static void FindMissingManagerDefsIsEmptyWhenAllPresent() =>
-        Assert
-            .ThatCollection(
-                Settings.FindMissingManagerDefs(["Hunting", "Mining"], ["Hunting", "Mining"])
-            )
-            .Is.Empty();
+        Expect.IsEmpty(
+            Settings.FindMissingManagerDefs(["Hunting", "Mining"], ["Hunting", "Mining"])
+        );
 
     [Test]
     public static void FindMissingManagerDefsReturnsDefsWithoutAnEntry() =>
-        Assert
-            .ThatCollection(Settings.FindMissingManagerDefs(["Hunting", "Mining"], ["Hunting"]))
-            .Does.Contain("Mining");
+        Expect.IsTrue(
+            Settings.FindMissingManagerDefs(["Hunting", "Mining"], ["Hunting"]).Contains("Mining")
+        );
 
     [Test]
     public static void ScaleUpMaxDesignationsPerJobMultipliesByTen() =>
-        Assert.That(Settings.ScaleUpMaxDesignationsPerJob(15)).Is.EqualTo(150);
+        Expect.AreEqual(150, Settings.ScaleUpMaxDesignationsPerJob(15));
 
     [Test]
     public static void ScaleDownMaxDesignationsPerJobDividesByTen() =>
-        Assert.That(Settings.ScaleDownMaxDesignationsPerJob(150)).Is.EqualTo(15);
+        Expect.AreEqual(15, Settings.ScaleDownMaxDesignationsPerJob(150));
 
     [Test]
     public static void MaxDesignationsPerJobZeroRoundTripsToZero() =>
-        Assert
-            .That(Settings.ScaleUpMaxDesignationsPerJob(Settings.ScaleDownMaxDesignationsPerJob(0)))
-            .Is.EqualTo(0);
+        Expect.AreEqual(
+            0,
+            Settings.ScaleUpMaxDesignationsPerJob(Settings.ScaleDownMaxDesignationsPerJob(0))
+        );
 
     [Test]
     public static void MaxDesignationsPerJobTruncatesNonMultipleOfTenOnRoundTrip() =>
         // 25 / 10 == 2 (integer division), then 2 * 10 == 20: the raw slider step loses precision
         // for values that aren't already a multiple of 10.
-        Assert
-            .That(
-                Settings.ScaleUpMaxDesignationsPerJob(Settings.ScaleDownMaxDesignationsPerJob(25))
-            )
-            .Is.EqualTo(20);
+        Expect.AreEqual(
+            20,
+            Settings.ScaleUpMaxDesignationsPerJob(Settings.ScaleDownMaxDesignationsPerJob(25))
+        );
 
     [Test]
     public static void MaxDesignationsPerJobRoundTripsExactlyForMultipleOfTen() =>
-        Assert
-            .That(
-                Settings.ScaleUpMaxDesignationsPerJob(Settings.ScaleDownMaxDesignationsPerJob(150))
-            )
-            .Is.EqualTo(150);
+        Expect.AreEqual(
+            150,
+            Settings.ScaleUpMaxDesignationsPerJob(Settings.ScaleDownMaxDesignationsPerJob(150))
+        );
 
     [Test]
     public static void ClampAlertTiersLeavesAlreadyOrderedValuesUnchanged()
     {
         var (high, critical) = Settings.ClampAlertTiers(0.5f, 1f, 2f);
-        Assert.That(high).Is.EqualTo(1f);
-        Assert.That(critical).Is.EqualTo(2f);
+        Expect.AreEqual(1f, high);
+        Expect.AreEqual(2f, critical);
     }
 
     [Test]
     public static void ClampAlertTiersRaisesHighToAlertWhenBelowIt()
     {
         var (high, critical) = Settings.ClampAlertTiers(1.5f, 1f, 2f);
-        Assert.That(high).Is.EqualTo(1.5f);
-        Assert.That(critical).Is.EqualTo(2f);
+        Expect.AreEqual(1.5f, high);
+        Expect.AreEqual(2f, critical);
     }
 
     [Test]
     public static void ClampAlertTiersRaisesCriticalToHighWhenBelowIt()
     {
         var (high, critical) = Settings.ClampAlertTiers(0.5f, 1f, 0.75f);
-        Assert.That(high).Is.EqualTo(1f);
-        Assert.That(critical).Is.EqualTo(1f);
+        Expect.AreEqual(1f, high);
+        Expect.AreEqual(1f, critical);
     }
 
     [Test]
     public static void ClampAlertTiersRaisesCriticalTransitivelyThroughRaisedHigh()
     {
         var (high, critical) = Settings.ClampAlertTiers(3f, 1f, 2f);
-        Assert.That(high).Is.EqualTo(3f);
-        Assert.That(critical).Is.EqualTo(3f);
+        Expect.AreEqual(3f, high);
+        Expect.AreEqual(3f, critical);
     }
 
     [Test]
     public static void ClampAlertTiersKeepsEqualValuesStable()
     {
         var (high, critical) = Settings.ClampAlertTiers(1f, 1f, 1f);
-        Assert.That(high).Is.EqualTo(1f);
-        Assert.That(critical).Is.EqualTo(1f);
+        Expect.AreEqual(1f, high);
+        Expect.AreEqual(1f, critical);
     }
 
     [Test]
     public static void FindMatchingTicksReturnsExactMatch() =>
-        Assert.That(Settings.FindMatchingTicks([100, 200, 300], 200)!.Value).Is.EqualTo(200);
+        Expect.AreEqual(200, Settings.FindMatchingTicks([100, 200, 300], 200)!.Value);
 
     [Test]
     public static void FindMatchingTicksFallsBackToNullWhenNoMatch() =>
-        Assert.That(Settings.FindMatchingTicks([100, 200, 300], 250)).Is.Null();
+        Expect.IsTrue(Settings.FindMatchingTicks([100, 200, 300], 250) == null);
 
     [Test]
     public static void FindMatchingTicksFallsBackToNullOnEmptyList() =>
-        Assert.That(Settings.FindMatchingTicks([], 100)).Is.Null();
+        Expect.IsTrue(Settings.FindMatchingTicks([], 100) == null);
 
     [Test]
     public static void FindMatchingTicksReturnsFirstOfDuplicateMatches() =>
-        Assert.That(Settings.FindMatchingTicks([100, 100, 200], 100)!.Value).Is.EqualTo(100);
+        Expect.AreEqual(100, Settings.FindMatchingTicks([100, 100, 200], 100)!.Value);
 
     [Test]
     public static void AdjustCustomIntervalTicksClampsAtZeroOnDecrement() =>
-        Assert.That(Settings.AdjustCustomIntervalTicks(100, -1000)).Is.EqualTo(0);
+        Expect.AreEqual(0, Settings.AdjustCustomIntervalTicks(100, -1000));
 
     [Test]
     public static void AdjustCustomIntervalTicksDecrementsNormally() =>
-        Assert.That(Settings.AdjustCustomIntervalTicks(100, -40)).Is.EqualTo(60);
+        Expect.AreEqual(60, Settings.AdjustCustomIntervalTicks(100, -40));
 
     [Test]
     public static void AdjustCustomIntervalTicksIncrementsNormally() =>
-        Assert.That(Settings.AdjustCustomIntervalTicks(100, 40)).Is.EqualTo(140);
+        Expect.AreEqual(140, Settings.AdjustCustomIntervalTicks(100, 40));
 
     [Test]
     public static void ResolveCoroutineSettingUsesGlobalWhenAdvancedSettingsDisabled() =>
         // Even a valid, present override must be ignored when the advanced-settings toggle is
         // off.
-        Assert
-            .That(
-                Settings.ResolveCoroutineSetting(
-                    showAdvanced: false,
-                    globalValue: 5,
-                    hasOverride: true,
-                    overrideValue: 99,
-                    minValidOverride: 1
-                )
+        Expect.AreEqual(
+            5,
+            Settings.ResolveCoroutineSetting(
+                showAdvanced: false,
+                globalValue: 5,
+                hasOverride: true,
+                overrideValue: 99,
+                minValidOverride: 1
             )
-            .Is.EqualTo(5);
+        );
 
     [Test]
     public static void ResolveCoroutineSettingUsesGlobalWhenNoOverrideStored() =>
-        Assert
-            .That(
-                Settings.ResolveCoroutineSetting(
-                    showAdvanced: true,
-                    globalValue: 5,
-                    hasOverride: false,
-                    overrideValue: 0,
-                    minValidOverride: 1
-                )
+        Expect.AreEqual(
+            5,
+            Settings.ResolveCoroutineSetting(
+                showAdvanced: true,
+                globalValue: 5,
+                hasOverride: false,
+                overrideValue: 0,
+                minValidOverride: 1
             )
-            .Is.EqualTo(5);
+        );
 
     [Test]
     public static void ResolveCoroutineSettingUsesGlobalWhenOverrideBelowValidityThreshold() =>
-        Assert
-            .That(
-                Settings.ResolveCoroutineSetting(
-                    showAdvanced: true,
-                    globalValue: 5,
-                    hasOverride: true,
-                    overrideValue: 0,
-                    minValidOverride: 1
-                )
+        Expect.AreEqual(
+            5,
+            Settings.ResolveCoroutineSetting(
+                showAdvanced: true,
+                globalValue: 5,
+                hasOverride: true,
+                overrideValue: 0,
+                minValidOverride: 1
             )
-            .Is.EqualTo(5);
+        );
 
     [Test]
     public static void ResolveCoroutineSettingUsesValidOverrideWhenAdvancedSettingsEnabled() =>
-        Assert
-            .That(
-                Settings.ResolveCoroutineSetting(
-                    showAdvanced: true,
-                    globalValue: 5,
-                    hasOverride: true,
-                    overrideValue: 99,
-                    minValidOverride: 1
-                )
+        Expect.AreEqual(
+            99,
+            Settings.ResolveCoroutineSetting(
+                showAdvanced: true,
+                globalValue: 5,
+                hasOverride: true,
+                overrideValue: 99,
+                minValidOverride: 1
             )
-            .Is.EqualTo(99);
+        );
 
     [Test]
     public static void ResolveCoroutineSettingTreatsZeroAsValidOverrideForTicksBetweenOperations() =>
         // The asymmetry between the two coroutine settings: 0 is a valid explicit override for
         // ticks-between-operations (minValidOverride 0), unlike operations-per-tick
         // (minValidOverride 1).
-        Assert
-            .That(
-                Settings.ResolveCoroutineSetting(
-                    showAdvanced: true,
-                    globalValue: 5,
-                    hasOverride: true,
-                    overrideValue: 0,
-                    minValidOverride: 0
-                )
+        Expect.AreEqual(
+            0,
+            Settings.ResolveCoroutineSetting(
+                showAdvanced: true,
+                globalValue: 5,
+                hasOverride: true,
+                overrideValue: 0,
+                minValidOverride: 0
             )
-            .Is.EqualTo(0);
+        );
 }

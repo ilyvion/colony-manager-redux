@@ -1,20 +1,20 @@
 // UtilitiesAverageCellTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class UtilitiesAverageCellTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class UtilitiesAverageCellTests
 {
     [Test]
     public static void AveragingSingleCellReturnsThatCell()
     {
         var result = Utilities.AverageCell([new IntVec3(3, 0, 7)]);
 
-        Assert.That(result.x).Is.EqualTo(3);
-        Assert.That(result.z).Is.EqualTo(7);
+        Expect.AreEqual(3, result.x);
+        Expect.AreEqual(7, result.z);
     }
 
     // Integer division truncates toward zero rather than rounding, so an uneven sum doesn't
@@ -27,7 +27,7 @@ internal static class UtilitiesAverageCellTests
         var result = Utilities.AverageCell(cells);
 
         // sum.x == 2, count == 3, 2 / 3 == 0 (truncated), not 1 (rounded).
-        Assert.That(result.x).Is.EqualTo(0);
+        Expect.AreEqual(0, result.x);
     }
 
     [Test]
@@ -37,7 +37,7 @@ internal static class UtilitiesAverageCellTests
 
         var result = Utilities.AverageCell(cells);
 
-        Assert.That(result.x).Is.EqualTo(5);
-        Assert.That(result.z).Is.EqualTo(5);
+        Expect.AreEqual(5, result.x);
+        Expect.AreEqual(5, result.z);
     }
 }

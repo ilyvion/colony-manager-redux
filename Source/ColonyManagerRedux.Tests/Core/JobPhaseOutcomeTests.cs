@@ -1,12 +1,12 @@
 // JobPhaseOutcomeTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
-using RimTestRedux;
+using DevTools.Testing;
 
 namespace ColonyManagerRedux.Tests;
 
-[TestSuite]
-internal static class JobPhaseOutcomeTests
+[TestFixture(TestType.MainMenu)]
+internal sealed class JobPhaseOutcomeTests
 {
     [Test]
     public static void ForReturnsReadyWhenGivenACoroutine()
@@ -14,7 +14,7 @@ internal static class JobPhaseOutcomeTests
         Coroutine coroutine = [];
         var outcome = JobPhaseOutcome.For(coroutine);
 
-        Assert.That(outcome is JobPhaseOutcome.Ready).Is.True();
+        Expect.IsTrue(outcome is JobPhaseOutcome.Ready);
     }
 
     [Test]
@@ -22,7 +22,7 @@ internal static class JobPhaseOutcomeTests
     {
         var outcome = JobPhaseOutcome.For(null);
 
-        Assert.That(outcome is JobPhaseOutcome.NotImplemented).Is.True();
+        Expect.IsTrue(outcome is JobPhaseOutcome.NotImplemented);
     }
 
     [Test]
@@ -33,8 +33,6 @@ internal static class JobPhaseOutcomeTests
 
         // Guards against a caller accidentally wrapping/copying instead of forwarding the
         // exact coroutine it was given.
-        Assert
-            .That(outcome is JobPhaseOutcome.Ready { Value: var value } && value == coroutine)
-            .Is.True();
+        Expect.IsTrue(outcome is JobPhaseOutcome.Ready { Value: var value } && value == coroutine);
     }
 }
