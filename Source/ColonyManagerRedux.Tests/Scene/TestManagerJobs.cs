@@ -48,7 +48,36 @@ internal abstract class TestManagerJob : ManagerJob
         _def = DefDatabase<ManagerDef>.GetNamed("CM_LogsManager");
     }
 
-    public override IEnumerable<string> Targets => [];
+    public List<string> TargetList { get; } = [];
+    public int TargetsEnumerations;
+    public bool ThrowOnTick { get; set; }
+    public int TickCount;
+
+    public void SetTrigger(Trigger? trigger) => Trigger = trigger;
+
+    public override IEnumerable<string> Targets
+    {
+        get
+        {
+            TargetsEnumerations++;
+            return TargetList;
+        }
+    }
+
+    public override void Tick()
+    {
+        TickCount++;
+        if (ThrowOnTick)
+        {
+            throw new InvalidOperationException("Tick failed on purpose");
+        }
+    }
+
+    public void CleanDead(List<Designation> designations, DesignationDef? def, ManagerLog? log) =>
+        CleanDeadDesignations(designations, def, log);
+
+    public static void CleanUpAll(List<Designation> designations, ManagerLog? log) =>
+        CleanUpDesignations(designations, log);
 
     public override WorkTypeDef? WorkTypeDef => null;
 

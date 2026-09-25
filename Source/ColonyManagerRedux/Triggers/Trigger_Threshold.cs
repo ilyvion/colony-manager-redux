@@ -242,6 +242,13 @@ public sealed class Trigger_Threshold : Trigger
         set => targetCount = ClampTargetCount(value);
     }
 
+    // Turning AllowAnyThreshold on resets the parent filter to everything storable; turning it
+    // off restricts the threshold filter to what the parent filter allows.
+    internal static (
+        bool ResetParentFilter,
+        bool DisallowAllOutsideParent
+    ) DecideAllowAnyThresholdChange(bool wasOn, bool nowOn) => (nowOn && !wasOn, wasOn && !nowOn);
+
     // Kept separate from the TargetCount setter so it's unit-testable without constructing a
     // live Trigger_Threshold (its constructors require a real ManagerJob).
     internal static int ClampTargetCount(int value) => Math.Max(0, value);
@@ -609,19 +616,21 @@ public sealed class Trigger_Threshold : Trigger
             ref allowAnyThreshold,
             leaveRoomForAdditionalIcon: false
         );
+        var (resetParentFilter, disallowAllOutsideParent) = DecideAllowAnyThresholdChange(
+            currentAllowAnyThreshold,
+            allowAnyThreshold
+        );
+        if (resetParentFilter)
+        {
+            ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
+        }
         if (currentAllowAnyThreshold != allowAnyThreshold)
         {
-            if (allowAnyThreshold)
-            {
-                // if we allow any threshold, we need to reset the parent filter
-                ParentFilter = ThingFilter.CreateOnlyEverStorableThingFilter();
-            }
             AllowAnyThresholdChanged?.Invoke();
-            if (!allowAnyThreshold)
-            {
-                // if we disallow any threshold, we need to disallow all items not in the parent filter
-                ThresholdFilter.SetDisallowAll(ParentFilter.AllowedThingDefs);
-            }
+        }
+        if (disallowAllOutsideParent)
+        {
+            ThresholdFilter.SetDisallowAll(ParentFilter.AllowedThingDefs);
         }
 
         // var iconRect = new Rect(

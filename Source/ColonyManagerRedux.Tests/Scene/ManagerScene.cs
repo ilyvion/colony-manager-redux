@@ -124,6 +124,20 @@ internal sealed class ManagerScene : IDisposable
         return stockpile;
     }
 
+    /// <summary>Creates a growing zone with the given label over <paramref name="cells"/>.</summary>
+    public Zone_Growing AddGrowingZone(string label, IEnumerable<IntVec3> cells)
+    {
+        var zone = new Zone_Growing(Map.zoneManager);
+        Map.zoneManager.RegisterZone(zone);
+        zone.label = label;
+        foreach (var cell in cells)
+        {
+            zone.AddCell(cell);
+        }
+        _zones.Add(zone);
+        return zone;
+    }
+
     /// <summary>Creates an allowed area with the given label over <paramref name="cells"/>.</summary>
     public Area_Allowed AddArea(string label, IEnumerable<IntVec3> cells)
     {

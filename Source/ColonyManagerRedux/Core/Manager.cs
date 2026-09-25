@@ -22,12 +22,12 @@ public class Manager : MapComponent, ILoadReferenceable
     internal int id = -1;
 
     private bool _wasLoaded;
-    private int _nextManagerJobID;
+    internal int _nextManagerJobID;
 
     private bool _hasCheckedAncientDangerRect;
     private CellRect? _ancientDangerRect;
 
-    private bool _hasCheckedDefaultTemplate;
+    internal bool _hasCheckedDefaultTemplate;
 
     /// <summary>
     /// (Obsolete) Gets the ancient danger rectangle for the map.

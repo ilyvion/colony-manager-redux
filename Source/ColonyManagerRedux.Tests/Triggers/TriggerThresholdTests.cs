@@ -210,4 +210,31 @@ internal sealed class TriggerThresholdTests
                 Trigger_Threshold.CreateThresholdFilter(() => { })
             )
         );
+
+    [Test]
+    public static void TurningAllowAnyThresholdOnResetsTheParentFilter() =>
+        Expect.AreEqual(
+            (true, false),
+            Trigger_Threshold.DecideAllowAnyThresholdChange(false, true)
+        );
+
+    [Test]
+    public static void TurningAllowAnyThresholdOffDisallowsEverythingOutsideTheParentFilter() =>
+        Expect.AreEqual(
+            (false, true),
+            Trigger_Threshold.DecideAllowAnyThresholdChange(true, false)
+        );
+
+    [Test]
+    public static void LeavingAllowAnyThresholdUnchangedDoesNothing()
+    {
+        Expect.AreEqual(
+            (false, false),
+            Trigger_Threshold.DecideAllowAnyThresholdChange(true, true)
+        );
+        Expect.AreEqual(
+            (false, false),
+            Trigger_Threshold.DecideAllowAnyThresholdChange(false, false)
+        );
+    }
 }

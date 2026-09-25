@@ -1276,7 +1276,7 @@ public static class Utilities
             ColonyManagerReduxMod.Instance.LogDebug(
                 $"Attempting to load '{label}' by its area labels: '{string.Join(", ", tmpAreaLabels ?? [])}' from the areaManager"
             );
-            areas = tmpAreaLabels?.Select(areaManager.GetLabeled).ToHashSet() ?? [];
+            areas = tmpAreaLabels?.Select(areaManager.GetLabeled).OfType<Area>().ToHashSet() ?? [];
             tmpAreaLabels = null;
         }
     }
