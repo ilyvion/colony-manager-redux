@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Jobs that sort targets by distance from your base could throw an error on a map with no colonists and no home area.
 - Colonists could be stopped from working at a manager station by a powered AI manager on the map you were viewing, rather than the one on their own map.
 - Landing a gravship with a Power job could log an error when the job was replaced.
+- The Power job's producer, consumer and battery counts, and its history graph, could show as empty or throw an error for a short while after the job was created.
 
 ## [0.19.1] - 2026-09-20
 

@@ -44,7 +44,11 @@ internal sealed class ManagerJob_Power
 
         private CachedValue<(int current, int target)[]> GetCachedTradeForJob(
             ManagerJob_Power managerJob
-        ) => cachedTrades.GetValue(managerJob, _ => new([]));
+        ) =>
+            cachedTrades.GetValue(
+                managerJob,
+                job => new CachedValue<(int current, int target)[]>(job.GetCurrentTrade)
+            );
 
         public override Coroutine GetCountForHistoryChapterCoroutine(
             ManagerJob_Power managerJob,
@@ -115,12 +119,7 @@ internal sealed class ManagerJob_Power
             yield return managerJob.RefreshCompLists().ResumeWhenOtherCoroutineIsCompleted();
             yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-            var cachedTrade = GetCachedTradeForJob(managerJob);
-            if (!cachedTrade.TryGetValue(out var trade))
-            {
-                trade = managerJob.GetCurrentTrade();
-                _ = cachedTrade.Update(trade);
-            }
+            var trade = GetCachedTradeForJob(managerJob).Value;
             managerJob.tradingHistory.UpdateThingCountAndMax(
                 TraderDefs.Select((def, i) => (def, managerJob._traders[i].Count, 0))
             );
@@ -141,22 +140,13 @@ internal sealed class ManagerJob_Power
     private readonly List<List<CompPowerBattery>> _batteries = [];
     private readonly List<List<CompPowerTrader>> _traders = [];
 
-    private readonly CachedValue<int[]> cachedTradeCounts = new([]);
-    private int[] CachedTradeCounts
+    private readonly CachedValue<int[]> cachedTradeCounts;
+    private int[] CachedTradeCounts => cachedTradeCounts.Value;
+
+    private int[] ComputeTradeCounts()
     {
-        get
-        {
-            if (!cachedTradeCounts.TryGetValue(out var trade))
-            {
-                var (producerCount, consumerCount) = CountByOutputSign(
-                    _traders,
-                    i => i.PowerOutput
-                );
-                trade = [producerCount, consumerCount];
-                _ = cachedTradeCounts.Update(trade);
-            }
-            return trade;
-        }
+        var (producerCount, consumerCount) = CountByOutputSign(_traders, i => i.PowerOutput);
+        return [producerCount, consumerCount];
     }
 
     /// <summary>
@@ -188,19 +178,8 @@ internal sealed class ManagerJob_Power
     internal int ProducerCount => CachedTradeCounts[0];
     internal int ConsumerCount => CachedTradeCounts[1];
 
-    private readonly CachedValue<int> cachedBatteryCount = new(0);
-    private int CachedBatteryCount
-    {
-        get
-        {
-            if (!cachedBatteryCount.TryGetValue(out var batteryCount))
-            {
-                batteryCount = _batteries?.SelectMany(b => b).Count() ?? 0;
-                _ = cachedBatteryCount.Update(batteryCount);
-            }
-            return batteryCount;
-        }
-    }
+    private readonly CachedValue<int> cachedBatteryCount;
+    private int CachedBatteryCount => cachedBatteryCount.Value;
     internal int BatteryCount => CachedBatteryCount;
 
     internal History tradingHistory;
@@ -234,6 +213,8 @@ internal sealed class ManagerJob_Power
     public ManagerJob_Power(Manager manager)
         : base(manager)
     {
+        cachedTradeCounts = new(ComputeTradeCounts);
+        cachedBatteryCount = new(() => _batteries.SelectMany(b => b).Count());
         tradingHistory =
             Scribe.mode == LoadSaveMode.Inactive
                 ? new History(

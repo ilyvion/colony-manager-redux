@@ -104,4 +104,16 @@ internal sealed class ManagerJobPowerSceneTests
         var lampIndex = ManagerJob_Power.TraderDefs.IndexOf(Lamp);
         Expect.AreEqual(2, job._traders[lampIndex].Count);
     }
+
+    [Test]
+    public static void CachedCountsAreComputedOnFirstAccess()
+    {
+        using var scene = new ManagerScene();
+        var job = AddPowerJob(scene);
+        job.PostImport();
+
+        Expect.AreEqual(0, job.ProducerCount);
+        Expect.AreEqual(0, job.ConsumerCount);
+        Expect.AreEqual(0, job.BatteryCount);
+    }
 }
