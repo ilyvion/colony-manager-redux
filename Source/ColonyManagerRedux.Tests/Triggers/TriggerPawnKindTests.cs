@@ -1,4 +1,4 @@
-// TriggerPawnKindTests.cs
+﻿// TriggerPawnKindTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
@@ -32,6 +32,32 @@ internal sealed class TriggerPawnKindTests
         // No clamping in the original code - pin down that this is intentional (used for progress
         // bars, which are expected to tolerate a temporary over-culled state).
         Expect.AreEqual(-3, Trigger_PawnKind.ComputeRemainingCounts([2], [5])[0]);
+
+    [Test]
+    public static void HasWorkToDoWhenATargetIsNotMet()
+    {
+        var trainingChecked = false;
+        Expect.IsTrue(
+            Trigger_PawnKind.HasWorkToDo(
+                [5, 5, 5, 5],
+                [5, 5, 4, 5],
+                () =>
+                {
+                    trainingChecked = true;
+                    return true;
+                }
+            )
+        );
+        Expect.IsFalse(trainingChecked);
+    }
+
+    [Test]
+    public static void HasWorkToDoWhenTrainingIsStillToBeSet() =>
+        Expect.IsTrue(Trigger_PawnKind.HasWorkToDo([5, 5, 5, 5], [5, 5, 5, 5], () => false));
+
+    [Test]
+    public static void HasNoWorkToDoWhenTargetsAreMetAndTrainingIsSet() =>
+        Expect.IsFalse(Trigger_PawnKind.HasWorkToDo([5, 5, 5, 5], [5, 5, 5, 5], () => true));
 
     [Test]
     public static void AllTargetsMetTrueForEmptyArrays() =>

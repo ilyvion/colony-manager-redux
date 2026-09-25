@@ -1,4 +1,4 @@
-// TriggerPawnKindSceneTests.cs
+﻿// TriggerPawnKindSceneTests.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using ColonyManagerRedux.Managers;
@@ -14,19 +14,6 @@ internal sealed class TriggerPawnKindSceneTests
 {
     private const string MissingPawnKindName = "CMRTest_MissingPawnKind";
 
-    // State is not "should the job run" as it is for Trigger_Threshold: it is true when the pawn
-    // kind is missing and when every target is met. Nothing reads it for livestock jobs.
-    [Test]
-    public static void StateIsTrueWhenThePawnKindIsMissing()
-    {
-        using var scene = new ManagerScene();
-        var job = scene.AddJob<TestManagerJobA>();
-
-        var trigger = new Trigger_PawnKind(job) { pawnKind = null };
-
-        Expect.IsTrue(trigger.State);
-    }
-
     private static Trigger_PawnKind LivestockTrigger(ManagerScene scene, int targets)
     {
         var job = scene.AddJob<ManagerJob_Livestock>("CM_LivestockManager");
@@ -37,19 +24,22 @@ internal sealed class TriggerPawnKindSceneTests
     }
 
     [Test]
-    public static void StateIsTrueWhenEveryTargetIsMet()
+    public static void StateIsFalseWithoutAPawnKind()
     {
         using var scene = new ManagerScene();
+        var trigger = LivestockTrigger(scene, 3);
+        trigger.pawnKind = null;
 
-        Expect.IsTrue(LivestockTrigger(scene, 0).State);
+        Expect.IsFalse(trigger.State);
     }
 
     [Test]
-    public static void StateIsFalseWhenATargetIsNotMet()
+    public static void StateIsTrueWhenATargetIsNotMet()
     {
         using var scene = new ManagerScene();
+        var trigger = LivestockTrigger(scene, 3);
 
-        Expect.IsFalse(LivestockTrigger(scene, 3).State);
+        Expect.IsTrue(trigger.State);
     }
 
     [Test]
@@ -57,11 +47,11 @@ internal sealed class TriggerPawnKindSceneTests
     {
         using var scene = new ManagerScene();
         var trigger = LivestockTrigger(scene, 0);
-        Expect.IsTrue(trigger.State);
+        var first = trigger.State;
 
         Array.Fill(trigger.CountTargets, 3);
 
-        Expect.IsTrue(trigger.State);
+        Expect.AreEqual(first, trigger.State);
     }
 
     private static string SavePawnKindTrigger(

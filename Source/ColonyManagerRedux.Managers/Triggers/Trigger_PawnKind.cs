@@ -85,20 +85,28 @@ internal sealed class Trigger_PawnKind : Trigger
             bool state;
             if (pawnKind == null)
             {
-                state = true;
+                state = false;
             }
             else if (!_cachedState.TryGetValue(out state))
             {
                 var actualCounts = Utilities_Livestock.AgeSexArray.Select(ageSex =>
                     pawnKind.GetTame(Job.Manager, ageSex).Count()
                 );
-                state = AllTargetsMet(CountTargets, [.. actualCounts]) && AllTrainingWantedSet();
+                state = HasWorkToDo(CountTargets, [.. actualCounts], AllTrainingWantedSet);
                 _ = _cachedState.Update(state);
             }
 
             return state;
         }
     }
+
+    // Work remains while any target is unmet or a training still has to be set. The training
+    // check is a costly dry run, so it is only evaluated once the counts match.
+    internal static bool HasWorkToDo(
+        IReadOnlyList<int> targets,
+        IReadOnlyList<int> actualCounts,
+        Func<bool> allTrainingWantedSet
+    ) => !AllTargetsMet(targets, actualCounts) || !allTrainingWantedSet();
 
     internal static bool AllTargetsMet(
         IReadOnlyList<int> targets,
