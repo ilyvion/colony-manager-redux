@@ -195,6 +195,72 @@ internal sealed class ManagerJobProductionSceneTests
         Expect.IsFalse(ReferenceEquals(bill, replacement));
     }
 
+    // Bills on another map
+
+    private static Building_WorkTable AddStoveOn(Map map)
+    {
+        var stove = (Building_WorkTable)
+            ThingMaker.MakeThing(Stove, GenStuff.DefaultStuffFor(Stove));
+        stove.SetFactionDirect(Faction.OfPlayer);
+        _ = GenSpawn.Spawn(stove, map.Center, map);
+        return stove;
+    }
+
+    [Test]
+    public static void JobIgnoresWorkTablesOnAnotherMap()
+    {
+        using var scene = new ManagerScene();
+        var other = scene.AddExtraMap();
+        var here = AddStove(scene, 0);
+        var there = AddStoveOn(other);
+        var job = AddProductionJob(scene);
+
+        RunJob(scene, job);
+
+        Expect.AreEqual(1, BillsOn(here).Count());
+        Expect.AreEqual(0, BillsOn(there).Count());
+        Expect.AreEqual(1, job.ManagedBills.Count);
+        Expect.IsTrue(job.ManagedBills.All(b => b.billStack == here.billStack));
+    }
+
+    [Test]
+    public static void JobWithOnlyAnotherMapsWorkTableAddsNoBills()
+    {
+        using var scene = new ManagerScene();
+        var other = scene.AddExtraMap();
+        var there = AddStoveOn(other);
+        var job = AddProductionJob(scene);
+
+        RunJob(scene, job);
+
+        Expect.AreEqual(0, BillsOn(there).Count());
+        Expect.IsEmpty(job.ManagedBills);
+    }
+
+    [Test]
+    public static void JobsOnDifferentMapsEachManageOnlyTheirOwnMapsBills()
+    {
+        using var scene = new ManagerScene();
+        var other = scene.AddExtraMap();
+        using var otherScene = new ManagerScene(other);
+        var here = AddStove(scene, 0);
+        var there = AddStoveOn(other);
+        var job = AddProductionJob(scene);
+        var otherJob = AddProductionJob(otherScene);
+
+        RunJob(scene, job);
+        RunJob(otherScene, otherJob);
+
+        Expect.AreEqual(1, BillsOn(here).Count());
+        Expect.AreEqual(1, BillsOn(there).Count());
+        Expect.ReferencesAreEqual(BillsOn(here).Single(), job.ManagedBills.Single());
+        Expect.ReferencesAreEqual(BillsOn(there).Single(), otherJob.ManagedBills.Single());
+
+        job.CleanUp();
+        Expect.AreEqual(0, BillsOn(here).Count());
+        Expect.AreEqual(1, BillsOn(there).Count(), "Cleaning up one map leaves the other's bills");
+    }
+
     // Scribing of managed bills
 
     private sealed class BillsHarness(Manager manager, Bill_Production[] bills, IExposable inner)

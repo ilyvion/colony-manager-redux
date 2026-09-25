@@ -2,5 +2,7 @@
     <!-- The RimBridge dev mod logs its own startup timing as a warning while the first map generates. -->
     <warningsAllowed>
         <li>\[RimBridge\]</li>
+        <!-- Generating a small extra map can leave a scatterer without a free cell. -->
+        <li>Scatterer .* could not find cell to generate at</li>
     </warningsAllowed>
 </TestConfig>

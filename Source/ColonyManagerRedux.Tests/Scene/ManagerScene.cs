@@ -2,6 +2,7 @@
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
 using DevTools.Testing;
+using RimWorld.Planet;
 
 namespace ColonyManagerRedux.Tests;
 
@@ -16,6 +17,7 @@ internal sealed class ManagerScene : IDisposable
     private readonly List<Zone> _zones = [];
     private readonly List<Area> _areas = [];
     private readonly List<string> _templates = [];
+    private readonly List<(Map Map, MapParent Parent)> _extraMaps = [];
     private readonly HashSet<ManagerLog> _logsBefore;
 
     public Map Map { get; }
@@ -189,6 +191,41 @@ internal sealed class ManagerScene : IDisposable
         }
     }
 
+    /// <summary>
+    /// Generates a small extra player map on its own world tile and removes it again on dispose.
+    /// </summary>
+    public Map AddExtraMap()
+    {
+        PlanetTile tile = default;
+        var found = false;
+        for (var i = 0; i < Find.WorldGrid.TilesCount && !found; i++)
+        {
+            var candidate = new PlanetTile(i, Find.WorldGrid.Surface);
+            if (
+                !Find.World.Impassable(candidate)
+                && !Find.WorldObjects.AnyWorldObjectAt(candidate)
+                && Find.WorldGrid[candidate].PrimaryBiome.canBuildBase
+            )
+            {
+                tile = candidate;
+                found = true;
+            }
+        }
+        Expect.IsTrue(found, "No free world tile for an extra map.");
+
+        var parent = (MapParent)WorldObjectMaker.MakeWorldObject(WorldObjectDefOf.Camp);
+        parent.Tile = tile;
+        parent.SetFaction(Faction.OfPlayer);
+        Find.WorldObjects.Add(parent);
+        var map = MapGenerator.GenerateMap(
+            new IntVec3(50, 1, 50),
+            parent,
+            MapGeneratorDefOf.Encounter
+        );
+        _extraMaps.Add((map, parent));
+        return map;
+    }
+
     /// <summary>Runs a coroutine to completion without needing game ticks.</summary>
     public static void RunToCompletion(Coroutine? coroutine) =>
         coroutine?.RunImmediatelyToCompletion();
@@ -224,5 +261,12 @@ internal sealed class ManagerScene : IDisposable
             ManagerJobTemplates.DeleteTemplate(name);
         }
         _templates.Clear();
+
+        foreach (var (map, parent) in _extraMaps)
+        {
+            Current.Game.DeinitAndRemoveMap(map, notifyPlayer: false);
+            Find.WorldObjects.Remove(parent);
+        }
+        _extraMaps.Clear();
     }
 }
