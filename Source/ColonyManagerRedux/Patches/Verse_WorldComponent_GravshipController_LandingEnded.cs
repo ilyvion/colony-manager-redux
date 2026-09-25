@@ -38,13 +38,40 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
 
         var manager = Manager.For(__state.Map);
 
+        var jobList = LoadJobs(compManagerDatabase, manager);
+
+        var localJobs = manager.JobTracker.JobList.ToList();
+
+        var action = DetermineLandingAction(
+            localJobs.Count,
+            jobList.Count,
+            ColonyManagerReduxMod.Settings.GravshipJobConflictResolution
+        );
+        ApplyLandingAction(
+            action,
+            manager,
+            localJobs,
+            jobList,
+            askPlayer: () => AskPlayer(manager, localJobs, jobList)
+        );
+    }
+
+    /// <summary>
+    /// Loads the jobs that were exported into <paramref name="compManagerDatabase"/> at takeoff
+    /// and clears the transfer data. Returns an empty list when loading fails.
+    /// </summary>
+    internal static List<ManagerJob> LoadJobs(
+        CompManagerDatabase compManagerDatabase,
+        Manager manager
+    )
+    {
         using var jobTransferDataStream = new MemoryStream(compManagerDatabase.JobTransferData);
         using var loadStreamReader = new StreamReader(jobTransferDataStream);
 
         List<ManagerJob> jobList = [];
-        CustomStreamReaderScribeLoader.InitLoading(loadStreamReader);
         try
         {
+            CustomStreamReaderScribeLoader.InitLoading(loadStreamReader);
             manager.ScribeSameMapData = false;
             ScribeMetaHeaderUtility.LoadGameDataHeader(
                 ScribeMetaHeaderUtility.ScribeHeaderMode.None,
@@ -56,6 +83,7 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         catch (Exception ex)
         {
             Scribe.ForceStop();
+            jobList = [];
             ColonyManagerReduxMod.Instance.LogException(
                 "GravshipController.InitiateLanding: Failed to load job list from grav ship's manager database.",
                 ex
@@ -67,17 +95,26 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
             compManagerDatabase.JobTransferData = null; // Clear the data after use
         }
 
-        var localJobs = manager.JobTracker.JobList.ToList();
+        return jobList;
+    }
 
-        var action = DetermineLandingAction(
-            localJobs.Count,
-            jobList.Count,
-            ColonyManagerReduxMod.Settings.GravshipJobConflictResolution
-        );
+    /// <summary>
+    /// Applies <paramref name="action"/> to the manager's <paramref name="localJobs"/> and the
+    /// jobs the gravship brought. <paramref name="askPlayer"/> runs for
+    /// <see cref="GravshipLandingAction.Ask"/>.
+    /// </summary>
+    internal static void ApplyLandingAction(
+        GravshipLandingAction action,
+        Manager manager,
+        List<ManagerJob> localJobs,
+        List<ManagerJob> gravshipJobs,
+        Action askPlayer
+    )
+    {
         switch (action)
         {
             case GravshipLandingAction.Import:
-                ImportJobs(manager, jobList);
+                ImportJobs(manager, gravshipJobs);
                 break;
             case GravshipLandingAction.KeepLocalOnly:
                 Messages.Message(
@@ -91,38 +128,45 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
                     MessageTypeDefOf.TaskCompletion
                 );
                 DeleteJobs(manager, localJobs);
-                ImportJobs(manager, jobList);
+                ImportJobs(manager, gravshipJobs);
                 break;
             case GravshipLandingAction.Ask:
             default:
-                Find.WindowStack.Add(
-                    new Dialog_GravshipJobConflict(
-                        localJobs.Count,
-                        jobList.Count,
-                        keepLocalJobs: () => { },
-                        keepGravshipJobs: () =>
-                        {
-                            DeleteJobs(manager, localJobs);
-                            ImportJobs(manager, jobList);
-                        },
-                        keepBothJobs: () => ImportJobs(manager, jobList),
-                        chooseIndividually: () =>
-                            Find.WindowStack.Add(
-                                new Dialog_GravshipJobPicker(
-                                    localJobs,
-                                    jobList,
-                                    onConfirm: (keptLocalJobs, keptGravshipJobs) =>
-                                    {
-                                        DeleteJobs(manager, [.. localJobs.Except(keptLocalJobs)]);
-                                        ImportJobs(manager, keptGravshipJobs);
-                                    }
-                                )
-                            )
-                    )
-                );
+                askPlayer();
                 break;
         }
     }
+
+    private static void AskPlayer(
+        Manager manager,
+        List<ManagerJob> localJobs,
+        List<ManagerJob> jobList
+    ) =>
+        Find.WindowStack.Add(
+            new Dialog_GravshipJobConflict(
+                localJobs.Count,
+                jobList.Count,
+                keepLocalJobs: () => { },
+                keepGravshipJobs: () =>
+                {
+                    DeleteJobs(manager, localJobs);
+                    ImportJobs(manager, jobList);
+                },
+                keepBothJobs: () => ImportJobs(manager, jobList),
+                chooseIndividually: () =>
+                    Find.WindowStack.Add(
+                        new Dialog_GravshipJobPicker(
+                            localJobs,
+                            jobList,
+                            onConfirm: (keptLocalJobs, keptGravshipJobs) =>
+                            {
+                                DeleteJobs(manager, [.. localJobs.Except(keptLocalJobs)]);
+                                ImportJobs(manager, keptGravshipJobs);
+                            }
+                        )
+                    )
+            )
+        );
 
     /// <summary>
     /// Pure decision behind the landing postfix: what to do with a landing gravship's manager

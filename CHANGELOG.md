@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Mining job could leave more deconstruct or haul designations in place than needed when it stopped removing mining designations part way through reducing them.
 - The Mining job's 'Allow mining' default in the Job Defaults tab was reset to on every time the game was loaded.
 - Loading a Livestock job default settings entry that was missing its saved values could cause an error.
+- Landing a gravship whose manager database held unreadable job data could throw an unhandled error and leave the data behind instead of logging it and carrying on.
+- The gravship launch warning about a missing manager database now only appears when there are jobs that the database would have taken along.
 
 ## [0.19.1] - 2026-09-20
 

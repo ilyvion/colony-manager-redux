@@ -27,7 +27,9 @@ internal static class RimWorld_GravshipUtility_PreLaunchConfirmation
     {
         var hasManagerDatabase = gravEngine.ManagerDatabase() != null;
         var manager = Manager.For(gravEngine.Map);
-        if (hasManagerDatabase || manager.JobTracker.JobList.Count <= 0)
+        if (
+            !ShouldWarn(hasManagerDatabase, manager.JobTracker.JobList.Count(j => j.IsTransferable))
+        )
         {
             return text;
         }
@@ -37,6 +39,13 @@ internal static class RimWorld_GravshipUtility_PreLaunchConfirmation
             + "ColonyManagerRedux.Misc.NoManagerDatabaseOnShip".Translate().Resolve();
         return text;
     }
+
+    /// <summary>
+    /// Whether launching should warn that the ship would leave its jobs behind: it has no manager
+    /// database, yet the map has jobs that would have travelled with one.
+    /// </summary>
+    internal static bool ShouldWarn(bool hasManagerDatabase, int transferableJobCount) =>
+        !hasManagerDatabase && transferableJobCount > 0;
 
     internal static IEnumerable<CodeInstruction> Transpiler(
         IEnumerable<CodeInstruction> instructions,

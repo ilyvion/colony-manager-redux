@@ -26,9 +26,15 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
             return;
         }
 
-        var map = engine.Map;
-        var manager = Manager.For(map);
+        compManagerDatabase.JobTransferData = SerializeJobs(Manager.For(engine.Map));
+    }
 
+    /// <summary>
+    /// Writes every transferable job of <paramref name="manager"/> into a self-contained XML
+    /// document and returns exactly the bytes written.
+    /// </summary>
+    internal static byte[] SerializeJobs(Manager manager)
+    {
         byte[] bytes;
         using (var m = new MemoryStream())
         {
@@ -84,13 +90,13 @@ internal static class Verse_WorldComponent_GravshipController_InitiateTakeoff
                 manager.ScribeSameMapData = true;
             }
 
-            bytes = m.GetBuffer();
+            bytes = m.ToArray();
             ColonyManagerReduxMod.Instance.LogDevMessage(
                 "Serialized job data:\n\n" + System.Text.Encoding.UTF8.GetString(bytes)
             );
         }
 
-        compManagerDatabase.JobTransferData = bytes;
+        return bytes;
     }
 }
 #endif // !v1_5
