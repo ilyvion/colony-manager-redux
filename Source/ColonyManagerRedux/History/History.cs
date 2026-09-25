@@ -165,11 +165,11 @@ public partial class History : IExposable
 #endif
         // get range of colors if not set
         // default to white for single line
-        colors ??=
-            labels.Length == 1
-                ? [DefaultLineColor]
-                // rainbow!
-                : HSV_Helper.Range(labels.Length);
+        colors =
+            colors is { Length: > 0 } ? colors
+            : labels.Length == 1 ? [DefaultLineColor]
+            // rainbow!
+            : HSV_Helper.Range(labels.Length);
 
         // create a chapter for each label
         for (var i = 0; i < labels.Length; i++)
@@ -195,11 +195,11 @@ public partial class History : IExposable
 
         // get range of colors if not set
         // default to white for single line
-        colors ??=
-            thingCounts.Length == 1
-                ? [Color.white]
-                // rainbow!
-                : HSV_Helper.Range(thingCounts.Length);
+        colors =
+            colors is { Length: > 0 } ? colors
+            : thingCounts.Length == 1 ? [Color.white]
+            // rainbow!
+            : HSV_Helper.Range(thingCounts.Length);
 
         // create a chapter for each label
         for (var i = 0; i < thingCounts.Length; i++)
@@ -268,6 +268,36 @@ public partial class History : IExposable
             _ => throw new NotImplementedException(),
         };
 
+    /// <summary>
+    /// The shown chapters that have a positive (or, for <paramref name="negativeOnly"/>, negative)
+    /// value in <paramref name="period"/> when filtering, in chapter order.
+    /// </summary>
+    internal static List<Chapter> SelectChaptersToDraw(
+        IEnumerable<Chapter> shown,
+        IReadOnlyList<Chapter> all,
+        Period period,
+        bool positiveOnly,
+        bool negativeOnly
+    ) =>
+        [
+            .. shown
+                .Where(chapter => !positiveOnly || chapter.counts[(int)period].Any(i => i > 0))
+                .Where(chapter => !negativeOnly || chapter.counts[(int)period].Any(i => i < 0))
+                .OrderBy(chapter => IndexOf(all, chapter)),
+        ];
+
+    private static int IndexOf(IReadOnlyList<Chapter> chapters, Chapter chapter)
+    {
+        for (var i = 0; i < chapters.Count; i++)
+        {
+            if (chapters[i] == chapter)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private GraphRenderer? graphRenderer;
     private readonly List<Chapter> _tmpChapters = [];
 
@@ -313,10 +343,7 @@ public partial class History : IExposable
 
         // subset chapters
         _tmpChapters.AddRange(
-            _chaptersShown
-                .Where(chapter => !positiveOnly || chapter.counts[(int)PeriodShown].Any(i => i > 0))
-                .Where(chapter => !negativeOnly || chapter.counts[(int)PeriodShown].Any(i => i < 0))
-                .OrderBy(_chapters.IndexOf)
+            SelectChaptersToDraw(_chaptersShown, _chapters, PeriodShown, positiveOnly, negativeOnly)
         );
         using var _ = new DoOnDispose(_tmpChapters.Clear);
 

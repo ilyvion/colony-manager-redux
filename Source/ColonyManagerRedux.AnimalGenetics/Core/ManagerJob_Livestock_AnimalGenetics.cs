@@ -38,11 +38,17 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
         OriginalCullingPawnSorter = livestockJob.CullingPawnSorter;
         livestockJob.CullingPawnSorter = CullingPawnSorter;
 
-        foreach (var gene in AffectedStats)
+        foreach (var (gene, weight) in InitialGeneWeights(AffectedStats))
         {
-            _values[gene] = 1.0f / AffectedStats.Count;
+            _values[gene] = weight;
         }
     }
+
+    /// <summary>Every gene weighted equally, summing to 1.</summary>
+    internal static Dictionary<TKey, float> InitialGeneWeights<TKey>(
+        IReadOnlyCollection<TKey> genes
+    )
+        where TKey : notnull => genes.ToDictionary(gene => gene, _ => 1.0f / genes.Count);
 
     protected override void PostExposeData()
     {
@@ -144,19 +150,20 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     {
         var result = new Dictionary<TKey, float>(values) { [changedKey] = newValue };
 
-        var otherKeys = result.Keys.Where(key => !key!.Equals(changedKey)).ToList();
+        var otherKeys = result.Keys.Where(key => !key.Equals(changedKey)).ToList();
+        var target = 1.0f - newValue;
         var others = otherKeys.Sum(key => result[key]);
-        var modifier = (1.0f - newValue) / others;
 
+        // When the other genes carry no weight to scale from, share the remainder evenly.
         foreach (var key in otherKeys)
         {
-            result[key] = Math.Min(Math.Max(modifier * result[key], min), max);
+            var scaled = others > 0f ? target / others * result[key] : target / otherKeys.Count;
+            result[key] = Math.Min(Math.Max(scaled, min), max);
         }
 
         var clampedOthersSum = otherKeys.Sum(key => result[key]);
         if (clampedOthersSum > 0f)
         {
-            var target = 1.0f - newValue;
             foreach (var key in otherKeys)
             {
                 result[key] = result[key] / clampedOthersSum * target;
@@ -189,22 +196,45 @@ internal sealed class ManagerJob_Livestock_AnimalGenetics : ManagerJobComp
     }
 
     private IEnumerable<Pawn> CullingPawnSorter(AgeAndSex ageAndSex, IEnumerable<Pawn> pawns) =>
-        !_useForCulling
-            ? OriginalCullingPawnSorter(ageAndSex, pawns)
-            : pawns.OrderBy(CalculatePreferenceScore);
+        OrderForCulling(
+            _useForCulling,
+            pawns,
+            CalculatePreferenceScore,
+            () => OriginalCullingPawnSorter(ageAndSex, pawns)
+        );
 
-    private float TamingPawnSortScore(Pawn pawn, float distance)
-    {
-        if (!_useForTaming)
-        {
-            return OriginalTamingPawnSortScore(pawn, distance);
-        }
+    private float TamingPawnSortScore(Pawn pawn, float distance) =>
+        TamingSortScore(
+            _useForTaming,
+            () =>
+            {
+                var preferenceScore = CalculatePreferenceScore(pawn);
+                ColonyManagerReduxMod.Instance.LogDebug(
+                    pawn + " preference score: " + preferenceScore
+                );
+                return preferenceScore;
+            },
+            () => OriginalTamingPawnSortScore(pawn, distance)
+        );
 
-        var preferenceScore = CalculatePreferenceScore(pawn);
-        ColonyManagerReduxMod.Instance.LogDebug(pawn + " preference score: " + preferenceScore);
+    /// <summary>
+    /// Lowest preference score first, so the animals with the worst genes are culled first.
+    /// </summary>
+    internal static IEnumerable<T> OrderForCulling<T>(
+        bool useOverride,
+        IEnumerable<T> items,
+        Func<T, float> preferenceScore,
+        Func<IEnumerable<T>> original
+    ) => useOverride ? items.OrderBy(preferenceScore) : original();
 
-        return preferenceScore;
-    }
+    /// <summary>
+    /// The preference score itself, which sorts descending, so the best genes are tamed first.
+    /// </summary>
+    internal static float TamingSortScore(
+        bool useOverride,
+        Func<float> preferenceScore,
+        Func<float> original
+    ) => useOverride ? preferenceScore() : original();
 
     private float CalculatePreferenceScore(Pawn pawn) =>
         CalculatePreferenceScore(AffectedStats, _values, pawn, GetGene);

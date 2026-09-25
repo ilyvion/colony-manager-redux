@@ -158,62 +158,53 @@ public class Building_AIManager : Building
             }
 
             // primary colour
-            if (tick % 250 == 0)
+            var step = DecideAIManagerStep(
+                tick % 250 == 0,
+                handle != null,
+                handle?.IsCompleted == true
+            );
+            PowerTrader.PowerOutput = step.FullPower
+                ? -PowerTrader.Props.PowerConsumption
+                : -PowerTrader.Props.idlePowerDraw;
+            if (step.ClearHandle)
             {
-                if (handle != null)
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"AI Manager completed active job"
+                );
+                handle = null;
+            }
+            if (step.PrimaryColor is { } stepColor)
+            {
+                PrimaryColour = stepColor;
+            }
+            if (step.CheckForWork)
+            {
+                ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                    $"Setting up a job due to AI manager seeing there's work to do..."
+                );
+                var coroutine = Manager.For(Map).TryDoWork();
+                if (coroutine != null)
                 {
-                    if (handle.IsCompleted)
-                    {
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                            $"AI Manager completed active job"
-                        );
-                        handle = null;
-                        PrimaryColour = Color.red;
-                        PowerTrader.PowerOutput = -PowerTrader.Props.idlePowerDraw;
-                    }
-                    else
-                    {
-                        PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
-                        PrimaryColour = Color.green;
-                    }
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
+                        $"...job started @ game tick {Find.TickManager.TicksGame}."
+                    );
+                    PrimaryColour = Color.green;
+                    handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
                 }
                 else
                 {
-                    PowerTrader.PowerOutput = -PowerTrader.Props.PowerConsumption;
-                    ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                        $"Setting up a job due to AI manager seeing there's work to do..."
-                    );
-                    var coroutine = Manager.For(Map).TryDoWork();
-                    PrimaryColour = coroutine != null ? Color.green : Color.red;
-                    if (coroutine != null)
-                    {
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                            $"...job started @ game tick {Find.TickManager.TicksGame}."
-                        );
-                        PrimaryColour = Color.green;
-                        handle = MultiTickCoroutineManager.StartCoroutine(coroutine);
-                    }
-                    else
-                    {
-                        ColonyManagerReduxMod.Instance.LogVerboseMessage(
-                            $"...there was no job to do."
-                        );
-                        PrimaryColour = Color.red;
-                    }
+                    ColonyManagerReduxMod.Instance.LogVerboseMessage($"...there was no job to do.");
+                    PrimaryColour = Color.red;
                 }
-            }
-            else
-            {
-                PowerTrader.PowerOutput = -PowerTrader.Props.idlePowerDraw;
             }
 
             // blinking on primary
-            if (tick % 30 == 0)
+            var blinkPhase = BlinkPhaseAt(tick);
+            if (blinkPhase == BlinkPhase.On)
             {
                 PrimaryColourBlinker = PrimaryColour;
             }
-
-            if (tick % 30 == 25)
+            else if (blinkPhase == BlinkPhase.Off)
             {
                 PrimaryColourBlinker = Color.black;
             }
@@ -243,4 +234,42 @@ public class Building_AIManager : Building
             _glowDirty = false;
         }
     }
+
+    /// <summary>What the AI manager does on a tick, before looking for work.</summary>
+    /// <param name="CheckForWork">Whether to look for a job to start.</param>
+    /// <param name="ClearHandle">Whether the running job has finished and its handle is dropped.</param>
+    /// <param name="FullPower">Whether to draw full power instead of idle power.</param>
+    /// <param name="PrimaryColor">The new primary LED colour, if the step decides one.</param>
+    internal readonly record struct AIManagerStep(
+        bool CheckForWork,
+        bool ClearHandle,
+        bool FullPower,
+        Color? PrimaryColor
+    );
+
+    internal static AIManagerStep DecideAIManagerStep(
+        bool isWorkCheckTick,
+        bool hasHandle,
+        bool handleCompleted
+    ) =>
+        !isWorkCheckTick ? new(false, false, false, null)
+        : !hasHandle ? new(true, false, true, null)
+        : handleCompleted ? new(false, true, false, Color.red)
+        : new(false, false, true, Color.green);
+
+    /// <summary>Which way the primary LED blinker changes on a tick.</summary>
+    internal enum BlinkPhase
+    {
+        None,
+        On,
+        Off,
+    }
+
+    internal static BlinkPhase BlinkPhaseAt(int tick) =>
+        (tick % 30) switch
+        {
+            0 => BlinkPhase.On,
+            25 => BlinkPhase.Off,
+            _ => BlinkPhase.None,
+        };
 }

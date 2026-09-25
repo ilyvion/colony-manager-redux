@@ -196,7 +196,7 @@ internal sealed class Alert_NoTable : Alert
             BestBuildingResearchedThatCanBeBuilt == null
                 ? "ColonyManagerRedux.Alerts.NoTable.NoTableResearched".Translate()
                 : "ColonyManagerRedux.Alerts.NoTable.ClickToBuild".Translate(
-                    BestBuildingResearchedThatCanBeBuilt!.label
+                    BestBuildingResearchedThatCanBeBuilt.label
                 )
         );
 
@@ -234,14 +234,35 @@ internal sealed class Alert_NoTable : Alert
     }
 
     private static ThingDef? BestBuildingResearchedThatCanBeBuilt =>
-        ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished
-            ? ManagerThingDefOf.CM_AIManager
-        : ManagerResearchProjectDefOf.ManagingSoftware.IsFinished
-            ? ManagerThingDefOf.CM_ManagerStation
-        : ManagerResearchProjectDefOf.CMR_ManagingDesk.IsFinished
-            ? ManagerThingDefOf.CM_BasicManagerStation
-        : ManagerResearchProjectDefOf.CMR_ManagingSpot.IsFinished
-            ? ManagerThingDefOf.CMR_ManagingSpot
+        PickBestBuilding(
+            ManagerResearchProjectDefOf.AdvancedManagingSoftware.IsFinished,
+            ManagerResearchProjectDefOf.ManagingSoftware.IsFinished,
+            ManagerResearchProjectDefOf.CMR_ManagingDesk.IsFinished,
+            ManagerResearchProjectDefOf.CMR_ManagingSpot.IsFinished,
+            ManagerThingDefOf.CM_AIManager,
+            ManagerThingDefOf.CM_ManagerStation,
+            ManagerThingDefOf.CM_BasicManagerStation,
+            ManagerThingDefOf.CMR_ManagingSpot
+        );
+
+    /// <summary>
+    /// The building of the highest finished research tier, or null when no tier is finished.
+    /// </summary>
+    internal static T? PickBestBuilding<T>(
+        bool advancedManagingSoftware,
+        bool managingSoftware,
+        bool managingDesk,
+        bool managingSpot,
+        T aiManager,
+        T managerStation,
+        T basicManagerStation,
+        T managingSpotBuilding
+    )
+        where T : class =>
+        advancedManagingSoftware ? aiManager
+        : managingSoftware ? managerStation
+        : managingDesk ? basicManagerStation
+        : managingSpot ? managingSpotBuilding
         : null;
 }
 

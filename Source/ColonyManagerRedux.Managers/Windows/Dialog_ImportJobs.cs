@@ -17,8 +17,17 @@ internal sealed class Dialog_ImportJobs : Window
 
     private static readonly Vector2 ButtonSize = new(175f, 38f);
 
-    private IEnumerable<ManagerJob> SelectedJobs =>
-        _jobs.Where((t, i) => _selectedJobs[i] == MultiCheckboxState.On);
+    private IEnumerable<ManagerJob> SelectedJobs => SelectImportable(_jobs, _selectedJobs);
+
+    /// <summary>The jobs whose checkbox is fully checked.</summary>
+    internal static IEnumerable<T> SelectImportable<T>(
+        IReadOnlyList<T> jobs,
+        IReadOnlyList<MultiCheckboxState> states
+    ) => jobs.Where((_, i) => states[i] == MultiCheckboxState.On);
+
+    /// <summary>Whether at least one job would be imported.</summary>
+    internal static bool AnySelected(IEnumerable<MultiCheckboxState> states) =>
+        states.Any(state => state == MultiCheckboxState.On);
 
     public Dialog_ImportJobs(Manager manager, List<ManagerJob> jobs, Action<int>? onImport = null)
     {
@@ -146,8 +155,6 @@ internal sealed class Dialog_ImportJobs : Window
         DoJobListGUI(jobsRect.AtZero());
         Widgets.EndGroup();
 
-        Rect buttonsRect = new(inRect) { y = jobsRect.yMax + 5f, height = ButtonSize.y };
-
         if (
             Widgets.ButtonText(
                 new Rect(0f, inRect.height - ButtonSize.y, ButtonSize.x, ButtonSize.y),
@@ -158,7 +165,7 @@ internal sealed class Dialog_ImportJobs : Window
             Close();
         }
 
-        var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
+        var anySelected = AnySelected(_selectedJobs);
         if (
             IlyvionWidgets.DisableableButtonText(
                 new Rect(
@@ -179,7 +186,7 @@ internal sealed class Dialog_ImportJobs : Window
     public override void OnAcceptKeyPressed()
     {
         base.OnAcceptKeyPressed();
-        var anySelected = _selectedJobs.Any(t => t != MultiCheckboxState.Off);
+        var anySelected = AnySelected(_selectedJobs);
         if (anySelected)
         {
             OnAccept();

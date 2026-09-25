@@ -66,10 +66,18 @@ public class UpdateInterval(int ticks, string label)
         var nextUpdateColor = suspended ? GenUI.MouseoverColor.Muted(1.5f) : GenUI.MouseoverColor;
 
         string lastUpdateTooltip;
-        var nextUpdate = (float)job.UpdateInterval.Ticks / GenDate.TicksPerHour;
-        if (exporting)
+        var display = ComputeIntervalDisplay(
+            job.UpdateInterval.Ticks,
+            job.HasBeenUpdated ? job.TicksSinceLastUpdate : 0,
+            exporting,
+            job.IsForceUpdatePending,
+            job.HasBeenUpdated,
+            suspended
+        );
+        var nextUpdate = display.NextUpdateHours;
+        if (display.State == IntervalDisplayState.Exporting)
         {
-            if (nextUpdate < 12)
+            if (display.UseClock)
             {
                 var nextUpdateHandle = new ClockHandle(nextUpdate, nextUpdateColor);
                 var progressHandle = new ClockHandle(0f, Color.white);
@@ -88,7 +96,7 @@ public class UpdateInterval(int ticks, string label)
 
             lastUpdateTooltip = "";
         }
-        else if (job.IsForceUpdatePending)
+        else if (display.State == IntervalDisplayState.ForceUpdatePending)
         {
             GUI.color = nextUpdateColor;
             Text.Font = GameFont.Medium;
@@ -101,26 +109,13 @@ public class UpdateInterval(int ticks, string label)
             lastUpdateTooltip =
                 "ColonyManagerRedux.Job.ForceUpdatePendingTooltip".Translate() + " ";
         }
-        else if (job.HasBeenUpdated)
+        else if (display.State == IntervalDisplayState.Progress)
         {
-            // how many hours have passed since the last update?
             var lastUpdate = job.TicksSinceLastUpdate;
-            var progress = (float)lastUpdate / GenDate.TicksPerHour;
+            var progress = display.ProgressHours;
+            var progressColour = display.ProgressColor;
 
-            // how far over time are we? Draw redder if further over time.
-            var progressColour = suspended
-                ? Color.gray
-                : (
-                    progress < nextUpdate
-                        ? Color.white
-                        : Color.Lerp(
-                            Color.white,
-                            Color.red,
-                            (progress - nextUpdate) / nextUpdate * 2f
-                        )
-                );
-
-            if (nextUpdate < 12 && progress < 12)
+            if (display.UseClock)
             {
                 var nextUpdateHandle = new ClockHandle(nextUpdate, nextUpdateColor);
                 var progressHandle = new ClockHandle(progress, progressColour);
@@ -186,7 +181,7 @@ public class UpdateInterval(int ticks, string label)
             if (Widgets.ButtonInvisible(canvas))
             {
                 var options = new List<FloatMenuOption>();
-                if (!job.IsSuspended && !job.ShouldDoNow)
+                if (CanForceUpdate(job.IsSuspended, job.ShouldDoNow))
                 {
                     options.Add(
                         new FloatMenuOption(
@@ -223,4 +218,71 @@ public class UpdateInterval(int ticks, string label)
             }
         }
     }
+
+    /// <summary>What <see cref="Draw"/> shows for a job.</summary>
+    internal enum IntervalDisplayState
+    {
+        Exporting,
+        ForceUpdatePending,
+        Progress,
+        NeverUpdated,
+    }
+
+    /// <summary>The presentation decisions for a job's update interval.</summary>
+    internal readonly record struct IntervalDisplay(
+        IntervalDisplayState State,
+        bool UseClock,
+        float NextUpdateHours,
+        float ProgressHours,
+        Color ProgressColor
+    );
+
+    internal static IntervalDisplay ComputeIntervalDisplay(
+        int intervalTicks,
+        int ticksSinceLastUpdate,
+        bool exporting,
+        bool forceUpdatePending,
+        bool hasBeenUpdated,
+        bool suspended
+    )
+    {
+        var nextUpdate = (float)intervalTicks / GenDate.TicksPerHour;
+        if (exporting)
+        {
+            return new(
+                IntervalDisplayState.Exporting,
+                nextUpdate < 12,
+                nextUpdate,
+                0f,
+                Color.white
+            );
+        }
+        if (forceUpdatePending)
+        {
+            return new(IntervalDisplayState.ForceUpdatePending, false, nextUpdate, 0f, Color.white);
+        }
+        if (!hasBeenUpdated)
+        {
+            return new(IntervalDisplayState.NeverUpdated, false, nextUpdate, 0f, Color.white);
+        }
+
+        var progress = (float)ticksSinceLastUpdate / GenDate.TicksPerHour;
+
+        // Draw redder the further over time the job is; a zero-length interval is always fully over.
+        var overdue = nextUpdate > 0 ? (progress - nextUpdate) / nextUpdate * 2f : 1f;
+        var progressColor = suspended
+            ? Color.gray
+            : (progress < nextUpdate ? Color.white : Color.Lerp(Color.white, Color.red, overdue));
+
+        return new(
+            IntervalDisplayState.Progress,
+            nextUpdate < 12 && progress < 12,
+            nextUpdate,
+            progress,
+            progressColor
+        );
+    }
+
+    internal static bool CanForceUpdate(bool isSuspended, bool shouldDoNow) =>
+        !isSuspended && !shouldDoNow;
 }

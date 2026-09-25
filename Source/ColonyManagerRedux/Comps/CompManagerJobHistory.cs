@@ -37,8 +37,8 @@ public class CompManagerJobHistory : ManagerJobComp
             YAxisSuffix = Props.yAxisSuffix,
         };
 
-    private int? _currentUpdateTick;
-    private bool _reportedSkippedUpdateTick;
+    internal int? _currentUpdateTick;
+    internal bool _reportedSkippedUpdateTick;
 
     /// <inheritdoc/>
     protected internal override void CompTick()
@@ -91,8 +91,8 @@ public class CompManagerJobHistory : ManagerJobComp
         int ticksGame
     ) => !alreadyReported && queuedToRecord > 0 && currentUpdateTick != ticksGame;
 
-    private static bool _isRecordingHistory;
-    private static int _queuedToRecord;
+    internal static bool _isRecordingHistory;
+    internal static int _queuedToRecord;
 
     /// <inheritdoc/>
     protected internal override void FinalizeInit()
@@ -109,7 +109,7 @@ public class CompManagerJobHistory : ManagerJobComp
     }
 
     [CoroutineSettingsMethod]
-    private Coroutine DoHistoryUpdateCoroutine(HistoryWorker worker, int tick)
+    internal Coroutine DoHistoryUpdateCoroutine(HistoryWorker worker, int tick)
     {
         if (_isRecordingHistory)
         {
@@ -581,6 +581,11 @@ public abstract class HistoryWorker<T> : HistoryWorker
         }
         catch (NotImplementedException)
         {
+            ColonyManagerReduxMod.Instance.LogWarning(
+                $"Neither {nameof(GetMaxForHistoryChapter)} "
+                    + $"nor {nameof(GetMaxForHistoryChapterCoroutine)} have been overridden, so we're "
+                    + $"returning a max count of 0 for {chapterDef.defName} in {GetType().FullName}."
+            );
             max.Value = 0;
         }
 #pragma warning restore CS0618

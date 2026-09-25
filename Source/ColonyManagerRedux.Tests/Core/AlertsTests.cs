@@ -143,4 +143,37 @@ internal sealed class AlertsTests
         // 0 is a valid, real "slaughter everything over 0" threshold, not the -1 "off" sentinel
         // - easily confused with "off" if the sentinel check were ever changed to `<= 0`.
         Expect.IsTrue(Alert_AutoslaughterOverlap.IsAutoSlaughterConfigActive(0, 0, 0, 0, 0));
+
+    private static string? Pick(bool advanced, bool software, bool desk, bool spot) =>
+        Alert_NoTable.PickBestBuilding(
+            advanced,
+            software,
+            desk,
+            spot,
+            "ai",
+            "station",
+            "desk",
+            "spot"
+        );
+
+    [Test]
+    public static void BestBuildingIsNullWhenNothingIsResearched() =>
+        Expect.IsNull(Pick(false, false, false, false));
+
+    [Test]
+    public static void EachResearchTierAloneSuggestsItsBuilding()
+    {
+        Expect.AreEqual("ai", Pick(true, false, false, false));
+        Expect.AreEqual("station", Pick(false, true, false, false));
+        Expect.AreEqual("desk", Pick(false, false, true, false));
+        Expect.AreEqual("spot", Pick(false, false, false, true));
+    }
+
+    [Test]
+    public static void HigherResearchTierWinsOverLowerOnes()
+    {
+        Expect.AreEqual("ai", Pick(true, true, true, true));
+        Expect.AreEqual("station", Pick(false, true, true, true));
+        Expect.AreEqual("desk", Pick(false, false, true, true));
+    }
 }

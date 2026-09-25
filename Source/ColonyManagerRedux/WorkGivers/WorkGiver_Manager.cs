@@ -31,58 +31,84 @@ internal sealed class WorkGiver_Manage : WorkGiver_Scanner
         Log.Message("Job" + (Manager.For(pawn.Map).JobStack.NextJob != null));
 #endif
 
-        if (t is not Building_ManagerStation)
+        var reason = Evaluate(
+            t is Building_ManagerStation,
+            () => t.TryGetComp<CompManagerStation>() != null,
+            () =>
+                pawn
+                    .Map.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
+                    .Any(b => b.Powered),
+            pawn.Dead || pawn.Downed || pawn.IsBurning() || t.IsBurning(),
+            () =>
+                pawn.CanReserveAndReach(
+                    t,
+                    PathEndMode,
+                    Danger.Some,
+                    ignoreOtherReservations: forced
+                ),
+            t.TryGetComp<CompPowerTrader>() is { } power ? power.PowerOn : null,
+            () => Manager.For(pawn.Map).JobTracker.JobList.Count,
+            () => Manager.For(pawn.Map).JobTracker.NextJob != null
+        );
+
+        var failKey = reason switch
         {
-            return false;
+            ManageBlockReason.AIManagerPowered => "ColonyManagerRedux.CannotManage.AIManager",
+            ManageBlockReason.NoPower => "ColonyManagerRedux.CannotManage.NoPower",
+            ManageBlockReason.NoJobs => "ColonyManagerRedux.CannotManage.NoJobs",
+            ManageBlockReason.NoActiveJobs => "ColonyManagerRedux.CannotManage.NoActiveJobs",
+            ManageBlockReason.None
+            or ManageBlockReason.NotAStation
+            or ManageBlockReason.NoStationComp
+            or ManageBlockReason.PawnIncapable
+            or ManageBlockReason.CannotReserveOrReach => null,
+            _ => null,
+        };
+        if (failKey != null)
+        {
+            JobFailReason.Is(failKey.Translate());
         }
 
-        if (t.TryGetComp<CompManagerStation>() == null)
-        {
-            return false;
-        }
-
-        // Don't issue manager work when there's an active AI manager.
-        if (
-            pawn
-                .Map.listerBuildings.AllBuildingsColonistOfClass<Building_AIManager>()
-                .Any(b => b.Powered)
-        )
-        {
-            JobFailReason.Is("ColonyManagerRedux.CannotManage.AIManager".Translate());
-            return false;
-        }
-
-        if (pawn.Dead || pawn.Downed || pawn.IsBurning() || t.IsBurning())
-        {
-            return false;
-        }
-
-        if (!pawn.CanReserveAndReach(t, PathEndMode, Danger.Some, ignoreOtherReservations: forced))
-        {
-            return false;
-        }
-
-        var power = t.TryGetComp<CompPowerTrader>();
-        if (power != null && !power.PowerOn)
-        {
-            JobFailReason.Is("ColonyManagerRedux.CannotManage.NoPower".Translate());
-            return false;
-        }
-
-        if (Manager.For(pawn.Map).JobTracker.JobList.Count == 0)
-        {
-            JobFailReason.Is("ColonyManagerRedux.CannotManage.NoJobs".Translate());
-            return false;
-        }
-
-        if (Manager.For(pawn.Map).JobTracker.NextJob == null)
-        {
-            JobFailReason.Is("ColonyManagerRedux.CannotManage.NoActiveJobs".Translate());
-            return false;
-        }
-
-        return true;
+        return reason == ManageBlockReason.None;
     }
+
+    /// <summary>Why a pawn cannot manage at a station; <see cref="None"/> means it can.</summary>
+    internal enum ManageBlockReason
+    {
+        None,
+        NotAStation,
+        NoStationComp,
+        AIManagerPowered,
+        PawnIncapable,
+        CannotReserveOrReach,
+        NoPower,
+        NoJobs,
+        NoActiveJobs,
+    }
+
+    /// <summary>
+    /// The first reason, in check order, that blocks managing. The delegate checks are only
+    /// evaluated when every earlier check passed.
+    /// </summary>
+    internal static ManageBlockReason Evaluate(
+        bool isStation,
+        Func<bool> hasStationComp,
+        Func<bool> aiManagerPowered,
+        bool pawnOrStationIncapable,
+        Func<bool> canReserveAndReach,
+        bool? powerOn,
+        Func<int> jobCount,
+        Func<bool> hasNextJob
+    ) =>
+        !isStation ? ManageBlockReason.NotAStation
+        : !hasStationComp() ? ManageBlockReason.NoStationComp
+        : aiManagerPowered() ? ManageBlockReason.AIManagerPowered
+        : pawnOrStationIncapable ? ManageBlockReason.PawnIncapable
+        : !canReserveAndReach() ? ManageBlockReason.CannotReserveOrReach
+        : powerOn == false ? ManageBlockReason.NoPower
+        : jobCount() == 0 ? ManageBlockReason.NoJobs
+        : !hasNextJob() ? ManageBlockReason.NoActiveJobs
+        : ManageBlockReason.None;
 
     public override Job JobOnThing(Pawn pawn, Thing t, bool forced) =>
         new(ManagerJobDefOf.ManagingAtManagingStation, t);

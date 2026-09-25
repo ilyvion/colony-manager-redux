@@ -163,4 +163,146 @@ internal sealed class ManagerJobLivestockAnimalGeneticsTests
 
         Expect.AreEqual(0f, score);
     }
+
+    [Test]
+    public static void SingleGeneKeepsTheNewValueAndChangesNothingElse()
+    {
+        var result = Rebalance(new Dictionary<string, float> { ["A"] = 1f }, "A", 0.4f);
+
+        Expect.AreEqual(1, result.Count);
+        Expect.AreEqual(0.4f, result["A"]);
+    }
+
+    [Test]
+    public static void OtherGenesWithNoWeightShareTheRemainderEvenly()
+    {
+        var values = new Dictionary<string, float>
+        {
+            ["A"] = 1f,
+            ["B"] = 0f,
+            ["C"] = 0f,
+        };
+
+        var result = Rebalance(values, "A", 0.4f);
+
+        Expect.AreEqual(0.4f, result["A"]);
+        Expect.AreApproximatelyEqual(0.3f, result["B"]);
+        Expect.AreApproximatelyEqual(0.3f, result["C"]);
+    }
+
+    [Test]
+    public static void SettingOneGeneToTheMaximumPinsTheOthersToTheirMinimum()
+    {
+        var values = new Dictionary<string, float> { ["A"] = 0.5f, ["B"] = 0.5f };
+
+        var result = Rebalance(values, "A", 1f);
+
+        Expect.IsFalse(float.IsNaN(result["B"]));
+        Expect.AreEqual(1f, result["A"]);
+        Expect.LessThanOrEqualTo(result["B"], Min);
+    }
+
+    [Test]
+    public static void RandomSliderMovesNeverProduceNaNAndKeepTheSumAtOne()
+    {
+        // A fixed linear congruential sequence keeps the "random" moves reproducible.
+        var state = 12345u;
+        float NextFraction()
+        {
+            state = unchecked((state * 1664525u) + 1013904223u);
+            return (state >> 8) / (float)(1 << 24);
+        }
+
+        var keys = new[] { "A", "B", "C", "D" };
+        var values = keys.ToDictionary(k => k, _ => 0.25f);
+
+        for (var move = 0; move < 200; move++)
+        {
+            var key = keys[(int)(NextFraction() * keys.Length)];
+            var newValue = Min + (NextFraction() * (Max - Min));
+
+            values = Rebalance(values, key, newValue);
+
+            Expect.IsFalse(values.Values.Any(float.IsNaN), $"NaN after move {move}");
+            Expect.AreApproximatelyEqual(1f, values.Values.Sum(), $"Sum drifted at move {move}");
+            Expect.AreEqual(newValue, values[key]);
+        }
+    }
+
+    [Test]
+    public static void InitialGeneWeightsAreEqualAndSumToOne()
+    {
+        var weights = ManagerJob_Livestock_AnimalGenetics.InitialGeneWeights(["A", "B", "C", "D"]);
+
+        Expect.AreEqual(4, weights.Count);
+        Expect.IsTrue(weights.Values.All(w => w == 0.25f));
+        Expect.AreApproximatelyEqual(1f, weights.Values.Sum());
+    }
+
+    [Test]
+    public static void CullingOverrideOffKeepsTheOriginalOrder()
+    {
+        var original = new[] { 3, 1, 2 };
+
+        var result = ManagerJob_Livestock_AnimalGenetics.OrderForCulling(
+            false,
+            original,
+            i => i,
+            () => original
+        );
+
+        Expect.AreEqual("3,1,2", string.Join(",", result));
+    }
+
+    // A direction mistake here would cull the best animals first.
+    [Test]
+    public static void CullingOverrideCullsTheLowestScoreFirst()
+    {
+        var scores = new Dictionary<string, float>
+        {
+            ["best"] = 9f,
+            ["worst"] = 1f,
+            ["mid"] = 5f,
+        };
+
+        var result = ManagerJob_Livestock_AnimalGenetics
+            .OrderForCulling(true, scores.Keys, k => scores[k], () => [])
+            .ToList();
+
+        Expect.AreEqual("worst,mid,best", string.Join(",", result));
+    }
+
+    [Test]
+    public static void TamingScoreUsesTheOriginalWhenTheOverrideIsOff()
+    {
+        var score = ManagerJob_Livestock_AnimalGenetics.TamingSortScore(false, () => 9f, () => 2f);
+
+        Expect.AreEqual(2f, score);
+    }
+
+    [Test]
+    public static void TamingScoreIsThePreferenceScoreWhenTheOverrideIsOn()
+    {
+        var score = ManagerJob_Livestock_AnimalGenetics.TamingSortScore(true, () => 9f, () => 2f);
+
+        Expect.AreEqual(9f, score);
+    }
+
+    [Test]
+    public static void TamingOverrideDoesNotEvaluateTheOriginalScore()
+    {
+        var originalEvaluated = false;
+
+        _ = ManagerJob_Livestock_AnimalGenetics.TamingSortScore(
+            true,
+            () => 9f,
+            () =>
+            {
+                originalEvaluated = true;
+                return 2f;
+            }
+        );
+
+        Expect.IsFalse(originalEvaluated);
+    }
 }
