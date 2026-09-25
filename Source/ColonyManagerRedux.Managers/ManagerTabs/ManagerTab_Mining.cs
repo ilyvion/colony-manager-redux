@@ -165,6 +165,14 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         );
     }
 
+    internal static bool IsStone(ThingDef mineral) => !mineral.building.isResourceRock;
+
+    internal static bool IsMetalMineral(ThingDef mineral) =>
+        mineral.building.isResourceRock && IsMetal(mineral.building.mineableThing);
+
+    internal static bool IsPreciousMineral(ThingDef mineral) =>
+        mineral.building.isResourceRock && (mineral.building.mineableThing?.smallVolume ?? false);
+
     private readonly List<ThingDef> _tmpThings = [];
 
     public float DrawAllowedMineralsShortcuts(Vector2 pos, float width)
@@ -192,7 +200,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         // toggle stone
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(allMinerals.Where(m => !m.building.isResourceRock));
+        _tmpThings.AddRange(allMinerals.Where(IsStone));
         DrawShortcutToggle(
             _tmpThings,
             allowedMinerals,
@@ -205,9 +213,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         // toggle metal
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(
-            allMinerals.Where(m => m.building.isResourceRock && IsMetal(m.building.mineableThing))
-        );
+        _tmpThings.AddRange(allMinerals.Where(IsMetalMineral));
         DrawShortcutToggle(
             _tmpThings,
             allowedMinerals,
@@ -220,11 +226,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         // toggle precious
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(
-            allMinerals.Where(m =>
-                m.building.isResourceRock && (m.building.mineableThing?.smallVolume ?? false)
-            )
-        );
+        _tmpThings.AddRange(allMinerals.Where(IsPreciousMineral));
         DrawShortcutToggle(
             _tmpThings,
             allowedMinerals,

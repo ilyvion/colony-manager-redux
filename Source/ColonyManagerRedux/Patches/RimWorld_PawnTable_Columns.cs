@@ -31,7 +31,13 @@ internal static class RimWorld_PawnTable_Columns
     // active PawnTable.
     public static PawnTable? CurrentPawnTable;
 
-    internal static void Prefix(PawnTable __instance) => CurrentPawnTable = __instance;
+    // The previous value is carried through __state so that a Columns read on another table while
+    // this one is still being evaluated doesn't clear the outer table's status.
+    internal static void Prefix(PawnTable __instance, out PawnTable? __state)
+    {
+        __state = CurrentPawnTable;
+        CurrentPawnTable = __instance;
+    }
 
-    internal static void Postfix() => CurrentPawnTable = null;
+    internal static void Postfix(PawnTable? __state) => CurrentPawnTable = __state;
 }

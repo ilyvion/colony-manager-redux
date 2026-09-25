@@ -68,12 +68,17 @@ internal sealed class Dialog_GravshipJobPicker(
         var localHeaderRect = new Rect(0f, y, columnWidth, HeaderRowHeight);
         var gravshipHeaderRect = new Rect(columnWidth + 20f, y, columnWidth, HeaderRowHeight);
 
+        var (localAllOn, localAllOff) = Utilities.ToggleState(localJobs, _keptLocalJobs);
+        var (gravshipAllOn, gravshipAllOff) = Utilities.ToggleState(
+            gravshipJobs,
+            _keptGravshipJobs
+        );
         Utilities.DrawToggle(
             localHeaderRect,
             "ColonyManagerRedux.Gravship.LocalJobs".Translate(),
             null,
-            localJobs.Count > 0 && localJobs.All(_keptLocalJobs.Contains),
-            localJobs.Count == 0 || localJobs.All(job => !_keptLocalJobs.Contains(job)),
+            localAllOn,
+            localAllOff,
             () => _keptLocalJobs.UnionWith(localJobs),
             () => _keptLocalJobs.ExceptWith(localJobs)
         );
@@ -81,8 +86,8 @@ internal sealed class Dialog_GravshipJobPicker(
             gravshipHeaderRect,
             "ColonyManagerRedux.Gravship.GravshipJobs".Translate(),
             null,
-            gravshipJobs.Count > 0 && gravshipJobs.All(_keptGravshipJobs.Contains),
-            gravshipJobs.Count == 0 || gravshipJobs.All(job => !_keptGravshipJobs.Contains(job)),
+            gravshipAllOn,
+            gravshipAllOff,
             () => _keptGravshipJobs.UnionWith(gravshipJobs),
             () => _keptGravshipJobs.ExceptWith(gravshipJobs)
         );
@@ -111,12 +116,15 @@ internal sealed class Dialog_GravshipJobPicker(
         {
             SoundDefOf.Click.PlayOneShotOnCamera();
             onConfirm(
-                [.. localJobs.Where(_keptLocalJobs.Contains)],
-                [.. gravshipJobs.Where(_keptGravshipJobs.Contains)]
+                KeptInOrder(localJobs, _keptLocalJobs),
+                KeptInOrder(gravshipJobs, _keptGravshipJobs)
             );
             Close();
         }
     }
+
+    internal static List<T> KeptInOrder<T>(IEnumerable<T> all, ISet<T> kept) =>
+        [.. all.Where(kept.Contains)];
 
     private static void DoJobList(
         Rect rect,

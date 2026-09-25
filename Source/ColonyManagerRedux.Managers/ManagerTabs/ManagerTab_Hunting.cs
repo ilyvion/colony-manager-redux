@@ -331,6 +331,17 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     public static string YieldLine(int count, string label) =>
         count > 1 ? $"{count}x {label}" : label;
 
+    internal static bool IsPredator(PawnKindDef kind) => kind.RaceProps.predator;
+
+    internal static bool IsAggressive(PawnKindDef kind) =>
+        kind.RaceProps.manhunterOnDamageChance >= 0.05;
+
+    internal static bool IsHerdAnimal(PawnKindDef kind) => kind.RaceProps.herdAnimal;
+
+    internal static bool IsExploding(PawnKindDef kind) =>
+        kind.RaceProps.deathAction?.workerClass == typeof(DeathActionWorker_SmallExplosion)
+        || kind.RaceProps.deathAction?.workerClass == typeof(DeathActionWorker_BigExplosion);
+
     private readonly List<PawnKindDef> _tmpPawnKinds = [];
 
     public float DrawAnimalShortcuts(Vector2 pos, float width)
@@ -357,7 +368,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         // toggle predators
         rowRect.y += ListEntryHeight;
         _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(a => a.RaceProps.predator));
+        _tmpPawnKinds.AddRange(allAnimals.Where(IsPredator));
         DrawShortcutToggle(
             _tmpPawnKinds,
             allowedAnimals,
@@ -370,7 +381,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         // aggressive animals
         rowRect.y += ListEntryHeight;
         _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(a => a.RaceProps.manhunterOnDamageChance >= 0.05));
+        _tmpPawnKinds.AddRange(allAnimals.Where(IsAggressive));
         DrawShortcutToggle(
             _tmpPawnKinds,
             allowedAnimals,
@@ -383,7 +394,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         // toggle herd animals
         rowRect.y += ListEntryHeight;
         _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(a => a.RaceProps.herdAnimal));
+        _tmpPawnKinds.AddRange(allAnimals.Where(IsHerdAnimal));
         DrawShortcutToggle(
             _tmpPawnKinds,
             allowedAnimals,
@@ -395,12 +406,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
         // exploding animals
         _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(
-            allAnimals.Where(a =>
-                a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_SmallExplosion)
-                || a.RaceProps.deathAction.workerClass == typeof(DeathActionWorker_BigExplosion)
-            )
-        );
+        _tmpPawnKinds.AddRange(allAnimals.Where(IsExploding));
 
         if (_tmpPawnKinds.Count > 0)
         {

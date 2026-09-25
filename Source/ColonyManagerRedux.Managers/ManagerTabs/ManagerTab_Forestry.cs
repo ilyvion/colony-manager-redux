@@ -349,6 +349,20 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         );
     }
 
+    internal static bool IsTreeOfCategory(ThingDef plant, TreeCategory category) =>
+        plant.plant?.treeCategory == category;
+
+    // Anything that drops wood, or has the wood harvest tag.
+    internal static bool IsWoodTree(ThingDef plant) =>
+        plant.plant?.harvestTag == "Wood" || plant.plant?.harvestedThingDef == ThingDefOf.WoodLog;
+
+    internal static bool IsUgly(ThingDef plant) =>
+        plant.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0;
+
+    internal static bool ProvidesCover(ThingDef plant) =>
+        plant.Fillage == FillCategory.Full
+        || (plant.Fillage == FillCategory.Partial && plant.fillPercent > 0);
+
     private readonly List<ThingDef> _tmpThings = [];
 
     public float DrawTreeShortcuts(Vector2 pos, float width)
@@ -372,7 +386,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         // toggle mini
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => p.plant?.treeCategory == TreeCategory.Mini));
+        _tmpThings.AddRange(allPlants.Where(p => IsTreeOfCategory(p, TreeCategory.Mini)));
         DrawShortcutToggle(
             _tmpThings,
             allowedTrees,
@@ -385,7 +399,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         // toggle full
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => p.plant?.treeCategory == TreeCategory.Full));
+        _tmpThings.AddRange(allPlants.Where(p => IsTreeOfCategory(p, TreeCategory.Full)));
         DrawShortcutToggle(
             _tmpThings,
             allowedTrees,
@@ -398,7 +412,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         // toggle super
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => p.plant?.treeCategory == TreeCategory.Super));
+        _tmpThings.AddRange(allPlants.Where(p => IsTreeOfCategory(p, TreeCategory.Super)));
         DrawShortcutToggle(
             _tmpThings,
             allowedTrees,
@@ -413,12 +427,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
             // trees (anything that drops wood, or has the correct harvest tag).
             rowRect.y += ListEntryHeight;
             _tmpThings.Clear();
-            _tmpThings.AddRange(
-                allPlants.Where(tree =>
-                    tree.plant.harvestTag == "Wood"
-                    || tree.plant.harvestedThingDef == ThingDefOf.WoodLog
-                )
-            );
+            _tmpThings.AddRange(allPlants.Where(IsWoodTree));
             DrawShortcutToggle(
                 _tmpThings,
                 allowedTrees,
@@ -447,11 +456,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
             // ugly (possibly none - modded stuff).
             _tmpThings.Clear();
-            _tmpThings.AddRange(
-                allPlants.Where(tree =>
-                    tree.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0
-                )
-            );
+            _tmpThings.AddRange(allPlants.Where(IsUgly));
             if (!_tmpThings.NullOrEmpty())
             {
                 DrawShortcutToggle(
@@ -467,12 +472,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
 
             // provides cover
             _tmpThings.Clear();
-            _tmpThings.AddRange(
-                allPlants.Where(tree =>
-                    tree.Fillage == FillCategory.Full
-                    || (tree.Fillage == FillCategory.Partial && tree.fillPercent > 0)
-                )
-            );
+            _tmpThings.AddRange(allPlants.Where(ProvidesCover));
             DrawShortcutToggle(
                 _tmpThings,
                 allowedTrees,

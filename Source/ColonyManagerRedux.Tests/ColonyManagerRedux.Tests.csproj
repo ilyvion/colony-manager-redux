@@ -40,6 +40,7 @@
     </ItemGroup>
     <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
         <Publicize Include="Assembly-CSharp:Verse.CrossRefHandler.loadedObjectDirectory" />
+        <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.Settings._coroutineTicksBetweenOperations" />
         <Publicize Include="Assembly-CSharp:Verse.FogGrid.fogGrid" />
         <Publicize Include="Assembly-CSharp:Verse.ThingFilter.allowedDefs" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.AddRelevantGameDesignations" />

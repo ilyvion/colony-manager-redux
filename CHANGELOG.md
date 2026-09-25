@@ -30,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Hunting job's expected meat or leather from corpses skipped corpses of animals it wasn't hunting when 'unforbid all corpses' was off, and human corpses unless 'including human corpses' was checked, even when the threshold filter allowed their meat or leather. Which corpses get unforbidden no longer changes which corpses are counted.
 - The Hunting job counted the meat or leather of corpses it unforbade towards its target even when the threshold filter didn't allow it, for example human corpses when human meat isn't allowed, which could make it stop hunting too early. Such corpses are still unforbidden, but no longer count. The corpse tooltips now say that only what the threshold filter allows counts.
 - A Production job could fail and get suspended while setting its target or ingredients from linked jobs if one of those jobs had no recipe chosen yet.
+- The Livestock tab's milk fullness and wool progress columns treated animals that differed by less than one percentage point as equal, so sorting by them was inexact.
+- The Livestock tab's list of animals to add a job for was ordered by a comparison that depends on letter case and the system's language; it now ignores case.
+- The Power tab's detailed legend could draw bars with an invalid width when the largest value was zero, or a negative or overlong bar when a value fell outside the scale; bars are now kept between empty and full.
+- Shortcut toggles for an empty group of options, such as a Mining, Forestry or Hunting group with nothing in it, and the header toggles in the gravship job picker, showed as checked when there was nothing to check.
 
 ## [0.19.1] - 2026-09-20
 

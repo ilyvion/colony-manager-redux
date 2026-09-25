@@ -36,6 +36,26 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
 
     protected override void PostSelect() => selectedLog = null;
 
+    /// <summary>
+    /// The logs to list, newest first: only those matching <paramref name="forSelectedJob"/>
+    /// when one is given, and without the ones that did no work unless
+    /// <paramref name="showNoWork"/>.
+    /// </summary>
+    internal static IEnumerable<T> VisibleLogs<T>(
+        IEnumerable<T> logsOldestFirst,
+        Func<T, bool>? forSelectedJob,
+        bool showNoWork,
+        Func<T, bool> workDone
+    )
+    {
+        var logs = logsOldestFirst;
+        if (forSelectedJob != null)
+        {
+            logs = logs.Where(forSelectedJob);
+        }
+        return logs.Reverse().Where(l => showNoWork || workDone(l));
+    }
+
     protected override void DoMainContent(Rect rect)
     {
         Widgets.DrawMenuSection(rect);
@@ -46,15 +66,14 @@ internal sealed partial class ManagerTab_Logs(Manager manager)
         var cur = Vector2.zero;
         var i = 0;
 
-        var logs = Manager.Logs();
-        if (Selected != null)
-        {
-            logs = logs.Where(l => l.IsForJob(Selected));
-        }
-
-        var logSettings = ManagerSettings;
+        var selectedJob = Selected;
         foreach (
-            var log in logs.Reverse().Where(l => logSettings.ShowLogsWithNoWorkDone || l.WorkDone)
+            var log in VisibleLogs(
+                Manager.Logs(),
+                selectedJob == null ? null : l => l.IsForJob(selectedJob),
+                ManagerSettings.ShowLogsWithNoWorkDone,
+                l => l.WorkDone
+            )
         )
         {
             var isSelectedLog = selectedLog == log;

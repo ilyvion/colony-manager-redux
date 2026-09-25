@@ -91,9 +91,15 @@ public static class Widgets_Section
 
         var scrollPosition = _columnScrollPositions[identifier];
         var viewportHeight = _columnViewportHeights[identifier];
-        return entryY + entryHeight < scrollPosition.y
-            || entryY > scrollPosition.y + viewportHeight;
+        return IsOutsideViewport(entryY, entryHeight, scrollPosition.y, viewportHeight);
     }
+
+    internal static bool IsOutsideViewport(
+        float entryY,
+        float entryHeight,
+        float scrollY,
+        float viewportHeight
+    ) => entryY + entryHeight < scrollY || entryY > scrollY + viewportHeight;
 
     /// <summary>
     /// Draws a section with a header and content using a generic data source.

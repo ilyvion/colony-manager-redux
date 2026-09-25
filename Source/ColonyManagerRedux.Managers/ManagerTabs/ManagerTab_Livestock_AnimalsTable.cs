@@ -21,6 +21,8 @@ internal partial class ManagerTab_Livestock
 
         protected bool IsCurrentTableWildTable => instance.animalsWildTable.IsCurrentTable();
 
+        internal static int CompareFullness(float a, float b) => a.CompareTo(b);
+
         public override void DoHeader(Rect rect, PawnTable table)
         {
             base.DoHeader(rect, table);
@@ -139,13 +141,8 @@ internal partial class ManagerTab_Livestock
             + "\n\n"
             + base.GetHeaderTip(table);
 
-        public override int Compare(Pawn a, Pawn b)
-        {
-            var milkFullnessA = a.GetMilkFullness() * 100;
-            var milkFullnessB = b.GetMilkFullness() * 100;
-
-            return (int)(milkFullnessA - milkFullnessB);
-        }
+        public override int Compare(Pawn a, Pawn b) =>
+            CompareFullness(a.GetMilkFullness(), b.GetMilkFullness());
 
         public override bool VisibleCurrently =>
             !IsCurrentTableWildTable
@@ -182,13 +179,8 @@ internal partial class ManagerTab_Livestock
             + "\n\n"
             + base.GetHeaderTip(table);
 
-        public override int Compare(Pawn a, Pawn b)
-        {
-            var woolFullnessA = a.GetWoolFullness() * 100;
-            var woolFullnessB = b.GetWoolFullness() * 100;
-
-            return (int)(woolFullnessA - woolFullnessB);
-        }
+        public override int Compare(Pawn a, Pawn b) =>
+            CompareFullness(a.GetWoolFullness(), b.GetWoolFullness());
 
         public override bool VisibleCurrently =>
             !IsCurrentTableWildTable

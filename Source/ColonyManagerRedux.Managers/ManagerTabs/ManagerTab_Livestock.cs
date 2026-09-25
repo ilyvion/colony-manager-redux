@@ -1678,18 +1678,34 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
         // concatenate lists of animals on biome and animals in colony.
         _availablePawnKinds.Clear();
         _availablePawnKinds.AddRange(
-            Manager
-                .map.Biome.AllWildAnimals.Concat(
-                    Manager
-                        .map.mapPawns.AllPawns.Where(p => p.RaceProps.Animal)
-                        .Select(p => p.kindDef)
-                )
-                // get distinct pawnkinds from the merges
-                .Distinct()
-                // remove already managed pawnkinds
-                .Where(pk => !currentJobs.Select(job => job.TriggerPawnKind.pawnKind).Contains(pk))
-                // order by label
-                .OrderBy(def => def.LabelCap.RawText)
+            AvailableKinds(
+                Manager.map.Biome.AllWildAnimals,
+                Manager.map.mapPawns.AllPawns.Where(p => p.RaceProps.Animal).Select(p => p.kindDef),
+                currentJobs.Select(job => job.TriggerPawnKind.pawnKind),
+                def => def.LabelCap.RawText
+            )
         );
+    }
+
+    /// <summary>
+    /// The kinds to offer for a new livestock job: the wild and colony kinds, each once, minus
+    /// the already <paramref name="managed"/> ones, ordered by label ignoring case.
+    /// </summary>
+    internal static List<T> AvailableKinds<T>(
+        IEnumerable<T> wild,
+        IEnumerable<T> colony,
+        IEnumerable<T?> managed,
+        Func<T, string> label
+    )
+        where T : class
+    {
+        var managedSet = managed.ToHashSet();
+        return
+        [
+            .. wild.Concat(colony)
+                .Distinct()
+                .Where(kind => !managedSet.Contains(kind))
+                .OrderBy(label, StringComparer.OrdinalIgnoreCase),
+        ];
     }
 }

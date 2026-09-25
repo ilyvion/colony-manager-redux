@@ -72,6 +72,69 @@ public class DetailedLegendRenderer : IExposable
     private readonly List<History.Chapter> _tmpChaptersOrdered = [];
 
     /// <summary>
+    /// Filters the chapters down to those with a positive (or negative, when
+    /// <paramref name="negativeOnly"/>) value in the shown period, ordered by their last value
+    /// (times the sign), descending.
+    /// </summary>
+    internal static List<T> SelectLegendChapters<T>(
+        IEnumerable<T> chapters,
+        Func<T, IEnumerable<int>> countsInPeriod,
+        Func<T, int> last,
+        bool positiveOnly,
+        bool negativeOnly
+    )
+    {
+        var sign = negativeOnly ? -1 : 1;
+        return
+        [
+            .. chapters
+                .Where(chapter => !positiveOnly || countsInPeriod(chapter).Any(i => i > 0))
+                .Where(chapter => !negativeOnly || countsInPeriod(chapter).Any(i => i < 0))
+                .OrderByDescending(chapter => last(chapter) * sign),
+        ];
+    }
+
+    /// <summary>
+    /// The value a full bar represents: the explicit <paramref name="explicitMax"/> if given,
+    /// else the largest true maximum when max markers are drawn, else the first chapter's last
+    /// value (times the sign). Zero when there is nothing to base it on.
+    /// </summary>
+    internal static float ComputeLegendMax(
+        int? explicitMax,
+        bool drawMaxMarkers,
+        IEnumerable<int> trueMaxes,
+        int? firstLast,
+        int sign
+    )
+    {
+        if (explicitMax.HasValue)
+        {
+            return explicitMax.Value;
+        }
+
+        if (drawMaxMarkers)
+        {
+            var any = false;
+            var largest = int.MinValue;
+            foreach (var trueMax in trueMaxes)
+            {
+                any = true;
+                largest = Math.Max(largest, trueMax);
+            }
+            return any ? largest : 0;
+        }
+
+        return (firstLast * sign) ?? 0;
+    }
+
+    /// <summary>
+    /// The fraction of a bar to fill for <paramref name="count"/>, in [0, 1]. Zero when the
+    /// <paramref name="denominator"/> is not positive.
+    /// </summary>
+    internal static float BarFraction(int count, int sign, float denominator) =>
+        denominator > 0 ? Mathf.Clamp01(count * sign / denominator) : 0f;
+
+    /// <summary>
     /// Draws the detailed legend for the given history, with options for filtering and display.
     /// </summary>
     /// <param name="history">The history to render the legend for.</param>
@@ -98,14 +161,13 @@ public class DetailedLegendRenderer : IExposable
         var sign = negativeOnly ? -1 : 1;
 
         _tmpChaptersOrdered.AddRange(
-            history
-                ._chapters.Where(chapter =>
-                    !positiveOnly || chapter.counts[(int)history.PeriodShown].Any(i => i > 0)
-                )
-                .Where(chapter =>
-                    !negativeOnly || chapter.counts[(int)history.PeriodShown].Any(i => i < 0)
-                )
-                .OrderByDescending(chapter => chapter.Last(history.PeriodShown).count * sign)
+            SelectLegendChapters(
+                history._chapters,
+                chapter => chapter.counts[(int)history.PeriodShown],
+                chapter => chapter.Last(history.PeriodShown).count,
+                positiveOnly,
+                negativeOnly
+            )
         );
         using var _clear = new DoOnDispose(_tmpChaptersOrdered.Clear);
 
@@ -127,14 +189,13 @@ public class DetailedLegendRenderer : IExposable
         }
 
         // max
-        float _max =
-            max
-            ?? (
-                DrawMaxMarkers
-                    ? _tmpChaptersOrdered.Max(chapter => chapter.TrueMax)
-                    : _tmpChaptersOrdered.FirstOrDefault()?.Last(history.PeriodShown).count * sign
-            )
-            ?? 0;
+        var _max = ComputeLegendMax(
+            max,
+            DrawMaxMarkers,
+            _tmpChaptersOrdered.Select(chapter => chapter.TrueMax),
+            _tmpChaptersOrdered.FirstOrDefault()?.Last(history.PeriodShown).count,
+            sign
+        );
 
         // cell height
         var height = 30f;
@@ -191,15 +252,11 @@ public class DetailedLegendRenderer : IExposable
             var barBox = bar.ContractedBy((height - barHeight) / 2f);
             var barFill = barBox.ContractedBy(2f);
             var maxWidth = barFill.width;
-            if (MaxPerChapter)
-            {
-                barFill.width *=
-                    chapter.Last(history.PeriodShown).count * sign / (float)chapter.TrueMax;
-            }
-            else
-            {
-                barFill.width *= chapter.Last(history.PeriodShown).count * sign / _max;
-            }
+            barFill.width *= BarFraction(
+                chapter.Last(history.PeriodShown).count,
+                sign,
+                MaxPerChapter ? chapter.TrueMax : _max
+            );
 
             GUI.BeginGroup(viewRect);
 
@@ -231,7 +288,9 @@ public class DetailedLegendRenderer : IExposable
             if (DrawMaxMarkers)
             {
                 var ghostBarFill = barFill;
-                ghostBarFill.width = MaxPerChapter ? maxWidth : maxWidth * (chapter.TrueMax / _max);
+                ghostBarFill.width = MaxPerChapter
+                    ? maxWidth
+                    : maxWidth * BarFraction(chapter.TrueMax, 1, _max);
                 GUI.color = new Color(1f, 1f, 1f, .2f);
                 GUI.DrawTexture(ghostBarFill, chapter.Texture); // coloured texture
                 GUI.color = Color.white;
@@ -352,7 +411,7 @@ public class DetailedLegendRenderer : IExposable
         Scribe_Values.Look(ref _drawIcons, "drawIcons", true);
         Scribe_Values.Look(ref _drawCounts, "drawCounts", true);
         Scribe_Values.Look(ref _drawInfoInBar, "drawInfoInBar");
-        Scribe_Values.Look(ref _drawMaxMarkers, "drawMaxMarkers", true);
+        Scribe_Values.Look(ref _drawMaxMarkers, "drawMaxMarkers");
         Scribe_Values.Look(ref _maxPerChapter, "maxPerChapter");
     }
 }

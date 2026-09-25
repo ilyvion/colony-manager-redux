@@ -568,6 +568,29 @@ public static class Utilities
         DrawToggle(rect, label, tooltip, checkOn, !checkOn, on, off, expensive, size, margin, wrap);
 
     /// <summary>
+    /// Works out the tri-state of a group toggle: <c>allOn</c> when the group is non-empty and
+    /// every option is selected, <c>allOff</c> when no option is selected (always true for an
+    /// empty group).
+    /// </summary>
+    internal static (bool allOn, bool allOff) ToggleState<T>(
+        IReadOnlyCollection<T> options,
+        ISet<T> selected
+    )
+    {
+        if (options == null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+        if (selected == null)
+        {
+            throw new ArgumentNullException(nameof(selected));
+        }
+
+        var allOn = options.Count > 0 && options.All(selected.Contains);
+        return (allOn, options.All(option => !selected.Contains(option)));
+    }
+
+    /// <summary>
     /// Draws a toggle UI element at the specified rectangle, allowing the user to enable or disable a boolean value,
     /// and invokes the specified actions when toggled on or off, supporting partial selection state.
     /// </summary>

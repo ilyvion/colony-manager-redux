@@ -774,8 +774,7 @@ public abstract class ManagerTab(Manager manager)
             throw new ArgumentNullException(nameof(selected));
         }
 
-        var allSelected = options.All(selected.Contains);
-        var noneSelected = options.All(p => !selected.Contains(p));
+        var (allSelected, noneSelected) = Utilities.ToggleState(options, selected);
 
         Utilities.DrawToggle(
             rect,

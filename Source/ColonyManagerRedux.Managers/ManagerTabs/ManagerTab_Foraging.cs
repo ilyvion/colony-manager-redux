@@ -197,6 +197,11 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         return sb.ToString();
     }
 
+    internal static bool IsEdible(ThingDef plant) =>
+        plant.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false;
+
+    internal static bool IsMushroom(ThingDef plant) => plant.plant?.cavePlant ?? false;
+
     private readonly List<ThingDef> _tmpThings = [];
 
     public float DrawPlantShortcuts(Vector2 pos, float width)
@@ -223,9 +228,7 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         // toggle edible
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(
-            allPlants.Where(p => p.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false)
-        );
+        _tmpThings.AddRange(allPlants.Where(IsEdible));
         DrawShortcutToggle(
             _tmpThings,
             allowedPlants,
@@ -238,7 +241,7 @@ internal sealed class ManagerTab_Foraging(Manager manager)
         // toggle shrooms
         rowRect.y += ListEntryHeight;
         _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => p.plant?.cavePlant ?? false));
+        _tmpThings.AddRange(allPlants.Where(IsMushroom));
         DrawShortcutToggle(
             _tmpThings,
             allowedPlants,
