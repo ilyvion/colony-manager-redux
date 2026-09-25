@@ -184,7 +184,9 @@ internal sealed class ManagerJob_Power
 
     internal History tradingHistory;
 
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
     private readonly CachedValue<bool> _cachedAnyPoweredStationOnline = new(false);
+#pragma warning restore CS0618
     public bool AnyPoweredStationOnline
     {
         get
@@ -213,6 +215,7 @@ internal sealed class ManagerJob_Power
     public ManagerJob_Power(Manager manager)
         : base(manager)
     {
+        _cachedAnyPoweredStationOnline.Invalidate();
         cachedTradeCounts = new(ComputeTradeCounts);
         cachedBatteryCount = new(() => _batteries.SelectMany(b => b).Count());
         tradingHistory =

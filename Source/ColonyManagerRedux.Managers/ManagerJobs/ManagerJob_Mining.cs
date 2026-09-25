@@ -151,9 +151,11 @@ internal sealed class ManagerJob_Mining
     private const int RoofSupportGridSpacing = 5;
 
     internal MultiTickCachedValue<int> ChunksCachedValue { get; }
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
     private readonly CachedValue<ChunkProcessingKind> _chunkProductKindCachedValue = new(
         ChunkProcessingKind.Neither
     );
+#pragma warning restore CS0618
 
     internal MultiTickCachedValue<int> DesignatedCachedValue { get; }
 
@@ -292,6 +294,7 @@ internal sealed class ManagerJob_Mining
         : base(manager)
     {
         _cachedDeepDrills = new(() => DeepDrills);
+        _chunkProductKindCachedValue.Invalidate();
         ChunksCachedValue = new(0, GetCountInChunksCoroutine);
         DesignatedCachedValue = new(0, GetCountInDesignationsCoroutine);
         // populate the trigger field
@@ -400,7 +403,9 @@ internal sealed class ManagerJob_Mining
         }
         else
         {
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
             _roofSupportCache.Add(key, new CachedValue<bool>(result, RoofSupportCacheTicks));
+#pragma warning restore CS0618
         }
 
         return result;
@@ -1117,7 +1122,9 @@ internal sealed class ManagerJob_Mining
         }
         else
         {
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
             _roomDividerCache.Add(position, new CachedValue<bool>(result, RoomDividerCacheTicks));
+#pragma warning restore CS0618
         }
 
         return result;

@@ -163,7 +163,9 @@ internal static class Utilities_Livestock
         else
         {
             // severely limit cache to only apply for one cycle (one job)
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
             followerCache.Add(pawn, new(cached, 2));
+#pragma warning restore CS0618
         }
 
         return cached;
@@ -259,7 +261,9 @@ internal static class Utilities_Livestock
         else
         {
             // severely limit cache to only apply for one cycle (one job)
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
             masterCache.Add(key, new(cached, 2));
+#pragma warning restore CS0618
         }
 
         cached.Shuffle();
@@ -416,7 +420,9 @@ internal static class Utilities_Livestock
         }
 
         ret = pawnKind.race.comps.OfType<CompProperties_Milkable>().Any(cp => cp.milkDef != null);
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
         MilkablePawnKindCache.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
+#pragma warning restore CS0618
         return ret;
     }
 
@@ -437,7 +443,9 @@ internal static class Utilities_Livestock
         }
 
         var ret = pawn.IsPawnMilkable();
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
         milkablePawnCache.Add(pawn, new CachedValue<bool>(ret, 5000));
+#pragma warning restore CS0618
         return ret;
     }
 
@@ -486,7 +494,9 @@ internal static class Utilities_Livestock
         }
 
         ret = pawnKind.race.comps.OfType<CompProperties_Shearable>().Any(cp => cp.woolDef != null);
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
         ShearablePawnKindCache.Add(pawnKind, new CachedValue<bool>(ret, int.MaxValue));
+#pragma warning restore CS0618
         return ret;
     }
 
@@ -507,7 +517,9 @@ internal static class Utilities_Livestock
         }
 
         var ret = pawn.IsPawnShearable();
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
         shearablePawnCache.Add(pawn, new CachedValue<bool>(ret, 5000));
+#pragma warning restore CS0618
         return ret;
     }
 

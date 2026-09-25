@@ -130,6 +130,7 @@ public sealed class Trigger_Threshold : Trigger
                 nameof(supportedOps)
             );
         }
+        _cachedCurrentCount.Invalidate();
         _supportedOps = supportedOps;
         _supportedOpsSet = [.. supportedOps];
 
@@ -270,7 +271,9 @@ public sealed class Trigger_Threshold : Trigger
     /// Gets the filter used to determine which things are counted toward the threshold.
     /// </summary>
     public ThingFilter ThresholdFilter => thresholdFilter;
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
     private readonly CachedValue<int> _cachedCurrentCount = new(0);
+#pragma warning restore CS0618
 
     private string? _stockpile_scribe;
 
@@ -324,6 +327,7 @@ public sealed class Trigger_Threshold : Trigger
                 nameof(supportedOps)
             );
         }
+        _cachedCurrentCount.Invalidate();
         _supportedOps = supportedOps;
         _supportedOpsSet = [.. _supportedOps];
 

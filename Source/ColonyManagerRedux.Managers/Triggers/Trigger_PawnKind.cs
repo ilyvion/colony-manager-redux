@@ -8,7 +8,9 @@ namespace ColonyManagerRedux.Managers;
 internal sealed class Trigger_PawnKind : Trigger
 {
     private readonly CachedValue<string> _cachedTooltip;
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
     private readonly CachedValue<bool> _cachedState = new(false);
+#pragma warning restore CS0618
 
     public int[] CountTargets;
     public PawnKindDef? pawnKind;
@@ -28,6 +30,7 @@ internal sealed class Trigger_PawnKind : Trigger
         CountTargets = [.. Utilities_Livestock.AgeSexArray.Select(_ => 5)];
 
         _cachedTooltip = new CachedValue<string>(GetTooltip);
+        _cachedState.Invalidate();
     }
 
     public int[] Counts =>

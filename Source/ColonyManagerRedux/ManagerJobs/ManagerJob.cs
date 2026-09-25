@@ -1112,7 +1112,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         }
         else
         {
+#pragma warning disable CS0618 // TODO: Use CachedValue's 'updated' constructor once Laboratory v0.25 has been out for a while.
             var cache = new CachedValue<bool>(result, ReachabilityCacheTicks);
+#pragma warning restore CS0618
             _ = cache.Update(result);
             _reachabilityCache.Add(key, cache);
         }
