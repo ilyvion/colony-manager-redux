@@ -380,6 +380,48 @@ internal sealed class ManagerJobMiningPlanExecuteSceneTests
         Expect.IsFalse(workDone.Value);
     }
 
+    [Test]
+    public static void ExecuteAddSkipsTargetsAlreadyDesignatedByAnotherActor()
+    {
+        using var scene = new ManagerScene();
+        var job = NewJob(scene);
+        var vein = (Mineable)scene.SpawnThing(SteelVein, Slot(scene, 0));
+        var data = new MiningWorkData
+        {
+            Kind = MiningWorkKind.AddDesignations,
+            DesignationsToAdd = [(vein, DesignationDefOf.Mine, 10, 10)],
+        };
+        var log = NewLog(job);
+        scene.Map.designationManager.AddDesignation(new Designation(vein, DesignationDefOf.Mine));
+
+        ManagerScene.RunToCompletion(job.ExecuteAddDesignations(log, data, new Boxed<bool>()));
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+    }
+
+    [Test]
+    public static void ExecuteAddSkipsTargetsDespawnedSincePlanning()
+    {
+        using var scene = new ManagerScene();
+        var job = NewJob(scene);
+        var wall = (Building)
+            scene.SpawnThing(ThingDefOf.Wall, Slot(scene, 0), stuff: ThingDefOf.Steel);
+        var data = new MiningWorkData
+        {
+            Kind = MiningWorkKind.AddDesignations,
+            DesignationsToAdd = [(wall, DesignationDefOf.Deconstruct, 10, 10)],
+        };
+        var log = NewLog(job);
+        wall.DeSpawn();
+
+        ManagerScene.RunToCompletion(job.ExecuteAddDesignations(log, data, new Boxed<bool>()));
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        wall.Destroy();
+    }
+
     // ExecuteDrillFlicks
 
     private static (Building Drill, CompFlickable Flickable) Drill(

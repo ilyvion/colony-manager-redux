@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Livestock tab's list of animals to add a job for was ordered by a comparison that depends on letter case and the system's language; it now ignores case.
 - The Power tab's detailed legend could draw bars with an invalid width when the largest value was zero, or a negative or overlong bar when a value fell outside the scale; bars are now kept between empty and full.
 - Shortcut toggles for an empty group of options, such as a Mining, Forestry or Hunting group with nothing in it, and the header toggles in the gravship job picker, showed as checked when there was nothing to check.
+- The Hunting, Foraging, Forestry and Mining jobs could log a 'double-add designation' error, or designate an animal that had died or a target that had left the map, when the target was designated or removed between the job planning its work and carrying it out. Such targets are now skipped.
+- The stockpile selector kept showing the old colour swatches when a stockpile was replaced by one of a different colour.
 
 ## [0.19.1] - 2026-09-20
 

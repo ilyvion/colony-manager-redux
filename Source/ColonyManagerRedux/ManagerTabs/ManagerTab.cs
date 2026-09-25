@@ -562,15 +562,21 @@ public abstract class ManagerTab(Manager manager)
     // very expensive for long, untruncated strings (e.g. job sub-labels listing hundreds of
     // targets). Cache results per (text, width) pair so repeated draws of the same job/window
     // size don't repeat that work every frame.
+    private const int MaxCachedTruncateStrings = 200;
+    private const int MaxCachedTruncateWidths = 32;
     private readonly Dictionary<float, Dictionary<string, string>> _truncateCache = [];
 
     private string TruncateCached(string text, float width)
     {
         if (!_truncateCache.TryGetValue(width, out var cache))
         {
+            if (_truncateCache.Count >= MaxCachedTruncateWidths)
+            {
+                _truncateCache.Clear();
+            }
             _truncateCache[width] = cache = [];
         }
-        else if (cache.Count >= 200)
+        else if (cache.Count >= MaxCachedTruncateStrings)
         {
             cache.Clear();
         }

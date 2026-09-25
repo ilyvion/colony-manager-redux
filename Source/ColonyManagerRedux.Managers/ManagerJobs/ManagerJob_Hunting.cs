@@ -1104,9 +1104,12 @@ internal sealed class ManagerJob_Hunting
         foreach (var (animal, yieldAmount, countAfter) in data.DesignationsToAdd)
         {
             // The target planned for designation during gather may have been destroyed,
-            // despawned, or killed by the time the (now much later) execute phase actually
-            // runs; re-validate before designating it.
-            if (animal.DestroyedOrNull())
+            // despawned, killed, or designated by someone else by the time the (now much later)
+            // execute phase actually runs; re-validate before designating it.
+            if (
+                animal.Dead
+                || !Utilities_Planning.CanStillDesignate(animal, Manager.map, DesignationDefOf.Hunt)
+            )
             {
                 continue;
             }

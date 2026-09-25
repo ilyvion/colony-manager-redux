@@ -490,4 +490,163 @@ internal sealed class ManagerJobGatheringSceneTests
             scene.Map.designationManager.DesignationOn(potted, DesignationDefOf.CutPlant)
         );
     }
+
+    // Execute-add re-validation
+
+    private static void ExecuteHuntingAdd(ManagerJob_Hunting job, Pawn animal, ManagerLog log) =>
+        ManagerScene.RunToCompletion(
+            job.ExecuteAddDesignations(
+                log,
+                new ManagerJob_Hunting.HuntingWorkData { DesignationsToAdd = [(animal, 10, 10)] },
+                new Boxed<bool>()
+            )
+        );
+
+    private static void ExecuteForagingAdd(ManagerJob_Foraging job, Plant plant, ManagerLog log) =>
+        ManagerScene.RunToCompletion(
+            job.ExecuteAddDesignations(
+                log,
+                new ManagerJob_Foraging.ForagingWorkData { DesignationsToAdd = [(plant, 10, 10)] },
+                100,
+                1,
+                new Boxed<bool>()
+            )
+        );
+
+    private static void ExecuteForestryAdd(ManagerJob_Forestry job, Plant tree, ManagerLog log) =>
+        ManagerScene.RunToCompletion(
+            job.ExecuteAddDesignations(
+                log,
+                new ManagerJob_Forestry.ForestryWorkData { DesignationsToAdd = [(tree, 10, 10)] },
+                new Boxed<bool>()
+            )
+        );
+
+    [Test]
+    public static void HuntingExecuteAddSkipsAnimalDespawnedSincePlanning()
+    {
+        using var scene = new ManagerScene();
+        var job = NewHunting(scene);
+        var animal = WildPrey(scene, 0);
+        var log = NewLog(job);
+        animal.DeSpawn();
+
+        ExecuteHuntingAdd(job, animal, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        animal.Destroy();
+    }
+
+    [Test]
+    public static void HuntingExecuteAddSkipsAnimalKilledSincePlanning()
+    {
+        using var scene = new ManagerScene();
+        var job = NewHunting(scene);
+        var animal = WildPrey(scene, 0);
+        var log = NewLog(job);
+        animal.Kill(null);
+        animal.Corpse.Destroy();
+
+        ExecuteHuntingAdd(job, animal, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+    }
+
+    [Test]
+    public static void HuntingExecuteAddSkipsAnimalAlreadyDesignatedForHunting()
+    {
+        using var scene = new ManagerScene();
+        var job = NewHunting(scene);
+        var animal = WildPrey(scene, 0);
+        var log = NewLog(job);
+        _ = Designate(scene, animal, DesignationDefOf.Hunt);
+
+        ExecuteHuntingAdd(job, animal, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        Expect.AreEqual(1, GameDesignations(scene, DesignationDefOf.Hunt));
+    }
+
+    [Test]
+    public static void ForagingExecuteAddSkipsPlantDespawnedSincePlanning()
+    {
+        using var scene = new ManagerScene();
+        var job = NewForaging(scene);
+        var plant = Grown(scene, Bush, 0, 1);
+        var log = NewLog(job);
+        plant.DeSpawn();
+
+        ExecuteForagingAdd(job, plant, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        plant.Destroy();
+    }
+
+    [Test]
+    public static void ForagingExecuteAddSkipsPlantAlreadyDesignatedForHarvest()
+    {
+        using var scene = new ManagerScene();
+        var job = NewForaging(scene);
+        var plant = Grown(scene, Bush, 0, 1);
+        var log = NewLog(job);
+        _ = Designate(scene, plant, DesignationDefOf.HarvestPlant);
+
+        ExecuteForagingAdd(job, plant, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        Expect.AreEqual(1, GameDesignations(scene, DesignationDefOf.HarvestPlant));
+    }
+
+    [Test]
+    public static void ForestryExecuteAddSkipsTreeDespawnedSincePlanning()
+    {
+        using var scene = new ManagerScene();
+        var job = NewForestry(scene);
+        var tree = Grown(scene, Oak, 0, 2);
+        var log = NewLog(job);
+        tree.DeSpawn();
+
+        ExecuteForestryAdd(job, tree, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        tree.Destroy();
+    }
+
+    [Test]
+    public static void ForestryExecuteAddSkipsTreeAlreadyDesignatedForHarvest()
+    {
+        using var scene = new ManagerScene();
+        var job = NewForestry(scene);
+        var tree = Grown(scene, Oak, 0, 2);
+        var log = NewLog(job);
+        _ = Designate(scene, tree, DesignationDefOf.HarvestPlant);
+
+        ExecuteForestryAdd(job, tree, log);
+
+        Expect.IsEmpty(job.Designations);
+        Expect.IsEmpty(log.Details);
+        Expect.AreEqual(1, GameDesignations(scene, DesignationDefOf.HarvestPlant));
+    }
+
+    [Test]
+    public static void ExecuteAddStillDesignatesAFreshSpawnedTarget()
+    {
+        using var scene = new ManagerScene();
+        var job = NewForestry(scene);
+        var tree = Grown(scene, Oak, 0, 2);
+        var log = NewLog(job);
+
+        ExecuteForestryAdd(job, tree, log);
+
+        Expect.AreEqual(1, job.Designations.Count);
+        Expect.IsNotNull(
+            scene.Map.designationManager.DesignationOn(tree, DesignationDefOf.HarvestPlant)
+        );
+    }
 }

@@ -46,6 +46,10 @@
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.AddRelevantGameDesignations" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Forestry.PlanClearAreaDesignations" />
         <Publicize Include="Assembly-CSharp:RimWorld.CompFlickable.wantSwitchOn" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Building_GravEngine.allConnectedSubstructure" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Building_GravEngine.substructureDirty" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Planet.Gravship.things" />
+        <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.ManagerTab._truncateCache" />
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_PlayerSettings.master" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.WouldCollapseIfSupportDestroyed" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.AddDesignation" />
@@ -54,6 +58,9 @@
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.ExecuteAddDesignations" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.ExecuteDrillFlicks" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.AddDesignation" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.ExecuteAddDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Foraging.ExecuteAddDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Forestry.ExecuteAddDesignations" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.PlanUnforbidCorpses" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.GetMeatInCorpsesCoroutine" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.GetLeatherInCorpsesCoroutine" />

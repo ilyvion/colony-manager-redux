@@ -6,6 +6,20 @@ namespace ColonyManagerRedux.Managers;
 internal static class Utilities_Planning
 {
     /// <summary>
+    /// Whether a target planned for a <paramref name="def"/> designation during gather can still
+    /// receive one at execute time: it must still exist, be spawned on <paramref name="map"/>, and
+    /// not already carry a designation of that def (at its cell, for cell-targeted defs).
+    /// </summary>
+    internal static bool CanStillDesignate(Thing? target, Map map, DesignationDef def) =>
+        target is { Destroyed: false, Spawned: true }
+        && target.Map == map
+        && (
+            def.targetType == TargetType.Cell
+                ? map.designationManager.DesignationAt(target.Position, def)
+                : map.designationManager.DesignationOn(target, def)
+        ) == null;
+
+    /// <summary>
     /// Walks <paramref name="candidates"/> in order, taking at most <paramref name="limit"/> of
     /// them (all of them when <paramref name="limit"/> is null), and pairs each with the running
     /// count after applying <paramref name="step"/> to <paramref name="startCount"/> once per

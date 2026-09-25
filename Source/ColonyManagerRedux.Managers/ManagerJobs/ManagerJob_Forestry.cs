@@ -1022,9 +1022,15 @@ internal sealed class ManagerJob_Forestry
         foreach (var (tree, yieldAmount, countAfter) in data.DesignationsToAdd)
         {
             // The execute phase is gated behind ~95% of the job's work timer, so the target
-            // planned during gather may have been destroyed, despawned, or hauled away by the
-            // time we get here; re-validate before designating it.
-            if (tree.DestroyedOrNull())
+            // planned during gather may have been destroyed, despawned, or designated by
+            // someone else by the time we get here; re-validate before designating it.
+            if (
+                !Utilities_Planning.CanStillDesignate(
+                    tree,
+                    Manager.map,
+                    DesignationDefOf.HarvestPlant
+                )
+            )
             {
                 continue;
             }

@@ -19,7 +19,11 @@ public static class StockpileGUI
     /// </summary>
     public const int StockPilesPerRow = 2;
 
+    private const int MaxRowsWithoutScroll = 3;
+
     private static List<Texture2D>? textures;
+    private static readonly List<Color> _textureColors = [];
+    private static readonly List<Color> _tmpColors = [];
 
     private static Vector2 _scrollPosition;
     private static readonly List<Zone_Stockpile> _tmpStockpiles = [];
@@ -50,13 +54,21 @@ public static class StockpileGUI
 
         // count + 1 for all stockpiles
         var stockPileCount = _tmpStockpiles.Count + 1;
-        var rowCount = (int)Math.Ceiling((double)stockPileCount / StockPilesPerRow);
-        var needsScrollbars = rowCount > 3;
+        var (rowCount, needsScrollbars) = ComputeGrid(
+            stockPileCount,
+            StockPilesPerRow,
+            MaxRowsWithoutScroll
+        );
         var viewWidth = needsScrollbars ? width - 16f : width;
         var widthPerCell = viewWidth / StockPilesPerRow;
 
         // create colour swatch
-        if (textures == null || textures.Count != stockPileCount - 1)
+        _tmpColors.Clear();
+        foreach (var stockpile in _tmpStockpiles)
+        {
+            _tmpColors.Add(stockpile.color);
+        }
+        if (textures == null || ShouldRebuildTextures(_textureColors, _tmpColors))
         {
             CreateTextures(_tmpStockpiles);
         }
@@ -87,9 +99,15 @@ public static class StockpileGUI
             }
             else
             {
+                var origin = CellOrigin(
+                    j,
+                    StockPilesPerRow,
+                    widthPerCell,
+                    Constants.ListEntryHeight
+                );
                 var stockpileRect = new Rect(
-                    position.x + (j % StockPilesPerRow * widthPerCell),
-                    position.y + (j / StockPilesPerRow * Constants.ListEntryHeight),
+                    position.x + origin.x,
+                    position.y + origin.y,
                     widthPerCell,
                     Constants.ListEntryHeight
                 );
@@ -108,6 +126,51 @@ public static class StockpileGUI
         Text.Font = GameFont.Small;
 
         return rowCount * Constants.ListEntryHeight;
+    }
+
+    /// <summary>
+    /// The number of rows needed to lay out <paramref name="itemCount"/> cells
+    /// <paramref name="perRow"/> to a row, and whether that exceeds
+    /// <paramref name="maxRowsWithoutScroll"/>.
+    /// </summary>
+    internal static (int rows, bool needsScroll) ComputeGrid(
+        int itemCount,
+        int perRow,
+        int maxRowsWithoutScroll
+    )
+    {
+        var rows = (int)Math.Ceiling((double)itemCount / perRow);
+        return (rows, rows > maxRowsWithoutScroll);
+    }
+
+    /// <summary>
+    /// The top-left corner of cell <paramref name="index"/> in a grid of
+    /// <paramref name="perRow"/> cells per row.
+    /// </summary>
+    internal static Vector2 CellOrigin(int index, int perRow, float cellWidth, float rowHeight) =>
+        new(index % perRow * cellWidth, index / perRow * rowHeight);
+
+    /// <summary>
+    /// Whether the cached swatch colours no longer match the current stockpiles' colours, in count
+    /// or in order.
+    /// </summary>
+    internal static bool ShouldRebuildTextures(
+        IReadOnlyList<Color> cached,
+        IReadOnlyList<Color> current
+    )
+    {
+        if (cached.Count != current.Count)
+        {
+            return true;
+        }
+        for (var i = 0; i < current.Count; i++)
+        {
+            if (cached[i] != current[i])
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static bool addedPostDrawSelectionOverlaysAction;
@@ -140,9 +203,11 @@ public static class StockpileGUI
             textures = [];
         }
 
+        _textureColors.Clear();
         foreach (var zone in zones)
         {
             textures.Add(SolidColorMaterials.NewSolidColorTexture(zone.color));
+            _textureColors.Add(zone.color);
         }
     }
 

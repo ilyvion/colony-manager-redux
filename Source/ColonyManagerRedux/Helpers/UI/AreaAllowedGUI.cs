@@ -88,12 +88,8 @@ public static class AreaAllowedGUI
         var assignableAreas = map.areaManager.AllAreas.Where(a => a.AssignableAsAllowed()).ToList();
         var areaCount = 1 + assignableAreas.Count;
 
-        if (areaCount < countPerRow)
-        {
-            countPerRow = areaCount;
-        }
-
-        var areaRows = Mathf.CeilToInt((float)areaCount / countPerRow);
+        var (areaRows, perRow) = ComputeAreaGrid(areaCount, countPerRow);
+        countPerRow = perRow;
         rect.height += (areaRows - 1) * Constants.ListEntryHeight;
         var widthPerArea = rect.width / countPerRow;
 
@@ -184,6 +180,10 @@ public static class AreaAllowedGUI
 
         var assignableAreas = map.areaManager.AllAreas.Where(a => a.AssignableAsAllowed()).ToList();
         var areaCount = assignableAreas.Count;
+        if (areaCount == 0)
+        {
+            return;
+        }
 
         var widthPerArea = rect.width / areaCount;
         Text.WordWrap = false;
@@ -195,25 +195,40 @@ public static class AreaAllowedGUI
             var areaRect = new Rect(rect.x + xOffset, rect.y, widthPerArea, rect.height);
             var status = allowedAreas.Contains(area);
             var newStatus = DoAreaSelector(areaRect, area, status);
-            if (status != newStatus)
-            {
-                // Selection changed
-                if (newStatus)
-                {
-                    // Area should be added
-                    _ = allowedAreas.Add(area);
-                }
-                else
-                {
-                    // Area should be removed
-                    _ = allowedAreas.Remove(area);
-                }
-            }
+            ApplyToggle(allowedAreas, area, status, newStatus);
             areaIndex++;
         }
 
         Text.WordWrap = true;
         Text.Font = GameFont.Small;
+    }
+
+    /// <summary>
+    /// The row count and per-row count for laying out <paramref name="areaCountIncludingNone"/>
+    /// cells. The per-row count is clamped to between 1 and the cell count.
+    /// </summary>
+    internal static (int rows, int perRow) ComputeAreaGrid(
+        int areaCountIncludingNone,
+        int requestedPerRow
+    )
+    {
+        var perRow = Math.Max(1, Math.Min(requestedPerRow, areaCountIncludingNone));
+        var rows = Mathf.CeilToInt((float)areaCountIncludingNone / perRow);
+        return (rows, perRow);
+    }
+
+    /// <summary>
+    /// Adds <paramref name="item"/> to <paramref name="set"/> when it went from off to on, removes
+    /// it when it went from on to off, and leaves the set alone otherwise.
+    /// </summary>
+    internal static void ApplyToggle<T>(HashSet<T> set, T item, bool wasOn, bool nowOn)
+    {
+        if (wasOn == nowOn)
+        {
+            return;
+        }
+
+        _ = nowOn ? set.Add(item) : set.Remove(item);
     }
 
     private static bool DoAreaSelector(Rect rect, Area area, bool status)

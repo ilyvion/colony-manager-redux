@@ -793,9 +793,15 @@ internal sealed class ManagerJob_Foraging
         foreach (var (plant, yieldAmount, countAfter) in data.DesignationsToAdd)
         {
             // The target planned for designation during gather may have been destroyed,
-            // despawned, or hauled away by the time the (now much later) execute phase
-            // actually runs; re-validate before designating it.
-            if (plant.DestroyedOrNull())
+            // despawned, or designated by someone else by the time the (now much later)
+            // execute phase actually runs; re-validate before designating it.
+            if (
+                !Utilities_Planning.CanStillDesignate(
+                    plant,
+                    Manager.map,
+                    DesignationDefOf.HarvestPlant
+                )
+            )
             {
                 continue;
             }
