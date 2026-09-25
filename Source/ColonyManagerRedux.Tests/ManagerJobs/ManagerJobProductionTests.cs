@@ -1016,4 +1016,35 @@ internal sealed class ManagerJobProductionTests
         Expect.IsTrue(first.Contains(meat));
         Expect.IsTrue(second.Contains(meat));
     }
+
+    [Test]
+    public static void ResolvedOutputDefsReturnsTheProductOfASimpleRecipe()
+    {
+        var recipe = DefDatabase<RecipeDef>.GetNamed("Make_ComponentIndustrial");
+
+        var result = ResolvedOutputDefs(recipe).ToList();
+
+        Expect.AreEqual(1, result.Count);
+        Expect.IsTrue(result.Contains(ThingDefOf.ComponentIndustrial));
+    }
+
+    [Test]
+    public static void ResolvedOutputDefsReturnsEveryProductOfACategoryBasedRecipe()
+    {
+        var recipe = DefDatabase<RecipeDef>.GetNamed("ButcherCorpseFlesh");
+
+        var result = ResolvedOutputDefs(recipe).ToList();
+
+        Expect.IsNotEmpty(result);
+        Expect.IsTrue(result.Contains(ThingDefOf.Meat_Human));
+    }
+
+    [Test]
+    public static void ResolvedOutputDefsIsEmptyForARecipeWithoutAResolver()
+    {
+        var recipe = DefDatabase<RecipeDef>.GetNamed("Anesthetize");
+
+        Expect.IsNull(RecipeProductResolvers.ResolverFor(recipe));
+        Expect.IsEmpty(ResolvedOutputDefs(recipe));
+    }
 }

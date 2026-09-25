@@ -3,3 +3,4 @@
 
 [assembly: InternalsVisibleTo("ColonyManagerRedux.AnimalGenetics")]
 [assembly: InternalsVisibleTo("ColonyManagerRedux.Tests")]
+[assembly: InternalsVisibleTo("ColonyManagerRedux.AAAA.Tests")]

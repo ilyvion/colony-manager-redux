@@ -46,6 +46,16 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
+        <Reference Include="AAAA">
+            <HintPath>$(RimWorldSteamWorkshopFolderPath)\3264193512\$(RimWorldVersion)\Assemblies\AAAA.dll</HintPath>
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </Reference>
+        <Publicize Include="AAAA:seekiworks_AllowedAreaAutomaticAdapter.Watcher.AllowedAreaChangeDangerMode" />
+        <Publicize Include="AAAA:seekiworks_AllowedAreaAutomaticAdapter.Watcher.AllowedAreaChangeNormalMode" />
+        <Publicize Include="AAAA:seekiworks_AllowedAreaAutomaticAdapter.Utility.GetSuffix" />
+        <Publicize Include="ColonyManagerRedux.AAAA:ColonyManagerRedux.AAAA.Core.AAAAManagerJobComp.Fields" />
+        <Publicize Include="ColonyManagerRedux.AAAA:ColonyManagerRedux.AAAA.Core.AAAAManagerJobCompField._useAAAAEvacuation" />
         <ProjectReference
             Include="$(ProjectDependenciesBasePath)\Third-Party\DevTools\DevTools\DevTools.csproj"
             AdditionalProperties="OutDir=$(MSBuildThisFileDirectory)..\..\1.6\Assemblies\"

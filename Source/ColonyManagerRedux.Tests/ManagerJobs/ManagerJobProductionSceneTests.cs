@@ -194,4 +194,90 @@ internal sealed class ManagerJobProductionSceneTests
         Expect.IsNotNull(replacement);
         Expect.IsFalse(ReferenceEquals(bill, replacement));
     }
+
+    // Scribing of managed bills
+
+    private sealed class BillsHarness(Manager manager, Bill_Production[] bills, IExposable inner)
+        : IExposable
+    {
+        public void ExposeData()
+        {
+            foreach (var bill in bills)
+            {
+                if (Scribe.mode == LoadSaveMode.Saving)
+                {
+                    Scribe.saver.loadIDsErrorsChecker.RegisterDeepSaved(bill, "bill");
+                }
+                else if (Scribe.mode == LoadSaveMode.LoadingVars)
+                {
+                    Scribe.loader.crossRefs.loadedObjectDirectory.RegisterLoaded(bill);
+                }
+            }
+            new ScribeRoundTrip.ManagerHarness(manager, inner).ExposeData();
+        }
+    }
+
+    private static Bill_Production ManagedBillAfterARun(
+        ManagerScene scene,
+        ManagerJob_Production job
+    )
+    {
+        _ = AddStove(scene, 0);
+        RunJob(scene, job);
+        return job.ManagedBills.Single();
+    }
+
+    [Test]
+    public static void ManagedBillsAreSavedByIdAndResolvedOnLoad()
+    {
+        using var scene = new ManagerScene();
+        var job = AddProductionJob(scene);
+        var bill = ManagedBillAfterARun(scene, job);
+        var loaded = new ScribeRoundTrip.JobListHarness(scene.Manager);
+        Bill_Production[] bills = [bill];
+
+        ScribeRoundTrip.Run(
+            new BillsHarness(
+                scene.Manager,
+                bills,
+                new ScribeRoundTrip.JobListHarness(scene.Manager, [job])
+            ),
+            new BillsHarness(scene.Manager, bills, loaded)
+        );
+
+        var loadedJob = (ManagerJob_Production)loaded.Jobs.Single();
+        Expect.AreEqual(1, loadedJob.ManagedBills.Count);
+        Expect.ReferencesAreEqual(bill, loadedJob.ManagedBills[0]);
+    }
+
+    [Test]
+    public static void ManagedBillsAreNotWrittenWhenTheJobIsExportedToAnotherMap()
+    {
+        using var scene = new ManagerScene();
+        var job = AddProductionJob(scene);
+        var bill = ManagedBillAfterARun(scene, job);
+        var manager = scene.Manager;
+        var previousMap = manager.ScribeSameMapData;
+        var previousGame = manager.ScribeSameGameData;
+        manager.ScribeSameMapData = false;
+        manager.ScribeSameGameData = false;
+        try
+        {
+            var loaded = new ScribeRoundTrip.JobListHarness(manager);
+            Bill_Production[] bills = [bill];
+            var xml = ScribeRoundTrip.Save(
+                new BillsHarness(manager, bills, new ScribeRoundTrip.JobListHarness(manager, [job]))
+            );
+
+            Expect.IsFalse(xml.Contains("managedBills", StringComparison.Ordinal));
+
+            ScribeRoundTrip.Load(xml, new BillsHarness(manager, bills, loaded));
+            Expect.IsEmpty(((ManagerJob_Production)loaded.Jobs.Single()).ManagedBills);
+        }
+        finally
+        {
+            manager.ScribeSameMapData = previousMap;
+            manager.ScribeSameGameData = previousGame;
+        }
+    }
 }

@@ -116,4 +116,79 @@ internal sealed class ManagerJobPowerSceneTests
         Expect.AreEqual(0, job.ConsumerCount);
         Expect.AreEqual(0, job.BatteryCount);
     }
+
+    // Post-import deduplication when a station is online
+
+    private static Building PoweredStation(
+        ManagerScene scene,
+        string defName,
+        int index,
+        bool powered = true
+    )
+    {
+        var station = scene.SpawnBuilding(
+            DefDatabase<ThingDef>.GetNamed(defName),
+            CellFor(scene, 10 + index)
+        );
+        station.GetComp<CompPowerTrader>().PowerOn = powered;
+        return station;
+    }
+
+    [Test]
+    public static void PostImportKeepsTheExistingJobWhenAStationIsOnline()
+    {
+        using var scene = new ManagerScene();
+        var existing = AddPowerJob(scene);
+        _ = PoweredStation(scene, "CM_ManagerStation", 0);
+        var imported = AddPowerJob(scene);
+
+        imported.PostImport();
+
+        Expect.AreEqual(1, scene.Manager.JobTracker.Jobs.Count());
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(existing));
+        Expect.IsFalse(scene.Manager.JobTracker.HasJob(imported));
+    }
+
+    [Test]
+    public static void PostImportKeepsTheFirstOnlineJobAndDropsEveryOtherDuplicate()
+    {
+        using var scene = new ManagerScene();
+        var first = AddPowerJob(scene);
+        _ = AddPowerJob(scene);
+        _ = PoweredStation(scene, "CM_ManagerStation", 0);
+        var imported = AddPowerJob(scene);
+
+        imported.PostImport();
+
+        Expect.AreEqual(1, scene.Manager.JobTracker.Jobs.Count());
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(first));
+    }
+
+    [Test]
+    public static void PostImportTreatsAPoweredAIManagerAsAnOnlineStation()
+    {
+        using var scene = new ManagerScene();
+        var existing = AddPowerJob(scene);
+        _ = PoweredStation(scene, "CM_AIManager", 0);
+        var imported = AddPowerJob(scene);
+
+        imported.PostImport();
+
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(existing));
+        Expect.IsFalse(scene.Manager.JobTracker.HasJob(imported));
+    }
+
+    [Test]
+    public static void PostImportReplacesExistingJobsWhenTheirStationsAreUnpowered()
+    {
+        using var scene = new ManagerScene();
+        _ = AddPowerJob(scene);
+        _ = PoweredStation(scene, "CM_ManagerStation", 0, powered: false);
+        var imported = AddPowerJob(scene);
+
+        imported.PostImport();
+
+        Expect.AreEqual(1, scene.Manager.JobTracker.Jobs.Count());
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(imported));
+    }
 }

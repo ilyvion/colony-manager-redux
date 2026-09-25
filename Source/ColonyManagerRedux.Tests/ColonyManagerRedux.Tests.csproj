@@ -41,6 +41,19 @@
     <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
         <Publicize Include="Assembly-CSharp:Verse.CrossRefHandler.loadedObjectDirectory" />
         <Publicize Include="Assembly-CSharp:Verse.FogGrid.fogGrid" />
+        <Publicize Include="Assembly-CSharp:Verse.ThingFilter.allowedDefs" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.AddRelevantGameDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Forestry.PlanClearAreaDesignations" />
+        <Publicize Include="Assembly-CSharp:RimWorld.CompFlickable.wantSwitchOn" />
+        <Publicize Include="Assembly-CSharp:RimWorld.Pawn_PlayerSettings.master" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.WouldCollapseIfSupportDestroyed" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.AddDesignation" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.PlanReduceDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.ExecuteReduceDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.ExecuteAddDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.ExecuteDrillFlicks" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Livestock.PlanMaster" />
+        <Publicize Include="Assembly-CSharp:RimWorld.PawnColumnWorker_WorkPriority.IsIncapableOfWholeWorkType" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._traderBuildings" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._batteryBuildings" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._traders" />

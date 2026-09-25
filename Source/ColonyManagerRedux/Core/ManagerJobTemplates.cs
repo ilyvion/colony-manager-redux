@@ -96,7 +96,12 @@ public static class ManagerJobTemplates
             }
             catch (Exception ex)
             {
-                GenUI.ErrorDialog("ProblemSavingFile".Translate(ex.ToString()));
+                GenUI.ErrorDialog(
+                    "ProblemSavingFile".Translate(
+                        Path.Combine(GetTemplateSaveLocation(), name + TemplateExtension),
+                        ex.ToString()
+                    )
+                );
                 return;
             }
 
@@ -116,7 +121,10 @@ public static class ManagerJobTemplates
         {
             manager.ScribeSameMapData = previousSameMapData;
             manager.ScribeSameGameData = previousSameGameData;
-            Scribe.saver.FinalizeSaving();
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                Scribe.saver.FinalizeSaving();
+            }
         }
     }
 

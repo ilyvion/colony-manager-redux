@@ -100,6 +100,31 @@ internal sealed class ManagerScene : IDisposable
         return pawn;
     }
 
+    /// <summary>
+    /// Spawns an animal of <paramref name="kind"/> (wild unless <paramref name="faction"/> is
+    /// given) and removes it again on dispose.
+    /// </summary>
+    public Pawn SpawnAnimal(PawnKindDef kind, IntVec3 cell, Faction? faction = null)
+    {
+        var pawn = PawnGenerator.GeneratePawn(kind, faction);
+        _ = GenSpawn.Spawn(pawn, cell, Map);
+        _things.Add(pawn);
+        return pawn;
+    }
+
+    /// <summary>
+    /// Spawns a dead animal of <paramref name="kind"/> and removes its corpse again on dispose.
+    /// </summary>
+    public Corpse SpawnCorpse(PawnKindDef kind, IntVec3 cell)
+    {
+        var pawn = PawnGenerator.GeneratePawn(kind, null);
+        _ = GenSpawn.Spawn(pawn, cell, Map);
+        pawn.Kill(null);
+        var corpse = pawn.Corpse;
+        _things.Add(corpse);
+        return corpse;
+    }
+
     /// <summary>Spawns a colony-owned building and removes it again on dispose.</summary>
     public Building SpawnBuilding(ThingDef def, IntVec3 cell)
     {

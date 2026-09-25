@@ -157,4 +157,36 @@ internal sealed class ManagerJobTemplatesSceneTests
         ManagerJobTemplates.DeleteTemplate(name);
         Expect.IsFalse(ManagerJobTemplates.TemplateExists(name));
     }
+
+    [Test]
+    public static void SaveTemplateWithAnEmptyNameShowsAnErrorDialogAndSavesNothing()
+    {
+        using var scene = new ManagerScene();
+        var job = scene.AddJob<TestManagerJobA>();
+        var namesBefore = ManagerJobTemplates.GetTemplateNames();
+        var windowsBefore = Find.WindowStack.Windows.ToHashSet();
+        try
+        {
+            ManagerJobTemplates.SaveTemplate(scene.Manager, "", [job]);
+
+            var opened = Find.WindowStack.Windows.Where(w => !windowsBefore.Contains(w)).ToList();
+            Expect.AreEqual(1, opened.Count);
+            Expect.IsTrue(opened.All(w => w is Dialog_MessageBox));
+            Expect.That(() => ManagerJobTemplates.GetTemplateNames().SequenceEqual(namesBefore));
+            Expect.IsTrue(scene.Manager.ScribeSameGameData);
+            Expect.IsTrue(scene.Manager.ScribeSameMapData);
+            Expect.AreEqual(LoadSaveMode.Inactive, Scribe.mode);
+        }
+        finally
+        {
+            foreach (
+                var window in Find
+                    .WindowStack.Windows.Where(w => !windowsBefore.Contains(w))
+                    .ToList()
+            )
+            {
+                _ = Find.WindowStack.TryRemove(window, doCloseSound: false);
+            }
+        }
+    }
 }

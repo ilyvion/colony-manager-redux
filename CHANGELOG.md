@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A job with a zero-length custom update interval could draw its update-interval clock in an invalid colour once it was due.
 - The Import button in the import jobs dialog could be enabled while no job was fully selected, importing nothing when clicked.
 - Dragging an Animal Genetics gene slider while all the other genes were weighted at zero could set the other genes to invalid values.
+- The error dialog shown when a job template could not be saved had a garbled message, and the failed save logged an extra error.
+- The Mining job could leave more deconstruct or haul designations in place than needed when it stopped removing mining designations part way through reducing them.
 
 ## [0.19.1] - 2026-09-20
 

@@ -1148,19 +1148,34 @@ internal sealed class ManagerJob_Mining
         }
 
         // check if any adjacent region is more than x regions from any other region
-        for (var i = 0; i < adjacent.Length; i++)
-        {
-            for (var j = i + 1; j < adjacent.Length; j++)
+        return AnyPairFarApart(
+            adjacent,
+            (a, b) =>
             {
                 var path = Manager.map.pathFinder.FindPathCmr(
-                    adjacent[i],
-                    adjacent[j],
+                    a,
+                    b,
                     TraverseParms.For(TraverseMode.NoPassClosedDoors, Danger.Some)
                 );
                 var cost = path.TotalCost;
                 path.ReleaseToPool();
+                return cost;
+            }
+        );
+    }
 
-                if (cost > MaxPathCost)
+    /// <summary>
+    /// Whether any two of <paramref name="cells"/> are more than <see cref="MaxPathCost"/> apart
+    /// according to <paramref name="pathCost"/>: a target between two such cells splits the area
+    /// even when they share a room.
+    /// </summary>
+    internal static bool AnyPairFarApart<T>(IReadOnlyList<T> cells, Func<T, T, float> pathCost)
+    {
+        for (var i = 0; i < cells.Count; i++)
+        {
+            for (var j = i + 1; j < cells.Count; j++)
+            {
+                if (pathCost(cells[i], cells[j]) > MaxPathCost)
                 {
                     return true;
                 }
@@ -1706,6 +1721,7 @@ internal sealed class ManagerJob_Mining
             }
             else
             {
+                count.Value += mineableYield;
                 break;
             }
 
@@ -1756,6 +1772,7 @@ internal sealed class ManagerJob_Mining
                 }
                 else
                 {
+                    count.Value += buildingYield;
                     break;
                 }
 
@@ -1803,6 +1820,7 @@ internal sealed class ManagerJob_Mining
                 }
                 else
                 {
+                    count.Value += chunkCount;
                     break;
                 }
 

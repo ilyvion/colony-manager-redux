@@ -143,4 +143,37 @@ internal sealed class ManagerJobMiningSafetyTests
     [Test]
     public static void RoofedCellWithNoNeighboursCollapses() =>
         Expect.IsTrue(WouldCollapse(true, [], Support, _ => true));
+
+    [Test]
+    public static void PairFartherApartThanTheMaximumPathCostMakesADivider() =>
+        Expect.IsTrue(AnyPairFarApart([1, 2, 3], (a, b) => a == 1 && b == 3 ? 501f : 10f));
+
+    [Test]
+    public static void PairsAtExactlyTheMaximumPathCostDoNotMakeADivider() =>
+        Expect.IsFalse(AnyPairFarApart([1, 2, 3], (_, _) => 500f));
+
+    [Test]
+    public static void FewerThanTwoCellsNeverMakeADivider()
+    {
+        Expect.IsFalse(AnyPairFarApart(Array.Empty<int>(), (_, _) => 10000f));
+        Expect.IsFalse(AnyPairFarApart([1], (_, _) => 10000f));
+    }
+
+    [Test]
+    public static void EveryPairIsComparedOnceAndSearchStopsAtTheFirstFarPair()
+    {
+        var asked = new List<(int, int)>();
+
+        var result = AnyPairFarApart(
+            [1, 2, 3, 4],
+            (a, b) =>
+            {
+                asked.Add((a, b));
+                return a == 2 && b == 3 ? 900f : 0f;
+            }
+        );
+
+        Expect.IsTrue(result);
+        Expect.That(() => asked.SequenceEqual([(1, 2), (1, 3), (1, 4), (2, 3)]));
+    }
 }
