@@ -617,29 +617,28 @@ internal sealed partial class ManagerJob_Livestock
         var animalCounter = -1;
         foreach (var animal in TriggerPawnKind.pawnKind.GetTame(Manager))
         {
-            if (animal.training.HasLearned(TrainableDefOf.Obedience))
+            var decision = DecideFollow(
+                animal.training.HasLearned(TrainableDefOf.Obedience),
+                FollowTraining,
+                () => animal.training.NextTrainableToTrain() != null,
+                Trainers,
+                Masters,
+                SetFollow,
+                FollowDrafted,
+                FollowFieldwork
+            );
+            if (decision.Master == MasterSource.Trainer)
             {
-                if (FollowTraining && animal.training.NextTrainableToTrain() != null)
-                {
-                    if (Trainers != MasterMode.Manual)
-                    {
-                        PlanMaster(animal, Trainers, Trainer, data);
-                        PlanFollowing(animal, false, true, data);
-                    }
-                }
-                // default
-                else
-                {
-                    if (Masters != MasterMode.Manual)
-                    {
-                        PlanMaster(animal, Masters, Master, data);
-                    }
+                PlanMaster(animal, Trainers, Trainer, data);
+            }
+            else if (decision.Master == MasterSource.Default)
+            {
+                PlanMaster(animal, Masters, Master, data);
+            }
 
-                    if (SetFollow)
-                    {
-                        PlanFollowing(animal, FollowDrafted, FollowFieldwork, data);
-                    }
-                }
+            if (decision.SetFollow)
+            {
+                PlanFollowing(animal, decision.Drafted, decision.Fieldwork, data);
             }
 
             if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
@@ -685,13 +684,66 @@ internal sealed partial class ManagerJob_Livestock
         }
 
         if (
-            animal.playerSettings.followDrafted != drafted
-            || animal.playerSettings.followFieldwork != fieldwork
+            FollowSettingsDiffer(
+                animal.playerSettings.followDrafted,
+                animal.playerSettings.followFieldwork,
+                drafted,
+                fieldwork
+            )
         )
         {
             data.FollowSettingsToSet.Add((animal, drafted, fieldwork));
         }
     }
+
+    internal enum MasterSource
+    {
+        None,
+        Trainer,
+        Default,
+    }
+
+    internal readonly record struct FollowDecision(
+        MasterSource Master,
+        bool SetFollow,
+        bool Drafted,
+        bool Fieldwork
+    );
+
+    /// <summary>
+    /// Decides which master and follow settings to plan for an animal. Animals that have not
+    /// learned obedience are left alone; an animal with training left (when following trainers)
+    /// uses the trainer settings, everything else the default settings. A <see
+    /// cref="MasterMode.Manual"/> mode plans no master, and for trainers also no follow.
+    /// </summary>
+    internal static FollowDecision DecideFollow(
+        bool learnedObedience,
+        bool followTraining,
+        Func<bool> hasTrainableLeft,
+        MasterMode trainers,
+        MasterMode masters,
+        bool setFollow,
+        bool followDrafted,
+        bool followFieldwork
+    )
+    {
+        var training = learnedObedience && followTraining && hasTrainableLeft();
+        return !learnedObedience || (training && trainers == MasterMode.Manual) ? default
+            : training ? new(MasterSource.Trainer, true, false, true)
+            : new(
+                masters == MasterMode.Manual ? MasterSource.None : MasterSource.Default,
+                setFollow,
+                followDrafted,
+                followFieldwork
+            );
+    }
+
+    internal static bool FollowSettingsDiffer(
+        bool currentDrafted,
+        bool currentFieldwork,
+        bool drafted,
+        bool fieldwork
+    ) => currentDrafted != drafted || currentFieldwork != fieldwork;
 
     [CoroutineSettingsMethod]
     private Coroutine ExecuteFollowSettings(
@@ -1707,13 +1759,16 @@ internal sealed partial class ManagerJob_Livestock
                     );
                 var animals = CullingPawnSorter(ageSex, animalsUnsorted);
 
-                var animalsEnumerator = animals.GetEnumerator();
-
-                for (var i = 0; i < targetDifference && animalsEnumerator.MoveNext(); i++)
+                foreach (
+                    var (animal, countAfter) in Utilities_Planning.WalkRunningCount(
+                        animalCount,
+                        -1,
+                        targetDifference,
+                        animals
+                    )
+                )
                 {
-                    var animal = animalsEnumerator.Current;
-                    animalCount--;
-                    data.AnimalsToCull.Add((animal, ageSex, animalCount, target));
+                    data.AnimalsToCull.Add((animal, ageSex, countAfter, target));
                 }
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
@@ -1721,10 +1776,16 @@ internal sealed partial class ManagerJob_Livestock
             // plan removing extra designations
             if (targetDifference < 0)
             {
-                foreach (var animal in cullingAction.PeekCullingToStop(ageSex, -targetDifference))
+                foreach (
+                    var (animal, countAfter) in Utilities_Planning.WalkRunningCount(
+                        animalCount,
+                        1,
+                        null,
+                        cullingAction.PeekCullingToStop(ageSex, -targetDifference)
+                    )
+                )
                 {
-                    animalCount++;
-                    data.CullingsToStop.Add((animal, ageSex, animalCount, target));
+                    data.CullingsToStop.Add((animal, ageSex, countAfter, target));
                 }
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
@@ -1879,15 +1940,16 @@ internal sealed partial class ManagerJob_Livestock
                     .ResumeWhenOtherCoroutineIsCompleted();
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-                foreach (var (animal, i) in sortedAnimals.Select((a, i) => (a, i)))
+                foreach (
+                    var (animal, countAfter) in Utilities_Planning.WalkRunningCount(
+                        animalCount,
+                        1,
+                        TamePastTargets ? null : targetDifference,
+                        sortedAnimals
+                    )
+                )
                 {
-                    if (!TamePastTargets && i >= targetDifference)
-                    {
-                        break;
-                    }
-
-                    animalCount++;
-                    data.AnimalsToTame.Add((animal, ageSex, animalCount, target));
+                    data.AnimalsToTame.Add((animal, ageSex, countAfter, target));
 
                     if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
                     {
@@ -1900,15 +1962,15 @@ internal sealed partial class ManagerJob_Livestock
             if (targetDifference < 0 && !TamePastTargets)
             {
                 foreach (
-                    var animal in PeekDesignationsToRemove(
-                        DesignationDefOf.Tame,
-                        ageSex,
-                        -targetDifference
+                    var (animal, countAfter) in Utilities_Planning.WalkRunningCount(
+                        animalCount,
+                        -1,
+                        null,
+                        PeekDesignationsToRemove(DesignationDefOf.Tame, ageSex, -targetDifference)
                     )
                 )
                 {
-                    animalCount--;
-                    data.TamingsToStop.Add((animal, ageSex, animalCount, target));
+                    data.TamingsToStop.Add((animal, ageSex, countAfter, target));
 
                     if (++animalCounter > 0 && animalCounter % operationsPerTick == 0)
                     {

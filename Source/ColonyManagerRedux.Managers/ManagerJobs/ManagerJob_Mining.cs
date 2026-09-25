@@ -413,7 +413,7 @@ internal sealed class ManagerJob_Mining
         Map map
     )
     {
-        if (!position.InBounds(map) || !position.Roofed(map))
+        if (!position.InBounds(map))
         {
             return false;
         }
@@ -422,11 +422,19 @@ internal sealed class ManagerJob_Mining
         var cellIndices = map.cellIndices;
         var innerArray = map.edificeGrid.InnerArray;
 
-        for (var i = 0; i < RoofCollapseUtility.RoofSupportRadialCellsCount; i++)
-        {
-            var candidate = position + GenRadial.RadialPattern[i];
-            if (candidate != support && candidate.InBounds(map))
+        var collapses = WouldCollapse(
+            position.Roofed(map),
+            Enumerable
+                .Range(0, RoofCollapseUtility.RoofSupportRadialCellsCount)
+                .Select(i => position + GenRadial.RadialPattern[i]),
+            support,
+            candidate =>
             {
+                if (!candidate.InBounds(map))
+                {
+                    return false;
+                }
+
                 var building = innerArray[cellIndices.CellToIndex(candidate)];
 #if DEBUG
                 map.debugDrawer.FlashCell(
@@ -436,13 +444,13 @@ internal sealed class ManagerJob_Mining
                     500
                 );
 #endif
-                if (
+                var keepsRoofUp =
                     building != null
                     && building.def.holdsRoof
-                    && !IsDesignatedForRemoval(building, map)
-                )
-                {
+                    && !IsDesignatedForRemoval(building, map);
 #if DEBUG
+                if (keepsRoofUp)
+                {
                     map.debugDrawer.FlashCell(
                         candidate,
                         DebugSolidColorMats.MaterialOf(new Color(0f, 1f, 0f, .1f)),
@@ -455,16 +463,30 @@ internal sealed class ManagerJob_Mining
                         "V",
                         500
                     );
-#endif
-                    return false;
                 }
-            }
-        }
-#if DEBUG
-        map.debugDrawer.FlashCell(position, DebugSolidColorMats.MaterialOf(Color.red), "X");
 #endif
-        return true;
+                return keepsRoofUp;
+            }
+        );
+#if DEBUG
+        if (collapses)
+        {
+            map.debugDrawer.FlashCell(position, DebugSolidColorMats.MaterialOf(Color.red), "X");
+        }
+#endif
+        return collapses;
     }
+
+    /// <summary>
+    /// A roofed cell collapses when no cell in <paramref name="neighbours"/> other than
+    /// <paramref name="support"/> keeps the roof up; an unroofed cell never does.
+    /// </summary>
+    internal static bool WouldCollapse(
+        bool roofed,
+        IEnumerable<IntVec3> neighbours,
+        IntVec3 support,
+        Func<IntVec3, bool> keepsRoofUp
+    ) => roofed && !neighbours.Any(candidate => candidate != support && keepsRoofUp(candidate));
 
     private void AddDesignation(Thing target, DesignationDef designationDef) =>
         AddDesignation(new Designation(target, designationDef));
@@ -1142,7 +1164,14 @@ internal sealed class ManagerJob_Mining
     }
 
     public bool IsAllowedToMineRoofAt(Thing target) =>
-        MineThickRoofs || (!target.Map.roofGrid.RoofAt(target.Position)?.isThickRoof ?? true);
+        IsAllowedToMineRoof(
+            MineThickRoofs,
+            target.Map.roofGrid.RoofAt(target.Position)?.isThickRoof
+        );
+
+    // A null roofIsThick means there is no roof.
+    internal static bool IsAllowedToMineRoof(bool mineThickRoofs, bool? roofIsThick) =>
+        mineThickRoofs || roofIsThick != true;
 
     public bool IsInAllowedArea(Thing target) =>
         Utilities.IsInAllowedArea(MiningArea, target.Position, InvertMiningArea);
@@ -1549,14 +1578,22 @@ internal sealed class ManagerJob_Mining
         ColonyManagerReduxMod.Instance.LogVerboseMessage(
             $"Found {drills.Count} deep drills on map {Manager.map.Tile}"
         );
-        data.ShouldEnableDrills =
-            count != null
-            && TriggerThreshold.GetDirective(count.Value) == Trigger_Threshold.Directive.Increase;
+        data.ShouldEnableDrills = ShouldEnableDrills(
+            count != null,
+            count != null ? TriggerThreshold.GetDirective(count.Value) : default
+        );
 
         foreach (var (building, drill) in drills.Where(d => !d.building.DestroyedOrNull()))
         {
             _ = drill.GetNextResource(out var resDef, out _, out _);
-            if (!Counted(resDef) && !resDef.GetChunkProducts().Any(Counted))
+            var forbidden =
+                building.TryGetComp<CompForbiddable>(out var forbiddable) && forbiddable.Forbidden;
+            var plan = DecideDrill(
+                Counted(resDef),
+                () => resDef.GetChunkProducts().Any(Counted),
+                forbidden
+            );
+            if (plan == DrillPlan.SkipNotCounted)
             {
                 ColonyManagerReduxMod.Instance.LogVerboseMessage(
                     $"Skipping deep drill {building.Label} - not counted because {resDef.label} is not counted"
@@ -1564,7 +1601,7 @@ internal sealed class ManagerJob_Mining
                 continue;
             }
 
-            if (building.TryGetComp<CompForbiddable>(out var forbiddable) && forbiddable.Forbidden)
+            if (plan == DrillPlan.SkipForbidden)
             {
                 ColonyManagerReduxMod.Instance.LogVerboseMessage(
                     $"Skipping deep drill {building.Label} - forbidden"
@@ -1573,7 +1610,6 @@ internal sealed class ManagerJob_Mining
                     "ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill".Translate(resDef.label),
                     building
                 );
-
                 continue;
             }
 
@@ -1583,6 +1619,29 @@ internal sealed class ManagerJob_Mining
             }
         }
     }
+
+    internal enum DrillPlan
+    {
+        Flick,
+        SkipNotCounted,
+        SkipForbidden,
+    }
+
+    internal static bool ShouldEnableDrills(bool hasCount, Trigger_Threshold.Directive directive) =>
+        hasCount && directive == Trigger_Threshold.Directive.Increase;
+
+    /// <summary>
+    /// A drill is only managed when its next resource, or a product of that resource's chunk,
+    /// is counted; a managed drill that is forbidden is skipped.
+    /// </summary>
+    internal static DrillPlan DecideDrill(
+        bool resourceCounted,
+        Func<bool> chunkProductCounted,
+        bool forbidden
+    ) =>
+        !resourceCounted && !chunkProductCounted() ? DrillPlan.SkipNotCounted
+        : forbidden ? DrillPlan.SkipForbidden
+        : DrillPlan.Flick;
 
     [CoroutineSettingsMethod]
     private Coroutine PlanReduceDesignations(
@@ -1787,24 +1846,26 @@ internal sealed class ManagerJob_Mining
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        for (var i = 0; i < sortedChunks.Count; i++)
-        {
-            var chunk = sortedChunks[i];
-            if (
-                TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                    _designations.Count + data.DesignationsToAdd.Count
-                )
+        var i = -1;
+        foreach (
+            var step in Utilities_Planning.WalkAdditions(
+                count.Value,
+                sortedChunks,
+                GetCountInChunk,
+                TriggerThreshold.DoesCountMeetTarget,
+                () =>
+                    ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                        _designations.Count + data.DesignationsToAdd.Count
+                    )
             )
-            {
-                break;
-            }
+        )
+        {
+            count.Value = step.CountAfter;
+            data.DesignationsToAdd.Add(
+                (step.Item, DesignationDefOf.Haul, step.Yield, step.CountAfter)
+            );
 
-            var chunkCount = GetCountInChunk(chunk);
-            count.Value += chunkCount;
-            data.DesignationsToAdd.Add((chunk, DesignationDefOf.Haul, chunkCount, count.Value));
-
-            if (i > 0 && i % operationsPerTick == 0)
+            if (++i > 0 && i % operationsPerTick == 0)
             {
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
@@ -1838,51 +1899,54 @@ internal sealed class ManagerJob_Mining
         var ancientDangerRects = Manager.AncientDangerRects;
         List<LocalTargetInfo> skippedAncientDangerTargets = [];
 
-        for (var i = 0; i < sortedBuildings.Count; i++)
-        {
-            var building = sortedBuildings[i];
-            if (
-                TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                    _designations.Count + data.DesignationsToAdd.Count
-                )
-            )
-            {
-                break;
-            }
-
-            var buildingCount = GetCountInBuilding(building);
-
-            var skipBuilding = false;
-            if (!DeconstructAncientDangerWhenFogged)
-            {
-                for (var j = ancientDangerRects.Count - 1; j >= 0; j--)
+        var i = -1;
+        foreach (
+            var step in Utilities_Planning.WalkAdditions(
+                count.Value,
+                sortedBuildings,
+                GetCountInBuilding,
+                TriggerThreshold.DoesCountMeetTarget,
+                () =>
+                    ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                        _designations.Count + data.DesignationsToAdd.Count
+                    ),
+                building =>
                 {
-                    var ancientDangerRect = ancientDangerRects[j];
-                    if (!ancientDangerRect.CenterCell.Fogged(Manager))
+                    if (DeconstructAncientDangerWhenFogged)
                     {
-                        ancientDangerRects.RemoveAt(j);
-                        continue;
+                        return true;
                     }
 
-                    if (ancientDangerRect.Contains(building.Position))
+                    for (var j = ancientDangerRects.Count - 1; j >= 0; j--)
                     {
-                        skipBuilding = true;
-                        skippedAncientDangerTargets.Add(building);
-                        break;
+                        var ancientDangerRect = ancientDangerRects[j];
+                        if (!ancientDangerRect.CenterCell.Fogged(Manager))
+                        {
+                            ancientDangerRects.RemoveAt(j);
+                            continue;
+                        }
+
+                        if (ancientDangerRect.Contains(building.Position))
+                        {
+                            skippedAncientDangerTargets.Add(building);
+                            return false;
+                        }
                     }
+
+                    return true;
                 }
-            }
-
-            if (!skipBuilding)
+            )
+        )
+        {
+            if (step.Accepted)
             {
-                count.Value += buildingCount;
+                count.Value = step.CountAfter;
                 data.DesignationsToAdd.Add(
-                    (building, DesignationDefOf.Deconstruct, buildingCount, count.Value)
+                    (step.Item, DesignationDefOf.Deconstruct, step.Yield, step.CountAfter)
                 );
             }
 
-            if (i > 0 && i % operationsPerTick == 0)
+            if (++i > 0 && i % operationsPerTick == 0)
             {
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
@@ -1916,30 +1980,30 @@ internal sealed class ManagerJob_Mining
             .ResumeWhenOtherCoroutineIsCompleted();
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
-        for (var i = 0; i < sortedMineable.Count; i++)
-        {
-            var mineable = sortedMineable[i];
-            if (
-                TriggerThreshold.DoesCountMeetTarget(count)
-                || !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                    _designations.Count + data.DesignationsToAdd.Count
-                )
+        var i = -1;
+        foreach (
+            var step in Utilities_Planning.WalkAdditions(
+                count.Value,
+                sortedMineable,
+                GetCountInMineral,
+                TriggerThreshold.DoesCountMeetTarget,
+                () =>
+                    ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
+                        _designations.Count + data.DesignationsToAdd.Count
+                    ),
+                m => !IsARoofSupport_Advanced(m)
             )
+        )
+        {
+            if (step.Accepted)
             {
-                break;
-            }
-
-            var mineableCount = GetCountInMineral(mineable);
-
-            if (!IsARoofSupport_Advanced(mineable))
-            {
-                count.Value += mineableCount;
+                count.Value = step.CountAfter;
                 data.DesignationsToAdd.Add(
-                    (mineable, DesignationDefOf.Mine, mineableCount, count.Value)
+                    (step.Item, DesignationDefOf.Mine, step.Yield, step.CountAfter)
                 );
             }
 
-            if (i > 0 && i % operationsPerTick == 0)
+            if (++i > 0 && i % operationsPerTick == 0)
             {
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }

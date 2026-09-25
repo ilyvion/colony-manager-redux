@@ -836,6 +836,18 @@ internal sealed class ManagerJob_Forestry
         }
     }
 
+    /// <summary>
+    /// A cell is cut only when it has a plant with no designation, whose def is allowed, and that
+    /// is neither in a plant-growing zone nor in a plant grower. The checks are lazy, in that order.
+    /// </summary>
+    internal static bool ShouldPlanClearCut(
+        bool hasPlant,
+        Func<bool> alreadyDesignated,
+        Func<bool> defAllowed,
+        Func<bool> inGrowZone,
+        Func<bool> hasPlantGrower
+    ) => hasPlant && !alreadyDesignated() && defAllowed() && !inGrowZone() && !hasPlantGrower();
+
     [CoroutineSettingsMethod]
     private Coroutine PlanClearAreaDesignations(ManagerLog jobLog, Area area, ForestryWorkData data)
     {
@@ -859,35 +871,24 @@ internal sealed class ManagerJob_Forestry
                 yield return new ResumeAfterTicks(ticksBetweenOperations);
             }
 
-            // confirm there is a plant here that it is a tree and that it has no current designation
             var plant = cell.GetPlant(map);
-
-            // if there is no plant, or there is already a designation here, bail out
-            if (plant == null || designationManager.AllDesignationsOn(plant).Any())
-            {
-                continue;
-            }
-
-            // if the plant is not in the allowed filter
-            if (!AllowedTrees.Contains(plant.def))
-            {
-                continue;
-            }
-
-            // we don't cut stuff in growing zones
-            if (map.zoneManager.ZoneAt(cell) is IPlantToGrowSettable)
-            {
-                continue;
-            }
-
-            // nor in plant pots (or hydroponics)
-            if (map.thingGrid.ThingsListAt(cell).Any(t => t is Building_PlantGrower))
+            if (
+                !ShouldPlanClearCut(
+                    plant != null,
+                    () => designationManager.AllDesignationsOn(plant!).Any(),
+                    () => AllowedTrees.Contains(plant!.def),
+                    // we don't cut stuff in growing zones
+                    () => map.zoneManager.ZoneAt(cell) is IPlantToGrowSettable,
+                    // nor in plant pots (or hydroponics)
+                    () => map.thingGrid.ThingsListAt(cell).Any(t => t is Building_PlantGrower)
+                )
+            )
             {
                 continue;
             }
 
             // there's no reason not to cut it down, so plan to cut it down.
-            data.ClearAreaDesignationsToAdd.Add((plant, area));
+            data.ClearAreaDesignationsToAdd.Add((plant!, area));
             designationsPlanned = true;
         }
 

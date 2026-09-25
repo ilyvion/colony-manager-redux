@@ -144,20 +144,44 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
 
     private List<ManagerJob> GetFilteredJobs()
     {
-        var jobs = Manager.JobTracker.JobsOfType<ManagerJob>();
-
-        if (_hiddenJobTypes.Count > 0)
+        static IEnumerable<string> SearchableTexts(ManagerJob job)
         {
-            jobs = jobs.Where(job => !_hiddenJobTypes.Contains(job.Def));
+            yield return job.Label;
+            yield return job.TargetsLabel;
+            yield return job.Tab.Label;
         }
 
-        if (_quickSearchWidget.filter.Active)
+        return FilterJobs(
+            Manager.JobTracker.JobsOfType<ManagerJob>(),
+            _hiddenJobTypes,
+            job => job.Def,
+            _quickSearchWidget.filter.Active,
+            _quickSearchWidget.filter.Matches,
+            SearchableTexts
+        );
+    }
+
+    /// <summary>
+    /// Drops jobs whose def is hidden, then, when a search is active, keeps those for which any
+    /// of their (lazily produced) searchable texts matches.
+    /// </summary>
+    internal static List<T> FilterJobs<T>(
+        IEnumerable<T> jobs,
+        ICollection<ManagerDef> hidden,
+        Func<T, ManagerDef> defOf,
+        bool searchActive,
+        Func<string, bool> matches,
+        Func<T, IEnumerable<string>> searchableTexts
+    )
+    {
+        if (hidden.Count > 0)
         {
-            jobs = jobs.Where(job =>
-                _quickSearchWidget.filter.Matches(job.Label)
-                || _quickSearchWidget.filter.Matches(job.TargetsLabel)
-                || _quickSearchWidget.filter.Matches(job.Tab.Label)
-            );
+            jobs = jobs.Where(job => !hidden.Contains(defOf(job)));
+        }
+
+        if (searchActive)
+        {
+            jobs = jobs.Where(job => searchableTexts(job).Any(matches));
         }
 
         return [.. jobs];

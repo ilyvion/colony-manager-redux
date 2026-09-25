@@ -277,4 +277,95 @@ internal sealed class ManagerTabOverviewTests
         Expect.IsFalse(eligible[0].IsSuspended);
         Expect.IsFalse(eligible[0].ShouldDoNow);
     }
+
+    // ---- FilterJobs ----
+
+    private sealed class FilterJob(ManagerDef def, string label, string targets, string tab)
+    {
+        public ManagerDef Def { get; } = def;
+        public string Label { get; } = label;
+        public string Targets { get; } = targets;
+        public string Tab { get; } = tab;
+    }
+
+    private static readonly ManagerDef HuntingDef = new() { defName = "TestHunting" };
+    private static readonly ManagerDef ForestryDef = new() { defName = "TestForestry" };
+
+    private static readonly FilterJob Boars = new(HuntingDef, "Hunt boars", "Boar", "Hunting");
+    private static readonly FilterJob Deer = new(HuntingDef, "Hunt deer", "Deer", "Hunting");
+    private static readonly FilterJob Oaks = new(ForestryDef, "Cut trees", "Oak", "Forestry");
+
+    private static List<FilterJob> Filter(
+        HashSet<ManagerDef> hidden,
+        string? search,
+        params FilterJob[] jobs
+    ) =>
+        FilterJobs(
+            jobs,
+            hidden,
+            job => job.Def,
+            search != null,
+            text => text.Contains(search!, StringComparison.OrdinalIgnoreCase),
+            job => [job.Label, job.Targets, job.Tab]
+        );
+
+    [Test]
+    public static void NoFiltersKeepEveryJob() =>
+        Expect.AreEqual(3, Filter([], null, Boars, Deer, Oaks).Count);
+
+    [Test]
+    public static void HiddenTypesAreDropped()
+    {
+        var result = Filter([HuntingDef], null, Boars, Deer, Oaks);
+
+        Expect.AreEqual(1, result.Count);
+        Expect.ReferencesAreEqual(Oaks, result[0]);
+    }
+
+    [Test]
+    public static void HidingEveryTypeLeavesNothing() =>
+        Expect.IsEmpty(Filter([HuntingDef, ForestryDef], null, Boars, Deer, Oaks));
+
+    [Test]
+    public static void SearchMatchesOnTheLabel() =>
+        Expect.AreEqual(1, Filter([], "boars", Boars, Deer, Oaks).Count);
+
+    [Test]
+    public static void SearchMatchesOnTheTargetsAloneEvenWhenTheLabelDoesNot() =>
+        Expect.ReferencesAreEqual(Oaks, Filter([], "oak", Boars, Deer, Oaks).Single());
+
+    [Test]
+    public static void SearchMatchesOnTheTabName() =>
+        Expect.AreEqual(2, Filter([], "hunting", Boars, Deer, Oaks).Count);
+
+    [Test]
+    public static void HiddenAndSearchCombineWithAnd() =>
+        // The search matches all three via 'o' but the hunting jobs are hidden.
+        Expect.ReferencesAreEqual(Oaks, Filter([HuntingDef], "o", Boars, Deer, Oaks).Single());
+
+    [Test]
+    public static void SearchWithNoMatchLeavesNothing() =>
+        Expect.IsEmpty(Filter([], "zebra", Boars, Deer, Oaks));
+
+    [Test]
+    public static void InactiveSearchIgnoresTheMatcher()
+    {
+        var matcherCalls = 0;
+
+        var result = FilterJobs(
+            [Boars, Deer],
+            new HashSet<ManagerDef>(),
+            job => job.Def,
+            false,
+            _ =>
+            {
+                matcherCalls++;
+                return false;
+            },
+            job => [job.Label]
+        );
+
+        Expect.AreEqual(2, result.Count);
+        Expect.AreEqual(0, matcherCalls);
+    }
 }

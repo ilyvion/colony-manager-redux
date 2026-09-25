@@ -58,4 +58,88 @@ internal sealed class ManagerJobForestryTests
         Expect.IsTrue(
             ManagerJob_Forestry.ShouldRemoveForAreaCleanup(hasThing: true, inAllowedArea: false)
         );
+
+    // ---- ShouldPlanClearCut ----
+
+    private static bool ClearCut(
+        bool hasPlant = true,
+        bool alreadyDesignated = false,
+        bool defAllowed = true,
+        bool inGrowZone = false,
+        bool hasPlantGrower = false
+    ) =>
+        ManagerJob_Forestry.ShouldPlanClearCut(
+            hasPlant,
+            () => alreadyDesignated,
+            () => defAllowed,
+            () => inGrowZone,
+            () => hasPlantGrower
+        );
+
+    [Test]
+    public static void AllowedUndesignatedPlantInTheOpenIsCut() => Expect.IsTrue(ClearCut());
+
+    [Test]
+    public static void NoPlantMeansNothingToCut() => Expect.IsFalse(ClearCut(hasPlant: false));
+
+    [Test]
+    public static void AlreadyDesignatedPlantIsNotCutAgain() =>
+        Expect.IsFalse(ClearCut(alreadyDesignated: true));
+
+    [Test]
+    public static void PlantOutsideTheAllowedTreesIsLeftAlone() =>
+        Expect.IsFalse(ClearCut(defAllowed: false));
+
+    [Test]
+    public static void PlantInAGrowingZoneIsLeftAlone() =>
+        Expect.IsFalse(ClearCut(inGrowZone: true));
+
+    [Test]
+    public static void PlantInAPlantGrowerIsLeftAlone() =>
+        Expect.IsFalse(ClearCut(hasPlantGrower: true));
+
+    [Test]
+    public static void ChecksAreLazyAndStopAtTheFirstRejection()
+    {
+        var calls = new List<string>();
+        Func<bool> Spy(string name, bool result)
+        {
+            return () =>
+            {
+                calls.Add(name);
+                return result;
+            };
+        }
+
+        // No plant: none of the (more expensive) checks may run.
+        _ = ManagerJob_Forestry.ShouldPlanClearCut(
+            false,
+            Spy("designated", false),
+            Spy("allowed", true),
+            Spy("zone", false),
+            Spy("grower", false)
+        );
+        Expect.IsEmpty(calls);
+
+        // Already designated: stops before the allowed-def check.
+        _ = ManagerJob_Forestry.ShouldPlanClearCut(
+            true,
+            Spy("designated", true),
+            Spy("allowed", true),
+            Spy("zone", false),
+            Spy("grower", false)
+        );
+        Expect.That(() => calls.SequenceEqual(["designated"]));
+
+        // Everything passes: asked in ladder order.
+        calls.Clear();
+        _ = ManagerJob_Forestry.ShouldPlanClearCut(
+            true,
+            Spy("designated", false),
+            Spy("allowed", true),
+            Spy("zone", false),
+            Spy("grower", false)
+        );
+        Expect.That(() => calls.SequenceEqual(["designated", "allowed", "zone", "grower"]));
+    }
 }
