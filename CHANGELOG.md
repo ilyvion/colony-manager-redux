@@ -29,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The gravship launch warning about a missing manager database now only appears when there are jobs that the database would have taken along.
 - The Hunting job's expected meat or leather from corpses skipped corpses of animals it wasn't hunting when 'unforbid all corpses' was off, and human corpses unless 'including human corpses' was checked, even when the threshold filter allowed their meat or leather. Which corpses get unforbidden no longer changes which corpses are counted.
 - The Hunting job counted the meat or leather of corpses it unforbade towards its target even when the threshold filter didn't allow it, for example human corpses when human meat isn't allowed, which could make it stop hunting too early. Such corpses are still unforbidden, but no longer count. The corpse tooltips now say that only what the threshold filter allows counts.
+- A Production job could fail and get suspended while setting its target or ingredients from linked jobs if one of those jobs had no recipe chosen yet.
 
 ## [0.19.1] - 2026-09-20
 

@@ -1430,7 +1430,9 @@ internal sealed class ManagerJob_Production
             var myOutputs = ResolvedOutputDefs(Recipe).ToHashSet();
             var linkedConsumers = Manager
                 .JobTracker.JobsOfType<ManagerJob_Production>()
-                .Where(consumer => consumer.LinkedProducers.Contains(this))
+                .Where(consumer =>
+                    consumer.Recipe != null && consumer.LinkedProducers.Contains(this)
+                )
                 .ToList();
 
             if (AutoTargetFromLinks)
