@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dragging an Animal Genetics gene slider while all the other genes were weighted at zero could set the other genes to invalid values.
 - The error dialog shown when a job template could not be saved had a garbled message, and the failed save logged an extra error.
 - The Mining job could leave more deconstruct or haul designations in place than needed when it stopped removing mining designations part way through reducing them.
+- The Mining job's 'Allow mining' default in the Job Defaults tab was reset to on every time the game was loaded.
+- Loading a Livestock job default settings entry that was missing its saved values could cause an error.
 
 ## [0.19.1] - 2026-09-20
 

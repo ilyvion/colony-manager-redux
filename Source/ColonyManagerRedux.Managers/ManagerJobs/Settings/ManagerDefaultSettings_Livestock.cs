@@ -950,6 +950,8 @@ internal sealed class ManagerDefaultSettings_Livestock : ManagerDefaultSettings
 
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
+            defaults ??= new();
+            overrides ??= [];
             defaults.settings = this;
             foreach (var item in overrides.Values)
             {

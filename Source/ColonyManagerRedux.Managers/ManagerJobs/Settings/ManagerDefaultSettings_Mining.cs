@@ -26,12 +26,10 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
     public bool DefaultCheckRoofSupportAdvanced;
     public bool DefaultCheckRoomDivision = true;
 
-    public List<Task> DefaultTaskPriorityOrder =
-    [
-        Task.HaulChunks,
-        Task.DeconstructBuildings,
-        Task.Mine,
-    ];
+    public List<Task> DefaultTaskPriorityOrder = NewDefaultTaskPriorityOrder();
+
+    private static List<Task> NewDefaultTaskPriorityOrder() =>
+        [Task.HaulChunks, Task.DeconstructBuildings, Task.Mine];
 
     public override void DoTabContents(Rect rect)
     {
@@ -218,6 +216,7 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
             false
         );
 
+        Scribe_Values.Look(ref DefaultAllowMining, "defaultAllowMining", true);
         Scribe_Values.Look(
             ref DefaultTakeOwnershipOfMiningJobs,
             "defaultTakeOwnershipOfMiningJobs",
@@ -244,7 +243,7 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
         if (Scribe.mode == LoadSaveMode.PostLoadInit)
         {
             DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
-                DefaultTaskPriorityOrder,
+                DefaultTaskPriorityOrder ?? NewDefaultTaskPriorityOrder(),
                 [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
             );
         }
