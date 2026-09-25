@@ -281,7 +281,11 @@ internal sealed class ManagerJob_Hunting
         }
     }
 
-    public IEnumerable<Corpse> Corpses
+    /// <summary>
+    /// Corpses in the hunting grounds, regardless of the unforbid settings; the meat or leather
+    /// in them counts towards the threshold when the threshold filter allows it.
+    /// </summary>
+    private IEnumerable<Corpse> CorpsesInHuntingGrounds
     {
         get
         {
@@ -291,15 +295,20 @@ internal sealed class ManagerJob_Hunting
             return corpses.Where(thing =>
                 thing?.InnerPawn != null
                 && Utilities.IsInAllowedArea(HuntingGrounds, thing.Position, InvertHuntingGrounds)
-                && ShouldUnforbidCorpse(
-                    _unforbidAllCorpses,
-                    _unforbidHumanCorpses,
-                    AllowedAnimals.Contains(thing.InnerPawn.kindDef),
-                    thing.InnerPawn.RaceProps.Humanlike
-                )
             );
         }
     }
+
+    /// <summary>Corpses in the hunting grounds that the unforbid settings apply to.</summary>
+    public IEnumerable<Corpse> Corpses =>
+        CorpsesInHuntingGrounds.Where(thing =>
+            ShouldUnforbidCorpse(
+                _unforbidAllCorpses,
+                _unforbidHumanCorpses,
+                AllowedAnimals.Contains(thing.InnerPawn.kindDef),
+                thing.InnerPawn.RaceProps.Humanlike
+            )
+        );
 
     public List<Designation> Designations => [.. _designations];
 
@@ -466,7 +475,7 @@ internal sealed class ManagerJob_Hunting
             );
 
         // corpses not buried / forbidden
-        foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
+        foreach (var (corpse, i) in CorpsesInHuntingGrounds.Select((c, i) => (c, i)))
         {
             if (i > 0 && i % operationsPerTick == 0)
             {
@@ -855,21 +864,24 @@ internal sealed class ManagerJob_Hunting
 
         foreach (var (corpse, i) in Corpses.Select((c, i) => (c, i)))
         {
-            if (TriggerThreshold.DoesCountMeetTarget(count))
-            {
-                yield break;
-            }
+            // Only what the threshold filter allows counts towards the target; corpses it
+            // doesn't allow are still unforbidden, but add nothing to the count.
+            var counted = IsCountedResource(corpse);
+            var targetMet = counted && TriggerThreshold.DoesCountMeetTarget(count);
 
             // don't unforbid corpses in storage - we're going to assume they were
             // intentionally forbidden.
-            if (corpse != null && !corpse.IsInAnyStorage() && corpse.IsForbidden(Faction.OfPlayer))
+            if (
+                !targetMet
+                && corpse != null
+                && !corpse.IsInAnyStorage()
+                && corpse.IsForbidden(Faction.OfPlayer)
+                && !corpse.IsNotFresh()
+            )
             {
-                if (!corpse.IsNotFresh())
-                {
-                    var yield = corpse.EstimatedYield(TargetResource);
-                    count.Value += yield;
-                    data.CorpsesToUnforbid.Add((corpse, yield, count.Value));
-                }
+                var yield = counted ? corpse.EstimatedYield(TargetResource) : 0;
+                count.Value += yield;
+                data.CorpsesToUnforbid.Add((corpse, yield, count.Value));
             }
 
             if (i > 0 && i % operationsPerTick == 0)

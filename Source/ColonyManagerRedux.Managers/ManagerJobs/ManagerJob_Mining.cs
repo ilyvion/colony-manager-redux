@@ -763,16 +763,14 @@ internal sealed class ManagerJob_Mining
         }
     }
 
-    private static readonly List<ThingDefCountClass> _tmpBuildingCounts = [];
-
     public static List<ThingDefCountClass> GetCountsInBuilding(Building? building)
     {
-        _tmpBuildingCounts.Clear();
+        List<ThingDefCountClass> buildingCounts = [];
 
         var def = building?.def;
         if (def == null || building == null)
         {
-            return _tmpBuildingCounts;
+            return buildingCounts;
         }
 
         foreach (var item in def.CostListAdjusted(building.Stuff, false))
@@ -785,11 +783,11 @@ internal sealed class ManagerJob_Mining
 
             if (item2.count != 0)
             {
-                _tmpBuildingCounts.Add(item2);
+                buildingCounts.Add(item2);
             }
         }
 
-        return _tmpBuildingCounts;
+        return buildingCounts;
     }
 
     internal static int ClampScaledCount(int roundedScaledCount, int originalCount) =>
