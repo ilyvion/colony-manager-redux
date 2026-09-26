@@ -127,15 +127,48 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         );
     }
 
-    public float DrawAllowedBuildingsShortcuts(Vector2 pos, float width) =>
-        DrawShortcutRows(
+    internal static IEnumerable<
+        IGrouping<DesignationCategoryDef, ThingDef>
+    > GroupBuildingsByDesignationCategory(IEnumerable<ThingDef> buildings) =>
+        buildings.Where(b => b.designationCategory != null).GroupBy(b => b.designationCategory);
+
+    public float DrawAllowedBuildingsShortcuts(Vector2 pos, float width)
+    {
+        var start = pos;
+        var allBuildings = SelectedMiningJob.AllDeconstructibleBuildings;
+
+        void SetAllowed(ThingDef building, bool allow) =>
+            SelectedMiningJob.SetBuildingAllowed(building, allow);
+
+        pos.y += DrawShortcutRows(
             pos,
             width,
-            SelectedMiningJob.AllDeconstructibleBuildings,
+            allBuildings,
             SelectedMiningJob.AllowedBuildings,
-            (b, v) => SelectedMiningJob.SetBuildingAllowed(b, v),
+            SetAllowed,
             []
         );
+
+        foreach (
+            var category in GroupBuildingsByDesignationCategory(allBuildings)
+                .OrderBy(g => g.Key.LabelCap.Resolve(), StringComparer.OrdinalIgnoreCase)
+        )
+        {
+            DrawShortcutRow(
+                ref pos.y,
+                pos.x,
+                width,
+                [.. category],
+                allBuildings,
+                SelectedMiningJob.AllowedBuildings,
+                SetAllowed,
+                category.Key.LabelCap,
+                "ColonyManagerRedux.Mining.BuildingCategory.Tip".Translate(category.Key.label)
+            );
+        }
+
+        return pos.y - start.y;
+    }
 
     public float DrawAllowedMinerals(Vector2 pos, float width)
     {

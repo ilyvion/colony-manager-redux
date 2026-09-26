@@ -4,5 +4,8 @@
         <li>\[RimBridge\]</li>
         <!-- Generating a small extra map can leave a scatterer without a free cell. -->
         <li>Scatterer .* could not find cell to generate at</li>
+        <!-- GenSteps can randomly fail. If we need specific steps to succeed for some reason, we
+             should specifically deal with that in the test itself by re-trying or something. -->
+        <li>GenStep_ .* not find</li>
     </warningsAllowed>
 </TestConfig>

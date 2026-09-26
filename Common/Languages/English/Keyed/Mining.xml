@@ -53,6 +53,7 @@
     <ColonyManagerRedux.Mining.Metal.Tip>Toggle all mineables that yield metal</ColonyManagerRedux.Mining.Metal.Tip>
     <ColonyManagerRedux.Mining.Precious>Precious</ColonyManagerRedux.Mining.Precious>
     <ColonyManagerRedux.Mining.Precious.Tip>Toggle all mineables that yield precious materials</ColonyManagerRedux.Mining.Precious.Tip>
+    <ColonyManagerRedux.Mining.BuildingCategory.Tip>Toggle all buildings in the {0} category</ColonyManagerRedux.Mining.BuildingCategory.Tip>
     <!-- settings -->
     <ColonyManagerRedux.Mining.ManagerSettings.DefaultMining>Default mining</ColonyManagerRedux.Mining.ManagerSettings.DefaultMining>
     <ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks>Default chunks</ColonyManagerRedux.Mining.ManagerSettings.DefaultChunks>

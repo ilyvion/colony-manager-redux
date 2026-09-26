@@ -291,6 +291,30 @@ internal sealed class ManagerTabShortcutPredicateTests
         Expect.IsFalse(ManagerTab_Mining.IsPreciousMineral(granite), "precious");
     }
 
+    [Test]
+    public static void BuildingsAreGroupedByDesignationCategoryAndUncategorizedAreSkipped()
+    {
+        var structure = new DesignationCategoryDef { defName = "TestStructure" };
+        var power = new DesignationCategoryDef { defName = "TestPower" };
+        var wall = new ThingDef { defName = "TestWall", designationCategory = structure };
+        var door = new ThingDef { defName = "TestDoor", designationCategory = structure };
+        var battery = new ThingDef { defName = "TestBattery", designationCategory = power };
+        var ruin = new ThingDef { defName = "TestRuin" };
+
+        var groups = ManagerTab_Mining
+            .GroupBuildingsByDesignationCategory([wall, battery, ruin, door])
+            .ToDictionary(g => g.Key, g => g.ToList());
+
+        Expect.AreEqual(2, groups.Count, "group count");
+        Expect.AreEqual(2, groups[structure].Count, "structure count");
+        Expect.IsTrue(
+            groups[structure].Contains(wall) && groups[structure].Contains(door),
+            "structure"
+        );
+        Expect.AreEqual(1, groups[power].Count, "power count");
+        Expect.IsTrue(groups[power].Contains(battery), "power");
+    }
+
     // Shared shortcut rows
 
     [Test]
