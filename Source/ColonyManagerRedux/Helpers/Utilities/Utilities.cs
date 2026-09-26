@@ -725,7 +725,7 @@ public static class Utilities
 
     /// <summary>
     /// Draws a culled, scrollable list of toggle rows for a set of defs, one row per item,
-    /// each with an optional info card button and optional extra per-row icons. Shared by
+    /// each with an optional info card button, the def's icon and optional extra per-row icons. Shared by
     /// job tabs that let the user toggle a set of allowed defs (trees, plants, minerals,
     /// buildings, animals, etc.) on or off.
     /// </summary>
@@ -756,6 +756,7 @@ public static class Utilities
         Action<Rect, T>? drawInfoCardButton = null,
         Action<Rect, T, bool>? drawExtraIcons = null
     )
+        where T : Def
     {
         if (items == null)
         {
@@ -802,6 +803,12 @@ public static class Utilities
 
                 toggleRect.xMin += SmallIconSize;
             }
+
+            Widgets.DefIcon(
+                new Rect(toggleRect.xMin, toggleRect.yMin, ListEntryHeight, ListEntryHeight),
+                item
+            );
+            toggleRect.xMin += ListEntryHeight;
 
             var allowed = isAllowed(item);
 

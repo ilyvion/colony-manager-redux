@@ -867,6 +867,17 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
                 labelRect.xMin += SmallIconSize;
             }
 
+            Widgets.DefIcon(
+                new Rect(
+                    labelRect.xMin + Margin,
+                    row.yMin,
+                    LargeListEntryHeight,
+                    LargeListEntryHeight
+                ),
+                animalDef
+            );
+            labelRect.xMin += Margin + LargeListEntryHeight;
+
             // draw label
             var label =
                 animalDef.LabelCap
