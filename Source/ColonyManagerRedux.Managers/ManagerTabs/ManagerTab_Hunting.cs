@@ -336,6 +336,14 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
     internal static bool IsAggressive(PawnKindDef kind) =>
         kind.RaceProps.manhunterOnDamageChance >= 0.05;
 
+    internal static bool IsInsect(PawnKindDef kind) => kind.RaceProps.Insect;
+
+    internal static bool IsFlesh(PawnKindDef kind) => kind.RaceProps.IsFlesh;
+
+    internal static bool HasMeat(PawnKindDef kind) => kind.RaceProps.meatDef != null;
+
+    internal static bool HasLeather(PawnKindDef kind) => kind.RaceProps.leatherDef != null;
+
     internal static bool IsHerdAnimal(PawnKindDef kind) => kind.RaceProps.herdAnimal;
 
     internal static bool IsExploding(PawnKindDef kind) =>
@@ -363,6 +371,26 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             "ColonyManagerRedux.Hunting.Exploding",
             "ColonyManagerRedux.Hunting.Exploding.Tip",
             IsExploding
+        ),
+        new(
+            "ColonyManagerRedux.Hunting.Insects",
+            "ColonyManagerRedux.Hunting.Insects.Tip",
+            IsInsect
+        ),
+        new(
+            "ColonyManagerRedux.Hunting.HasMeat",
+            "ColonyManagerRedux.Hunting.HasMeat.Tip",
+            HasMeat
+        ),
+        new(
+            "ColonyManagerRedux.Hunting.HasLeather",
+            "ColonyManagerRedux.Hunting.HasLeather.Tip",
+            HasLeather
+        ),
+        new(
+            "ColonyManagerRedux.Hunting.NonFlesh",
+            "ColonyManagerRedux.Hunting.NonFlesh.Tip",
+            kind => !IsFlesh(kind)
         ),
     ];
 

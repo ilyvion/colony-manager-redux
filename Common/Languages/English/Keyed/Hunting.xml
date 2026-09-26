@@ -24,6 +24,14 @@
     <ColonyManagerRedux.Hunting.HerdAnimals.Tip>Toggle all herd animals</ColonyManagerRedux.Hunting.HerdAnimals.Tip>
     <ColonyManagerRedux.Hunting.Exploding>Exploding</ColonyManagerRedux.Hunting.Exploding>
     <ColonyManagerRedux.Hunting.Exploding.Tip>Toggle all exploding animals</ColonyManagerRedux.Hunting.Exploding.Tip>
+    <ColonyManagerRedux.Hunting.Insects>Insects</ColonyManagerRedux.Hunting.Insects>
+    <ColonyManagerRedux.Hunting.Insects.Tip>Toggle all insects</ColonyManagerRedux.Hunting.Insects.Tip>
+    <ColonyManagerRedux.Hunting.HasMeat>Has meat</ColonyManagerRedux.Hunting.HasMeat>
+    <ColonyManagerRedux.Hunting.HasMeat.Tip>Toggle all animals that yield meat</ColonyManagerRedux.Hunting.HasMeat.Tip>
+    <ColonyManagerRedux.Hunting.HasLeather>Has leather</ColonyManagerRedux.Hunting.HasLeather>
+    <ColonyManagerRedux.Hunting.HasLeather.Tip>Toggle all animals that yield leather</ColonyManagerRedux.Hunting.HasLeather.Tip>
+    <ColonyManagerRedux.Hunting.NonFlesh>Non-flesh</ColonyManagerRedux.Hunting.NonFlesh>
+    <ColonyManagerRedux.Hunting.NonFlesh.Tip>Toggle all non-organic animals, such as mechanoids</ColonyManagerRedux.Hunting.NonFlesh.Tip>
     <ColonyManagerRedux.Hunting.AreaRestriction>Restrict hunting to</ColonyManagerRedux.Hunting.AreaRestriction>
     <ColonyManagerRedux.Hunting.Aggressive>Aggressive</ColonyManagerRedux.Hunting.Aggressive>
     <ColonyManagerRedux.Hunting.Aggressive.Tip>Toggle all aggressive animals</ColonyManagerRedux.Hunting.Aggressive.Tip>

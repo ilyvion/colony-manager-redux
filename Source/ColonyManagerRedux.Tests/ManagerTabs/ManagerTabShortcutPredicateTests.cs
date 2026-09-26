@@ -54,6 +54,41 @@ internal sealed class ManagerTabShortcutPredicateTests
         Expect.IsFalse(ManagerTab_Hunting.IsAggressive(KindWithManhunterChance(0f)), "0");
     }
 
+    [Test]
+    public static void FleshFollowsTheRaceFleshType()
+    {
+        Expect.IsTrue(ManagerTab_Hunting.IsFlesh(Kind("Muffalo")));
+        Expect.IsFalse(ManagerTab_Hunting.IsFlesh(Kind("Mech_Lancer")));
+    }
+
+    [Test]
+    public static void MegascarabIsAnInsectAndMuffaloIsNot()
+    {
+        Expect.IsTrue(ManagerTab_Hunting.IsInsect(Kind("Megascarab")));
+        Expect.IsFalse(ManagerTab_Hunting.IsInsect(Kind("Muffalo")));
+    }
+
+    [Test]
+    public static void HasMeatAndHasLeatherFollowTheRaceDefs()
+    {
+        var meatOnly = new PawnKindDef
+        {
+            race = new ThingDef { race = new RaceProperties { meatDef = ThingDefOf.Meat_Human } },
+        };
+        var leatherOnly = new PawnKindDef
+        {
+            race = new ThingDef
+            {
+                race = new RaceProperties { leatherDef = ThingDefOf.Leather_Plain },
+            },
+        };
+
+        Expect.IsTrue(ManagerTab_Hunting.HasMeat(meatOnly));
+        Expect.IsFalse(ManagerTab_Hunting.HasLeather(meatOnly));
+        Expect.IsTrue(ManagerTab_Hunting.HasLeather(leatherOnly));
+        Expect.IsFalse(ManagerTab_Hunting.HasMeat(leatherOnly));
+    }
+
     // Forestry
 
     private static ThingDef Plant(
