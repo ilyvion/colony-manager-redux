@@ -51,6 +51,11 @@
         <Publicize Include="Assembly-CSharp:RimWorld.Planet.Gravship.things" />
         <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.ManagerTab._truncateCache" />
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_PlayerSettings.master" />
+        <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.dirty" />
+        <Publicize Include="Assembly-CSharp:Verse.Game.currentMapIndex" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerTab_Overview.pawnOverviewTable" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerTab_Livestock.animalsTameTable" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerTab_Livestock.animalsWildTable" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.WouldCollapseIfSupportDestroyed" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.AddDesignation" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.PlanReduceDesignations" />

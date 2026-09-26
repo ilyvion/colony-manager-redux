@@ -79,3 +79,40 @@ internal sealed class SelectionOverlayPatchTests
         Expect.IsTrue(ran, "snapshot still runs later action");
     }
 }
+
+/// <summary>
+/// <see cref="StockpileGUI.ShouldDrawMouseOverZone"/> draws the hovered zone's edges only when it
+/// is not selected.
+/// </summary>
+[TestFixture(TestType.Playing)]
+internal sealed class StockpileMouseOverOverlayTests
+{
+    [Test]
+    public static void NoMouseOverZoneIsNotDrawn() =>
+        Expect.IsFalse(StockpileGUI.ShouldDrawMouseOverZone(null), "null zone");
+
+    [Test]
+    public static void UnselectedMouseOverZoneIsDrawn()
+    {
+        using var scene = new ManagerScene();
+        var zone = scene.AddStockpile([Find.CurrentMap.Center]);
+
+        Expect.IsTrue(StockpileGUI.ShouldDrawMouseOverZone(zone), "unselected zone");
+    }
+
+    [Test]
+    public static void SelectedMouseOverZoneIsNotDrawn()
+    {
+        using var scene = new ManagerScene();
+        var zone = scene.AddStockpile([Find.CurrentMap.Center]);
+        Find.Selector.Select(zone, playSound: false, forceDesignatorDeselect: false);
+        try
+        {
+            Expect.IsFalse(StockpileGUI.ShouldDrawMouseOverZone(zone), "selected zone");
+        }
+        finally
+        {
+            Find.Selector.ClearSelection();
+        }
+    }
+}

@@ -9,7 +9,7 @@ namespace ColonyManagerRedux;
 )]
 internal static class RimWorld_MainTabWindowUtility_NotifyAllPawnTables_PawnsChanged
 {
-    private static void Postfix()
+    internal static void Postfix()
     {
         if (Find.CurrentMap == null)
         {

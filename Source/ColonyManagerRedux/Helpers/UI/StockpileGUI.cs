@@ -180,11 +180,14 @@ public static class StockpileGUI
 
     private static void PostDrawSelectionOverlays()
     {
-        if (mouseOverZone != null && !Find.Selector.IsSelected(mouseOverZone))
+        if (ShouldDrawMouseOverZone(mouseOverZone))
         {
-            GenDraw.DrawFieldEdges(mouseOverZone.Cells, MouseOverColor);
+            GenDraw.DrawFieldEdges(mouseOverZone!.Cells, MouseOverColor);
         }
     }
+
+    internal static bool ShouldDrawMouseOverZone(Zone? zone) =>
+        zone != null && !Find.Selector.IsSelected(zone);
 
     [MemberNotNull(nameof(textures))]
     private static void CreateTextures(List<Zone_Stockpile> zones)
