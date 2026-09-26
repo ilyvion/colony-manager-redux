@@ -292,6 +292,26 @@ internal sealed class ManagerTabShortcutPredicateTests
     }
 
     [Test]
+    public static void SteelIsDeepAndDirectYielding()
+    {
+        var steel = Vein("MineableSteel");
+
+        Expect.IsTrue(ManagerTab_Mining.IsDeepMineral(steel), "deep");
+        Expect.IsTrue(ManagerTab_Mining.IsDirectYieldingMineral(steel), "direct");
+        Expect.IsFalse(ManagerTab_Mining.IsChunkYieldingMineral(steel), "chunk");
+    }
+
+    [Test]
+    public static void GraniteIsChunkYieldingAndNotDeep()
+    {
+        var granite = Vein("Granite");
+
+        Expect.IsTrue(ManagerTab_Mining.IsChunkYieldingMineral(granite), "chunk");
+        Expect.IsFalse(ManagerTab_Mining.IsDirectYieldingMineral(granite), "direct");
+        Expect.IsFalse(ManagerTab_Mining.IsDeepMineral(granite), "deep");
+    }
+
+    [Test]
     public static void BuildingsAreGroupedByDesignationCategoryAndUncategorizedAreSkipped()
     {
         var structure = new DesignationCategoryDef { defName = "TestStructure" };

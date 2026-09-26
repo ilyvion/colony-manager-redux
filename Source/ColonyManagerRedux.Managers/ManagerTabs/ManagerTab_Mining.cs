@@ -137,8 +137,10 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         var start = pos;
         var allBuildings = SelectedMiningJob.AllDeconstructibleBuildings;
 
-        void SetAllowed(ThingDef building, bool allow) =>
+        void SetAllowed(ThingDef building, bool allow)
+        {
             SelectedMiningJob.SetBuildingAllowed(building, allow);
+        }
 
         pos.y += DrawShortcutRows(
             pos,
@@ -194,6 +196,16 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
     internal static bool IsPreciousMineral(ThingDef mineral) =>
         mineral.building.isResourceRock && (mineral.building.mineableThing?.smallVolume ?? false);
 
+    internal static bool IsDeepMineral(ThingDef mineral) =>
+        mineral.building.isResourceRock
+        && (mineral.building.mineableThing?.deepCommonality ?? 0) > 0;
+
+    internal static bool IsChunkYieldingMineral(ThingDef mineral) =>
+        mineral.building.mineableThing.IsChunk();
+
+    internal static bool IsDirectYieldingMineral(ThingDef mineral) =>
+        mineral.building.mineableThing != null && !mineral.building.mineableThing.IsChunk();
+
     private static readonly ShortcutCategory<ThingDef>[] _mineralShortcuts =
     [
         new("ColonyManagerRedux.Mining.Stone", "ColonyManagerRedux.Mining.Stone.Tip", IsStone),
@@ -206,6 +218,17 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             "ColonyManagerRedux.Mining.Precious",
             "ColonyManagerRedux.Mining.Precious.Tip",
             IsPreciousMineral
+        ),
+        new("ColonyManagerRedux.Mining.Deep", "ColonyManagerRedux.Mining.Deep.Tip", IsDeepMineral),
+        new(
+            "ColonyManagerRedux.Mining.ChunkYielding",
+            "ColonyManagerRedux.Mining.ChunkYielding.Tip",
+            IsChunkYieldingMineral
+        ),
+        new(
+            "ColonyManagerRedux.Mining.DirectYielding",
+            "ColonyManagerRedux.Mining.DirectYielding.Tip",
+            IsDirectYieldingMineral
         ),
     ];
 
