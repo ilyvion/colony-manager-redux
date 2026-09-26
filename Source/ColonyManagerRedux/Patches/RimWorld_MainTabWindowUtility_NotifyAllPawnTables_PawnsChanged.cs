@@ -15,7 +15,12 @@ internal static class RimWorld_MainTabWindowUtility_NotifyAllPawnTables_PawnsCha
         {
             return;
         }
-        foreach (var tab in Manager.For(Find.CurrentMap).Tabs)
+        NotifyTabs(Manager.For(Find.CurrentMap).Tabs);
+    }
+
+    internal static void NotifyTabs(IEnumerable<ManagerTab> tabs)
+    {
+        foreach (var tab in tabs)
         {
             try
             {

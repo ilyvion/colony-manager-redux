@@ -10,5 +10,28 @@ internal static class RimWorld_SelectionDrawer_DrawSelectionOverlays
 {
     public static List<Action> PostDrawSelectionOverlaysActions = [];
 
-    private static void Postfix() => PostDrawSelectionOverlaysActions.ForEach(a => a());
+    private static readonly HashSet<Action> _failedActions = [];
+
+    private static void Postfix() => RunAll(PostDrawSelectionOverlaysActions);
+
+    internal static void RunAll(List<Action> actions)
+    {
+        foreach (var action in actions.ToArray())
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception err)
+            {
+                if (_failedActions.Add(action))
+                {
+                    ColonyManagerReduxMod.Instance.LogException(
+                        "Post-draw selection overlay action caused exception",
+                        err
+                    );
+                }
+            }
+        }
+    }
 }
