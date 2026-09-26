@@ -721,26 +721,23 @@ public abstract class ManagerTab(Manager manager)
     /// <param name="LabelKey">The translation key for the row label.</param>
     /// <param name="TipKey">The translation key for the row tooltip.</param>
     /// <param name="Predicate">Selects the options this row toggles.</param>
-    /// <param name="HideWhenAllMatch">
-    /// Also hide the row when every option matches, since it would then duplicate the All row.
-    /// </param>
     protected internal sealed record ShortcutCategory<T>(
         string LabelKey,
         string TipKey,
-        Func<T, bool> Predicate,
-        bool HideWhenAllMatch = false
+        Func<T, bool> Predicate
     );
 
     /// <summary>
     /// Whether a shortcut row that toggles <paramref name="matchCount"/> of
-    /// <paramref name="optionCount"/> options is worth showing. Rows that toggle nothing are
+    /// <paramref name="optionCount"/> options is worth showing. Rows that toggle nothing, or
+    /// (unless <paramref name="isAllRow"/>) everything, add nothing over the All row and are
     /// never shown.
     /// </summary>
     internal static bool IsShortcutRowVisible(
         int matchCount,
         int optionCount,
-        bool hideWhenAllMatch = false
-    ) => matchCount > 0 && !(hideWhenAllMatch && matchCount == optionCount);
+        bool isAllRow = false
+    ) => matchCount > 0 && (isAllRow || matchCount < optionCount);
 
     private static class ShortcutScratch<T>
     {
@@ -783,7 +780,8 @@ public abstract class ManagerTab(Manager manager)
                 selected,
                 setAllowed,
                 "ColonyManagerRedux.Shortcuts.All".Translate(),
-                "ColonyManagerRedux.Shortcuts.All.Tip".Translate()
+                "ColonyManagerRedux.Shortcuts.All.Tip".Translate(),
+                isAllRow: true
             );
         }
 
@@ -810,8 +808,7 @@ public abstract class ManagerTab(Manager manager)
                     selected,
                     setAllowed,
                     category.LabelKey.Translate(),
-                    category.TipKey.Translate(),
-                    category.HideWhenAllMatch
+                    category.TipKey.Translate()
                 );
             }
         }
@@ -837,7 +834,7 @@ public abstract class ManagerTab(Manager manager)
     /// <param name="setAllowed">The action called to set whether an option is allowed (selected).</param>
     /// <param name="label">The row label, already resolved to displayable text.</param>
     /// <param name="tooltip">The row tooltip, already resolved to displayable text.</param>
-    /// <param name="hideWhenAllMatch">Also hide the row when every option matches.</param>
+    /// <param name="isAllRow">Whether this is the All row, which is shown even when it matches every option.</param>
     protected static void DrawShortcutRow<T>(
         ref float y,
         float x,
@@ -848,7 +845,7 @@ public abstract class ManagerTab(Manager manager)
         Action<T, bool> setAllowed,
         TaggedString label,
         TaggedString tooltip,
-        bool hideWhenAllMatch = false
+        bool isAllRow = false
     )
     {
         if (matching == null)
@@ -864,7 +861,7 @@ public abstract class ManagerTab(Manager manager)
             throw new ArgumentNullException(nameof(selected));
         }
 
-        if (!IsShortcutRowVisible(matching.Count, allOptions.Count, hideWhenAllMatch))
+        if (!IsShortcutRowVisible(matching.Count, allOptions.Count, isAllRow))
         {
             return;
         }

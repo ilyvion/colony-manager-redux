@@ -342,21 +342,21 @@ internal sealed class ManagerTabShortcutPredicateTests
     {
         Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 5), "some options");
         Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 0), "no options");
-        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 5, hideWhenAllMatch: true), "hide all");
+        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 5, isAllRow: true), "all row");
     }
 
     [Test]
-    public static void ShortcutRowWithMatchesIsShown()
+    public static void ShortcutRowMatchingSomeButNotAllOptionsIsShown()
     {
-        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(2, 5), "partial");
-        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(5, 5), "all match");
+        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(2, 5));
+        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(1, 2));
     }
 
     [Test]
-    public static void ShortcutRowMatchingEverythingIsHiddenOnlyWhenRequested()
+    public static void ShortcutRowMatchingEveryOptionIsHiddenUnlessItIsTheAllRow()
     {
-        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(5, 5, hideWhenAllMatch: true), "all match");
-        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(4, 5, hideWhenAllMatch: true), "partial");
+        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(5, 5), "category");
+        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(5, 5, isAllRow: true), "all row");
     }
 
     [Test]

@@ -391,12 +391,10 @@ internal sealed class ManagerTab_Forestry(Manager manager)
             "ColonyManagerRedux.Forestry.Trees.Tip",
             IsWoodTree
         ),
-        // Probably all of them; might not be for modded plants.
         new(
             "ColonyManagerRedux.Forestry.Flammable",
             "ColonyManagerRedux.Forestry.Flammable.Tip",
-            IsFlammable,
-            HideWhenAllMatch: true
+            IsFlammable
         ),
         new("ColonyManagerRedux.Forestry.Ugly", "ColonyManagerRedux.Forestry.Ugly.Tip", IsUgly),
         new(

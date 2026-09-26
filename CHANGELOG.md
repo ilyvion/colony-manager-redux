@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Shortcut rows (All, Stone, Predators, and so on) in the Hunting, Foraging, Forestry, Mining and Production tabs now consistently have tooltips, including the All rows, the Forestry Mini, Full and Super rows and the Production ingredient category rows. A shortcut row that would not toggle anything is now always hidden.
+- Shortcut rows (All, Stone, Predators, and so on) in the Hunting, Foraging, Forestry, Mining and Production tabs now consistently have tooltips, including the All rows, the Forestry Mini, Full and Super rows and the Production ingredient category rows. A shortcut row that would not toggle anything, or that would toggle exactly the same options as the All row, is now always hidden.
 
 ### Fixed
 
