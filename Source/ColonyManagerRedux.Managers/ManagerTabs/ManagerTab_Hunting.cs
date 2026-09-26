@@ -195,14 +195,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
         if (ModsConfig.IdeologyActive)
         {
-            var atLeastOneVenerated = false;
-            var allVenerated = true;
-            foreach (var item in Manager.map.mapPawns.FreeColonistsSpawned)
-            {
-                var isVenerated = item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
-                atLeastOneVenerated |= isVenerated;
-                allVenerated &= isVenerated;
-            }
+            GetVenerationCoverage(animalDef, out var atLeastOneVenerated, out var allVenerated);
 
             if (atLeastOneVenerated)
             {
@@ -223,6 +216,33 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
                 iconRect.x -= Margin + SmallIconSize;
             }
         }
+    }
+
+    private void GetVenerationCoverage(
+        PawnKindDef animalDef,
+        out bool atLeastOneVenerated,
+        out bool allVenerated
+    )
+    {
+        atLeastOneVenerated = false;
+        allVenerated = true;
+        foreach (var item in Manager.map.mapPawns.FreeColonistsSpawned)
+        {
+            var isVenerated = item.Ideo != null && item.Ideo.IsVeneratedAnimal(animalDef.race);
+            atLeastOneVenerated |= isVenerated;
+            allVenerated &= isVenerated;
+        }
+    }
+
+    private bool IsVenerated(PawnKindDef animalDef)
+    {
+        if (!ModsConfig.IdeologyActive)
+        {
+            return false;
+        }
+
+        GetVenerationCoverage(animalDef, out var atLeastOneVenerated, out _);
+        return atLeastOneVenerated;
     }
 
     private static readonly List<string> _tmpAnimalKindTooltipYields = [];
@@ -401,7 +421,13 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
             SelectedHuntingJob.AllAnimals,
             SelectedHuntingJob.AllowedAnimals,
             (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
-            _animalShortcuts
+            _animalShortcuts.Append(
+                new ShortcutCategory<PawnKindDef>(
+                    "ColonyManagerRedux.Hunting.Venerated",
+                    "ColonyManagerRedux.Hunting.Venerated.Tip",
+                    IsVenerated
+                )
+            )
         );
 
     public float DrawHuntingGrounds(ManagerJob_Hunting job, Vector2 pos, float width)

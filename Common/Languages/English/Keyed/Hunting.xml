@@ -32,6 +32,8 @@
     <ColonyManagerRedux.Hunting.HasLeather.Tip>Toggle all animals that yield leather</ColonyManagerRedux.Hunting.HasLeather.Tip>
     <ColonyManagerRedux.Hunting.NonFlesh>Non-flesh</ColonyManagerRedux.Hunting.NonFlesh>
     <ColonyManagerRedux.Hunting.NonFlesh.Tip>Toggle all non-organic animals, such as mechanoids</ColonyManagerRedux.Hunting.NonFlesh.Tip>
+    <ColonyManagerRedux.Hunting.Venerated>Venerated</ColonyManagerRedux.Hunting.Venerated>
+    <ColonyManagerRedux.Hunting.Venerated.Tip>Toggle all animals venerated by at least one colonist</ColonyManagerRedux.Hunting.Venerated.Tip>
     <ColonyManagerRedux.Hunting.AreaRestriction>Restrict hunting to</ColonyManagerRedux.Hunting.AreaRestriction>
     <ColonyManagerRedux.Hunting.Aggressive>Aggressive</ColonyManagerRedux.Hunting.Aggressive>
     <ColonyManagerRedux.Hunting.Aggressive.Tip>Toggle all aggressive animals</ColonyManagerRedux.Hunting.Aggressive.Tip>
