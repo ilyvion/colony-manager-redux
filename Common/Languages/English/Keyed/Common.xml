@@ -101,6 +101,7 @@
     <ColonyManagerRedux.Info.Aggressiveness>Aggressiveness: {0}</ColonyManagerRedux.Info.Aggressiveness>
     <ColonyManagerRedux.Info.Gender.Male>male</ColonyManagerRedux.Info.Gender.Male>
     <ColonyManagerRedux.Info.Gender.Female>female</ColonyManagerRedux.Info.Gender.Female>
+    <ColonyManagerRedux.Info.Stuff>stuff</ColonyManagerRedux.Info.Stuff>
     <ColonyManagerRedux.Info.ChanceToDrop>chance to drop: {0}</ColonyManagerRedux.Info.ChanceToDrop>
     <!-- Shortcuts -->
     <ColonyManagerRedux.Shortcuts.All>All</ColonyManagerRedux.Shortcuts.All>

@@ -82,6 +82,54 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Gets the expected deconstruction refund of <paramref name="building"/>. A null def stands
+    /// for the building's (not yet known) stuff.
+    /// </summary>
+    internal static List<(ThingDef? def, int count)> GetBuildingYields(ThingDef building)
+    {
+        List<(ThingDef? def, int count)> yields = [];
+
+        void Add(ThingDef? def, int count)
+        {
+            var refund = ManagerJob_Mining.ClampScaledCount(
+                Mathf.RoundToInt(count * building.resourcesFractionWhenDeconstructed),
+                count
+            );
+            if (refund > 0)
+            {
+                yields.Add((def, refund));
+            }
+        }
+
+        if (building.MadeFromStuff)
+        {
+            Add(null, building.CostStuffCount);
+        }
+        if (!building.costList.NullOrEmpty())
+        {
+            foreach (var cost in building.costList)
+            {
+                Add(cost.thingDef, cost.count);
+            }
+        }
+
+        return yields;
+    }
+
+    public static string GetBuildingTooltip(ThingDef building)
+    {
+        var yields = GetBuildingYields(building);
+        return yields.Count == 0
+            ? building.description
+            : $"{building.description}\n\n"
+                + I18n.YieldMany(
+                    yields.Select(y =>
+                        $"{y.count}x {y.def?.LabelCap.Resolve() ?? "ColonyManagerRedux.Info.Stuff".Translate().Resolve()}"
+                    )
+                );
+    }
+
     public override string GetSubLabel(ManagerJob job)
     {
         var miningJob = (ManagerJob_Mining)job;
@@ -115,7 +163,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
             allowedBuildings.Contains,
             (building, allow) => SelectedMiningJob.SetBuildingAllowed(building, allow),
             building => building.LabelCap,
-            building => building.description,
+            building => new TipSignal(() => GetBuildingTooltip(building), building.GetHashCode()),
             (rect, building) =>
             {
                 if (Widgets.InfoCardButtonWorker(rect))

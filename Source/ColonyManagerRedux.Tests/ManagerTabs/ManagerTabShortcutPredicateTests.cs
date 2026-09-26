@@ -478,4 +478,43 @@ internal sealed class ManagerTabShortcutPredicateTests
         Expect.IsTrue(ManagerTab_Forestry.IsFlammable(WithFlammability(0.5f)), "0.5");
         Expect.IsFalse(ManagerTab_Forestry.IsFlammable(WithFlammability(0f)), "0");
     }
+
+    // Mining building yields
+
+    private static ThingDef Building(
+        int costStuffCount,
+        float fraction,
+        params (ThingDef def, int count)[] costs
+    ) =>
+        new()
+        {
+            costStuffCount = costStuffCount,
+            stuffCategories = costStuffCount > 0 ? [StuffCategoryDefOf.Metallic] : null,
+            costList = [.. costs.Select(c => new ThingDefCountClass(c.def, c.count))],
+            resourcesFractionWhenDeconstructed = fraction,
+        };
+
+    [Test]
+    public static void BuildingYieldsListStuffGenericallyAndScaleByRefundFraction()
+    {
+        var yields = ManagerTab_Mining.GetBuildingYields(
+            Building(10, 0.5f, (ThingDefOf.Steel, 20), (ThingDefOf.Gold, 4))
+        );
+
+        Expect.AreEqual(3, yields.Count);
+        Expect.IsNull(yields[0].def);
+        Expect.AreEqual(5, yields[0].count);
+        Expect.AreEqual(ThingDefOf.Steel, yields[1].def);
+        Expect.AreEqual(10, yields[1].count);
+        Expect.AreEqual(ThingDefOf.Gold, yields[2].def);
+        Expect.AreEqual(2, yields[2].count);
+    }
+
+    [Test]
+    public static void BuildingYieldsOmitEntriesThatRefundNothing()
+    {
+        var yields = ManagerTab_Mining.GetBuildingYields(Building(0, 0.5f, (ThingDefOf.Steel, 1)));
+
+        Expect.AreEqual(0, yields.Count);
+    }
 }
