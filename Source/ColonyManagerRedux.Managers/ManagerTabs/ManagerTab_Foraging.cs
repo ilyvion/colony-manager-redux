@@ -235,7 +235,7 @@ internal sealed class ManagerTab_Foraging(Manager manager)
 
     internal static bool IsMushroom(ThingDef plant) => plant.plant?.cavePlant ?? false;
 
-    private static readonly ShortcutCategory<ThingDef>[] _plantShortcuts =
+    internal static readonly ShortcutCategory<ThingDef>[] _plantShortcuts =
     [
         new(
             "ColonyManagerRedux.Foraging.Edible",

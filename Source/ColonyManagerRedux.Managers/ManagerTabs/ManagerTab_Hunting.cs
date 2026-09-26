@@ -350,7 +350,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         kind.RaceProps.deathAction?.workerClass == typeof(DeathActionWorker_SmallExplosion)
         || kind.RaceProps.deathAction?.workerClass == typeof(DeathActionWorker_BigExplosion);
 
-    private static readonly ShortcutCategory<PawnKindDef>[] _animalShortcuts =
+    internal static readonly ShortcutCategory<PawnKindDef>[] _animalShortcuts =
     [
         new(
             "ColonyManagerRedux.Hunting.Predators",

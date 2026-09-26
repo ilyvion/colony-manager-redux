@@ -365,7 +365,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         plant.Fillage == FillCategory.Full
         || (plant.Fillage == FillCategory.Partial && plant.fillPercent > 0);
 
-    private static readonly ShortcutCategory<ThingDef>[] _treeShortcuts =
+    internal static readonly ShortcutCategory<ThingDef>[] _treeShortcuts =
     [
         new(
             "ColonyManagerRedux.Forestry.Mini",
@@ -384,7 +384,7 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         ),
     ];
 
-    private static readonly ShortcutCategory<ThingDef>[] _clearAreaTreeShortcuts =
+    internal static readonly ShortcutCategory<ThingDef>[] _clearAreaTreeShortcuts =
     [
         new(
             "ColonyManagerRedux.Forestry.Trees",

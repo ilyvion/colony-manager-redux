@@ -335,6 +335,36 @@ internal sealed class ManagerTabShortcutPredicateTests
         Expect.IsTrue(groups[power].Contains(battery), "power");
     }
 
+    // Shortcut sets
+
+    private static void ExpectDistinctResolvableLabels<T>(
+        string tab,
+        params ShortcutCategory<T>[][] sets
+    )
+    {
+        var seen = new HashSet<string> { "ColonyManagerRedux.Shortcuts.All".Translate().Resolve() };
+        foreach (var category in sets.SelectMany(s => s))
+        {
+            Expect.IsTrue(category.LabelKey.CanTranslate(), $"{tab}: {category.LabelKey} exists");
+            Expect.IsTrue(category.TipKey.CanTranslate(), $"{tab}: {category.TipKey} exists");
+            var label = category.LabelKey.Translate().Resolve();
+            Expect.IsTrue(seen.Add(label), $"{tab}: label '{label}' is unique");
+        }
+    }
+
+    [Test]
+    public static void EachTabsShortcutRowsHaveDistinctResolvableLabels()
+    {
+        ExpectDistinctResolvableLabels("Hunting", ManagerTab_Hunting._animalShortcuts);
+        ExpectDistinctResolvableLabels("Foraging", ManagerTab_Foraging._plantShortcuts);
+        ExpectDistinctResolvableLabels(
+            "Forestry",
+            ManagerTab_Forestry._treeShortcuts,
+            ManagerTab_Forestry._clearAreaTreeShortcuts
+        );
+        ExpectDistinctResolvableLabels("Mining", ManagerTab_Mining._mineralShortcuts);
+    }
+
     // Shared shortcut rows
 
     [Test]

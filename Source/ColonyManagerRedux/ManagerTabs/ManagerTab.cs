@@ -716,18 +716,6 @@ public abstract class ManagerTab(Manager manager)
     protected virtual void PostSelect() { }
 
     /// <summary>
-    /// A shortcut row that toggles every option matching <paramref name="Predicate"/>.
-    /// </summary>
-    /// <param name="LabelKey">The translation key for the row label.</param>
-    /// <param name="TipKey">The translation key for the row tooltip.</param>
-    /// <param name="Predicate">Selects the options this row toggles.</param>
-    protected internal sealed record ShortcutCategory<T>(
-        string LabelKey,
-        string TipKey,
-        Func<T, bool> Predicate
-    );
-
-    /// <summary>
     /// Whether a shortcut row that toggles <paramref name="matchCount"/> of
     /// <paramref name="optionCount"/> options is worth showing. Rows that toggle nothing, or
     /// (unless <paramref name="isAllRow"/>) everything, add nothing over the All row and are

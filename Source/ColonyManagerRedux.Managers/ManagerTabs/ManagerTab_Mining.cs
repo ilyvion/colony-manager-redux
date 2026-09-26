@@ -206,7 +206,7 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
     internal static bool IsDirectYieldingMineral(ThingDef mineral) =>
         mineral.building.mineableThing != null && !mineral.building.mineableThing.IsChunk();
 
-    private static readonly ShortcutCategory<ThingDef>[] _mineralShortcuts =
+    internal static readonly ShortcutCategory<ThingDef>[] _mineralShortcuts =
     [
         new("ColonyManagerRedux.Mining.Stone", "ColonyManagerRedux.Mining.Stone.Tip", IsStone),
         new(
