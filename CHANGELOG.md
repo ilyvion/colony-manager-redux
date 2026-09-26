@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Hunting job's animal shortcuts now include Insects, Non-flesh, Has meat and Has leather.
 - The Mining job's building list now has one shortcut row per building category (Structure, Furniture, Production, Power, and so on) in addition to All.
 - The Mining job's mineral shortcuts now include Deep (minerals a deep drill can also find), Chunks (minerals that yield chunks) and Direct (minerals that yield their resource directly).
+- Shortcut rows can now be modifier-clicked: Ctrl+click allows only that row's options (turning everything else off), Shift+click also allows them and Alt+click stops allowing them, leaving everything else as it is. This makes combinations like 'everything except aggressive animals' quicker to set up. The row tooltips list the modifiers.
 
 ### Changed
 

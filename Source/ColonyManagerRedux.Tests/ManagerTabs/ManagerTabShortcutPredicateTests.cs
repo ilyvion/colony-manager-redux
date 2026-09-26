@@ -368,6 +368,81 @@ internal sealed class ManagerTabShortcutPredicateTests
     // Shared shortcut rows
 
     [Test]
+    public static void ShortcutClickModesFollowHeldModifiers()
+    {
+        Expect.AreEqual(
+            ManagerTab.ShortcutClickMode.Toggle,
+            ManagerTab.ShortcutClickModeFromModifiers(false, false, false)
+        );
+        Expect.AreEqual(
+            ManagerTab.ShortcutClickMode.Restrict,
+            ManagerTab.ShortcutClickModeFromModifiers(true, false, false)
+        );
+        Expect.AreEqual(
+            ManagerTab.ShortcutClickMode.Remove,
+            ManagerTab.ShortcutClickModeFromModifiers(false, true, false)
+        );
+        Expect.AreEqual(
+            ManagerTab.ShortcutClickMode.Add,
+            ManagerTab.ShortcutClickModeFromModifiers(false, false, true)
+        );
+    }
+
+    private static HashSet<int> ClickShortcut(
+        HashSet<int> selected,
+        List<int> matching,
+        ManagerTab.ShortcutClickMode mode,
+        bool plainTurnsOn = true
+    )
+    {
+        var all = new List<int> { 1, 2, 3, 4, 5 };
+        ManagerTab.ApplyShortcutClick(
+            matching,
+            all,
+            (o, on) =>
+            {
+                _ = on ? selected.Add(o) : selected.Remove(o);
+            },
+            mode,
+            plainTurnsOn
+        );
+        return selected;
+    }
+
+    [Test]
+    public static void ShortcutClickRestrictKeepsOnlyMatchingOptions()
+    {
+        var result = ClickShortcut([1, 2, 3, 4], [2, 3, 5], ManagerTab.ShortcutClickMode.Restrict);
+        Expect.IsTrue(result.SetEquals([2, 3, 5]));
+    }
+
+    [Test]
+    public static void ShortcutClickAddKeepsOtherOptionsAndTurnsMatchingOn()
+    {
+        var result = ClickShortcut([1], [2, 3], ManagerTab.ShortcutClickMode.Add);
+        Expect.IsTrue(result.SetEquals([1, 2, 3]));
+    }
+
+    [Test]
+    public static void ShortcutClickRemoveKeepsOtherOptionsAndTurnsMatchingOff()
+    {
+        var result = ClickShortcut([1, 2, 3, 4], [2, 3, 5], ManagerTab.ShortcutClickMode.Remove);
+        Expect.IsTrue(result.SetEquals([1, 4]));
+    }
+
+    [Test]
+    public static void ShortcutClickToggleTurnsMatchingOnOrOff()
+    {
+        Expect.IsTrue(
+            ClickShortcut([1], [2, 3], ManagerTab.ShortcutClickMode.Toggle).SetEquals([1, 2, 3])
+        );
+        Expect.IsTrue(
+            ClickShortcut([1, 2, 3], [2, 3], ManagerTab.ShortcutClickMode.Toggle, false)
+                .SetEquals([1])
+        );
+    }
+
+    [Test]
     public static void ShortcutRowWithNoMatchesIsHidden()
     {
         Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 5), "some options");

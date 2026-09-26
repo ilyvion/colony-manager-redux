@@ -105,6 +105,7 @@
     <!-- Shortcuts -->
     <ColonyManagerRedux.Shortcuts.All>All</ColonyManagerRedux.Shortcuts.All>
     <ColonyManagerRedux.Shortcuts.All.Tip>Toggle all</ColonyManagerRedux.Shortcuts.All.Tip>
+    <ColonyManagerRedux.Shortcuts.Modifiers.Tip>Ctrl+click: allow only these\nShift+click: also allow these\nAlt+click: stop allowing these</ColonyManagerRedux.Shortcuts.Modifiers.Tip>
     <!-- Designations -->
     <ColonyManagerRedux.Designations.CutPlant>cut</ColonyManagerRedux.Designations.CutPlant>
     <ColonyManagerRedux.Designations.HarvestPlant>harvest</ColonyManagerRedux.Designations.HarvestPlant>

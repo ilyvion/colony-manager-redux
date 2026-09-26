@@ -727,6 +727,70 @@ public abstract class ManagerTab(Manager manager)
         bool isAllRow = false
     ) => matchCount > 0 && (isAllRow || matchCount < optionCount);
 
+    /// <summary>
+    /// How a click on a shortcut row combines the row's options with the current selection.
+    /// </summary>
+    internal enum ShortcutClickMode
+    {
+        /// <summary>Turns the row's options all on, or all off if they already were all on.</summary>
+        Toggle,
+
+        /// <summary>Turns the row's options on and leaves everything else as is.</summary>
+        Add,
+
+        /// <summary>Turns the row's options off and leaves everything else as is.</summary>
+        Remove,
+
+        /// <summary>Turns the row's options on and every other option off.</summary>
+        Restrict,
+    }
+
+    /// <summary>
+    /// Maps held modifier keys to a click mode. Ctrl takes precedence over Alt, which takes
+    /// precedence over Shift.
+    /// </summary>
+    internal static ShortcutClickMode ShortcutClickModeFromModifiers(
+        bool control,
+        bool alt,
+        bool shift
+    ) =>
+        control ? ShortcutClickMode.Restrict
+        : alt ? ShortcutClickMode.Remove
+        : shift ? ShortcutClickMode.Add
+        : ShortcutClickMode.Toggle;
+
+    /// <summary>
+    /// Applies a shortcut row click. <paramref name="plainTurnsOn"/> is whether a
+    /// <see cref="ShortcutClickMode.Toggle"/> click turns the row's options on (as opposed to off).
+    /// </summary>
+    internal static void ApplyShortcutClick<T>(
+        List<T> matching,
+        List<T> allOptions,
+        Action<T, bool> setAllowed,
+        ShortcutClickMode mode,
+        bool plainTurnsOn
+    )
+    {
+        switch (mode)
+        {
+            case ShortcutClickMode.Toggle:
+                matching.ForEach(o => setAllowed(o, plainTurnsOn));
+                break;
+            case ShortcutClickMode.Add:
+                matching.ForEach(o => setAllowed(o, true));
+                break;
+            case ShortcutClickMode.Remove:
+                matching.ForEach(o => setAllowed(o, false));
+                break;
+            case ShortcutClickMode.Restrict:
+                var keep = new HashSet<T>(matching);
+                allOptions.ForEach(o => setAllowed(o, keep.Contains(o)));
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
+        }
+    }
+
     private static class ShortcutScratch<T>
     {
         internal static readonly List<T> Matching = [];
@@ -856,14 +920,29 @@ public abstract class ManagerTab(Manager manager)
 
         var (allSelected, noneSelected) = Utilities.ToggleState(matching, selected);
 
+        void OnClick(bool plainTurnsOn)
+        {
+            ApplyShortcutClick(
+                matching,
+                allOptions,
+                setAllowed,
+                ShortcutClickModeFromModifiers(
+                    Event.current.control,
+                    Event.current.alt,
+                    Event.current.shift
+                ),
+                plainTurnsOn
+            );
+        }
+
         Utilities.DrawToggle(
             new Rect(x, y, width, ListEntryHeight),
             label.Italic(),
-            tooltip,
+            tooltip + "\n\n" + "ColonyManagerRedux.Shortcuts.Modifiers.Tip".Translate(),
             allSelected,
             noneSelected,
-            () => matching.ForEach(p => setAllowed(p, true)),
-            () => matching.ForEach(p => setAllowed(p, false))
+            () => OnClick(true),
+            () => OnClick(false)
         );
         y += ListEntryHeight;
     }
