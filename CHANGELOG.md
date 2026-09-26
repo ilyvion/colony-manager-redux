@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The Hunting, Foraging, Forestry and Mining jobs could log a 'double-add designation' error, or designate an animal that had died or a target that had left the map, when the target was designated or removed between the job planning its work and carrying it out. Such targets are now skipped.
 - The stockpile selector kept showing the old colour swatches when a stockpile was replaced by one of a different colour.
 - Adding a per-animal override in the Livestock job's Job Defaults tab showed 5 in every target count box and reset the copied counts to 5 as soon as the tab was drawn, instead of keeping the counts copied from the default settings.
+- The Mining job's 'Designate chunks on the map for hauling' setting now designates chunks for hauling as colonists mine them.
 
 ## [0.19.1] - 2026-09-20
 
