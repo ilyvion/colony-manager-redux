@@ -200,6 +200,39 @@ internal sealed class ManagerTab_Foraging(Manager manager)
     internal static bool IsEdible(ThingDef plant) =>
         plant.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false;
 
+    internal static bool IsNonEdible(ThingDef plant) => !IsEdible(plant);
+
+    internal static bool IsMedicinal(ThingDef plant) =>
+        plant.plant?.harvestedThingDef?.IsMedicine ?? false;
+
+    private static readonly Dictionary<ThingDef, bool> _drugIngredientCache = [];
+
+    internal static bool IsDrugPlant(ThingDef plant)
+    {
+        var harvested = plant.plant?.harvestedThingDef;
+        if (harvested == null)
+        {
+            return false;
+        }
+        if (harvested.IsDrug)
+        {
+            return true;
+        }
+        if (!_drugIngredientCache.TryGetValue(harvested, out var isDrugIngredient))
+        {
+            isDrugIngredient = DefDatabase<RecipeDef>.AllDefsListForReading.Any(recipe =>
+                (recipe.products?.Any(product => product.thingDef.IsDrug) ?? false)
+                && recipe.ingredients.Any(ingredient => ingredient.filter.Allows(harvested))
+            );
+            _drugIngredientCache[harvested] = isDrugIngredient;
+        }
+        return isDrugIngredient;
+    }
+
+    internal static bool IsTextile(ThingDef plant) =>
+        plant.plant?.harvestedThingDef?.stuffProps?.categories?.Contains(StuffCategoryDefOf.Fabric)
+        ?? false;
+
     internal static bool IsMushroom(ThingDef plant) => plant.plant?.cavePlant ?? false;
 
     private static readonly ShortcutCategory<ThingDef>[] _plantShortcuts =
@@ -213,6 +246,26 @@ internal sealed class ManagerTab_Foraging(Manager manager)
             "ColonyManagerRedux.Foraging.Mushrooms",
             "ColonyManagerRedux.Foraging.Mushrooms.Tip",
             IsMushroom
+        ),
+        new(
+            "ColonyManagerRedux.Foraging.Medicinal",
+            "ColonyManagerRedux.Foraging.Medicinal.Tip",
+            IsMedicinal
+        ),
+        new(
+            "ColonyManagerRedux.Foraging.Drugs",
+            "ColonyManagerRedux.Foraging.Drugs.Tip",
+            IsDrugPlant
+        ),
+        new(
+            "ColonyManagerRedux.Foraging.Textile",
+            "ColonyManagerRedux.Foraging.Textile.Tip",
+            IsTextile
+        ),
+        new(
+            "ColonyManagerRedux.Foraging.NonEdible",
+            "ColonyManagerRedux.Foraging.NonEdible.Tip",
+            IsNonEdible
         ),
     ];
 

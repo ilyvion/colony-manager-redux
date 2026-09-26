@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The Livestock job's Training section can now limit training to a set number of animals. Animals that already have (or have finished) one of the training targets count toward the limit and keep their slot; once the limit is reached, no other animals are assigned training. When there's room, choose whether to pick the oldest or youngest animals first, and optionally prefer named animals and/or animals bonded to a colonist. You can also have the limit ignore animals nearing the end of their lifespan (at a configurable percentage of their life expectancy): they no longer take up a slot, so younger animals can be trained in their place, and their existing training is left alone.
+- The Foraging job's plant shortcuts now include Medicinal plants, Drug plants, Textile plants and Non-edible plants, so herbal medicine or cloth plants can be selected without ticking each one by hand.
 
 ### Changed
 

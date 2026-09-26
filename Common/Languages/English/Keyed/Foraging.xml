@@ -12,6 +12,14 @@
     <ColonyManagerRedux.Foraging.Edible.Tip>Select all edible plants</ColonyManagerRedux.Foraging.Edible.Tip>
     <ColonyManagerRedux.Foraging.Mushrooms>Mushrooms</ColonyManagerRedux.Foraging.Mushrooms>
     <ColonyManagerRedux.Foraging.Mushrooms.Tip>Select all mushrooms</ColonyManagerRedux.Foraging.Mushrooms.Tip>
+    <ColonyManagerRedux.Foraging.Medicinal>Medicinal plants</ColonyManagerRedux.Foraging.Medicinal>
+    <ColonyManagerRedux.Foraging.Medicinal.Tip>Select all plants that yield medicine</ColonyManagerRedux.Foraging.Medicinal.Tip>
+    <ColonyManagerRedux.Foraging.Drugs>Drug plants</ColonyManagerRedux.Foraging.Drugs>
+    <ColonyManagerRedux.Foraging.Drugs.Tip>Select all plants that yield drugs or drug ingredients</ColonyManagerRedux.Foraging.Drugs.Tip>
+    <ColonyManagerRedux.Foraging.Textile>Textile plants</ColonyManagerRedux.Foraging.Textile>
+    <ColonyManagerRedux.Foraging.Textile.Tip>Select all plants that yield fabric</ColonyManagerRedux.Foraging.Textile.Tip>
+    <ColonyManagerRedux.Foraging.NonEdible>Non-edible plants</ColonyManagerRedux.Foraging.NonEdible>
+    <ColonyManagerRedux.Foraging.NonEdible.Tip>Select all plants that are not edible</ColonyManagerRedux.Foraging.NonEdible.Tip>
     <ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the plants allowed for foraging, and vice versa.</ColonyManagerRedux.Foraging.SyncFilterAndAllowed.Tip>
     <!-- Logging -->
     <ColonyManagerRedux.Foraging.Logs.Plant>plant</ColonyManagerRedux.Foraging.Logs.Plant>

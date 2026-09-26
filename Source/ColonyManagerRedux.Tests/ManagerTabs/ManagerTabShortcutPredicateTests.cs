@@ -157,6 +157,67 @@ internal sealed class ManagerTabShortcutPredicateTests
         Expect.IsFalse(ManagerTab_Foraging.IsMushroom(new ThingDef()));
     }
 
+    [Test]
+    public static void MedicineYieldingPlantIsMedicinal()
+    {
+        Expect.IsTrue(
+            ManagerTab_Foraging.IsMedicinal(Plant(harvested: ThingDefOf.MedicineHerbal)),
+            "herbal medicine"
+        );
+        Expect.IsFalse(
+            ManagerTab_Foraging.IsMedicinal(Plant(harvested: ThingDefOf.WoodLog)),
+            "wood"
+        );
+        Expect.IsFalse(ManagerTab_Foraging.IsMedicinal(Plant()), "nothing harvested");
+        Expect.IsFalse(ManagerTab_Foraging.IsMedicinal(new ThingDef()), "no plant");
+    }
+
+    [Test]
+    public static void DrugYieldingPlantIsDrugPlant()
+    {
+        Expect.IsTrue(
+            ManagerTab_Foraging.IsDrugPlant(
+                Plant(harvested: DefDatabase<ThingDef>.GetNamed("SmokeleafLeaves"))
+            ),
+            "smokeleaf"
+        );
+        Expect.IsFalse(
+            ManagerTab_Foraging.IsDrugPlant(Plant(harvested: ThingDefOf.WoodLog)),
+            "wood"
+        );
+        Expect.IsFalse(ManagerTab_Foraging.IsDrugPlant(Plant()), "nothing harvested");
+        Expect.IsFalse(ManagerTab_Foraging.IsDrugPlant(new ThingDef()), "no plant");
+    }
+
+    [Test]
+    public static void FabricYieldingPlantIsTextile()
+    {
+        Expect.IsTrue(ManagerTab_Foraging.IsTextile(Plant(harvested: ThingDefOf.Cloth)), "cotton");
+        Expect.IsTrue(
+            ManagerTab_Foraging.IsTextile(
+                Plant(harvested: DefDatabase<ThingDef>.GetNamed("DevilstrandCloth"))
+            ),
+            "devilstrand"
+        );
+        Expect.IsFalse(ManagerTab_Foraging.IsTextile(Plant(harvested: ThingDefOf.WoodLog)), "wood");
+        Expect.IsFalse(ManagerTab_Foraging.IsTextile(Plant()), "nothing harvested");
+        Expect.IsFalse(ManagerTab_Foraging.IsTextile(new ThingDef()), "no plant");
+    }
+
+    [Test]
+    public static void NonEdibleIsTheComplementOfEdible()
+    {
+        Expect.IsFalse(
+            ManagerTab_Foraging.IsNonEdible(Plant(harvested: ThingDefOf.MealSimple)),
+            "meal"
+        );
+        Expect.IsTrue(
+            ManagerTab_Foraging.IsNonEdible(Plant(harvested: ThingDefOf.WoodLog)),
+            "wood"
+        );
+        Expect.IsTrue(ManagerTab_Foraging.IsNonEdible(Plant()), "nothing harvested");
+    }
+
     // Mining
 
     private static ThingDef Vein(string name) => DefDatabase<ThingDef>.GetNamed(name);
