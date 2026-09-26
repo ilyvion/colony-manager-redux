@@ -76,6 +76,8 @@ internal sealed class PawnKindSettings : IExposable
         DefaultTrainerMode = copyFrom.DefaultTrainerMode;
 
         EnabledTrainingTargets = [.. copyFrom.EnabledTrainingTargets];
+
+        _newCounts = [.. DefaultCountTargets.Select(v => v.ToString(CultureInfo.InvariantCulture))];
     }
 
     /// <summary>

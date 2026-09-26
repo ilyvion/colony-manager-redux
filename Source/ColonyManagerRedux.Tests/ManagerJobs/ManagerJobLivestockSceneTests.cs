@@ -70,6 +70,131 @@ internal sealed class ManagerJobLivestockSceneTests
 
     private static ManagerLog NewLog(ManagerJob job) => new(job) { _workDone = true };
 
+    // PostMake
+
+    /// <summary>
+    /// Runs <paramref name="assertions"/> against a job made while the livestock defaults are
+    /// <paramref name="defaults"/> plus <paramref name="overrideForKind"/> as the override for
+    /// <paramref name="kind"/> (when given), restoring the live settings afterwards.
+    /// </summary>
+    private static void WithSettings(
+        PawnKindSettings defaults,
+        PawnKindSettings? overrideForKind,
+        Action<ManagerJob_Livestock> assertions,
+        PawnKindDef? kind = null
+    )
+    {
+        kind ??= Kind;
+        var def = DefDatabase<ManagerDef>.GetNamed("CM_LivestockManager");
+        var live =
+            ColonyManagerReduxMod.Settings.ManagerDefaultSettingsFor<ManagerDefaultSettings_Livestock>(
+                def
+            )!;
+        var savedDefaults = live.defaults;
+        var savedOverrides = live.overrides;
+        try
+        {
+            live.defaults = defaults;
+            live.overrides = overrideForKind is null ? [] : new() { [kind] = overrideForKind };
+
+            using var scene = new ManagerScene();
+            var job = scene.AddJob<ManagerJob_Livestock>("CM_LivestockManager");
+            job.TriggerPawnKind.pawnKind = kind;
+            job.PostMake();
+            assertions(job);
+        }
+        finally
+        {
+            live.defaults = savedDefaults;
+            live.overrides = savedOverrides;
+        }
+    }
+
+    // Muffalo cannot be trained; Husky can learn both tameness and obedience.
+    private static readonly PawnKindDef TrainableKind = DefDatabase<PawnKindDef>.GetNamed("Husky");
+
+    private static PawnKindSettings Configured(
+        int countOffset,
+        bool tameMore,
+        TrainableDef target
+    ) =>
+        new()
+        {
+            DefaultCountTargets =
+            [
+                .. Utilities_Livestock.AgeSexArray.Select((_, i) => countOffset + i),
+            ],
+            DefaultTryTameMore = tameMore,
+            DefaultTamePastTargets = tameMore,
+            DefaultCullingStrategy = LivestockCullingStrategy.Release,
+            DefaultCullTrained = tameMore,
+            EnabledTrainingTargets = [target],
+        };
+
+    [Test]
+    public static void PostMakeSeedsTheJobFromTheSharedDefaultsWithoutAnOverride()
+    {
+        var defaults = Configured(20, true, TrainableDefOf.Obedience);
+
+        WithSettings(
+            defaults,
+            null,
+            job =>
+            {
+                Expect.AreEqual(
+                    string.Join(",", defaults.DefaultCountTargets),
+                    string.Join(",", job.TriggerPawnKind.CountTargets)
+                );
+                Expect.IsTrue(job.TryTameMore);
+                Expect.IsTrue(job.TamePastTargets);
+                Expect.IsTrue(job.CullTrained);
+                Expect.AreEqual(LivestockCullingStrategy.Release, job.CullingStrategy);
+                Expect.IsTrue(job.Training[TrainableDefOf.Obedience]);
+                Expect.IsTrue(job.Training[TrainableDefOf.Tameness]);
+            },
+            TrainableKind
+        );
+    }
+
+    [Test]
+    public static void PostMakePrefersTheOverrideForItsPawnKind()
+    {
+        var defaults = Configured(20, true, TrainableDefOf.Obedience);
+        var @override = Configured(50, false, TrainableDefOf.Tameness);
+        @override.DefaultCullingStrategy = LivestockCullingStrategy.Butcher;
+
+        WithSettings(
+            defaults,
+            @override,
+            job =>
+            {
+                Expect.AreEqual(
+                    string.Join(",", @override.DefaultCountTargets),
+                    string.Join(",", job.TriggerPawnKind.CountTargets)
+                );
+                Expect.IsFalse(job.TryTameMore);
+                Expect.IsFalse(job.TamePastTargets);
+                Expect.IsFalse(job.CullTrained);
+                Expect.AreEqual(LivestockCullingStrategy.Butcher, job.CullingStrategy);
+                Expect.IsTrue(job.Training[TrainableDefOf.Tameness]);
+                Expect.IsFalse(job.Training[TrainableDefOf.Obedience]);
+            },
+            TrainableKind
+        );
+    }
+
+    [Test]
+    public static void CountTargetsAndDefaultCountTargetsHaveTheSameLength() =>
+        WithSettings(
+            new PawnKindSettings(),
+            null,
+            job =>
+                Expect.AreEqual(
+                    new PawnKindSettings().DefaultCountTargets.Length,
+                    job.TriggerPawnKind.CountTargets.Length
+                )
+        );
+
     // DesignationCullingAction
 
     [Test]

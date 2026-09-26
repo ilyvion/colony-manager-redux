@@ -73,6 +73,11 @@
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.PlanDeconstructBuildings" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Mining.PlanMineResources" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Livestock.PlanMaster" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.PawnKindSettings._newCounts" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerDefaultSettings_Livestock.defaults" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerDefaultSettings_Livestock.overrides" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerDefaultSettings_Livestock._currentLivestockSettingsTab" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerDefaultSettings_Livestock.currentOverrideTab" />
         <Publicize Include="Assembly-CSharp:RimWorld.PawnColumnWorker_WorkPriority.IsIncapableOfWholeWorkType" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._traderBuildings" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._batteryBuildings" />

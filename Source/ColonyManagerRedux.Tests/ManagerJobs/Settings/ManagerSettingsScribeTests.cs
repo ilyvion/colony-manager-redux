@@ -14,7 +14,7 @@ namespace ColonyManagerRedux.Tests;
 [TestFixture(TestType.MainMenu)]
 internal sealed class ManagerSettingsScribeTests
 {
-    private static IEnumerable<FieldInfo> SettingFields(object target) =>
+    internal static IEnumerable<FieldInfo> SettingFields(object target) =>
         target
             .GetType()
             .GetFields(BindingFlags.Public | BindingFlags.Instance)
@@ -24,7 +24,7 @@ internal sealed class ManagerSettingsScribeTests
     /// Returns a value of <paramref name="field"/>'s type that differs from
     /// <paramref name="current"/>.
     /// </summary>
-    private static object NonDefaultValue(FieldInfo field, object? current)
+    internal static object NonDefaultValue(FieldInfo field, object? current)
     {
         var type = field.FieldType;
         if (type == typeof(bool))
@@ -74,7 +74,7 @@ internal sealed class ManagerSettingsScribeTests
         );
     }
 
-    private static string Describe(object? value)
+    internal static string Describe(object? value)
     {
         if (value is null)
         {
@@ -109,7 +109,7 @@ internal sealed class ManagerSettingsScribeTests
             : Convert.ToString(value, CultureInfo.InvariantCulture) ?? "";
     }
 
-    private static List<string> Differences(object expected, object actual)
+    internal static List<string> Differences(object expected, object actual)
     {
         List<string> differences = [];
         foreach (var field in SettingFields(expected))
@@ -130,7 +130,7 @@ internal sealed class ManagerSettingsScribeTests
     /// Sets every public setting of <paramref name="target"/> to a value that differs from its
     /// current one, and returns how many settings that was.
     /// </summary>
-    private static int FillWithNonDefaults(object target)
+    internal static int FillWithNonDefaults(object target)
     {
         var count = 0;
         foreach (var field in SettingFields(target))
