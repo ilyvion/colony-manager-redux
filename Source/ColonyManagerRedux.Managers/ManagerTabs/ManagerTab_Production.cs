@@ -1049,6 +1049,13 @@ internal sealed class ManagerTab_Production(Manager manager)
                 "ColonyManagerRedux.Production.SyncFilterAndAllowed.Tip".Translate(),
                 ref job.SyncFilterAndAllowed
             );
+            Utilities.DrawToggle(
+                ref pos,
+                width,
+                "ColonyManagerRedux.Production.ConsumeSurplusPerIngredient".Translate(),
+                "ColonyManagerRedux.Production.ConsumeSurplusPerIngredient.Tip".Translate(),
+                ref job.ConsumeSurplusPerIngredient
+            );
         }
 
         var allIngredients = ManagerJob_Production

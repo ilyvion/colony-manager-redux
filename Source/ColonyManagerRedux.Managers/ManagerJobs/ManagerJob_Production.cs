@@ -446,6 +446,75 @@ internal sealed class ManagerJob_Production
     public bool SyncFilterAndAllowed = true;
 
     /// <summary>
+    /// Whether <see cref="ProductionMode.ConsumeSurplus"/>'s trigger is checked against each of
+    /// <see cref="Recipe"/>'s ingredient slots on its own (every slot's stock must satisfy the
+    /// threshold) instead of against the combined stock of everything in
+    /// <see cref="Trigger_Threshold.ThresholdFilter"/>. Has no effect in other modes.
+    /// </summary>
+    public bool ConsumeSurplusPerIngredient;
+
+    /// <summary>
+    /// The threshold-filter-allowed defs for each of <paramref name="recipe"/>'s ingredient slots,
+    /// in slot order; slots with no threshold-allowed def are omitted. Pure function, kept
+    /// separate from <see cref="GatherJobDataCoroutine"/> so it's unit-testable.
+    /// </summary>
+    internal static List<List<ThingDef>> ThresholdIngredientSlots(
+        RecipeDef recipe,
+        ThingFilter thresholdFilter
+    )
+    {
+        var options = AllRecipeIngredientOptions(recipe).ToHashSet();
+        return
+        [
+            .. recipe
+                .ingredients.Select(slot =>
+                    slot.filter.AllowedThingDefs.Where(d =>
+                            options.Contains(d) && thresholdFilter.Allows(d)
+                        )
+                        .ToList()
+                )
+                .Where(defs => defs.Count > 0),
+        ];
+    }
+
+    /// <summary>
+    /// Whether every count in <paramref name="slotCounts"/> satisfies <paramref name="isActive"/>.
+    /// Pure function, kept separate from <see cref="GatherJobDataCoroutine"/> so it's
+    /// unit-testable.
+    /// </summary>
+    internal static bool AllSlotsActive(IEnumerable<int> slotCounts, Func<int, bool> isActive) =>
+        slotCounts.All(isActive);
+
+    private bool IsTriggerActive()
+    {
+        if (_mode != ProductionMode.ConsumeSurplus || !ConsumeSurplusPerIngredient)
+        {
+            return TriggerThreshold.State;
+        }
+
+        var slots = ThresholdIngredientSlots(Recipe!, TriggerThreshold.ThresholdFilter);
+        if (slots.Count == 0)
+        {
+            return TriggerThreshold.State;
+        }
+
+        var counts = slots.Select(defs =>
+        {
+            var filter = new ThingFilter();
+            foreach (var def in defs)
+            {
+                filter.SetAllow(def, true);
+            }
+            return Manager.map.CountProducts(
+                filter,
+                TriggerThreshold.Stockpile,
+                TriggerThreshold.CountAllOnMap
+            );
+        });
+        return AllSlotsActive(counts, c => !TriggerThreshold.DoesCountMeetTarget(c));
+    }
+
+    /// <summary>
     /// Per-job overrides of <see cref="ManagerSettings_Production.ReservedStock"/> — how many of a
     /// given raw material this job's bills should never consume, regardless of the mod-wide
     /// default. Only ingredients actually worth tuning per job need an entry here; every other
@@ -1215,6 +1284,7 @@ internal sealed class ManagerJob_Production
         Scribe_Collections.Look(ref AllowedIngredients, "allowedIngredients", LookMode.Def);
         Scribe_Values.Look(ref Sync, "sync", Utilities.SyncDirection.AllowedToFilter);
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
+        Scribe_Values.Look(ref ConsumeSurplusPerIngredient, "consumeSurplusPerIngredient");
         Scribe_Collections.Look(
             ref ReservedStockOverrides,
             "reservedStockOverrides",
@@ -1492,7 +1562,7 @@ internal sealed class ManagerJob_Production
         }
 
         var reserveCappedIterations = ReserveCappedIterations(Recipe);
-        var triggerActive = TriggerThreshold.State && reserveCappedIterations > 0;
+        var triggerActive = IsTriggerActive() && reserveCappedIterations > 0;
         JobState = triggerActive ? ManagerJobState.Active : ManagerJobState.Completed;
 
         jobLog.AddDetail(

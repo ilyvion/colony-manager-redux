@@ -1047,4 +1047,48 @@ internal sealed class ManagerJobProductionTests
         Expect.IsNull(RecipeProductResolvers.ResolverFor(recipe));
         Expect.IsEmpty(ResolvedOutputDefs(recipe));
     }
+
+    [Test]
+    public static void ThresholdIngredientSlotsKeepsSlotsSeparateAndDropsUnfilteredOnes()
+    {
+        var copper = new ThingDef { defName = "CMR_TestSlotCopper" };
+        var tin = new ThingDef { defName = "CMR_TestSlotTin" };
+        var wood = new ThingDef { defName = "CMR_TestSlotWood" };
+        static IngredientCount Slot(params ThingDef[] defs)
+        {
+            var filter = new ThingFilter();
+            foreach (var def in defs)
+            {
+                filter.SetAllow(def, true);
+            }
+            return new IngredientCount { filter = filter };
+        }
+        var recipe = new RecipeDef
+        {
+            ingredients = [Slot(copper), Slot(tin, wood)],
+            fixedIngredientFilter = null,
+        };
+        var thresholdFilter = new ThingFilter();
+        thresholdFilter.SetAllow(copper, true);
+        thresholdFilter.SetAllow(tin, true);
+
+        var slots = ThresholdIngredientSlots(recipe, thresholdFilter);
+
+        Expect.AreEqual(2, slots.Count);
+        Expect.AreEqual(1, slots[0].Count);
+        Expect.IsTrue(slots[0].Contains(copper));
+        Expect.AreEqual(1, slots[1].Count);
+        Expect.IsTrue(slots[1].Contains(tin));
+
+        thresholdFilter.SetAllow(copper, false);
+        Expect.AreEqual(1, ThresholdIngredientSlots(recipe, thresholdFilter).Count);
+    }
+
+    [Test]
+    public static void AllSlotsActiveRequiresEverySlot()
+    {
+        // 'active if more than 400': combined 500 would be active, but copper's 100 is not.
+        Expect.IsFalse(AllSlotsActive([100, 400], c => c > 400));
+        Expect.IsTrue(AllSlotsActive([500, 450], c => c > 400));
+    }
 }

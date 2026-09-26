@@ -12,6 +12,8 @@
     <ColonyManagerRedux.Production.Mode.ConsumeSurplus.Tip>Run this recipe whenever a surplus of some other resource is available, independent of the recipe's own output. E.g. turn excess cotton into cotton dusters.</ColonyManagerRedux.Production.Mode.ConsumeSurplus.Tip>
     <ColonyManagerRedux.Production.Ingredients>Ingredients</ColonyManagerRedux.Production.Ingredients>
     <ColonyManagerRedux.Production.SyncFilterAndAllowed.Tip>Keep the allowed ingredients in sync with the trigger's threshold filter. Turn this off to trigger on one resource (e.g. hay) while consuming a different one (e.g. meat for carnivore meals).</ColonyManagerRedux.Production.SyncFilterAndAllowed.Tip>
+    <ColonyManagerRedux.Production.ConsumeSurplusPerIngredient>Check each ingredient</ColonyManagerRedux.Production.ConsumeSurplusPerIngredient>
+    <ColonyManagerRedux.Production.ConsumeSurplusPerIngredient.Tip>Check the threshold against each of the recipe's ingredients separately, and only run when every one of them meets it, instead of checking their combined total. E.g. with 50 cloth and 100 chemfuel, 'more than 100' is not met because there's only 50 cloth.</ColonyManagerRedux.Production.ConsumeSurplusPerIngredient.Tip>
     <ColonyManagerRedux.Production.IngredientCategory.Tip>Toggle all {0} ingredients</ColonyManagerRedux.Production.IngredientCategory.Tip>
     <ColonyManagerRedux.Production.WorkbenchScope>Workbenches</ColonyManagerRedux.Production.WorkbenchScope>
     <ColonyManagerRedux.Production.WorkbenchScope.All>All</ColonyManagerRedux.Production.WorkbenchScope.All>
