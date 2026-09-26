@@ -1060,16 +1060,14 @@ internal sealed class ManagerTab_Production(Manager manager)
             job.SetIngredientAllowed(thingDef, allow);
         }
 
-        var shortcutRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        DrawShortcutToggle(
+        pos.y += DrawShortcutRows(
+            pos,
+            width,
             allIngredients,
             job.AllowedIngredients,
             SetAllowed,
-            shortcutRect,
-            "ColonyManagerRedux.Shortcuts.All",
-            null
+            []
         );
-        pos.y += ListEntryHeight;
 
         foreach (
             var category in ManagerJob_Production
@@ -1077,15 +1075,17 @@ internal sealed class ManagerTab_Production(Manager manager)
                 .OrderBy(g => g.Key.LabelCap.Resolve(), StringComparer.OrdinalIgnoreCase)
         )
         {
-            shortcutRect.y = pos.y;
-            DrawShortcutToggle(
+            DrawShortcutRow(
+                ref pos.y,
+                pos.x,
+                width,
                 [.. category],
+                allIngredients,
                 job.AllowedIngredients,
                 SetAllowed,
-                shortcutRect,
-                category.Key.LabelCap
+                category.Key.LabelCap,
+                "ColonyManagerRedux.Production.IngredientCategory.Tip".Translate(category.Key.label)
             );
-            pos.y += ListEntryHeight;
         }
 
         return pos.y - start.y;

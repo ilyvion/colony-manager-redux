@@ -202,57 +202,29 @@ internal sealed class ManagerTab_Foraging(Manager manager)
 
     internal static bool IsMushroom(ThingDef plant) => plant.plant?.cavePlant ?? false;
 
-    private readonly List<ThingDef> _tmpThings = [];
-
-    public float DrawPlantShortcuts(Vector2 pos, float width)
-    {
-        using var _ = new DoOnDispose(_tmpThings.Clear);
-
-        var start = pos;
-
-        // list of keys in allowed trees list (all plans that yield wood in biome, static)
-        var allowedPlants = SelectedForagingJob.AllowedPlants;
-        var allPlants = SelectedForagingJob.AllPlants;
-
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-
-        DrawShortcutToggle(
-            allPlants,
-            allowedPlants,
-            (p, v) => SelectedForagingJob.SetPlantAllowed(p, v),
-            rowRect,
-            "ColonyManagerRedux.Shortcuts.All",
-            null
-        );
-
-        // toggle edible
-        rowRect.y += ListEntryHeight;
-        _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(IsEdible));
-        DrawShortcutToggle(
-            _tmpThings,
-            allowedPlants,
-            (p, v) => SelectedForagingJob.SetPlantAllowed(p, v),
-            rowRect,
+    private static readonly ShortcutCategory<ThingDef>[] _plantShortcuts =
+    [
+        new(
             "ColonyManagerRedux.Foraging.Edible",
-            "ColonyManagerRedux.Foraging.Edible.Tip"
-        );
-
-        // toggle shrooms
-        rowRect.y += ListEntryHeight;
-        _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(IsMushroom));
-        DrawShortcutToggle(
-            _tmpThings,
-            allowedPlants,
-            (p, v) => SelectedForagingJob.SetPlantAllowed(p, v),
-            rowRect,
+            "ColonyManagerRedux.Foraging.Edible.Tip",
+            IsEdible
+        ),
+        new(
             "ColonyManagerRedux.Foraging.Mushrooms",
-            "ColonyManagerRedux.Foraging.Mushrooms.Tip"
-        );
+            "ColonyManagerRedux.Foraging.Mushrooms.Tip",
+            IsMushroom
+        ),
+    ];
 
-        return rowRect.yMax - start.y;
-    }
+    public float DrawPlantShortcuts(Vector2 pos, float width) =>
+        DrawShortcutRows(
+            pos,
+            width,
+            SelectedForagingJob.AllPlants,
+            SelectedForagingJob.AllowedPlants,
+            (p, v) => SelectedForagingJob.SetPlantAllowed(p, v),
+            _plantShortcuts
+        );
 
     public float DrawThreshold(ManagerJob_Foraging job, Vector2 pos, float width)
     {

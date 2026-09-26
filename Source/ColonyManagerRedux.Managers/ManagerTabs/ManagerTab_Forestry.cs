@@ -356,6 +356,8 @@ internal sealed class ManagerTab_Forestry(Manager manager)
     internal static bool IsWoodTree(ThingDef plant) =>
         plant.plant?.harvestTag == "Wood" || plant.plant?.harvestedThingDef == ThingDefOf.WoodLog;
 
+    internal static bool IsFlammable(ThingDef plant) => plant.BaseFlammability > 0;
+
     internal static bool IsUgly(ThingDef plant) =>
         plant.statBases.GetStatValueFromList(StatDefOf.Beauty, 0) < 0;
 
@@ -363,127 +365,80 @@ internal sealed class ManagerTab_Forestry(Manager manager)
         plant.Fillage == FillCategory.Full
         || (plant.Fillage == FillCategory.Partial && plant.fillPercent > 0);
 
-    private readonly List<ThingDef> _tmpThings = [];
+    private static readonly ShortcutCategory<ThingDef>[] _treeShortcuts =
+    [
+        new(
+            "ColonyManagerRedux.Forestry.Mini",
+            "ColonyManagerRedux.Forestry.Mini.Tip",
+            p => IsTreeOfCategory(p, TreeCategory.Mini)
+        ),
+        new(
+            "ColonyManagerRedux.Forestry.Full",
+            "ColonyManagerRedux.Forestry.Full.Tip",
+            p => IsTreeOfCategory(p, TreeCategory.Full)
+        ),
+        new(
+            "ColonyManagerRedux.Forestry.Super",
+            "ColonyManagerRedux.Forestry.Super.Tip",
+            p => IsTreeOfCategory(p, TreeCategory.Super)
+        ),
+    ];
+
+    private static readonly ShortcutCategory<ThingDef>[] _clearAreaTreeShortcuts =
+    [
+        new(
+            "ColonyManagerRedux.Forestry.Trees",
+            "ColonyManagerRedux.Forestry.Trees.Tip",
+            IsWoodTree
+        ),
+        // Probably all of them; might not be for modded plants.
+        new(
+            "ColonyManagerRedux.Forestry.Flammable",
+            "ColonyManagerRedux.Forestry.Flammable.Tip",
+            IsFlammable,
+            HideWhenAllMatch: true
+        ),
+        new("ColonyManagerRedux.Forestry.Ugly", "ColonyManagerRedux.Forestry.Ugly.Tip", IsUgly),
+        new(
+            "ColonyManagerRedux.Forestry.ProvidesCover",
+            "ColonyManagerRedux.Forestry.ProvidesCover.Tip",
+            ProvidesCover
+        ),
+    ];
 
     public float DrawTreeShortcuts(Vector2 pos, float width)
     {
-        using var _ = new DoOnDispose(_tmpThings.Clear);
-
-        var start = pos;
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+        var allTrees = SelectedForestryJob.AllPlants;
         var allowedTrees = SelectedForestryJob.AllowedTrees;
-        var allPlants = SelectedForestryJob.AllPlants;
+        void SetAllowed(ThingDef tree, bool allow)
+        {
+            SelectedForestryJob.SetTreeAllowed(tree, allow);
+        }
 
-        DrawShortcutToggle(
-            allPlants,
+        var height = DrawShortcutRows(
+            pos,
+            width,
+            allTrees,
             allowedTrees,
-            (t, v) => SelectedForestryJob.SetTreeAllowed(t, v),
-            rowRect,
-            "ColonyManagerRedux.Shortcuts.All",
-            null
-        );
-
-        // toggle mini
-        rowRect.y += ListEntryHeight;
-        _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => IsTreeOfCategory(p, TreeCategory.Mini)));
-        DrawShortcutToggle(
-            _tmpThings,
-            allowedTrees,
-            (p, v) => SelectedForestryJob.SetTreeAllowed(p, v),
-            rowRect,
-            "ColonyManagerRedux.Forestry.Mini",
-            null
-        );
-
-        // toggle full
-        rowRect.y += ListEntryHeight;
-        _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => IsTreeOfCategory(p, TreeCategory.Full)));
-        DrawShortcutToggle(
-            _tmpThings,
-            allowedTrees,
-            (p, v) => SelectedForestryJob.SetTreeAllowed(p, v),
-            rowRect,
-            "ColonyManagerRedux.Forestry.Full",
-            null
-        );
-
-        // toggle super
-        rowRect.y += ListEntryHeight;
-        _tmpThings.Clear();
-        _tmpThings.AddRange(allPlants.Where(p => IsTreeOfCategory(p, TreeCategory.Super)));
-        DrawShortcutToggle(
-            _tmpThings,
-            allowedTrees,
-            (p, v) => SelectedForestryJob.SetTreeAllowed(p, v),
-            rowRect,
-            "ColonyManagerRedux.Forestry.Super",
-            null
+            SetAllowed,
+            _treeShortcuts
         );
 
         if (SelectedForestryJob.Type == ForestryJobType.ClearArea)
         {
-            // trees (anything that drops wood, or has the correct harvest tag).
-            rowRect.y += ListEntryHeight;
-            _tmpThings.Clear();
-            _tmpThings.AddRange(allPlants.Where(IsWoodTree));
-            DrawShortcutToggle(
-                _tmpThings,
+            pos.y += height;
+            height += DrawShortcutRows(
+                pos,
+                width,
+                allTrees,
                 allowedTrees,
-                (t, v) => SelectedForestryJob.SetTreeAllowed(t, v),
-                rowRect,
-                "ColonyManagerRedux.Forestry.Trees",
-                "ColonyManagerRedux.Forestry.Trees.Tip"
-            );
-
-            // flammable (probably all - might be modded stuff).
-            rowRect.y += ListEntryHeight;
-            _tmpThings.Clear();
-            _tmpThings.AddRange(allPlants.Where(tree => tree.BaseFlammability > 0));
-            if (_tmpThings.Count != allPlants.Count)
-            {
-                DrawShortcutToggle(
-                    _tmpThings,
-                    allowedTrees,
-                    (t, v) => SelectedForestryJob.SetTreeAllowed(t, v),
-                    rowRect,
-                    "ColonyManagerRedux.Forestry.Flammable",
-                    "ColonyManagerRedux.Forestry.Flammable.Tip"
-                );
-                rowRect.y += ListEntryHeight;
-            }
-
-            // ugly (possibly none - modded stuff).
-            _tmpThings.Clear();
-            _tmpThings.AddRange(allPlants.Where(IsUgly));
-            if (!_tmpThings.NullOrEmpty())
-            {
-                DrawShortcutToggle(
-                    _tmpThings,
-                    allowedTrees,
-                    (t, v) => SelectedForestryJob.SetTreeAllowed(t, v),
-                    rowRect,
-                    "ColonyManagerRedux.Forestry.Ugly",
-                    "ColonyManagerRedux.Forestry.Ugly.Tip"
-                );
-                rowRect.y += ListEntryHeight;
-            }
-
-            // provides cover
-            _tmpThings.Clear();
-            _tmpThings.AddRange(allPlants.Where(ProvidesCover));
-            DrawShortcutToggle(
-                _tmpThings,
-                allowedTrees,
-                (t, v) => SelectedForestryJob.SetTreeAllowed(t, v),
-                rowRect,
-                "ColonyManagerRedux.Forestry.ProvidesCover",
-                "ColonyManagerRedux.Forestry.ProvidesCover.Tip"
+                SetAllowed,
+                _clearAreaTreeShortcuts,
+                includeAllRow: false
             );
         }
 
-        return rowRect.yMax - start.y;
+        return height;
     }
 
     public override void PostClose() => Refresh();

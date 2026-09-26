@@ -194,4 +194,43 @@ internal sealed class ManagerTabShortcutPredicateTests
         Expect.IsFalse(ManagerTab_Mining.IsMetalMineral(granite), "metal");
         Expect.IsFalse(ManagerTab_Mining.IsPreciousMineral(granite), "precious");
     }
+
+    // Shared shortcut rows
+
+    [Test]
+    public static void ShortcutRowWithNoMatchesIsHidden()
+    {
+        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 5), "some options");
+        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 0), "no options");
+        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(0, 5, hideWhenAllMatch: true), "hide all");
+    }
+
+    [Test]
+    public static void ShortcutRowWithMatchesIsShown()
+    {
+        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(2, 5), "partial");
+        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(5, 5), "all match");
+    }
+
+    [Test]
+    public static void ShortcutRowMatchingEverythingIsHiddenOnlyWhenRequested()
+    {
+        Expect.IsFalse(ManagerTab.IsShortcutRowVisible(5, 5, hideWhenAllMatch: true), "all match");
+        Expect.IsTrue(ManagerTab.IsShortcutRowVisible(4, 5, hideWhenAllMatch: true), "partial");
+    }
+
+    [Test]
+    public static void OnlyPositiveFlammabilityIsFlammable()
+    {
+        static ThingDef WithFlammability(float value)
+        {
+            return new()
+            {
+                statBases = [new StatModifier { stat = StatDefOf.Flammability, value = value }],
+            };
+        }
+
+        Expect.IsTrue(ManagerTab_Forestry.IsFlammable(WithFlammability(0.5f)), "0.5");
+        Expect.IsFalse(ManagerTab_Forestry.IsFlammable(WithFlammability(0f)), "0");
+    }
 }

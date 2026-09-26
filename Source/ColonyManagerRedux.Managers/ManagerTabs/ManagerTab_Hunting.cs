@@ -342,87 +342,39 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
         kind.RaceProps.deathAction?.workerClass == typeof(DeathActionWorker_SmallExplosion)
         || kind.RaceProps.deathAction?.workerClass == typeof(DeathActionWorker_BigExplosion);
 
-    private readonly List<PawnKindDef> _tmpPawnKinds = [];
-
-    public float DrawAnimalShortcuts(Vector2 pos, float width)
-    {
-        using var _ = new DoOnDispose(_tmpPawnKinds.Clear);
-
-        var start = pos;
-
-        // list of keys in allowed animals list (all animals in biome + visible animals on map)
-        var allowedAnimals = SelectedHuntingJob.AllowedAnimals;
-        var allAnimals = SelectedHuntingJob.AllAnimals;
-
-        // toggle all
-        var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        DrawShortcutToggle(
-            allAnimals,
-            allowedAnimals,
-            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
-            rowRect,
-            "ColonyManagerRedux.Shortcuts.All",
-            null
-        );
-
-        // toggle predators
-        rowRect.y += ListEntryHeight;
-        _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(IsPredator));
-        DrawShortcutToggle(
-            _tmpPawnKinds,
-            allowedAnimals,
-            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
-            rowRect,
+    private static readonly ShortcutCategory<PawnKindDef>[] _animalShortcuts =
+    [
+        new(
             "ColonyManagerRedux.Hunting.Predators",
-            "ColonyManagerRedux.Hunting.Predators.Tip"
-        );
-
-        // aggressive animals
-        rowRect.y += ListEntryHeight;
-        _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(IsAggressive));
-        DrawShortcutToggle(
-            _tmpPawnKinds,
-            allowedAnimals,
-            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
-            rowRect,
+            "ColonyManagerRedux.Hunting.Predators.Tip",
+            IsPredator
+        ),
+        new(
             "ColonyManagerRedux.Hunting.Aggressive",
-            "ColonyManagerRedux.Hunting.Aggressive.Tip"
-        );
-
-        // toggle herd animals
-        rowRect.y += ListEntryHeight;
-        _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(IsHerdAnimal));
-        DrawShortcutToggle(
-            _tmpPawnKinds,
-            allowedAnimals,
-            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
-            rowRect,
+            "ColonyManagerRedux.Hunting.Aggressive.Tip",
+            IsAggressive
+        ),
+        new(
             "ColonyManagerRedux.Hunting.HerdAnimals",
-            "ColonyManagerRedux.Hunting.HerdAnimals.Tip"
+            "ColonyManagerRedux.Hunting.HerdAnimals.Tip",
+            IsHerdAnimal
+        ),
+        new(
+            "ColonyManagerRedux.Hunting.Exploding",
+            "ColonyManagerRedux.Hunting.Exploding.Tip",
+            IsExploding
+        ),
+    ];
+
+    public float DrawAnimalShortcuts(Vector2 pos, float width) =>
+        DrawShortcutRows(
+            pos,
+            width,
+            SelectedHuntingJob.AllAnimals,
+            SelectedHuntingJob.AllowedAnimals,
+            (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
+            _animalShortcuts
         );
-
-        // exploding animals
-        _tmpPawnKinds.Clear();
-        _tmpPawnKinds.AddRange(allAnimals.Where(IsExploding));
-
-        if (_tmpPawnKinds.Count > 0)
-        {
-            rowRect.y += ListEntryHeight;
-            DrawShortcutToggle(
-                _tmpPawnKinds,
-                allowedAnimals,
-                (a, v) => SelectedHuntingJob.SetAnimalAllowed(a, v),
-                rowRect,
-                "ColonyManagerRedux.Hunting.Exploding",
-                "ColonyManagerRedux.Hunting.Exploding.Tip"
-            );
-        }
-
-        return rowRect.yMax - start.y;
-    }
 
     public float DrawHuntingGrounds(ManagerJob_Hunting job, Vector2 pos, float width)
     {

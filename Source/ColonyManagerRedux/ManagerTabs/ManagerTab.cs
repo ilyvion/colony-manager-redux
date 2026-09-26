@@ -716,81 +716,171 @@ public abstract class ManagerTab(Manager manager)
     protected virtual void PostSelect() { }
 
     /// <summary>
-    /// Draws a shortcut toggle UI element that allows selecting or deselecting all options in a list.
+    /// A shortcut row that toggles every option matching <paramref name="Predicate"/>.
     /// </summary>
-    /// <typeparam name="T">The type of the options.</typeparam>
-    /// <param name="options">The list of all available options.</param>
-    /// <param name="selected">The set of currently selected options.</param>
-    /// <param name="setAllowed">The action called to set whether an option is allowed (selected).</param>
-    /// <param name="rect">The rectangle area in which to draw the toggle.</param>
-    /// <param name="labelKey">The translation key for the toggle label.</param>
-    /// <param name="toolTipKey">The translation key for the tooltip, or null if none.</param>
-    protected static void DrawShortcutToggle<T>(
-        List<T> options,
-        HashSet<T> selected,
-        Action<T, bool> setAllowed,
-        Rect rect,
-        string labelKey,
-        string? toolTipKey
-    ) =>
-        DrawShortcutToggleCore(
-            options,
-            selected,
-            setAllowed,
-            rect,
-            labelKey.Translate(),
-            toolTipKey != null ? toolTipKey.Translate() : string.Empty
-        );
+    /// <param name="LabelKey">The translation key for the row label.</param>
+    /// <param name="TipKey">The translation key for the row tooltip.</param>
+    /// <param name="Predicate">Selects the options this row toggles.</param>
+    /// <param name="HideWhenAllMatch">
+    /// Also hide the row when every option matches, since it would then duplicate the All row.
+    /// </param>
+    protected internal sealed record ShortcutCategory<T>(
+        string LabelKey,
+        string TipKey,
+        Func<T, bool> Predicate,
+        bool HideWhenAllMatch = false
+    );
 
     /// <summary>
-    /// Like <see cref="DrawShortcutToggle{T}(List{T}, HashSet{T}, Action{T, bool}, Rect, string, string?)"/>,
-    /// but for groups that are derived at runtime instead of statically known ahead of time (e.g.
-    /// a recipe's ingredient categories), and so have no translation key of their own —
-    /// <paramref name="label"/> is used as-is instead of being resolved via <c>.Translate()</c>.
+    /// Whether a shortcut row that toggles <paramref name="matchCount"/> of
+    /// <paramref name="optionCount"/> options is worth showing. Rows that toggle nothing are
+    /// never shown.
     /// </summary>
-    /// <typeparam name="T">The type of the options.</typeparam>
-    /// <param name="options">The list of all available options in this group.</param>
-    /// <param name="selected">The set of currently selected options.</param>
-    /// <param name="setAllowed">The action called to set whether an option is allowed (selected).</param>
-    /// <param name="rect">The rectangle area in which to draw the toggle.</param>
-    /// <param name="label">The label to draw, already resolved to displayable text.</param>
-    protected static void DrawShortcutToggle<T>(
-        List<T> options,
-        HashSet<T> selected,
-        Action<T, bool> setAllowed,
-        Rect rect,
-        TaggedString label
-    ) => DrawShortcutToggleCore(options, selected, setAllowed, rect, label, string.Empty);
+    internal static bool IsShortcutRowVisible(
+        int matchCount,
+        int optionCount,
+        bool hideWhenAllMatch = false
+    ) => matchCount > 0 && !(hideWhenAllMatch && matchCount == optionCount);
 
-    private static void DrawShortcutToggleCore<T>(
+    private static class ShortcutScratch<T>
+    {
+        internal static readonly List<T> Matching = [];
+    }
+
+    /// <summary>
+    /// Draws an All row followed by one row per <paramref name="categories"/> entry that
+    /// toggles at least one option.
+    /// </summary>
+    /// <returns>The height used.</returns>
+    protected static float DrawShortcutRows<T>(
+        Vector2 pos,
+        float width,
         List<T> options,
         HashSet<T> selected,
         Action<T, bool> setAllowed,
-        Rect rect,
-        TaggedString label,
-        TipSignal tooltip
+        IEnumerable<ShortcutCategory<T>> categories,
+        bool includeAllRow = true
     )
     {
         if (options == null)
         {
             throw new ArgumentNullException(nameof(options));
         }
+        if (categories == null)
+        {
+            throw new ArgumentNullException(nameof(categories));
+        }
+
+        var y = pos.y;
+        if (includeAllRow)
+        {
+            DrawShortcutRow(
+                ref y,
+                pos.x,
+                width,
+                options,
+                options,
+                selected,
+                setAllowed,
+                "ColonyManagerRedux.Shortcuts.All".Translate(),
+                "ColonyManagerRedux.Shortcuts.All.Tip".Translate()
+            );
+        }
+
+        var matching = ShortcutScratch<T>.Matching;
+        try
+        {
+            foreach (var category in categories)
+            {
+                matching.Clear();
+                foreach (var option in options)
+                {
+                    if (category.Predicate(option))
+                    {
+                        matching.Add(option);
+                    }
+                }
+
+                DrawShortcutRow(
+                    ref y,
+                    pos.x,
+                    width,
+                    matching,
+                    options,
+                    selected,
+                    setAllowed,
+                    category.LabelKey.Translate(),
+                    category.TipKey.Translate(),
+                    category.HideWhenAllMatch
+                );
+            }
+        }
+        finally
+        {
+            matching.Clear();
+        }
+
+        return y - pos.y;
+    }
+
+    /// <summary>
+    /// Draws a single shortcut row at <paramref name="y"/> and advances <paramref name="y"/>
+    /// past it, unless the row is redundant (see <see cref="IsShortcutRowVisible"/>), in which
+    /// case nothing is drawn and <paramref name="y"/> is unchanged.
+    /// </summary>
+    /// <param name="y">The top of the row; advanced by the row height if drawn.</param>
+    /// <param name="x">The left edge of the row.</param>
+    /// <param name="width">The width of the row.</param>
+    /// <param name="matching">The options this row toggles.</param>
+    /// <param name="allOptions">All options in the list the row belongs to.</param>
+    /// <param name="selected">The set of currently selected options.</param>
+    /// <param name="setAllowed">The action called to set whether an option is allowed (selected).</param>
+    /// <param name="label">The row label, already resolved to displayable text.</param>
+    /// <param name="tooltip">The row tooltip, already resolved to displayable text.</param>
+    /// <param name="hideWhenAllMatch">Also hide the row when every option matches.</param>
+    protected static void DrawShortcutRow<T>(
+        ref float y,
+        float x,
+        float width,
+        List<T> matching,
+        List<T> allOptions,
+        HashSet<T> selected,
+        Action<T, bool> setAllowed,
+        TaggedString label,
+        TaggedString tooltip,
+        bool hideWhenAllMatch = false
+    )
+    {
+        if (matching == null)
+        {
+            throw new ArgumentNullException(nameof(matching));
+        }
+        if (allOptions == null)
+        {
+            throw new ArgumentNullException(nameof(allOptions));
+        }
         if (selected == null)
         {
             throw new ArgumentNullException(nameof(selected));
         }
 
-        var (allSelected, noneSelected) = Utilities.ToggleState(options, selected);
+        if (!IsShortcutRowVisible(matching.Count, allOptions.Count, hideWhenAllMatch))
+        {
+            return;
+        }
+
+        var (allSelected, noneSelected) = Utilities.ToggleState(matching, selected);
 
         Utilities.DrawToggle(
-            rect,
+            new Rect(x, y, width, ListEntryHeight),
             label.Italic(),
             tooltip,
             allSelected,
             noneSelected,
-            () => options.ForEach(p => setAllowed(p, true)),
-            () => options.ForEach(p => setAllowed(p, false))
+            () => matching.ForEach(p => setAllowed(p, true)),
+            () => matching.ForEach(p => setAllowed(p, false))
         );
+        y += ListEntryHeight;
     }
 
     private readonly ScrollViewStatus _jobListScrollViewStatus = new();

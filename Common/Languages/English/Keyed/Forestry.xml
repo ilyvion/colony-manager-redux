@@ -16,8 +16,11 @@
     <ColonyManagerRedux.Forestry.JobType.Logging>Wood logging</ColonyManagerRedux.Forestry.JobType.Logging>
     <ColonyManagerRedux.Forestry.JobType.Logging.Tip>Chop trees for wood</ColonyManagerRedux.Forestry.JobType.Logging.Tip>
     <ColonyManagerRedux.Forestry.Mini>Mini trees</ColonyManagerRedux.Forestry.Mini>
+    <ColonyManagerRedux.Forestry.Mini.Tip>Select all mini trees</ColonyManagerRedux.Forestry.Mini.Tip>
     <ColonyManagerRedux.Forestry.Full>Full trees</ColonyManagerRedux.Forestry.Full>
+    <ColonyManagerRedux.Forestry.Full.Tip>Select all full-sized trees</ColonyManagerRedux.Forestry.Full.Tip>
     <ColonyManagerRedux.Forestry.Super>Super trees</ColonyManagerRedux.Forestry.Super>
+    <ColonyManagerRedux.Forestry.Super.Tip>Select all super trees</ColonyManagerRedux.Forestry.Super.Tip>
     <ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip>Enabling this will try to synchronize the counted materials in the threshold filter with the trees allowed for chopping, and vice versa.</ColonyManagerRedux.Forestry.SyncFilterAndAllowed.Tip>
     <ColonyManagerRedux.Forestry.Clear>Clear {0}</ColonyManagerRedux.Forestry.Clear>
     <ColonyManagerRedux.Forestry.Trees>Trees</ColonyManagerRedux.Forestry.Trees>

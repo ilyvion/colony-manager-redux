@@ -104,6 +104,7 @@
     <ColonyManagerRedux.Info.ChanceToDrop>chance to drop: {0}</ColonyManagerRedux.Info.ChanceToDrop>
     <!-- Shortcuts -->
     <ColonyManagerRedux.Shortcuts.All>All</ColonyManagerRedux.Shortcuts.All>
+    <ColonyManagerRedux.Shortcuts.All.Tip>Toggle all</ColonyManagerRedux.Shortcuts.All.Tip>
     <!-- Designations -->
     <ColonyManagerRedux.Designations.CutPlant>cut</ColonyManagerRedux.Designations.CutPlant>
     <ColonyManagerRedux.Designations.HarvestPlant>harvest</ColonyManagerRedux.Designations.HarvestPlant>
