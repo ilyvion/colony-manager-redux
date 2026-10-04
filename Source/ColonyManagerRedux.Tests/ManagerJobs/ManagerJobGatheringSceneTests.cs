@@ -194,6 +194,63 @@ internal sealed class ManagerJobGatheringSceneTests
         Expect.IsTrue(corpse.IsForbidden(Faction.OfPlayer));
     }
 
+    private static (ManagerJob_Hunting Job, Pawn Kept, Pawn Dropped) HuntingWithDroppedAnimal(
+        ManagerScene scene,
+        int target
+    )
+    {
+        var alpaca = PawnKindDef.Named("Alpaca");
+        var job = NewHunting(scene, target);
+        _ = job.AllowedAnimals.Add(alpaca);
+        var kept = WildPrey(scene, 0);
+        var dropped = scene.SpawnAnimal(alpaca, Slot(scene, 1));
+        _ = Designate(scene, kept, DesignationDefOf.Hunt);
+        _ = Designate(scene, dropped, DesignationDefOf.Hunt);
+        job.AddRelevantGameDesignations(NewLog(job));
+        Expect.AreEqual(2, job.Designations.Count, "Precondition: the job tracks both animals.");
+
+        _ = job.AllowedAnimals.Remove(alpaca);
+        return (job, kept, dropped);
+    }
+
+    [Test]
+    public static void HuntingRemovesDesignationsOnAnimalsNoLongerAllowedWhileAdding()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, dropped) = HuntingWithDroppedAnimal(scene, FarTarget);
+
+        RunJob(scene, job, job.TriggerThreshold);
+
+        Expect.IsNull(scene.Map.designationManager.DesignationOn(dropped, DesignationDefOf.Hunt));
+        Expect.IsNotNull(scene.Map.designationManager.DesignationOn(kept, DesignationDefOf.Hunt));
+        Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    [Test]
+    public static void HuntingRemovesDesignationsOnAnimalsNoLongerAllowedWhileReducing()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, dropped) = HuntingWithDroppedAnimal(scene, 1);
+
+        RunJob(scene, job, job.TriggerThreshold);
+
+        Expect.IsNull(scene.Map.designationManager.DesignationOn(dropped, DesignationDefOf.Hunt));
+        Expect.IsNotNull(scene.Map.designationManager.DesignationOn(kept, DesignationDefOf.Hunt));
+        Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    [Test]
+    public static void HuntingDoesNotCountDesignationsOnAnimalsNoLongerAllowed()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, _) = HuntingWithDroppedAnimal(scene, FarTarget);
+
+        var count = new AnyBoxed<int>(0);
+        ManagerScene.RunToCompletion(job.GetMeatInDesignationsCoroutine(count));
+
+        Expect.AreEqual(kept.EstimatedMeatCount(), count.Value);
+    }
+
     [Test]
     public static void HuntingAdoptsOnlyRelevantGameDesignationsAndOnlyOnce()
     {
@@ -297,6 +354,71 @@ internal sealed class ManagerJobGatheringSceneTests
         Expect.AreEqual(1, job.Designations.Count);
     }
 
+    private static (ManagerJob_Foraging Job, Plant Kept, Plant Dropped) ForagingWithDroppedPlant(
+        ManagerScene scene,
+        int target
+    )
+    {
+        var dandelion = DefDatabase<ThingDef>.GetNamed("Plant_Dandelion");
+        var job = NewForaging(scene, target);
+        _ = job.AllowedPlants.Add(dandelion);
+        var kept = Grown(scene, Bush, 0, 1);
+        var dropped = Grown(scene, dandelion, 1, 1);
+        _ = Designate(scene, kept, DesignationDefOf.HarvestPlant);
+        _ = Designate(scene, dropped, DesignationDefOf.HarvestPlant);
+        job.AddRelevantGameDesignations(NewLog(job));
+        Expect.AreEqual(2, job.Designations.Count, "Precondition: the job tracks both plants.");
+
+        _ = job.AllowedPlants.Remove(dandelion);
+        return (job, kept, dropped);
+    }
+
+    [Test]
+    public static void ForagingRemovesDesignationsOnPlantsNoLongerAllowedWhileAdding()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, dropped) = ForagingWithDroppedPlant(scene, FarTarget);
+
+        RunJob(scene, job, job.TriggerThreshold);
+
+        Expect.IsNull(
+            scene.Map.designationManager.DesignationOn(dropped, DesignationDefOf.HarvestPlant)
+        );
+        Expect.IsNotNull(
+            scene.Map.designationManager.DesignationOn(kept, DesignationDefOf.HarvestPlant)
+        );
+        Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    [Test]
+    public static void ForagingRemovesDesignationsOnPlantsNoLongerAllowedWhileReducing()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, dropped) = ForagingWithDroppedPlant(scene, 1);
+
+        RunJob(scene, job, job.TriggerThreshold);
+
+        Expect.IsNull(
+            scene.Map.designationManager.DesignationOn(dropped, DesignationDefOf.HarvestPlant)
+        );
+        Expect.IsNotNull(
+            scene.Map.designationManager.DesignationOn(kept, DesignationDefOf.HarvestPlant)
+        );
+        Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    [Test]
+    public static void ForagingDoesNotCountDesignationsOnPlantsNoLongerAllowed()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, _) = ForagingWithDroppedPlant(scene, FarTarget);
+
+        var count = new AnyBoxed<int>(0);
+        ManagerScene.RunToCompletion(job.GetCurrentDesignatedCountCoroutine(count));
+
+        Expect.AreEqual(kept.YieldNow(), count.Value);
+    }
+
     [Test]
     public static void ForagingAdoptsOnlyRelevantGameDesignationsAndOnlyOnce()
     {
@@ -386,6 +508,71 @@ internal sealed class ManagerJobGatheringSceneTests
 
         Expect.AreEqual(1, GameDesignations(scene, DesignationDefOf.HarvestPlant));
         Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    private static (ManagerJob_Forestry Job, Plant Kept, Plant Dropped) ForestryWithDroppedTree(
+        ManagerScene scene,
+        int target
+    )
+    {
+        var poplar = DefDatabase<ThingDef>.GetNamed("Plant_TreePoplar");
+        var job = NewForestry(scene, target);
+        _ = job.AllowedTrees.Add(poplar);
+        var kept = Grown(scene, Oak, 0, 2);
+        var dropped = Grown(scene, poplar, 1, 2);
+        _ = Designate(scene, kept, DesignationDefOf.HarvestPlant);
+        _ = Designate(scene, dropped, DesignationDefOf.HarvestPlant);
+        job.AddRelevantGameDesignations(NewLog(job));
+        Expect.AreEqual(2, job.Designations.Count, "Precondition: the job tracks both trees.");
+
+        _ = job.AllowedTrees.Remove(poplar);
+        return (job, kept, dropped);
+    }
+
+    [Test]
+    public static void ForestryRemovesDesignationsOnTreesNoLongerAllowedWhileAdding()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, dropped) = ForestryWithDroppedTree(scene, FarTarget);
+
+        RunJob(scene, job, job.TriggerThreshold);
+
+        Expect.IsNull(
+            scene.Map.designationManager.DesignationOn(dropped, DesignationDefOf.HarvestPlant)
+        );
+        Expect.IsNotNull(
+            scene.Map.designationManager.DesignationOn(kept, DesignationDefOf.HarvestPlant)
+        );
+        Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    [Test]
+    public static void ForestryRemovesDesignationsOnTreesNoLongerAllowedWhileReducing()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, dropped) = ForestryWithDroppedTree(scene, 1);
+
+        RunJob(scene, job, job.TriggerThreshold);
+
+        Expect.IsNull(
+            scene.Map.designationManager.DesignationOn(dropped, DesignationDefOf.HarvestPlant)
+        );
+        Expect.IsNotNull(
+            scene.Map.designationManager.DesignationOn(kept, DesignationDefOf.HarvestPlant)
+        );
+        Expect.AreEqual(1, job.Designations.Count);
+    }
+
+    [Test]
+    public static void ForestryDoesNotCountDesignationsOnTreesNoLongerAllowed()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, _) = ForestryWithDroppedTree(scene, FarTarget);
+
+        var count = new AnyBoxed<int>(0);
+        ManagerScene.RunToCompletion(job.GetCurrentDesignatedCountCoroutine(count));
+
+        Expect.AreEqual(kept.YieldNow(), count.Value);
     }
 
     [Test]

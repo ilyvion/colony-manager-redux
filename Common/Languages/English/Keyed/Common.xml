@@ -122,6 +122,7 @@
     <ColonyManagerRedux.Logs.NoWorkDone>Job reported it got no work done, and provided no more details</ColonyManagerRedux.Logs.NoWorkDone>
     <ColonyManagerRedux.Logs.CleanDeadDesignations>Removed {0} outdated designations ({1} before / {2} after)</ColonyManagerRedux.Logs.CleanDeadDesignations>
     <ColonyManagerRedux.Logs.CleanAreaDesignations>Removed {0} invalid designations ({1} missing target / {2} outside configured {3} area)</ColonyManagerRedux.Logs.CleanAreaDesignations>
+    <ColonyManagerRedux.Logs.CleanDisallowedDesignations>Removed {0} designations on {1} that are no longer allowed</ColonyManagerRedux.Logs.CleanDisallowedDesignations>
     <ColonyManagerRedux.Logs.AddRelevantGameDesignations>Found and added {0} {1} designations that weren't already being tracked</ColonyManagerRedux.Logs.AddRelevantGameDesignations>
     <ColonyManagerRedux.Logs.CurrentCount>Current count / target before adding new designations: {0} / {1}</ColonyManagerRedux.Logs.CurrentCount>
     <ColonyManagerRedux.Logs.TargetsAlreadySatisfied>Job targets are already expected to be satisfied with its current designations; making no changes</ColonyManagerRedux.Logs.TargetsAlreadySatisfied>

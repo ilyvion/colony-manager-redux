@@ -48,6 +48,9 @@ internal sealed class ManagerJob_Mining
         public bool ShouldEnableDrills;
         public List<(CompFlickable Flickable, ThingDef ResDef)> DrillCandidatesToFlick = [];
 
+        // Kind == ReduceDesignations or AddDesignations
+        public List<Designation> DisallowedDesignationsToRemove = [];
+
         // Kind == ReduceDesignations
         public List<(
             Designation Designation,
@@ -923,6 +926,11 @@ internal sealed class ManagerJob_Mining
 
             var des = _designations[i];
 
+            if (IsDisallowedDesignation(des))
+            {
+                continue;
+            }
+
             if (des.def == DesignationDefOf.Deconstruct)
             {
                 count.Value += GetCountInBuilding(des.target.Thing as Building);
@@ -1244,6 +1252,18 @@ internal sealed class ManagerJob_Mining
         && target.Thing is Building building
         && IsValidDeconstructionTarget(building, includeDesignated);
 
+    private bool IsDisallowedDesignation(Designation des) =>
+        des.def == DesignationDefOf.Mine
+            ? des.target.IsValid
+                && des.target.Cell.GetFirstThing<Mineable>(Manager.map) is Mineable mineable
+                && !AllowedMineral(mineable.def)
+            : des.def == DesignationDefOf.Deconstruct
+                && des.target.Thing is Building building
+                && !AllowedBuilding(building.def);
+
+    private int KeptDesignationCount(MiningWorkData data) =>
+        _designations.Count - data.DisallowedDesignationsToRemove.Count;
+
     public bool IsValidMiningTarget(LocalTargetInfo target, bool includeDesignated = false) =>
         target.IsValid
         && target.Cell.GetFirstThing<Mineable>(Manager.map) is Mineable mineable
@@ -1466,6 +1486,9 @@ internal sealed class ManagerJob_Mining
         // designations below — the drill on/off decision only cares whether the trigger's
         // target is currently met, not which branch that leads to.
         var workData = new MiningWorkData();
+        workData.DisallowedDesignationsToRemove.AddRange(
+            PlanDisallowedDesignations(_designations, [], IsDisallowedDesignation)
+        );
         if (ControlDeepDrills)
         {
             ColonyManagerReduxMod.Instance.LogVerboseMessage("Planning deep drill updates");
@@ -1479,9 +1502,11 @@ internal sealed class ManagerJob_Mining
         var directive = TriggerThreshold.GetDirective(count.Value);
         var activePhase = DecideActivePhase(
             directive,
-            ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count),
+            ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
+                KeptDesignationCount(workData)
+            ),
             HaulMapChunks || DeconstructBuildings || AllowMining,
-            ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count)
+            ColonyManagerReduxMod.Settings.CanAddMoreDesignations(KeptDesignationCount(workData))
         );
         if (activePhase == ActivePhase.Reduce)
         {
@@ -1570,7 +1595,7 @@ internal sealed class ManagerJob_Mining
             if (
                 !isLastTask
                 && !ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                    _designations.Count + workData.DesignationsToAdd.Count
+                    KeptDesignationCount(workData) + workData.DesignationsToAdd.Count
                 )
             )
             {
@@ -1680,11 +1705,13 @@ internal sealed class ManagerJob_Mining
 
         List<Designation> sortedMineDesignations = [];
         yield return GetThingsSorted(
-                _designations.Where(d =>
-                    d.def == DesignationDefOf.Mine
-                    && d.target.IsValid
-                    && d.target.Cell.GetFirstThing<Mineable>(Manager.map) is not null
-                ),
+                _designations
+                    .Except(data.DisallowedDesignationsToRemove)
+                    .Where(d =>
+                        d.def == DesignationDefOf.Mine
+                        && d.target.IsValid
+                        && d.target.Cell.GetFirstThing<Mineable>(Manager.map) is not null
+                    ),
                 sortedMineDesignations,
                 _ => true,
                 (m, d) => -GetCountInMineral(m) / d,
@@ -1696,7 +1723,7 @@ internal sealed class ManagerJob_Mining
         // Removal is only planned here, not applied, so _designations.Count itself never
         // shrinks as we go (unlike the pre-two-phase-split code, which deleted designations
         // as it iterated). Track how many we've planned to remove so far and subtract that
-        // from _designations.Count to get the same shrinking "effective count" the old
+        // from KeptDesignationCount to get the same shrinking "effective count" the old
         // ShouldRemoveMoreDesignations checks relied on to stop once back under the cap.
         var plannedRemovalCount = 0;
 
@@ -1710,7 +1737,7 @@ internal sealed class ManagerJob_Mining
             if (
                 TriggerThreshold.DoesCountMeetTarget(count)
                 || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                    _designations.Count - plannedRemovalCount
+                    KeptDesignationCount(data) - plannedRemovalCount
                 )
             )
             {
@@ -1733,15 +1760,15 @@ internal sealed class ManagerJob_Mining
         if (
             TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                _designations.Count - plannedRemovalCount
+                KeptDesignationCount(data) - plannedRemovalCount
             )
         )
         {
             List<Designation> sortedDeconstructDesignations = [];
             yield return GetThingsSorted(
-                    _designations.Where(d =>
-                        d.target.HasThing && d.def == DesignationDefOf.Deconstruct
-                    ),
+                    _designations
+                        .Except(data.DisallowedDesignationsToRemove)
+                        .Where(d => d.target.HasThing && d.def == DesignationDefOf.Deconstruct),
                     sortedDeconstructDesignations,
                     _ => true,
                     (b, d) => -GetCountInBuilding(b) / d,
@@ -1759,7 +1786,7 @@ internal sealed class ManagerJob_Mining
                 if (
                     TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count - plannedRemovalCount
+                        KeptDesignationCount(data) - plannedRemovalCount
                     )
                 )
                 {
@@ -1785,7 +1812,7 @@ internal sealed class ManagerJob_Mining
         if (
             TriggerThreshold.DoesCountMeetTarget(count)
             || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                _designations.Count - plannedRemovalCount
+                KeptDesignationCount(data) - plannedRemovalCount
             )
         )
         {
@@ -1809,7 +1836,7 @@ internal sealed class ManagerJob_Mining
                 if (
                     TriggerThreshold.DoesCountMeetTarget(count)
                     || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
-                        _designations.Count - plannedRemovalCount
+                        KeptDesignationCount(data) - plannedRemovalCount
                     )
                 )
                 {
@@ -1878,7 +1905,7 @@ internal sealed class ManagerJob_Mining
                 TriggerThreshold.DoesCountMeetTarget,
                 () =>
                     ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                        _designations.Count + data.DesignationsToAdd.Count
+                        KeptDesignationCount(data) + data.DesignationsToAdd.Count
                     )
             )
         )
@@ -1931,7 +1958,7 @@ internal sealed class ManagerJob_Mining
                 TriggerThreshold.DoesCountMeetTarget,
                 () =>
                     ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                        _designations.Count + data.DesignationsToAdd.Count
+                        KeptDesignationCount(data) + data.DesignationsToAdd.Count
                     ),
                 building =>
                 {
@@ -2012,7 +2039,7 @@ internal sealed class ManagerJob_Mining
                 TriggerThreshold.DoesCountMeetTarget,
                 () =>
                     ColonyManagerReduxMod.Settings.CanAddMoreDesignations(
-                        _designations.Count + data.DesignationsToAdd.Count
+                        KeptDesignationCount(data) + data.DesignationsToAdd.Count
                     ),
                 m => !IsARoofSupport_Advanced(m)
             )
@@ -2062,6 +2089,14 @@ internal sealed class ManagerJob_Mining
 
         yield return ExecuteDrillFlicks(jobLog, data, workDone)
             .ResumeWhenOtherCoroutineIsCompleted();
+
+        ExecuteDisallowedDesignations(
+            _designations,
+            data.DisallowedDesignationsToRemove,
+            IsDisallowedDesignation,
+            "ColonyManagerRedux.Mining.Logs.Targets".Translate(),
+            jobLog
+        );
 
         yield return data.Kind == MiningWorkKind.ReduceDesignations
             ? ExecuteReduceDesignations(jobLog, data, workDone)

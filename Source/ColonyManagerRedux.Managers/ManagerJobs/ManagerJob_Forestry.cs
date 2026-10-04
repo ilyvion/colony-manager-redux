@@ -53,6 +53,9 @@ internal sealed class ManagerJob_Forestry
         // deletes every outstanding designation anyway).
         public List<Designation> AreaDesignationsToRemove = [];
 
+        // Considered whenever AreaDesignationsToRemove is; never overlaps with it.
+        public List<Designation> DisallowedDesignationsToRemove = [];
+
         // Kind == ClearArea
         public List<(Plant Target, Area Area)> ClearAreaDesignationsToAdd = [];
 
@@ -408,7 +411,7 @@ internal sealed class ManagerJob_Forestry
                 continue;
             }
 
-            if (!plant.Spawned)
+            if (!IsValidDesignatedForestryTarget(plant))
             {
                 continue;
             }
@@ -556,6 +559,9 @@ internal sealed class ManagerJob_Forestry
         return toRemove;
     }
 
+    private bool IsDisallowedDesignation(Designation des) =>
+        des.target.HasThing && !AllowedTrees.Contains(des.target.Thing.def);
+
     private void ExecuteAreaCleanupDesignations(ManagerLog jobLog, ForestryWorkData data)
     {
         var missingThingCount = 0;
@@ -668,11 +674,25 @@ internal sealed class ManagerJob_Forestry
 
         // plan removing designations not in zone.
         data.AreaDesignationsToRemove.AddRange(PlanAreaCleanupDesignations());
+        data.DisallowedDesignationsToRemove.AddRange(
+            PlanDisallowedDesignations(
+                _designations,
+                data.AreaDesignationsToRemove,
+                IsDisallowedDesignation
+            )
+        );
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // add external designations
         AddRelevantGameDesignations(jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        List<Designation> keptDesignations =
+        [
+            .. _designations
+                .Except(data.AreaDesignationsToRemove)
+                .Except(data.DisallowedDesignationsToRemove),
+        ];
 
         // get current lumber count
         yield return CachedCurrentDesignatedCount
@@ -688,12 +708,13 @@ internal sealed class ManagerJob_Forestry
         var directive = TriggerThreshold.GetDirective(count.Value);
         if (
             directive != Trigger_Threshold.Directive.Increase
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(keptDesignations.Count)
         )
         {
             data.Kind = ForestryWorkKind.ReduceDesignations;
 
-            yield return PlanReduceDesignations(count, data).ResumeWhenOtherCoroutineIsCompleted();
+            yield return PlanReduceDesignations(keptDesignations, count, data)
+                .ResumeWhenOtherCoroutineIsCompleted();
 
             yield break;
         }
@@ -707,11 +728,16 @@ internal sealed class ManagerJob_Forestry
             )
         );
 
-        yield return PlanAddDesignations(jobLog, count, data).ResumeWhenOtherCoroutineIsCompleted();
+        yield return PlanAddDesignations(jobLog, keptDesignations.Count, count, data)
+            .ResumeWhenOtherCoroutineIsCompleted();
     }
 
     [CoroutineSettingsMethod]
-    private Coroutine PlanReduceDesignations(Boxed<int> count, ForestryWorkData data)
+    private Coroutine PlanReduceDesignations(
+        List<Designation> keptDesignations,
+        Boxed<int> count,
+        ForestryWorkData data
+    )
     {
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
             PlanReduceDesignations
@@ -723,7 +749,7 @@ internal sealed class ManagerJob_Forestry
 
         List<Designation> sortedDesignations = [];
         yield return GetThingsSorted(
-                _designations.Where(d => d.target.HasThing),
+                keptDesignations.Where(d => d.target.HasThing),
                 sortedDesignations,
                 _ => true,
                 (p, d) => -p.YieldNow() / d,
@@ -739,7 +765,7 @@ internal sealed class ManagerJob_Forestry
         var removeCount = Utilities_Plants.ComputeReduceCount(
             count.Value,
             sortedYields,
-            _designations.Count,
+            keptDesignations.Count,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
         );
@@ -760,6 +786,7 @@ internal sealed class ManagerJob_Forestry
     [CoroutineSettingsMethod]
     private Coroutine PlanAddDesignations(
         ManagerLog jobLog,
+        int keptDesignationCount,
         Boxed<int> count,
         ForestryWorkData data
     )
@@ -772,7 +799,7 @@ internal sealed class ManagerJob_Forestry
                 PlanAddDesignations
             );
 
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(keptDesignationCount))
         {
             jobLog.AddDetail(
                 "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
@@ -807,7 +834,7 @@ internal sealed class ManagerJob_Forestry
         var designateCount = Utilities_Plants.ComputeNumberToDesignate(
             count.Value,
             sortedTreeYields,
-            _designations.Count,
+            keptDesignationCount,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.CanAddMoreDesignations
         );
@@ -936,6 +963,13 @@ internal sealed class ManagerJob_Forestry
         }
 
         ExecuteAreaCleanupDesignations(jobLog, data);
+        ExecuteDisallowedDesignations(
+            _designations,
+            data.DisallowedDesignationsToRemove,
+            IsDisallowedDesignation,
+            "ColonyManagerRedux.Forestry.Logs.Trees".Translate(),
+            jobLog
+        );
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         yield return data.Kind == ForestryWorkKind.ReduceDesignations

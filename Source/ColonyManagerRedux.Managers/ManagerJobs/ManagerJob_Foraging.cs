@@ -44,6 +44,9 @@ internal sealed class ManagerJob_Foraging
         // every outstanding designation anyway).
         public List<Designation> AreaDesignationsToRemove = [];
 
+        // Always considered, same as AreaDesignationsToRemove; never overlaps with it.
+        public List<Designation> DisallowedDesignationsToRemove = [];
+
         // Kind == ReduceDesignations
         public List<(Designation Designation, int Yield, int CountAfter)> DesignationsToRemove = [];
 
@@ -227,7 +230,7 @@ internal sealed class ManagerJob_Foraging
                 continue;
             }
 
-            if (!plant.Spawned)
+            if (!IsValidDesignatedForagingTarget(plant))
             {
                 continue;
             }
@@ -450,6 +453,19 @@ internal sealed class ManagerJob_Foraging
 
         var workData = new ForagingWorkData();
         workData.AreaDesignationsToRemove.AddRange(PlanAreaCleanupDesignations());
+        workData.DisallowedDesignationsToRemove.AddRange(
+            PlanDisallowedDesignations(
+                _designations,
+                workData.AreaDesignationsToRemove,
+                IsDisallowedDesignation
+            )
+        );
+        List<Designation> keptDesignations =
+        [
+            .. _designations
+                .Except(workData.AreaDesignationsToRemove)
+                .Except(workData.DisallowedDesignationsToRemove),
+        ];
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         // designate plants until trigger is met.
@@ -464,7 +480,7 @@ internal sealed class ManagerJob_Foraging
         var directive = TriggerThreshold.GetDirective(count.Value);
         if (
             directive != Trigger_Threshold.Directive.Increase
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(keptDesignations.Count)
         )
         {
             workData.Kind = ForagingWorkKind.ReduceDesignations;
@@ -472,6 +488,7 @@ internal sealed class ManagerJob_Foraging
             yield return PlanReduceDesignations(
                     operationsPerTick,
                     ticksBetweenOperations,
+                    keptDesignations,
                     count,
                     workData
                 )
@@ -494,6 +511,7 @@ internal sealed class ManagerJob_Foraging
                 jobLog,
                 operationsPerTick,
                 ticksBetweenOperations,
+                keptDesignations.Count,
                 count,
                 workData
             )
@@ -534,16 +552,20 @@ internal sealed class ManagerJob_Foraging
         return toRemove;
     }
 
+    private bool IsDisallowedDesignation(Designation des) =>
+        des.target.HasThing && !AllowedPlants.Contains(des.target.Thing.def);
+
     private Coroutine PlanReduceDesignations(
         int operationsPerTick,
         int ticksBetweenOperations,
+        List<Designation> keptDesignations,
         Boxed<int> count,
         ForagingWorkData data
     )
     {
         List<Designation> sortedDesignations = [];
         yield return GetThingsSorted(
-                _designations.Where(d => d.target.HasThing),
+                keptDesignations.Where(d => d.target.HasThing),
                 sortedDesignations,
                 _ => true,
                 (p, d) => -p.YieldNow() / d,
@@ -559,7 +581,7 @@ internal sealed class ManagerJob_Foraging
         var removeCount = Utilities_Plants.ComputeReduceCount(
             count.Value,
             sortedYields,
-            _designations.Count,
+            keptDesignations.Count,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
         );
@@ -581,11 +603,12 @@ internal sealed class ManagerJob_Foraging
         ManagerLog jobLog,
         int operationsPerTick,
         int ticksBetweenOperations,
+        int keptDesignationCount,
         Boxed<int> count,
         ForagingWorkData data
     )
     {
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(keptDesignationCount))
         {
             jobLog.AddDetail(
                 "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
@@ -620,7 +643,7 @@ internal sealed class ManagerJob_Foraging
         var designateCount = Utilities_Plants.ComputeNumberToDesignate(
             count.Value,
             sortedPlantYields,
-            _designations.Count,
+            keptDesignationCount,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.CanAddMoreDesignations
         );
@@ -662,6 +685,13 @@ internal sealed class ManagerJob_Foraging
         }
 
         ExecuteAreaCleanupDesignations(jobLog, data);
+        ExecuteDisallowedDesignations(
+            _designations,
+            data.DisallowedDesignationsToRemove,
+            IsDisallowedDesignation,
+            "ColonyManagerRedux.Foraging.Logs.Plants".Translate(),
+            jobLog
+        );
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         yield return data.Kind == ForagingWorkKind.ReduceDesignations

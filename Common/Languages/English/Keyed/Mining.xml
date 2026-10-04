@@ -71,6 +71,7 @@
     <ColonyManagerRedux.Mining.Logs.Buildings>buildings</ColonyManagerRedux.Mining.Logs.Buildings>
     <ColonyManagerRedux.Mining.Logs.Rock>rock</ColonyManagerRedux.Mining.Logs.Rock>
     <ColonyManagerRedux.Mining.Logs.Rocks>rocks</ColonyManagerRedux.Mining.Logs.Rocks>
+    <ColonyManagerRedux.Mining.Logs.Targets>rocks and buildings</ColonyManagerRedux.Mining.Logs.Targets>
     <ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations>Found and added {0} mining designations, {1} deconstruction designations and {2} hauling designations that weren't already being tracked</ColonyManagerRedux.Mining.Logs.AddRelevantGameDesignations>
     <ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings>Skipped adding {0} deconstruction designations on buildings belonging to the ancient danger structure</ColonyManagerRedux.Mining.Logs.SkippedAncientDangerBuildings>
     <ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill>Skipping deep drill that produces {0} because it's marked as forbidden</ColonyManagerRedux.Mining.Logs.SkipForbiddenDeepDrill>

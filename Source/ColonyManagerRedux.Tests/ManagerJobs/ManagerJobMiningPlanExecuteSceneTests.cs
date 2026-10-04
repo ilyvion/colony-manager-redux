@@ -163,6 +163,35 @@ internal sealed class ManagerJobMiningPlanExecuteSceneTests
         Expect.AreEqual(1, data.MineDesignationsToRemove.Count);
     }
 
+    [Test]
+    public static void ReduceLeavesDesignationsAlreadyBeingRemovedAsDisallowedAlone()
+    {
+        using var scene = new ManagerScene();
+        var job = NewJob(scene);
+        var vein = DesignatedVein(scene, job, 0);
+        var wall = DesignatedWall(scene, job, 1);
+        job.TriggerThreshold.TargetCount = 0;
+        var data = new MiningWorkData
+        {
+            Kind = MiningWorkKind.ReduceDesignations,
+            DisallowedDesignationsToRemove =
+            [
+                DesignationOf(scene, wall, DesignationDefOf.Deconstruct)!,
+            ],
+        };
+
+        ManagerScene.RunToCompletion(
+            job.PlanReduceDesignations(
+                NewLog(job),
+                new Boxed<int>(job.GetCountInMineral(vein)),
+                data
+            )
+        );
+
+        Expect.AreEqual(1, data.MineDesignationsToRemove.Count);
+        Expect.IsEmpty(data.DeconstructDesignationsToRemove);
+    }
+
     // PlanReduceDesignations - deconstruct and haul designations
 
     [Test]

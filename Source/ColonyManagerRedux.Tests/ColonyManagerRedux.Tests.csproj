@@ -65,6 +65,8 @@
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.AddDesignation" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.ExecuteAddDesignations" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Foraging.ExecuteAddDesignations" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Foraging.GetCurrentDesignatedCountCoroutine" />
+        <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Forestry.GetCurrentDesignatedCountCoroutine" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Forestry.ExecuteAddDesignations" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.PlanUnforbidCorpses" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Hunting.GetMeatInCorpsesCoroutine" />

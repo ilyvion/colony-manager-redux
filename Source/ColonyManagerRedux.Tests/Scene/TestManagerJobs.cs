@@ -79,6 +79,19 @@ internal abstract class TestManagerJob : ManagerJob
     public static void CleanUpAll(List<Designation> designations, ManagerLog? log) =>
         CleanUpDesignations(designations, log);
 
+    public static List<Designation> PlanDisallowed(
+        IEnumerable<Designation> designations,
+        ICollection<Designation> alreadyRemoving,
+        Func<Designation, bool> isDisallowed
+    ) => PlanDisallowedDesignations(designations, alreadyRemoving, isDisallowed);
+
+    public static void ExecuteDisallowed(
+        List<Designation> designations,
+        IEnumerable<Designation> toRemove,
+        Func<Designation, bool> isDisallowed,
+        ManagerLog log
+    ) => ExecuteDisallowedDesignations(designations, toRemove, isDisallowed, "things", log);
+
     public override WorkTypeDef? WorkTypeDef => null;
 
     public ManagerJobState State

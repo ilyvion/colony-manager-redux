@@ -795,6 +795,79 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     }
 
     /// <summary>
+    /// Decides which designations need to be removed because the job no longer allows their
+    /// target, without deleting anything yet.
+    /// </summary>
+    /// <param name="designations">The designations to check.</param>
+    /// <param name="alreadyRemoving">Designations already planned for removal, which are skipped.</param>
+    /// <param name="isDisallowed">Whether a designation's target is no longer allowed.</param>
+    /// <returns>The designations to remove.</returns>
+    protected static List<Designation> PlanDisallowedDesignations(
+        IEnumerable<Designation> designations,
+        ICollection<Designation> alreadyRemoving,
+        Func<Designation, bool> isDisallowed
+    ) => [.. designations.Where(d => !alreadyRemoving.Contains(d) && isDisallowed(d))];
+
+    /// <summary>
+    /// Deletes the planned designations whose target is still not allowed, removes them from
+    /// <paramref name="designations"/>, and logs the targets they were on.
+    /// </summary>
+    /// <param name="designations">The job's own list of designations.</param>
+    /// <param name="toRemove">The designations planned by <see cref="PlanDisallowedDesignations"/>.</param>
+    /// <param name="isDisallowed">Whether a designation's target is no longer allowed.</param>
+    /// <param name="targetsLabel">The plural label of the job's targets, for the log.</param>
+    /// <param name="jobLog">The log to record the removal in.</param>
+    protected static void ExecuteDisallowedDesignations(
+        List<Designation> designations,
+        IEnumerable<Designation> toRemove,
+        Func<Designation, bool> isDisallowed,
+        string targetsLabel,
+        ManagerLog jobLog
+    )
+    {
+        if (designations == null)
+        {
+            throw new ArgumentNullException(nameof(designations));
+        }
+        if (toRemove == null)
+        {
+            throw new ArgumentNullException(nameof(toRemove));
+        }
+        if (isDisallowed == null)
+        {
+            throw new ArgumentNullException(nameof(isDisallowed));
+        }
+        if (jobLog == null)
+        {
+            throw new ArgumentNullException(nameof(jobLog));
+        }
+
+        List<LocalTargetInfo> removedTargets = [];
+        foreach (var des in toRemove)
+        {
+            // The target may have been allowed again between planning and executing.
+            if (!isDisallowed(des))
+            {
+                continue;
+            }
+
+            removedTargets.Add(des.target);
+            des.Delete();
+            _ = designations.Remove(des);
+        }
+        if (removedTargets.Count != 0)
+        {
+            jobLog.AddDetail(
+                "ColonyManagerRedux.Logs.CleanDisallowedDesignations".Translate(
+                    removedTargets.Count,
+                    targetsLabel
+                ),
+                removedTargets
+            );
+        }
+    }
+
+    /// <summary>
     /// Deletes this manager job, optionally performing cleanup before removal.
     /// </summary>
     /// <param name="cleanup">If true, performs cleanup before deleting the job.</param>

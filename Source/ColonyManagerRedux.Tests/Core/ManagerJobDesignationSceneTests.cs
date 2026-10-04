@@ -169,6 +169,67 @@ internal sealed class ManagerJobDesignationSceneTests
     public static void CleanUpDesignationsRejectsANullList() =>
         _ = Expect.Throws<ArgumentNullException>(() => TestManagerJob.CleanUpAll(null!, null));
 
+    // PlanDisallowedDesignations / ExecuteDisallowedDesignations
+
+    [Test]
+    public static void PlanDisallowedDesignationsSkipsAllowedAndAlreadyRemovedOnes()
+    {
+        using var scene = new ManagerScene();
+        var allowed = Designate(scene, SpawnTarget(scene, 0), DesignationDefOf.Haul);
+        var disallowed = Designate(scene, SpawnTarget(scene, 2), DesignationDefOf.Haul);
+        var alreadyRemoving = Designate(scene, SpawnTarget(scene, 4), DesignationDefOf.Haul);
+
+        var planned = TestManagerJob.PlanDisallowed(
+            [allowed, disallowed, alreadyRemoving],
+            [alreadyRemoving],
+            d => d != allowed
+        );
+
+        Expect.AreEqual(1, planned.Count);
+        Expect.ReferencesAreEqual(disallowed, planned[0]);
+    }
+
+    [Test]
+    public static void ExecuteDisallowedDesignationsRemovesThemFromTheGameAndTheList()
+    {
+        using var scene = new ManagerScene();
+        var job = scene.AddJob<TestManagerJobA>();
+        var log = NewLog(job);
+        var kept = Designate(scene, SpawnTarget(scene, 0), DesignationDefOf.Haul);
+        var removed = Designate(scene, SpawnTarget(scene, 2), DesignationDefOf.Haul);
+        var designations = new List<Designation> { kept, removed };
+
+        TestManagerJob.ExecuteDisallowed(designations, [removed], _ => true, log);
+
+        Expect.AreEqual(1, designations.Count);
+        Expect.ReferencesAreEqual(kept, designations[0]);
+        Expect.IsNull(
+            scene.Map.designationManager.DesignationOn(removed.target.Thing, DesignationDefOf.Haul)
+        );
+        Expect.AreEqual(1, log.Details.Count());
+    }
+
+    [Test]
+    public static void ExecuteDisallowedDesignationsKeepsOnesAllowedAgainSincePlanning()
+    {
+        using var scene = new ManagerScene();
+        var job = scene.AddJob<TestManagerJobA>();
+        var log = NewLog(job);
+        var reallowed = Designate(scene, SpawnTarget(scene, 0), DesignationDefOf.Haul);
+        var designations = new List<Designation> { reallowed };
+
+        TestManagerJob.ExecuteDisallowed(designations, [reallowed], _ => false, log);
+
+        Expect.AreEqual(1, designations.Count);
+        Expect.IsNotNull(
+            scene.Map.designationManager.DesignationOn(
+                reallowed.target.Thing,
+                DesignationDefOf.Haul
+            )
+        );
+        Expect.IsEmpty(log.Details);
+    }
+
     // Scribe_Designations
 
     private static DesignationsProbe RoundTrip(

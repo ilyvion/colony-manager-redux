@@ -138,6 +138,21 @@ internal sealed class ManagerJobMiningCountSceneTests
     }
 
     [Test]
+    public static void DeconstructDesignationOnABuildingNoLongerAllowedIsSkipped()
+    {
+        using var scene = new ManagerScene();
+        var job = NewJob(scene);
+        var wall = (Building)
+            scene.SpawnThing(ThingDefOf.Wall, Slot(scene, 0), stuff: ThingDefOf.Steel);
+        var vein = (Mineable)scene.SpawnThing(SteelVein, Slot(scene, 1));
+        job.AddDesignation(new Designation(wall, DesignationDefOf.Deconstruct));
+        job.AddDesignation(new Designation(vein, DesignationDefOf.Mine));
+        _ = job.AllowedBuildings.Remove(ThingDefOf.Wall);
+
+        Expect.AreEqual(job.GetCountInMineral(vein), CountInDesignations(job));
+    }
+
+    [Test]
     public static void MineDesignationOnACellCountsTheMineralInIt()
     {
         using var scene = new ManagerScene();

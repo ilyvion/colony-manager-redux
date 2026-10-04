@@ -31,9 +31,9 @@ internal sealed class ManagerJobHuntingCorpseSceneTests
         job.InvertHuntingGrounds = false;
         job.UnforbidAllCorpses = true;
         job.UnforbidHumanCorpses = false;
+        job.TargetResource = resource;
         job.AllowedAnimals.Clear();
         _ = job.AllowedAnimals.Add(Prey);
-        job.TargetResource = resource;
         job.TriggerThreshold.ThresholdFilter.SetDisallowAll();
         job.TriggerThreshold.ThresholdFilter.SetAllow(ResourceOf(Prey, resource), true);
         job.TriggerThreshold.Op = Trigger_Threshold.Ops.LowerThan;

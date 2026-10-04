@@ -44,6 +44,9 @@ internal sealed class ManagerJob_Hunting
         // every outstanding designation anyway).
         public List<Designation> AreaDesignationsToRemove = [];
 
+        // Always considered, same as AreaDesignationsToRemove; never overlaps with it.
+        public List<Designation> DisallowedDesignationsToRemove = [];
+
         // Kind == ReduceDesignations
         public List<(Designation Designation, int Yield, int CountAfter)> DesignationsToRemove = [];
 
@@ -534,7 +537,7 @@ internal sealed class ManagerJob_Hunting
             }
 
             var des = _designations[i];
-            if (des.target.Thing is Pawn target)
+            if (des.target.Thing is Pawn target && IsValidDesignatedHuntingTarget(target))
             {
                 count.Value += target.EstimatedMeatCount();
             }
@@ -561,7 +564,7 @@ internal sealed class ManagerJob_Hunting
             }
 
             var des = _designations[i];
-            if (des.target.Thing is Pawn target)
+            if (des.target.Thing is Pawn target && IsValidDesignatedHuntingTarget(target))
             {
                 count.Value += target.EstimatedLeatherCount();
             }
@@ -639,10 +642,24 @@ internal sealed class ManagerJob_Hunting
 
         var workData = new HuntingWorkData();
         workData.AreaDesignationsToRemove.AddRange(PlanAreaCleanupDesignations());
+        workData.DisallowedDesignationsToRemove.AddRange(
+            PlanDisallowedDesignations(
+                _designations,
+                workData.AreaDesignationsToRemove,
+                IsDisallowedDesignation
+            )
+        );
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         AddRelevantGameDesignations(jobLog);
         yield return new ResumeAfterTicks(ticksBetweenOperations);
+
+        List<Designation> keptDesignations =
+        [
+            .. _designations
+                .Except(workData.AreaDesignationsToRemove)
+                .Except(workData.DisallowedDesignationsToRemove),
+        ];
 
         // get the total count of meat in storage, expected meat in corpses and
         // expected meat in designations.
@@ -663,12 +680,12 @@ internal sealed class ManagerJob_Hunting
         var directive = TriggerThreshold.GetDirective(count.Value);
         if (
             directive != Trigger_Threshold.Directive.Increase
-            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(_designations.Count)
+            || ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(keptDesignations.Count)
         )
         {
             workData.Kind = HuntingWorkKind.ReduceDesignations;
 
-            yield return PlanReduceDesignations(count, workData)
+            yield return PlanReduceDesignations(keptDesignations, count, workData)
                 .ResumeWhenOtherCoroutineIsCompleted();
 
             data.Value = workData;
@@ -697,7 +714,7 @@ internal sealed class ManagerJob_Hunting
             }
         }
 
-        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(_designations.Count))
+        if (!ColonyManagerReduxMod.Settings.CanAddMoreDesignations(keptDesignations.Count))
         {
             jobLog.AddDetail(
                 "ColonyManagerRedux.Logs.CantAddMoreDesignations".Translate(
@@ -737,7 +754,7 @@ internal sealed class ManagerJob_Hunting
         var designateCount = Utilities_Plants.ComputeNumberToDesignate(
             count.Value,
             sortedYields,
-            _designations.Count,
+            keptDesignations.Count,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.CanAddMoreDesignations
         );
@@ -804,7 +821,11 @@ internal sealed class ManagerJob_Hunting
     }
 
     [CoroutineSettingsMethod]
-    private Coroutine PlanReduceDesignations(Boxed<int> count, HuntingWorkData data)
+    private Coroutine PlanReduceDesignations(
+        List<Designation> keptDesignations,
+        Boxed<int> count,
+        HuntingWorkData data
+    )
     {
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
             PlanReduceDesignations
@@ -816,7 +837,7 @@ internal sealed class ManagerJob_Hunting
 
         List<Designation> sortedDesignations = [];
         yield return GetThingsSorted(
-                _designations.Where(d => d.target.HasThing),
+                keptDesignations.Where(d => d.target.HasThing),
                 sortedDesignations,
                 _ => true,
                 (p, d) => -p.EstimatedYield(TargetResource) / d,
@@ -831,7 +852,7 @@ internal sealed class ManagerJob_Hunting
         var removeCount = Utilities_Plants.ComputeReduceCount(
             count.Value,
             sortedYields,
-            _designations.Count,
+            keptDesignations.Count,
             TriggerThreshold.DoesCountMeetTarget,
             ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations
         );
@@ -912,6 +933,13 @@ internal sealed class ManagerJob_Hunting
         }
 
         ExecuteAreaCleanupDesignations(jobLog, data);
+        ExecuteDisallowedDesignations(
+            _designations,
+            data.DisallowedDesignationsToRemove,
+            IsDisallowedDesignation,
+            "ColonyManagerRedux.Hunting.Logs.Animals".Translate(),
+            jobLog
+        );
         yield return new ResumeAfterTicks(ticksBetweenOperations);
 
         if (data.Kind == HuntingWorkKind.ReduceDesignations)
@@ -928,6 +956,9 @@ internal sealed class ManagerJob_Hunting
         yield return ExecuteAddDesignations(jobLog, data, workDone)
             .ResumeWhenOtherCoroutineIsCompleted();
     }
+
+    private bool IsDisallowedDesignation(Designation des) =>
+        des.target.Thing is Pawn pawn && !AllowedAnimals.Contains(pawn.kindDef);
 
     private void ExecuteAreaCleanupDesignations(ManagerLog jobLog, HuntingWorkData data)
     {

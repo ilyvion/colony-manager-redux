@@ -442,4 +442,69 @@ internal sealed class ManagerJobMiningGatherSceneTests
         Expect.AreEqual(10, job.Designations.Count);
         Expect.IsFalse(LoggedCantAddMore(scene, job), "The cap was logged after the last task.");
     }
+
+    // Designations on targets that are no longer allowed
+
+    private static (
+        ManagerJob_Mining Job,
+        Mineable Kept,
+        Mineable DroppedVein,
+        Building DroppedWall
+    ) MiningWithDroppedTargets(ManagerScene scene, int target)
+    {
+        var goldVein = DefDatabase<ThingDef>.GetNamed("MineableGold");
+        var job = NewJob(scene, target);
+        _ = job.AllowedMinerals.Add(goldVein);
+        var kept = (Mineable)scene.SpawnThing(SteelVein, Slot(scene, 0));
+        var droppedVein = (Mineable)scene.SpawnThing(goldVein, Slot(scene, 1));
+        var droppedWall = FoeWall(scene, 2);
+        job.AddDesignation(new Designation(kept, DesignationDefOf.Mine));
+        job.AddDesignation(new Designation(droppedVein, DesignationDefOf.Mine));
+        job.AddDesignation(new Designation(droppedWall, DesignationDefOf.Deconstruct));
+
+        _ = job.AllowedMinerals.Remove(goldVein);
+        _ = job.AllowedBuildings.Remove(ThingDefOf.Wall);
+        return (job, kept, droppedVein, droppedWall);
+    }
+
+    private static void ExpectOnlyKeptDesignated(
+        ManagerScene scene,
+        ManagerJob_Mining job,
+        Mineable kept,
+        Mineable droppedVein,
+        Building droppedWall
+    )
+    {
+        var designations = scene.Map.designationManager;
+        Expect.IsNotNull(designations.DesignationAt(kept.Position, DesignationDefOf.Mine));
+        Expect.IsNull(designations.DesignationAt(droppedVein.Position, DesignationDefOf.Mine));
+        Expect.IsNull(designations.DesignationOn(droppedWall, DesignationDefOf.Deconstruct));
+        Expect.IsFalse(
+            job.Designations.Any(d =>
+                d.target.Thing == droppedVein || d.target.Thing == droppedWall
+            )
+        );
+    }
+
+    [Test]
+    public static void GatherRemovesDesignationsOnTargetsNoLongerAllowedWhileAdding()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, droppedVein, droppedWall) = MiningWithDroppedTargets(scene, FarTarget);
+
+        Run(scene, job);
+
+        ExpectOnlyKeptDesignated(scene, job, kept, droppedVein, droppedWall);
+    }
+
+    [Test]
+    public static void GatherRemovesDesignationsOnTargetsNoLongerAllowedWhileReducing()
+    {
+        using var scene = new ManagerScene();
+        var (job, kept, droppedVein, droppedWall) = MiningWithDroppedTargets(scene, 1);
+
+        Run(scene, job);
+
+        ExpectOnlyKeptDesignated(scene, job, kept, droppedVein, droppedWall);
+    }
 }

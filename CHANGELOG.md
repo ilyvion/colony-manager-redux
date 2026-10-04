@@ -51,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adding a per-animal override in the Livestock job's Job Defaults tab showed 5 in every target count box and reset the copied counts to 5 as soon as the tab was drawn, instead of keeping the counts copied from the default settings.
 - The Mining job's 'Designate chunks on the map for hauling' setting now designates chunks for hauling as colonists mine them.
 - A newly created job could immediately trigger the 'jobs not updating' alert, as if it had been waiting since the game was started or loaded, before a manager had a chance to update it.
+- The Foraging, Forestry, Hunting and Mining jobs kept their designations on plants, trees, animals, minerals and buildings you had stopped allowing, and could count their yield toward the job's target, so the job might decide it had nothing to do. They now remove those designations the next time they run.
 
 ## [0.19.1] - 2026-09-20
 
