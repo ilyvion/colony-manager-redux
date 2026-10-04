@@ -142,6 +142,7 @@ public class JobTracker(Manager manager) : IExposable
         }
 
         job.Priority = MaxPriority + 1;
+        job.ResetCreatedTick();
         JobList.Add(job);
     }
 

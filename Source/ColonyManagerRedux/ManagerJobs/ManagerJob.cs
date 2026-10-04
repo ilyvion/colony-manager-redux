@@ -1169,6 +1169,12 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             .ToString();
 
     /// <summary>
+    /// Sets the job's creation tick to the current game tick. Called when the job is added to a
+    /// <see cref="JobTracker"/>, since tabs construct their new-job instance long before it's added.
+    /// </summary>
+    internal void ResetCreatedTick() => _jobCreatedTick = Find.TickManager.TicksGame;
+
+    /// <summary>
     /// Updates the last action tick to the current game tick, marking the job as recently updated.
     /// </summary>
     public void Touch()

@@ -46,6 +46,21 @@ internal sealed class JobTrackerSceneTests
     }
 
     [Test]
+    public static void AddStartsJobAgeAtTimeOfAdding()
+    {
+        using var scene = new ManagerScene();
+        var job = new TestManagerJobA(scene.Manager)
+        {
+            IsManaged = true,
+            _jobCreatedTick = Find.TickManager.TicksGame - (GenDate.TicksPerDay * 5),
+        };
+
+        scene.Manager.JobTracker.Add(job);
+
+        Expect.AreEqual(0, job.TicksSinceLastUpdate);
+    }
+
+    [Test]
     public static void AddNullThrows()
     {
         using var scene = new ManagerScene();

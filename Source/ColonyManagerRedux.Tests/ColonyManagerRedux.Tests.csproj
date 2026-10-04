@@ -89,6 +89,7 @@
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._traders" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._batteries" />
         <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.ManagerJob._jobState" />
+        <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.ManagerJob._jobCreatedTick" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power.RefreshBuildingLists" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power.RefreshCompLists" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._isRefreshingBuildingLists" />
