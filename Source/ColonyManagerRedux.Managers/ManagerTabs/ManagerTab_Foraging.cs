@@ -198,7 +198,8 @@ internal sealed class ManagerTab_Foraging(Manager manager)
     }
 
     internal static bool IsEdible(ThingDef plant) =>
-        plant.plant?.harvestedThingDef?.IsNutritionGivingIngestible ?? false;
+        plant.plant?.harvestedThingDef is { IsNutritionGivingIngestible: true } harvested
+        && harvested.ingestible.HumanEdible;
 
     internal static bool IsNonEdible(ThingDef plant) => !IsEdible(plant);
 

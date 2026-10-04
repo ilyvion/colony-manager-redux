@@ -175,9 +175,28 @@ internal sealed class ManagerTabShortcutPredicateTests
             ManagerTab_Foraging.IsEdible(Plant(harvested: ThingDefOf.MealSimple)),
             "meal"
         );
+        Expect.IsTrue(
+            ManagerTab_Foraging.IsEdible(
+                Plant(harvested: DefDatabase<ThingDef>.GetNamed("RawBerries"))
+            ),
+            "berries"
+        );
         Expect.IsFalse(ManagerTab_Foraging.IsEdible(Plant(harvested: ThingDefOf.WoodLog)), "wood");
         Expect.IsFalse(ManagerTab_Foraging.IsEdible(Plant()), "nothing harvested");
         Expect.IsFalse(ManagerTab_Foraging.IsEdible(new ThingDef()), "no plant");
+    }
+
+    [Test]
+    public static void PlantYieldingOnlyAnimalFeedIsNotEdible()
+    {
+        Expect.IsFalse(ManagerTab_Foraging.IsEdible(Plant(harvested: ThingDefOf.Hay)), "hay");
+        Expect.IsFalse(
+            ManagerTab_Foraging.IsEdible(
+                Plant(harvested: DefDatabase<ThingDef>.GetNamed("SmokeleafLeaves"))
+            ),
+            "smokeleaf"
+        );
+        Expect.IsTrue(ManagerTab_Foraging.IsNonEdible(Plant(harvested: ThingDefOf.Hay)), "hay");
     }
 
     [Test]
