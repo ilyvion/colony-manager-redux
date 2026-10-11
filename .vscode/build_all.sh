@@ -1,0 +1,1 @@
+../../rimworld-utils/build_all.sh
