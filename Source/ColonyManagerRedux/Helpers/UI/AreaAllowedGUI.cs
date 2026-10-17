@@ -74,10 +74,7 @@ public static class AreaAllowedGUI
         float lrMargin = 0
     )
     {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+        ArgumentNullException.ThrowIfNull(map);
 
         if (lrMargin > 0)
         {
@@ -163,14 +160,8 @@ public static class AreaAllowedGUI
         float lrMargin = 0
     )
     {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
-        if (allowedAreas == null)
-        {
-            throw new ArgumentNullException(nameof(allowedAreas));
-        }
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(allowedAreas);
 
         if (lrMargin > 0)
         {

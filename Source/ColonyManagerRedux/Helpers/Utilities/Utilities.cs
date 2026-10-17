@@ -13,7 +13,9 @@ namespace ColonyManagerRedux;
 /// </summary>
 [HotSwappable]
 [CoroutineSettingsType]
+#pragma warning disable CA1724 // Name lookup finds this type before the UnityEngine.InputSystem.Utilities namespace.
 public static class Utilities
+#pragma warning restore CA1724
 {
     /// <summary>
     /// Specifies the direction for synchronizing filters and allowed lists.
@@ -131,20 +133,11 @@ public static class Utilities
         bool countAllOnMap = false
     )
     {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+        ArgumentNullException.ThrowIfNull(map);
 
-        if (filter == null)
-        {
-            throw new ArgumentNullException(nameof(filter));
-        }
+        ArgumentNullException.ThrowIfNull(filter);
 
-        if (count == null)
-        {
-            throw new ArgumentNullException(nameof(count));
-        }
+        ArgumentNullException.ThrowIfNull(count);
 
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
             CountProductsCoroutine
@@ -577,14 +570,8 @@ public static class Utilities
         ISet<T> selected
     )
     {
-        if (options == null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-        if (selected == null)
-        {
-            throw new ArgumentNullException(nameof(selected));
-        }
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(selected);
 
         var allOn = options.Count > 0 && options.All(selected.Contains);
         return (allOn, options.All(option => !selected.Contains(option)));
@@ -619,14 +606,8 @@ public static class Utilities
         bool wrap = true
     )
     {
-        if (on == null)
-        {
-            throw new ArgumentNullException(nameof(on));
-        }
-        if (off == null)
-        {
-            throw new ArgumentNullException(nameof(off));
-        }
+        ArgumentNullException.ThrowIfNull(on);
+        ArgumentNullException.ThrowIfNull(off);
 
         // set up rects
         var labelRect = rect;
@@ -758,22 +739,10 @@ public static class Utilities
     )
         where T : Def
     {
-        if (items == null)
-        {
-            throw new ArgumentNullException(nameof(items));
-        }
-        if (isAllowed == null)
-        {
-            throw new ArgumentNullException(nameof(isAllowed));
-        }
-        if (label == null)
-        {
-            throw new ArgumentNullException(nameof(label));
-        }
-        if (tooltip == null)
-        {
-            throw new ArgumentNullException(nameof(tooltip));
-        }
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(isAllowed);
+        ArgumentNullException.ThrowIfNull(label);
+        ArgumentNullException.ThrowIfNull(tooltip);
 
         var start = pos;
 
@@ -858,14 +827,8 @@ public static class Utilities
         float columnMargin = 0f
     )
     {
-        if (widths == null)
-        {
-            throw new ArgumentNullException(nameof(widths));
-        }
-        if (heights == null)
-        {
-            throw new ArgumentNullException(nameof(heights));
-        }
+        ArgumentNullException.ThrowIfNull(widths);
+        ArgumentNullException.ThrowIfNull(heights);
 
         var rects = new Rect[heights.Length, widths.Length];
         var y = pos.y;
@@ -904,10 +867,7 @@ public static class Utilities
         Action onClick
     )
     {
-        if (onClick == null)
-        {
-            throw new ArgumentNullException(nameof(onClick));
-        }
+        ArgumentNullException.ThrowIfNull(onClick);
         if (atBoundary)
         {
             return false;
@@ -933,16 +893,13 @@ public static class Utilities
     /// <returns>The calculated base center position as an IntVec3.</returns>
     public static IntVec3 GetBaseCenter(this Map map)
     {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+        ArgumentNullException.ThrowIfNull(map);
 
         // we need to define a 'base' position to calculate distances.
         // Try to find a managerstation (in all non-debug cases this method will only fire if there
         // is such a station).
         var position = IntVec3.Zero;
-        Building managerStation = map
+        Building? managerStation = map
             .listerBuildings.AllBuildingsColonistOfClass<Building_ManagerStation>()
             .FirstOrDefault();
         if (managerStation != null)
@@ -1074,10 +1031,7 @@ public static class Utilities
     /// <returns>The sum of the values, saturated to the range of <see cref="int"/>.</returns>
     public static int SaturatingIntSum(IEnumerable<int> values)
     {
-        if (values == null)
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
+        ArgumentNullException.ThrowIfNull(values);
 
         long sum = 0;
         foreach (var v in values)
@@ -1172,14 +1126,8 @@ public static class Utilities
     /// <param name="map">The map associated with the designations.</param>
     public static void Scribe_Designations(ref List<Designation> designations, Map map)
     {
-        if (designations == null)
-        {
-            throw new ArgumentNullException(nameof(designations));
-        }
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+        ArgumentNullException.ThrowIfNull(designations);
+        ArgumentNullException.ThrowIfNull(map);
 
         if (Scribe.mode == LoadSaveMode.Saving)
         {
@@ -1242,10 +1190,7 @@ public static class Utilities
         AreaManager areaManager
     )
     {
-        if (areaManager == null)
-        {
-            throw new ArgumentNullException(nameof(areaManager));
-        }
+        ArgumentNullException.ThrowIfNull(areaManager);
 
         if (Scribe.mode == LoadSaveMode.Saving)
         {
@@ -1284,10 +1229,7 @@ public static class Utilities
         AreaManager areaManager
     )
     {
-        if (areaManager == null)
-        {
-            throw new ArgumentNullException(nameof(areaManager));
-        }
+        ArgumentNullException.ThrowIfNull(areaManager);
 
         if (Scribe.mode == LoadSaveMode.Saving)
         {
@@ -1320,14 +1262,8 @@ public static class Utilities
     // PawnColumnWorker_WorkPriority.IsIncapableOfWholeWorkType, but static
     public static bool IsIncapableOfWholeWorkType(this Pawn pawn, WorkTypeDef work)
     {
-        if (pawn == null)
-        {
-            throw new ArgumentNullException(nameof(pawn));
-        }
-        if (work == null)
-        {
-            throw new ArgumentNullException(nameof(work));
-        }
+        ArgumentNullException.ThrowIfNull(pawn);
+        ArgumentNullException.ThrowIfNull(work);
 
         for (var i = 0; i < work.workGiversByPriority.Count; i++)
         {
@@ -1361,7 +1297,11 @@ public static class Utilities
 #else
         return method.Name.Contains('<', StringComparison.Ordinal)
 #endif
-            || declaringType.GetCustomAttributes(typeof(CompilerGeneratedAttribute), false).Length
-                != 0;
+            || (
+                declaringType != null
+                && declaringType
+                    .GetCustomAttributes(typeof(CompilerGeneratedAttribute), false)
+                    .Length != 0
+            );
     }
 }

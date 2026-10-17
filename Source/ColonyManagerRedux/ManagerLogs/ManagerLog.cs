@@ -135,10 +135,7 @@ public class ManagerLog : IExposable
     /// <param name="originatingJob">The originating manager job.</param>
     public ManagerLog(ManagerJob originatingJob)
     {
-        if (originatingJob == null)
-        {
-            throw new ArgumentNullException(nameof(originatingJob));
-        }
+        ArgumentNullException.ThrowIfNull(originatingJob);
 
         _originatingDef = originatingJob.Def;
         _originatingJob = originatingJob;

@@ -11,7 +11,7 @@
         one already made public inside the referenced ColonyManagerRedux assembly; CS0436 is
         harmless here.
     -->
-    <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6'">
+    <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6' And '$(RimWorldVersion)' != '1.7'">
         <NoWarn>$(NoWarn);CS0436</NoWarn>
     </PropertyGroup>
     <!--
@@ -27,9 +27,9 @@
         (what CI/release always use, per rimworld-utils' build_mod.yml) skips building it
         entirely; its output never lands in a shipped release.
 
-        DevTools only supports RimWorld 1.6, so for any other RimWorldVersion this project
+        DevTools only supports RimWorld 1.6 and 1.7, so for any other RimWorldVersion this project
         builds as an empty assembly: both the test sources and the DevTools reference are
-        excluded below. DevTools.dll is built into 1.6/Assemblies.
+        excluded below. DevTools.dll is built into <version>/Assemblies.
     -->
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
@@ -45,16 +45,16 @@
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>
-    <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
+    <ItemGroup Condition="'$(RimWorldVersion)' == '1.6' Or '$(RimWorldVersion)' == '1.7'">
         <ProjectReference
             Include="$(ProjectDependenciesBasePath)\Third-Party\DevTools\DevTools\DevTools.csproj"
-            AdditionalProperties="OutDir=$(MSBuildThisFileDirectory)..\..\1.6\Assemblies\"
+            AdditionalProperties="RimWorldVersion=$(RimWorldVersion);OutDir=$(MSBuildThisFileDirectory)..\..\$(RimWorldVersion)\Assemblies\"
         >
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>
-    <ItemGroup Condition="'$(RimWorldVersion)' != '1.6'">
+    <ItemGroup Condition="'$(RimWorldVersion)' != '1.6' And '$(RimWorldVersion)' != '1.7'">
         <Compile Remove="**/*.cs" />
     </ItemGroup>
 </Project>

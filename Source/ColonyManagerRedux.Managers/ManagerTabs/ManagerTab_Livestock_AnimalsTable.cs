@@ -296,34 +296,33 @@ internal partial class ManagerTab_Livestock
     )
     {
         PawnTable table = null!;
-        table = (PawnTable)
-            Activator.CreateInstance(
-                ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable.workerClass,
-                ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable,
+        table = ActivatorUtility.CreateInstance<PawnTable>(
+            ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable.workerClass,
+            ManagerPawnTableDefOf.CM_ManagerLivestockAnimalTable,
 #pragma warning disable IDE0004
-                (Func<IEnumerable<Pawn>>)(
-                    () =>
-                    {
-                        // PawnTables aren't very customizable, so we'll hijack this function to inject our
-                        // instance into the columns, since we need it there
-                        foreach (
-                            var item in table.def.columns.Where(c =>
-                                c.workerClass.IsSubclassOf(typeof(PawnColumnWorker_Livestock))
-                            )
+            (Func<IEnumerable<Pawn>>)(
+                () =>
+                {
+                    // PawnTables aren't very customizable, so we'll hijack this function to inject our
+                    // instance into the columns, since we need it there
+                    foreach (
+                        var item in table.def.columns.Where(c =>
+                            c.workerClass.IsSubclassOf(typeof(PawnColumnWorker_Livestock))
                         )
-                        {
-                            var worker = (PawnColumnWorker_Livestock)item.Worker;
-                            worker.instance = this;
-                            worker.jobGetter = jobGetter;
-                        }
-
-                        return animalGetter();
+                    )
+                    {
+                        var worker = (PawnColumnWorker_Livestock)item.Worker;
+                        worker.instance = this;
+                        worker.jobGetter = jobGetter;
                     }
-                ),
+
+                    return animalGetter();
+                }
+            ),
 #pragma warning restore IDE0004
-                UI.screenWidth - (int)(Margin * 2f),
-                (int)(UI.screenHeight - 35 - (Margin * 2f))
-            );
+            UI.screenWidth - (int)(Margin * 2f),
+            (int)(UI.screenHeight - 35 - (Margin * 2f))
+        );
 
         return table;
     }

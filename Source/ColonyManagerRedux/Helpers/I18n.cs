@@ -56,10 +56,7 @@ public static class I18n
     /// <returns>The translated and formatted action text.</returns>
     public static string ActionText(this DesignationDef designationDef)
     {
-        if (designationDef == null)
-        {
-            throw new ArgumentNullException(nameof(designationDef));
-        }
+        ArgumentNullException.ThrowIfNull(designationDef);
 
         // Of course these can't just all be named the same as their defName. 🙄
         return (

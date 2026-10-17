@@ -73,8 +73,7 @@ internal sealed class ManagerSettings_Hunting : ManagerSettings
 
     public float DrawTargetResource(Vector2 pos, float width)
     {
-        var targetResource = (ManagerJob_Hunting.HuntingTargetResource[])
-            Enum.GetValues(typeof(ManagerJob_Hunting.HuntingTargetResource));
+        var targetResource = Enum.GetValues<ManagerJob_Hunting.HuntingTargetResource>();
 
         var cellWidth = width / targetResource.Length;
 

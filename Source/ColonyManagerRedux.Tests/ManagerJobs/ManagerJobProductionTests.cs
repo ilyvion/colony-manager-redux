@@ -13,9 +13,7 @@ internal sealed class ManagerJobProductionTests
     // these tests need to control which IngredientValueGetter a fake recipe uses to exercise
     // both the item-count (Volume) and nutrition-conversion (Nutrition) code paths.
     private static void SetIngredientValueGetterClass(RecipeDef recipe, Type type) =>
-        typeof(RecipeDef)
-            .GetField("ingredientValueGetterClass", BindingFlags.NonPublic | BindingFlags.Instance)
-            .SetValue(recipe, type);
+        recipe.ingredientValueGetterClass = type;
 
     // IngredientValueGetter_Nutrition.ValuePerUnitOf returns 0 unless
     // ThingDef.IsNutritionGivingIngestible is true, which needs a non-null `ingestible` with its

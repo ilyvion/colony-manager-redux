@@ -244,7 +244,7 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
         {
             DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
                 DefaultTaskPriorityOrder ?? NewDefaultTaskPriorityOrder(),
-                [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+                [.. Enum.GetValues<Task>()]
             );
         }
     }
@@ -270,7 +270,7 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
         DefaultCheckRoomDivision = old.DefaultCheckRoomDivision;
         DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
             [.. old.DefaultTaskPriorityOrder],
-            [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+            [.. Enum.GetValues<Task>()]
         );
         return true;
     }

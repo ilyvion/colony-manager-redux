@@ -35,10 +35,7 @@ internal static class Clock
         HourTick minor
     )
     {
-        if (clockHandles == null)
-        {
-            throw new ArgumentNullException(nameof(clockHandles));
-        }
+        ArgumentNullException.ThrowIfNull(clockHandles);
 
         for (var h = 0; h < 12; h++)
         {
@@ -68,10 +65,7 @@ internal static class Clock
 
     public static void DrawHandle(Rect canvas, ClockHandle handle)
     {
-        if (handle == null)
-        {
-            throw new ArgumentNullException(nameof(handle));
-        }
+        ArgumentNullException.ThrowIfNull(handle);
 
         DrawMarker(canvas, handle.Hours, handle.Thickness, handle.Color, 0f, handle.Length);
     }
@@ -106,10 +100,7 @@ internal static class Clock
 
     public static void DrawTick(Rect canvas, HourTick tick, float hour)
     {
-        if (tick == null)
-        {
-            throw new ArgumentNullException(nameof(tick));
-        }
+        ArgumentNullException.ThrowIfNull(tick);
 
         DrawMarker(canvas, hour, tick.Thickness, tick.Color, 1f - tick.Length, 1f);
     }

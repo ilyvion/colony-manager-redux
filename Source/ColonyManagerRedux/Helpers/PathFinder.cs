@@ -27,10 +27,7 @@ public static class PathFinderExtensions
         PathEndMode peMode = PathEndMode.Touch
     )
     {
-        if (pathFinder == null)
-        {
-            throw new ArgumentNullException(nameof(pathFinder));
-        }
+        ArgumentNullException.ThrowIfNull(pathFinder);
 #if v1_5
         return pathFinder.FindPath(
             source,

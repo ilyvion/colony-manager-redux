@@ -24,9 +24,7 @@ jobs:
         with:
             mod_name: "ColonyManagerRedux"
             artifact_suffix: ${{ github.sha }}
-            rw_versions: |-
-                1.5
-                1.6
             extra_files: |-
                 Integrations
+                Odyssey
             steam_workshop_folder_path: ..\..\.deps\refs

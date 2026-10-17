@@ -331,8 +331,7 @@ internal sealed partial class ManagerTab_Overview(Manager manager) : ManagerTab(
             return;
         }
 
-        var options = Enum.GetValues(typeof(OverviewGroupMode))
-            .Cast<OverviewGroupMode>()
+        var options = Enum.GetValues<OverviewGroupMode>()
             .Select(mode => new FloatMenuOption(
                 $"ColonyManagerRedux.Overview.GroupBy.{mode}".Translate(),
                 () => _groupMode = mode

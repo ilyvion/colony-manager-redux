@@ -152,10 +152,7 @@ public class DetailedLegendRenderer : IExposable
         bool negativeOnly = false
     )
     {
-        if (history == null)
-        {
-            throw new ArgumentNullException(nameof(history));
-        }
+        ArgumentNullException.ThrowIfNull(history);
 
         // set sign
         var sign = negativeOnly ? -1 : 1;

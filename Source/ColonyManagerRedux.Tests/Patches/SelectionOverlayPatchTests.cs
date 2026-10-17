@@ -80,6 +80,41 @@ internal sealed class SelectionOverlayPatchTests
     }
 }
 
+#if v1_7_OR_GREATER
+/// <summary>
+/// Registered post-draw selection overlay actions run when vanilla's map interface updates.
+/// </summary>
+// On 1.7 the JIT can inline the small DrawSelectionOverlays into its vanilla caller, so the patch
+// is checked through that caller.
+[TestFixture(TestType.Playing)]
+internal sealed class SelectionOverlayVanillaCallerTests
+{
+    [Test]
+    public static void ActionsRunWhenTheMapInterfaceUpdates()
+    {
+        var actions =
+            RimWorld_SelectionDrawer_DrawSelectionOverlays.PostDrawSelectionOverlaysActions;
+        var ran = false;
+        void MarkRan()
+        {
+            ran = true;
+        }
+        Action markRan = MarkRan;
+        actions.Add(markRan);
+        try
+        {
+            Find.MapUI.MapInterfaceUpdate();
+
+            Expect.IsTrue(ran, "action ran");
+        }
+        finally
+        {
+            _ = actions.Remove(markRan);
+        }
+    }
+}
+#endif
+
 /// <summary>
 /// <see cref="StockpileGUI.ShouldDrawMouseOverZone"/> draws the hovered zone's edges only when it
 /// is not selected.

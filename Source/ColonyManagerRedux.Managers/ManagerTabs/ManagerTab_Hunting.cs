@@ -446,7 +446,7 @@ internal sealed class ManagerTab_Hunting(Manager manager) : ManagerTab<ManagerJo
 
     public float DrawTargetResource(ManagerJob_Hunting job, Vector2 pos, float width)
     {
-        var targetResource = (HuntingTargetResource[])Enum.GetValues(typeof(HuntingTargetResource));
+        var targetResource = Enum.GetValues<HuntingTargetResource>();
 
         var cellWidth = width / targetResource.Length;
 

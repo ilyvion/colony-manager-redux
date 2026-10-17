@@ -47,10 +47,7 @@ public class UpdateInterval(int ticks, string label)
     /// <param name="suspended">Whether the job is suspended.</param>
     public static void Draw(Rect canvas, ManagerJob job, bool exporting, bool suspended)
     {
-        if (job == null)
-        {
-            throw new ArgumentNullException(nameof(job));
-        }
+        ArgumentNullException.ThrowIfNull(job);
 
         var originalColor = GUI.color;
         var originalFont = Text.Font;

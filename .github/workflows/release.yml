@@ -12,11 +12,9 @@ jobs:
         uses: ilyvion/rimworld-utils/.github/workflows/build_mod.yml@main
         with:
             mod_name: "ColonyManagerRedux"
-            rw_versions: |-
-                1.5
-                1.6
             extra_files: |-
                 Integrations
+                Odyssey
             artifact_suffix: Release
 
     release:
@@ -26,6 +24,3 @@ jobs:
         with:
             artifact_name: ${{ needs.build.outputs.artifact_name }}
             mod_name: "ColonyManagerRedux"
-            rw_versions: |-
-                1.5
-                1.6

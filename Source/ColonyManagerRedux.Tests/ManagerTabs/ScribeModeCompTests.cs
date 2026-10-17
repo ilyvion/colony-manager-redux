@@ -9,8 +9,7 @@ namespace ColonyManagerRedux.Tests;
 [TestFixture(TestType.Playing)]
 internal sealed class ScribeModeCompTests
 {
-    private static ScribingMode[] AllModes =>
-        [.. Enum.GetValues(typeof(ScribingMode)).Cast<ScribingMode>()];
+    private static ScribingMode[] AllModes => Enum.GetValues<ScribingMode>();
 
     private static void WithRestoredMode(Manager manager, Action<Manager> test)
     {

@@ -293,8 +293,7 @@ internal sealed class PawnKindSettings : IExposable
     {
         var start = pos;
 
-        var cullingStrategies = (LivestockCullingStrategy[])
-            Enum.GetValues(typeof(LivestockCullingStrategy));
+        var cullingStrategies = Enum.GetValues<LivestockCullingStrategy>();
 
         var cellWidth = width / cullingStrategies.Length;
         var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);

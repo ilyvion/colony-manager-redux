@@ -85,10 +85,7 @@ public class Manager : MapComponent, ILoadReferenceable
     public Manager(Map map)
         : base(map)
     {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+        ArgumentNullException.ThrowIfNull(map);
 
         _jobTracker = new(this);
 
@@ -107,7 +104,9 @@ public class Manager : MapComponent, ILoadReferenceable
             ManagerComp? managerComp = null;
             try
             {
-                managerComp = (ManagerComp)Activator.CreateInstance(compProperties.compClass);
+                managerComp = ActivatorUtility.CreateInstance<ManagerComp>(
+                    compProperties.compClass
+                );
                 managerComp.Manager = this;
                 _comps.Add(managerComp);
                 managerComp.InitializeInt(compProperties);

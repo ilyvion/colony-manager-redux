@@ -251,7 +251,7 @@ internal sealed class ManagerSettings_Mining : ManagerSettings
         {
             DefaultTaskPriorityOrder = Utilities_Mining.EnsureAllEnumValuesPresent(
                 DefaultTaskPriorityOrder,
-                [.. Enum.GetValues(typeof(Task)).Cast<Task>()]
+                [.. Enum.GetValues<Task>()]
             );
         }
     }

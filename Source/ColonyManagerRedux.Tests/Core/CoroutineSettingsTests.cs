@@ -28,7 +28,7 @@ internal sealed class CoroutineSettingsTests
         ];
 
     private static string Key(MethodInfo method) =>
-        $"{method.DeclaringType.FullName}.{method.Name}";
+        $"{method.DeclaringType?.FullName}.{method.Name}";
 
     [Test]
     public static void CoroutineSettingsMethodsExist() =>
@@ -60,10 +60,11 @@ internal sealed class CoroutineSettingsTests
     [Test]
     public static void ADelegateResolvesToTheAttributedMethodsKey()
     {
-        var method = typeof(ManagerJob_Power.HistoryWorker).GetMethod(
-            nameof(ManagerJob_Power.HistoryWorker.HistoryUpdateCoroutine),
-            [typeof(ManagerJob_Power), typeof(int)]
-        );
+        var method =
+            typeof(ManagerJob_Power.HistoryWorker).GetMethod(
+                nameof(ManagerJob_Power.HistoryWorker.HistoryUpdateCoroutine),
+                [typeof(ManagerJob_Power), typeof(int)]
+            ) ?? throw new InvalidOperationException("HistoryUpdateCoroutine not found");
         var key = Key(method);
         var settings = new Settings
         {

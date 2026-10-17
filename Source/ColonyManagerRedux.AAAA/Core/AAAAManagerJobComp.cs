@@ -88,7 +88,7 @@ internal sealed class AAAAManagerJobCompField(
             && GetJobBooleanField(props.hideIfFieldWithNameIsFalse) is FieldInfo booleanFieldFalse
         )
         {
-            if (!(bool)booleanFieldFalse.GetValue(parent))
+            if (booleanFieldFalse.GetValue(parent) is not true)
             {
                 return;
             }
@@ -98,7 +98,7 @@ internal sealed class AAAAManagerJobCompField(
             && GetJobBooleanField(props.hideIfFieldWithNameIsTrue) is FieldInfo booleanFieldTrue
         )
         {
-            if ((bool)booleanFieldTrue.GetValue(parent))
+            if (booleanFieldTrue.GetValue(parent) is true)
             {
                 return;
             }

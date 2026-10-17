@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Dependencies
+
+- ilyvion's Laboratory: v0.26.0
+
+> [!IMPORTANT]  
+> This release requires an update to ilyvion's Laboratory!
+
 ### Added
 
 - The Livestock job's Training section can now limit training to a set number of animals. Animals that already have (or have finished) one of the training targets count toward the limit and keep their slot; once the limit is reached, no other animals are assigned training. When there's room, choose whether to pick the oldest or youngest animals first, and optionally prefer named animals and/or animals bonded to a colonist. You can also have the limit ignore animals nearing the end of their lifespan (at a configurable percentage of their life expectancy): they no longer take up a slot, so younger animals can be trained in their place, and their existing training is left alone.
@@ -17,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shortcut rows can now be modifier-clicked: Ctrl+click allows only that row's options (turning everything else off), Shift+click also allows them and Alt+click stops allowing them, leaving everything else as it is. This makes combinations like 'everything except aggressive animals' quicker to set up. The row tooltips list the modifiers.
 - The Mining job's building list tooltips now show the expected deconstruction yield of each building, using 'stuff' for the part that depends on what the building is made of (e.g. '5x stuff').
 - The Production job's Consume surplus mode has a new 'Check each ingredient' option. When on, the threshold is checked against each of the recipe's ingredients separately and the job only runs when every one meets it, instead of checking the combined total.
+- Support for RimWorld 1.7.
 
 ### Changed
 

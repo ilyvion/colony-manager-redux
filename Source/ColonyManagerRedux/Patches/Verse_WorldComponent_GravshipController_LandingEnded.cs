@@ -65,7 +65,12 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         Manager manager
     )
     {
-        using var jobTransferDataStream = new MemoryStream(compManagerDatabase.JobTransferData);
+        if (compManagerDatabase.JobTransferData is not { } jobTransferData)
+        {
+            return [];
+        }
+
+        using var jobTransferDataStream = new MemoryStream(jobTransferData);
         using var loadStreamReader = new StreamReader(jobTransferDataStream);
 
         List<ManagerJob> jobList = [];

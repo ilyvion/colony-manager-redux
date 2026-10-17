@@ -14,10 +14,7 @@ internal sealed class GravshipLandingActionTests
     {
         // No local jobs to conflict with, regardless of the configured resolution: just import
         // whatever the gravship brought.
-        foreach (
-            var resolution in (GravshipJobConflictResolution[])
-                Enum.GetValues(typeof(GravshipJobConflictResolution))
-        )
+        foreach (var resolution in Enum.GetValues<GravshipJobConflictResolution>())
         {
             var action =
                 Verse_WorldComponent_GravshipController_LandingEnded.DetermineLandingAction(
@@ -33,10 +30,7 @@ internal sealed class GravshipLandingActionTests
     public static void NoGravshipJobsAlwaysImports()
     {
         // Nothing incoming to conflict with either: same as above, but from the other side.
-        foreach (
-            var resolution in (GravshipJobConflictResolution[])
-                Enum.GetValues(typeof(GravshipJobConflictResolution))
-        )
+        foreach (var resolution in Enum.GetValues<GravshipJobConflictResolution>())
         {
             var action =
                 Verse_WorldComponent_GravshipController_LandingEnded.DetermineLandingAction(

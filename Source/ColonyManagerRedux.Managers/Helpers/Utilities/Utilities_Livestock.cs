@@ -56,8 +56,8 @@ internal enum MasterMode
 [HotSwappable]
 internal static class Utilities_Livestock
 {
-    public static AgeAndSex[] AgeSexArray = (AgeAndSex[])Enum.GetValues(typeof(AgeAndSex));
-    public static MasterMode[] MasterModeArray => (MasterMode[])Enum.GetValues(typeof(MasterMode));
+    public static AgeAndSex[] AgeSexArray = Enum.GetValues<AgeAndSex>();
+    public static MasterMode[] MasterModeArray => Enum.GetValues<MasterMode>();
 
     private static readonly Dictionary<PawnKindDef, CachedValue<bool>> MilkablePawnKindCache = [];
 
@@ -76,7 +76,7 @@ internal static class Utilities_Livestock
     public static bool IsGuest(this Pawn pawn) =>
         pawn?.Faction == Faction.OfPlayer && pawn.HasExtraHomeFaction();
 
-    public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map)
+    public static IEnumerable<Pawn> GetAll(this PawnKindDef pawnKind, Map map)
     {
         // check if we have a cached version
         var allCache = Manager.For(map).LivestockCaches().AllCache;
@@ -106,7 +106,7 @@ internal static class Utilities_Livestock
         return getter();
     }
 
-    public static IEnumerable<Pawn>? GetAll(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
+    public static IEnumerable<Pawn> GetAll(this PawnKindDef pawnKind, Map map, AgeAndSex ageSex)
     {
         var allSexedCache = Manager.For(map).LivestockCaches().AllSexedCache;
         var key = (pawnKind, map.uniqueID, ageSex);
@@ -354,7 +354,7 @@ internal static class Utilities_Livestock
     internal static float MinimumHandlingSkill(float wildness) =>
         Mathf.Clamp(GenMath.LerpDouble(0.3f, 1f, 0f, 9f, wildness), 0f, 20f);
 
-    public static IEnumerable<Pawn>? GetWild(this PawnKindDef pawnKind, Map map)
+    public static IEnumerable<Pawn> GetWild(this PawnKindDef pawnKind, Map map)
     {
         var wildCache = Manager.For(map).LivestockCaches().WildCache;
 

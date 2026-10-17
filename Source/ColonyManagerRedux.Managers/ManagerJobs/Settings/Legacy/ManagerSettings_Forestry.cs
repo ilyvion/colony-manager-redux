@@ -64,8 +64,7 @@ internal sealed class ManagerSettings_Forestry : ManagerSettings
     {
         // type of job;
         // clear clear area | logging
-        var types = (ManagerJob_Forestry.ForestryJobType[])
-            Enum.GetValues(typeof(ManagerJob_Forestry.ForestryJobType));
+        var types = Enum.GetValues<ManagerJob_Forestry.ForestryJobType>();
 
         var cellWidth = width / types.Length;
 

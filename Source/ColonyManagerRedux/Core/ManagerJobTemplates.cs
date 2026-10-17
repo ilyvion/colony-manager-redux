@@ -73,14 +73,8 @@ public static class ManagerJobTemplates
     /// </summary>
     public static void SaveTemplate(Manager manager, string name, IEnumerable<ManagerJob> jobs)
     {
-        if (manager == null)
-        {
-            throw new ArgumentNullException(nameof(manager));
-        }
-        if (name == null)
-        {
-            throw new ArgumentNullException(nameof(name));
-        }
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(name);
 
         var exportJobs = jobs.ToList();
 
@@ -134,10 +128,7 @@ public static class ManagerJobTemplates
     /// </summary>
     public static List<ManagerJob>? TryLoadTemplateJobs(Manager manager, string name)
     {
-        if (manager == null)
-        {
-            throw new ArgumentNullException(nameof(manager));
-        }
+        ArgumentNullException.ThrowIfNull(manager);
 
         var filePath = FilePath(name);
         if (!File.Exists(filePath))

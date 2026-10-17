@@ -21,10 +21,7 @@ public class ManagerJobCompProperties
     /// <returns>An enumerable of error messages, if any.</returns>
     public virtual IEnumerable<string> ConfigErrors(ManagerDef parentDef)
     {
-        if (parentDef == null)
-        {
-            throw new ArgumentNullException(nameof(parentDef));
-        }
+        ArgumentNullException.ThrowIfNull(parentDef);
 
         if (compClass == null)
         {

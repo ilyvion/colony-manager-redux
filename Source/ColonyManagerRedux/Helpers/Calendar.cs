@@ -23,10 +23,7 @@ internal static class Calendar
 
     public static void Draw(Rect canvas, Color color, CalendarMarker[] markers)
     {
-        if (markers == null)
-        {
-            throw new ArgumentNullException(nameof(markers));
-        }
+        ArgumentNullException.ThrowIfNull(markers);
 
         var days = markers.NullOrEmpty()
             ? GenDate.DaysPerTwelfth

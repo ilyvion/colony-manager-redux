@@ -204,36 +204,35 @@ internal partial class ManagerTab_Overview
     private PawnTable? pawnOverviewTable;
 
     private PawnTable CreatePawnOverviewTable() =>
-        (PawnTable)
-            Activator.CreateInstance(
-                ManagerPawnTableDefOf.CM_ManagerJobWorkTable.workerClass,
-                ManagerPawnTableDefOf.CM_ManagerJobWorkTable,
-                (Func<IEnumerable<Pawn>>)(
-                    () =>
+        ActivatorUtility.CreateInstance<PawnTable>(
+            ManagerPawnTableDefOf.CM_ManagerJobWorkTable.workerClass,
+            ManagerPawnTableDefOf.CM_ManagerJobWorkTable,
+            (Func<IEnumerable<Pawn>>)(
+                () =>
+                {
+                    // PawnTables aren't very customizable, so we'll hijack this function to inject our
+                    // instance into the columns, since we need it there
+                    foreach (
+                        var item in pawnOverviewTable!.def.columns.Where(c =>
+                            c.workerClass.IsSubclassOf(typeof(PawnColumnWorker_Overview))
+                        )
+                    )
                     {
-                        // PawnTables aren't very customizable, so we'll hijack this function to inject our
-                        // instance into the columns, since we need it there
-                        foreach (
-                            var item in pawnOverviewTable!.def.columns.Where(c =>
-                                c.workerClass.IsSubclassOf(typeof(PawnColumnWorker_Overview))
-                            )
-                        )
-                        {
-                            ((PawnColumnWorker_Overview)item.Worker).instance = this;
-                        }
-                        foreach (
-                            var item in pawnOverviewTable!.Columns.Where(c =>
-                                c.workerClass == typeof(PawnColumnWorker_Label)
-                            )
-                        )
-                        {
-                            ((PawnColumnWorker_Label)item.Worker).instance = this;
-                        }
-
-                        return _workers;
+                        ((PawnColumnWorker_Overview)item.Worker).instance = this;
                     }
-                ),
-                UI.screenWidth - (int)(Constants.Margin * 2f),
-                (int)(UI.screenHeight - 35 - (Constants.Margin * 2f))
-            );
+                    foreach (
+                        var item in pawnOverviewTable!.Columns.Where(c =>
+                            c.workerClass == typeof(PawnColumnWorker_Label)
+                        )
+                    )
+                    {
+                        ((PawnColumnWorker_Label)item.Worker).instance = this;
+                    }
+
+                    return _workers;
+                }
+            ),
+            UI.screenWidth - (int)(Constants.Margin * 2f),
+            (int)(UI.screenHeight - 35 - (Constants.Margin * 2f))
+        );
 }

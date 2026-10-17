@@ -48,7 +48,7 @@ internal sealed class ManagerScene : IDisposable
     public T AddJob<T>(bool managed = true)
         where T : ManagerJob
     {
-        var job = (T)Activator.CreateInstance(typeof(T), Manager);
+        var job = ActivatorUtility.CreateInstance<T>(typeof(T), Manager);
         return Register(job, managed);
     }
 

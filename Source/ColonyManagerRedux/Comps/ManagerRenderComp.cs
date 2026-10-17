@@ -47,15 +47,12 @@ public abstract class ManagerRenderCompProperties<TComp, TWorker> : ManagerJobCo
     /// <summary>
     /// Gets the instance of the worker associated with this render component.
     /// </summary>
-    public TWorker Worker => field ??= (TWorker)Activator.CreateInstance(workerClass);
+    public TWorker Worker => field ??= ActivatorUtility.CreateInstance<TWorker>(workerClass);
 
     /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors(ManagerDef parentDef)
     {
-        if (parentDef == null)
-        {
-            throw new ArgumentNullException(nameof(parentDef));
-        }
+        ArgumentNullException.ThrowIfNull(parentDef);
 
         foreach (var item in base.ConfigErrors(parentDef))
         {

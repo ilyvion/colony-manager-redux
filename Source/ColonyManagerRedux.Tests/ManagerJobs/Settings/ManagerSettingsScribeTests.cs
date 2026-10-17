@@ -62,7 +62,7 @@ internal sealed class ManagerSettingsScribeTests
         )
         {
             var all = Enum.GetValues(type.GetGenericArguments()[0]).Cast<object>().Reverse();
-            var list = (IList)Activator.CreateInstance(type)!;
+            var list = ActivatorUtility.CreateInstance<IList>(type);
             foreach (var value in all)
             {
                 _ = list.Add(value);
@@ -119,7 +119,7 @@ internal sealed class ManagerSettingsScribeTests
             if (expectedText != actualText)
             {
                 differences.Add(
-                    $"{field.DeclaringType.Name}.{field.Name}: expected {expectedText}, got {actualText}"
+                    $"{field.DeclaringType?.Name}.{field.Name}: expected {expectedText}, got {actualText}"
                 );
             }
         }
@@ -260,7 +260,7 @@ internal sealed class ManagerSettingsScribeTests
 
         Expect.AreEqual(ManagerJob_Mining.Task.Mine, loaded.DefaultTaskPriorityOrder[0]);
         Expect.AreEqual(
-            Enum.GetValues(typeof(ManagerJob_Mining.Task)).Length,
+            Enum.GetValues<ManagerJob_Mining.Task>().Length,
             loaded.DefaultTaskPriorityOrder.Distinct().Count()
         );
     }

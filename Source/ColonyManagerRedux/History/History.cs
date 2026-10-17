@@ -21,7 +21,7 @@ public partial class History : IExposable
     /// <summary>
     /// Gets an array of all possible <see cref="Period"/> values.
     /// </summary>
-    public static readonly Period[] Periods = (Period[])Enum.GetValues(typeof(Period));
+    public static readonly Period[] Periods = Enum.GetValues<Period>();
 
     internal const int EntriesPerInterval = 100;
 
@@ -155,10 +155,7 @@ public partial class History : IExposable
     /// <param name="colors">Optional colors for each chapter.</param>
     public History(HistoryLabel[] labels, Color[]? colors = null)
     {
-        if (labels == null)
-        {
-            throw new ArgumentNullException(nameof(labels));
-        }
+        ArgumentNullException.ThrowIfNull(labels);
 
 #if DEBUG_HISTORY
         Log.Message("History created" + string.Join(", ", labels));
@@ -188,10 +185,7 @@ public partial class History : IExposable
     /// <param name="colors">Optional colors for each chapter.</param>
     public History(ThingDefCount[] thingCounts, Color[]? colors = null)
     {
-        if (thingCounts == null)
-        {
-            throw new ArgumentNullException(nameof(thingCounts));
-        }
+        ArgumentNullException.ThrowIfNull(thingCounts);
 
         // get range of colors if not set
         // default to white for single line
@@ -492,10 +486,7 @@ public partial class History : IExposable
     /// <param name="values">The thing def, count and target for each chapter.</param>
     public void Update(int tick, params (ThingDef thingDef, int count, int target)[] values)
     {
-        if (values == null)
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
+        ArgumentNullException.ThrowIfNull(values);
 
         foreach (var (thingDef, count, target) in values)
         {
@@ -519,14 +510,8 @@ public partial class History : IExposable
     /// <param name="targets">The targets for each chapter.</param>
     public void Update(int tick, int[] counts, int[] targets)
     {
-        if (counts == null)
-        {
-            throw new ArgumentNullException(nameof(counts));
-        }
-        if (targets == null)
-        {
-            throw new ArgumentNullException(nameof(targets));
-        }
+        ArgumentNullException.ThrowIfNull(counts);
+        ArgumentNullException.ThrowIfNull(targets);
 
         if (counts.Length != _chapters.Count || targets.Length != _chapters.Count)
         {
@@ -547,10 +532,7 @@ public partial class History : IExposable
     /// <param name="maxes">The maximum values for each chapter.</param>
     public void UpdateMax(params int[] maxes)
     {
-        if (maxes == null)
-        {
-            throw new ArgumentNullException(nameof(maxes));
-        }
+        ArgumentNullException.ThrowIfNull(maxes);
 
         if (maxes.Length != _chapters.Count)
         {
@@ -573,10 +555,7 @@ public partial class History : IExposable
     /// <param name="values">The thing def, count and maximum for each chapter.</param>
     public void UpdateThingCountAndMax(IEnumerable<(ThingDef thingDef, int count, int max)> values)
     {
-        if (values == null)
-        {
-            throw new ArgumentNullException(nameof(values));
-        }
+        ArgumentNullException.ThrowIfNull(values);
 
         foreach (var (thingDef, count, max) in values)
         {
@@ -602,10 +581,7 @@ public partial class History : IExposable
     /// <param name="counts">The thing counts for each chapter.</param>
     public void UpdateThingCounts(params int[] counts)
     {
-        if (counts == null)
-        {
-            throw new ArgumentNullException(nameof(counts));
-        }
+        ArgumentNullException.ThrowIfNull(counts);
 
         if (counts.Length != _chapters.Count)
         {

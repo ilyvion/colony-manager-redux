@@ -61,15 +61,13 @@ public class CompProperties_ManagerJobHistory : ManagerJobCompProperties
     /// <summary>
     /// Gets the history worker instance for this component.
     /// </summary>
-    public HistoryWorker Worker => field ??= (HistoryWorker)Activator.CreateInstance(workerClass);
+    public HistoryWorker Worker =>
+        field ??= ActivatorUtility.CreateInstance<HistoryWorker>(workerClass);
 
     /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors(ManagerDef parentDef)
     {
-        if (parentDef == null)
-        {
-            throw new ArgumentNullException(nameof(parentDef));
-        }
+        ArgumentNullException.ThrowIfNull(parentDef);
 
         foreach (var item in base.ConfigErrors(parentDef))
         {

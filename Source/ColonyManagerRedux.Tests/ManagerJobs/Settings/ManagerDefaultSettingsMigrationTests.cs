@@ -122,7 +122,7 @@ internal sealed class ManagerDefaultSettingsMigrationTests
         // that exists now, same as a fresh load does.
         Expect.IsTrue(target.DefaultTaskPriorityOrder.Contains(ManagerJob_Mining.Task.Mine));
         Expect.AreEqual(
-            Enum.GetValues(typeof(ManagerJob_Mining.Task)).Length,
+            Enum.GetValues<ManagerJob_Mining.Task>().Length,
             target.DefaultTaskPriorityOrder.Count
         );
     }

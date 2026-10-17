@@ -69,7 +69,10 @@ internal sealed class GravshipLaunchConfirmationTests
     public static void InsertedInstructionsMatchTheLocalAndArgumentTypes()
     {
         // The inserted code loads local 0 as the text and argument 0 as the engine.
-        var locals = PreLaunchConfirmation.GetMethodBody().LocalVariables;
+        var locals = (
+            PreLaunchConfirmation.GetMethodBody()
+            ?? throw new InvalidOperationException("PreLaunchConfirmation has no method body")
+        ).LocalVariables;
         Expect.AreEqual(typeof(TaggedString), locals[0].LocalType);
         Expect.AreEqual(
             typeof(Building_GravEngine),

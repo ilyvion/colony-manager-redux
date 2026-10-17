@@ -10,12 +10,12 @@
         one already made public inside the referenced ColonyManagerRedux assembly; CS0436 is
         harmless here.
     -->
-    <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6'">
+    <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6' And '$(RimWorldVersion)' != '1.7'">
         <NoWarn>$(NoWarn);CS0436</NoWarn>
     </PropertyGroup>
     <!--
         Dev-only test assembly, built and run in-game via DevTools. Its output is placed in
-        1.6/Assemblies next to the mod assembly, where DevTools discovers its [TestFixture]
+        <version>/Assemblies next to the mod assembly, where DevTools discovers its [TestFixture]
         classes.
 
         It's listed in ColonyManagerRedux.sln so it always builds locally (default Configuration
@@ -24,9 +24,9 @@
         (what CI/release always use, per rimworld-utils' build_mod.yml) skips building it
         entirely; its output never lands in a shipped release.
 
-        DevTools only supports RimWorld 1.6, so for any other RimWorldVersion this project
+        DevTools only supports RimWorld 1.6 and 1.7, so for any other RimWorldVersion this project
         builds as an empty assembly: both the test sources and the DevTools reference are
-        excluded below. DevTools.dll is built into 1.6/Assemblies.
+        excluded below. DevTools.dll is built into <version>/Assemblies.
     -->
     <ItemGroup>
         <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
@@ -38,7 +38,7 @@
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>
-    <ItemGroup Condition="'$(RimWorldVersion)' == '1.6'">
+    <ItemGroup Condition="'$(RimWorldVersion)' == '1.6' Or '$(RimWorldVersion)' == '1.7'">
         <Publicize Include="Assembly-CSharp:Verse.CrossRefHandler.loadedObjectDirectory" />
         <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.Settings._coroutineTicksBetweenOperations" />
         <Publicize Include="Assembly-CSharp:Verse.FogGrid.fogGrid" />
@@ -52,6 +52,8 @@
         <Publicize Include="ColonyManagerRedux:ColonyManagerRedux.ManagerTab._truncateCache" />
         <Publicize Include="Assembly-CSharp:RimWorld.Pawn_PlayerSettings.master" />
         <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.dirty" />
+        <Publicize Include="Assembly-CSharp:RimWorld.PawnTable.CalculateHeaderHeight" />
+        <Publicize Include="Assembly-CSharp:Verse.RecipeDef.ingredientValueGetterClass" />
         <Publicize Include="Assembly-CSharp:Verse.Game.currentMapIndex" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerTab_Overview.pawnOverviewTable" />
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerTab_Livestock.animalsTameTable" />
@@ -98,13 +100,13 @@
         <Publicize Include="ColonyManagerRedux.Managers:ColonyManagerRedux.Managers.ManagerJob_Power._isRefreshingCompLists" />
         <ProjectReference
             Include="$(ProjectDependenciesBasePath)\Third-Party\DevTools\DevTools\DevTools.csproj"
-            AdditionalProperties="OutDir=$(MSBuildThisFileDirectory)..\..\1.6\Assemblies\"
+            AdditionalProperties="RimWorldVersion=$(RimWorldVersion);OutDir=$(MSBuildThisFileDirectory)..\..\$(RimWorldVersion)\Assemblies\"
         >
             <CopyLocal>False</CopyLocal>
             <Private>false</Private>
         </ProjectReference>
     </ItemGroup>
-    <ItemGroup Condition="'$(RimWorldVersion)' != '1.6'">
+    <ItemGroup Condition="'$(RimWorldVersion)' != '1.6' And '$(RimWorldVersion)' != '1.7'">
         <Compile Remove="**/*.cs" />
     </ItemGroup>
 </Project>

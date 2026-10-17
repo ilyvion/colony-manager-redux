@@ -84,10 +84,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
     /// <param name="job">The job to select, if any.</param>
     public static void GoTo(ManagerTab tab, ManagerJob? job = null)
     {
-        if (tab == null)
-        {
-            throw new ArgumentNullException(nameof(tab));
-        }
+        ArgumentNullException.ThrowIfNull(tab);
         // call pre/post open/close methods
         var old = CurrentTab;
         old.PreClose();
@@ -225,10 +222,7 @@ public sealed class MainTabWindow_Manager : MainTabWindow
     /// <param name="tab">The manager tab to draw.</param>
     public static void DrawTabIcon(Rect rect, ManagerTab tab)
     {
-        if (tab == null)
-        {
-            throw new ArgumentNullException(nameof(tab));
-        }
+        ArgumentNullException.ThrowIfNull(tab);
 
         if (tab.Enabled)
         {

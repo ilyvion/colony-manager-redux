@@ -672,8 +672,7 @@ internal sealed class ManagerTab_Production(Manager manager)
     {
         var start = pos;
 
-        var modes = (ManagerJob_Production.ProductionMode[])
-            Enum.GetValues(typeof(ManagerJob_Production.ProductionMode));
+        var modes = Enum.GetValues<ManagerJob_Production.ProductionMode>();
         var cellWidth = width / modes.Length;
         var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 
@@ -962,8 +961,7 @@ internal sealed class ManagerTab_Production(Manager manager)
 
         if (job.AutoTargetFromLinks)
         {
-            var modes = (ManagerJob_Production.LinkedDemandAggregation[])
-                Enum.GetValues(typeof(ManagerJob_Production.LinkedDemandAggregation));
+            var modes = Enum.GetValues<ManagerJob_Production.LinkedDemandAggregation>();
             var cellWidth = width / modes.Length;
             var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
             foreach (var mode in modes)
@@ -1871,8 +1869,7 @@ internal sealed class ManagerTab_Production(Manager manager)
         float width
     )
     {
-        var modes = (ManagerJob_Production.WorkbenchAssignmentMode[])
-            Enum.GetValues(typeof(ManagerJob_Production.WorkbenchAssignmentMode));
+        var modes = Enum.GetValues<ManagerJob_Production.WorkbenchAssignmentMode>();
         var cellWidth = width / modes.Length;
         var cellRect = new Rect(pos.x, pos.y, cellWidth, ListEntryHeight);
 

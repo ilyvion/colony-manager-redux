@@ -923,8 +923,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
     {
         var start = pos;
 
-        var cullingStrategies = (LivestockCullingStrategy[])
-            Enum.GetValues(typeof(LivestockCullingStrategy));
+        var cullingStrategies = Enum.GetValues<LivestockCullingStrategy>();
 
         var cellWidth = width / EntriesPerRow;
 
@@ -1514,8 +1513,7 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             {
                 Find.WindowStack.Add(
                     new FloatMenu([
-                        .. Enum.GetValues(typeof(TrainingPriority))
-                            .Cast<TrainingPriority>()
+                        .. Enum.GetValues<TrainingPriority>()
                             .Select(priority => new FloatMenuOption(
                                 $"ColonyManagerRedux.Livestock.TrainingPriority.{priority}".Translate(),
                                 () => job.Training.Priority = priority

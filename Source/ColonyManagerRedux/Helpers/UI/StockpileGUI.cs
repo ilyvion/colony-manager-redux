@@ -43,10 +43,7 @@ public static class StockpileGUI
         Map map
     )
     {
-        if (map == null)
-        {
-            throw new ArgumentNullException(nameof(map));
-        }
+        ArgumentNullException.ThrowIfNull(map);
 
         // get all stockpiles
         _tmpStockpiles.AddRange(map.zoneManager.AllZones.OfType<Zone_Stockpile>());

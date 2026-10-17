@@ -66,7 +66,10 @@ internal sealed class GravshipDatabaseLookupSceneTests
     }
 
     private static Gravship NewGravship() =>
-        (Gravship)Activator.CreateInstance(typeof(Gravship), nonPublic: true);
+        (Gravship)(
+            Activator.CreateInstance(typeof(Gravship), nonPublic: true)
+            ?? throw new InvalidOperationException("Could not create a Gravship")
+        );
 
     [Test]
     public static void GravshipFindsTheDatabaseAmongItsThings()

@@ -119,10 +119,7 @@ public sealed class Trigger_Threshold : Trigger
     /// <exception cref="ArgumentException">Thrown if <paramref name="supportedOps"/> is empty.</exception>
     public void RestrictSupportedOps(IReadOnlyList<Ops> supportedOps)
     {
-        if (supportedOps == null)
-        {
-            throw new ArgumentNullException(nameof(supportedOps));
-        }
+        ArgumentNullException.ThrowIfNull(supportedOps);
         if (supportedOps.Count == 0)
         {
             throw new ArgumentException(
@@ -319,14 +316,8 @@ public sealed class Trigger_Threshold : Trigger
     public Trigger_Threshold(ManagerJob job, IReadOnlyList<Ops> supportedOps)
         : base(job)
     {
-        if (job == null)
-        {
-            throw new ArgumentNullException(nameof(job));
-        }
-        if (supportedOps == null)
-        {
-            throw new ArgumentNullException(nameof(supportedOps));
-        }
+        ArgumentNullException.ThrowIfNull(job);
+        ArgumentNullException.ThrowIfNull(supportedOps);
         if (supportedOps.Count == 0)
         {
             throw new ArgumentException(
@@ -474,10 +465,7 @@ public sealed class Trigger_Threshold : Trigger
         Func<Designation, string?>? designationLabelGetter = null
     )
     {
-        if (targets == null)
-        {
-            throw new ArgumentNullException(nameof(targets));
-        }
+        ArgumentNullException.ThrowIfNull(targets);
 
         var hasTargets = !targets.NullOrEmpty();
 

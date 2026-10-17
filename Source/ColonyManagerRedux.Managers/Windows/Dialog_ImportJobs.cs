@@ -120,7 +120,7 @@ internal sealed class Dialog_ImportJobs : Window
             }
             catch
             {
-                label = job.GetType().FullName;
+                label = job.GetType().FullName ?? job.GetType().Name;
             }
             Widgets.Label(jobRowRect, "ColonyManagerRedux.InvalidJob".Translate(label));
             if (!string.IsNullOrEmpty(reason))

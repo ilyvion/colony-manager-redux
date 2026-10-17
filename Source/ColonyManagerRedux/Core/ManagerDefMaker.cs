@@ -14,7 +14,10 @@ internal static class ManagerDefMaker
 
         try
         {
-            var job = (ManagerJob)Activator.CreateInstance(def.managerJobClass, [manager, .. args]);
+            var job = ActivatorUtility.CreateInstance<ManagerJob>(
+                def.managerJobClass,
+                [manager, .. args]
+            );
             job._def = def;
             job.Initialize();
             job.PostMake();
@@ -34,7 +37,7 @@ internal static class ManagerDefMaker
     {
         try
         {
-            var tab = (ManagerTab)Activator.CreateInstance(def.managerTabClass, manager);
+            var tab = ActivatorUtility.CreateInstance<ManagerTab>(def.managerTabClass, manager);
             tab.Def = def;
             tab.PostMakeInt();
             return tab;
@@ -56,7 +59,7 @@ internal static class ManagerDefMaker
             return null;
         }
 
-        var settings = (ManagerSettings)Activator.CreateInstance(def.managerSettingsClass);
+        var settings = ActivatorUtility.CreateInstance<ManagerSettings>(def.managerSettingsClass);
         settings.Def = def;
         settings.PostMake();
         return settings;
@@ -69,8 +72,9 @@ internal static class ManagerDefMaker
             return null;
         }
 
-        var defaultSettings = (ManagerDefaultSettings)
-            Activator.CreateInstance(def.managerDefaultSettingsClass);
+        var defaultSettings = ActivatorUtility.CreateInstance<ManagerDefaultSettings>(
+            def.managerDefaultSettingsClass
+        );
         defaultSettings.Def = def;
         defaultSettings.PostMake();
         return defaultSettings;

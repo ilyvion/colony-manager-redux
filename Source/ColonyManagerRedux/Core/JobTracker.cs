@@ -136,10 +136,7 @@ public class JobTracker(Manager manager) : IExposable
     /// <exception cref="ArgumentNullException">Thrown if the job is null.</exception>
     public void Add(ManagerJob job)
     {
-        if (job == null)
-        {
-            throw new ArgumentNullException(nameof(job));
-        }
+        ArgumentNullException.ThrowIfNull(job);
 
         job.Priority = MaxPriority + 1;
         job.ResetCreatedTick();
@@ -153,10 +150,7 @@ public class JobTracker(Manager manager) : IExposable
     /// <param name="cleanup">Whether to perform cleanup on the job before deleting.</param>
     public void Delete(ManagerJob job, bool cleanup = true)
     {
-        if (job == null)
-        {
-            throw new ArgumentNullException(nameof(job));
-        }
+        ArgumentNullException.ThrowIfNull(job);
 
         if (cleanup)
         {

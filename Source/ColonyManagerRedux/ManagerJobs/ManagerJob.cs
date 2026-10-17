@@ -54,10 +54,7 @@ public abstract class ManagerJob<TSettings, TWorkData>(Manager manager)
         AnyBoxed<object?> data
     )
     {
-        if (data == null)
-        {
-            throw new ArgumentNullException(nameof(data));
-        }
+        ArgumentNullException.ThrowIfNull(data);
 
         AnyBoxed<TWorkData?> typedData = new(default);
         yield return GatherJobDataCoroutine(jobLog, typedData)
@@ -473,7 +470,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
             ManagerJobComp? managerJobComp = null;
             try
             {
-                managerJobComp = (ManagerJobComp)Activator.CreateInstance(compProperties.compClass);
+                managerJobComp = ActivatorUtility.CreateInstance<ManagerJobComp>(
+                    compProperties.compClass
+                );
                 managerJobComp.Parent = this;
                 _comps.Add(managerJobComp);
                 managerJobComp.InitializeInt(compProperties);
@@ -710,10 +709,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         ManagerLog? jobLog = null
     )
     {
-        if (designations == null)
-        {
-            throw new ArgumentNullException(nameof(designations));
-        }
+        ArgumentNullException.ThrowIfNull(designations);
 
         var originalCount = designations.Count;
 
@@ -763,10 +759,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         ManagerLog? jobLog = null
     )
     {
-        if (designations == null)
-        {
-            throw new ArgumentNullException(nameof(designations));
-        }
+        ArgumentNullException.ThrowIfNull(designations);
 
         var originalCount = designations.Count;
         var gameDesignations = GetIntersectionDesignations(designationDef);
@@ -825,22 +818,10 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         ManagerLog jobLog
     )
     {
-        if (designations == null)
-        {
-            throw new ArgumentNullException(nameof(designations));
-        }
-        if (toRemove == null)
-        {
-            throw new ArgumentNullException(nameof(toRemove));
-        }
-        if (isDisallowed == null)
-        {
-            throw new ArgumentNullException(nameof(isDisallowed));
-        }
-        if (jobLog == null)
-        {
-            throw new ArgumentNullException(nameof(jobLog));
-        }
+        ArgumentNullException.ThrowIfNull(designations);
+        ArgumentNullException.ThrowIfNull(toRemove);
+        ArgumentNullException.ThrowIfNull(isDisallowed);
+        ArgumentNullException.ThrowIfNull(jobLog);
 
         List<LocalTargetInfo> removedTargets = [];
         foreach (var des in toRemove)
@@ -889,10 +870,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     /// <returns>The calculated distance as a float value.</returns>
     public virtual float Distance(Thing target, IntVec3 source)
     {
-        if (target == null)
-        {
-            throw new ArgumentNullException(nameof(target));
-        }
+        ArgumentNullException.ThrowIfNull(target);
 
         if (UsePathBasedDistance)
         {
@@ -934,14 +912,8 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         List<float> distances
     )
     {
-        if (targets == null)
-        {
-            throw new ArgumentNullException(nameof(targets));
-        }
-        if (distances == null)
-        {
-            throw new ArgumentNullException(nameof(distances));
-        }
+        ArgumentNullException.ThrowIfNull(targets);
+        ArgumentNullException.ThrowIfNull(distances);
 
         var operationsPerTick = ColonyManagerReduxMod.Settings.GetOperationsPerTickForCoroutine(
             DistancesCoroutine
@@ -988,18 +960,9 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     )
         where TSorter : IComparable<TSorter>
     {
-        if (unsortedTargets == null)
-        {
-            throw new ArgumentNullException(nameof(unsortedTargets));
-        }
-        if (sortedTargets == null)
-        {
-            throw new ArgumentNullException(nameof(sortedTargets));
-        }
-        if (toThing == null)
-        {
-            throw new ArgumentNullException(nameof(toThing));
-        }
+        ArgumentNullException.ThrowIfNull(unsortedTargets);
+        ArgumentNullException.ThrowIfNull(sortedTargets);
+        ArgumentNullException.ThrowIfNull(toThing);
 
         var targets = _tmpTargets.Count > 0 ? _tmpTargets.Dequeue() : [];
         var targetDistances = _tmpTargetDistances.Count > 0 ? _tmpTargetDistances.Dequeue() : [];
@@ -1151,10 +1114,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         Danger danger = Danger.Some
     )
     {
-        if (target == null)
-        {
-            throw new ArgumentNullException(nameof(target));
-        }
+        ArgumentNullException.ThrowIfNull(target);
 
         if (target.Position.Fogged(Manager.map))
         {
@@ -1290,10 +1250,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public void ForAllCompsOfType<T>(Action<T> action)
         where T : ManagerJobComp
     {
-        if (action == null)
-        {
-            throw new ArgumentNullException(nameof(action));
-        }
+        ArgumentNullException.ThrowIfNull(action);
 
         foreach (var comp in CompsOfType<T>())
         {

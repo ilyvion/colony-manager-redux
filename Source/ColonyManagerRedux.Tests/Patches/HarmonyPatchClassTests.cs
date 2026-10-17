@@ -43,7 +43,8 @@ internal sealed class HarmonyPatchClassTests
             .Where(a =>
             {
                 var name = a.GetName().Name;
-                return name.StartsWith("ColonyManagerRedux", StringComparison.Ordinal)
+                return name != null
+                    && name.StartsWith("ColonyManagerRedux", StringComparison.Ordinal)
                     && !name.EndsWith(".Tests", StringComparison.Ordinal);
             });
 

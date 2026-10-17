@@ -69,14 +69,8 @@ public static class ScribeModMismatchUtility
         Action loadAct
     )
     {
-        if (headerText == null)
-        {
-            throw new ArgumentNullException(nameof(headerText));
-        }
-        if (loadAct == null)
-        {
-            throw new ArgumentNullException(nameof(loadAct));
-        }
+        ArgumentNullException.ThrowIfNull(headerText);
+        ArgumentNullException.ThrowIfNull(loadAct);
 
         if (TryDetectModMismatch(filePath, out var loadedModIds, out var loadedModNames))
         {

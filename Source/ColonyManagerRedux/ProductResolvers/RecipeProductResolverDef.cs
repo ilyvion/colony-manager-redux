@@ -23,7 +23,7 @@ public sealed class RecipeProductResolverDef : Def
     /// Gets the resolver instance for this def, lazily created from <see cref="resolverClass"/>.
     /// </summary>
     public RecipeProductResolver Resolver =>
-        field ??= (RecipeProductResolver)Activator.CreateInstance(resolverClass!);
+        field ??= ActivatorUtility.CreateInstance<RecipeProductResolver>(resolverClass);
 
     /// <inheritdoc/>
     public override IEnumerable<string> ConfigErrors()

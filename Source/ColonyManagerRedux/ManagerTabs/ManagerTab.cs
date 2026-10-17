@@ -108,10 +108,7 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager)
         int id = 0
     )
     {
-        if (drawerFunc == null)
-        {
-            throw new ArgumentNullException(nameof(drawerFunc));
-        }
+        ArgumentNullException.ThrowIfNull(drawerFunc);
         if (id == 0 && Utilities.IsLikelyAnonymous(drawerFunc))
         {
             ColonyManagerReduxMod.Instance.LogWarning(
@@ -811,14 +808,8 @@ public abstract class ManagerTab(Manager manager)
         bool includeAllRow = true
     )
     {
-        if (options == null)
-        {
-            throw new ArgumentNullException(nameof(options));
-        }
-        if (categories == null)
-        {
-            throw new ArgumentNullException(nameof(categories));
-        }
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(categories);
 
         var y = pos.y;
         if (includeAllRow)
@@ -900,18 +891,9 @@ public abstract class ManagerTab(Manager manager)
         bool isAllRow = false
     )
     {
-        if (matching == null)
-        {
-            throw new ArgumentNullException(nameof(matching));
-        }
-        if (allOptions == null)
-        {
-            throw new ArgumentNullException(nameof(allOptions));
-        }
-        if (selected == null)
-        {
-            throw new ArgumentNullException(nameof(selected));
-        }
+        ArgumentNullException.ThrowIfNull(matching);
+        ArgumentNullException.ThrowIfNull(allOptions);
+        ArgumentNullException.ThrowIfNull(selected);
 
         if (!IsShortcutRowVisible(matching.Count, allOptions.Count, isAllRow))
         {
@@ -1071,14 +1053,8 @@ public abstract class ManagerTab(Manager manager)
     /// </summary>
     public bool DrawOrderButtons(Rect rect, ManagerJob job, JobTracker jobTracker)
     {
-        if (job == null)
-        {
-            throw new ArgumentNullException(nameof(job));
-        }
-        if (jobTracker == null)
-        {
-            throw new ArgumentNullException(nameof(jobTracker));
-        }
+        ArgumentNullException.ThrowIfNull(job);
+        ArgumentNullException.ThrowIfNull(jobTracker);
 
         float width = 22;
         float height = 22;

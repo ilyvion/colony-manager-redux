@@ -417,7 +417,7 @@ public class Settings : ModSettings
             return fullName;
         }
 
-        fullName = $"{method.DeclaringType.FullName}.{method.Name}";
+        fullName = $"{method.DeclaringType?.FullName}.{method.Name}";
         _fullNameCache[method] = fullName;
         return fullName;
     }
@@ -429,10 +429,7 @@ public class Settings : ModSettings
     /// <returns>The number of operations per tick.</returns>
     public int GetOperationsPerTickForCoroutine(Delegate coroutine)
     {
-        if (coroutine == null)
-        {
-            throw new ArgumentNullException(nameof(coroutine));
-        }
+        ArgumentNullException.ThrowIfNull(coroutine);
 
         var fullName = GetFullName(coroutine);
         var hasOverride = _coroutineOperationsPerTick.TryGetValue(
@@ -471,10 +468,7 @@ public class Settings : ModSettings
     /// <returns>The number of ticks between operations.</returns>
     public int GetTicksBetweenOperationsForCoroutine(Delegate coroutine)
     {
-        if (coroutine == null)
-        {
-            throw new ArgumentNullException(nameof(coroutine));
-        }
+        ArgumentNullException.ThrowIfNull(coroutine);
 
         var fullName = GetFullName(coroutine);
         var hasOverride = _coroutineTicksBetweenOperations.TryGetValue(
@@ -1254,7 +1248,7 @@ public class Settings : ModSettings
 
 #if !v1_5
     private static readonly GravshipJobConflictResolution[] _gravshipJobConflictResolutions =
-        (GravshipJobConflictResolution[])Enum.GetValues(typeof(GravshipJobConflictResolution));
+        Enum.GetValues<GravshipJobConflictResolution>();
 
     private float DrawGravshipSettings(Vector2 pos, float width)
     {
@@ -1386,10 +1380,7 @@ public class Settings : ModSettings
         float width
     )
     {
-        if (coroutineSettings == null)
-        {
-            throw new ArgumentNullException(nameof(coroutineSettings));
-        }
+        ArgumentNullException.ThrowIfNull(coroutineSettings);
 
         var start = pos;
 

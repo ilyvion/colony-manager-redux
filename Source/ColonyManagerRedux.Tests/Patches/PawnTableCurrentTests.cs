@@ -68,4 +68,43 @@ internal sealed class PawnTableCurrentTests
         }
         Expect.IsNull(RimWorld_PawnTable_Columns.CurrentPawnTable);
     }
+
+#if v1_7_OR_GREATER
+    private sealed class RecordingColumnWorker : PawnColumnWorker
+    {
+        public static readonly List<PawnTable?> Seen = [];
+
+        public override bool VisibleCurrently
+        {
+            get
+            {
+                Seen.Add(RimWorld_PawnTable_Columns.CurrentPawnTable);
+                return true;
+            }
+        }
+
+        public override void DoCell(Rect rect, Pawn pawn, PawnTable table) { }
+
+        public override int GetMinHeaderHeight(PawnTable table) => 0;
+    }
+
+    // On 1.7 the JIT can inline the small Columns getter into PawnTable's own methods, so the
+    // patch is checked through one of those vanilla callers.
+    [Test]
+    public static void TableIsCurrentWhenVanillaCodeReadsItsColumns()
+    {
+        var column = new PawnColumnDef
+        {
+            defName = "CMR_Test_RecordingColumn",
+            workerClass = typeof(RecordingColumnWorker),
+        };
+        var table = new PawnTable(new PawnTableDef { columns = [column] }, () => [], 100, 100);
+        RecordingColumnWorker.Seen.Clear();
+
+        _ = table.CalculateHeaderHeight();
+
+        Expect.IsTrue(RecordingColumnWorker.Seen.SequenceEqual([table]), "current during the read");
+        Expect.IsNull(RimWorld_PawnTable_Columns.CurrentPawnTable, "current after the read");
+    }
+#endif
 }

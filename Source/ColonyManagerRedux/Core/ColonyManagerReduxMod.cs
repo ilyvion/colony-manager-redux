@@ -20,7 +20,7 @@ public class ColonyManagerReduxMod : IlyvionMod
     /// <summary>
     /// Gets the package ID of the Colony Manager Redux mod.
     /// </summary>
-    public static string PackageId => Instance!.Content.PackageId;
+    public static string PackageId => Instance.Content.PackageId;
 
     /// <inheritdoc/>
     protected override bool HasSettings => true;
@@ -38,10 +38,7 @@ public class ColonyManagerReduxMod : IlyvionMod
         : base(content)
     {
         // This is kind of stupid, but also kind of correct. Correct wins.
-        if (content == null)
-        {
-            throw new ArgumentNullException(nameof(content));
-        }
+        ArgumentNullException.ThrowIfNull(content);
 
         Instance = this;
 

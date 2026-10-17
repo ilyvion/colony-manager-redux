@@ -109,6 +109,31 @@ internal sealed class PawnsChangedPatchTests
         }
     }
 
+#if v1_7_OR_GREATER
+    // On 1.7 the JIT can inline the small NotifyAllPawnTables_PawnsChanged into its vanilla
+    // callers, so the patch is checked through one: registering a newly spawned pawn.
+    [Test]
+    public static void OverviewTableIsDirtyAfterAPawnSpawns()
+    {
+        using var scene = new ManagerScene();
+        var overview = scene.Manager.Tabs.OfType<ManagerTab_Overview>().Single();
+        var previous = overview.pawnOverviewTable;
+        try
+        {
+            var table = NewCleanTable();
+            overview.pawnOverviewTable = table;
+
+            _ = scene.SpawnColonist(scene.Cells(20, 20, 20, 20).First(c => c.Standable(scene.Map)));
+
+            Expect.IsTrue(table.dirty, "overview table dirty");
+        }
+        finally
+        {
+            overview.pawnOverviewTable = previous;
+        }
+    }
+#endif
+
     [Test]
     public static void LivestockTablesAreDirtyOnlyWhenAJobIsSelected()
     {

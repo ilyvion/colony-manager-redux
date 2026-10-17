@@ -296,14 +296,8 @@ public abstract class HistoryWorker
         Boxed<int> count
     )
     {
-        if (count == null)
-        {
-            throw new ArgumentNullException(nameof(count));
-        }
-        if (chapterDef == null)
-        {
-            throw new ArgumentNullException(nameof(chapterDef));
-        }
+        ArgumentNullException.ThrowIfNull(count);
+        ArgumentNullException.ThrowIfNull(chapterDef);
 
 #pragma warning disable CS0618
         try
@@ -339,14 +333,8 @@ public abstract class HistoryWorker
         Boxed<int> target
     )
     {
-        if (target == null)
-        {
-            throw new ArgumentNullException(nameof(target));
-        }
-        if (chapterDef == null)
-        {
-            throw new ArgumentNullException(nameof(chapterDef));
-        }
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(chapterDef);
 
 #pragma warning disable CS0618
         try
@@ -382,14 +370,8 @@ public abstract class HistoryWorker
         Boxed<int> max
     )
     {
-        if (max == null)
-        {
-            throw new ArgumentNullException(nameof(max));
-        }
-        if (chapterDef == null)
-        {
-            throw new ArgumentNullException(nameof(chapterDef));
-        }
+        ArgumentNullException.ThrowIfNull(max);
+        ArgumentNullException.ThrowIfNull(chapterDef);
 
 #pragma warning disable CS0618
         try
@@ -479,14 +461,8 @@ public abstract class HistoryWorker<T> : HistoryWorker
         Boxed<int> count
     )
     {
-        if (count == null)
-        {
-            throw new ArgumentNullException(nameof(count));
-        }
-        if (chapterDef == null)
-        {
-            throw new ArgumentNullException(nameof(chapterDef));
-        }
+        ArgumentNullException.ThrowIfNull(count);
+        ArgumentNullException.ThrowIfNull(chapterDef);
 
 #pragma warning disable CS0618
         try
@@ -522,14 +498,8 @@ public abstract class HistoryWorker<T> : HistoryWorker
         Boxed<int> target
     )
     {
-        if (target == null)
-        {
-            throw new ArgumentNullException(nameof(target));
-        }
-        if (chapterDef == null)
-        {
-            throw new ArgumentNullException(nameof(chapterDef));
-        }
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(chapterDef);
 
 #pragma warning disable CS0618
         try
@@ -565,14 +535,8 @@ public abstract class HistoryWorker<T> : HistoryWorker
         Boxed<int> max
     )
     {
-        if (max == null)
-        {
-            throw new ArgumentNullException(nameof(max));
-        }
-        if (chapterDef == null)
-        {
-            throw new ArgumentNullException(nameof(chapterDef));
-        }
+        ArgumentNullException.ThrowIfNull(max);
+        ArgumentNullException.ThrowIfNull(chapterDef);
 
 #pragma warning disable CS0618
         try

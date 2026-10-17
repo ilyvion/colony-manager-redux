@@ -120,10 +120,7 @@ public static class Widgets_Section
         int id = 0
     )
     {
-        if (drawerFunc == null)
-        {
-            throw new ArgumentNullException(nameof(drawerFunc));
-        }
+        ArgumentNullException.ThrowIfNull(drawerFunc);
 
         if (id == 0 && Utilities.IsLikelyAnonymous(drawerFunc))
         {
@@ -153,10 +150,7 @@ public static class Widgets_Section
         int id = 0
     )
     {
-        if (drawerFunc == null)
-        {
-            throw new ArgumentNullException(nameof(drawerFunc));
-        }
+        ArgumentNullException.ThrowIfNull(drawerFunc);
 
         var hasHeader = !header.NullOrEmpty();
         if (id == 0 && Utilities.IsLikelyAnonymous(drawerFunc))
