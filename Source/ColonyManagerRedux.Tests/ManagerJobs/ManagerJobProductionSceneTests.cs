@@ -43,6 +43,28 @@ internal sealed class ManagerJobProductionSceneTests
         table.billStack.Bills.OfType<Bill_Production>();
 
     [Test]
+    public static void NewJobsSkillRangeFollowsTheMaxAllowedSkillLevel()
+    {
+        var originalMaxAllowedSkillLevel = ManagerJob_Production.MaxAllowedSkillLevel;
+        ManagerJob_Production.MaxAllowedSkillLevel = () => 100;
+        try
+        {
+            using var scene = new ManagerScene();
+            var job = AddProductionJob(scene);
+
+            Expect.AreEqual(new IntRange(0, 100), job.AllowedSkillRange);
+
+            job.OnMaxAllowedSkillLevelChanged(100, 120);
+
+            Expect.AreEqual(new IntRange(0, 120), job.AllowedSkillRange);
+        }
+        finally
+        {
+            ManagerJob_Production.MaxAllowedSkillLevel = originalMaxAllowedSkillLevel;
+        }
+    }
+
+    [Test]
     public static void UnmetTargetAddsAManagedBillWithTheJobsSettings()
     {
         using var scene = new ManagerScene();

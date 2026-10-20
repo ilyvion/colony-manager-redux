@@ -395,7 +395,27 @@ internal sealed class ManagerJob_Production
     /// <see cref="RecipeDef.workSkill"/> — matches vanilla's own <c>Dialog_BillConfig</c>, which
     /// hides the control entirely otherwise.
     /// </summary>
-    public IntRange AllowedSkillRange = new(0, 20);
+    public IntRange AllowedSkillRange = new(0, MaxAllowedSkillLevel());
+
+    /// <summary>
+    /// Upper bound of <see cref="AllowedSkillRange"/>'s slider and default maximum of new jobs;
+    /// replaced by integrations with mods that raise the skill level cap.
+    /// </summary>
+    public static Func<int> MaxAllowedSkillLevel = () => SkillRecord.MaxLevel;
+
+    /// <summary>
+    /// Raises <paramref name="range"/>'s maximum to <paramref name="newCap"/> if it sits at
+    /// <paramref name="oldCap"/>, so a range that allowed every level keeps doing so.
+    /// </summary>
+    internal static IntRange RaiseSkillRangeCap(IntRange range, int oldCap, int newCap) =>
+        range.max == oldCap ? new IntRange(range.min, newCap) : range;
+
+    /// <summary>
+    /// Applies <see cref="RaiseSkillRangeCap"/> to <see cref="AllowedSkillRange"/>; called by
+    /// integrations when <see cref="MaxAllowedSkillLevel"/> changes.
+    /// </summary>
+    public void OnMaxAllowedSkillLevelChanged(int oldCap, int newCap) =>
+        AllowedSkillRange = RaiseSkillRangeCap(AllowedSkillRange, oldCap, newCap);
 
     /// <summary>
     /// Mirrors <see cref="Bill.ingredientSearchRadius"/>, applied to every bill this job manages.

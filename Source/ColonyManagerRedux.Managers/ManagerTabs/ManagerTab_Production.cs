@@ -1535,7 +1535,13 @@ internal sealed class ManagerTab_Production(Manager manager)
         pos.y += ListEntryHeight;
 
         var rangeRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
-        Widgets.IntRange(rangeRect, job.GetHashCode(), ref job.AllowedSkillRange, 0, 20);
+        Widgets.IntRange(
+            rangeRect,
+            job.GetHashCode(),
+            ref job.AllowedSkillRange,
+            0,
+            ManagerJob_Production.MaxAllowedSkillLevel()
+        );
         pos.y += ListEntryHeight;
 
         return pos.y - start.y;

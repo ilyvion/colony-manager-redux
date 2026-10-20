@@ -142,6 +142,14 @@ internal sealed class ManagerJobProductionTests
         Expect.IsTrue(BillNeedsSkillRangeUpdate(new IntRange(0, 20), new IntRange(5, 15)));
 
     [Test]
+    public static void SkillRangeAtOldCapIsRaisedToNewCap() =>
+        Expect.AreEqual(new IntRange(5, 120), RaiseSkillRangeCap(new IntRange(5, 100), 100, 120));
+
+    [Test]
+    public static void SkillRangeBelowOldCapIsLeftAlone() =>
+        Expect.AreEqual(new IntRange(5, 50), RaiseSkillRangeCap(new IntRange(5, 50), 100, 120));
+
+    [Test]
     public static void MatchingIngredientRadiusNeedsNoUpdate() =>
         Expect.IsFalse(BillNeedsIngredientRadiusUpdate(999f, 999f));
 

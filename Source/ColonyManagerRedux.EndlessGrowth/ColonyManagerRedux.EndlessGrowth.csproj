@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <UseLaboratory>true</UseLaboratory>
+        <RootNamespace>ColonyManagerRedux.EndlessGrowth</RootNamespace>
+        <AssemblyName>ColonyManagerRedux.EndlessGrowth</AssemblyName>
+        <OutputPath>../../Integrations/EndlessGrowth/$(RimWorldVersion)/Assemblies</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <Reference Include="EndlessGrowth">
+            <HintPath>$(RimWorldSteamWorkshopFolderPath)\2894401734\$(RimWorldVersion)\Assemblies\EndlessGrowth.dll</HintPath>
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+</Project>

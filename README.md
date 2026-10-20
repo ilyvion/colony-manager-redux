@@ -31,7 +31,7 @@ Beyond the jobs themselves, the mod includes:
 -   Manager work is a high-priority work type (placed between Warden and Handle), since managing the colony is important work.
 -   If a gravship has a manager database facility built on it, its manager jobs travel with it when it launches and lands, and you're asked which set of jobs to keep if the map it lands on already has its own.
 -   Guest animals (such as those from Royalty quests) are handled by the livestock job without being fully managed — they're not counted against targets and won't be automatically slaughtered.
--   Optional integrations add extra functionality when [AAAA](https://steamcommunity.com/sharedfiles/filedetails/?id=3264193512) (area evacuation on danger) or [Animal Genetics](https://steamcommunity.com/sharedfiles/filedetails/?id=2830943477) are also loaded.
+-   Optional integrations add extra functionality when [AAAA](https://steamcommunity.com/sharedfiles/filedetails/?id=3264193512) (area evacuation on danger), [Animal Genetics](https://steamcommunity.com/sharedfiles/filedetails/?id=2830943477) or [EndlessGrowth](https://steamcommunity.com/sharedfiles/filedetails/?id=2894401734) (production skill ranges above 20) are also loaded.
 
 I intend to keep adding features (and feature requests) and fixing bugs going forward, so make sure you report any bugs you encounter and request any new features you want! See the [change log](CHANGELOG.md) for a full history of changes.
 

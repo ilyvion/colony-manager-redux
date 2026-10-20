@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Integration with EndlessGrowth: the Production job's allowed skill range goes up to EndlessGrowth's maximum bill skill level, the same as vanilla's bill window does with it, and new Production jobs allow every level by default. As colonists reach higher skill levels and EndlessGrowth raises that maximum, jobs whose range was set to the maximum are raised along with it.
+
 ## [0.20.0] - 2026-10-20
 
 ### Dependencies
