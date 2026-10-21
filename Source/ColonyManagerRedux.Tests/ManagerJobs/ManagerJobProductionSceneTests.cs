@@ -218,6 +218,55 @@ internal sealed class ManagerJobProductionSceneTests
     }
 
     [Test]
+    public static void BillsDeletedByThePlayerStopCountingBeforeTheNextPass()
+    {
+        using var scene = new ManagerScene();
+        var first = AddStove(scene, 0);
+        var second = AddStove(scene, 1);
+        var job = AddProductionJob(scene);
+        RunJob(scene, job);
+        var deleted = BillsOn(first).Single();
+        var kept = BillsOn(second).Single();
+        Expect.AreEqual(TargetCount, job.ExpectedYield);
+
+        first.billStack.Delete(deleted);
+
+        Expect.AreEqual(2, job.ManagedBills.Count, "Not yet pruned");
+        Expect.ReferencesAreEqual(kept, job.LiveManagedBills.Single());
+        Expect.AreEqual(kept.repeatCount, job.ExpectedYield);
+    }
+
+    [Test]
+    public static void BillsOnADestroyedWorkTableStopCountingBeforeTheNextPass()
+    {
+        using var scene = new ManagerScene();
+        var stove = AddStove(scene, 0);
+        var job = AddProductionJob(scene);
+        RunJob(scene, job);
+        Expect.AreEqual(TargetCount, job.ExpectedYield);
+
+        stove.Destroy(DestroyMode.Vanish);
+
+        Expect.AreEqual(1, job.ManagedBills.Count, "Not yet pruned");
+        Expect.IsEmpty(job.LiveManagedBills);
+        Expect.AreEqual(0, job.ExpectedYield);
+    }
+
+    [Test]
+    public static void BillsOnADestroyedWorkTableAreForgotten()
+    {
+        using var scene = new ManagerScene();
+        var stove = AddStove(scene, 0);
+        var job = AddProductionJob(scene);
+        RunJob(scene, job);
+
+        stove.Destroy(DestroyMode.Vanish);
+        RunJob(scene, job);
+
+        Expect.IsEmpty(job.ManagedBills);
+    }
+
+    [Test]
     public static void SwitchingBackToMaintainStockResetsTheOperatorWithoutWarning()
     {
         using var scene = new ManagerScene();
@@ -454,6 +503,33 @@ internal sealed class ManagerJobProductionSceneTests
         var loadedJob = (ManagerJob_Production)loaded.Jobs.Single();
         Expect.IsEmpty(loadedJob.ManagedBills);
         Expect.AreEqual(0, loadedJob.ExpectedYield);
+    }
+
+    [Test]
+    public static void DeletedManagedBillsAreNotSaved()
+    {
+        using var scene = new ManagerScene();
+        var first = AddStove(scene, 0);
+        var second = AddStove(scene, 1);
+        var job = AddProductionJob(scene);
+        RunJob(scene, job);
+        var deleted = BillsOn(first).Single();
+        var kept = BillsOn(second).Single();
+        first.billStack.Delete(deleted);
+        var loaded = new ScribeRoundTrip.JobListHarness(scene.Manager);
+
+        var xml = ScribeRoundTrip.Save(
+            new BillsHarness(
+                scene.Manager,
+                [kept],
+                new ScribeRoundTrip.JobListHarness(scene.Manager, [job])
+            )
+        );
+        Expect.IsFalse(xml.Contains(deleted.GetUniqueLoadID(), StringComparison.Ordinal));
+
+        ScribeRoundTrip.Load(xml, new BillsHarness(scene.Manager, [kept], loaded));
+        var loadedJob = (ManagerJob_Production)loaded.Jobs.Single();
+        Expect.ReferencesAreEqual(kept, loadedJob.ManagedBills.Single());
     }
 
     [Test]

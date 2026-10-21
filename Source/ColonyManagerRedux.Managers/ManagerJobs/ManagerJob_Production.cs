@@ -262,7 +262,7 @@ internal sealed class ManagerJob_Production
         Mode != ProductionMode.MaintainStock || Recipe == null
             ? 0
             : ExpectedYieldFromBills(
-                _managedBills.Select(b => (b.repeatMode, b.repeatCount)),
+                LiveManagedBills.Select(b => (b.repeatMode, b.repeatCount)),
                 YieldPerIteration(Recipe)
             );
 
@@ -296,6 +296,13 @@ internal sealed class ManagerJob_Production
     private List<Bill_Production> _managedBills = [];
 
     public IReadOnlyList<Bill_Production> ManagedBills => _managedBills;
+
+    /// <summary>
+    /// <see cref="ManagedBills"/> without the bills that were deleted, or whose work table was
+    /// destroyed, since <see cref="GatherJobDataCoroutine"/> last pruned them.
+    /// </summary>
+    public IEnumerable<Bill_Production> LiveManagedBills =>
+        _managedBills.Where(b => !b.DeletedOrDereferenced);
 
     /// <summary>
     /// Finds the job among <paramref name="jobs"/> whose managed items (as given by
@@ -1345,7 +1352,17 @@ internal sealed class ManagerJob_Production
 
         if (Manager.ScribeSameMapData)
         {
-            Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
+            if (Scribe.mode == LoadSaveMode.Saving)
+            {
+                // A dead bill isn't saved with any work table, so a reference to it couldn't
+                // be resolved on load.
+                var liveManagedBills = LiveManagedBills.ToList();
+                Scribe_Collections.Look(ref liveManagedBills, "managedBills", LookMode.Reference);
+            }
+            else
+            {
+                Scribe_Collections.Look(ref _managedBills, "managedBills", LookMode.Reference);
+            }
 
             Scribe_References.Look(ref WorkbenchArea, "workbenchArea");
             Scribe_Collections.Look(

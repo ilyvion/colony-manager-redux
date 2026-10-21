@@ -1805,10 +1805,11 @@ internal sealed class ManagerTab_Production(Manager manager)
     {
         var start = pos;
 
+        var liveManagedBills = job.LiveManagedBills.ToList();
         var headerRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Widgets.Label(
             headerRect,
-            "ColonyManagerRedux.Production.ManagedBillCount".Translate(job.ManagedBills.Count)
+            "ColonyManagerRedux.Production.ManagedBillCount".Translate(liveManagedBills.Count)
         );
         pos.y += ListEntryHeight;
 
@@ -1816,7 +1817,7 @@ internal sealed class ManagerTab_Production(Manager manager)
         // (see the job's own liveManagedBills.Find(b => b.billStack == workTable.billStack)
         // matching elsewhere in this class), so each managed bill maps to exactly one distinct
         // work table — no grouping/counting needed here.
-        foreach (var bill in job.ManagedBills)
+        foreach (var bill in liveManagedBills)
         {
             if (bill.billStack.billGiver is not Building_WorkTable workTable)
             {

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Switching a Production job from Consume surplus back to Maintain stock logged a warning about an unsupported operator.
 - Loading a save where a Production job's bills, work tables or linked jobs no longer existed could make the manager window throw errors every frame and fail to show the job list.
+- After a Production job's bill was deleted or its workbench was destroyed, the job kept counting that bill's remaining items as expected and kept listing the workbench in the Production tab until the job next ran. Saving during that time also made loading the save log a warning about the missing bill.
 
 ## [0.21.0] - 2026-10-21
 
