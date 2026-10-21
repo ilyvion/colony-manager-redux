@@ -1,6 +1,7 @@
 // ManagerTab_Production.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using ilyvion.Laboratory.Extensions;
 using ilyvion.Laboratory.UI;
@@ -32,6 +33,16 @@ internal sealed class ManagerTab_Production(Manager manager)
     private string _targetCountInput = "";
     private bool _groupByWorkbench;
     private readonly HashSet<ThingDef> _collapsedWorkbenchGroups = [];
+
+    // GroupRecipesByWorkbench is too expensive to run every GUI event (RecipeDef.AllRecipeUsers
+    // scans every ThingDef), so it's only rebuilt when _visibleRecipes or _builtWorkTableDefs
+    // change, both of which go through UpdateVisibleRecipes.
+    [AllowNull]
+    internal List<RecipeWorkbenchGroup> WorkbenchGroups
+    {
+        get => field ??= GroupRecipesByWorkbench(_visibleRecipes, _builtWorkTableDefs);
+        private set;
+    }
 
     // A recipe's row height depends on how many lines its workbench list wraps onto, so it can
     // only be measured by actually drawing it. Cache the last measured height per recipe the
@@ -136,7 +147,8 @@ internal sealed class ManagerTab_Production(Manager manager)
             managerTab.DrawAvailableRecipeList(inRect);
     }
 
-    private void UpdateVisibleRecipes() =>
+    private void UpdateVisibleRecipes()
+    {
         _visibleRecipes = _quickSearchWidget.filter.Active
             ?
             [
@@ -145,6 +157,8 @@ internal sealed class ManagerTab_Production(Manager manager)
                 ),
             ]
             : _availableRecipes;
+        WorkbenchGroups = null;
+    }
 
     // Bundles a workbench and the (possibly cross-listed, see GroupRecipesByWorkbench) recipes
     // available at it. Kept generic-free and free of GUI/game-state dependencies so
@@ -317,7 +331,7 @@ internal sealed class ManagerTab_Production(Manager manager)
 
         if (_groupByWorkbench)
         {
-            foreach (var group in GroupRecipesByWorkbench(_visibleRecipes, _builtWorkTableDefs))
+            foreach (var group in WorkbenchGroups)
             {
                 DrawWorkbenchGroupHeader(scrollView, ref cur, group);
                 if (_collapsedWorkbenchGroups.Contains(group.Workbench))
