@@ -1,0 +1,7 @@
+<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ output extension=".cs" #>
+<#@ include file="../../../rimworld-utils/IlyvionLaboratoryModSharedStatic.ttinclude" #>
+#nullable enable
+
+<# IlyvionLaboratoryModSharedStatic("ColonyManagerRedux", "ColonyManagerReduxMod", classVisibility: "public", settingsClassName: "Settings"); #>

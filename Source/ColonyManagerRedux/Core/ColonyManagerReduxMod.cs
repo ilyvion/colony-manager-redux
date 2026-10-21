@@ -7,43 +7,12 @@ namespace ColonyManagerRedux;
 /// <summary>
 /// The main mod class for Colony Manager Redux.
 /// </summary>
-public class ColonyManagerReduxMod : IlyvionMod
+public partial class ColonyManagerReduxMod
 {
-#pragma warning disable CS8618 // Set by constructor
-    /// <summary>
-    /// Gets the singleton instance of the <see cref="ColonyManagerReduxMod"/> class.
-    /// </summary>
-    public static ColonyManagerReduxMod Instance { get; private set; }
-
-#pragma warning restore CS8618
-
-    /// <summary>
-    /// Gets the package ID of the Colony Manager Redux mod.
-    /// </summary>
-    public static string PackageId => Instance.Content.PackageId;
-
-    /// <inheritdoc/>
-    protected override bool HasSettings => true;
-
-    /// <summary>
-    /// Gets the settings for the Colony Manager Redux mod.
-    /// </summary>
-    public static Settings Settings => Instance.GetSettings<Settings>();
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ColonyManagerReduxMod"/> class.
-    /// </summary>
-    /// <param name="content">The mod content pack.</param>
-    public ColonyManagerReduxMod(ModContentPack content)
-        : base(content)
+    partial void Construct()
     {
-        // This is kind of stupid, but also kind of correct. Correct wins.
-        ArgumentNullException.ThrowIfNull(content);
-
-        Instance = this;
-
         // apply fixes
-        var harmony = new Harmony(content.PackageId);
+        var harmony = new Harmony(PackageId);
         //Harmony.DEBUG = true;
         harmony.PatchAll(Assembly.GetExecutingAssembly());
         //Harmony.DEBUG = false;
@@ -57,10 +26,6 @@ public class ColonyManagerReduxMod : IlyvionMod
             _ = Settings;
         });
     }
-
-    /// <inheritdoc/>
-    public override void DoSettingsWindowContents(Rect inRect) =>
-        Settings.DoSettingsWindowContents(inRect);
 
     /// <summary>
     /// Logs a verbose message if verbose logging is enabled in the settings.
