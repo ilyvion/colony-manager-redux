@@ -197,11 +197,42 @@ internal sealed class UtilitiesTests
 
     private static void NamedStaticMethod() { }
 
+    private static void OtherNamedStaticMethod() { }
+
     private sealed class InstanceMethodHolder
     {
 #pragma warning disable CA1822 // Mark members as static
         public void NamedInstanceMethod() { }
+
+        public void OtherNamedInstanceMethod() { }
 #pragma warning restore CA1822 // Mark members as static
+    }
+
+    [Test]
+    public static void GetDelegateIdDiffersForDifferentInstanceMethodsOnSameTarget()
+    {
+        var holder = new InstanceMethodHolder();
+        Expect.AreNotEqual(
+            Utilities.GetDelegateId(holder.NamedInstanceMethod),
+            Utilities.GetDelegateId(holder.OtherNamedInstanceMethod)
+        );
+    }
+
+    [Test]
+    public static void GetDelegateIdDiffersForDifferentStaticMethods() =>
+        Expect.AreNotEqual(
+            Utilities.GetDelegateId(NamedStaticMethod),
+            Utilities.GetDelegateId(OtherNamedStaticMethod)
+        );
+
+    [Test]
+    public static void GetDelegateIdIsStableForSameMethodAndTarget()
+    {
+        var holder = new InstanceMethodHolder();
+        Expect.AreEqual(
+            Utilities.GetDelegateId(holder.NamedInstanceMethod),
+            Utilities.GetDelegateId(holder.NamedInstanceMethod)
+        );
     }
 
     [Test]

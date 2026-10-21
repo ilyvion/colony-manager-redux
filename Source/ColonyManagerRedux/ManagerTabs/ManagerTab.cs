@@ -114,10 +114,10 @@ public abstract class ManagerTab<T>(Manager manager) : ManagerTab(manager)
             ColonyManagerReduxMod.Instance.LogWarning(
                 $"DrawSection drawerFunc seems to be an anonymous function; not providing a manual value for id "
                     + "may lead to unexpected behavior as these don't have a stable hash value. "
-                    + $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}"
+                    + $"Auto-generated id for {drawerFunc.Method.Name} is {Utilities.GetDelegateId(drawerFunc)}"
             );
         }
-        id = id != 0 ? id : drawerFunc.GetHashCode();
+        id = id != 0 ? id : Utilities.GetDelegateId(drawerFunc);
 
         var localPosition = position;
         SelectedJob!.ForAllCompsOfType<ManagerJobComp>(c =>

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- On RimWorld 1.7, the shaded backgrounds behind the sections of the manager tabs and the settings were the wrong size, leaving parts of the sections without a background.
+
 ## [0.22.0] - 2026-10-21
 
 ### Added

@@ -127,10 +127,10 @@ public static class Widgets_Section
             ColonyManagerReduxMod.Instance.LogWarning(
                 $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id "
                     + "may lead to unexpected behavior as these don't have a stable hash value. "
-                    + $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}"
+                    + $"Auto-generated id for {drawerFunc.Method.Name} is {Utilities.GetDelegateId(drawerFunc)}"
             );
         }
-        id = id != 0 ? id : drawerFunc.GetHashCode();
+        id = id != 0 ? id : Utilities.GetDelegateId(drawerFunc);
         Section(ref position, width, (p, w) => drawerFunc(data, p, w), header, id);
     }
 
@@ -158,10 +158,10 @@ public static class Widgets_Section
             ColonyManagerReduxMod.Instance.LogWarning(
                 $"Section drawerFunc seems to be an anonymous function; not providing a manual value for id "
                     + "may lead to unexpected behavior as these don't have a stable hash value. "
-                    + $"Auto-generated id for {drawerFunc.Method.Name} is {drawerFunc.GetHashCode()}"
+                    + $"Auto-generated id for {drawerFunc.Method.Name} is {Utilities.GetDelegateId(drawerFunc)}"
             );
         }
-        id = id != 0 ? id : drawerFunc.GetHashCode();
+        id = id != 0 ? id : Utilities.GetDelegateId(drawerFunc);
 
         // header
         if (hasHeader)

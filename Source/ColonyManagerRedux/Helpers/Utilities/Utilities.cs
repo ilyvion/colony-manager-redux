@@ -1303,4 +1303,12 @@ public static class Utilities
                     .Length != 0
             );
     }
+
+    // Delegate.GetHashCode() on CoreCLR (1.7) ignores the method, so delegates to different
+    // methods on the same target all hash the same.
+    internal static int GetDelegateId(Delegate delegat) =>
+        unchecked(
+            (delegat.Method.GetHashCode() * 397)
+            ^ (delegat.Target is { } target ? RuntimeHelpers.GetHashCode(target) : 0)
+        );
 }
