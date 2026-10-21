@@ -1359,6 +1359,14 @@ internal sealed class ManagerJob_Production
             // cross-map import, and lost the same way SpecificWorkbenches is.
             Scribe_Collections.Look(ref LinkedProducers, "linkedProducers", LookMode.Reference);
 
+            // References to bills, work tables or jobs that no longer exist load as null.
+            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            {
+                _ = _managedBills.RemoveAll(b => b == null);
+                _ = SpecificWorkbenches.RemoveWhere(wt => wt == null);
+                _ = LinkedProducers.RemoveWhere(j => j == null);
+            }
+
             // ISlotGroup itself isn't directly referenceable; mirrors vanilla
             // Bill_Production.SaveSlotReferencable/LoadSlotReferencable, which scribes either
             // the group itself (storage buildings/groups) or its zone parent (stockpile zones).

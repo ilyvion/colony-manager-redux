@@ -239,7 +239,7 @@ internal sealed class UtilitiesCountProductsSceneTests
         _ = scene.SpawnThing(ThingDefOf.Steel, StockCells(scene).First(), 40);
         var filter = FilterFor(ThingDefOf.Steel);
         // Not reachable through ThingFilter's own API, but a report showed it can happen.
-        _ = filter.allowedDefs.Add(null!);
+        _ = filter.allowedDefs.Add(null);
         scene.Map.resourceCounter.UpdateResourceCounts();
 
         Expect.AreEqual(before + 40, scene.Map.CountProducts(filter));

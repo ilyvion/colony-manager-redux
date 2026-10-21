@@ -305,7 +305,7 @@ internal sealed class ManagerTabOverviewTests
             hidden,
             job => job.Def,
             search != null,
-            text => text.Contains(search!, StringComparison.OrdinalIgnoreCase),
+            text => text.Contains(search ?? "", StringComparison.OrdinalIgnoreCase),
             job => [job.Label, job.Targets, job.Tab]
         );
 

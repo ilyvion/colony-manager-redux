@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Switching a Production job from Consume surplus back to Maintain stock logged a warning about an unsupported operator.
+- Loading a save where a Production job's bills, work tables or linked jobs no longer existed could make the manager window throw errors every frame and fail to show the job list.
 
 ## [0.21.0] - 2026-10-21
 

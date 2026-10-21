@@ -434,6 +434,29 @@ internal sealed class ManagerJobProductionSceneTests
     }
 
     [Test]
+    [WarningsAllowed("Could not resolve reference to object with loadID Bill_")]
+    public static void ManagedBillsThatNoLongerExistAreDroppedOnLoad()
+    {
+        using var scene = new ManagerScene();
+        var job = AddProductionJob(scene);
+        var bill = ManagedBillAfterARun(scene, job);
+        var loaded = new ScribeRoundTrip.JobListHarness(scene.Manager);
+
+        ScribeRoundTrip.Run(
+            new BillsHarness(
+                scene.Manager,
+                [bill],
+                new ScribeRoundTrip.JobListHarness(scene.Manager, [job])
+            ),
+            new BillsHarness(scene.Manager, [], loaded)
+        );
+
+        var loadedJob = (ManagerJob_Production)loaded.Jobs.Single();
+        Expect.IsEmpty(loadedJob.ManagedBills);
+        Expect.AreEqual(0, loadedJob.ExpectedYield);
+    }
+
+    [Test]
     public static void ManagedBillsAreNotWrittenWhenTheJobIsExportedToAnotherMap()
     {
         using var scene = new ManagerScene();
