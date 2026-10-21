@@ -500,8 +500,8 @@ public class Manager : MapComponent, ILoadReferenceable
     ) =>
         !alreadyChecked
         && autoApplyEnabled
-        && !string.IsNullOrEmpty(templateName)
-        && templateExists(templateName!);
+        && templateName is { Length: > 0 }
+        && templateExists(templateName);
 
     /// <summary>
     /// Decides whether an otherwise-applicable default template should be skipped because its

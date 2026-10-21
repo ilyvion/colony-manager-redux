@@ -1053,9 +1053,9 @@ public static class Utilities
         string.Join(":", values.Select(i => i.ToString(CultureInfo.InvariantCulture)));
 
     internal static int[] ParseInts(string? text) =>
-        string.IsNullOrEmpty(text)
+        text is null or ""
             ? []
-            : [.. text!.Split(':').Select(v => int.Parse(v, CultureInfo.InvariantCulture))];
+            : [.. text.Split(':').Select(v => int.Parse(v, CultureInfo.InvariantCulture))];
 
     internal static string FormatIntTuples(IEnumerable<(int, int)> values) =>
         string.Join(
@@ -1066,12 +1066,11 @@ public static class Utilities
         );
 
     internal static (int, int)[] ParseIntTuples(string? text) =>
-        string.IsNullOrEmpty(text)
+        text is null or ""
             ? []
             :
             [
-                .. text!
-                    .Split(':')
+                .. text.Split(':')
                     .Select(v =>
                     {
                         var parts = v.Split(',');

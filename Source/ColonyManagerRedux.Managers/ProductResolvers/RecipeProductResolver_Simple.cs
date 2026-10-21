@@ -13,5 +13,5 @@ internal sealed class RecipeProductResolver_Simple : RecipeProductResolver
     public override bool CanResolve(RecipeDef recipe) => recipe.ProducedThingDef != null;
 
     public override void ConfigureFilter(RecipeDef recipe, ThingFilter filter) =>
-        filter.SetAllow(recipe.ProducedThingDef!, true);
+        filter.SetAllow(recipe.ProducedThingDef, true);
 }

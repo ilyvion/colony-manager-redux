@@ -58,7 +58,7 @@ internal sealed class RecipeProductResolver_ButcherAnimals : RecipeProductResolv
     private static IEnumerable<ThingDef> RealButcheryMeatDefs() =>
         DefDatabase<ThingDef>
             .AllDefsListForReading.Where(d => d.race?.meatDef != null)
-            .Select(d => d.race!.meatDef)
+            .Select(d => d.race.meatDef)
             .Distinct();
 
     private static Dictionary<ThingDef, ThingDef> CorpseToMeatDef()
