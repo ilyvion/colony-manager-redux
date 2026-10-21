@@ -59,6 +59,23 @@ Want your translation in this list? Release a translation mod (i.e. a mod with o
 
 Translations from the original Colony Manager are no longer included, since too much has changed for them to stay accurate.
 
+## Building from source
+
+Colony Manager Redux is part of a family of mods that share build tooling. To build it, check out these sibling repositories alongside this one (i.e. `../ilyvion.Laboratory` and `../rimworld-utils` relative to this repo):
+
+-   [`ilyvion.Laboratory`](https://github.com/ilyvion/ilyvion-laboratory) — shared library dependency.
+-   [`rimworld-utils`](https://github.com/ilyvion/rimworld-utils) — shared MSBuild props/targets and build scripts.
+
+The test projects are only built in the Debug configuration, and additionally need [`SmashPhil-DevTools`](https://github.com/ilyvion/SmashPhil-DevTools) checked out at `../Third-Party/DevTools`.
+
+Then build with the .NET SDK (targets `net481` for RimWorld 1.5 and 1.6, `net10.0` for RimWorld 1.7):
+
+```sh
+dotnet build --configuration Release --property RimWorldVersion=1.7 ColonyManagerRedux.sln
+```
+
+Or use `.vscode/build.sh`, which builds and copies the mod's files into your RimWorld `Mods` folder (see `.vscode/build_config.sh` for the target path).
+
 ## License
 
 The software and documentation is licensed under the MIT license ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT) and any original content is licensed under the Creative Commons Attribution-ShareAlike 4.0 International Public License ([LICENSE](LICENSE) or https://creativecommons.org/licenses/by-sa/4.0/)
