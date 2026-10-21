@@ -611,6 +611,29 @@ internal sealed class ManagerJobProductionTests
         Expect.AreEqual(0, groups[meat].Count());
     }
 
+    private static ThingDef QualityThingDef(string defName) =>
+        new()
+        {
+            defName = defName,
+            comps = [new CompProperties { compClass = typeof(CompQuality) }],
+        };
+
+    [Test]
+    public static void AnyHasQualityIsTrueWhenATrackedDefHasQuality() =>
+        Expect.IsTrue(
+            AnyHasQuality([
+                new ThingDef { defName = "CMR_TestNoQuality" },
+                QualityThingDef("CMR_TestQuality"),
+            ])
+        );
+
+    [Test]
+    public static void AnyHasQualityIsFalseWhenNoTrackedDefHasQuality() =>
+        Expect.IsFalse(AnyHasQuality([new ThingDef { defName = "CMR_TestNoQuality2" }]));
+
+    [Test]
+    public static void AnyHasQualityIsFalseWithNoTrackedDefs() => Expect.IsFalse(AnyHasQuality([]));
+
     [Test]
     public static void RecipeSharesOutputWithOverlappingSetsReturnsTrue()
     {

@@ -217,6 +217,101 @@ internal sealed class ManagerJobProductionSceneTests
         Expect.IsFalse(ReferenceEquals(bill, replacement));
     }
 
+    [Test]
+    public static void SwitchingBackToMaintainStockResetsTheOperatorWithoutWarning()
+    {
+        using var scene = new ManagerScene();
+        var job = AddProductionJob(scene);
+
+        job.Mode = ManagerJob_Production.ProductionMode.ConsumeSurplus;
+        Expect.AreEqual(Trigger_Threshold.Ops.HigherThan, job.TriggerThreshold.Op);
+        job.Mode = ManagerJob_Production.ProductionMode.MaintainStock;
+
+        Expect.AreEqual(Trigger_Threshold.Ops.LowerThan, job.TriggerThreshold.Op);
+    }
+
+    // Quality range
+
+    private static readonly RecipeDef KnifeRecipe = DefDatabase<RecipeDef>.GetNamed(
+        "Make_MeleeWeapon_Knife"
+    );
+
+    private static readonly QualityRange GoodOrBetter = new(
+        QualityCategory.Good,
+        QualityCategory.Legendary
+    );
+
+    private static ManagerJob_Production AddKnifeJob(ManagerScene scene)
+    {
+        var job = scene.AddJob<ManagerJob_Production>("CM_ProductionManager");
+        job.Recipe = KnifeRecipe;
+        job.TriggerThreshold.TargetCount = TargetCount;
+        return job;
+    }
+
+    private static void SpawnKnife(ManagerScene scene, IntVec3 cell, QualityCategory quality) =>
+        scene
+            .SpawnThing(ThingDefOf.MeleeWeapon_Knife, cell)
+            .TryGetComp<CompQuality>()
+            .SetQuality(quality, ArtGenerationContext.Colony);
+
+    [Test]
+    public static void NewJobsCountEveryQuality()
+    {
+        using var scene = new ManagerScene();
+        var job = AddKnifeJob(scene);
+
+        Expect.AreEqual(QualityRange.All, job.CountedQualityRange);
+    }
+
+    [Test]
+    public static void OnlyItemsWithinTheQualityRangeCountTowardTheTarget()
+    {
+        using var scene = new ManagerScene();
+        var cells = scene.Cells(3, 3, offsetX: 10).ToList();
+        _ = scene.AddStockpile(cells);
+        var job = AddKnifeJob(scene);
+        var before = job.TriggerThreshold.GetCurrentCount(cached: false);
+        SpawnKnife(scene, cells[0], QualityCategory.Awful);
+        SpawnKnife(scene, cells[1], QualityCategory.Normal);
+        SpawnKnife(scene, cells[2], QualityCategory.Good);
+        SpawnKnife(scene, cells[3], QualityCategory.Legendary);
+        var allQualities = job.TriggerThreshold.GetCurrentCount(cached: false);
+        Expect.AreEqual(before + 4, allQualities);
+
+        job.CountedQualityRange = GoodOrBetter;
+
+        Expect.AreEqual(allQualities - 2, job.TriggerThreshold.GetCurrentCount(cached: false));
+    }
+
+    [Test]
+    public static void QualityRangeSurvivesSwitchingModesAndRecipes()
+    {
+        using var scene = new ManagerScene();
+        var job = AddKnifeJob(scene);
+        job.CountedQualityRange = GoodOrBetter;
+
+        job.Mode = ManagerJob_Production.ProductionMode.ConsumeSurplus;
+        job.Mode = ManagerJob_Production.ProductionMode.MaintainStock;
+        Expect.AreEqual(GoodOrBetter, job.CountedQualityRange);
+
+        job.Recipe = Recipe;
+        job.Recipe = KnifeRecipe;
+        Expect.AreEqual(GoodOrBetter, job.CountedQualityRange);
+    }
+
+    [Test]
+    public static void QualityRangeIsSavedAndLoaded()
+    {
+        using var scene = new ManagerScene();
+        var job = AddKnifeJob(scene);
+        job.CountedQualityRange = GoodOrBetter;
+
+        var loadedJob = (ManagerJob_Production)
+            ScribeRoundTrip.RoundTripJobs(scene.Manager, [job]).Single();
+        Expect.AreEqual(GoodOrBetter, loadedJob.CountedQualityRange);
+    }
+
     // Bills on another map
 
     private static Building_WorkTable AddStoveOn(Map map)

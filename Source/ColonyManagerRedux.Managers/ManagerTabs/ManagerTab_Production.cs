@@ -19,6 +19,7 @@ internal sealed class ManagerTab_Production(Manager manager)
     private const string ProductionIngredients = "Production.Ingredients";
     private const float RecipeRowHeight = 42f;
     private const string TargetCountControlName = "ManagerTab_Production_TargetCount";
+    private const int QualityRangeControlId = 1_394_727_311;
 
     public ManagerJob_Production SelectedProductionJob => SelectedJob!;
 
@@ -830,6 +831,22 @@ internal sealed class ManagerTab_Production(Manager manager)
             true
         );
         trigger.CountAllOnMap = countAllOnMap;
+
+        if (ManagerJob_Production.AnyHasQuality(trigger.ThresholdFilter.AllowedThingDefs))
+        {
+            var qualityRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
+            pos.y += ListEntryHeight;
+            var qualityRange = job.CountedQualityRange;
+            Widgets.QualityRange(qualityRect, QualityRangeControlId, ref qualityRange);
+            if (qualityRange != job.CountedQualityRange)
+            {
+                job.CountedQualityRange = qualityRange;
+            }
+            TooltipHandler.TipRegion(
+                qualityRect,
+                "ColonyManagerRedux.Production.QualityRange.Tip".Translate()
+            );
+        }
     }
 
     // Job linking: a dedicated section so both directions of a link (a producer's "who consumes

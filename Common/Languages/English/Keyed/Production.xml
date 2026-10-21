@@ -39,6 +39,7 @@
     <ColonyManagerRedux.Production.LinkedRow.Supplies>Supplies: {0}</ColonyManagerRedux.Production.LinkedRow.Supplies>
     <ColonyManagerRedux.Production.LinkedRow.SuppliesWithDemand>Supplies: {0} (needs {1})</ColonyManagerRedux.Production.LinkedRow.SuppliesWithDemand>
     <ColonyManagerRedux.Production.LinkedRow.SuppliesMore>{0}, and {1} more</ColonyManagerRedux.Production.LinkedRow.SuppliesMore>
+    <ColonyManagerRedux.Production.QualityRange.Tip>Only items within this quality range count toward the target. Items outside it are left alone, and more will be made until enough items within the range are in stock.</ColonyManagerRedux.Production.QualityRange.Tip>
     <ColonyManagerRedux.Production.LinkedDemandBufferCount>Keep linked stock for: {0}</ColonyManagerRedux.Production.LinkedDemandBufferCount>
     <ColonyManagerRedux.Production.LinkedDemandBufferCount.Tip>How many of this job's own target a linked producer should keep enough ingredient stock to build from empty, instead of sizing stock to fully refill this job's entire target from scratch. Lower keeps less raw material sitting around; higher smooths over bigger gaps between the producer job's own runs.</ColonyManagerRedux.Production.LinkedDemandBufferCount.Tip>
     <ColonyManagerRedux.Production.AutoTargetFromLinks>Auto-set target from linked jobs</ColonyManagerRedux.Production.AutoTargetFromLinks>

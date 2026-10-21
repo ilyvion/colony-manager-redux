@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- The Production job's Maintain stock mode has a quality range for recipes whose products have a quality. Only items within the range count toward the target, so e.g. a job can keep 10 knives of good quality or better in stock.
+
+### Fixed
+
+- Switching a Production job from Consume surplus back to Maintain stock logged a warning about an unsupported operator.
+
 ## [0.21.0] - 2026-10-21
 
 ### Added

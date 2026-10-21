@@ -359,8 +359,9 @@ internal sealed class ManagerJob_Production
 
             _mode = value;
             var supportedOps = SupportedOpsForMode(_mode);
-            TriggerThreshold.RestrictSupportedOps(supportedOps);
+            // Op is set first so RestrictSupportedOps never sees an unsupported op and warns.
             TriggerThreshold.Op = supportedOps[0];
+            TriggerThreshold.RestrictSupportedOps(supportedOps);
             ConfigureThresholdTriggerFilter();
         }
     }
@@ -627,6 +628,25 @@ internal sealed class ManagerJob_Production
     /// regardless of <see cref="AssignmentMode"/>. Used both to compute which work tables are
     /// actually in scope and to populate the "Specific" mode picker in the tab.
     /// </summary>
+    /// <summary>
+    /// Whether any of <paramref name="trackedDefs"/> has a quality, i.e. whether
+    /// <see cref="CountedQualityRange"/> can affect which of them are counted.
+    /// </summary>
+    internal static bool AnyHasQuality(IEnumerable<ThingDef> trackedDefs) =>
+        trackedDefs.Any(thingDef => thingDef.HasComp<CompQuality>());
+
+    /// <summary>
+    /// The quality levels an item must be within to count toward
+    /// <see cref="Trigger_Threshold.TargetCount"/>; items without a quality always count. Stored
+    /// on <see cref="Trigger_Threshold.ThresholdFilter"/>, which
+    /// <see cref="ConfigureThresholdTriggerFilter"/> re-derives without touching it.
+    /// </summary>
+    public QualityRange CountedQualityRange
+    {
+        get => TriggerThreshold.ThresholdFilter.AllowedQualityLevels;
+        set => TriggerThreshold.ThresholdFilter.AllowedQualityLevels = value;
+    }
+
     public IEnumerable<Building_WorkTable> AllEligibleWorkTables
     {
         get
