@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-10-21
+
 ### Added
 
 - Integration with EndlessGrowth: the Production job's allowed skill range goes up to EndlessGrowth's maximum bill skill level, the same as vanilla's bill window does with it, and new Production jobs allow every level by default. As colonists reach higher skill levels and EndlessGrowth raises that maximum, jobs whose range was set to the maximum are raised along with it.
@@ -719,7 +721,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.20.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.20.0..v0.21.0
 [0.20.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.1..v0.20.0
 [0.19.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.0..v0.19.1
 [0.19.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.18.0..v0.19.0
