@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-10-21
+
 ### Added
 
 - The Production job's Maintain stock mode has a quality range for recipes whose products have a quality. Only items within the range count toward the target, so e.g. a job can keep 10 knives of good quality or better in stock.
@@ -731,7 +733,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.21.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.21.0..v0.22.0
 [0.21.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.20.0..v0.21.0
 [0.20.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.1..v0.20.0
 [0.19.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.19.0..v0.19.1
