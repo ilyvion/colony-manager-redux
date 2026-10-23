@@ -91,6 +91,40 @@ internal sealed class ManagerJobTests
     }
 
     [Test]
+    public static void SorterIsEvaluatedExactlyOncePerItem()
+    {
+        // Scorers such as Plant.YieldNow() use random rounding, so re-evaluating them during
+        // comparisons yields inconsistent results and makes List.Sort throw.
+        var calls = new int[50];
+        var origins = new List<int>();
+        var things = new List<int>();
+        var distances = new List<float>();
+        for (var i = 0; i < calls.Length; i++)
+        {
+            origins.Add(i);
+            things.Add(i);
+            distances.Add(1f);
+        }
+
+        var result = ManagerJob.SortByScoreDescending(
+            origins,
+            things,
+            distances,
+            (thing, _) =>
+            {
+                calls[thing]++;
+                return thing % 7;
+            }
+        );
+
+        Expect.AreEqual(calls.Length, result.Count);
+        foreach (var count in calls)
+        {
+            Expect.AreEqual(1, count);
+        }
+    }
+
+    [Test]
     public static void UntouchedStateReportsElapsedSinceCreation()
     {
         var elapsed = ManagerJob.ComputeTicksSinceLastUpdate(

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Forestry and Foraging jobs could do nothing, logging a sorting error, because the yield of the plants being ranked was re-rolled during sorting.
+
 ## [0.22.1] - 2026-10-21
 
 ### Fixed

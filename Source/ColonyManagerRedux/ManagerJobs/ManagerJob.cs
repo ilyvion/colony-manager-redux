@@ -963,6 +963,7 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
         ArgumentNullException.ThrowIfNull(unsortedTargets);
         ArgumentNullException.ThrowIfNull(sortedTargets);
         ArgumentNullException.ThrowIfNull(toThing);
+        ArgumentNullException.ThrowIfNull(sorter);
 
         var targets = _tmpTargets.Count > 0 ? _tmpTargets.Dequeue() : [];
         var targetDistances = _tmpTargetDistances.Count > 0 ? _tmpTargetDistances.Dequeue() : [];
@@ -1013,12 +1014,14 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     )
         where TSorter : IComparable<TSorter>
     {
+        var scores = new TSorter[origins.Count];
         var indices = new List<int>(origins.Count);
         for (var i = 0; i < origins.Count; i++)
         {
+            scores[i] = sorter(things[i], distances[i]);
             indices.Add(i);
         }
-        indices.SortByDescending(i => sorter(things[i], distances[i]));
+        indices.SortByDescending(i => scores[i]);
 
         var result = new List<TOrigin>(origins.Count);
         foreach (var i in indices)
