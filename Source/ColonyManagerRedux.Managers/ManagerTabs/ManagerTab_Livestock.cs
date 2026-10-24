@@ -878,19 +878,45 @@ internal sealed partial class ManagerTab_Livestock(Manager manager)
             );
             labelRect.xMin += Margin + LargeListEntryHeight;
 
-            // draw label
-            var label =
-                animalDef.LabelCap
-                + "\n<i>"
-                + "ColonyManagerRedux.Livestock.TameCount".Translate(
+            // draw label, keeping it clear of the icons on the right
+            var textRect = labelRect;
+            textRect.xMax = Math.Min(upperIconRect.x, lowerIconRect.x) + SmallIconSize;
+            var textWidth = textRect.width - (Margin * 2);
+
+            var nameLine = animalDef.LabelCap.Resolve();
+            string countLine =
+                "ColonyManagerRedux.Livestock.TameCount".Translate(
                     animalDef.GetTame(Manager, false).Count()
                 )
                 + ", "
                 + "ColonyManagerRedux.Livestock.WildCount".Translate(
                     animalDef.GetWild(Manager).Count()
                 )
-                + ".</i>";
-            IlyvionWidgets.Label(labelRect, label, TextAnchor.MiddleLeft, leftMargin: Margin * 2);
+                + ".";
+
+            var fullLabel = nameLine + "\n" + countLine;
+            var truncated = false;
+            using (GUIScope.Font(GameFont.Small))
+            {
+                if (!nameLine.Fits(textWidth, out _))
+                {
+                    nameLine = TruncateCached(nameLine, textWidth);
+                    truncated = true;
+                }
+                if (!countLine.Fits(textWidth, out _))
+                {
+                    countLine = TruncateCached(countLine, textWidth);
+                    truncated = true;
+                }
+            }
+
+            IlyvionWidgets.Label(
+                textRect,
+                nameLine + "\n" + countLine.Italic(),
+                truncated ? fullLabel : null,
+                TextAnchor.MiddleLeft,
+                leftMargin: Margin * 2
+            );
 
             // button
             if (Widgets.ButtonInvisible(labelRect))

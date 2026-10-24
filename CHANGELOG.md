@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- In the Livestock tab's list of available animals, long names and counts no longer run over the icons on the right. They are shortened with an ellipsis and show the full text in a tooltip.
+
 ## [0.22.2] - 2026-10-23
 
 ### Fixed

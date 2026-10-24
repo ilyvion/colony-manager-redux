@@ -563,7 +563,13 @@ public abstract class ManagerTab(Manager manager)
     private const int MaxCachedTruncateWidths = 32;
     private readonly Dictionary<float, Dictionary<string, string>> _truncateCache = [];
 
-    private string TruncateCached(string text, float width)
+    /// <summary>
+    /// Truncates <paramref name="text"/> to fit <paramref name="width"/>, caching the result.
+    /// </summary>
+    /// <param name="text">The text to truncate.</param>
+    /// <param name="width">The maximum width of the text.</param>
+    /// <returns>The truncated text.</returns>
+    protected string TruncateCached(string text, float width)
     {
         if (!_truncateCache.TryGetValue(width, out var cache))
         {
