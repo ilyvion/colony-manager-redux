@@ -166,6 +166,33 @@ internal sealed class ManagerJobProductionSceneTests
     }
 
     [Test]
+    public static void FindManagingJobFindsTheJobThatManagesABill()
+    {
+        using var scene = new ManagerScene();
+        var stove = AddStove(scene, 0);
+        var job = AddProductionJob(scene);
+        RunJob(scene, job);
+
+        Expect.ReferencesAreEqual(
+            job,
+            ManagerJob_Production.FindManagingJob(BillsOn(stove).Single())
+        );
+    }
+
+    [Test]
+    public static void FindManagingJobIgnoresBillsNoJobManages()
+    {
+        using var scene = new ManagerScene();
+        var stove = AddStove(scene, 0);
+        var userBill = new Bill_Production(Recipe, null);
+        stove.billStack.AddBill(userBill);
+        _ = AddProductionJob(scene);
+
+        Expect.IsNull(ManagerJob_Production.FindManagingJob(userBill));
+        Expect.IsNull(ManagerJob_Production.FindManagingJob(null));
+    }
+
+    [Test]
     public static void ChangingTheRecipeRemovesManagedBills()
     {
         using var scene = new ManagerScene();

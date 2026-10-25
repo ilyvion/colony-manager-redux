@@ -14,35 +14,22 @@ internal static class RimWorld_Bill_DoInterface
     internal static bool SuppressManagedBillControls;
 
     private static void Prefix(Bill __instance) =>
-        SuppressManagedBillControls =
-            __instance is Bill_Production bill
-            && bill.Map is { } map
-            && ManagerJob_Production.FindOwningJob(
-                Manager.For(map).JobTracker.JobsOfType<ManagerJob_Production>(),
-                j => j.ManagedBills,
-                bill
-            ) != null;
+        SuppressManagedBillControls = ManagerJob_Production.FindManagingJob(__instance) != null;
 
     private static void Postfix(Bill __instance, Rect __result)
     {
         SuppressManagedBillControls = false;
 
-        if (__instance is not Bill_Production bill || bill.Map is not { } map)
+        if (ManagerJob_Production.FindManagingJob(__instance) is not { } job)
         {
             return;
         }
 
-        var job = ManagerJob_Production.FindOwningJob(
-            Manager.For(map).JobTracker.JobsOfType<ManagerJob_Production>(),
-            j => j.ManagedBills,
-            bill
-        );
-        if (job == null)
-        {
-            return;
-        }
+        DrawManagedByJobIcon(new Rect(__result.xMax - 24f, __result.y + 2f, 20f, 20f), job);
+    }
 
-        var iconRect = new Rect(__result.xMax - 24f, __result.y + 2f, 20f, 20f);
+    internal static void DrawManagedByJobIcon(Rect iconRect, ManagerJob_Production job)
+    {
         GUI.color = Color.white;
         GUI.DrawTexture(iconRect, Resources.ManagedByColonyManagerIcon);
         TooltipHandler.TipRegion(

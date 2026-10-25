@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <UseLaboratory>true</UseLaboratory>
+        <RootNamespace>ColonyManagerRedux.NiceBillTab</RootNamespace>
+        <AssemblyName>ColonyManagerRedux.NiceBillTab</AssemblyName>
+        <OutputPath>../../Integrations/NiceBillTab/$(RimWorldVersion)/Assemblies</OutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <Reference Include="NiceBillTab">
+            <HintPath>$(RimWorldSteamWorkshopFolderPath)\3520130671\$(RimWorldVersion)\Assemblies\NiceBillTab.dll</HintPath>
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Publicize Include="NiceBillTab:NiceBillTab.TabBillsDrawer.DrawBillPreview" />
+        <Publicize Include="NiceBillTab:NiceBillTab.TabBillsDrawer.IngredientIconPreviewSize" />
+    </ItemGroup>
+</Project>

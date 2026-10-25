@@ -1,0 +1,65 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <UseLaboratory>true</UseLaboratory>
+        <RootNamespace>ColonyManagerRedux.NiceBillTab.Tests</RootNamespace>
+        <AssemblyName>ColonyManagerRedux.NiceBillTab.Tests</AssemblyName>
+        <OutputPath>../../Integrations/NiceBillTab/$(RimWorldVersion)/Assemblies</OutputPath>
+    </PropertyGroup>
+    <!--
+        Without the DevTools reference (see below), this project has no Publicize items of its
+        own, so Krafs.Publicizer's generated IgnoresAccessChecksToAttribute merely shadows the
+        one already made public inside the referenced ColonyManagerRedux assembly; CS0436 is
+        harmless here.
+    -->
+    <PropertyGroup Condition="'$(RimWorldVersion)' != '1.6' And '$(RimWorldVersion)' != '1.7'">
+        <NoWarn>$(NoWarn);CS0436</NoWarn>
+    </PropertyGroup>
+    <!--
+        Dev-only test assembly for the Nice Bill Tab integration, built and run in-game via
+        DevTools. Its output is deployed alongside ColonyManagerRedux.NiceBillTab.dll into
+        Integrations/NiceBillTab/<version>/Assemblies, which LoadFolders.xml only loads when
+        the Nice Bill Tab mod (Andromeda.NiceBillTab) is active, so these tests are only
+        discovered when there's a Nice Bill Tab install for them to actually exercise.
+
+        It's listed in ColonyManagerRedux.sln so it always builds locally (default Configuration
+        is Debug, see .vscode/build_config.sh), but ColonyManagerRedux.sln deliberately omits a
+        Release|Any CPU.Build.0 line for this project's GUID, so a Release-configuration build
+        (what CI/release always use, per rimworld-utils' build_mod.yml) skips building it
+        entirely; its output never lands in a shipped release.
+
+        DevTools only supports RimWorld 1.6 and 1.7, so for any other RimWorldVersion this project
+        builds as an empty assembly: both the test sources and the DevTools reference are
+        excluded below. DevTools.dll is built into <version>/Assemblies.
+    -->
+    <ItemGroup>
+        <ProjectReference Include="..\ColonyManagerRedux\ColonyManagerRedux.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.Managers\ColonyManagerRedux.Managers.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <ProjectReference Include="..\ColonyManagerRedux.NiceBillTab\ColonyManagerRedux.NiceBillTab.csproj">
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+        <Reference Include="NiceBillTab">
+            <HintPath>$(RimWorldSteamWorkshopFolderPath)\3520130671\$(RimWorldVersion)\Assemblies\NiceBillTab.dll</HintPath>
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RimWorldVersion)' == '1.6' Or '$(RimWorldVersion)' == '1.7'">
+        <ProjectReference
+            Include="$(ProjectDependenciesBasePath)\Third-Party\DevTools\DevTools\DevTools.csproj"
+            AdditionalProperties="RimWorldVersion=$(RimWorldVersion);OutDir=$(MSBuildThisFileDirectory)..\..\$(RimWorldVersion)\Assemblies\"
+        >
+            <CopyLocal>False</CopyLocal>
+            <Private>false</Private>
+        </ProjectReference>
+    </ItemGroup>
+    <ItemGroup Condition="'$(RimWorldVersion)' != '1.6' And '$(RimWorldVersion)' != '1.7'">
+        <Compile Remove="**/*.cs" />
+    </ItemGroup>
+</Project>

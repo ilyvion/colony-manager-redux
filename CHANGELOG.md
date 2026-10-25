@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Integration with Nice Bill Tab: bills managed by a Production job are locked in its bills tab like they are in the vanilla one. Their suspend, delete, repeat mode, count, details and material controls, and the copy and paste settings options in their right-click menu, are hidden, and the bill shows the Colony Manager icon instead. They can still be reordered.
+
 ### Fixed
 
 - In the Livestock tab's list of available animals, long names and counts no longer run over the icons on the right. They are shortened with an ellipsis and show the full text in a tooltip.

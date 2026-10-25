@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.AnimalGe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.EndlessGrowth", "Source\ColonyManagerRedux.EndlessGrowth\ColonyManagerRedux.EndlessGrowth.csproj", "{3D8F6A21-5B7C-4E9A-9C2D-7F1E4B6A8C35}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.NiceBillTab", "Source\ColonyManagerRedux.NiceBillTab\ColonyManagerRedux.NiceBillTab.csproj", "{E07D7806-3D3B-4F5C-AAD5-EA914FF14740}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ColonyManagerRedux.NiceBillTab.Tests", "Source\ColonyManagerRedux.NiceBillTab.Tests\ColonyManagerRedux.NiceBillTab.Tests.csproj", "{71B562F5-54F3-42E0-B72D-6898F9E4A935}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +60,13 @@ Global
 		{3D8F6A21-5B7C-4E9A-9C2D-7F1E4B6A8C35}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D8F6A21-5B7C-4E9A-9C2D-7F1E4B6A8C35}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D8F6A21-5B7C-4E9A-9C2D-7F1E4B6A8C35}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E07D7806-3D3B-4F5C-AAD5-EA914FF14740}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E07D7806-3D3B-4F5C-AAD5-EA914FF14740}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E07D7806-3D3B-4F5C-AAD5-EA914FF14740}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E07D7806-3D3B-4F5C-AAD5-EA914FF14740}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71B562F5-54F3-42E0-B72D-6898F9E4A935}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71B562F5-54F3-42E0-B72D-6898F9E4A935}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71B562F5-54F3-42E0-B72D-6898F9E4A935}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

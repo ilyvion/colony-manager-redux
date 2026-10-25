@@ -323,6 +323,18 @@ internal sealed class ManagerJob_Production
     )
         where TJob : class => jobs.FirstOrDefault(j => managedItemsSelector(j).Contains(item));
 
+    /// <summary>
+    /// The production job on <paramref name="bill"/>'s map that manages it, if any.
+    /// </summary>
+    internal static ManagerJob_Production? FindManagingJob(Bill? bill) =>
+        bill is Bill_Production production && production.Map is { } map
+            ? FindOwningJob(
+                Manager.For(map).JobTracker.JobsOfType<ManagerJob_Production>(),
+                j => j.ManagedBills,
+                production
+            )
+            : null;
+
     private RecipeDef? _recipe;
 
     public RecipeDef? Recipe

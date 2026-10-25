@@ -3,5 +3,7 @@
 
 [assembly: InternalsVisibleTo("ColonyManagerRedux.AnimalGenetics")]
 [assembly: InternalsVisibleTo("ColonyManagerRedux.EndlessGrowth")]
+[assembly: InternalsVisibleTo("ColonyManagerRedux.NiceBillTab")]
+[assembly: InternalsVisibleTo("ColonyManagerRedux.NiceBillTab.Tests")]
 [assembly: InternalsVisibleTo("ColonyManagerRedux.Tests")]
 [assembly: InternalsVisibleTo("ColonyManagerRedux.AAAA.Tests")]
