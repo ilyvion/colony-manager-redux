@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-10-25
+
 ### Added
 
 - Integration with Nice Bill Tab: bills managed by a Production job are locked in its bills tab like they are in the vanilla one. Their suspend, delete, repeat mode, count, details and material controls, and the copy and paste settings options in their right-click menu, are hidden, and the bill shows the Colony Manager icon instead. They can still be reordered.
@@ -753,7 +755,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.2...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.2..v0.23.0
 [0.22.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.1..v0.22.2
 [0.22.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.0..v0.22.1
 [0.22.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.21.0..v0.22.0
