@@ -1,1 +1,20 @@
-../rimworld-utils/mod.code-workspace
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../colony-manager-redux.wiki"
+		},
+		{
+			"name": "ilyvion.LaboratoryMod",
+			"path": "../ilyvion.Laboratory/Source/ilyvion.LaboratoryMod"
+		},
+		{
+			"path": "../../../../.var/app/com.valvesoftware.Steam/.steam/steam/steamapps/common/RimWorld/Data"
+		}
+	],
+	"settings": {
+		"xml.format.maxLineWidth": 0
+	}
+}
