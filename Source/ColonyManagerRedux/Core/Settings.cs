@@ -396,6 +396,16 @@ public class Settings : ModSettings
 
                 coroutineMethod.Type = type;
                 coroutineMethod.Method = method;
+                if (!coroutineMethod.HasAnySetting)
+                {
+                    ColonyManagerReduxMod.Instance.LogError(
+                        $"Coroutine settings method {coroutineMethod.FullName} has both "
+                            + $"{nameof(CoroutineSettingsMethodAttribute.HasOperationsPerTickSetting)} and "
+                            + $"{nameof(CoroutineSettingsMethodAttribute.HasTicksBetweenOperationsSetting)} "
+                            + "set to false; skipping it."
+                    );
+                    continue;
+                }
                 _coroutineMethods.Add(coroutineMethod);
                 ColonyManagerReduxMod.Instance.LogDebug(
                     $"- {method.Name} ({coroutineMethod.FullName})"
@@ -1865,6 +1875,8 @@ public sealed class CoroutineSettingsMethodAttribute : Attribute
     /// Gets or sets whether this coroutine method has a ticks-between-operations setting.
     /// </summary>
     public bool HasTicksBetweenOperationsSetting { get; set; } = true;
+
+    internal bool HasAnySetting => HasOperationsPerTickSetting || HasTicksBetweenOperationsSetting;
 }
 
 #if !v1_5

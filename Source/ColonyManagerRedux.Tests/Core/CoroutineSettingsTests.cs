@@ -58,6 +58,47 @@ internal sealed class CoroutineSettingsTests
     }
 
     [Test]
+    public static void EveryAttributedMethodHasASetting()
+    {
+        var empty = AttributedMethods()
+            .Where(method =>
+                method.GetCustomAttribute<CoroutineSettingsMethodAttribute>()?.HasAnySetting != true
+            )
+            .Select(Key)
+            .ToList();
+
+        Expect.AreEqual("", string.Join(", ", empty), "methods with both settings turned off");
+    }
+
+    [Test]
+    public static void HasAnySettingIsFalseOnlyWhenBothSettingsAreOff()
+    {
+        Expect.IsTrue(new CoroutineSettingsMethodAttribute().HasAnySetting, "both on");
+        Expect.IsTrue(
+            new CoroutineSettingsMethodAttribute
+            {
+                HasOperationsPerTickSetting = false,
+            }.HasAnySetting,
+            "only ticks between operations"
+        );
+        Expect.IsTrue(
+            new CoroutineSettingsMethodAttribute
+            {
+                HasTicksBetweenOperationsSetting = false,
+            }.HasAnySetting,
+            "only operations per tick"
+        );
+        Expect.IsFalse(
+            new CoroutineSettingsMethodAttribute
+            {
+                HasOperationsPerTickSetting = false,
+                HasTicksBetweenOperationsSetting = false,
+            }.HasAnySetting,
+            "both off"
+        );
+    }
+
+    [Test]
     public static void ADelegateResolvesToTheAttributedMethodsKey()
     {
         var method =

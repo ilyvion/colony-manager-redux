@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- For mod authors: a coroutine method marked with [CoroutineSettingsMethod] that turns off both of its settings is now logged as an error and left out of the advanced performance settings.
+
 ## [0.23.0] - 2026-10-25
 
 ### Added
