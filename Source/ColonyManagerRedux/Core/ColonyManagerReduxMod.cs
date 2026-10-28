@@ -11,20 +11,8 @@ public partial class ColonyManagerReduxMod
 {
     partial void Construct()
     {
-        // apply fixes
-        var harmony = new Harmony(PackageId);
-        //Harmony.DEBUG = true;
-        harmony.PatchAll(Assembly.GetExecutingAssembly());
-        //Harmony.DEBUG = false;
-
-        LongEventHandler.ExecuteWhenFinished(() =>
-        {
-            // We need to load settings here at the latest because if we end up waiting until during
-            //  a game load, it leads to the ScribeLoader exception
-            // "Called InitLoading() but current mode is LoadingVars"
-            // because you can't Scribe multiple things at once.
-            _ = Settings;
-        });
+        _ = PatchAll();
+        LoadSettingsWhenFinished<Settings>();
     }
 
     /// <summary>
