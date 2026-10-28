@@ -1,6 +1,8 @@
 // Dialog_ManualGroupName.cs
 // Copyright (c) 2026 Alexander Krivács Schrøder
 
+using ilyvion.Laboratory.UI;
+
 namespace ColonyManagerRedux.Managers;
 
 [HotSwappable]
