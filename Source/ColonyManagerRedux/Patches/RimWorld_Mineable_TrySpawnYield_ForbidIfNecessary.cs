@@ -6,24 +6,15 @@ namespace ColonyManagerRedux;
 [HarmonyPatch]
 internal static class RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary
 {
-    public static MethodBase TargetMethod()
-    {
-        var type = AccessTools.FirstInner(
-            typeof(Mineable),
-            t => t.GetMethodNames()
-#if v1_5
-                .Any(n => n.Contains("ForbidIfNecessary"))
+    internal static bool Prepare() =>
+        HarmonyTargetUtility.ExpectSingle(
+            TargetMethods(),
+            "patch Mineable.TrySpawnYield's ForbidIfNecessary",
+            ColonyManagerReduxMod.Instance.LogError
         );
-        return AccessTools.FirstMethod(type, method => method.Name.Contains("ForbidIfNecessary"));
-#else
-                    .Any(n => n.Contains("ForbidIfNecessary", StringComparison.Ordinal))
-        );
-        return AccessTools.FirstMethod(
-            type,
-            method => method.Name.Contains("ForbidIfNecessary", StringComparison.Ordinal)
-        );
-#endif
-    }
+
+    internal static List<MethodInfo> TargetMethods() =>
+        HarmonyTargetUtility.FindMethods(typeof(Mineable), "ForbidIfNecessary");
 
     private static void Postfix(Thing thing, Pawn ___pawn) => NotifyChunkMined(___pawn, thing);
 

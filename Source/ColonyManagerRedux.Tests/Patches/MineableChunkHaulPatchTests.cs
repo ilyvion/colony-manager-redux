@@ -13,16 +13,20 @@ namespace ColonyManagerRedux.Tests;
 internal sealed class MineableChunkHaulPatchTests
 {
     [Test]
-    public static void TargetMethodResolves() =>
-        Expect.IsNotNull(
-            RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary.TargetMethod(),
+    public static void TargetMethodResolvesToExactlyOneMethod()
+    {
+        Expect.AreEqual(
+            1,
+            RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary.TargetMethods().Count,
             "ForbidIfNecessary"
         );
+        Expect.IsTrue(RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary.Prepare(), "Prepare");
+    }
 
     [Test]
     public static void PostfixIsInstalledByTheMod()
     {
-        var target = RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary.TargetMethod();
+        var target = RimWorld_Mineable_TrySpawnYield_ForbidIfNecessary.TargetMethods().Single();
 
         var info = Harmony.GetPatchInfo(target);
 
