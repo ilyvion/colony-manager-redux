@@ -68,58 +68,39 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
     internal static IEnumerable<CodeInstruction> LabelTranspiler(
         IEnumerable<CodeInstruction> instructions,
         ILGenerator generator
-    )
-    {
-        var original = instructions.ToList();
+    ) =>
+        TranspilerUtility.PatchOrOriginal(
+            instructions,
+            "reverse patch PawnColumnWorker.DoHeader",
+            ColonyManagerReduxMod.Instance.LogError,
+            codeMatcher =>
+            {
+                _ = codeMatcher.ExpectForward(i => i.opcode == OpCodes.Brtrue_S, "[brtrue.s]");
+                codeMatcher.Instruction.opcode = OpCodes.Pop;
+                codeMatcher.Instruction.operand = null;
 
-        var codeMatcher = new CodeMatcher(original, generator);
+                _ = codeMatcher.ExpectForward(
+                    i =>
+                        i.opcode == OpCodes.Call
+                        && i.operand is MethodInfo m
+                        && m == Widgets_Label_MethodInfo,
+                    "call to Widgets.Label"
+                );
 
-        _ = codeMatcher.SearchForward(i => i.opcode == OpCodes.Brtrue_S);
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: [brtrue.s] not found."
-            );
-            return original;
-        }
-        codeMatcher.Instruction.opcode = OpCodes.Pop;
-        codeMatcher.Instruction.operand = null;
+                _ = codeMatcher.RemoveInstruction();
 
-        _ = codeMatcher.SearchForward(i =>
-            i.opcode == OpCodes.Call && i.operand is MethodInfo m && m == Widgets_Label_MethodInfo
+                _ = codeMatcher.Insert([
+                    new(OpCodes.Ldarg_2),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Callvirt, Action_Invoke),
+                ]);
+
+                _ = codeMatcher.ExpectBackwards(i => i.opcode == OpCodes.Ldloc_0, "[ldloc.0]");
+
+                _ = codeMatcher.Insert([new(OpCodes.Ldarg_3)]);
+            },
+            generator
         );
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: call to Widgets.Label not found."
-            );
-            return original;
-        }
-
-        _ = codeMatcher.RemoveInstruction();
-
-        _ = codeMatcher.Insert([
-            new(OpCodes.Ldarg_2),
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Callvirt, Action_Invoke),
-        ]);
-
-        _ = codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Ldloc_0);
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: [ldloc.0] not found."
-            );
-            return original;
-        }
-
-        _ = codeMatcher.Insert([new(OpCodes.Ldarg_3)]);
-
-        return codeMatcher.Instructions();
-    }
 
     [HarmonyReversePatch]
     internal static void CustomLabelDoHeader(
@@ -161,71 +142,44 @@ internal static class RimWorld_PawnColumnWorker_DoHeader
     internal static IEnumerable<CodeInstruction> IconTranspiler(
         IEnumerable<CodeInstruction> instructions,
         ILGenerator generator
-    )
-    {
-        var original = instructions.ToList();
+    ) =>
+        TranspilerUtility.PatchOrOriginal(
+            instructions,
+            "reverse patch PawnColumnWorker.DoHeader",
+            ColonyManagerReduxMod.Instance.LogError,
+            codeMatcher =>
+            {
+                _ = codeMatcher.ExpectForward(i => i.opcode == OpCodes.Brtrue_S, "[brtrue.s]");
+                codeMatcher.Instruction.opcode = OpCodes.Br;
+                _ = codeMatcher.Insert([new(OpCodes.Pop)]);
 
-        var codeMatcher = new CodeMatcher(original, generator);
+                _ = codeMatcher.ExpectForward(i => i.opcode == OpCodes.Brfalse_S, "[brfalse.s]");
+                codeMatcher.Instruction.opcode = OpCodes.Pop;
+                codeMatcher.Instruction.operand = null;
 
-        _ = codeMatcher.SearchForward(i => i.opcode == OpCodes.Brtrue_S);
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: [brtrue.s] not found."
-            );
-            return original;
-        }
-        codeMatcher.Instruction.opcode = OpCodes.Br;
-        _ = codeMatcher.Insert([new(OpCodes.Pop)]);
+                _ = codeMatcher.ExpectForward(
+                    i =>
+                        i.opcode == OpCodes.Call
+                        && i.operand is MethodInfo m
+                        && m == GUI_DrawTexture_MethodInfo,
+                    "call to GUI.DrawTexture"
+                );
 
-        _ = codeMatcher.SearchForward(i => i.opcode == OpCodes.Brfalse_S);
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: [brfalse.s] not found."
-            );
-            return original;
-        }
-        codeMatcher.Instruction.opcode = OpCodes.Pop;
-        codeMatcher.Instruction.operand = null;
+                _ = codeMatcher.RemoveInstruction();
 
-        _ = codeMatcher.SearchForward(i =>
-            i.opcode == OpCodes.Call && i.operand is MethodInfo m && m == GUI_DrawTexture_MethodInfo
+                _ = codeMatcher.Insert([
+                    new(OpCodes.Ldarg_2),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Callvirt, Action_Invoke2),
+                ]);
+
+                _ = codeMatcher.ExpectBackwards(i => i.opcode == OpCodes.Stloc_3, "[stloc.3]");
+                _ = codeMatcher.Advance(1);
+
+                _ = codeMatcher.Insert([new(OpCodes.Ldarg_3)]);
+            },
+            generator
         );
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: call to GUI.DrawTexture not found."
-            );
-            return original;
-        }
-
-        _ = codeMatcher.RemoveInstruction();
-
-        _ = codeMatcher.Insert([
-            new(OpCodes.Ldarg_2),
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Callvirt, Action_Invoke2),
-        ]);
-
-        _ = codeMatcher.SearchBackwards(i => i.opcode == OpCodes.Stloc_3);
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not reverse patch PawnColumnWorker.DoHeader, "
-                    + "IL does not match expectations: [stloc.3] not found."
-            );
-            return original;
-        }
-        _ = codeMatcher.Advance(1);
-
-        _ = codeMatcher.Insert([new(OpCodes.Ldarg_3)]);
-
-        return codeMatcher.Instructions();
-    }
 
     [HarmonyReversePatch]
     internal static void CustomIconDoHeader(

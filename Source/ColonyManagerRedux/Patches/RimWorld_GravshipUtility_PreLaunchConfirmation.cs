@@ -50,40 +50,35 @@ internal static class RimWorld_GravshipUtility_PreLaunchConfirmation
     internal static IEnumerable<CodeInstruction> Transpiler(
         IEnumerable<CodeInstruction> instructions,
         ILGenerator generator
-    )
-    {
-        var original = instructions.ToList();
+    ) =>
+        TranspilerUtility.PatchOrOriginal(
+            instructions,
+            "patch GravshipUtility.PreLaunchConfirmation",
+            ColonyManagerReduxMod.Instance.LogError,
+            codeMatcher =>
+            {
+                _ = codeMatcher.End();
 
-        var codeMatcher = new CodeMatcher(original, generator);
+                _ = codeMatcher.ExpectBackwards(
+                    i =>
+                        i.opcode == OpCodes.Call
+                        && i.operand is MethodInfo m
+                        && m == Find_WindowStack_MethodInfo,
+                    "call to Find.WindowStack"
+                );
+                _ = codeMatcher.Advance(1);
 
-        _ = codeMatcher.End();
-
-        _ = codeMatcher.SearchBackwards(i =>
-            i.opcode == OpCodes.Call
-            && i.operand is MethodInfo m
-            && m == Find_WindowStack_MethodInfo
+                // Insert
+                //   text = AddColonyManagerReduxLaunchConfirmationText(text);
+                // directly before
+                _ = codeMatcher.Insert(
+                    new(OpCodes.Ldloc_0),
+                    new(OpCodes.Ldarg_0),
+                    new(OpCodes.Call, _methodAddColonyManagerReduxLaunchConfirmationText),
+                    new(OpCodes.Stloc_0)
+                );
+            },
+            generator
         );
-        if (!codeMatcher.IsValid)
-        {
-            ColonyManagerReduxMod.Instance.LogError(
-                "Could not patch GravshipUtility.PreLaunchConfirmation, "
-                    + "IL does not match expectations: call to Find.WindowStack not found."
-            );
-            return original;
-        }
-        _ = codeMatcher.Advance(1);
-
-        // Insert
-        //   text = AddColonyManagerReduxLaunchConfirmationText(text);
-        // directly before
-        _ = codeMatcher.Insert(
-            new(OpCodes.Ldloc_0),
-            new(OpCodes.Ldarg_0),
-            new(OpCodes.Call, _methodAddColonyManagerReduxLaunchConfirmationText),
-            new(OpCodes.Stloc_0)
-        );
-
-        return codeMatcher.Instructions();
-    }
 }
 #endif // v1_6
