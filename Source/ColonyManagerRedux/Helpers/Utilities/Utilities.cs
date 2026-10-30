@@ -976,45 +976,6 @@ public static class Utilities
     }
 
     /// <summary>
-    /// Draws a label with an outline by rendering the label multiple times with an offset and outline color, then draws the main label on top.
-    /// </summary>
-    /// <param name="icon">The rectangle in which to draw the label.</param>
-    /// <param name="label">The text to display.</param>
-    /// <param name="tooltip">The tooltip to display when hovering over the label (nullable).</param>
-    /// <param name="anchor">The text anchor for alignment.</param>
-    /// <param name="margin">The margin around the label.</param>
-    /// <param name="font">The font to use for the label.</param>
-    /// <param name="textColour">The color of the label text.</param>
-    /// <param name="outlineColour">The color of the label outline.</param>
-    public static void LabelOutline(
-        Rect icon,
-        string label,
-        string? tooltip,
-        TextAnchor anchor,
-        float margin,
-        GameFont font,
-        Color textColour,
-        Color outlineColour
-    )
-    {
-        // horribly inefficient way of getting an outline to show - draw 4 background coloured labels with a 1px offset, then draw the foreground on top.
-        int[] offsets = [-1, 0, 1];
-
-        foreach (var xOffset in offsets)
-        {
-            foreach (var yOffset in offsets)
-            {
-                var offsetIcon = icon;
-                offsetIcon.x += xOffset;
-                offsetIcon.y += yOffset;
-                IlyvionWidgets.Label(offsetIcon, label, anchor, font, outlineColour, margin);
-            }
-        }
-
-        IlyvionWidgets.Label(icon, label, tooltip, anchor, font, textColour, margin);
-    }
-
-    /// <summary>
     /// Returns the absolute value of the specified integer, safely handling <see cref="int.MinValue"/>.
     /// </summary>
     /// <param name="value">The integer value.</param>

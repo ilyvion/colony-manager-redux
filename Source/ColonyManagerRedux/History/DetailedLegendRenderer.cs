@@ -268,12 +268,11 @@ public class DetailedLegendRenderer : IExposable
                 // draw counts in upper left corner
                 if (DrawCounts)
                 {
-                    Utilities.LabelOutline(
+                    IlyvionWidgets.LabelOutline(
                         icon,
                         chapter.ThingDefCount.count.ToString(CultureInfo.InvariantCulture),
                         null,
                         TextAnchor.UpperLeft,
-                        0f,
                         GameFont.Tiny,
                         Color.white,
                         Color.black
@@ -327,15 +326,15 @@ public class DetailedLegendRenderer : IExposable
                 // x offset
                 var xOffset = DrawIcons && thing != null ? height + (Margin * 2) : Margin * 2;
 
-                Utilities.LabelOutline(
+                IlyvionWidgets.LabelOutline(
                     rowInfoRect,
                     info,
                     null,
                     TextAnchor.MiddleLeft,
-                    xOffset,
                     GameFont.Tiny,
                     Color.white,
-                    Color.black
+                    Color.black,
+                    xOffset
                 );
             }
 
