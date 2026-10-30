@@ -26,6 +26,7 @@
         </li>
     </modDependencies>
     <loadAfter>
+        <li>ludeon.rimworld</li>
         <li>brrainz.harmony</li>
         <li>ilyvion.Laboratory</li>
         <li>ludeon.rimworld.odyssey</li>

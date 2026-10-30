@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - For mod authors: a coroutine method marked with [CoroutineSettingsMethod] that turns off both of its settings is now logged as an error and left out of the advanced performance settings.
 
+### Fixed
+
+- The mod now always loads after RimWorld's Core, so a mod list sorted with it above Core no longer causes parent def not found errors and manager desks that appear on the map but cannot be selected.
+
 ## [0.23.0] - 2026-10-25
 
 ### Added
