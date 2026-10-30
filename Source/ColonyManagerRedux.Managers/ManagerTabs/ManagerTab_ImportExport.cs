@@ -167,39 +167,31 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
         var exportJobs = SelectedJobs.ToList();
         try
         {
-            try
-            {
-                Scribe.saver.InitSaving(
-                    FilePath(name),
-                    _templateMode ? "ManagerJobTemplate" : "ManagerJobs"
-                );
-            }
-            catch (Exception ex)
-            {
-                GenUI.ErrorDialog("ProblemSavingFile".Translate(ex.ToString()));
-                return;
-            }
-
-            ScribeMetaHeaderUtility.WriteMetaHeader();
-
-            foreach (var job in exportJobs)
-            {
-                job.PreExport();
-            }
-            Scribe_Collections.Look(ref exportJobs, "jobs", LookMode.Deep);
-            foreach (var job in exportJobs)
-            {
-                job.PostExport();
-            }
+            ScribeFileUtility.Save(
+                FilePath(name),
+                _templateMode ? "ManagerJobTemplate" : "ManagerJobs",
+                () =>
+                {
+                    foreach (var job in exportJobs)
+                    {
+                        job.PreExport();
+                    }
+                    Scribe_Collections.Look(ref exportJobs, "jobs", LookMode.Deep);
+                    foreach (var job in exportJobs)
+                    {
+                        job.PostExport();
+                    }
+                }
+            );
         }
         catch (Exception ex)
         {
             ColonyManagerReduxMod.Instance.LogError("Exception while exporting jobs: " + ex);
+            GenUI.ErrorDialog("ProblemSavingFile".Translate(ex.ToString()));
         }
         finally
         {
             _ = Manager.SetScribingMode(ScribingMode.Normal);
-            Scribe.saver.FinalizeSaving();
             Messages.Message(
                 (
                     _templateMode
@@ -228,21 +220,23 @@ internal sealed partial class ManagerTab_ImportExport(Manager manager) : Manager
             ),
             () =>
             {
-                Scribe.loader.InitLoading(filePath);
                 _ = Manager.SetScribingMode(ScribingMode.Transfer);
                 List<ManagerJob> exportedJobs = [];
                 try
                 {
-                    ScribeMetaHeaderUtility.LoadGameDataHeader(
-                        ScribeMetaHeaderUtility.ScribeHeaderMode.None,
-                        logVersionConflictWarning: true
+                    ScribeFileUtility.Load(
+                        filePath,
+                        () =>
+                            Scribe_Collections.Look(
+                                ref exportedJobs,
+                                "jobs",
+                                LookMode.Deep,
+                                Manager
+                            )
                     );
-                    Scribe_Collections.Look(ref exportedJobs, "jobs", LookMode.Deep, Manager);
-                    Scribe.loader.FinalizeLoading();
                 }
                 catch
                 {
-                    Scribe.ForceStop();
                     return;
                 }
                 finally
