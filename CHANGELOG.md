@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-11-01
+
 ### Dependencies
 
 - ilyvion's Laboratory: v0.27.0
@@ -774,7 +776,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.23.0..v0.24.0
 [0.23.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.2..v0.23.0
 [0.22.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.1..v0.22.2
 [0.22.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.0..v0.22.1
