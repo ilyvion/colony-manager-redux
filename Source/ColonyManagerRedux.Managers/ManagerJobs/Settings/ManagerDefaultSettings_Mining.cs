@@ -18,6 +18,7 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
     public bool DefaultTakeOwnershipOfMiningJobs;
     public bool DefaultControlDeepDrills;
 
+    public bool DefaultCountChunkProducts = true;
     public bool DefaultHaulMapChunks = true;
     public bool DefaultHaulMinedChunks = true;
 
@@ -127,16 +128,24 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Mining.HaulMapChunks".Translate(),
-            "ColonyManagerRedux.Mining.HaulMapChunks.Tip".Translate(),
+            "ColonyManagerRedux.Mining.CountChunkProducts".Translate(),
+            "ColonyManagerRedux.Mining.CountChunkProducts.Tip".Translate(),
+            ref DefaultCountChunkProducts
+        );
+
+        rowRect.y += ListEntryHeight;
+        ManagerTab_Mining.DrawHaulChunksToggle(
+            rowRect,
+            DefaultCountChunkProducts,
+            "ColonyManagerRedux.Mining.HaulMapChunks",
             ref DefaultHaulMapChunks
         );
 
         rowRect.y += ListEntryHeight;
-        Utilities.DrawToggle(
+        ManagerTab_Mining.DrawHaulChunksToggle(
             rowRect,
-            "ColonyManagerRedux.Mining.HaulMinedChunks".Translate(),
-            "ColonyManagerRedux.Mining.HaulMinedChunks.Tip".Translate(),
+            DefaultCountChunkProducts,
+            "ColonyManagerRedux.Mining.HaulMinedChunks",
             ref DefaultHaulMinedChunks
         );
 
@@ -222,6 +231,7 @@ internal sealed class ManagerDefaultSettings_Mining : ManagerDefaultSettings
             "defaultTakeOwnershipOfMiningJobs",
             false
         );
+        Scribe_Values.Look(ref DefaultCountChunkProducts, "defaultCountChunkProducts", true);
         Scribe_Values.Look(ref DefaultHaulMapChunks, "defaultHaulMapChunks", true);
         Scribe_Values.Look(ref DefaultHaulMinedChunks, "defaultHaulMinedChunks", true);
         Scribe_Values.Look(ref DefaultControlDeepDrills, "defaultControlDeepDrills", false);

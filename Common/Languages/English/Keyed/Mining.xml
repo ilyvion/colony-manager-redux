@@ -13,6 +13,9 @@
     <ColonyManagerRedux.Mining.ControlDeepDrills.Tip>With this setting enabled, the job will control the allow/forbidden state and the power state of deep drills depending on whether the threshold for the configured resources have been met or not.</ColonyManagerRedux.Mining.ControlDeepDrills.Tip>
     <ColonyManagerRedux.Mining.AllowedBuildings>Buildings</ColonyManagerRedux.Mining.AllowedBuildings>
     <ColonyManagerRedux.Mining.Chunks>Chunks</ColonyManagerRedux.Mining.Chunks>
+    <ColonyManagerRedux.Mining.CountChunkProducts>Count products from processing chunks</ColonyManagerRedux.Mining.CountChunkProducts>
+    <ColonyManagerRedux.Mining.CountChunkProducts.Tip>Should what chunks yield when smelted or stonecut count towards the threshold? With this setting disabled, chunks in storage, chunks designated for hauling and mining rocks that only yield chunks don't count towards the threshold, which is useful if you can't process chunks yet.</ColonyManagerRedux.Mining.CountChunkProducts.Tip>
+    <ColonyManagerRedux.Mining.HaulChunks.Disabled.Tip>Disabled because products from processing chunks are not counted.</ColonyManagerRedux.Mining.HaulChunks.Disabled.Tip>
     <ColonyManagerRedux.Mining.HaulMapChunks>Designate chunks on the map for hauling</ColonyManagerRedux.Mining.HaulMapChunks>
     <ColonyManagerRedux.Mining.HaulMapChunks.Tip>If there are any relevant chunks present on the map that are not already in storage, mark them for hauling to satisfy a configured threshold.</ColonyManagerRedux.Mining.HaulMapChunks.Tip>
     <ColonyManagerRedux.Mining.HaulMinedChunks>Designate mined chunks for hauling</ColonyManagerRedux.Mining.HaulMinedChunks>

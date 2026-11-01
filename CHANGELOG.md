@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > [!IMPORTANT]  
 > This release requires an update to ilyvion's Laboratory!
 
+### Added
+
+- Resource gathering jobs have a new 'Count products from processing chunks' option in their Chunks section, with a matching default in the mod settings. Turn it off if you can't smelt or stonecut chunks yet: chunks in storage or designated for hauling no longer count towards the threshold, the job stops hauling chunks, and it doesn't mine rock that only yields chunks.
+
 ### Changed
 
 - For mod authors: a coroutine method marked with [CoroutineSettingsMethod] that turns off both of its settings is now logged as an error and left out of the advanced performance settings.

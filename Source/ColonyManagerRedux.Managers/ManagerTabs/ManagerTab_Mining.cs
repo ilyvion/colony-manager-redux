@@ -427,20 +427,58 @@ internal sealed partial class ManagerTab_Mining(Manager manager)
         var rowRect = new Rect(pos.x, pos.y, width, ListEntryHeight);
         Utilities.DrawToggle(
             rowRect,
-            "ColonyManagerRedux.Mining.HaulMapChunks".Translate(),
-            "ColonyManagerRedux.Mining.HaulMapChunks.Tip".Translate(),
+            "ColonyManagerRedux.Mining.CountChunkProducts".Translate(),
+            "ColonyManagerRedux.Mining.CountChunkProducts.Tip".Translate(),
+            job.CountChunkProducts,
+            () =>
+            {
+                job.CountChunkProducts = !job.CountChunkProducts;
+                _ = job.ChunksCachedValue.ForceUpdate();
+                _ = job.DesignatedCachedValue.ForceUpdate();
+            }
+        );
+
+        rowRect.y += ListEntryHeight;
+        DrawHaulChunksToggle(
+            rowRect,
+            job.CountChunkProducts,
+            "ColonyManagerRedux.Mining.HaulMapChunks",
             ref job.HaulMapChunks
         );
 
         rowRect.y += ListEntryHeight;
-        Utilities.DrawToggle(
+        DrawHaulChunksToggle(
             rowRect,
-            "ColonyManagerRedux.Mining.HaulMinedChunks".Translate(),
-            "ColonyManagerRedux.Mining.HaulMinedChunks.Tip".Translate(),
+            job.CountChunkProducts,
+            "ColonyManagerRedux.Mining.HaulMinedChunks",
             ref job.HaulMinedChunks
         );
 
         return rowRect.yMax - pos.y;
+    }
+
+    internal static void DrawHaulChunksToggle(
+        Rect rowRect,
+        bool countChunkProducts,
+        string key,
+        ref bool checkOn
+    )
+    {
+        if (countChunkProducts)
+        {
+            Utilities.DrawToggle(rowRect, key.Translate(), $"{key}.Tip".Translate(), ref checkOn);
+        }
+        else
+        {
+            IlyvionWidgets.Label(
+                rowRect,
+                key.Translate(),
+                "ColonyManagerRedux.Mining.HaulChunks.Disabled.Tip".Translate(),
+                TextAnchor.MiddleLeft,
+                color: Color.grey,
+                leftMargin: Margin
+            );
+        }
     }
 
     public float DrawDeconstructBuildings(ManagerJob_Mining job, Vector2 pos, float width)

@@ -259,6 +259,29 @@ internal sealed class MineableChunkHaulSceneTests
     }
 
     [Test]
+    public static void NotifyDoesNothingWhenChunkProductsAreNotCounted()
+    {
+        using var scene = new ManagerScene();
+        var job = NewJob(scene);
+        job.CountChunkProducts = false;
+        var colonist = scene.SpawnColonist(FreeCell(scene));
+        var cell = FreeCell(scene);
+        var chunk = SpawnChunk(scene, cell);
+        DesignateCell(job, cell);
+        try
+        {
+            job.Notify_StoneChunkMined(colonist, chunk);
+
+            Expect.IsFalse(IsHaulDesignated(scene.Map, chunk));
+        }
+        finally
+        {
+            Cleanup(scene, [chunk]);
+            CleanupCell(scene, cell);
+        }
+    }
+
+    [Test]
     public static void NotifyDoesNothingForAChunkThatIsNotHaulDesignatable()
     {
         using var scene = new ManagerScene();

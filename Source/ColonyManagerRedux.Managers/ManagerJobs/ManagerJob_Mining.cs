@@ -197,8 +197,13 @@ internal sealed class ManagerJob_Mining
     public bool CheckRoofSupport = true;
     public bool CheckRoofSupportAdvanced;
     public bool CheckRoomDivision = true;
+    public bool CountChunkProducts = true;
     public bool HaulMapChunks = true;
     public bool HaulMinedChunks = true;
+
+    // Hauling chunks can't help meet the threshold when their products aren't counted.
+    internal bool ShouldHaulMapChunks => CountChunkProducts && HaulMapChunks;
+    internal bool ShouldHaulMinedChunks => CountChunkProducts && HaulMinedChunks;
     private bool _deconstructBuildings;
     public bool DeconstructAncientDangerWhenFogged;
     public Area? MiningArea;
@@ -318,6 +323,7 @@ internal sealed class ManagerJob_Mining
             AllowMining = miningSettings.DefaultAllowMining;
             TakeOwnershipOfMiningJobs = miningSettings.DefaultTakeOwnershipOfMiningJobs;
             ControlDeepDrills = miningSettings.DefaultControlDeepDrills;
+            CountChunkProducts = miningSettings.DefaultCountChunkProducts;
             HaulMapChunks = miningSettings.DefaultHaulMapChunks;
             HaulMinedChunks = miningSettings.DefaultHaulMinedChunks;
             DeconstructBuildings = miningSettings.DefaultDeconstructBuildings;
@@ -563,7 +569,9 @@ internal sealed class ManagerJob_Mining
                 .map.designationManager.SpawnedDesignationsOfDef(DesignationDefOf.Haul)
                 .Except(_designations)
                 .Where(des =>
-                    des.target.HasThing && des.target.Thing.def.GetChunkProducts().Any(Counted)
+                    CountChunkProducts
+                    && des.target.HasThing
+                    && des.target.Thing.def.GetChunkProducts().Any(Counted)
                 )
         )
         {
@@ -718,6 +726,7 @@ internal sealed class ManagerJob_Mining
             AllDeconstructibleBuildings = null;
         }
         Scribe_Values.Look(ref SyncFilterAndAllowed, "syncFilterAndAllowed", true);
+        Scribe_Values.Look(ref CountChunkProducts, "countChunkProducts", true);
         Scribe_Values.Look(ref HaulMapChunks, "haulMapChunks", true);
         Scribe_Values.Look(ref HaulMinedChunks, "haulMinedChunks", true);
         Scribe_Values.Look(ref _deconstructBuildings, "deconstructBuildings", false);
@@ -817,7 +826,8 @@ internal sealed class ManagerJob_Mining
     public int GetCountInChunk(Thing chunk) => GetCountInChunk(chunk.def);
 
     public int GetCountInChunk(ThingDef chunk) =>
-        chunk.butcherProducts.NullOrEmpty() && chunk.smeltProducts.NullOrEmpty()
+        !CountChunkProducts
+        || (chunk.butcherProducts.NullOrEmpty() && chunk.smeltProducts.NullOrEmpty())
             ? 0
             : chunk.GetChunkProducts().Where(Counted).Sum(tc => tc.count);
 
@@ -1505,7 +1515,7 @@ internal sealed class ManagerJob_Mining
             ColonyManagerReduxMod.Settings.ShouldRemoveMoreDesignations(
                 KeptDesignationCount(workData)
             ),
-            HaulMapChunks || DeconstructBuildings || AllowMining,
+            ShouldHaulMapChunks || DeconstructBuildings || AllowMining,
             ColonyManagerReduxMod.Settings.CanAddMoreDesignations(KeptDesignationCount(workData))
         );
         if (activePhase == ActivePhase.Reduce)
@@ -1555,7 +1565,7 @@ internal sealed class ManagerJob_Mining
             switch (task)
             {
                 case Task.HaulChunks:
-                    if (HaulMapChunks)
+                    if (ShouldHaulMapChunks)
                     {
                         yield return PlanHaulChunks(count, workData)
                             .ResumeWhenOtherCoroutineIsCompleted();
@@ -2375,7 +2385,7 @@ internal sealed class ManagerJob_Mining
 
     public void Notify_StoneChunkMined(Pawn _, Thing thing)
     {
-        if (!HaulMinedChunks)
+        if (!ShouldHaulMinedChunks)
         {
             return;
         }
