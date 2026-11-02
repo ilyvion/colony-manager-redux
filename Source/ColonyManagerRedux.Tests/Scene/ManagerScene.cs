@@ -205,6 +205,7 @@ internal sealed class ManagerScene : IDisposable
                 !Find.World.Impassable(candidate)
                 && !Find.WorldObjects.AnyWorldObjectAt(candidate)
                 && Find.WorldGrid[candidate].PrimaryBiome.canBuildBase
+                && !HasRoad(candidate)
             )
             {
                 tile = candidate;
@@ -224,6 +225,17 @@ internal sealed class ManagerScene : IDisposable
         );
         _extraMaps.Add((map, parent));
         return map;
+    }
+
+    /// <summary>
+    /// Whether a road crosses <paramref name="tile"/>. Road generation logs an error when a small
+    /// map has no valid road exit.
+    /// </summary>
+    private static bool HasRoad(PlanetTile tile)
+    {
+        List<PlanetTile> neighbors = [];
+        Find.WorldGrid.GetTileNeighbors(tile, neighbors);
+        return neighbors.Any(n => Find.WorldGrid.GetRoadDef(tile, n) != null);
     }
 
     /// <summary>Runs a coroutine to completion without needing game ticks.</summary>

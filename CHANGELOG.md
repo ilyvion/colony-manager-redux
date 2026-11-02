@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Minerals found by a ground-penetrating scanner can now be chosen in the resource gathering tab when a job's mineral list is locked to the map, even if the map has no surface veins of that mineral.
+
 ## [0.24.0] - 2026-11-01
 
 ### Dependencies

@@ -39,7 +39,10 @@ internal static class Utilities_Mining
     internal static IEnumerable<ThingDef> GetMinerals(Map? map) =>
         (
             map != null
-                ? map.listerThings.AllThings.OfType<Building>().Select(b => b.def)
+                ? map
+                    .listerThings.AllThings.OfType<Building>()
+                    .Select(b => b.def)
+                    .Concat(GetMineralsOfDeepResources(map))
                 : DefDatabase<ThingDef>.AllDefsListForReading
         )
             .Where(d =>
@@ -47,6 +50,21 @@ internal static class Utilities_Mining
             )
             .Distinct()
             .OrderBy(d => d.LabelCap.RawText);
+
+    /// <summary>
+    /// The mineral defs yielding a resource in <paramref name="map"/>'s deep resource grid, which
+    /// holds what ground-penetrating scanners have found.
+    /// </summary>
+    private static IEnumerable<ThingDef> GetMineralsOfDeepResources(Map map)
+    {
+        HashSet<ThingDef> deepResources =
+        [
+            .. map.AllCells.Select(map.deepResourceGrid.ThingDefAt).Where(d => d != null),
+        ];
+        return DefDatabase<ThingDef>.AllDefsListForReading.Where(d =>
+            d.building?.mineableThing != null && deepResources.Contains(d.building.mineableThing)
+        );
+    }
 
     internal static IEnumerable<ThingDefCountClass> GetChunkProducts(this ThingDef chunk) =>
         (chunk.butcherProducts ?? Enumerable.Empty<ThingDefCountClass>()).Concat(
