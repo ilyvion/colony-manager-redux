@@ -43,7 +43,7 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         var localJobs = manager.JobTracker.JobList.ToList();
 
         var action = DetermineLandingAction(
-            localJobs.Count,
+            ConflictingLocalJobCount(localJobs),
             jobList.Count,
             ColonyManagerReduxMod.Settings.GravshipJobConflictResolution
         );
@@ -119,6 +119,7 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         switch (action)
         {
             case GravshipLandingAction.Import:
+                DeleteJobs(manager, AutoCreatedJobsReplacedBy(localJobs, gravshipJobs));
                 ImportJobs(manager, gravshipJobs);
                 break;
             case GravshipLandingAction.KeepLocalOnly:
@@ -174,8 +175,30 @@ internal static class Verse_WorldComponent_GravshipController_LandingEnded
         );
 
     /// <summary>
+    /// The number of <paramref name="localJobs"/> that conflict with a landing gravship's jobs;
+    /// unused auto-created jobs don't count.
+    /// </summary>
+    internal static int ConflictingLocalJobCount(IEnumerable<ManagerJob> localJobs) =>
+        localJobs.Count(job => !job.IsUnusedAutoCreatedJob);
+
+    /// <summary>
+    /// The unused auto-created <paramref name="localJobs"/> that a job of the same type among
+    /// <paramref name="gravshipJobs"/> replaces when the gravship's jobs are imported.
+    /// </summary>
+    internal static List<ManagerJob> AutoCreatedJobsReplacedBy(
+        IEnumerable<ManagerJob> localJobs,
+        IEnumerable<ManagerJob> gravshipJobs
+    ) =>
+        [
+            .. localJobs.Where(local =>
+                local.IsUnusedAutoCreatedJob
+                && gravshipJobs.Any(gravship => gravship.GetType() == local.GetType())
+            ),
+        ];
+
+    /// <summary>
     /// Pure decision behind the landing postfix: what to do with a landing gravship's manager
-    /// jobs given how many jobs already exist locally, how many the gravship carries, and the
+    /// jobs given how many conflicting jobs already exist locally, how many the gravship carries, and the
     /// configured conflict-resolution setting. Kept separate so it's unit-testable without a
     /// live <see cref="Manager"/>.
     /// </summary>

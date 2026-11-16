@@ -37,6 +37,62 @@ internal sealed class ManagerJobPowerSceneTests
     }
 
     [Test]
+    public static void AddAutoCreatedJobAddsAnUnusedAutoCreatedJob()
+    {
+        using var scene = new ManagerScene();
+
+        var job = ManagerTab_Power.AddAutoCreatedJob(
+            scene.Manager,
+            DefDatabase<ManagerDef>.GetNamed("CM_PowerManager"),
+            autoSuspendOnNonHomeMaps: false
+        );
+
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(job));
+        Expect.IsTrue(job.AutoCreated);
+        Expect.IsTrue(job.IsUnusedAutoCreatedJob);
+    }
+
+    [Test]
+    public static void AutoCreatedJobIsNoLongerUnusedOnceItHasRun()
+    {
+        using var scene = new ManagerScene();
+        var job = AddPowerJob(scene);
+        job.AutoCreated = true;
+
+        job.Touch();
+
+        Expect.IsFalse(job.IsUnusedAutoCreatedJob);
+    }
+
+    [Test]
+    public static void PowerJobThatWasNotAutoCreatedIsNotUnusedAutoCreated()
+    {
+        using var scene = new ManagerScene();
+        var job = AddPowerJob(scene);
+
+        Expect.IsFalse(job.IsUnusedAutoCreatedJob);
+    }
+
+    [Test]
+    public static void AutoCreatedSurvivesASaveRoundTrip()
+    {
+        using var scene = new ManagerScene();
+        var job = AddPowerJob(scene);
+        job.AutoCreated = true;
+        var xml = ScribeRoundTrip.Save(
+            new ScribeRoundTrip.ManagerHarness(
+                scene.Manager,
+                new ScribeRoundTrip.JobListHarness(scene.Manager, [job])
+            )
+        );
+
+        var loaded = new ScribeRoundTrip.JobListHarness(scene.Manager);
+        ScribeRoundTrip.Load(xml, new ScribeRoundTrip.ManagerHarness(scene.Manager, loaded));
+
+        Expect.IsTrue(((ManagerJob_Power)loaded.Jobs.Single()).AutoCreated);
+    }
+
+    [Test]
     public static void RefreshListsPicksUpTradersAndBatteriesByDef()
     {
         using var scene = new ManagerScene();

@@ -49,13 +49,7 @@ internal sealed class ManagerTab_Power(Manager manager)
                     ColonyManagerReduxMod.Instance.LogMessage(
                         "No power job found, creating a new one. This is expected if you just researched Power Management."
                     );
-                    job = Manager.NewJob<ManagerJob_Power>(Def);
-                    Manager.JobTracker.Add(job);
-                    job.IsManaged = true;
-                    job.IsSuspended = ShouldStartSuspended(
-                        ManagerSettings.AutoSuspendOnNonHomeMaps,
-                        MapIsActuallyPlayerHome(Manager.map)
-                    );
+                    job = AddAutoCreatedJob(Manager, Def, ManagerSettings.AutoSuspendOnNonHomeMaps);
                     Selected = job;
                 }
                 else
@@ -76,6 +70,27 @@ internal sealed class ManagerTab_Power(Manager manager)
     protected override bool CreateNewSelectedJobOnMake => false;
 
     public static bool ResearchedFinished => ManagerResearchProjectDefOf.PowerManagement.IsFinished;
+
+    /// <summary>
+    /// Creates the map's Power job, adds it to <paramref name="manager"/>'s tracker and marks it
+    /// as auto-created.
+    /// </summary>
+    internal static ManagerJob_Power AddAutoCreatedJob(
+        Manager manager,
+        ManagerDef def,
+        bool autoSuspendOnNonHomeMaps
+    )
+    {
+        var job = manager.NewJob<ManagerJob_Power>(def);
+        manager.JobTracker.Add(job);
+        job.IsManaged = true;
+        job.IsSuspended = ShouldStartSuspended(
+            autoSuspendOnNonHomeMaps,
+            MapIsActuallyPlayerHome(manager.map)
+        );
+        job.AutoCreated = true;
+        return job;
+    }
 
     /// <summary>
     /// Pure decision behind whether a newly auto-created Power job should start out suspended:

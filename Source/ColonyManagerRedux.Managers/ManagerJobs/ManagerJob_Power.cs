@@ -212,6 +212,20 @@ internal sealed class ManagerJob_Power
 
     public override bool IsTransferable => Manager.ScribeSameGameData;
 
+    private bool _autoCreated;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this job was created automatically by
+    /// <see cref="ManagerTab_Power.AddAutoCreatedJob"/>.
+    /// </summary>
+    internal bool AutoCreated
+    {
+        get => _autoCreated;
+        set => _autoCreated = value;
+    }
+
+    public override bool IsUnusedAutoCreatedJob => _autoCreated && !HasBeenUpdated;
+
     public ManagerJob_Power(Manager manager)
         : base(manager)
     {
@@ -534,6 +548,7 @@ internal sealed class ManagerJob_Power
         {
             Scribe_Collections.Look(ref _traderBuildings, "traders", LookMode.Reference);
             Scribe_Collections.Look(ref _batteryBuildings, "batteries", LookMode.Reference);
+            Scribe_Values.Look(ref _autoCreated, "autoCreated");
         }
         Scribe_Deep.Look(ref tradingHistory, "tradingHistory");
 

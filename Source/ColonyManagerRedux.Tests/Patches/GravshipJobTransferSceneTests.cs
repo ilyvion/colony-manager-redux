@@ -20,8 +20,13 @@ internal sealed class TestTransferJob(Manager manager) : TestManagerJob(manager)
     public bool ThrowOnPreImport { get; set; }
     public bool InTrackerDuringPreImport { get; private set; }
     public bool InTrackerDuringPostImport { get; private set; }
+    public int TrackerJobCountDuringPreImport { get; private set; }
+
+    public bool UnusedAutoCreated { get; set; }
 
     public override bool IsTransferable => !NonTransferable;
+
+    public override bool IsUnusedAutoCreatedJob => UnusedAutoCreated;
 
     public override void PreExport()
     {
@@ -47,6 +52,7 @@ internal sealed class TestTransferJob(Manager manager) : TestManagerJob(manager)
     {
         Calls.Add(nameof(PreImport));
         InTrackerDuringPreImport = Manager.JobTracker.HasJob(this);
+        TrackerJobCountDuringPreImport = Manager.JobTracker.Jobs.Count();
         if (ThrowOnPreImport)
         {
             throw new InvalidOperationException("PreImport failed on purpose");
@@ -375,6 +381,97 @@ internal sealed class GravshipJobTransferSceneTests
         Expect.AreEqual(1, scene.Manager.JobTracker.JobsOfType<ManagerJob_Power>().Count());
         Expect.IsTrue(scene.Manager.JobTracker.HasJob(imported));
         Expect.IsFalse(scene.Manager.JobTracker.HasJob(local));
+    }
+
+    [Test]
+    public static void UnusedAutoCreatedLocalJobsDoNotConflict()
+    {
+        using var scene = new ManagerScene();
+        var autoCreated = AddJob(scene);
+        autoCreated.UnusedAutoCreated = true;
+
+        Expect.AreEqual(
+            0,
+            Verse_WorldComponent_GravshipController_LandingEnded.ConflictingLocalJobCount([
+                autoCreated,
+            ])
+        );
+    }
+
+    [Test]
+    public static void OtherLocalJobsStillConflictNextToAnUnusedAutoCreatedOne()
+    {
+        using var scene = new ManagerScene();
+        var autoCreated = AddJob(scene);
+        autoCreated.UnusedAutoCreated = true;
+        var regular = AddJob(scene);
+
+        Expect.AreEqual(
+            1,
+            Verse_WorldComponent_GravshipController_LandingEnded.ConflictingLocalJobCount([
+                autoCreated,
+                regular,
+            ])
+        );
+    }
+
+    [Test]
+    public static void ImportReplacesAnUnusedAutoCreatedLocalJobOfTheSameType()
+    {
+        using var scene = new ManagerScene();
+        var autoCreated = AddJob(scene);
+        autoCreated.UnusedAutoCreated = true;
+        var gravship = NewJob(scene);
+
+        Apply(GravshipLandingAction.Import, scene, [autoCreated], [gravship]);
+
+        Expect.IsFalse(scene.Manager.JobTracker.HasJob(autoCreated));
+        Expect.AreEqual(1, autoCreated.CleanUpCount);
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(gravship));
+        Expect.AreEqual(
+            0,
+            gravship.TrackerJobCountDuringPreImport,
+            "The local job was still there when the gravship's job was imported."
+        );
+    }
+
+    [Test]
+    public static void ImportKeepsAnUnusedAutoCreatedLocalJobWithNoGravshipJobOfItsType()
+    {
+        using var scene = new ManagerScene();
+        var autoCreated = scene.AddJob<ManagerJob_Power>("CM_PowerManager");
+        autoCreated.AutoCreated = true;
+        var gravship = NewJob(scene);
+
+        Apply(GravshipLandingAction.Import, scene, [autoCreated], [gravship]);
+
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(autoCreated));
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(gravship));
+    }
+
+    [Test]
+    public static void ImportKeepsARegularLocalJobOfTheSameType()
+    {
+        using var scene = new ManagerScene();
+        var local = AddJob(scene);
+        var gravship = NewJob(scene);
+
+        Apply(GravshipLandingAction.Import, scene, [local], [gravship]);
+
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(local));
+        Expect.IsTrue(scene.Manager.JobTracker.HasJob(gravship));
+    }
+
+    [Test]
+    public static void ImportedPowerJobIsNotMarkedAutoCreated()
+    {
+        using var scene = new ManagerScene();
+        var autoCreated = scene.AddJob<ManagerJob_Power>("CM_PowerManager");
+        autoCreated.AutoCreated = true;
+
+        var loaded = ExportAndLoad(scene);
+
+        Expect.IsFalse(((ManagerJob_Power)loaded.Single()).AutoCreated);
     }
 
     // GRAV-6

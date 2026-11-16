@@ -202,6 +202,13 @@ public abstract class ManagerJob : ILoadReferenceable, IExposable
     public bool HasBeenUpdated => _lastActionTick != -1;
 
     /// <summary>
+    /// Gets a value indicating whether the mod created this job automatically and it hasn't run
+    /// yet. A landing gravship doesn't count such a job as a conflicting local job, and replaces
+    /// it when the gravship carries a job of the same type.
+    /// </summary>
+    public virtual bool IsUnusedAutoCreatedJob => false;
+
+    /// <summary>
     /// Gets a value indicating whether a force update has been requested (via <see cref="Untouch"/>)
     /// and is still awaiting the job actually being processed.
     /// </summary>

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- When a gravship lands on a map whose only manager job is the Power job the mod created there automatically, and that job hasn't run yet, you're no longer asked which jobs to keep. The gravship's jobs are imported, and its Power job, if it carries one, replaces the automatically created one.
+
 ## [0.24.1] - 2026-11-02
 
 ### Fixed
