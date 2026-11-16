@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.2] - 2026-11-16
+
 ### Changed
 
 - When a gravship lands on a map whose only manager job is the Power job the mod created there automatically, and that job hasn't run yet, you're no longer asked which jobs to keep. The gravship's jobs are imported, and its Power job, if it carries one, replaces the automatically created one.
@@ -786,7 +788,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Various caches used game-specific values that would persist between saves/loads and even different games that led to various odd/hard to understand bugs. These caches have been made to be per-game instance instead.
 - Properly handle areas that are in use being deleted by setting them to null/unrestricted.
 
-[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.24.1...HEAD
+[Unreleased]: https://github.com/ilyvion/colony-manager-redux/compare/v0.24.2...HEAD
+[0.24.2]: https://github.com/ilyvion/colony-manager-redux/compare/v0.24.1..v0.24.2
 [0.24.1]: https://github.com/ilyvion/colony-manager-redux/compare/v0.24.0..v0.24.1
 [0.24.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.23.0..v0.24.0
 [0.23.0]: https://github.com/ilyvion/colony-manager-redux/compare/v0.22.2..v0.23.0
